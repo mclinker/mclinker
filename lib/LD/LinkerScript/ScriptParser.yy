@@ -11,10 +11,11 @@
 /* C/C++ Declarations */
 #include <mcld/LD/LinkerScript/ScriptReader.h>
 #include <mcld/LD/LinkerScript/ScriptScanner.h>
+#include <mcld/LD/LinkerScript/Operand.h>
+#include <mcld/LD/LinkerScript/Operator.h>
+#include <mcld/LD/LinkerScript/Assignment.h>
 #include <mcld/Support/MsgHandling.h>
 #include <mcld/MC/MCLDInput.h>
-#include "location.hh"
-#include "position.hh"
 
 #undef yylex
 #define yylex pScriptScanner.lex
@@ -226,7 +227,9 @@ input_node : string
              { pScriptFile.setAsNeeded(false); }
            ;
 
-symbol_assignment : symbol '=' exp ';'
+symbol_assignment : symbol
+                    { pScriptFile.addAssignment(pLDScript, *$1); }
+                    '=' exp ';'
                   | symbol ADD_ASSIGN exp ';'
                   | symbol SUB_ASSIGN exp ';'
                   | symbol MUL_ASSIGN exp ';'
@@ -242,27 +245,49 @@ symbol_assignment : symbol '=' exp ';'
 
 exp : '(' exp ')'
     | '+' exp %prec UNARY_PLUS
+      { pScriptFile.addExprToken(&Operator::create<Operator::UNARY_PLUS>()); }
     | '-' exp %prec UNARY_MINUS
+      { pScriptFile.addExprToken(&Operator::create<Operator::UNARY_MINUS>()); }
     | '!' exp
+      { pScriptFile.addExprToken(&Operator::create<Operator::LOGICAL_NOT>()); }
     | '~' exp
-    | exp '+' exp
-    | exp '-' exp
+      { pScriptFile.addExprToken(&Operator::create<Operator::BITWISE_NOT>()); }
     | exp '*' exp
+      { pScriptFile.addExprToken(&Operator::create<Operator::MUL>()); }
     | exp '/' exp
+      { pScriptFile.addExprToken(&Operator::create<Operator::DIV>()); }
     | exp '%' exp
-    | exp EQ exp
-    | exp GE exp
-    | exp LE exp
-    | exp NE exp
-    | exp LOGICAL_AND exp
-    | exp LOGICAL_OR exp
-    | exp '<' exp
-    | exp '>' exp
-    | exp '&' exp
-    | exp '^' exp
-    | exp '|' exp
+      { pScriptFile.addExprToken(&Operator::create<Operator::MOD>()); }
+    | exp '+' exp
+      { pScriptFile.addExprToken(&Operator::create<Operator::ADD>()); }
+    | exp '-' exp
+      { pScriptFile.addExprToken(&Operator::create<Operator::SUB>()); }
     | exp LSHIFT exp
+      { pScriptFile.addExprToken(&Operator::create<Operator::LSHIFT>()); }
     | exp RSHIFT exp
+      { pScriptFile.addExprToken(&Operator::create<Operator::RSHIFT>()); }
+    | exp '<' exp
+      { pScriptFile.addExprToken(&Operator::create<Operator::LT>()); }
+    | exp LE exp
+      { pScriptFile.addExprToken(&Operator::create<Operator::LE>()); }
+    | exp '>' exp
+      { pScriptFile.addExprToken(&Operator::create<Operator::GT>()); }
+    | exp GE exp
+      { pScriptFile.addExprToken(&Operator::create<Operator::GE>()); }
+    | exp EQ exp
+      { pScriptFile.addExprToken(&Operator::create<Operator::EQ>()); }
+    | exp NE exp
+      { pScriptFile.addExprToken(&Operator::create<Operator::NE>()); }
+    | exp '&' exp
+      { pScriptFile.addExprToken(&Operator::create<Operator::BITWISE_AND>()); }
+    | exp '^' exp
+      { pScriptFile.addExprToken(&Operator::create<Operator::BITWISE_XOR>()); }
+    | exp '|' exp
+      { pScriptFile.addExprToken(&Operator::create<Operator::BITWISE_OR>()); }
+    | exp LOGICAL_AND exp
+      { pScriptFile.addExprToken(&Operator::create<Operator::LOGICAL_AND>()); }
+    | exp LOGICAL_OR exp
+      { pScriptFile.addExprToken(&Operator::create<Operator::LOGICAL_OR>()); }
     | exp '?' exp ':' exp
     | ABSOLUTE '(' exp ')'
     | ADDR '(' string ')'
@@ -286,7 +311,9 @@ exp : '(' exp ')'
     | CONSTANT '(' MAXPAGESIZE ')'
     | CONSTANT '(' COMMONPAGESIZE')'
     | INTEGER
+      { pScriptFile.addExprToken(Operand::create($1)); }
     | symbol
+      { pScriptFile.addExprToken(Operand::create(Operand::SYMBOL, *$1)); }
     ;
 
 symbol : STRING

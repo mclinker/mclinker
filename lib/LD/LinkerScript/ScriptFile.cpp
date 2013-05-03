@@ -14,13 +14,16 @@
 #include <mcld/LD/LinkerScript/GroupCmd.h>
 #include <mcld/LD/LinkerScript/SearchDirCmd.h>
 #include <mcld/LD/LinkerScript/OutputArchCmd.h>
+#include <mcld/LD/LinkerScript/RpnExpr.h>
+#include <mcld/LD/LinkerScript/Operand.h>
 #include <mcld/MC/MCLDInput.h>
 #include <mcld/MC/InputBuilder.h>
+#include <mcld/Support/MemoryArea.h>
 #include <mcld/InputTree.h>
-#include <llvm/Support/Casting.h>
 #include <mcld/ADT/HashEntry.h>
 #include <mcld/ADT/HashTable.h>
 #include <mcld/ADT/StringHash.h>
+#include <llvm/Support/Casting.h>
 #include <llvm/Support/ManagedStatic.h>
 #include <cassert>
 
@@ -129,6 +132,31 @@ void ScriptFile::addSearchDirCmd(const std::string& pPath,
 void ScriptFile::addOutputArchCmd(const std::string& pArch)
 {
   m_CommandQueue.push_back(new OutputArchCmd(pArch));
+}
+
+void ScriptFile::addAssignment(LinkerScript& pLDScript,
+                               const std::string& pSymbolName,
+                               Assignment::Type pType)
+{
+  m_CommandQueue.push_back(
+    new Assignment(pLDScript, pType,
+                   *(Operand::create(Operand::SYMBOL, pSymbolName)),
+                   *(RpnExpr::create())));
+}
+
+void ScriptFile::addExprToken(ExprToken* pToken)
+{
+  ScriptCommand* cmd = back();
+  switch (cmd->getKind()) {
+  case ScriptCommand::Assignment: {
+    Assignment* assignment = llvm::cast<Assignment>(cmd);
+    assignment->getRpnExpr().append(pToken);
+    break;
+  }
+  default:
+    assert(0 && "Invalid command to add expression token.\n");
+    break;
+  }
 }
 
 const std::string& ScriptFile::createParserStr(const char* pText,

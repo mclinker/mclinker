@@ -13,6 +13,7 @@
 #endif
 
 #include <mcld/LD/LinkerScript/ScriptInput.h>
+#include <mcld/LD/LinkerScript/Assignment.h>
 #include <vector>
 #include <string>
 
@@ -26,6 +27,7 @@ class InputBuilder;
 class GroupReader;
 class LinkerConfig;
 class LinkerScript;
+class ExprToken;
 
 /** \class ScriptFile
  *  \brief This class defines the interfaces to a linker script file.
@@ -39,7 +41,7 @@ public:
     Expression,    // --defsym
     VersionScript, // --version-script
     DynamicList,   // --dynamic-list
-    Unknown,
+    Unknown
   };
 
   typedef std::vector<ScriptCommand*> CommandQueue;
@@ -101,6 +103,13 @@ public:
 
   /// OUTPUT_ARCH(bfdarch)
   void addOutputArchCmd(const std::string& pArch);
+
+  /// assignment
+  void addAssignment(LinkerScript& pLDScript,
+                     const std::string& pSymbol,
+                     Assignment::Type pType = Assignment::DEFAULT);
+  void addExprToken(ExprToken* pToken);
+
 
   static const std::string& createParserStr(const char* pText, size_t pLength);
 

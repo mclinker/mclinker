@@ -394,6 +394,13 @@ LINKERSCRIPT_HEADER = \
 	${INCDIR}/LD/LinkerScript/GroupCmd.h \
 	${INCDIR}/LD/LinkerScript/SearchDirCmd.h \
 	${INCDIR}/LD/LinkerScript/OutputArchCmd.h \
+	${INCDIR}/LD/LinkerScript/Assignment.h \
+	${INCDIR}/LD/LinkerScript/ExprToken.h \
+	${INCDIR}/LD/LinkerScript/Operator.h \
+	${INCDIR}/LD/LinkerScript/UnaryOp.h \
+	${INCDIR}/LD/LinkerScript/BinaryOp.h \
+	${INCDIR}/LD/LinkerScript/Operand.h \
+	${INCDIR}/LD/LinkerScript/RpnExpr.h \
 	${INCDIR}/LD/LinkerScript/ScriptFile.h \
 	${INCDIR}/LD/LinkerScript/ScriptScanner.h \
 	${INCDIR}/LD/LinkerScript/ScriptReader.h
@@ -405,6 +412,12 @@ LINKERSCRIPT_SOURCE = \
 	${LIBDIR}/LD/LinkerScript/GroupCmd.cpp \
 	${LIBDIR}/LD/LinkerScript/SearchDirCmd.cpp \
 	${LIBDIR}/LD/LinkerScript/OutputArchCmd.cpp \
+	${LIBDIR}/LD/LinkerScript/Assignment.cpp \
+	${LIBDIR}/LD/LinkerScript/Operator.cpp \
+	${LIBDIR}/LD/LinkerScript/UnaryOp.cpp \
+	${LIBDIR}/LD/LinkerScript/BinaryOp.cpp \
+	${LIBDIR}/LD/LinkerScript/Operand.cpp \
+	${LIBDIR}/LD/LinkerScript/RpnExpr.cpp \
 	${LIBDIR}/LD/LinkerScript/ScriptFile.cpp \
 	${LIBDIR}/LD/LinkerScript/ScriptParser.yy \
 	${LIBDIR}/LD/LinkerScript/ScriptScanner.ll \
