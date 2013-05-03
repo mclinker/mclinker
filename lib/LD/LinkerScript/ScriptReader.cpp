@@ -15,8 +15,10 @@
 #include <mcld/LD/GroupReader.h>
 #include <mcld/LinkerConfig.h>
 #include <mcld/LinkerScript.h>
+#include <mcld/Support/FileHandle.h>
+#include <mcld/Support/MemoryArea.h>
+#include <mcld/Support/MemoryRegion.h>
 
-#include <fstream>
 #include <sstream>
 
 using namespace mcld;
@@ -38,16 +40,26 @@ bool ScriptReader::isMyFormat(Input& input) const
 }
 
 bool ScriptReader::readScript(const LinkerConfig& pConfig,
-                              LinkerScript& pScript,
+                              LinkerScript& pLDScript,
                               ScriptFile& pScriptFile)
 {
-  std::ifstream in(pScriptFile.script().path().native().c_str());
-  if (!in.good())
-    return false;
+  bool result = false;
+  std::stringbuf buf;
+
+  Input& input = pScriptFile.script();
+  size_t size = input.memArea()->size();
+  MemoryRegion* region = input.memArea()->request(input.fileOffset(), size);
+  char* str = reinterpret_cast<char*>(region->getBuffer());
+
+  buf.pubsetbuf(str, size);
+  std::istream in(&buf);
 
   ScriptScanner scanner(&in);
-  ScriptParser parser(pConfig, pScript, pScriptFile, scanner, *this);
+  ScriptParser parser(pConfig, pLDScript, pScriptFile, scanner, *this);
 
-  return (parser.parse() == 0);
+  result = (parser.parse() == 0);
+
+  input.memArea()->release(region);
+  return result;
 }
 
