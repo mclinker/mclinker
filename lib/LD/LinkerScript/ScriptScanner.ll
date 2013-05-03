@@ -56,8 +56,8 @@ WS [ \t\r]
     m_Kind = pScriptFile.getKind();
     switch (pScriptFile.getKind()) {
     case ScriptFile::LDScript:
-      return token::LINKER_SCRIPT;
     case ScriptFile::Expression:
+      return token::LINKER_SCRIPT;
     case ScriptFile::VersionScript:
     case ScriptFile::DynamicList:
     default:

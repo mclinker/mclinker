@@ -102,6 +102,15 @@ bool ObjectLinker::initFragmentLinker()
 
   // initialize Relocator
   m_LDBackend.initRelocator();
+
+  // TODO: process the default linker script from -T option.
+  // process --defsym option
+  ScriptFile defsym(ScriptFile::Expression, "--defsym",
+                    m_pModule->getScript().defSyms().data(),
+                    m_pBuilder->getInputBuilder());
+  if (getScriptReader()->readScript(m_Config, m_pModule->getScript(), defsym))
+    defsym.activate();
+
   return true;
 }
 

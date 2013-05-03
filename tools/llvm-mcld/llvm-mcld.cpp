@@ -1243,7 +1243,7 @@ static bool ProcessLinkerOptionsFromCommand(mcld::LinkerScript& pScript,
   }
   // --section-start SECTION=ADDRESS
   for (cl::list<std::string>::iterator
-         it = ArgAddressMapList.begin(), ie = ArgAddressMapList.end();
+       it = ArgAddressMapList.begin(), ie = ArgAddressMapList.end();
        it != ie; ++it) {
     // FIXME: Add a cl::parser
     size_t pos = (*it).find_last_of('=');
@@ -1260,23 +1260,7 @@ static bool ProcessLinkerOptionsFromCommand(mcld::LinkerScript& pScript,
   for (cl::list<std::string>::iterator
        it = ArgDefSymList.begin(), ie = ArgDefSymList.end();
        it != ie ; ++it) {
-    llvm::StringRef expression(*it);
-    size_t pos = expression.find_last_of('=');
-    if (pos == expression.size() - 1) {
-      errs() << "defsym option: expression must not end with '='\n";
-      return false;
-    }
-    if (llvm::StringRef::npos == pos) {
-      errs() << "syntax : --defsym symbol=expression\n";
-      return false;
-    }
-    bool exist = false;
-    // FIXME: This will not work with multiple destinations such as
-    // --defsym abc=pqr=expression
-
-    mcld::StringEntry<llvm::StringRef> *defsyms =
-                    pScript.defSymMap().insert(expression.substr(0,pos),exist);
-    defsyms->setValue(expression.substr(pos + 1));
+    pScript.defSyms().append(*it);
   }
 
   // set up filter/aux filter for shared object
