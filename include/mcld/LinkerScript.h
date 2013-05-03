@@ -12,12 +12,14 @@
 #include <gtest.h>
 #endif
 #include <string>
+#include <vector>
 #include <llvm/ADT/StringRef.h>
 #include <mcld/ADT/StringEntry.h>
 #include <mcld/ADT/StringHash.h>
 #include <mcld/ADT/HashTable.h>
 #include <mcld/Object/SectionMap.h>
 #include <mcld/MC/SearchDirs.h>
+#include <mcld/LD/LinkerScript/Assignment.h>
 
 namespace mcld {
 
@@ -38,6 +40,8 @@ public:
   typedef HashTable<StringEntry<llvm::StringRef>,
                     hash::StringHash<hash::ELF>,
                     StringEntryFactory<llvm::StringRef> > DefSymMap;
+
+  typedef std::vector<Assignment> Assignments;
 
   class DefSyms {
   public:
@@ -69,6 +73,9 @@ public:
   const DefSymMap& defSymMap() const { return m_DefSymMap; }
   DefSymMap&       defSymMap()       { return m_DefSymMap; }
 
+  const Assignments& assignments() const { return m_Assignments; }
+  Assignments&       assignments()       { return m_Assignments; }
+
   // --defsym
   const DefSyms& defSyms() const { return m_DefSyms; }
   DefSyms&       defSyms()       { return m_DefSyms; }
@@ -99,6 +106,7 @@ private:
   AddressMap m_AddressMap;
   SectionMap m_SectionMap;
   DefSymMap m_DefSymMap;
+  Assignments m_Assignments;
   DefSyms m_DefSyms;
   SearchDirs m_SearchDirs;
   std::string m_Entry;
