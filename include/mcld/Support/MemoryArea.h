@@ -80,6 +80,8 @@ public:
 
   bool hasHandler() const { return (NULL != m_pFileHandle); }
 
+  size_t size() const { return m_Size; }
+
   // -----  space list methods  ----- //
   Space* find(size_t pOffset, size_t pLength);
 
@@ -115,6 +117,7 @@ private:
 private:
   SpaceMapType m_SpaceMap;
   FileHandle* m_pFileHandle;
+  size_t m_Size;
 };
 
 } // namespace of mcld

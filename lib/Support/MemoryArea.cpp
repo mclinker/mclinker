@@ -21,13 +21,13 @@ using namespace mcld;
 // This constructor is used for *SPECIAL* situation. I'm sorry I can not
 // reveal what is the special situation.
 MemoryArea::MemoryArea(Space& pUniverse)
-  : m_pFileHandle(NULL) {
+  : m_pFileHandle(NULL), m_Size(pUniverse.size()) {
   m_SpaceMap.insert(std::make_pair(Key(pUniverse.start(), pUniverse.size()),
                                    &pUniverse));
 }
 
 MemoryArea::MemoryArea(FileHandle& pFileHandle)
-  : m_pFileHandle(&pFileHandle) {
+  : m_pFileHandle(&pFileHandle), m_Size(pFileHandle.size()) {
 }
 
 MemoryArea::~MemoryArea()
