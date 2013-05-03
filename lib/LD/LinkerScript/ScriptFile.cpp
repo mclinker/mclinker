@@ -41,14 +41,30 @@ static llvm::ManagedStatic<ParserStrPool> g_ParserStrPool;
 // ScriptFile
 //===----------------------------------------------------------------------===//
 ScriptFile::ScriptFile(Kind pKind, Input& pInput, InputBuilder& pBuilder)
-  : m_Kind(pKind),
-    m_Name(pInput.path().native()),
-    m_Script(pInput),
+  : m_Type(InputData),
+    m_Kind(pKind),
+    m_Name(pInput.name()),
     m_pInputTree(NULL),
     m_Builder(pBuilder)
 {
-  // FIXME: move creation of input tree out of Archive.
+  m_Data.input = &pInput;
+  if (pInput.hasMemArea() && pInput.memArea()->hasHandler())
+    m_Name.assign(pInput.path().native());
+  // FIXME: move creation of input tree out of ScriptFile.
   m_pInputTree = new InputTree();
+}
+
+ScriptFile::ScriptFile(Kind pKind,
+                       const std::string& pName,
+                       std::string& pData,
+                       InputBuilder& pBuilder)
+  : m_Type(StringData),
+    m_Kind(pKind),
+    m_Name(pName),
+    m_pInputTree(NULL),
+    m_Builder(pBuilder)
+{
+  m_Data.str = &pData;
 }
 
 ScriptFile::~ScriptFile()

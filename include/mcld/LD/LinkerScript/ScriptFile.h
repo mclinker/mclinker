@@ -36,6 +36,11 @@ class ExprToken;
 class ScriptFile
 {
 public:
+  enum Type {
+    InputData,
+    StringData
+  };
+
   enum Kind {
     LDScript,      // -T
     Expression,    // --defsym
@@ -52,6 +57,10 @@ public:
 
 public:
   ScriptFile(Kind pKind, Input& pInput, InputBuilder& pBuilder);
+  ScriptFile(Kind pKind,
+             const std::string& pName,
+             std::string& pData,
+             InputBuilder& pBuilder);
   ~ScriptFile();
 
   const_iterator   begin()  const { return m_CommandQueue.begin(); }
@@ -64,10 +73,15 @@ public:
   const_reference  back()   const { return m_CommandQueue.back(); }
   reference        back()         { return m_CommandQueue.back(); }
 
+  Type getType() const { return m_Type; }
+
   Kind getKind() const { return m_Kind; }
 
-  const Input&     script() const { return m_Script; }
-  Input&           script()       { return m_Script; }
+  const Input* inputData() const { return m_Data.input; }
+  Input*       inputData()       { return m_Data.input; }
+
+  const std::string* strData() const { return m_Data.str; }
+  std::string*       strData()       { return m_Data.str; }
 
   const InputTree& inputs() const { return *m_pInputTree; }
   InputTree&       inputs()       { return *m_pInputTree; }
@@ -116,9 +130,17 @@ public:
   static void clearParserStrPool();
 
 private:
+  union ScriptData
+  {
+    Input* input;
+    std::string* str;
+  };
+
+private:
+  Type m_Type;
   Kind m_Kind;
   std::string m_Name;
-  Input& m_Script;
+  ScriptData m_Data;
   InputTree* m_pInputTree;
   InputBuilder& m_Builder;
   CommandQueue m_CommandQueue;

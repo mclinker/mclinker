@@ -19,7 +19,9 @@
 #include <mcld/Support/MemoryArea.h>
 #include <mcld/Support/MemoryRegion.h>
 
-#include <sstream>
+#include <istream>
+#include <string>
+#include <cassert>
 
 using namespace mcld;
 
@@ -44,22 +46,30 @@ bool ScriptReader::readScript(const LinkerConfig& pConfig,
                               ScriptFile& pScriptFile)
 {
   bool result = false;
+  Input* input = NULL;
+  MemoryRegion* region = NULL;
   std::stringbuf buf;
 
-  Input& input = pScriptFile.script();
-  size_t size = input.memArea()->size();
-  MemoryRegion* region = input.memArea()->request(input.fileOffset(), size);
-  char* str = reinterpret_cast<char*>(region->getBuffer());
+  if (pScriptFile.getType() == ScriptFile::InputData) {
+    input = pScriptFile.inputData();
+    size_t size = input->memArea()->size();
+    region = input->memArea()->request(input->fileOffset(), size);
+    char* str = reinterpret_cast<char*>(region->getBuffer());
+    buf.pubsetbuf(str, size);
+  } else {
+    // ScriptFile is from a string data
+    buf.str(*(pScriptFile.strData()));
+  }
 
-  buf.pubsetbuf(str, size);
   std::istream in(&buf);
-
   ScriptScanner scanner(&in);
   ScriptParser parser(pConfig, pLDScript, pScriptFile, scanner, *this);
 
   result = (parser.parse() == 0);
 
-  input.memArea()->release(region);
+  if (pScriptFile.getType() == ScriptFile::InputData)
+    input->memArea()->release(region);
+
   return result;
 }
 
