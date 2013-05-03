@@ -451,6 +451,7 @@ LINKERSCRIPT_HEADER = \
 	${INCDIR}/LD/LinkerScript/BinaryOp.h \
 	${INCDIR}/LD/LinkerScript/Operand.h \
 	${INCDIR}/LD/LinkerScript/RpnExpr.h \
+	${INCDIR}/LD/LinkerScript/RpnEvaluator.h \
 	${INCDIR}/LD/LinkerScript/ScriptFile.h \
 	${INCDIR}/LD/LinkerScript/ScriptScanner.h \
 	${INCDIR}/LD/LinkerScript/ScriptReader.h
@@ -468,6 +469,7 @@ LINKERSCRIPT_SOURCE = \
 	${LIBDIR}/LD/LinkerScript/BinaryOp.cpp \
 	${LIBDIR}/LD/LinkerScript/Operand.cpp \
 	${LIBDIR}/LD/LinkerScript/RpnExpr.cpp \
+	${LIBDIR}/LD/LinkerScript/RpnEvaluator.cpp \
 	${LIBDIR}/LD/LinkerScript/ScriptFile.cpp \
 	${LIBDIR}/LD/LinkerScript/ScriptParser.yy \
 	${LIBDIR}/LD/LinkerScript/ScriptScanner.ll \
