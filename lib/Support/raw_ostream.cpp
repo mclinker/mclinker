@@ -17,7 +17,7 @@
 #include <io.h>
 #endif
 
-#if defined(_MSC_VER)
+#if defined(_MSC_VER) || defined(__MINGW32__)
 #include <io.h>
 #ifndef STDIN_FILENO
 # define STDIN_FILENO 0

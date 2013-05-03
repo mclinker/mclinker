@@ -37,21 +37,27 @@
 #include <mcld/LD/StubFactory.h>
 #include <mcld/Object/ObjectBuilder.h>
 
-using namespace mcld;
+namespace {
 
 //===--------------------------------------------------------------------===//
 // non-member functions
 //===----------------------------------------------------------------------===//
+static const std::string simple_c_identifier_allowed_chars =
+  "0123456789"
+  "ABCDEFGHIJKLMNOPWRSTUVWXYZ"
+  "abcdefghijklmnopqrstuvwxyz"
+  "_";
 
 /// isCIdentifier - return if the pName is a valid C identifier
 static bool isCIdentifier(const std::string& pName)
 {
-  std::string ident = "0123456789"
-                      "ABCDEFGHIJKLMNOPWRSTUVWXYZ"
-                      "abcdefghijklmnopqrstuvwxyz"
-                      "_";
-  return (pName.find_first_not_of(ident) > pName.length());
+  return (pName.find_first_not_of(simple_c_identifier_allowed_chars)
+              == std::string::npos);
 }
+
+} // anonymous namespace
+
+using namespace mcld;
 
 //===----------------------------------------------------------------------===//
 // GNULDBackend
@@ -222,7 +228,7 @@ bool GNULDBackend::initStandardSymbols(IRBuilder& pBuilder,
     } // end of switch
 
     if (isCIdentifier(section->name())) {
-      llvm::StringRef start_name = llvm::StringRef("__start_" + section->name());
+      std::string start_name = "__start_" + section->name();
       FragmentRef* start_fragref = FragmentRef::Create(
                                        section->getSectionData()->front(), 0x0);
       pBuilder.AddSymbol<IRBuilder::AsReferred, IRBuilder::Resolve>(
@@ -235,7 +241,7 @@ bool GNULDBackend::initStandardSymbols(IRBuilder& pBuilder,
                                                     start_fragref, // FragRef
                                                     ResolveInfo::Default);
 
-      llvm::StringRef stop_name = llvm::StringRef("__stop_" + section->name());
+      std::string stop_name = "__stop_" + section->name();
       FragmentRef* stop_fragref = FragmentRef::Create(
                            section->getSectionData()->front(), section->size());
       pBuilder.AddSymbol<IRBuilder::AsReferred, IRBuilder::Resolve>(

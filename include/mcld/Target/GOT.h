@@ -67,6 +67,7 @@ public:
 
   // ----- observers -----//
   uint64_t addr() const { return m_Section.addr(); }
+  uint32_t size() const { return m_Section.size(); }
 
   const_iterator begin() const { return m_SectionData->begin(); }
   iterator       begin()       { return m_SectionData->begin(); }

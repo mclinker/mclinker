@@ -48,6 +48,19 @@
 # include <unistd.h>
 #endif
 
+#if defined(_MSC_VER) || defined(__MINGW32__)
+#include <io.h>
+#ifndef STDIN_FILENO
+# define STDIN_FILENO 0
+#endif
+#ifndef STDOUT_FILENO
+# define STDOUT_FILENO 1
+#endif
+#ifndef STDERR_FILENO
+# define STDERR_FILENO 2
+#endif
+#endif
+
 using namespace llvm;
 
 #ifdef ENABLE_UNITTEST
@@ -643,6 +656,21 @@ static cl::alias
 ArgAuxiliaryAlias("auxiliary",
                   cl::desc("alias for -f"),
                   cl::aliasopt(ArgAuxiliary));
+
+static cl::opt<bool>
+ArgUseGold("use-gold",
+          cl::desc("GCC/collect2 compatibility: uses ld.gold.  Ignored"),
+          cl::init(false));
+
+static cl::opt<bool>
+ArgUseMCLD("use-mcld",
+          cl::desc("GCC/collect2 compatibility: uses ld.mcld.  Ignored"),
+          cl::init(false));
+
+static cl::opt<bool>
+ArgUseLD("use-ld",
+          cl::desc("GCC/collect2 compatibility: uses ld.bfd.  Ignored"),
+          cl::init(false));
 
 static cl::opt<bool>
 ArgEB("EB",

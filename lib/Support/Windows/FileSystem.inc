@@ -10,7 +10,8 @@
 #include <io.h>
 #include <fcntl.h>
 #include <cstdlib>
-#include <Windows.h>
+#include <windows.h>
+#include <sys/stat.h>
 #include <limits.h>
 #include <mcld/Support/FileHandle.h>
 #include <mcld/Support/Directory.h>

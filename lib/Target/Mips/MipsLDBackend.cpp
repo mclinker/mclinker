@@ -364,6 +364,11 @@ bool MipsGNULDBackend::allocateCommonSymbols(Module& pModule)
 
 void MipsGNULDBackend::defineGOTSymbol(IRBuilder& pBuilder)
 {
+  // If we do not reserve any GOT entries, we do not need to re-define GOT
+  // symbol.
+  if (!m_pGOT->hasGOT1())
+    return;
+
   // define symbol _GLOBAL_OFFSET_TABLE_
   if ( m_pGOTSymbol != NULL ) {
     pBuilder.AddSymbol<IRBuilder::Force, IRBuilder::Unresolve>(
