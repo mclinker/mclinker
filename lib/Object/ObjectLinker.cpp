@@ -365,40 +365,62 @@ bool ObjectLinker::addTargetSymbols()
 /// scripts.
 bool ObjectLinker::addScriptSymbols()
 {
-  const LinkerScript& script = m_pModule->getScript();
-  LinkerScript::Assignments::const_iterator it;
-  LinkerScript::Assignments::const_iterator ie = script.assignments().end();
+  LinkerScript& script = m_pModule->getScript();
+  LinkerScript::Assignments::iterator it, ie = script.assignments().end();
   // go through the entire symbol assignments
   for (it = script.assignments().begin(); it != ie; ++it) {
-    const llvm::StringRef sym =  (*it).symbol().strVal();
-    ResolveInfo* old_info = m_pModule->getNamePool().findInfo(sym);
+    LDSymbol* symbol = NULL;
+    const llvm::StringRef symName =  (*it).second.symbol().strVal();
+    ResolveInfo::Type       type = ResolveInfo::NoType;
+    ResolveInfo::Visibility vis  = ResolveInfo::Default;
+    size_t size = 0;
+    ResolveInfo* old_info = m_pModule->getNamePool().findInfo(symName);
     // if the symbol does not exist, we can set type to NOTYPE
     // else we retain its type, same goes for size - 0 or retain old value
     // and visibility - Default or retain
     if (old_info != NULL) {
-      if(!m_pBuilder->AddSymbol<IRBuilder::Force, IRBuilder::Unresolve>(
-                             sym,
-                             static_cast<ResolveInfo::Type>(old_info->type()),
-                             ResolveInfo::Define,
-                             ResolveInfo::Absolute,
-                             old_info->size(),
-                             0x0,
-                             FragmentRef::Null(),
-                             old_info->visibility()))
-        return false;
+      type = static_cast<ResolveInfo::Type>(old_info->type());
+      vis = old_info->visibility();
+      size = old_info->size();
     }
-    else {
-      if (!m_pBuilder->AddSymbol<IRBuilder::Force, IRBuilder::Unresolve>(
-                             sym,
-                             ResolveInfo::NoType,
-                             ResolveInfo::Define,
-                             ResolveInfo::Absolute,
-                             0x0,
-                             0x0,
-                             FragmentRef::Null(),
-                             ResolveInfo::Default))
-        return false;
+
+    // Add symbol and refine the visibility if needed
+    // FIXME: bfd linker would change the binding instead, but currently
+    //        ABS is also a kind of Binding in ResolveInfo.
+    switch ((*it).second.type()) {
+    case Assignment::HIDDEN:
+      vis = ResolveInfo::Hidden;
+      // Fall through
+    case Assignment::DEFAULT:
+      symbol =
+        m_pBuilder->AddSymbol<IRBuilder::Force,
+                              IRBuilder::Unresolve>(symName,
+                                                    type,
+                                                    ResolveInfo::Define,
+                                                    ResolveInfo::Absolute,
+                                                    size,
+                                                    0x0,
+                                                    FragmentRef::Null(),
+                                                    vis);
+      break;
+    case Assignment::PROVIDE_HIDDEN:
+      vis = ResolveInfo::Hidden;
+      // Fall through
+    case Assignment::PROVIDE:
+      symbol =
+        m_pBuilder->AddSymbol<IRBuilder::AsReferred,
+                              IRBuilder::Unresolve>(symName,
+                                                    type,
+                                                    ResolveInfo::Define,
+                                                    ResolveInfo::Absolute,
+                                                    size,
+                                                    0x0,
+                                                    FragmentRef::Null(),
+                                                    vis);
+      break;
     }
+    // Set symbol of this assignment.
+    (*it).first = symbol;
   }
   return true;
 }
@@ -526,14 +548,13 @@ bool ObjectLinker::finalizeSymbolValue()
 
   RpnEvaluator evaluator(*m_pModule);
   for (it = script.assignments().begin(); it != ie; ++it) {
-    llvm::StringRef symName =  (*it).symbol().strVal();
+    if ((*it).first == NULL)
+      continue;
 
-    LDSymbol* symbol = m_pModule->getNamePool().findSymbol(symName);
-    assert(NULL != symbol && "--defsym symbol should be in the name pool");
-    scriptSymsAdded &= evaluator.eval((*it).getRpnExpr(), symVal);
+    scriptSymsAdded &= evaluator.eval((*it).second.getRpnExpr(), symVal);
     if (!scriptSymsAdded)
       break;
-    symbol->setValue(symVal);
+    (*it).first->setValue(symVal);
   }
   return finalized && scriptSymsAdded ;
 }

@@ -23,6 +23,8 @@
 
 namespace mcld {
 
+class LDSymbol;
+
 /** \class LinkerScript
  *
  */
@@ -37,7 +39,7 @@ public:
                     hash::StringHash<hash::ELF>,
                     StringEntryFactory<uint64_t> > AddressMap;
 
-  typedef std::vector<Assignment> Assignments;
+  typedef std::vector<std::pair<LDSymbol*, Assignment> > Assignments;
 
   class DefSyms {
   public:

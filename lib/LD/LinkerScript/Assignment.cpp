@@ -72,9 +72,11 @@ void Assignment::dump() const
 void Assignment::activate()
 {
   switch (m_Symbol.type()) {
-  case Operand::SYMBOL:
-    m_Script.assignments().push_back(*this);
+  case Operand::SYMBOL: {
+    LDSymbol* sym = NULL;
+    m_Script.assignments().push_back(std::make_pair(sym, *this));
     break;
+  }
   case Operand::DOT:
     // TODO
     break;

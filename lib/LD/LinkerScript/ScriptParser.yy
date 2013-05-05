@@ -238,9 +238,24 @@ symbol_assignment : symbol
                   | symbol OR_ASSIGN exp ';'
                   | symbol LS_ASSIGN exp ';'
                   | symbol RS_ASSIGN exp ';'
-                  | HIDDEN '(' symbol '=' exp ')' ';'
-                  | PROVIDE '(' symbol '=' exp ')' ';'
-                  | PROVIDE_HIDDEN '(' symbol '=' exp ')' ';'
+                  | HIDDEN '(' symbol
+                    {
+                      pScriptFile.addAssignment(pLDScript, *$3,
+                                                Assignment::HIDDEN);
+                    }
+                    '=' exp ')' ';'
+                  | PROVIDE '(' symbol
+                    {
+                      pScriptFile.addAssignment(pLDScript, *$3,
+                                                Assignment::PROVIDE);
+                    }
+                    '=' exp ')' ';'
+                  | PROVIDE_HIDDEN '(' symbol
+                    {
+                      pScriptFile.addAssignment(pLDScript, *$3,
+                                                Assignment::PROVIDE_HIDDEN);
+                    }
+                    '=' exp ')' ';'
                   ;
 
 exp : '(' exp ')'
