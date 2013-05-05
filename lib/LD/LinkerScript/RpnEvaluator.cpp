@@ -50,6 +50,19 @@ bool RpnEvaluator::eval(const RpnExpr& pExpr, uint64_t& pSymVal)
         operandStack.push(op->eval());
         break;
       }
+      case Operator::Ternary: {
+        uint64_t opd3 = operandStack.top();
+        operandStack.pop();
+        uint64_t opd2 = operandStack.top();
+        operandStack.pop();
+        uint64_t opd1 = operandStack.top();
+        operandStack.pop();
+        op->appendOperand(opd1);
+        op->appendOperand(opd2);
+        op->appendOperand(opd3);
+        operandStack.push(op->eval());
+        break;
+      }
       default:
         assert(0 && "Unsupport operator!");
         break;

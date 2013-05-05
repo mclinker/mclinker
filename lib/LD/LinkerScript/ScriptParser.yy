@@ -304,6 +304,7 @@ exp : '(' exp ')'
     | exp LOGICAL_OR exp
       { pScriptFile.addExprToken(&Operator::create<Operator::LOGICAL_OR>()); }
     | exp '?' exp ':' exp
+      { pScriptFile.addExprToken(&Operator::create<Operator::TERNARY_IF>()); }
     | ABSOLUTE '(' exp ')'
     | ADDR '(' string ')'
     | ALIGN '(' exp ')'

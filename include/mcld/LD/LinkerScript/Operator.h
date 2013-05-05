@@ -58,15 +58,16 @@ public:
     BITWISE_OR  = 19,
     LOGICAL_AND = 20,
     LOGICAL_OR  = 21,
-    ASSIGN      = 22,
-    ADD_ASSIGN  = 23,
-    SUB_ASSIGN  = 24,
-    MUL_ASSIGN  = 25,
-    DIV_ASSIGN  = 26,
-    AND_ASSIGN  = 27,
-    OR_ASSIGN   = 28,
-    LS_ASSIGN   = 29,
-    RS_ASSIGN   = 30
+    TERNARY_IF  = 22,
+    ASSIGN      = 23,
+    ADD_ASSIGN  = 24,
+    SUB_ASSIGN  = 25,
+    MUL_ASSIGN  = 26,
+    DIV_ASSIGN  = 27,
+    AND_ASSIGN  = 28,
+    OR_ASSIGN   = 29,
+    LS_ASSIGN   = 30,
+    RS_ASSIGN   = 31
   };
 
   static const char* OpNames[];
@@ -103,6 +104,7 @@ private:
   Type m_Type;
 };
 
+/* Unary operator */
 template<>
 Operator& Operator::create<Operator::UNARY_PLUS>();
 template<>
@@ -111,6 +113,8 @@ template<>
 Operator& Operator::create<Operator::LOGICAL_NOT>();
 template<>
 Operator& Operator::create<Operator::BITWISE_NOT>();
+
+/* Binary operator */
 template<>
 Operator& Operator::create<Operator::MUL>();
 template<>
@@ -165,6 +169,10 @@ template<>
 Operator& Operator::create<Operator::LS_ASSIGN>();
 template<>
 Operator& Operator::create<Operator::RS_ASSIGN>();
+
+/* Ternary operator */
+template<>
+Operator& Operator::create<Operator::TERNARY_IF>();
 
 } // namespace of mcld
 

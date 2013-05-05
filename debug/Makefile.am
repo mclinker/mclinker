@@ -447,6 +447,7 @@ LINKERSCRIPT_HEADER = \
 	${INCDIR}/LD/LinkerScript/Operator.h \
 	${INCDIR}/LD/LinkerScript/UnaryOp.h \
 	${INCDIR}/LD/LinkerScript/BinaryOp.h \
+	${INCDIR}/LD/LinkerScript/TernaryOp.h \
 	${INCDIR}/LD/LinkerScript/Operand.h \
 	${INCDIR}/LD/LinkerScript/RpnExpr.h \
 	${INCDIR}/LD/LinkerScript/RpnEvaluator.h \
@@ -465,6 +466,7 @@ LINKERSCRIPT_SOURCE = \
 	${LIBDIR}/LD/LinkerScript/Operator.cpp \
 	${LIBDIR}/LD/LinkerScript/UnaryOp.cpp \
 	${LIBDIR}/LD/LinkerScript/BinaryOp.cpp \
+	${LIBDIR}/LD/LinkerScript/TernaryOp.cpp \
 	${LIBDIR}/LD/LinkerScript/Operand.cpp \
 	${LIBDIR}/LD/LinkerScript/RpnExpr.cpp \
 	${LIBDIR}/LD/LinkerScript/RpnEvaluator.cpp \

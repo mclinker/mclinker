@@ -9,6 +9,7 @@
 #include <mcld/LD/LinkerScript/Operator.h>
 #include <mcld/LD/LinkerScript/UnaryOp.h>
 #include <mcld/LD/LinkerScript/BinaryOp.h>
+#include <mcld/LD/LinkerScript/TernaryOp.h>
 #include <mcld/Support/raw_ostream.h>
 
 using namespace mcld;
@@ -38,6 +39,7 @@ const char* Operator::OpNames[] = {
   "|",
   "&&",
   "||",
+  "?:",
   "=",
   "+=",
   "-=",
@@ -268,6 +270,13 @@ template<>
 Operator& Operator::create<Operator::RS_ASSIGN>()
 {
   static BinaryOp<Operator::RS_ASSIGN> op;
+  return op;
+}
+
+template<>
+Operator& Operator::create<Operator::TERNARY_IF>()
+{
+  static TernaryOp<Operator::TERNARY_IF> op;
   return op;
 }
 
