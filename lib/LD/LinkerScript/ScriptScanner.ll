@@ -70,14 +70,90 @@ WS [ \t\r]
  /* Entry Point */
 <LDSCRIPT>"ENTRY"                      { return token::ENTRY; }
  /* File Commands */
+<LDSCRIPT>"INCLUDE"                    { return token::INCLUDE; }
+<LDSCRIPT>"INPUT"                      { return token::INPUT; }
 <LDSCRIPT>"GROUP"                      { return token::GROUP; }
 <LDSCRIPT>"AS_NEEDED"                  { return token::AS_NEEDED; }
+<LDSCRIPT>"OUTPUT"                     { return token::OUTPUT; }
 <LDSCRIPT>"SEARCH_DIR"                 { return token::SEARCH_DIR; }
+<LDSCRIPT>"STARTUP"                    { return token::STARTUP; }
  /* Format Commands */
 <LDSCRIPT>"OUTPUT_FORMAT"              { return token::OUTPUT_FORMAT; }
+<LDSCRIPT>"TARGET"                     { return token::TARGET; }
  /* Misc Commands */
+<LDSCRIPT>"ASSERT"                     { return token::ASSERT; }
+<LDSCRIPT>"EXTERN"                     { return token::EXTERN; }
+<LDSCRIPT>"FORCE_COMMON_ALLOCATION"    { return token::FORCE_COMMON_ALLOCATION; }
+<LDSCRIPT>"INHIBIT_COMMON_ALLOCATION"  { return token::INHIBIT_COMMON_ALLOCATION; }
+<LDSCRIPT>"INSERT"                     { return token::INSERT; }
+<LDSCRIPT>"NOCROSSREFS"                { return token::NOCROSSREFS; }
 <LDSCRIPT>"OUTPUT_ARCH"                { return token::OUTPUT_ARCH; }
-
+<LDSCRIPT>"LD_FEATURE"                 { return token::LD_FEATURE; }
+ /* Assignemnts */
+<LDSCRIPT>"HIDDEN"                     { return token::HIDDEN; }
+<LDSCRIPT>"PROVIDE"                    { return token::PROVIDE; }
+<LDSCRIPT>"PROVIDE_HIDDEN"             { return token::PROVIDE_HIDDEN; }
+ /* SECTIONS Command */
+<LDSCRIPT>"SECTIONS"                   { return token::SECTIONS; }
+ /* MEMORY Command */
+<LDSCRIPT>"MEMORY"                     { return token::MEMORY; }
+ /* PHDRS Command */
+<LDSCRIPT>"PHDRS"                      { return token::PHDRS; }
+ /* Builtin Functions */
+<LDSCRIPT>"ABSOLUTE"                   { return token::ABSOLUTE; }
+<LDSCRIPT>"ADDR"                       { return token::ADDR; }
+<LDSCRIPT>"ALIGN"                      { return token::ALIGN; }
+<LDSCRIPT>"ALIGNOF"                    { return token::ALIGNOF; }
+<LDSCRIPT>"BLOCK"                      { return token::BLOCK; }
+<LDSCRIPT>"DATA_SEGMENT_ALIGN"         { return token::DATA_SEGMENT_ALIGN; }
+<LDSCRIPT>"DATA_SEGMENT_END"           { return token::DATA_SEGMENT_END; }
+<LDSCRIPT>"DATA_SEGMENT_RELRO_END"     { return token::DATA_SEGMENT_RELRO_END; }
+<LDSCRIPT>"DEFINED"                    { return token::DEFINED; }
+<LDSCRIPT>"LENGTH"                     { return token::LENGTH; }
+<LDSCRIPT>"LOADADDR"                   { return token::LOADADDR; }
+<LDSCRIPT>"MAX"                        { return token::MAX; }
+<LDSCRIPT>"MIN"                        { return token::MIN; }
+<LDSCRIPT>"NEXT"                       { return token::NEXT; }
+<LDSCRIPT>"ORIGIN"                     { return token::ORIGIN; }
+<LDSCRIPT>"SEGMENT_START"              { return token::SEGMENT_START; }
+<LDSCRIPT>"SIZEOF"                     { return token::SIZEOF; }
+<LDSCRIPT>"SIZEOF_HEADERS"             { return token::SIZEOF_HEADERS; }
+<LDSCRIPT>"CONSTANT"                   { return token::CONSTANT; }
+ /* Symbolic Constants */
+<LDSCRIPT>"MAXPAGESIZE"                { return token::MAXPAGESIZE; }
+<LDSCRIPT>"COMMONPAGESIZE"             { return token::COMMONPAGESIZE; }
+ /* Input Section Description */
+<LDSCRIPT>"EXCLUDE_FILE"               { return token::EXCLUDE_FILE; }
+<LDSCRIPT>"COMMON"                     { return token::COMMON; }
+<LDSCRIPT>"KEEP"                       { return token::KEEP; }
+<LDSCRIPT>"SORT_BY_NAME"               { return token::SORT_BY_NAME; }
+<LDSCRIPT>"SORT_BY_ALIGNMENT"          { return token::SORT_BY_ALIGNMENT; }
+ /* Output Section Data */
+<LDSCRIPT>"BYTE"                       { return token::BYTE; }
+<LDSCRIPT>"SHORT"                      { return token::SHORT; }
+<LDSCRIPT>"LONG"                       { return token::LONG; }
+<LDSCRIPT>"QUAD"                       { return token::QUAD; }
+<LDSCRIPT>"SQUAD"                      { return token::SQUAD; }
+<LDSCRIPT>"FILL"                       { return token::FILL; }
+ /* Output Section Discarding */
+<LDSCRIPT>"DISCARD"                    { return token::DISCARD; }
+ /* Output Section Keywords */
+<LDSCRIPT>"CREATE_OBJECT_SYMBOLS"      { return token::CREATE_OBJECT_SYMBOLS; }
+<LDSCRIPT>"CONSTRUCTORS"               { return token::CONSTRUCTORS; }
+ /* Output Section Attributes */
+ /* Output Section Type */
+<LDSCRIPT>"NOLOAD"                     { return token::NOLOAD; }
+<LDSCRIPT>"DSECT"                      { return token::DSECT; }
+<LDSCRIPT>"COPY"                       { return token::COPY; }
+<LDSCRIPT>"INFO"                       { return token::INFO; }
+<LDSCRIPT>"OVERLAY"                    { return token::OVERLAY; }
+ /* Output Section LMA */
+<LDSCRIPT>"AT"                         { return token::AT; }
+ /* Forced Input Alignment */
+<LDSCRIPT>"SUBALIGN"                   { return token::SUBALIGN; }
+ /* Output Section Constraint */
+<LDSCRIPT>"ONLY_IF_RO"                 { return token::ONLY_IF_RO; }
+<LDSCRIPT>"ONLY_IF_RW"                 { return token::ONLY_IF_RW; }
  /* Operators */
 <EXPRESSION>"<<"                       { return token::LSHIFT; }
 <EXPRESSION>">>"                       { return token::RSHIFT; }
