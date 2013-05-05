@@ -20,6 +20,7 @@
 #include <mcld/Support/MemoryRegion.h>
 
 #include <istream>
+#include <sstream>
 #include <string>
 #include <cassert>
 
