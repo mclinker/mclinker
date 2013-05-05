@@ -56,7 +56,6 @@ HEADER = ${INCDIR}/ADT/Uncopyable.h \
 	${INCDIR}/Support/TargetSelect.h \
 	${INCDIR}/Support/raw_ostream.h \
 	${INCDIR}/Support/MsgHandling.h \
-	${INCDIR}/Support/DefSymParser.h \
 	${INCDIR}/CodeGen/MCLinker.h \
 	${INCDIR}/Object/ObjectLinker.h \
 	${INCDIR}/Object/ObjectBuilder.h \
@@ -173,7 +172,6 @@ SOURCE = ${LIBDIR}/ADT/StringEntry.cpp \
 	${LIBDIR}/Support/TargetRegistry.cpp \
 	${LIBDIR}/Support/raw_ostream.cpp \
 	${LIBDIR}/Support/MsgHandling.cpp \
-	${LIBDIR}/Support/DefSymParser.cpp \
 	${LIBDIR}/Support/Unix/FileSystem.inc \
 	${LIBDIR}/Support/Unix/PathV3.inc \
 	${LIBDIR}/Support/Unix/System.inc \
