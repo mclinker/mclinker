@@ -37,10 +37,6 @@ public:
                     hash::StringHash<hash::ELF>,
                     StringEntryFactory<uint64_t> > AddressMap;
 
-  typedef HashTable<StringEntry<llvm::StringRef>,
-                    hash::StringHash<hash::ELF>,
-                    StringEntryFactory<llvm::StringRef> > DefSymMap;
-
   typedef std::vector<Assignment> Assignments;
 
   class DefSyms {
@@ -69,9 +65,6 @@ public:
 
   const SectionMap& sectionMap() const { return m_SectionMap; }
   SectionMap&       sectionMap()       { return m_SectionMap; }
-
-  const DefSymMap& defSymMap() const { return m_DefSymMap; }
-  DefSymMap&       defSymMap()       { return m_DefSymMap; }
 
   const Assignments& assignments() const { return m_Assignments; }
   Assignments&       assignments()       { return m_Assignments; }
@@ -105,7 +98,6 @@ private:
   SymbolRenameMap m_SymbolRenames;
   AddressMap m_AddressMap;
   SectionMap m_SectionMap;
-  DefSymMap m_DefSymMap;
   Assignments m_Assignments;
   DefSyms m_DefSyms;
   SearchDirs m_SearchDirs;

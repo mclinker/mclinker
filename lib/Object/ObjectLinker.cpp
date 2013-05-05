@@ -26,6 +26,9 @@
 #include <mcld/LD/Relocator.h>
 #include <mcld/LD/LinkerScript/ScriptFile.h>
 #include <mcld/LD/LinkerScript/ScriptReader.h>
+#include <mcld/LD/LinkerScript/Assignment.h>
+#include <mcld/LD/LinkerScript/Operand.h>
+#include <mcld/LD/LinkerScript/RpnEvaluator.h>
 #include <mcld/Support/RealPath.h>
 #include <mcld/Support/MemoryArea.h>
 #include <mcld/Support/MsgHandling.h>
@@ -108,9 +111,9 @@ bool ObjectLinker::initFragmentLinker()
   ScriptFile defsym(ScriptFile::Expression, "--defsym",
                     m_pModule->getScript().defSyms().data(),
                     m_pBuilder->getInputBuilder());
-  if (getScriptReader()->readScript(m_Config, m_pModule->getScript(), defsym))
+  if (getScriptReader()->readScript(m_Config, m_pModule->getScript(), defsym)) {
     defsym.activate();
-
+  }
   return true;
 }
 
@@ -363,11 +366,11 @@ bool ObjectLinker::addTargetSymbols()
 bool ObjectLinker::addScriptSymbols()
 {
   const LinkerScript& script = m_pModule->getScript();
-  LinkerScript::DefSymMap::const_entry_iterator it;
-  LinkerScript::DefSymMap::const_entry_iterator ie = script.defSymMap().end();
-  // go through the entire defSymMap
-  for (it = script.defSymMap().begin(); it != ie; ++it) {
-    const llvm::StringRef sym =  it.getEntry()->key();
+  LinkerScript::Assignments::const_iterator it;
+  LinkerScript::Assignments::const_iterator ie = script.assignments().end();
+  // go through the entire symbol assignments
+  for (it = script.assignments().begin(); it != ie; ++it) {
+    const llvm::StringRef sym =  (*it).symbol().strVal();
     ResolveInfo* old_info = m_pModule->getNamePool().findInfo(sym);
     // if the symbol does not exist, we can set type to NOTYPE
     // else we retain its type, same goes for size - 0 or retain old value
@@ -517,17 +520,17 @@ bool ObjectLinker::finalizeSymbolValue()
   bool scriptSymsAdded = true;
   uint64_t symVal;
   const LinkerScript& script = m_pModule->getScript();
-  LinkerScript::DefSymMap::const_entry_iterator it;
-  LinkerScript::DefSymMap::const_entry_iterator ie = script.defSymMap().end();
+  LinkerScript::Assignments::const_iterator it;
+  LinkerScript::Assignments::const_iterator ie = script.assignments().end();
+  // go through the entire symbol assignments
 
-  DefSymParser parser(*m_pModule);
-  for (it = script.defSymMap().begin(); it != ie; ++it) {
-    llvm::StringRef symName =  it.getEntry()->key();
-    llvm::StringRef expr =  it.getEntry()->value();
+  RpnEvaluator evaluator(*m_pModule);
+  for (it = script.assignments().begin(); it != ie; ++it) {
+    llvm::StringRef symName =  (*it).symbol().strVal();
 
     LDSymbol* symbol = m_pModule->getNamePool().findSymbol(symName);
     assert(NULL != symbol && "--defsym symbol should be in the name pool");
-    scriptSymsAdded &= parser.parse(expr, symVal);
+    scriptSymsAdded &= evaluator.eval((*it).getRpnExpr(), symVal);
     if (!scriptSymsAdded)
       break;
     symbol->setValue(symVal);
