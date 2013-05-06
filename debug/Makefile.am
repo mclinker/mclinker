@@ -288,6 +288,7 @@ SOURCE = ${LIBDIR}/ADT/StringEntry.cpp \
 	${LIBDIR}/Target/OutputRelocSection.cpp \
 	${INCDIR}/Target/GNUInfo.h \
 	${LIBDIR}/Target/GNUInfo.cpp \
+	${LIBDIR}/Target/ARM/ARM.h \
 	${LIBDIR}/Target/ARM/ARMELFDynamic.h \
 	${LIBDIR}/Target/ARM/ARMELFDynamic.cpp \
 	${LIBDIR}/Target/ARM/ARMGNUInfo.h \
@@ -299,6 +300,7 @@ SOURCE = ${LIBDIR}/ADT/StringEntry.cpp \
 	${LIBDIR}/Target/ARM/ARMPLT.cpp \
 	${LIBDIR}/Target/ARM/ARMTargetMachine.h \
 	${LIBDIR}/Target/ARM/ARMTargetMachine.cpp \
+	${LIBDIR}/Target/ARM/ARMRelocationFunctions.h \
 	${LIBDIR}/Target/ARM/ARMRelocator.h \
 	${LIBDIR}/Target/ARM/ARMRelocator.cpp \
 	${LIBDIR}/Target/ARM/ARMMCLinker.cpp \
@@ -315,6 +317,7 @@ SOURCE = ${LIBDIR}/ADT/StringEntry.cpp \
 	${LIBDIR}/Target/ARM/THMToTHMStub.cpp \
 	${LIBDIR}/Target/ARM/THMToARMStub.h \
 	${LIBDIR}/Target/ARM/THMToARMStub.cpp \
+	${LIBDIR}/Target/Mips/Mips.h \
 	${LIBDIR}/Target/Mips/MipsELFDynamic.h \
 	${LIBDIR}/Target/Mips/MipsELFDynamic.cpp \
 	${LIBDIR}/Target/Mips/MipsGNUInfo.h \
@@ -324,6 +327,7 @@ SOURCE = ${LIBDIR}/ADT/StringEntry.cpp \
 	${LIBDIR}/Target/Mips/MipsGOT.cpp \
 	${LIBDIR}/Target/Mips/MipsTargetMachine.h \
 	${LIBDIR}/Target/Mips/MipsTargetMachine.cpp \
+	${LIBDIR}/Target/Mips/MipsRelocationFunctions.h \
 	${LIBDIR}/Target/Mips/MipsRelocator.h \
 	${LIBDIR}/Target/Mips/MipsRelocator.cpp \
 	${LIBDIR}/Target/Mips/MipsMCLinker.cpp \
@@ -332,6 +336,7 @@ SOURCE = ${LIBDIR}/ADT/StringEntry.cpp \
 	${LIBDIR}/Target/Mips/MipsEmulation.cpp \
 	${LIBDIR}/Target/Mips/MipsDiagnostic.cpp \
 	${LIBDIR}/Target/Mips/TargetInfo/MipsTargetInfo.cpp \
+	${LIBDIR}/Target/X86/X86.h \
 	${LIBDIR}/Target/X86/X86ELFDynamic.h \
 	${LIBDIR}/Target/X86/X86ELFDynamic.cpp \
 	${LIBDIR}/Target/X86/X86GNUInfo.h \
@@ -345,6 +350,7 @@ SOURCE = ${LIBDIR}/ADT/StringEntry.cpp \
 	${LIBDIR}/Target/X86/X86PLT.cpp \
 	${LIBDIR}/Target/X86/X86TargetMachine.h \
 	${LIBDIR}/Target/X86/X86TargetMachine.cpp \
+	${LIBDIR}/Target/X86/X86RelocationFunctions.h \
 	${LIBDIR}/Target/X86/X86Relocator.h \
 	${LIBDIR}/Target/X86/X86Relocator.cpp \
 	${LIBDIR}/Target/X86/X86MCLinker.cpp \
@@ -353,9 +359,9 @@ SOURCE = ${LIBDIR}/ADT/StringEntry.cpp \
 	${LIBDIR}/Target/X86/X86Emulation.cpp \
 	${LIBDIR}/Target/X86/X86Diagnostic.cpp \
 	${LIBDIR}/Target/X86/TargetInfo/X86TargetInfo.cpp \
+	${LIBDIR}/Target/Hexagon/Hexagon.h \
 	${LIBDIR}/Target/Hexagon/HexagonGNUInfo.h \
 	${LIBDIR}/Target/Hexagon/HexagonGNUInfo.cpp \
-	${LIBDIR}/Target/Hexagon/Hexagon.h \
 	${LIBDIR}/Target/Hexagon/HexagonDiagnostic.cpp \
 	${LIBDIR}/Target/Hexagon/HexagonAbsoluteStub.cpp \
 	${LIBDIR}/Target/Hexagon/HexagonAbsoluteStub.h \
@@ -374,6 +380,7 @@ SOURCE = ${LIBDIR}/ADT/StringEntry.cpp \
 	${LIBDIR}/Target/Hexagon/HexagonPLT.h \
 	${LIBDIR}/Target/Hexagon/HexagonPLT.cpp \
 	${LIBDIR}/Target/Hexagon/HexagonRelocationFunctions.h \
+	${LIBDIR}/Target/Hexagon/HexagonEncodings.h \
 	${LIBDIR}/Target/Hexagon/HexagonRelocator.h \
 	${LIBDIR}/Target/Hexagon/HexagonRelocator.cpp \
 	${LIBDIR}/Target/Hexagon/HexagonLDBackend.h \
