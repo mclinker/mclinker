@@ -24,11 +24,11 @@
 #include <mcld/LD/ResolveInfo.h>
 #include <mcld/LD/RelocData.h>
 #include <mcld/LD/Relocator.h>
-#include <mcld/LD/LinkerScript/ScriptFile.h>
-#include <mcld/LD/LinkerScript/ScriptReader.h>
-#include <mcld/LD/LinkerScript/Assignment.h>
-#include <mcld/LD/LinkerScript/Operand.h>
-#include <mcld/LD/LinkerScript/RpnEvaluator.h>
+#include <mcld/Script/ScriptFile.h>
+#include <mcld/Script/ScriptReader.h>
+#include <mcld/Script/Assignment.h>
+#include <mcld/Script/Operand.h>
+#include <mcld/Script/RpnEvaluator.h>
 #include <mcld/Support/RealPath.h>
 #include <mcld/Support/MemoryArea.h>
 #include <mcld/Support/MsgHandling.h>

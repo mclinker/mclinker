@@ -385,45 +385,45 @@ SOURCE = ${LIBDIR}/ADT/StringEntry.cpp \
 	${LIBDIR}/Target/Hexagon/TargetInfo/HexagonTargetInfo.cpp
 
 LINKERSCRIPT_HEADER = \
-	${INCDIR}/LD/LinkerScript/ScriptCommand.h \
-	${INCDIR}/LD/LinkerScript/ScriptInput.h \
-	${INCDIR}/LD/LinkerScript/EntryCmd.h \
-	${INCDIR}/LD/LinkerScript/OutputFormatCmd.h \
-	${INCDIR}/LD/LinkerScript/GroupCmd.h \
-	${INCDIR}/LD/LinkerScript/SearchDirCmd.h \
-	${INCDIR}/LD/LinkerScript/OutputArchCmd.h \
-	${INCDIR}/LD/LinkerScript/Assignment.h \
-	${INCDIR}/LD/LinkerScript/ExprToken.h \
-	${INCDIR}/LD/LinkerScript/Operator.h \
-	${INCDIR}/LD/LinkerScript/UnaryOp.h \
-	${INCDIR}/LD/LinkerScript/BinaryOp.h \
-	${INCDIR}/LD/LinkerScript/TernaryOp.h \
-	${INCDIR}/LD/LinkerScript/Operand.h \
-	${INCDIR}/LD/LinkerScript/RpnExpr.h \
-	${INCDIR}/LD/LinkerScript/RpnEvaluator.h \
-	${INCDIR}/LD/LinkerScript/ScriptFile.h \
-	${INCDIR}/LD/LinkerScript/ScriptScanner.h \
-	${INCDIR}/LD/LinkerScript/ScriptReader.h
+	${INCDIR}/Script/ScriptCommand.h \
+	${INCDIR}/Script/ScriptInput.h \
+	${INCDIR}/Script/EntryCmd.h \
+	${INCDIR}/Script/OutputFormatCmd.h \
+	${INCDIR}/Script/GroupCmd.h \
+	${INCDIR}/Script/SearchDirCmd.h \
+	${INCDIR}/Script/OutputArchCmd.h \
+	${INCDIR}/Script/Assignment.h \
+	${INCDIR}/Script/ExprToken.h \
+	${INCDIR}/Script/Operator.h \
+	${INCDIR}/Script/UnaryOp.h \
+	${INCDIR}/Script/BinaryOp.h \
+	${INCDIR}/Script/TernaryOp.h \
+	${INCDIR}/Script/Operand.h \
+	${INCDIR}/Script/RpnExpr.h \
+	${INCDIR}/Script/RpnEvaluator.h \
+	${INCDIR}/Script/ScriptFile.h \
+	${INCDIR}/Script/ScriptScanner.h \
+	${INCDIR}/Script/ScriptReader.h
 
 LINKERSCRIPT_SOURCE = \
-	${LIBDIR}/LD/LinkerScript/ScriptInput.cpp \
-	${LIBDIR}/LD/LinkerScript/EntryCmd.cpp \
-	${LIBDIR}/LD/LinkerScript/OutputFormatCmd.cpp \
-	${LIBDIR}/LD/LinkerScript/GroupCmd.cpp \
-	${LIBDIR}/LD/LinkerScript/SearchDirCmd.cpp \
-	${LIBDIR}/LD/LinkerScript/OutputArchCmd.cpp \
-	${LIBDIR}/LD/LinkerScript/Assignment.cpp \
-	${LIBDIR}/LD/LinkerScript/Operator.cpp \
-	${LIBDIR}/LD/LinkerScript/UnaryOp.cpp \
-	${LIBDIR}/LD/LinkerScript/BinaryOp.cpp \
-	${LIBDIR}/LD/LinkerScript/TernaryOp.cpp \
-	${LIBDIR}/LD/LinkerScript/Operand.cpp \
-	${LIBDIR}/LD/LinkerScript/RpnExpr.cpp \
-	${LIBDIR}/LD/LinkerScript/RpnEvaluator.cpp \
-	${LIBDIR}/LD/LinkerScript/ScriptFile.cpp \
-	${LIBDIR}/LD/LinkerScript/ScriptParser.yy \
-	${LIBDIR}/LD/LinkerScript/ScriptScanner.ll \
-	${LIBDIR}/LD/LinkerScript/ScriptReader.cpp
+	${LIBDIR}/Script/ScriptInput.cpp \
+	${LIBDIR}/Script/EntryCmd.cpp \
+	${LIBDIR}/Script/OutputFormatCmd.cpp \
+	${LIBDIR}/Script/GroupCmd.cpp \
+	${LIBDIR}/Script/SearchDirCmd.cpp \
+	${LIBDIR}/Script/OutputArchCmd.cpp \
+	${LIBDIR}/Script/Assignment.cpp \
+	${LIBDIR}/Script/Operator.cpp \
+	${LIBDIR}/Script/UnaryOp.cpp \
+	${LIBDIR}/Script/BinaryOp.cpp \
+	${LIBDIR}/Script/TernaryOp.cpp \
+	${LIBDIR}/Script/Operand.cpp \
+	${LIBDIR}/Script/RpnExpr.cpp \
+	${LIBDIR}/Script/RpnEvaluator.cpp \
+	${LIBDIR}/Script/ScriptFile.cpp \
+	${LIBDIR}/Script/ScriptParser.yy \
+	${LIBDIR}/Script/ScriptScanner.ll \
+	${LIBDIR}/Script/ScriptReader.cpp
 
 ANDROID_CPPFLAGS=-fno-rtti -fno-exceptions -Waddress -Wchar-subscripts -Wcomment -Wformat -Wparentheses -Wreorder -Wreturn-type -Wsequence-point -Wstrict-aliasing -Wstrict-overflow=1 -Wswitch -Wtrigraphs -Wuninitialized -Wunknown-pragmas -Wunused-function -Wunused-label -Wunused-value -Wunused-variable -Wvolatile-register-var
 

@@ -19,7 +19,7 @@
 #include <mcld/ADT/HashTable.h>
 #include <mcld/Object/SectionMap.h>
 #include <mcld/MC/SearchDirs.h>
-#include <mcld/LD/LinkerScript/Assignment.h>
+#include <mcld/Script/Assignment.h>
 
 namespace mcld {
 
