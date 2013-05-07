@@ -26,7 +26,7 @@ typedef mcld::ScriptParser::token_type token_type;
 /* Flex Declarations and Options */
 %option c++
 %option batch
-%option yywrap
+%option noyywrap
 %option nounput
 %option stack
 
@@ -353,10 +353,5 @@ void ScriptScanner::popLexState()
 int yyFlexLexer::yylex()
 {
   return 0;
-}
-
-int yyFlexLexer::yywrap()
-{
-  return 1;
 }
 

@@ -402,6 +402,7 @@ LINKERSCRIPT_HEADER = \
 	${INCDIR}/Script/RpnExpr.h \
 	${INCDIR}/Script/RpnEvaluator.h \
 	${INCDIR}/Script/ScriptFile.h \
+	${INCDIR}/Script/FlexLexer.h \
 	${INCDIR}/Script/ScriptScanner.h \
 	${INCDIR}/Script/ScriptReader.h
 
@@ -431,7 +432,7 @@ if ENABLE_WERROR
 ANDROID_CPPFLAGS+=-Werror
 endif
 
-AM_CPPFLAGS = -g -I$(TOPLEVEL)/include -I$(BUILDTOP)/include ${LLVM_CPPFLAGS} ${ANDROID_CPPFLAGS}
+AM_CPPFLAGS = -g -I$(TOPLEVEL)/include -I$(BUILDTOP)/include ${LLVM_CPPFLAGS} ${ANDROID_CPPFLAGS} -I$(INCDIR)/Script
 
 lib_LIBRARIES= libmcld.a
 

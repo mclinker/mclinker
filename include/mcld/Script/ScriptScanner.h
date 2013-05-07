@@ -45,7 +45,7 @@ public:
                                        const ScriptFile& pScriptFile);
 
 private:
-  friend ScriptParser;
+  friend class ScriptParser;
 
   void setLexState(ScriptFile::Kind pKind);
 
