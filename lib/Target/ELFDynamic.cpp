@@ -140,10 +140,8 @@ void ELFDynamic::reserveEntries(const ELFFileFormat& pFormat)
 
   reserveTargetEntries(pFormat); // DT_PLTGOT
 
-  if (pFormat.hasRelPlt() || pFormat.hasRelaPlt())
+  if (pFormat.hasRelPlt() || pFormat.hasRelaPlt()) {
     reserveOne(llvm::ELF::DT_PLTREL); // DT_PLTREL
-
-  if (pFormat.hasPLT()) {
     reserveOne(llvm::ELF::DT_JMPREL); // DT_JMPREL
     reserveOne(llvm::ELF::DT_PLTRELSZ); // DT_PLTRELSZ
   }
