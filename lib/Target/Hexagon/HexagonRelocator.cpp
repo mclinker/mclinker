@@ -24,16 +24,15 @@ using namespace mcld;
 //===--------------------------------------------------------------------===//
 DECL_HEXAGON_APPLY_RELOC_FUNCS
 
-/// the prototype of applying function
-typedef Relocator::Result (*ApplyFunctionType)(Relocation& pReloc,
-                                               HexagonRelocator& pParent);
+    /// the prototype of applying function
+    typedef Relocator::Result (*ApplyFunctionType)(Relocation &pReloc,
+                                                   HexagonRelocator &pParent);
 
 // the table entry of applying functions
-struct ApplyFunctionTriple
-{
+struct ApplyFunctionTriple {
   ApplyFunctionType func;
   unsigned int type;
-  const char* name;
+  const char *name;
 };
 
 // declare the table of applying functions
@@ -41,8 +40,9 @@ static const ApplyFunctionTriple ApplyFunctions[] = {
   DECL_HEXAGON_APPLY_RELOC_FUNC_PTRS
 };
 
-static uint32_t findBitMask(uint32_t insn, Instruction *encodings, int32_t numInsns) {
-  for (int32_t i = 0; i < numInsns ; i++) {
+static uint32_t findBitMask(uint32_t insn, Instruction *encodings,
+                            int32_t numInsns) {
+  for (int32_t i = 0; i < numInsns; i++) {
     if (((insn & 0xc000) == 0) && !(encodings[i].isDuplex))
       continue;
 
@@ -55,28 +55,20 @@ static uint32_t findBitMask(uint32_t insn, Instruction *encodings, int32_t numIn
   assert(0);
 }
 
-
-#define FINDBITMASK(INSN) \
-  findBitMask((uint32_t)INSN,\
-              insn_encodings,\
+#define FINDBITMASK(INSN)                                                      \
+  findBitMask((uint32_t) INSN, insn_encodings,                                 \
               sizeof(insn_encodings) / sizeof(Instruction))
 
 //===--------------------------------------------------------------------===//
 // HexagonRelocator
 //===--------------------------------------------------------------------===//
-HexagonRelocator::HexagonRelocator(HexagonLDBackend& pParent,
-                                   const LinkerConfig& pConfig)
-  : Relocator(pConfig),
-    m_Target(pParent) {
-}
+HexagonRelocator::HexagonRelocator(HexagonLDBackend &pParent,
+                                   const LinkerConfig &pConfig)
+    : Relocator(pConfig), m_Target(pParent) {}
 
-HexagonRelocator::~HexagonRelocator()
-{
-}
+HexagonRelocator::~HexagonRelocator() {}
 
-Relocator::Result
-HexagonRelocator::applyRelocation(Relocation& pRelocation)
-{
+Relocator::Result HexagonRelocator::applyRelocation(Relocation &pRelocation) {
   Relocation::Type type = pRelocation.type();
 
   if (type > 85) { // 86-255 relocs do not exists for Hexagon
@@ -87,29 +79,27 @@ HexagonRelocator::applyRelocation(Relocation& pRelocation)
   return ApplyFunctions[type].func(pRelocation, *this);
 }
 
-const char* HexagonRelocator::getName(Relocation::Type pType) const
-{
+const char *HexagonRelocator::getName(Relocation::Type pType) const {
   return ApplyFunctions[pType].name;
 }
 
-Relocator::Size HexagonRelocator::getSize(Relocation::Type pType) const
-{
+Relocator::Size HexagonRelocator::getSize(Relocation::Type pType) const {
   return 32;
 }
 
-void HexagonRelocator::scanRelocation(Relocation& pReloc,
-                                      IRBuilder& pLinker,
-                                      Module& pModule,
-                                      LDSection& pSection)
-{
+void HexagonRelocator::scanRelocation(Relocation &pReloc, IRBuilder &pLinker,
+                                      Module &pModule, LDSection &pSection) {
   if (LinkerConfig::Object == config().codeGenType())
     return;
 
   pReloc.updateAddend();
   // rsym - The relocation target symbol
-  ResolveInfo* rsym = pReloc.symInfo();
+  ResolveInfo *rsym = pReloc.symInfo();
   assert(NULL != rsym &&
          "ResolveInfo of relocation not set while scanRelocation");
+
+  if (config().isCodeStatic())
+    return;
 
   assert(NULL != pSection.getLink());
   if (0 == (pSection.getLink()->flag() & llvm::ELF::SHF_ALLOC))
@@ -126,103 +116,176 @@ void HexagonRelocator::scanRelocation(Relocation& pReloc,
     fatal(diag::undefined_reference) << rsym->name();
 }
 
-void HexagonRelocator::addCopyReloc(ResolveInfo& pSym,
-                                    HexagonLDBackend& pTarget)
-{
-  Relocation& rel_entry = *pTarget.getRelaDyn().consumeEntry();
+void HexagonRelocator::addCopyReloc(ResolveInfo &pSym,
+                                    HexagonLDBackend &pTarget) {
+  Relocation &rel_entry = *pTarget.getRelaDyn().consumeEntry();
   rel_entry.setType(pTarget.getCopyRelType());
   assert(pSym.outSymbol()->hasFragRef());
   rel_entry.targetRef().assign(*pSym.outSymbol()->fragRef());
   rel_entry.setSymInfo(&pSym);
 }
 
-void HexagonRelocator::scanLocalReloc(Relocation& pReloc,
-                                     IRBuilder& pBuilder,
-                                     Module& pModule,
-                                     LDSection& pSection)
-{
+void HexagonRelocator::scanLocalReloc(Relocation &pReloc, IRBuilder &pBuilder,
+                                      Module &pModule, LDSection &pSection) {
   // rsym - The relocation target symbol
-  ResolveInfo* rsym = pReloc.symInfo();
+  ResolveInfo *rsym = pReloc.symInfo();
 
-  switch(pReloc.type()){
+  switch (pReloc.type()) {
 
-    case llvm::ELF::R_HEX_32:
-    case llvm::ELF::R_HEX_16:
-    case llvm::ELF::R_HEX_8:
-      // If buiding PIC object (shared library or PIC executable),
-      // a dynamic relocations with RELATIVE type to this location is needed.
-      // Reserve an entry in .rel.dyn
-      if (config().isCodeIndep()) {
-        getTarget().getRelaDyn().reserveEntry();
-        // set Rel bit
-        rsym->setReserved(rsym->reserved() | ReserveRel);
-        getTarget().checkAndSetHasTextRel(*pSection.getLink());
-      }
-      return;
+  case llvm::ELF::R_HEX_LO16:
+  case llvm::ELF::R_HEX_HI16:
+  case llvm::ELF::R_HEX_16:
+  case llvm::ELF::R_HEX_8:
+  case llvm::ELF::R_HEX_32_6_X:
+  case llvm::ELF::R_HEX_16_X:
+  case llvm::ELF::R_HEX_12_X:
+  case llvm::ELF::R_HEX_11_X:
+  case llvm::ELF::R_HEX_10_X:
+  case llvm::ELF::R_HEX_9_X:
+  case llvm::ELF::R_HEX_8_X:
+  case llvm::ELF::R_HEX_7_X:
+  case llvm::ELF::R_HEX_6_X:
+    assert(!(rsym->reserved() & ReserveRel) &&
+           "Cannot apply this relocation for read only section");
+    return;
 
-    default:
-      break;
+  case llvm::ELF::R_HEX_32:
+    // If buiding PIC object (shared library or PIC executable),
+    // a dynamic relocations with RELATIVE type to this location is needed.
+    // Reserve an entry in .rel.dyn
+    if (config().isCodeIndep()) {
+      getTarget().getRelaDyn().reserveEntry();
+      // set Rel bit
+      rsym->setReserved(rsym->reserved() | ReserveRel);
+      getTarget().checkAndSetHasTextRel(*pSection.getLink());
+    }
+    return;
+
+  default:
+    return;
   }
 }
 
-void HexagonRelocator::scanGlobalReloc(Relocation& pReloc,
-                                       IRBuilder& pBuilder,
-                                       Module& pModule,
-                                       LDSection& pSection)
-{
+void HexagonRelocator::scanGlobalReloc(Relocation &pReloc, IRBuilder &pBuilder,
+                                       Module &pModule, LDSection &pSection) {
   // rsym - The relocation target symbol
-  ResolveInfo* rsym = pReloc.symInfo();
+  ResolveInfo *rsym = pReloc.symInfo();
+  HexagonLDBackend &ld_backend = getTarget();
 
-  switch(pReloc.type()) {
-    case llvm::ELF::R_HEX_PLT_B22_PCREL:
-      // return if we already create plt for this symbol
-      if (rsym->reserved() & ReservePLT)
-        return;
+  switch (pReloc.type()) {
+  case llvm::ELF::R_HEX_LO16:
+  case llvm::ELF::R_HEX_HI16:
+  case llvm::ELF::R_HEX_16:
+  case llvm::ELF::R_HEX_8:
+  case llvm::ELF::R_HEX_32_6_X:
+  case llvm::ELF::R_HEX_16_X:
+  case llvm::ELF::R_HEX_12_X:
+  case llvm::ELF::R_HEX_11_X:
+  case llvm::ELF::R_HEX_10_X:
+  case llvm::ELF::R_HEX_9_X:
+  case llvm::ELF::R_HEX_8_X:
+  case llvm::ELF::R_HEX_7_X:
+  case llvm::ELF::R_HEX_6_X:
+    assert(!(rsym->reserved() & ReserveRel) &&
+           "Cannot apply this relocation for read only section");
+    return;
 
-      // Symbol needs PLT entry, we need to reserve a PLT entry
-      // and the corresponding GOT and dynamic relocation entry
-      // in .got.plt and .rela.plt.
-      getTarget().getPLT().reserveEntry();
-      getTarget().getGOTPLT().reserve();
-      getTarget().getRelaPLT().reserveEntry();
-      // set PLT bit
-      rsym->setReserved(rsym->reserved() | ReservePLT);
+  case llvm::ELF::R_HEX_32:
+    if (ld_backend.symbolNeedsPLT(*rsym)) {
+      //create PLT for this symbol if it does not have.
+      if (!(rsym->reserved() & ReservePLT)) {
+        ld_backend.getPLT().reserveEntry();
+        ld_backend.getGOTPLT().reserve();
+        ld_backend.getRelaPLT().reserveEntry();
+        rsym->setReserved(rsym->reserved() | ReservePLT);
+      }
+    }
+
+    if (ld_backend.symbolNeedsDynRel(*rsym, (rsym->reserved() & ReservePLT),
+                                     true)) {
+      ld_backend.getRelaDyn().reserveEntry();
+      if (ld_backend.symbolNeedsCopyReloc(pReloc, *rsym)) {
+        LDSymbol &cpy_sym =
+            defineSymbolforCopyReloc(pBuilder, *rsym, ld_backend);
+        addCopyReloc(*cpy_sym.resolveInfo(), ld_backend);
+      } else {
+        rsym->setReserved(rsym->reserved() | ReserveRel);
+        ld_backend.checkAndSetHasTextRel(pSection);
+      }
+    }
+    return;
+
+  case llvm::ELF::R_HEX_GOTREL_LO16:
+  case llvm::ELF::R_HEX_GOTREL_HI16:
+  case llvm::ELF::R_HEX_GOTREL_32:
+  case llvm::ELF::R_HEX_GOTREL_32_6_X:
+  case llvm::ELF::R_HEX_GOTREL_16_X:
+  case llvm::ELF::R_HEX_GOTREL_11_X:
+    // This assumes that GOT exists
+    return;
+
+  case llvm::ELF::R_HEX_GOT_LO16:
+  case llvm::ELF::R_HEX_GOT_HI16:
+  case llvm::ELF::R_HEX_GOT_32:
+  case llvm::ELF::R_HEX_GOT_16:
+  case llvm::ELF::R_HEX_GOT_32_6_X:
+  case llvm::ELF::R_HEX_GOT_16_X:
+  case llvm::ELF::R_HEX_GOT_11_X:
+    // Symbol needs GOT entry, reserve entry in .got
+    // return if we already create GOT for this symbol
+    if (rsym->reserved() & (ReserveGOT | GOTRel))
       return;
+    ld_backend.getGOT().reserve();
 
-    case llvm::ELF::R_HEX_GOT_32_6_X:
-    case llvm::ELF::R_HEX_GOT_16_X:
-    case llvm::ELF::R_HEX_GOT_11_X:
-      // Symbol needs GOT entry, reserve entry in .got
-      // return if we already create GOT for this symbol
-      if (rsym->reserved() & (ReserveGOT | GOTRel))
-        return;
-      // FIXME: check STT_GNU_IFUNC symbol
-      getTarget().getGOT().reserve();
-
-      // If the GOT is used in statically linked binaries,
-      // the GOT entry is enough and no relocation is needed.
-      if (config().isCodeStatic()) {
-        rsym->setReserved(rsym->reserved() | ReserveGOT);
-        return;
-      }
-      // If building shared object or the symbol is undefined, a dynamic
-      // relocation is needed to relocate this GOT entry. Reserve an
-      // entry in .rel.dyn
-      if (LinkerConfig::DynObj ==
-                   config().codeGenType() || rsym->isUndef() || rsym->isDyn()) {
-        getTarget().getRelaDyn().reserveEntry();
-        // set GOTRel bit
-        rsym->setReserved(rsym->reserved() | GOTRel);
-        return;
-      }
-      // set GOT bit
+    // If the GOT is used in statically linked binaries,
+    // the GOT entry is enough and no relocation is needed.
+    if (config().isCodeStatic()) {
       rsym->setReserved(rsym->reserved() | ReserveGOT);
       return;
-
-    default: {
-      break;
     }
-  } // end switch
+    // If building shared object or the symbol is undefined, a dynamic
+    // relocation is needed to relocate this GOT entry. Reserve an
+    // entry in .rel.dyn
+    if (LinkerConfig::DynObj == config().codeGenType() || rsym->isUndef() ||
+        rsym->isDyn()) {
+      ld_backend.getRelaDyn().reserveEntry();
+      // set GOTRel bit
+      rsym->setReserved(rsym->reserved() | GOTRel);
+      return;
+    }
+    // set GOT bit
+    rsym->setReserved(rsym->reserved() | ReserveGOT);
+    return;
+
+  case llvm::ELF::R_HEX_B22_PCREL:
+  case llvm::ELF::R_HEX_B15_PCREL:
+  case llvm::ELF::R_HEX_B7_PCREL:
+  case llvm::ELF::R_HEX_B13_PCREL:
+  case llvm::ELF::R_HEX_B9_PCREL:
+  case llvm::ELF::R_HEX_B32_PCREL_X:
+  case llvm::ELF::R_HEX_B22_PCREL_X:
+  case llvm::ELF::R_HEX_B15_PCREL_X:
+  case llvm::ELF::R_HEX_B13_PCREL_X:
+  case llvm::ELF::R_HEX_B9_PCREL_X:
+  case llvm::ELF::R_HEX_B7_PCREL_X:
+  case llvm::ELF::R_HEX_32_PCREL:
+  case llvm::ELF::R_HEX_6_PCREL_X:
+  case llvm::ELF::R_HEX_PLT_B22_PCREL:
+    if (rsym->reserved() & ReservePLT)
+      return;
+    if (ld_backend.symbolNeedsPLT(*rsym) ||
+        pReloc.type() == llvm::ELF::R_HEX_PLT_B22_PCREL) {
+      ld_backend.getPLT().reserveEntry();
+      ld_backend.getGOTPLT().reserve();
+      ld_backend.getRelaPLT().reserveEntry();
+      rsym->setReserved(rsym->reserved() | ReservePLT);
+    }
+    return;
+
+  default:
+    break;
+
+  } // end of switch
 }
 
 /// defineSymbolforCopyReloc
@@ -230,13 +293,11 @@ void HexagonRelocator::scanGlobalReloc(Relocation& pReloc,
 /// section and all other reference to this symbol should refer to this
 /// copy.
 /// @note This is executed at `scan relocation' stage.
-LDSymbol& HexagonRelocator::defineSymbolforCopyReloc(IRBuilder& pBuilder,
-                                                 const ResolveInfo& pSym,
-                                                 HexagonLDBackend& pTarget)
-{
+LDSymbol &HexagonRelocator::defineSymbolforCopyReloc(
+    IRBuilder &pBuilder, const ResolveInfo &pSym, HexagonLDBackend &pTarget) {
   // get or create corresponding BSS LDSection
-  LDSection* bss_sect_hdr = NULL;
-  ELFFileFormat* file_format = pTarget.getOutputFormat();
+  LDSection *bss_sect_hdr = NULL;
+  ELFFileFormat *file_format = pTarget.getOutputFormat();
   if (ResolveInfo::ThreadLocal == pSym.type())
     bss_sect_hdr = &file_format->getTBSS();
   else
@@ -244,7 +305,7 @@ LDSymbol& HexagonRelocator::defineSymbolforCopyReloc(IRBuilder& pBuilder,
 
   // get or create corresponding BSS SectionData
   assert(NULL != bss_sect_hdr);
-  SectionData* bss_section = NULL;
+  SectionData *bss_section = NULL;
   if (bss_sect_hdr->hasSectionData())
     bss_section = bss_sect_hdr->getSectionData();
   else
@@ -255,45 +316,36 @@ LDSymbol& HexagonRelocator::defineSymbolforCopyReloc(IRBuilder& pBuilder,
   uint32_t addralign = config().targets().bitclass() / 8;
 
   // allocate space in BSS for the copy symbol
-  Fragment* frag = new FillFragment(0x0, 1, pSym.size());
-  uint64_t size = ObjectBuilder::AppendFragment(*frag,
-                                                *bss_section,
-                                                addralign);
+  Fragment *frag = new FillFragment(0x0, 1, pSym.size());
+  uint64_t size = ObjectBuilder::AppendFragment(*frag, *bss_section, addralign);
   bss_sect_hdr->setSize(bss_sect_hdr->size() + size);
 
   // change symbol binding to Global if it's a weak symbol
-  ResolveInfo::Binding binding = (ResolveInfo::Binding)pSym.binding();
+  ResolveInfo::Binding binding = (ResolveInfo::Binding) pSym.binding();
   if (binding == ResolveInfo::Weak)
     binding = ResolveInfo::Global;
 
   // Define the copy symbol in the bss section and resolve it
-  LDSymbol* cpy_sym = pBuilder.AddSymbol<IRBuilder::Force, IRBuilder::Resolve>(
-                      pSym.name(),
-                      (ResolveInfo::Type)pSym.type(),
-                      ResolveInfo::Define,
-                      binding,
-                      pSym.size(),  // size
-                      0x0,          // value
-                      FragmentRef::Create(*frag, 0x0),
-                      (ResolveInfo::Visibility)pSym.other());
+  LDSymbol *cpy_sym = pBuilder.AddSymbol<IRBuilder::Force, IRBuilder::Resolve>(
+      pSym.name(), (ResolveInfo::Type) pSym.type(), ResolveInfo::Define,
+      binding, pSym.size(), // size
+      0x0,                  // value
+      FragmentRef::Create(*frag, 0x0), (ResolveInfo::Visibility) pSym.other());
 
   // output all other alias symbols if any
   Module &pModule = pBuilder.getModule();
-  Module::AliasList* alias_list = pModule.getAliasList(pSym);
-  if (NULL!=alias_list) {
-    Module::alias_iterator it, it_e=alias_list->end();
-    for (it=alias_list->begin(); it!=it_e; ++it) {
-      const ResolveInfo* alias = *it;
-      if (alias!=&pSym && alias->isDyn()) {
+  Module::AliasList *alias_list = pModule.getAliasList(pSym);
+  if (NULL != alias_list) {
+    Module::alias_iterator it, it_e = alias_list->end();
+    for (it = alias_list->begin(); it != it_e; ++it) {
+      const ResolveInfo *alias = *it;
+      if (alias != &pSym && alias->isDyn()) {
         pBuilder.AddSymbol<IRBuilder::Force, IRBuilder::Resolve>(
-                           alias->name(),
-                           (ResolveInfo::Type)alias->type(),
-                           ResolveInfo::Define,
-                           binding,
-                           alias->size(),  // size
-                           0x0,          // value
-                           FragmentRef::Create(*frag, 0x0),
-                           (ResolveInfo::Visibility)alias->other());
+            alias->name(), (ResolveInfo::Type) alias->type(),
+            ResolveInfo::Define, binding, alias->size(), // size
+            0x0,                                         // value
+            FragmentRef::Create(*frag, 0x0),
+            (ResolveInfo::Visibility) alias->other());
       }
     }
   }
@@ -301,37 +353,32 @@ LDSymbol& HexagonRelocator::defineSymbolforCopyReloc(IRBuilder& pBuilder,
   return *cpy_sym;
 }
 
-void HexagonRelocator::partialScanRelocation(Relocation& pReloc,
-                                      Module& pModule,
-                                      const LDSection& pSection)
-{
+void HexagonRelocator::partialScanRelocation(Relocation &pReloc,
+                                             Module &pModule,
+                                             const LDSection &pSection) {
   pReloc.updateAddend();
   // if we meet a section symbol
   if (pReloc.symInfo()->type() == ResolveInfo::Section) {
-    LDSymbol* input_sym = pReloc.symInfo()->outSymbol();
+    LDSymbol *input_sym = pReloc.symInfo()->outSymbol();
 
     // 1. update the relocation target offset
     assert(input_sym->hasFragRef());
     // 2. get the output LDSection which the symbol defined in
-    const LDSection& out_sect =
-                        input_sym->fragRef()->frag()->getParent()->getSection();
-    ResolveInfo* sym_info =
-                     pModule.getSectionSymbolSet().get(out_sect)->resolveInfo();
+    const LDSection &out_sect =
+        input_sym->fragRef()->frag()->getParent()->getSection();
+    ResolveInfo *sym_info =
+        pModule.getSectionSymbolSet().get(out_sect)->resolveInfo();
     // set relocation target symbol to the output section symbol's resolveInfo
     pReloc.setSymInfo(sym_info);
   }
 }
 
 /// helper_DynRel - Get an relocation entry in .rela.dyn
-static
-Relocation& helper_DynRel(ResolveInfo* pSym,
-                          Fragment& pFrag,
-                          uint64_t pOffset,
-                          HexagonRelocator::Type pType,
-                          HexagonRelocator& pParent)
-{
-  HexagonLDBackend& ld_backend = pParent.getTarget();
-  Relocation& rela_entry = *ld_backend.getRelaDyn().consumeEntry();
+static Relocation &helper_DynRel(ResolveInfo *pSym, Fragment &pFrag,
+                                 uint64_t pOffset, HexagonRelocator::Type pType,
+                                 HexagonRelocator &pParent) {
+  HexagonLDBackend &ld_backend = pParent.getTarget();
+  Relocation &rela_entry = *ld_backend.getRelaDyn().consumeEntry();
   rela_entry.setType(pType);
   rela_entry.targetRef().assign(pFrag, pOffset);
   if (pType == llvm::ELF::R_HEX_RELATIVE || NULL == pSym)
@@ -342,31 +389,24 @@ Relocation& helper_DynRel(ResolveInfo* pSym,
   return rela_entry;
 }
 
-
 /// helper_use_relative_reloc - Check if symbol can use relocation
 /// R_HEX_RELATIVE
-static bool
-helper_use_relative_reloc(const ResolveInfo& pSym,
-                          const HexagonRelocator& pFactory)
-
-{
+static bool helper_use_relative_reloc(const ResolveInfo &pSym,
+                                      const HexagonRelocator &pFactory) {
   // if symbol is dynamic or undefine or preemptible
-  if (pSym.isDyn() ||
-      pSym.isUndef() ||
+  if (pSym.isDyn() || pSym.isUndef() ||
       pFactory.getTarget().isSymbolPreemptible(pSym))
     return false;
   return true;
 }
 
-static
-HexagonGOTEntry& helper_get_GOT_and_init(Relocation& pReloc,
-					HexagonRelocator& pParent)
-{
+static HexagonGOTEntry &helper_get_GOT_and_init(Relocation &pReloc,
+                                                HexagonRelocator &pParent) {
   // rsym - The relocation target symbol
-  ResolveInfo* rsym = pReloc.symInfo();
-  HexagonLDBackend& ld_backend = pParent.getTarget();
+  ResolveInfo *rsym = pReloc.symInfo();
+  HexagonLDBackend &ld_backend = pParent.getTarget();
 
-  HexagonGOTEntry* got_entry = pParent.getSymGOTMap().lookUp(*rsym);
+  HexagonGOTEntry *got_entry = pParent.getSymGOTMap().lookUp(*rsym);
   if (NULL != got_entry)
     return *got_entry;
 
@@ -378,46 +418,38 @@ HexagonGOTEntry& helper_get_GOT_and_init(Relocation& pReloc,
   if (rsym->reserved() & HexagonRelocator::ReserveGOT) {
     // No corresponding dynamic relocation, initialize to the symbol value.
     got_entry->setValue(pReloc.symValue());
-  }
-  else if (rsym->reserved() & HexagonRelocator::GOTRel) {
+  } else if (rsym->reserved() & HexagonRelocator::GOTRel) {
     // Initialize got_entry content and the corresponding dynamic relocation.
     if (helper_use_relative_reloc(*rsym, pParent)) {
       helper_DynRel(rsym, *got_entry, 0x0, llvm::ELF::R_HEX_RELATIVE, pParent);
       got_entry->setValue(pReloc.symValue());
-    }
-    else {
+    } else {
       helper_DynRel(rsym, *got_entry, 0x0, llvm::ELF::R_HEX_GLOB_DAT, pParent);
       got_entry->setValue(0);
     }
-  }
-  else {
+  } else {
     fatal(diag::reserve_entry_number_mismatch_got);
   }
   return *got_entry;
 }
 
-static
-HexagonRelocator::Address helper_GOT_ORG(HexagonRelocator& pParent)
-{
+static HexagonRelocator::Address helper_GOT_ORG(HexagonRelocator &pParent) {
   return pParent.getTarget().getGOT().addr();
 }
 
-static
-HexagonRelocator::Address helper_GOT(Relocation& pReloc, HexagonRelocator& pParent)
-{
-  HexagonGOTEntry& got_entry = helper_get_GOT_and_init(pReloc, pParent);
+static HexagonRelocator::Address helper_GOT(Relocation &pReloc,
+                                            HexagonRelocator &pParent) {
+  HexagonGOTEntry &got_entry = helper_get_GOT_and_init(pReloc, pParent);
   return helper_GOT_ORG(pParent) + got_entry.getOffset();
 }
 
-static
-PLTEntryBase& helper_get_PLT_and_init(Relocation& pReloc,
-				      HexagonRelocator& pParent)
-{
+static PLTEntryBase &helper_get_PLT_and_init(Relocation &pReloc,
+                                             HexagonRelocator &pParent) {
   // rsym - The relocation target symbol
-  ResolveInfo* rsym = pReloc.symInfo();
-  HexagonLDBackend& ld_backend = pParent.getTarget();
+  ResolveInfo *rsym = pReloc.symInfo();
+  HexagonLDBackend &ld_backend = pParent.getTarget();
 
-  PLTEntryBase* plt_entry = pParent.getSymPLTMap().lookUp(*rsym);
+  PLTEntryBase *plt_entry = pParent.getSymPLTMap().lookUp(*rsym);
   if (NULL != plt_entry)
     return *plt_entry;
 
@@ -426,34 +458,30 @@ PLTEntryBase& helper_get_PLT_and_init(Relocation& pReloc,
   pParent.getSymPLTMap().record(*rsym, *plt_entry);
   // If we first get this PLT entry, we should initialize it.
   if (rsym->reserved() & HexagonRelocator::ReservePLT) {
-    HexagonGOTEntry* gotplt_entry = pParent.getSymGOTPLTMap().lookUp(*rsym);
-    assert(NULL == gotplt_entry && "PLT entry not exist, but DynRel entry exist!");
+    HexagonGOTEntry *gotplt_entry = pParent.getSymGOTPLTMap().lookUp(*rsym);
+    assert(NULL == gotplt_entry &&
+           "PLT entry not exist, but DynRel entry exist!");
     gotplt_entry = ld_backend.getGOTPLT().consume();
     pParent.getSymGOTPLTMap().record(*rsym, *gotplt_entry);
     // init the corresponding rel entry in .rel.plt
-    Relocation& rela_entry = *ld_backend.getRelaPLT().consumeEntry();
+    Relocation &rela_entry = *ld_backend.getRelaPLT().consumeEntry();
     rela_entry.setType(llvm::ELF::R_HEX_JMP_SLOT);
     rela_entry.targetRef().assign(*gotplt_entry);
     rela_entry.setSymInfo(rsym);
-  }
-  else {
+  } else {
     fatal(diag::reserve_entry_number_mismatch_plt);
   }
 
   return *plt_entry;
 }
 
-static
-HexagonRelocator::Address helper_PLT_ORG(HexagonRelocator& pParent)
-{
+static HexagonRelocator::Address helper_PLT_ORG(HexagonRelocator &pParent) {
   return pParent.getTarget().getPLT().addr();
 }
 
-static
-HexagonRelocator::Address helper_PLT(Relocation& pReloc,
-                                     HexagonRelocator& pParent)
-{
-  PLTEntryBase& plt_entry = helper_get_PLT_and_init(pReloc, pParent);
+static HexagonRelocator::Address helper_PLT(Relocation &pReloc,
+                                            HexagonRelocator &pParent) {
+  PLTEntryBase &plt_entry = helper_get_PLT_and_init(pReloc, pParent);
   return helper_PLT_ORG(pParent) + plt_entry.getOffset();
 }
 
@@ -462,422 +490,345 @@ HexagonRelocator::Address helper_PLT(Relocation& pReloc,
 //=========================================//
 
 // R_HEX_NONE
-HexagonRelocator::Result none(Relocation& pReloc, HexagonRelocator& pParent)
-{
+HexagonRelocator::Result none(Relocation &pReloc, HexagonRelocator &pParent) {
   return HexagonRelocator::OK;
 }
 
-// R_HEX_B15_PCREL: Word32_B15 : 0x00df20fe  (S + A - P) >> 2 : Signed Verify
-HexagonRelocator::Result relocB15PCREL(Relocation& pReloc,
-                                       HexagonRelocator& pParent)
-{
+//R_HEX_32 and its class of relocations use only addend and symbol value
+// S + A : result is unsigned truncate.
+// Exception: R_HEX_32_6_X : unsigned verify
+HexagonRelocator::Result applyAbs(Relocation &pReloc) {
   HexagonRelocator::Address S = pReloc.symValue();
-  HexagonRelocator::DWord   A = pReloc.addend();
-  HexagonRelocator::DWord   P = pReloc.place();
-
-  int32_t result = (int32_t) ((S + A - P) >> 2);
-  int32_t range =  1 << 14;
-  if ( (result < range) && (result > -range)) {
-    pReloc.target() = pReloc.target() | ApplyMask<int32_t>(0x00df20fe,result);
-    return HexagonRelocator::OK;
-  }
-  return HexagonRelocator::Overflow;
-}
-
-// R_HEX_B22_PCREL: Word32_B22 : 0x01ff3ffe  (S + A - P) >> 2 : Signed Verify
-HexagonRelocator::Result relocB22PCREL(Relocation& pReloc,
-                                       HexagonRelocator& pParent)
-{
-  HexagonRelocator::Address S = pReloc.symValue();
-  HexagonRelocator::DWord   A = pReloc.addend();
-  HexagonRelocator::DWord   P = pReloc.place();
-
-  int32_t result = (int32_t) ((S + A - P) >> 2);
-  int32_t range = 1 << 21;
-  uint32_t bitMask = FINDBITMASK(pReloc.target());
-  if ( (result < range) && (result > -range)) {
-    pReloc.target() = pReloc.target() | ApplyMask<int32_t>(bitMask, result);
-    return HexagonRelocator::OK;
-  }
-  return HexagonRelocator::Overflow;
-}
-
-// R_HEX_B7_PCREL: Word32_B7 : 0x0001f18  (S + A - P) >> 2 : Signed Verify
-HexagonRelocator::Result relocB7PCREL(Relocation& pReloc,
-                                      HexagonRelocator& pParent)
-{
-  HexagonRelocator::Address S = pReloc.symValue();
-  HexagonRelocator::DWord   A = pReloc.addend();
-  HexagonRelocator::DWord   P = pReloc.place();
-
-  int32_t result = (int32_t) ((S + A - P) >> 2);
-  int32_t range = 1 << 6;
-  if ( (result < range) && (result > -range)) {
-    pReloc.target() = pReloc.target() | ApplyMask<int32_t>(0x00001f18, result);
-    return HexagonRelocator::OK;
-  }
-  return HexagonRelocator::Overflow;
-}
-
-// R_HEX_32: Word32 : 0xffffffff : (S + A) : Unsigned Truncate
-HexagonRelocator::Result reloc32(Relocation& pReloc,
-                                 HexagonRelocator& pParent)
-{
   HexagonRelocator::DWord A = pReloc.addend();
-  HexagonRelocator::DWord S = pReloc.symValue();
-  ResolveInfo* rsym = pReloc.symInfo();
-  bool has_dyn_rel = pParent.getTarget().symbolNeedsDynRel(
-                              *rsym,
-                              (rsym->reserved() & HexagonRelocator::ReservePLT),
-                              true);
+  uint32_t result = (uint32_t)(S + A);
+  uint32_t bitMask = 0;
+  uint32_t effectiveBits = 0;
+  uint32_t alignment = 1;
+  uint32_t shift = 0;
 
-  // A local symbol may need REL Type dynamic relocation
+  switch (pReloc.type()) {
+  case llvm::ELF::R_HEX_LO16:
+    bitMask = 0x00c03fff;
+    break;
+
+  case llvm::ELF::R_HEX_HI16:
+    shift = 16;
+    bitMask = 0x00c03fff;
+    break;
+
+  case llvm::ELF::R_HEX_32:
+    bitMask = 0xffffffff;
+    break;
+
+  case llvm::ELF::R_HEX_16:
+    bitMask = 0x0000ffff;
+    alignment = 2;
+    break;
+
+  case llvm::ELF::R_HEX_8:
+    bitMask = 0x000000ff;
+    alignment = 1;
+    break;
+
+  case llvm::ELF::R_HEX_12_X:
+    bitMask = 0x000007e0;
+    break;
+
+  case llvm::ELF::R_HEX_32_6_X:
+    bitMask = 0xfff3fff;
+    shift = 6;
+    effectiveBits = 26;
+    break;
+
+  case llvm::ELF::R_HEX_16_X:
+  case llvm::ELF::R_HEX_11_X:
+  case llvm::ELF::R_HEX_10_X:
+  case llvm::ELF::R_HEX_9_X:
+  case llvm::ELF::R_HEX_8_X:
+  case llvm::ELF::R_HEX_7_X:
+  case llvm::ELF::R_HEX_6_X:
+    bitMask = FINDBITMASK(pReloc.target());
+    break;
+
+  default:
+    // show proper error
+    fatal(diag::unsupported_relocation) << (int)
+        pReloc.type() << "mclinker@googlegroups.com";
+
+  }
+
+  if ((shift != 0) && (result % alignment != 0))
+    return HexagonRelocator::BadReloc;
+
+  result >>= shift;
+
+  if (effectiveBits) {
+    uint32_t range = 1 << effectiveBits;
+    if (result > (range - 1))
+      return HexagonRelocator::Overflow;
+  }
+
+  pReloc.target() |= ApplyMask<uint32_t>(bitMask, result);
+  return HexagonRelocator::OK;
+}
+
+//R_HEX_B22_PCREL and its class of relocations, use
+// S + A - P : result is signed verify.
+// Exception: R_HEX_B32_PCREL_X : signed truncate
+// Another Exception: R_HEX_6_PCREL_X is unsigned truncate
+HexagonRelocator::Result applyRel(Relocation &pReloc, int64_t pResult) {
+  uint32_t bitMask = 0;
+  uint32_t effectiveBits = 0;
+  uint32_t alignment = 1;
+  uint32_t result;
+  uint32_t shift = 0;
+
+  switch (pReloc.type()) {
+  case llvm::ELF::R_HEX_B22_PCREL:
+    bitMask = 0x01ff3ffe;
+    effectiveBits = 22;
+    alignment = 4;
+    shift = 2;
+    break;
+
+  case llvm::ELF::R_HEX_B15_PCREL:
+    bitMask = 0x00df20fe;
+    effectiveBits = 15;
+    alignment = 4;
+    shift = 2;
+    break;
+
+  case llvm::ELF::R_HEX_B7_PCREL:
+    bitMask = 0x00001f18;
+    effectiveBits = 7;
+    alignment = 4;
+    shift = 2;
+    break;
+
+  case llvm::ELF::R_HEX_B13_PCREL:
+    bitMask = 0x00202ffe;
+    effectiveBits = 13;
+    alignment = 4;
+    shift = 2;
+    break;
+
+  case llvm::ELF::R_HEX_B9_PCREL:
+    bitMask = 0x003000fe;
+    effectiveBits = 9;
+    alignment = 4;
+    shift = 2;
+    break;
+
+  case llvm::ELF::R_HEX_B32_PCREL_X:
+    bitMask = 0xfff3fff;
+    shift = 6;
+    break;
+
+  case llvm::ELF::R_HEX_B22_PCREL_X:
+    bitMask = 0x01ff3ffe;
+    effectiveBits = 22;
+    pResult &= 0x3f;
+    break;
+
+  case llvm::ELF::R_HEX_B15_PCREL_X:
+    bitMask = 0x00df20fe;
+    effectiveBits = 15;
+    pResult &= 0x3f;
+    break;
+
+  case llvm::ELF::R_HEX_B13_PCREL_X:
+    bitMask = 0x00202ffe;
+    effectiveBits = 13;
+    pResult &= 0x3f;
+    break;
+
+  case llvm::ELF::R_HEX_B9_PCREL_X:
+    bitMask = 0x003000fe;
+    effectiveBits = 9;
+    pResult &= 0x3f;
+    break;
+
+  case llvm::ELF::R_HEX_B7_PCREL_X:
+    bitMask = 0x00001f18;
+    effectiveBits = 7;
+    pResult &= 0x3f;
+    break;
+
+  case llvm::ELF::R_HEX_32_PCREL:
+    bitMask = 0xffffffff;
+    effectiveBits = 32;
+    break;
+
+  case llvm::ELF::R_HEX_6_PCREL_X:
+    // This is unique since it has a unsigned operand and its truncated
+    bitMask = FINDBITMASK(pReloc.target());
+    result = pReloc.addend() + pReloc.symValue() - pReloc.place();
+    pReloc.target() |= ApplyMask<uint32_t>(bitMask, result);
+    return HexagonRelocator::OK;
+
+  default:
+    // show proper error
+    fatal(diag::unsupported_relocation) << (int)
+        pReloc.type() << "mclinker@googlegroups.com";
+  }
+
+  if ((shift != 0) && (pResult % alignment != 0))
+    return HexagonRelocator::BadReloc;
+
+  pResult >>= shift;
+
+  if (effectiveBits) {
+    int64_t range = 1LL << (effectiveBits - 1);
+    if ((pResult > (range - 1)) || (pResult < -range))
+      return HexagonRelocator::Overflow;
+  }
+
+  pReloc.target() |= (uint32_t) ApplyMask<int32_t>(bitMask, pResult);
+  return HexagonRelocator::OK;
+}
+
+HexagonRelocator::Result relocAbs(Relocation &pReloc,
+                                  HexagonRelocator &pParent) {
+  ResolveInfo *rsym = pReloc.symInfo();
+  HexagonLDBackend &ld_backend = pParent.getTarget();
+  HexagonRelocator::Address S = pReloc.symValue();
+  HexagonRelocator::DWord A = pReloc.addend();
+
+  bool has_dyn_rel = ld_backend.symbolNeedsDynRel(
+      *rsym, (rsym->reserved() & HexagonRelocator::ReservePLT), true);
+
+  FragmentRef &target_fragref = pReloc.targetRef();
+  Fragment *target_frag = target_fragref.frag();
+
+  LDSection &target_sect = target_frag->getParent()->getSection();
+  // if the flag of target section is not ALLOC, we eprform only static
+  // relocation.
+  if (0 == (llvm::ELF::SHF_ALLOC & target_sect.flag())) {
+    return applyAbs(pReloc);
+  }
+
+  // a local symbol with .rela type relocation
   if (rsym->isLocal() && has_dyn_rel) {
-    FragmentRef &target_fragref = pReloc.targetRef();
-    Fragment *target_frag = target_fragref.frag();
-    HexagonRelocator::Type pType = llvm::ELF::R_HEX_RELATIVE;
-    Relocation& rel_entry = helper_DynRel(rsym, *target_frag,
-        target_fragref.offset(), pType, pParent);
+    HexagonRelocator::Type type = pReloc.type();
+    if (llvm::ELF::R_HEX_32 == type)
+      type = llvm::ELF::R_HEX_RELATIVE;
+    Relocation &rel_entry = helper_DynRel(
+        rsym, *target_frag, target_fragref.offset(), type, pParent);
     rel_entry.setAddend(S + A);
+    return HexagonRelocator::OK;
   }
 
-  uint32_t result = (uint32_t) (S + A);
+  if (!rsym->isLocal()) {
+    if (rsym->reserved() & HexagonRelocator::ReservePLT) {
+      S = helper_PLT(pReloc, pParent);
+    }
 
-  pReloc.target() = result | pReloc.target();
-  return HexagonRelocator::OK;
+    if (has_dyn_rel) {
+      if (llvm::ELF::R_HEX_32 == pReloc.type() &&
+          helper_use_relative_reloc(*rsym, pParent)) {
+        Relocation &rel_entry =
+            helper_DynRel(rsym, *target_frag, target_fragref.offset(),
+                          llvm::ELF::R_HEX_RELATIVE, pParent);
+        rel_entry.setAddend(S + A);
+      } else {
+        Relocation &rel_entry =
+            helper_DynRel(rsym, *target_frag, target_fragref.offset(),
+                          pReloc.type(), pParent);
+        rel_entry.setAddend(A);
+        return HexagonRelocator::OK;
+      }
+    }
+  }
+
+  return applyAbs(pReloc);
 }
 
-// R_HEX_16: Word32 : 0xffff : (S + A) : Unsigned Truncate
-HexagonRelocator::Result reloc16(Relocation& pReloc,
-                                 HexagonRelocator& pParent)
-{
+HexagonRelocator::Result relocPCREL(Relocation &pReloc,
+                                    HexagonRelocator &pParent) {
+  ResolveInfo *rsym = pReloc.symInfo();
+  int64_t result;
+
+  HexagonRelocator::Address S = pReloc.symValue();
   HexagonRelocator::DWord A = pReloc.addend();
-  HexagonRelocator::DWord S = pReloc.symValue();
+  HexagonRelocator::DWord P = pReloc.place();
 
-  uint32_t result = (uint32_t) (S + A);
-  pReloc.target() = pReloc.target() | ApplyMask<uint32_t>(0x0000ffff, result);
+  FragmentRef &target_fragref = pReloc.targetRef();
+  Fragment *target_frag = target_fragref.frag();
+  LDSection &target_sect = target_frag->getParent()->getSection();
 
-  return HexagonRelocator::OK;
+  result = (int64_t)(S + A - P);
+
+  // for relocs inside non ALLOC, just apply
+  if (0 == (llvm::ELF::SHF_ALLOC & target_sect.flag())) {
+    return applyRel(pReloc, result);
+  }
+
+  if (!rsym->isLocal()) {
+    if (rsym->reserved() & HexagonRelocator::ReservePLT) {
+      S = helper_PLT(pReloc, pParent);
+      result = (int64_t)(S + A - P);
+      applyRel(pReloc, result);
+      return HexagonRelocator::OK;
+    }
+  }
+
+  return applyRel(pReloc, result);
 }
 
-// R_HEX_8: Word32 : 0xff : (S + A) : Unsigned Truncate
-HexagonRelocator::Result reloc8(Relocation& pReloc,
-                                HexagonRelocator& pParent)
-{
+// R_HEX_GPREL16_0 and its class : Unsigned Verify
+HexagonRelocator::Result relocGPREL(Relocation &pReloc,
+                                    HexagonRelocator &pParent) {
+  HexagonRelocator::Address S = pReloc.symValue();
   HexagonRelocator::DWord A = pReloc.addend();
-  HexagonRelocator::DWord S = pReloc.symValue();
+  HexagonRelocator::DWord GP = pParent.getTarget().getGP();
 
-  uint32_t result = (uint32_t) (S + A);
-  pReloc.target() = pReloc.target() | ApplyMask<uint32_t>(0x000000ff, result);
+  uint32_t result = (uint32_t)(S + A - GP);
+  uint32_t shift = 0;
+  uint32_t alignment = 1;
 
-  return HexagonRelocator::OK;
-}
+  switch (pReloc.type()) {
+  case llvm::ELF::R_HEX_GPREL16_0:
+    break;
 
-// R_HEX_LO16: Word32_LO : 0x00c03fff  (S + A) : Unsigned Truncate
-HexagonRelocator::Result relocLO16(Relocation& pReloc,
-                                   HexagonRelocator& pParent)
-{
-  HexagonRelocator::Address S = pReloc.symValue();
-  HexagonRelocator::DWord   A = pReloc.addend();
+  case llvm::ELF::R_HEX_GPREL16_1:
+    shift = 1;
+    alignment = 2;
+    break;
 
-  uint32_t result = (uint32_t) (S + A);
-//  result = ((result & 0x3fff) | ((result << 6) & 0x00c00000));
-  pReloc.target() = pReloc.target() | ApplyMask<uint32_t>(0x00c03fff, result);
-  return HexagonRelocator::OK;
-}
+  case llvm::ELF::R_HEX_GPREL16_2:
+    shift = 2;
+    alignment = 4;
+    break;
 
-// R_HEX_HI16: Word32_LO : 0x00c03fff  (S + A) >> 16 : Unsigned Truncate
-HexagonRelocator::Result relocHI16(Relocation& pReloc,
-                                   HexagonRelocator& pParent)
-{
-  HexagonRelocator::Address S = pReloc.symValue();
-  HexagonRelocator::DWord   A = pReloc.addend();
+  case llvm::ELF::R_HEX_GPREL16_3:
+    shift = 3;
+    alignment = 8;
+    break;
 
-  uint32_t result = (uint32_t) ((S + A) >> 16);
-//  result = ((result & 0x3fff) | ((result << 6) & 0x00c00000));
-  pReloc.target() = pReloc.target() | ApplyMask<uint32_t>(0x00c03fff, result);
-  return HexagonRelocator::OK;
-}
-
-// R_HEX_GPREL16_0 : Word32_GP : 0x061f2ff  (S + A - GP) : Unsigned Verify
-HexagonRelocator::Result relocGPREL16_0(Relocation& pReloc,
-                                        HexagonRelocator& pParent)
-{
-  HexagonRelocator::Address S = pReloc.symValue();
-  HexagonRelocator::DWord   A = pReloc.addend();
-  HexagonLDBackend& ld_backend = pParent.getTarget();
-  HexagonRelocator::DWord   GP = ld_backend.getGP();
-
-  int64_t result = (int64_t) (S + A - GP);
-  int64_t range = 1ULL << 32;
-  uint32_t bitMask = FINDBITMASK(pReloc.target());
-  if (result <= range) {
-    pReloc.target() = pReloc.target() | ApplyMask<uint32_t>(bitMask, result);
-    return HexagonRelocator::OK;
-  }
-  return HexagonRelocator::Overflow;
-}
-
-// R_HEX_GPREL16_1 : Word32_GP : 0x061f2ff  (S + A - GP)>>1 : Unsigned Verify
-HexagonRelocator::Result relocGPREL16_1(Relocation& pReloc,
-                                        HexagonRelocator& pParent)
-{
-  HexagonRelocator::Address S = pReloc.symValue();
-  HexagonRelocator::DWord   A = pReloc.addend();
-  HexagonLDBackend& ld_backend = pParent.getTarget();
-  HexagonRelocator::DWord   GP = ld_backend.getGP();
-
-  int64_t result = (int64_t) ((S + A - GP) >> 1);
-  int64_t range = 1LL << 32;
-  uint32_t bitMask = FINDBITMASK(pReloc.target());
-  if (result <= range) {
-    pReloc.target() = pReloc.target() | ApplyMask<uint32_t>(bitMask, result);
-    return HexagonRelocator::OK;
-  }
-  return HexagonRelocator::Overflow;
-}
-
-// R_HEX_GPREL16_2 : Word32_GP : 0x061f2ff  (S + A - GP)>>2 : Unsigned Verify
-HexagonRelocator::Result relocGPREL16_2(Relocation& pReloc,
-                                        HexagonRelocator& pParent)
-{
-  HexagonRelocator::Address S = pReloc.symValue();
-  HexagonRelocator::DWord   A = pReloc.addend();
-  HexagonLDBackend& ld_backend = pParent.getTarget();
-  HexagonRelocator::DWord   GP = ld_backend.getGP();
-
-  int64_t result = (int64_t) ((S + A - GP) >> 2);
-  int64_t range = 1LL << 32;
-  uint32_t bitMask = FINDBITMASK(pReloc.target());
-  if (result <= range) {
-    pReloc.target() = pReloc.target() | ApplyMask<uint32_t>(bitMask, result);
-    return HexagonRelocator::OK;
-  }
-  return HexagonRelocator::Overflow;
-}
-
-// R_HEX_GPREL16_3 : Word32_GP : 0x061f2ff  (S + A - GP)>>3 : Unsigned Verify
-HexagonRelocator::Result relocGPREL16_3(Relocation& pReloc,
-                                        HexagonRelocator& pParent)
-{
-  HexagonRelocator::Address S = pReloc.symValue();
-  HexagonRelocator::DWord   A = pReloc.addend();
-  HexagonLDBackend& ld_backend = pParent.getTarget();
-  HexagonRelocator::DWord   GP = ld_backend.getGP();
-
-  int64_t result = (int64_t) ((S + A - GP) >> 3);
-  int64_t range = 1LL << 32;
-  uint32_t bitMask = FINDBITMASK(pReloc.target());
-  if (result <= range) {
-    pReloc.target() = pReloc.target() | ApplyMask<uint32_t>(bitMask, result);
-    return HexagonRelocator::OK;
-  }
-  return HexagonRelocator::Overflow;
-}
-
-// R_HEX_B13_PCREL : Word32_B13 : 0x00202ffe  (S + A - P)>>2 : Signed Verify
-HexagonRelocator::Result relocB13PCREL(Relocation& pReloc,
-                                       HexagonRelocator& pParent)
-{
-  HexagonRelocator::Address S = pReloc.symValue();
-  HexagonRelocator::DWord   A = pReloc.addend();
-  HexagonRelocator::DWord   P = pReloc.place();
-
-  int32_t result = ((S + A - P) >> 2);
-  int32_t range = 1L << 12;
-  if (result < range && result > -range) {
-    pReloc.target() = pReloc.target() | ApplyMask<uint32_t>(0x00202ffe, result);
-    return HexagonRelocator::OK;
-  }
-  return HexagonRelocator::Overflow;
-}
-
-// R_HEX_B9_PCREL : Word32_B9 : 0x00300ffe  (S + A - P)>>2 : Signed Verify
-HexagonRelocator::Result relocB9PCREL(Relocation& pReloc,
-                                      HexagonRelocator& pParent)
-{
-  HexagonRelocator::Address S = pReloc.symValue();
-  HexagonRelocator::DWord   A = pReloc.addend();
-  HexagonRelocator::DWord   P = pReloc.place();
-
-  int32_t result = ((S + A - P) >> 2);
-  int32_t range = 1L << 8;
-  uint32_t bitMask = FINDBITMASK(pReloc.target());
-  if (result < range && result > -range) {
-    pReloc.target() = pReloc.target() | ApplyMask<uint32_t>(bitMask, result);
-    return HexagonRelocator::OK;
-  }
-  return HexagonRelocator::Overflow;
-}
-
-// R_HEX_B32_PCREL_X : Word32_X26 : 0x0fff3fff  (S + A - P)>>6 : Truncate
-HexagonRelocator::Result relocB32PCRELX(Relocation& pReloc,
-                                        HexagonRelocator& pParent)
-{
-  HexagonRelocator::Address S = pReloc.symValue();
-  HexagonRelocator::DWord   A = pReloc.addend();
-  HexagonRelocator::DWord   P = pReloc.place();
-
-  int32_t result = ((S + A - P) >> 6);
-  pReloc.target() = pReloc.target() | ApplyMask<int32_t>(0xfff3fff, result);
-
-  return HexagonRelocator::OK;
-}
-
-// R_HEX_32_6_X : Word32_X26 : 0x0fff3fff  (S + A)>>6 : Unsigned Verify
-HexagonRelocator::Result reloc32_6_X(Relocation& pReloc,
-                                     HexagonRelocator& pParent)
-{
-  HexagonRelocator::Address S = pReloc.symValue();
-  HexagonRelocator::DWord   A = pReloc.addend();
-
-  int64_t result = ((S + A) >> 6);
-  int64_t range = 1LL << 32;
-
-  if (result > range)
-    return HexagonRelocator::Overflow;
-
-  pReloc.target() = pReloc.target() | ApplyMask<uint32_t>(0xfff3fff, result);
-
-  return HexagonRelocator::OK;
-}
-
-// R_HEX_B22_PCREL_X : Word32_B22 : 0x01ff3ffe
-// ((S + A - P) & 0x3f)>>2 : Signed Verify
-HexagonRelocator::Result relocB22PCRELX(Relocation& pReloc,
-                                        HexagonRelocator& pParent)
-{
-  HexagonRelocator::Address S = pReloc.symValue();
-  HexagonRelocator::DWord   A = pReloc.addend();
-  HexagonRelocator::DWord   P = pReloc.place();
-
-  int32_t result = ((S + A - P) & 0x3f);
-  int32_t range = 1 << 21;
-
-  if (result < range && result > -range)  {
-    pReloc.target() = pReloc.target() | ApplyMask<uint32_t>(0x01ff3ffe, result);
-    return HexagonRelocator::OK;
+  default:
+    // show proper error
+    fatal(diag::unsupported_relocation) << (int)
+        pReloc.type() << "mclinker@googlegroups.com";
   }
 
-  return HexagonRelocator::Overflow;
-}
-
-// R_HEX_B15_PCREL_X : Word32_B15 : 0x00df20fe
-// ((S + A - P) & 0x3f)>>2 : Signed Verify
-HexagonRelocator::Result relocB15PCRELX(Relocation& pReloc,
-                                        HexagonRelocator& pParent)
-{
-  HexagonRelocator::Address S = pReloc.symValue();
-  HexagonRelocator::DWord   A = pReloc.addend();
-  HexagonRelocator::DWord   P = pReloc.place();
-
-  int32_t result = ((S + A - P) & 0x3f);
-  int32_t range = 1 << 14;
-
-  if (result < range && result > -range)  {
-    pReloc.target() = pReloc.target() | ApplyMask<int32_t>(0x00df20fe, result);
-    return HexagonRelocator::OK;
-  }
-
-  return HexagonRelocator::Overflow;
-}
-
-// R_HEX_B13_PCREL_X : Word32_B13 : 0x00202ffe
-// ((S + A - P) & 0x3f)>>2 : Signed Verify
-HexagonRelocator::Result relocB13PCRELX(Relocation& pReloc,
-                                        HexagonRelocator& pParent)
-{
-  HexagonRelocator::Address S = pReloc.symValue();
-  HexagonRelocator::DWord   A = pReloc.addend();
-  HexagonRelocator::DWord   P = pReloc.place();
-
-  int32_t result = ((S + A - P) & 0x3f);
-  int32_t range = 1 << 12;
-
-  if (result < range && result > -range)  {
-    pReloc.target() = pReloc.target() | ApplyMask<int32_t>(0x00202ffe, result);
-    return HexagonRelocator::OK;
-  }
-
-  return HexagonRelocator::Overflow;
-}
-
-// R_HEX_B9_PCREL_X : Word32_B9 : 0x003000fe
-// ((S + A - P) & 0x3f)>>2 : Signed Verify
-HexagonRelocator::Result relocB9PCRELX(Relocation& pReloc,
-                                       HexagonRelocator& pParent)
-{
-  HexagonRelocator::Address S = pReloc.symValue();
-  HexagonRelocator::DWord   A = pReloc.addend();
-  HexagonRelocator::DWord   P = pReloc.place();
-
-  int32_t result = ((S + A - P) & 0x3f);
-  int32_t range = 1 << 8;
-
-  uint32_t bitMask = FINDBITMASK(pReloc.target());
-  if (result < range && result > -range)  {
-    pReloc.target() = pReloc.target() | ApplyMask<int32_t>(bitMask, result);
-    return HexagonRelocator::OK;
-  }
-
-  return HexagonRelocator::Overflow;
-}
-
-// R_HEX_B7_PCREL_X : Word32_B7 : 0x00001f18
-// ((S + A - P) & 0x3f)>>2 : Signed Verify
-HexagonRelocator::Result relocB7PCRELX(Relocation& pReloc,
-                                       HexagonRelocator& pParent)
-{
-  HexagonRelocator::Address S = pReloc.symValue();
-  HexagonRelocator::DWord   A = pReloc.addend();
-  HexagonRelocator::DWord   P = pReloc.place();
-
-  int32_t result = ((S + A - P) & 0x3f);
-  int32_t range = 1 << 6;
-
-  if (result < range && result > -range)  {
-    pReloc.target() = pReloc.target() | ApplyMask<int32_t>(0x00001f18, result);
-    return HexagonRelocator::OK;
-  }
-
-  return HexagonRelocator::Overflow;
-}
-
-// R_HEX_32_PCREL : Word32 : 0xffffffff  (S + A - P) : Signed Verify
-HexagonRelocator::Result reloc32PCREL(Relocation& pReloc,
-                                      HexagonRelocator& pParent)
-{
-  HexagonRelocator::Address S = pReloc.symValue();
-  HexagonRelocator::DWord   A = pReloc.addend();
-  HexagonRelocator::DWord   P = pReloc.place();
-
-  int64_t result = S + A - P;
-  int32_t range = 1 << 31;
-
-  if (result < range && result > -range)  {
-    pReloc.target() = pReloc.target() | ApplyMask<int32_t>(0xffffffff, result);
-    return HexagonRelocator::OK;
-  }
-
-  return HexagonRelocator::Overflow;
-}
-
-// R_HEX_N_X : Word32_U6 : (S + A) : Unsigned Truncate
-HexagonRelocator::Result relocHexNX(Relocation& pReloc,
-                                    HexagonRelocator& pParent)
-{
-  HexagonRelocator::Address S = pReloc.symValue();
-  HexagonRelocator::DWord   A = pReloc.addend();
-  uint32_t result = (S + A);
+  uint32_t range = 1 << 16;
   uint32_t bitMask = FINDBITMASK(pReloc.target());
 
-  pReloc.target() = pReloc.target() | ApplyMask<uint32_t>(bitMask, result);
-  return HexagonRelocator::OK;
+  if ((shift != 0) && (result % alignment != 0))
+    return HexagonRelocator::BadReloc;
+
+  result >>= shift;
+
+  if (result < range - 1) {
+    pReloc.target() |= ApplyMask<uint32_t>(bitMask, result);
+    return HexagonRelocator::OK;
+  }
+  return HexagonRelocator::Overflow;
 }
 
 // R_HEX_PLT_B22_PCREL: PLT(S) + A - P
-HexagonRelocator::Result relocPLTB22PCREL(Relocation& pReloc, HexagonRelocator& pParent)
-{
+HexagonRelocator::Result relocPLTB22PCREL(Relocation &pReloc,
+                                          HexagonRelocator &pParent) {
   // PLT_S depends on if there is a PLT entry.
   HexagonRelocator::Address PLT_S;
   if ((pReloc.symInfo()->reserved() & HexagonRelocator::ReservePLT))
@@ -891,97 +842,136 @@ HexagonRelocator::Result relocPLTB22PCREL(Relocation& pReloc, HexagonRelocator& 
   return HexagonRelocator::OK;
 }
 
-// R_HEX_GOTREL_LO16: Word32_LO : 0x00c03fff  (S + A - GOT) : Unsigned Truncate
-HexagonRelocator::Result relocHexGOTRELLO16(Relocation& pReloc,
-                                            HexagonRelocator& pParent)
-{
-  HexagonRelocator::Address S = pReloc.symValue();
-  HexagonRelocator::DWord   A = pReloc.addend();
-  HexagonRelocator::Address GOT = pParent.getTarget().getGOTSymbolAddr();
-
-  uint32_t result = (uint32_t) (S + A - GOT);
-  pReloc.target() = pReloc.target() | ApplyMask<uint32_t>(0x00c03fff, result);
-  return HexagonRelocator::OK;
-}
-
-// R_HEX_GOTREL_HI16 : Word32_LO : 0x00c03fff  (S + A - GOT) >> 16 : Unsigned Truncate
-HexagonRelocator::Result relocHexGOTRELHI16(Relocation& pReloc,
-                                   HexagonRelocator& pParent)
-{
-  HexagonRelocator::Address S = pReloc.symValue();
-  HexagonRelocator::DWord   A = pReloc.addend();
-  HexagonRelocator::Address GOT = pParent.getTarget().getGOTSymbolAddr();
-
-  uint32_t result = (uint32_t) ((S + A - GOT) >> 16);
-
-  pReloc.target() = pReloc.target() | ApplyMask<uint32_t>(0x00c03fff, result);
-  return HexagonRelocator::OK;
-}
-
-// R_HEX_GOTREL_32 : Word32  (S + A - GOT) : Unsigned Truncate
-HexagonRelocator::Result relocHexGOTREL32(Relocation& pReloc,
-                                   HexagonRelocator& pParent)
-{
-  HexagonRelocator::Address S = pReloc.symValue();
-  HexagonRelocator::DWord   A = pReloc.addend();
-  HexagonRelocator::Address GOT = pParent.getTarget().getGOTSymbolAddr();
-
-  uint32_t result = (uint32_t) (S + A - GOT);
-
-  pReloc.target() = pReloc.target() | result;
-  return HexagonRelocator::OK;
-}
-
-// R_HEX_6_PCREL_X : (S + A - P)
-HexagonRelocator::Result relocHex6PCRELX(Relocation& pReloc,
-                                        HexagonRelocator& pParent)
-{
-  HexagonRelocator::Address S = pReloc.symValue();
-  HexagonRelocator::DWord   A = pReloc.addend();
-  HexagonRelocator::DWord   P = pReloc.place();
-
-  int32_t result = (S + A - P);
-  uint32_t bitMask = FINDBITMASK(pReloc.target());
-
-  pReloc.target() = pReloc.target() | ApplyMask<uint32_t>(bitMask, result);
-  return HexagonRelocator::OK;
-}
-
-// R_HEX_GOT_32_6_X : (G) >> 6
-HexagonRelocator::Result relocHexGOT326X(Relocation& pReloc,
-                                         HexagonRelocator& pParent)
-{
-  if (!(pReloc.symInfo()->reserved()
-       & (HexagonRelocator::ReserveGOT | HexagonRelocator::GOTRel))) {
+//R_HEX_GOT_LO16 and its class : (G) Signed Truncate
+//Exception: R_HEX_GOT_16(_X): signed verify
+// Exception: R_HEX_GOT_11_X : unsigned truncate
+HexagonRelocator::Result relocGOT(Relocation &pReloc,
+                                  HexagonRelocator &pParent) {
+  if (!(pReloc.symInfo()->reserved() &
+        (HexagonRelocator::ReserveGOT | HexagonRelocator::GOTRel))) {
     return HexagonRelocator::BadReloc;
   }
-  HexagonRelocator::Address GOT_S   = helper_GOT(pReloc, pParent);
-  HexagonRelocator::Address GOT = pParent.getTarget().getGOTSymbolAddr();
-  int32_t result = (GOT_S - GOT) >> 6;
-  uint32_t bitMask = FINDBITMASK(pReloc.target());
-  pReloc.target() = pReloc.target() | ApplyMask<uint32_t>(bitMask, result);
-  return HexagonRelocator::OK;
-}
 
-// R_HEX_GOT_16_X : (G)
-// R_HEX_GOT_11_X : (G)
-HexagonRelocator::Result relocHexGOT1611X(Relocation& pReloc,
-                                         HexagonRelocator& pParent)
-{
-  if (!(pReloc.symInfo()->reserved()
-       & (HexagonRelocator::ReserveGOT | HexagonRelocator::GOTRel))) {
-    return HexagonRelocator::BadReloc;
+  HexagonRelocator::Address GOT_S = helper_GOT(pReloc, pParent);
+  HexagonRelocator::Address GOT = pParent.getTarget().getGOTSymbolAddr();
+  int32_t result = (int32_t)(GOT_S - GOT);
+  uint32_t effectiveBits = 0;
+  uint32_t alignment = 1;
+  uint32_t bitMask = 0;
+  uint32_t result_u;
+  uint32_t shift = 0;
+
+  switch (pReloc.type()) {
+  case llvm::ELF::R_HEX_GOT_LO16:
+    bitMask = 0x00c03fff;
+    break;
+
+  case llvm::ELF::R_HEX_GOT_HI16:
+    bitMask = 0x00c03fff;
+    shift = 16;
+    alignment = 4;
+    break;
+
+  case llvm::ELF::R_HEX_GOT_32:
+    bitMask = 0xffffffff;
+    break;
+
+  case llvm::ELF::R_HEX_GOT_16:
+    bitMask = FINDBITMASK(pReloc.target());
+    effectiveBits = 16;
+    break;
+
+  case llvm::ELF::R_HEX_GOT_32_6_X:
+    bitMask = 0xfff3fff;
+    shift = 6;
+    break;
+
+  case llvm::ELF::R_HEX_GOT_16_X:
+    bitMask = FINDBITMASK(pReloc.target());
+    effectiveBits = 6;
+    break;
+
+  case llvm::ELF::R_HEX_GOT_11_X:
+    bitMask = FINDBITMASK(pReloc.target());
+    result_u = GOT_S - GOT;
+    pReloc.target() |= ApplyMask<uint32_t>(bitMask, result_u);
+    return HexagonRelocator::OK;
+
+  default:
+    // show proper error
+    fatal(diag::unsupported_relocation) << (int)
+        pReloc.type() << "mclinker@googlegroups.com";
   }
-  HexagonRelocator::Address GOT_S   = helper_GOT(pReloc, pParent);
-  HexagonRelocator::Address GOT = pParent.getTarget().getGOTSymbolAddr();
-  int32_t result = (GOT_S - GOT);
-  uint32_t bitMask = FINDBITMASK(pReloc.target());
-  pReloc.target() = pReloc.target() | ApplyMask<uint32_t>(bitMask, result);
+
+  if ((shift != 0) && (result % alignment != 0))
+    return HexagonRelocator::BadReloc;
+
+  result >>= shift;
+
+  if (effectiveBits) {
+    int32_t range = 1 << (effectiveBits - 1);
+    if ((result > range - 1) || (result < -range))
+      return HexagonRelocator::Overflow;
+  }
+  pReloc.target() |= ApplyMask<int32_t>(bitMask, result);
   return HexagonRelocator::OK;
 }
 
-HexagonRelocator::Result unsupport(Relocation& pReloc,
-                                   HexagonRelocator& pParent)
-{
+// R_HEX_GOTREL_LO16: and its class of relocs
+// (S + A - GOT) : Signed Truncate
+HexagonRelocator::Result relocGOTREL(Relocation &pReloc,
+                                     HexagonRelocator &pParent) {
+  HexagonRelocator::Address S = pReloc.symValue();
+  HexagonRelocator::DWord A = pReloc.addend();
+  HexagonRelocator::Address GOT = pParent.getTarget().getGOTSymbolAddr();
+
+  uint32_t bitMask = 0;
+  uint32_t alignment = 1;
+  uint32_t shift = 0;
+
+  uint32_t result = (uint32_t)(S + A - GOT);
+
+  switch (pReloc.type()) {
+  case llvm::ELF::R_HEX_GOTREL_LO16:
+    bitMask = 0x00c03fff;
+    break;
+
+  case llvm::ELF::R_HEX_GOTREL_HI16:
+    bitMask = 0x00c03fff;
+    shift = 16;
+    alignment = 4;
+    break;
+
+  case llvm::ELF::R_HEX_GOTREL_32:
+    bitMask = 0xffffffff;
+    break;
+
+  case llvm::ELF::R_HEX_GOTREL_32_6_X:
+    bitMask = 0x0fff3fff;
+    shift = 6;
+    break;
+
+  case llvm::ELF::R_HEX_GOTREL_16_X:
+  case llvm::ELF::R_HEX_GOTREL_11_X:
+    bitMask = FINDBITMASK(pReloc.target());
+    break;
+
+  default:
+    // show proper error
+    fatal(diag::unsupported_relocation) << (int)
+        pReloc.type() << "mclinker@googlegroups.com";
+  }
+
+  if (result % alignment != 0)
+    return HexagonRelocator::BadReloc;
+
+  result >>= shift;
+
+  pReloc.target() |= ApplyMask<uint32_t>(bitMask, result);
+  return HexagonRelocator::OK;
+}
+
+HexagonRelocator::Result unsupport(Relocation &pReloc,
+                                   HexagonRelocator &pParent) {
   return HexagonRelocator::Unsupport;
 }
