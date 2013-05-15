@@ -40,7 +40,7 @@ SYMBOLCHARN   [_a-zA-Z\/\.\\\$\_\~0-9]
 NOCFILENAMECHAR [_a-zA-Z0-9\/\.\-\_\+\$\:\[\]\\\~]
 WS [ \t\r]
 
-/* Starte conditions */
+/* Start conditions */
 %s LDSCRIPT
 %s EXPRESSION
 
