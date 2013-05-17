@@ -244,17 +244,17 @@ bool ResolveInfo::compare(const ResolveInfo::key_type& pKey)
 //===----------------------------------------------------------------------===//
 ResolveInfo* ResolveInfo::Create(const ResolveInfo::key_type& pKey)
 {
-  ResolveInfo* result = static_cast<ResolveInfo*>(
+  ResolveInfo* info = static_cast<ResolveInfo*>(
                           malloc(sizeof(ResolveInfo)+pKey.size()+1));
-  if (NULL == result)
+  if (NULL == info)
     return NULL;
 
-  new (result) ResolveInfo();
-  std::memcpy(result->m_Name, pKey.data(), pKey.size());
-  result->m_Name[pKey.size()] = '\0';
-  result->m_BitField &= ~ResolveInfo::RESOLVE_MASK;
-  result->m_BitField |= (pKey.size() << ResolveInfo::NAME_LENGTH_OFFSET);
-  return result;
+  new (info) ResolveInfo(); // call constructor at the `result` address.
+  std::memcpy(info->m_Name, pKey.data(), pKey.size());
+  info->m_Name[pKey.size()] = '\0';
+  info->m_BitField &= ~ResolveInfo::RESOLVE_MASK;
+  info->m_BitField |= (pKey.size() << ResolveInfo::NAME_LENGTH_OFFSET);
+  return info;
 }
 
 void ResolveInfo::Destroy(ResolveInfo*& pInfo)
