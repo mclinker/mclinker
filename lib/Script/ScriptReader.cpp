@@ -63,9 +63,9 @@ bool ScriptReader::readScript(const LinkerConfig& pConfig,
 
   std::istream in(&buf);
   ScriptScanner scanner(&in);
-  ScriptParser parser(pConfig, pLDScript, pScriptFile, scanner, m_GroupReader, *this);
+  ScriptParser parser(pConfig, pLDScript, pScriptFile, scanner, m_GroupReader);
 
-  result = (parser.parse() == 0);
+  result = (0 == parser.parse());;
 
   if (pScriptFile.getType() == ScriptFile::InputData)
     input->memArea()->release(region);

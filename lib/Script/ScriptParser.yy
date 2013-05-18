@@ -33,7 +33,6 @@
 %parse-param { class ScriptFile& pScriptFile }
 %parse-param { class ScriptScanner& pScriptScanner }
 %parse-param { class GroupReader& pGroupReader}
-%parse-param { class ScriptReader& pScriptReader }
 %lex-param { const class ScriptFile& pScriptFile }
 
 %locations
