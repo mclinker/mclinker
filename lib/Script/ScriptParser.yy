@@ -32,6 +32,7 @@
 %parse-param { class LinkerScript& pLDScript }
 %parse-param { class ScriptFile& pScriptFile }
 %parse-param { class ScriptScanner& pScriptScanner }
+%parse-param { class GroupReader& pGroupReader}
 %parse-param { class ScriptReader& pScriptReader }
 %lex-param { const class ScriptFile& pScriptFile }
 
@@ -200,8 +201,7 @@ output_format_command : OUTPUT_FORMAT '(' STRING ')'
 
 group_command : GROUP
                 {
-                  pScriptFile.addGroupCmd(pScriptReader.getGroupReader(),
-                                          pConfig);
+                  pScriptFile.addGroupCmd(pGroupReader, pConfig);
                 }
                 '(' input_list ')'
               ;
