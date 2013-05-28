@@ -181,6 +181,7 @@ linker_script : linker_script script_command
 script_command : entry_command
                | output_format_command
                | group_command
+               | output_command
                | search_dir_command
                | output_arch_command
                | { pScriptScanner.setLexState(ScriptFile::Expression); }
@@ -208,6 +209,10 @@ group_command : GROUP
 search_dir_command : SEARCH_DIR '(' STRING ')'
                      { pScriptFile.addSearchDirCmd(*$3, pLDScript); }
                    ;
+
+output_command : OUTPUT '(' STRING ')'
+                 { pScriptFile.addOutputCmd(*$3, pLDScript); }
+               ;
 
 output_arch_command : OUTPUT_ARCH '(' STRING ')'
                       { pScriptFile.addOutputArchCmd(*$3); }

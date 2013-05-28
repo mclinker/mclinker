@@ -112,6 +112,9 @@ public:
   /// GROUP(file file ...)
   void addGroupCmd(GroupReader& pGroupReader, const LinkerConfig& pConfig);
 
+  /// OUTPUT(filename)
+  void addOutputCmd(const std::string& pFileName, LinkerScript& pScript);
+
   /// SEARCH_DIR(path)
   void addSearchDirCmd(const std::string& pPath, LinkerScript& pScript);
 

@@ -93,6 +93,13 @@ public:
 
   bool hasEntry() const;
 
+  /// output filename
+  const std::string& outputFile() const;
+
+  void setOutputFile(const std::string& pOutputFile);
+
+  bool hasOutputFile() const;
+
 private:
   SymbolRenameMap m_SymbolRenames;
   AddressMap m_AddressMap;
@@ -101,6 +108,7 @@ private:
   DefSyms m_DefSyms;
   SearchDirs m_SearchDirs;
   std::string m_Entry;
+  std::string m_OutputFile;
 };
 
 } // namespace of mcld

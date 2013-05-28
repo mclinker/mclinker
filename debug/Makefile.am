@@ -450,6 +450,7 @@ LINKERSCRIPT_HEADER = \
 	${INCDIR}/Script/EntryCmd.h \
 	${INCDIR}/Script/OutputFormatCmd.h \
 	${INCDIR}/Script/GroupCmd.h \
+	${INCDIR}/Script/OutputCmd.h \
 	${INCDIR}/Script/SearchDirCmd.h \
 	${INCDIR}/Script/OutputArchCmd.h \
 	${INCDIR}/Script/Assignment.h \
@@ -471,6 +472,7 @@ LINKERSCRIPT_SOURCE = \
 	${LIBDIR}/Script/EntryCmd.cpp \
 	${LIBDIR}/Script/OutputFormatCmd.cpp \
 	${LIBDIR}/Script/GroupCmd.cpp \
+	${LIBDIR}/Script/OutputCmd.cpp \
 	${LIBDIR}/Script/SearchDirCmd.cpp \
 	${LIBDIR}/Script/OutputArchCmd.cpp \
 	${LIBDIR}/Script/Assignment.cpp \

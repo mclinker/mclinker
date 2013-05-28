@@ -26,6 +26,7 @@ public:
     Entry,
     OutputFormat,
     Group,
+    Output,
     SearchDir,
     OutputArch,
     Assignment

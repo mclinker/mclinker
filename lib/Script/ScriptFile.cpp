@@ -12,6 +12,7 @@
 #include <mcld/Script/EntryCmd.h>
 #include <mcld/Script/OutputFormatCmd.h>
 #include <mcld/Script/GroupCmd.h>
+#include <mcld/Script/OutputCmd.h>
 #include <mcld/Script/SearchDirCmd.h>
 #include <mcld/Script/OutputArchCmd.h>
 #include <mcld/Script/RpnExpr.h>
@@ -137,6 +138,12 @@ void ScriptFile::addGroupCmd(GroupReader& pGroupReader,
 {
   m_CommandQueue.push_back(
     new GroupCmd(*m_pInputTree, m_Builder, pGroupReader, pConfig));
+}
+
+void ScriptFile::addOutputCmd(const std::string& pFileName,
+                              LinkerScript& pScript)
+{
+  m_CommandQueue.push_back(new OutputCmd(pFileName, pScript));
 }
 
 void ScriptFile::addSearchDirCmd(const std::string& pPath,
