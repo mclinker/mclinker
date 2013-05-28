@@ -88,8 +88,8 @@ public:
   OutputRelocSection& getRelDyn();
   const OutputRelocSection& getRelDyn() const;
 
-  LDSymbol*             getGOTSymbo()            { return m_pGOTSymbol;    }
-  const LDSymbol*       getGOTSymbo() const      { return m_pGOTSymbol;    }
+  LDSymbol*             getGOTSymbol()           { return m_pGOTSymbol;    }
+  const LDSymbol*       getGOTSymbol() const     { return m_pGOTSymbol;    }
 
   LDSymbol*             getGpDispSymbol()        { return m_pGpDispSymbol; }
   const LDSymbol*       getGpDispSymbol() const  { return m_pGpDispSymbol; }
