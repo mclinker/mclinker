@@ -36,3 +36,17 @@ bool LinkerScript::hasSysroot() const
   return !sysroot().empty();
 }
 
+const std::string& LinkerScript::entry() const
+{
+  return m_Entry;
+}
+
+void LinkerScript::setEntry(const std::string& pEntry)
+{
+  m_Entry = pEntry;
+}
+
+bool LinkerScript::hasEntry() const
+{
+  return !m_Entry.empty();
+}

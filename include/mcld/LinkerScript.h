@@ -87,14 +87,11 @@ public:
   bool hasSysroot() const;
 
   /// entry point
-  bool hasEntry() const
-  { return !m_Entry.empty(); }
+  const std::string& entry() const;
 
-  void setEntry(const std::string& pEntry)
-  { m_Entry = pEntry; }
+  void setEntry(const std::string& pEntry);
 
-  const std::string& entry() const
-  { return m_Entry; }
+  bool hasEntry() const;
 
 private:
   SymbolRenameMap m_SymbolRenames;

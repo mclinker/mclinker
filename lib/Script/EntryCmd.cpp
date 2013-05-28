@@ -33,6 +33,7 @@ void EntryCmd::dump() const
 
 void EntryCmd::activate()
 {
-  m_Script.setEntry(m_Entry);
+  if (!m_Script.hasEntry())
+    m_Script.setEntry(m_Entry);
 }
 
