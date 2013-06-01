@@ -19,7 +19,7 @@
 #include <mcld/MC/InputBuilder.h>
 
 namespace mcld {
-  class ELFReader<64, true>;
+  template<> class ELFReader<64, true>;
 } // namespace for mcld
 
 namespace mcldtest
