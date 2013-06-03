@@ -32,7 +32,6 @@
 #include <mcld/Support/RealPath.h>
 #include <mcld/Support/MemoryArea.h>
 #include <mcld/Support/MsgHandling.h>
-#include <mcld/Support/DefSymParser.h>
 #include <mcld/Target/TargetLDBackend.h>
 #include <mcld/Fragment/FragmentLinker.h>
 #include <mcld/Object/ObjectBuilder.h>
