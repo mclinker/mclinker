@@ -132,6 +132,7 @@ HEADER = ${INCDIR}/ADT/Uncopyable.h \
 	${INCDIR}/LD/DiagRelocations.inc \
 	${INCDIR}/LD/DiagLayouts.inc \
 	${INCDIR}/LD/DiagGOTPLT.inc \
+	${INCDIR}/LD/DiagLDScript.inc \
 	${INCDIR}/LD/LDContext.h \
 	${INCDIR}/LD/Archive.h \
 	${INCDIR}/LD/BranchIsland.h \
