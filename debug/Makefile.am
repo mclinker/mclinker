@@ -11,6 +11,8 @@ AM_CXXFLAGS = \
 	@NO_COVERED_SWITCH_DEFAULT@ \
 	@NO_C99_EXTENSIONS@
 
+BUILT_SOURCES = ScriptParser.h
+AM_YFLAGS = -d
 AM_LFLAGS = -olex.yy.c
 
 HEADER = ${INCDIR}/ADT/Uncopyable.h \
