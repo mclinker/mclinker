@@ -14,6 +14,7 @@
 namespace mcld {
 
 extern mcld::Target TheMipselTarget;
+extern mcld::Target TheMips64elTarget;
 
 } // namespace of mcld
 

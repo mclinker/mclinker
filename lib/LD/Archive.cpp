@@ -20,6 +20,7 @@ const char   Archive::MAGIC[]            = "!<arch>\n";
 const char   Archive::THIN_MAGIC[]       = "!<thin>\n";
 const size_t Archive::MAGIC_LEN          = sizeof(Archive::MAGIC) - 1;
 const char   Archive::SVR4_SYMTAB_NAME[] = "/               ";
+const char   Archive::IRIX6_SYMTAB_NAME[]= "/SYM64/         ";
 const char   Archive::STRTAB_NAME[]      = "//              ";
 const char   Archive::PAD[]              = "\n";
 const char   Archive::MEMBER_MAGIC[]     = "`\n";

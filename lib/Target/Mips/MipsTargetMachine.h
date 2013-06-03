@@ -9,7 +9,6 @@
 #ifndef MIPS_TARGET_MACHINE_H
 #define MIPS_TARGET_MACHINE_H
 
-#include "Mips.h"
 #include <mcld/Target/TargetMachine.h>
 
 namespace mcld {
@@ -20,8 +19,6 @@ public:
   MipsBaseTargetMachine(llvm::TargetMachine &pTM,
                         const mcld::Target &pTarget,
                         const std::string &pTriple);
-
-  virtual ~MipsBaseTargetMachine();
 };
 
 } // namespace of mcld

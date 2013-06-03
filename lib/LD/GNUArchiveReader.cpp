@@ -237,6 +237,35 @@ Input* GNUArchiveReader::readMemberHeader(Archive& pArchiveRoot,
   return member;
 }
 
+template <size_t SIZE>
+static void readSymbolTableEntries(Archive& pArchive, MemoryRegion& pMemRegion)
+{
+  typedef typename SizeTraits<SIZE>::Offset Offset;
+
+  const Offset* data = reinterpret_cast<const Offset*>(pMemRegion.getBuffer());
+
+  // read the number of symbols
+  Offset number = 0;
+  if (llvm::sys::IsLittleEndianHost)
+    number = mcld::bswap<SIZE>(*data);
+  else
+    number = *data;
+
+  // set up the pointers for file offset and name offset
+  ++data;
+  const char* name = reinterpret_cast<const char*>(data + number);
+
+  // add the archive symbols
+  for (Offset i = 0; i < number; ++i) {
+    if (llvm::sys::IsLittleEndianHost)
+      pArchive.addSymbol(name, mcld::bswap<SIZE>(*data));
+    else
+      pArchive.addSymbol(name, *data);
+    name += strlen(name) + 1;
+    ++data;
+  }
+}
+
 /// readSymbolTable - read the archive symbol map (armap)
 bool GNUArchiveReader::readSymbolTable(Archive& pArchive)
 {
@@ -260,29 +289,16 @@ bool GNUArchiveReader::readSymbolTable(Archive& pArchive)
                                              Archive::MAGIC_LEN +
                                              sizeof(Archive::MemberHeader)),
                                             symtab_size);
-    const uint32_t* data =
-      reinterpret_cast<const uint32_t*>(symtab_region->getBuffer());
 
-    // read the number of symbols
-    uint32_t number = 0;
-    if (llvm::sys::IsLittleEndianHost)
-      number = mcld::bswap32(*data);
+    if (0 == strncmp(header->name, Archive::SVR4_SYMTAB_NAME,
+                                   strlen(Archive::SVR4_SYMTAB_NAME)))
+      readSymbolTableEntries<32>(pArchive, *symtab_region);
+    else if (0 == strncmp(header->name, Archive::IRIX6_SYMTAB_NAME,
+                                        strlen(Archive::IRIX6_SYMTAB_NAME)))
+      readSymbolTableEntries<64>(pArchive, *symtab_region);
     else
-      number = *data;
+      unreachable(diag::err_unsupported_archive);
 
-    // set up the pointers for file offset and name offset
-    ++data;
-    const char* name = reinterpret_cast<const char*>(data + number);
-
-    // add the archive symbols
-    for (uint32_t i = 0; i < number; ++i) {
-      if (llvm::sys::IsLittleEndianHost)
-        pArchive.addSymbol(name, mcld::bswap32(*data));
-      else
-        pArchive.addSymbol(name, *data);
-      name += strlen(name) + 1;
-      ++data;
-    }
     pArchive.getARFile().memArea()->release(symtab_region);
   }
   pArchive.getARFile().memArea()->release(header_region);

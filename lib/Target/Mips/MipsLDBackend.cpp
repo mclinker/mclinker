@@ -16,6 +16,7 @@
 #include <llvm/ADT/Triple.h>
 #include <llvm/Support/Casting.h>
 #include <llvm/Support/ELF.h>
+#include <llvm/Support/Host.h>
 
 #include <mcld/Module.h>
 #include <mcld/LinkerConfig.h>
@@ -40,11 +41,11 @@ using namespace mcld;
 MipsGNULDBackend::MipsGNULDBackend(const LinkerConfig& pConfig,
                                    MipsGNUInfo* pInfo)
   : GNULDBackend(pConfig, pInfo),
-    m_pInfo(*pInfo),
     m_pRelocator(NULL),
     m_pGOT(NULL),
     m_pPLT(NULL),
     m_pGOTPLT(NULL),
+    m_pInfo(*pInfo),
     m_pRelPlt(NULL),
     m_pRelDyn(NULL),
     m_pDynamic(NULL),
@@ -57,23 +58,22 @@ MipsGNULDBackend::MipsGNULDBackend(const LinkerConfig& pConfig,
 MipsGNULDBackend::~MipsGNULDBackend()
 {
   delete m_pRelocator;
-  delete m_pGOT;
   delete m_pPLT;
-  delete m_pGOTPLT;
   delete m_pRelPlt;
   delete m_pRelDyn;
   delete m_pDynamic;
 }
 
-bool MipsGNULDBackend::needsLA25Stub(Relocation& pReloc)
+bool MipsGNULDBackend::needsLA25Stub(Relocation::Type pType,
+                                     const mcld::ResolveInfo* pSym)
 {
   if (config().isCodeIndep())
     return false;
 
-  if (llvm::ELF::R_MIPS_26 != pReloc.type())
+  if (llvm::ELF::R_MIPS_26 != pType)
     return false;
 
-  if (pReloc.symInfo()->isLocal())
+  if (pSym->isLocal())
     return false;
 
   return true;
@@ -89,31 +89,21 @@ bool MipsGNULDBackend::hasNonPICBranch(const ResolveInfo* rsym) const
   return m_HasNonPICBranchSyms.count(rsym);
 }
 
-void MipsGNULDBackend::initTargetSections(Module& pModule, ObjectBuilder& pBuilder)
+void MipsGNULDBackend::initTargetSections(Module& pModule,
+                                            ObjectBuilder& pBuilder)
 {
-  if (LinkerConfig::Object != config().codeGenType()) {
-    ELFFileFormat* file_format = getOutputFormat();
+  if (LinkerConfig::Object == config().codeGenType())
+    return;
 
-    // initialize .got
-    LDSection& got = file_format->getGOT();
-    m_pGOT = new MipsGOT(got);
+  ELFFileFormat* file_format = getOutputFormat();
 
-    // initialize .got.plt
-    LDSection& gotplt = file_format->getGOTPLT();
-    m_pGOTPLT = new MipsGOTPLT(gotplt);
+  // initialize .rel.plt
+  LDSection& relplt = file_format->getRelPlt();
+  m_pRelPlt = new OutputRelocSection(pModule, relplt);
 
-    // initialize .plt
-    LDSection& plt = file_format->getPLT();
-    m_pPLT = new MipsPLT(plt);
-
-    // initialize .rel.plt
-    LDSection& relplt = file_format->getRelPlt();
-    m_pRelPlt = new OutputRelocSection(pModule, relplt);
-
-    // initialize .rel.dyn
-    LDSection& reldyn = file_format->getRelDyn();
-    m_pRelDyn = new OutputRelocSection(pModule, reldyn);
-  }
+  // initialize .rel.dyn
+  LDSection& reldyn = file_format->getRelDyn();
+  m_pRelDyn = new OutputRelocSection(pModule, reldyn);
 }
 
 void MipsGNULDBackend::initTargetSymbols(IRBuilder& pBuilder, Module& pModule)
@@ -152,14 +142,6 @@ void MipsGNULDBackend::initTargetSymbols(IRBuilder& pBuilder, Module& pModule)
                    0x0,  // value
                    FragmentRef::Null(), // FragRef
                    ResolveInfo::Default);
-}
-
-bool MipsGNULDBackend::initRelocator()
-{
-  if (NULL == m_pRelocator) {
-    m_pRelocator = new MipsRelocator(*this, config());
-  }
-  return true;
 }
 
 Relocator* MipsGNULDBackend::getRelocator()
@@ -234,8 +216,14 @@ void MipsGNULDBackend::doPostLayout(Module& pModule, IRBuilder& pBuilder)
   // FIXME: (simon) We need to iterate all input sections
   // check that flags are consistent and merge them properly.
   uint64_t picFlags = llvm::ELF::EF_MIPS_CPIC;
-  if (LinkerConfig::DynObj == config().codeGenType())
+  if (config().targets().triple().isArch64Bit()) {
     picFlags |= llvm::ELF::EF_MIPS_PIC;
+  }
+  else {
+    if (LinkerConfig::DynObj == config().codeGenType())
+      picFlags |= llvm::ELF::EF_MIPS_PIC;
+  }
+
   m_pInfo.setPICFlags(picFlags);
 }
 
@@ -321,6 +309,102 @@ void MipsGNULDBackend::orderSymbolTable(Module& pModule)
 
   std::stable_sort(symbols.dynamicBegin(), symbols.dynamicEnd(),
                    DynsymGOTCompare(*m_pGOT));
+}
+
+namespace llvm {
+namespace ELF {
+// SHT_MIPS_OPTIONS section's block descriptor.
+struct Elf_Options {
+  unsigned char kind;     // Determines interpretation of variable
+                          // part of descriptor. See ODK_xxx enumeration.
+  unsigned char size;     // Byte size of descriptor, including this header.
+  Elf64_Half    section;  // Section header index of section affected,
+                          // or 0 for global options.
+  Elf64_Word    info;     // Kind-speciﬁc information.
+};
+
+// Type of SHT_MIPS_OPTIONS section's block.
+enum {
+  ODK_NULL       = 0, // Undefined.
+  ODK_REGINFO    = 1, // Register usage and GP value.
+  ODK_EXCEPTIONS = 2, // Exception processing information.
+  ODK_PAD        = 3, // Section padding information.
+  ODK_HWPATCH    = 4, // Hardware workarounds performed.
+  ODK_FILL       = 5, // Fill value used by the linker.
+  ODK_TAGS       = 6, // Reserved space for desktop tools.
+  ODK_HWAND      = 7, // Hardware workarounds, AND bits when merging.
+  ODK_HWOR       = 8, // Hardware workarounds, OR bits when merging.
+  ODK_GP_GROUP   = 9, // GP group to use for text/data sections.
+  ODK_IDENT      = 10 // ID information.
+};
+
+// Content of ODK_REGINFO block in SHT_MIPS_OPTIONS section on 32 bit ABI.
+struct Elf32_RegInfo {
+  Elf32_Word ri_gprmask;    // Mask of general purpose registers used.
+  Elf32_Word ri_cprmask[4]; // Mask of co-processor registers used.
+  Elf32_Addr ri_gp_value;   // GP register value for this object file.
+};
+
+// Content of ODK_REGINFO block in SHT_MIPS_OPTIONS section on 64 bit ABI.
+struct Elf64_RegInfo {
+  Elf32_Word ri_gprmask;    // Mask of general purpose registers used.
+  Elf32_Word ri_pad;        // Padding.
+  Elf32_Word ri_cprmask[4]; // Mask of co-processor registers used.
+  Elf64_Addr ri_gp_value;   // GP register value for this object file.
+};
+
+}
+}
+
+bool MipsGNULDBackend::readSection(Input& pInput, SectionData& pSD)
+{
+  llvm::StringRef name(pSD.getSection().name());
+
+  if (name.startswith(".sdata")) {
+    uint64_t offset = pInput.fileOffset() + pSD.getSection().offset();
+    uint64_t size = pSD.getSection().size();
+
+    Fragment* frag = IRBuilder::CreateRegion(pInput, offset, size);
+    ObjectBuilder::AppendFragment(*frag, pSD);
+    return true;
+  }
+
+  if (pSD.getSection().type() == llvm::ELF::SHT_MIPS_OPTIONS) {
+    uint32_t offset = pInput.fileOffset() + pSD.getSection().offset();
+    uint32_t size = pSD.getSection().size();
+
+    MemoryRegion* region = pInput.memArea()->request(offset, size);
+    if (NULL != region) {
+      const llvm::ELF::Elf_Options* optb =
+        reinterpret_cast<const llvm::ELF::Elf_Options*>(region->start());
+      const llvm::ELF::Elf_Options* opte =
+        reinterpret_cast<const llvm::ELF::Elf_Options*>(region->start() + size);
+
+      for (const llvm::ELF::Elf_Options* opt = optb; opt < opte; opt += opt->size) {
+        switch (opt->kind) {
+          default:
+            // Nothing to do.
+            break;
+          case llvm::ELF::ODK_REGINFO:
+            if (config().targets().triple().isArch32Bit()) {
+              const llvm::ELF::Elf32_RegInfo* reg =
+                reinterpret_cast<const llvm::ELF::Elf32_RegInfo*>(opt + 1);
+              m_GP0Map[&pInput] = reg->ri_gp_value;
+            }
+            else {
+              const llvm::ELF::Elf64_RegInfo* reg =
+                reinterpret_cast<const llvm::ELF::Elf64_RegInfo*>(opt + 1);
+              m_GP0Map[&pInput] = reg->ri_gp_value;
+            }
+            break;
+        }
+      }
+    }
+
+    return true;
+  }
+
+  return GNULDBackend::readSection(pInput, pSD);
 }
 
 MipsGOT& MipsGNULDBackend::getGOT()
@@ -509,6 +593,11 @@ bool MipsGNULDBackend::allocateCommonSymbols(Module& pModule)
   return true;
 }
 
+uint64_t MipsGNULDBackend::getGP0(const Input& pInput) const
+{
+  return m_GP0Map.lookup(&pInput);
+}
+
 void MipsGNULDBackend::defineGOTSymbol(IRBuilder& pBuilder)
 {
   // If we do not reserve any GOT entries, we do not need to re-define GOT
@@ -676,27 +765,243 @@ bool MipsGNULDBackend::initTargetStubs()
   return true;
 }
 
+bool MipsGNULDBackend::readRelocation(const llvm::ELF::Elf32_Rel& pRel,
+                                      Relocation::Type& pType,
+                                      uint32_t& pSymIdx,
+                                      uint32_t& pOffset) const
+{
+  return GNULDBackend::readRelocation(pRel, pType, pSymIdx, pOffset);
+}
+
+bool MipsGNULDBackend::readRelocation(const llvm::ELF::Elf32_Rela& pRel,
+                                      Relocation::Type& pType,
+                                      uint32_t& pSymIdx,
+                                      uint32_t& pOffset,
+                                      int32_t& pAddend) const
+{
+  return GNULDBackend::readRelocation(pRel, pType, pSymIdx, pOffset, pAddend);
+}
+
+bool MipsGNULDBackend::readRelocation(const llvm::ELF::Elf64_Rel& pRel,
+                                      Relocation::Type& pType,
+                                      uint32_t& pSymIdx,
+                                      uint64_t& pOffset) const
+{
+  uint64_t r_info = 0x0;
+  if (llvm::sys::IsLittleEndianHost) {
+    pOffset = pRel.r_offset;
+    r_info  = pRel.r_info;
+  }
+  else {
+    pOffset = mcld::bswap64(pRel.r_offset);
+    r_info  = mcld::bswap64(pRel.r_info);
+  }
+
+  // MIPS 64 little endian (we do not support big endian now)
+  // has a "special" encoding of r_info relocation
+  // field. Instead of one 64 bit little endian number, it is a little
+  // endian 32 bit number followed by a 32 bit big endian number.
+  pType = mcld::bswap32(r_info >> 32);
+  pSymIdx = r_info & 0xffffffff;
+  return true;
+}
+
+bool MipsGNULDBackend::readRelocation(const llvm::ELF::Elf64_Rela& pRel,
+                                      Relocation::Type& pType,
+                                      uint32_t& pSymIdx,
+                                      uint64_t& pOffset,
+                                      int64_t& pAddend) const
+{
+  uint64_t r_info = 0x0;
+  if (llvm::sys::IsLittleEndianHost) {
+    pOffset = pRel.r_offset;
+    r_info  = pRel.r_info;
+    pAddend = pRel.r_addend;
+  }
+  else {
+    pOffset = mcld::bswap64(pRel.r_offset);
+    r_info  = mcld::bswap64(pRel.r_info);
+    pAddend = mcld::bswap64(pRel.r_addend);
+  }
+
+  pType = mcld::bswap32(r_info >> 32);
+  pSymIdx = r_info & 0xffffffff;
+  return true;
+}
+
+void MipsGNULDBackend::emitRelocation(llvm::ELF::Elf32_Rel& pRel,
+                                      Relocation::Type pType,
+                                      uint32_t pSymIdx,
+                                      uint32_t pOffset) const
+{
+  GNULDBackend::emitRelocation(pRel, pType, pSymIdx, pOffset);
+}
+
+void MipsGNULDBackend::emitRelocation(llvm::ELF::Elf32_Rela& pRel,
+                                      Relocation::Type pType,
+                                      uint32_t pSymIdx,
+                                      uint32_t pOffset,
+                                      int32_t pAddend) const
+{
+  GNULDBackend::emitRelocation(pRel, pType, pSymIdx, pOffset, pAddend);
+}
+
+void MipsGNULDBackend::emitRelocation(llvm::ELF::Elf64_Rel& pRel,
+                                      Relocation::Type pType,
+                                      uint32_t pSymIdx,
+                                      uint64_t pOffset) const
+{
+  uint64_t r_info = mcld::bswap32(pType);
+  r_info <<= 32;
+  r_info |= pSymIdx;
+
+  pRel.r_info = r_info;
+  pRel.r_offset = pOffset;
+}
+
+void MipsGNULDBackend::emitRelocation(llvm::ELF::Elf64_Rela& pRel,
+                                      Relocation::Type pType,
+                                      uint32_t pSymIdx,
+                                      uint64_t pOffset,
+                                      int64_t pAddend) const
+{
+  uint64_t r_info = mcld::bswap32(pType);
+  r_info <<= 32;
+  r_info |= pSymIdx;
+
+  pRel.r_info = r_info;
+  pRel.r_offset = pOffset;
+  pRel.r_addend = pAddend;
+}
+
+//===----------------------------------------------------------------------===//
+// Mips32GNULDBackend
+//===----------------------------------------------------------------------===//
+Mips32GNULDBackend::Mips32GNULDBackend(const LinkerConfig& pConfig,
+                                       MipsGNUInfo* pInfo)
+  : MipsGNULDBackend(pConfig, pInfo)
+{}
+
+bool Mips32GNULDBackend::initRelocator()
+{
+  if (NULL == m_pRelocator)
+    m_pRelocator = new Mips32Relocator(*this, config());
+
+  return true;
+}
+
+void Mips32GNULDBackend::initTargetSections(Module& pModule,
+                                            ObjectBuilder& pBuilder)
+{
+  MipsGNULDBackend::initTargetSections(pModule, pBuilder);
+
+  if (LinkerConfig::Object == config().codeGenType())
+    return;
+
+  ELFFileFormat* fileFormat = getOutputFormat();
+
+  // initialize .got
+  LDSection& got = fileFormat->getGOT();
+  m_pGOT = new Mips32GOT(got);
+
+  // initialize .got.plt
+  LDSection& gotplt = fileFormat->getGOTPLT();
+  m_pGOTPLT = new MipsGOTPLT(gotplt);
+
+  // initialize .plt
+  LDSection& plt = fileFormat->getPLT();
+  m_pPLT = new MipsPLT(plt);
+}
+
+size_t Mips32GNULDBackend::getRelEntrySize()
+{
+  return 8;
+}
+
+size_t Mips32GNULDBackend::getRelaEntrySize()
+{
+  return 12;
+}
+
+//===----------------------------------------------------------------------===//
+// Mips64GNULDBackend
+//===----------------------------------------------------------------------===//
+Mips64GNULDBackend::Mips64GNULDBackend(const LinkerConfig& pConfig,
+                                       MipsGNUInfo* pInfo)
+  : MipsGNULDBackend(pConfig, pInfo)
+{}
+
+bool Mips64GNULDBackend::initRelocator()
+{
+  if (NULL == m_pRelocator)
+    m_pRelocator = new Mips64Relocator(*this, config());
+
+  return true;
+}
+
+void Mips64GNULDBackend::initTargetSections(Module& pModule,
+                                            ObjectBuilder& pBuilder)
+{
+  MipsGNULDBackend::initTargetSections(pModule, pBuilder);
+
+  if (LinkerConfig::Object == config().codeGenType())
+    return;
+
+  ELFFileFormat* fileFormat = getOutputFormat();
+
+  // initialize .got
+  LDSection& got = fileFormat->getGOT();
+  m_pGOT = new Mips64GOT(got);
+
+  // initialize .got.plt
+  LDSection& gotplt = fileFormat->getGOTPLT();
+  m_pGOTPLT = new MipsGOTPLT(gotplt);
+
+  // initialize .plt
+  LDSection& plt = fileFormat->getPLT();
+  m_pPLT = new MipsPLT(plt);
+}
+
+size_t Mips64GNULDBackend::getRelEntrySize()
+{
+  return 16;
+}
+
+size_t Mips64GNULDBackend::getRelaEntrySize()
+{
+  return 24;
+}
+
 //===----------------------------------------------------------------------===//
 /// createMipsLDBackend - the help funtion to create corresponding MipsLDBackend
 ///
 static TargetLDBackend* createMipsLDBackend(const llvm::Target& pTarget,
                                             const LinkerConfig& pConfig)
 {
-  if (pConfig.targets().triple().isOSDarwin()) {
+  const llvm::Triple& triple = pConfig.targets().triple();
+
+  if (triple.isOSDarwin()) {
     assert(0 && "MachO linker is not supported yet");
   }
-  if (pConfig.targets().triple().isOSWindows()) {
+  if (triple.isOSWindows()) {
     assert(0 && "COFF linker is not supported yet");
   }
-  return new MipsGNULDBackend(pConfig, new MipsGNUInfo(pConfig.targets().triple()));
+
+  llvm::Triple::ArchType arch = triple.getArch();
+
+  if (llvm::Triple::mips64el == arch)
+    return new Mips64GNULDBackend(pConfig, new MipsGNUInfo(triple));
+
+  assert (arch == llvm::Triple::mipsel);
+  return new Mips32GNULDBackend(pConfig, new MipsGNUInfo(triple));
 }
 
 //===----------------------------------------------------------------------===//
 // Force static initialization.
 //===----------------------------------------------------------------------===//
 extern "C" void MCLDInitializeMipsLDBackend() {
-  // Register the linker backend
   mcld::TargetRegistry::RegisterTargetLDBackend(mcld::TheMipselTarget,
                                                 createMipsLDBackend);
+  mcld::TargetRegistry::RegisterTargetLDBackend(mcld::TheMips64elTarget,
+                                                createMipsLDBackend);
 }
-

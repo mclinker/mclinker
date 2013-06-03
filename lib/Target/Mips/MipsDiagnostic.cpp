@@ -11,17 +11,15 @@
 #include <mcld/LD/DWARFLineInfo.h>
 #include "Mips.h"
 
-using namespace mcld;
+namespace {
 
-
-namespace mcld {
 //===----------------------------------------------------------------------===//
 // createMipsDiagnostic - the help function to create corresponding
 // MipsDiagnostic
-DiagnosticLineInfo* createMipsDiagLineInfo(const mcld::Target& pTarget,
-                                           const std::string &pTriple)
+mcld::DiagnosticLineInfo* createMipsDiagLineInfo(const mcld::Target& pTarget,
+                                                 const std::string &pTriple)
 {
-  return new DWARFLineInfo();
+  return new mcld::DWARFLineInfo();
 }
 
 } // namespace of mcld
@@ -29,7 +27,8 @@ DiagnosticLineInfo* createMipsDiagLineInfo(const mcld::Target& pTarget,
 //==========================
 // InitializeMipsDiagnostic
 extern "C" void MCLDInitializeMipsDiagnosticLineInfo() {
-  // Register the linker frontend
-  mcld::TargetRegistry::RegisterDiagnosticLineInfo(TheMipselTarget, createMipsDiagLineInfo);
+  mcld::TargetRegistry::RegisterDiagnosticLineInfo(mcld::TheMipselTarget,
+                                                   createMipsDiagLineInfo);
+  mcld::TargetRegistry::RegisterDiagnosticLineInfo(mcld::TheMips64elTarget,
+                                                   createMipsDiagLineInfo);
 }
-

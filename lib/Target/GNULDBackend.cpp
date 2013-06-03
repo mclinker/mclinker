@@ -1762,6 +1762,50 @@ bool GNULDBackend::readRelocation(const llvm::ELF::Elf64_Rela& pRel,
   return true;
 }
 
+/// emitRelocation - write data to the ELF32_Rel entry
+void GNULDBackend::emitRelocation(llvm::ELF::Elf32_Rel& pRel,
+                                  Relocation::Type pType,
+                                  uint32_t pSymIdx,
+                                  uint32_t pOffset) const
+{
+  pRel.r_offset = pOffset;
+  pRel.setSymbolAndType(pSymIdx, pType);
+}
+
+/// emitRelocation - write data to the ELF32_Rela entry
+void GNULDBackend::emitRelocation(llvm::ELF::Elf32_Rela& pRel,
+                                  Relocation::Type pType,
+                                  uint32_t pSymIdx,
+                                  uint32_t pOffset,
+                                  int32_t pAddend) const
+{
+  pRel.r_offset = pOffset;
+  pRel.r_addend = pAddend;
+  pRel.setSymbolAndType(pSymIdx, pType);
+}
+
+/// emitRelocation - write data to the ELF64_Rel entry
+void GNULDBackend::emitRelocation(llvm::ELF::Elf64_Rel& pRel,
+                                  Relocation::Type pType,
+                                  uint32_t pSymIdx,
+                                  uint64_t pOffset) const
+{
+  pRel.r_offset = pOffset;
+  pRel.setSymbolAndType(pSymIdx, pType);
+}
+
+/// emitRelocation - write data to the ELF64_Rela entry
+void GNULDBackend::emitRelocation(llvm::ELF::Elf64_Rela& pRel,
+                                  Relocation::Type pType,
+                                  uint32_t pSymIdx,
+                                  uint64_t pOffset,
+                                  int64_t pAddend) const
+{
+  pRel.r_offset = pOffset;
+  pRel.r_addend = pAddend;
+  pRel.setSymbolAndType(pSymIdx, pType);
+}
+
 /// createProgramHdrs - base on output sections to create the program headers
 void GNULDBackend::createProgramHdrs(Module& pModule)
 {

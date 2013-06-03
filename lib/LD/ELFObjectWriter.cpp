@@ -442,27 +442,29 @@ void ELFObjectWriter::emitRel(const LinkerConfig& pConfig,
 
   for (RelocData::const_iterator it = pRelocData.begin(),
        ie = pRelocData.end(); it != ie; ++it, ++rel) {
+    ElfXX_Addr r_offset = 0;
+    ElfXX_Word r_sym = 0;
 
     relocation = &(llvm::cast<Relocation>(*it));
     frag_ref = &(relocation->targetRef());
 
     if(LinkerConfig::DynObj == pConfig.codeGenType() ||
        LinkerConfig::Exec == pConfig.codeGenType()) {
-      rel->r_offset = static_cast<ElfXX_Addr>(
+      r_offset = static_cast<ElfXX_Addr>(
                       frag_ref->frag()->getParent()->getSection().addr() +
                       frag_ref->getOutputOffset());
     }
     else {
-      rel->r_offset = static_cast<ElfXX_Addr>(frag_ref->getOutputOffset());
+      r_offset = static_cast<ElfXX_Addr>(frag_ref->getOutputOffset());
     }
-    ElfXX_Word Index;
+
     if( relocation->symInfo() == NULL )
-      Index = 0;
+      r_sym = 0;
     else
-      Index = static_cast<ElfXX_Word>(
+      r_sym = static_cast<ElfXX_Word>(
               target().getSymbolIdx(relocation->symInfo()->outSymbol()));
 
-    rel->setSymbolAndType(Index, relocation->type());
+    target().emitRelocation(*rel, relocation->type(), r_sym, r_offset);
   }
 }
 
@@ -483,29 +485,31 @@ void ELFObjectWriter::emitRela(const LinkerConfig& pConfig,
 
   for (RelocData::const_iterator it = pRelocData.begin(),
        ie = pRelocData.end(); it != ie; ++it, ++rel) {
+    ElfXX_Addr r_offset = 0;
+    ElfXX_Word r_sym = 0;
 
     relocation = &(llvm::cast<Relocation>(*it));
     frag_ref = &(relocation->targetRef());
 
     if(LinkerConfig::DynObj == pConfig.codeGenType() ||
        LinkerConfig::Exec == pConfig.codeGenType()) {
-      rel->r_offset = static_cast<ElfXX_Addr>(
+      r_offset = static_cast<ElfXX_Addr>(
                       frag_ref->frag()->getParent()->getSection().addr() +
                       frag_ref->getOutputOffset());
     }
     else {
-      rel->r_offset = static_cast<ElfXX_Addr>(frag_ref->getOutputOffset());
+      r_offset = static_cast<ElfXX_Addr>(frag_ref->getOutputOffset());
     }
 
     ElfXX_Word Index;
     if( relocation->symInfo() == NULL )
-      Index = 0;
+      r_sym = 0;
     else
-      Index = static_cast<ElfXX_Word>(
+      r_sym = static_cast<ElfXX_Word>(
               target().getSymbolIdx(relocation->symInfo()->outSymbol()));
 
-    rel->setSymbolAndType(Index, relocation->type());
-    rel->r_addend = relocation->addend();
+    target().emitRelocation(*rel, relocation->type(),
+                            r_sym, r_offset, relocation->addend());
   }
 }
 

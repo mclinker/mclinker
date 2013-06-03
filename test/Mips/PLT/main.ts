@@ -1,9 +1,9 @@
 ; RUN: %MCLinker -march=mipsel -filetype=exe \
-; RUN: %p/../../libs/MIPS/Linux/crt1.o %p/../../libs/MIPS/Linux/crti.o \
-; RUN: %p/main.o %p/bar.o %p/../../libs/MIPS/Linux/libc_nonshared.a \
-; RUN: %p/../../libs/MIPS/Linux/ld.so.1 \
-; RUN: %p/../../libs/MIPS/Linux/crtn.o \
-; RUN: %p/../../libs/MIPS/Linux/libc.so.6 -o %t.out
+; RUN: %p/../../libs/MIPS/Linux/32/crt1.o %p/../../libs/MIPS/Linux/32/crti.o \
+; RUN: %p/main.o %p/bar.o %p/../../libs/MIPS/Linux/32/libc_nonshared.a \
+; RUN: %p/../../libs/MIPS/Linux/32/ld.so.1 \
+; RUN: %p/../../libs/MIPS/Linux/32/crtn.o \
+; RUN: %p/../../libs/MIPS/Linux/32/libc.so.6 -o %t.out
 
 ; RUN: readelf -a %t.out | FileCheck %s
 ;

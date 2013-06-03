@@ -19,6 +19,10 @@ These tests reference between archives.
      archive_test4.a      - contains archive_test4.o and archive_test5.o
      thin_archive_test1.a - contains thin_archive_test3.a, archive_test4.a and
                             archive_test1.o
+5) irix6_ar - the Irix6 archive used by exec_irix6_ar_1.ll. All object files
+              compiled by "mips-linux-gnu-gcc -mips64r2 -mabi64 -EL".
+     irix6_archive_all.a - contains archive_test1.o ... archive_test5.o
+     archive_main.o      - archive_main.c
 
 ============
  test cases
@@ -47,4 +51,6 @@ These tests reference between archives.
    link "--whole-archive thin_ar/thin_archive_test4.a --no-whole-archive",
    thin_ar/thin_archive_test3.a, thin_ar/thin_archive_test2.a, thin_ar/thin_archive_test1.a and
    some object and share object files inside --start-group and --end-group
-
+8) exec_irix6_ar_1.ll:
+   link obj/archive_main.o and thin_ar/thin_archive_all.a
+   check reading Irix6 archive format used by MIPS64 targets.
