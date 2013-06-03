@@ -22,9 +22,9 @@ class SectionMap;
 class MemoryArea;
 class MipsGNUInfo;
 
-//===----------------------------------------------------------------------===//
-/// MipsGNULDBackend - linker backend of Mips target of GNU ELF format
-///
+/** \class MipsGNULDBackend
+ *  \brief Base linker backend of Mips target of GNU ELF format.
+ */
 class MipsGNULDBackend : public GNULDBackend
 {
 public:
@@ -34,7 +34,7 @@ public:
   MipsGNULDBackend(const LinkerConfig& pConfig, MipsGNUInfo* pInfo);
   ~MipsGNULDBackend();
 
-  bool needsLA25Stub(Relocation& pReloc);
+  bool needsLA25Stub(Relocation::Type pType, const mcld::ResolveInfo* pSym);
 
   void addNonPICBranchSym(ResolveInfo* rsym);
   bool hasNonPICBranch(const ResolveInfo* rsym) const;
@@ -45,9 +45,6 @@ public:
 
   /// initTargetSymbols - initialize target dependent symbols in output.
   void initTargetSymbols(IRBuilder& pBuilder, Module& pModule);
-
-  /// initRelocator - create and initialize Relocator.
-  bool initRelocator();
 
   /// getRelocator - return relocator.
   Relocator* getRelocator();
@@ -89,6 +86,9 @@ public:
   /// orderSymbolTable - order symbol table before emitting
   void orderSymbolTable(Module& pModule);
 
+  /// readSection - read a target dependent section.
+  bool readSection(Input& pInput, SectionData& pSD);
+
   MipsGOT& getGOT();
   const MipsGOT& getGOT() const;
 
@@ -123,6 +123,10 @@ public:
   /// sections.
   bool allocateCommonSymbols(Module& pModule);
 
+  /// getGP0 - the gp value used to create the relocatable objects
+  /// in the specified input.
+  uint64_t getGP0(const Input& pInput) const;
+
 private:
   void defineGOTSymbol(IRBuilder& pBuilder);
   void defineGOTPLTSymbol(IRBuilder& pBuilder);
@@ -135,14 +139,6 @@ private:
                     char* pStrtab,
                     size_t pStrtabsize,
                     size_t pSymtabIdx);
-
-  /// getRelEntrySize - the size in BYTE of rel type relocation
-  size_t getRelEntrySize()
-  { return 8; }
-
-  /// getRelEntrySize - the size in BYTE of rela type relocation
-  size_t getRelaEntrySize()
-  { return 12; }
 
   /// doCreateProgramHdrs - backend can implement this function to create the
   /// target-dependent segments
@@ -160,16 +156,71 @@ private:
   /// initTargetStubs
   bool initTargetStubs();
 
+  /// readRelocation - read ELF32_Rel entry
+  bool readRelocation(const llvm::ELF::Elf32_Rel& pRel,
+                      Relocation::Type& pType,
+                      uint32_t& pSymIdx,
+                      uint32_t& pOffset) const;
+
+  /// readRelocation - read ELF32_Rela entry
+  bool readRelocation(const llvm::ELF::Elf32_Rela& pRel,
+                      Relocation::Type& pType,
+                      uint32_t& pSymIdx,
+                      uint32_t& pOffset,
+                      int32_t& pAddend) const;
+
+  /// readRelocation - read ELF64_Rel entry
+  bool readRelocation(const llvm::ELF::Elf64_Rel& pRel,
+                      Relocation::Type& pType,
+                      uint32_t& pSymIdx,
+                      uint64_t& pOffset) const;
+
+  /// readRel - read ELF64_Rela entry
+  bool readRelocation(const llvm::ELF::Elf64_Rela& pRel,
+                      Relocation::Type& pType,
+                      uint32_t& pSymIdx,
+                      uint64_t& pOffset,
+                      int64_t& pAddend) const;
+
+  /// emitRelocation - write data to the ELF32_Rel entry
+  void emitRelocation(llvm::ELF::Elf32_Rel& pRel,
+                      Relocation::Type pType,
+                      uint32_t pSymIdx,
+                      uint32_t pOffset) const;
+
+  /// emitRelocation - write data to the ELF32_Rela entry
+  void emitRelocation(llvm::ELF::Elf32_Rela& pRel,
+                      Relocation::Type pType,
+                      uint32_t pSymIdx,
+                      uint32_t pOffset,
+                      int32_t pAddend) const;
+
+  /// emitRelocation - write data to the ELF64_Rel entry
+  void emitRelocation(llvm::ELF::Elf64_Rel& pRel,
+                      Relocation::Type pType,
+                      uint32_t pSymIdx,
+                      uint64_t pOffset) const;
+
+  /// emitRelocation - write data to the ELF64_Rela entry
+  void emitRelocation(llvm::ELF::Elf64_Rela& pRel,
+                      Relocation::Type pType,
+                      uint32_t pSymIdx,
+                      uint64_t pOffset,
+                      int64_t pAddend) const;
+
 private:
   typedef llvm::DenseSet<const ResolveInfo*> ResolveInfoSetType;
+  typedef llvm::DenseMap<const Input*, llvm::ELF::Elf64_Addr> GP0MapType;
 
-private:
-  MipsGNUInfo& m_pInfo;
+protected:
   Relocator* m_pRelocator;
-
   MipsGOT* m_pGOT;                      // .got
   MipsPLT* m_pPLT;                      // .plt
   MipsGOTPLT* m_pGOTPLT;                // .got.plt
+
+private:
+  MipsGNUInfo& m_pInfo;
+
   OutputRelocSection* m_pRelPlt;        // .rel.plt
   OutputRelocSection* m_pRelDyn;        // .rel.dyn
 
@@ -180,6 +231,41 @@ private:
 
   SymbolListType m_GlobalGOTSyms;
   ResolveInfoSetType m_HasNonPICBranchSyms;
+  GP0MapType m_GP0Map;
+};
+
+/** \class Mips32GNULDBackend
+ *  \brief Base linker backend of Mips 32-bit target of GNU ELF format.
+ */
+class Mips32GNULDBackend : public MipsGNULDBackend
+{
+public:
+  Mips32GNULDBackend(const LinkerConfig& pConfig, MipsGNUInfo* pInfo);
+
+private:
+  // MipsGNULDBackend
+
+  bool initRelocator();
+  void initTargetSections(Module& pModule, ObjectBuilder& pBuilder);
+  size_t getRelEntrySize();
+  size_t getRelaEntrySize();
+};
+
+/** \class Mips64GNULDBackend
+ *  \brief Base linker backend of Mips 64-bit target of GNU ELF format.
+ */
+class Mips64GNULDBackend : public MipsGNULDBackend
+{
+public:
+  Mips64GNULDBackend(const LinkerConfig& pConfig, MipsGNUInfo* pInfo);
+
+private:
+  // MipsGNULDBackend
+
+  bool initRelocator();
+  void initTargetSections(Module& pModule, ObjectBuilder& pBuilder);
+  size_t getRelEntrySize();
+  size_t getRelaEntrySize();
 };
 
 } // namespace of mcld

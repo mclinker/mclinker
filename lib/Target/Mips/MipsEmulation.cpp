@@ -21,7 +21,11 @@ static bool MCLDEmulateMipsELF(LinkerScript& pScript, LinkerConfig& pConfig)
 
   // set up bitclass and endian
   pConfig.targets().setEndian(TargetOptions::Little);
-  pConfig.targets().setBitClass(32);
+
+  llvm::Triple::ArchType arch = pConfig.targets().triple().getArch();
+  assert(arch == llvm::Triple::mipsel || arch == llvm::Triple::mips64el);
+  unsigned bitclass = arch == llvm::Triple::mipsel ? 32 : 64;
+  pConfig.targets().setBitClass(bitclass);
 
   // set up target-dependent constraints of attributes
   pConfig.attribute().constraint().enableWholeArchive();
@@ -58,7 +62,8 @@ bool emulateMipsLD(LinkerScript& pScript, LinkerConfig& pConfig)
 // MipsEmulation
 //===----------------------------------------------------------------------===//
 extern "C" void MCLDInitializeMipsEmulation() {
-  // Register the emulation
-  mcld::TargetRegistry::RegisterEmulation(mcld::TheMipselTarget, mcld::emulateMipsLD);
+  mcld::TargetRegistry::RegisterEmulation(mcld::TheMipselTarget,
+                                          mcld::emulateMipsLD);
+  mcld::TargetRegistry::RegisterEmulation(mcld::TheMips64elTarget,
+                                          mcld::emulateMipsLD);
 }
-

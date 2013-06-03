@@ -65,7 +65,7 @@ public:
   /// here. If target favors the different size, please override this function
   virtual uint64_t abiPageSize() const { return 0x1000; }
 
-private:
+protected:
   const llvm::Triple& m_Triple;
 };
 

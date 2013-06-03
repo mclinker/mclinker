@@ -41,15 +41,22 @@ uint8_t MipsGNUInfo::ABIVersion() const
 
 uint64_t MipsGNUInfo::defaultTextSegmentAddr() const
 {
-  return 0x400000;
+  if (m_Triple.isArch32Bit())
+    return 0x400000;
+  else
+    return 0x120000000ull;
 }
 
 uint64_t MipsGNUInfo::flags() const
 {
-  return llvm::ELF::EF_MIPS_ARCH_32R2 |
-         llvm::ELF::EF_MIPS_NOREORDER |
-         llvm::ELF::EF_MIPS_ABI_O32 |
-         m_PICFlags;
+  uint64_t val = llvm::ELF::EF_MIPS_NOREORDER | m_PICFlags;
+
+  if (m_Triple.isArch32Bit())
+    val |= llvm::ELF::EF_MIPS_ARCH_32R2 | llvm::ELF::EF_MIPS_ABI_O32;
+  else
+    val |= llvm::ELF::EF_MIPS_ARCH_64R2;
+
+  return val;
 }
 
 const char* MipsGNUInfo::entry() const
@@ -59,7 +66,7 @@ const char* MipsGNUInfo::entry() const
 
 const char* MipsGNUInfo::dyld() const
 {
-  return "/lib/ld.so.1";
+  return m_Triple.isArch32Bit() ? "/lib/ld.so.1" : "/lib64/ld.so.1";
 }
 
 uint64_t MipsGNUInfo::abiPageSize() const

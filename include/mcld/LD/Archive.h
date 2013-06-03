@@ -37,6 +37,7 @@ public:
   static const char   THIN_MAGIC[];        ///< magic of thin archive
   static const size_t MAGIC_LEN;           ///< length of magic string
   static const char   SVR4_SYMTAB_NAME[];  ///< SVR4 symtab entry name
+  static const char   IRIX6_SYMTAB_NAME[]; ///< Irix6 symtab entry name
   static const char   STRTAB_NAME[];       ///< Name of string table
   static const char   PAD[];               ///< inter-file align padding
   static const char   MEMBER_MAGIC[];      ///< fmag field magic #

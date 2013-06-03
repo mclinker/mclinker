@@ -153,6 +153,36 @@ inline uint64_t bswap64(uint64_t pData)
            ((pData & 0x00000000000000FFULL) << 56));
 }
 
+template<size_t SIZE>
+typename SizeTraits<SIZE>::Word bswap(typename SizeTraits<SIZE>::Word pData);
+
+template<>
+inline SizeTraits<32>::Word bswap<32>(SizeTraits<32>::Word pData)
+{
+  return bswap32(pData);
+}
+
+template<>
+inline SizeTraits<64>::Word bswap<64>(SizeTraits<64>::Word pData)
+{
+  return bswap64(pData);
+}
+
+template <size_t WIDTH>
+inline uint64_t signExtend(uint64_t pVal)
+{
+  uint64_t mask = (~((uint64_t)0)) >> (64 - WIDTH);
+  uint64_t sign_bit = 1 << (WIDTH - 1);
+
+  return ((pVal & mask) ^ sign_bit) - sign_bit;
+}
+
+template <>
+inline uint64_t signExtend<64>(uint64_t pVal)
+{
+  return pVal;
+}
+
 template <size_t SizeOfStr, typename FieldType>
 class StringSizerHelper
 {

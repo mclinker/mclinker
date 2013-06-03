@@ -19,6 +19,8 @@
 
 namespace mcld {
 
+class MipsRelocationInfo;
+
 /** \class MipsRelocator
  *  \brief MipsRelocator creates and destroys the Mips relocations.
  */
@@ -59,7 +61,7 @@ public:
   /// @return - return true for finalization success
   bool finalizeApply(Input& pInput);
 
-  Result applyRelocation(Relocation& pRelocation);
+  Result applyRelocation(Relocation& pReloc);
 
   const Input& getApplyingInput() const
   { return *m_pApplyingInput; }
@@ -70,40 +72,79 @@ public:
   const MipsGNULDBackend& getTarget() const
   { return m_Target; }
 
-  // Get last calculated AHL.
-  int32_t getAHL() const
-  { return m_AHL; }
+  /// postponeRelocation - save R_MIPS_LO16 paired relocations
+  /// like R_MISP_HI16 and R_MIPS_GOT16 for a future processing.
+  void postponeRelocation(Relocation& pReloc);
 
-  // Set last calculated AHL.
-  void setAHL(int32_t pAHL)
-  { m_AHL = pAHL; }
+  /// applyPostponedRelocations - apply all postponed relocations
+  /// paired with the R_MIPS_LO16 one.
+  void applyPostponedRelocations(MipsRelocationInfo& pLo16Reloc);
+
+  /// isGpDisp - return true if relocation is against _gp_disp symbol.
+  bool isGpDisp(const Relocation& pReloc) const;
+
+  /// getGPAddress - return address of _gp symbol.
+  Address getGPAddress();
+
+  /// getGP0 - the gp value used to create the relocatable objects
+  /// in the processing input.
+  Address getGP0();
+
+  /// getGOTEntry - initialize and return GOT entry related to the relocation.
+  Fragment& getGOTEntry(MipsRelocationInfo& pReloc);
+
+  /// getGOTOffset - return offset of corresponded GOT entry.
+  Address getGOTOffset(MipsRelocationInfo& pReloc);
+
+  /// createDynRel - initialize dynamic relocation for the relocation.
+  void createDynRel(MipsRelocationInfo& pReloc);
 
   /// getPLTOffset - initialize PLT-related entries for the symbol
   /// @return - return address of PLT entry
   uint64_t getPLTAddress(ResolveInfo& rsym);
 
+  /// calcAHL - calculate combined addend used
+  /// by R_MIPS_HI16 and R_MIPS_GOT16 relocations.
+  uint64_t calcAHL(const MipsRelocationInfo& pHiReloc);
+
+  /// isN64ABI - check current ABI
+  bool isN64ABI() const;
+
   const char* getName(Relocation::Type pType) const;
 
   Size getSize(Relocation::Type pType) const;
 
+protected:
+  /// setupRelDynEntry - create dynamic relocation entry.
+  virtual void setupRelDynEntry(FragmentRef& pFragRef, ResolveInfo* pSym) = 0;
+
+  /// isLocalReloc - handle relocation as a local symbol
+  bool isLocalReloc(ResolveInfo& pSym) const;
+
 private:
   typedef std::pair<Fragment*, Fragment*> PLTDescriptor;
   typedef llvm::DenseMap<const ResolveInfo*, PLTDescriptor> SymPLTMap;
+  typedef llvm::DenseSet<Relocation*> RelocationSet;
+  typedef llvm::DenseMap<const ResolveInfo*, RelocationSet> SymRelocSetMap;
 
 private:
   MipsGNULDBackend& m_Target;
   SymPLTMap m_SymPLTMap;
   Input* m_pApplyingInput;
-  int32_t m_AHL;
+  SymRelocSetMap m_PostponedRelocs;
+  MipsRelocationInfo* m_CurrentLo16Reloc;
 
 private:
-  void scanLocalReloc(Relocation& pReloc,
+  void scanLocalReloc(MipsRelocationInfo& pReloc,
                       IRBuilder& pBuilder,
                       const LDSection& pSection);
 
-  void scanGlobalReloc(Relocation& pReloc,
+  void scanGlobalReloc(MipsRelocationInfo& pReloc,
                        IRBuilder& pBuilder,
                        const LDSection& pSection);
+
+  /// isPostponed - relocation applying needs to be postponed.
+  bool isPostponed(const Relocation& pReloc) const;
 
   /// addCopyReloc - add a copy relocation into .rel.dyn for pSym
   /// @param pSym - A resolved copy symbol that defined in BSS section
@@ -114,6 +155,35 @@ private:
   /// @return the output LDSymbol of the copy symbol
   LDSymbol& defineSymbolforCopyReloc(IRBuilder& pBuilder,
                                      const ResolveInfo& pSym);
+
+  /// isRel - returns true if REL relocation record format is expected
+  bool isRel() const;
+};
+
+/** \class Mips32Relocator
+ *  \brief Mips32Relocator creates and destroys the Mips 32-bit relocations.
+ */
+class Mips32Relocator : public MipsRelocator
+{
+public:
+  Mips32Relocator(Mips32GNULDBackend& pParent, const LinkerConfig& pConfig);
+
+private:
+  // MipsRelocator
+  void setupRelDynEntry(FragmentRef& pFragRef, ResolveInfo* pSym);
+};
+
+/** \class Mips64Relocator
+ *  \brief Mips64Relocator creates and destroys the Mips 64-bit relocations.
+ */
+class Mips64Relocator : public MipsRelocator
+{
+public:
+  Mips64Relocator(Mips64GNULDBackend& pParent, const LinkerConfig& pConfig);
+
+private:
+  // MipsRelocator
+  void setupRelDynEntry(FragmentRef& pFragRef, ResolveInfo* pSym);
 };
 
 } // namespace of mcld

@@ -6,25 +6,21 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include "MipsELFMCLinker.h"
-
 #include "Mips.h"
+#include "MipsELFMCLinker.h"
 #include <llvm/ADT/Triple.h>
 #include <mcld/Module.h>
 #include <mcld/Support/TargetRegistry.h>
 
-using namespace mcld;
+namespace {
 
-namespace mcld {
 //===----------------------------------------------------------------------===//
-/// createMipsMCLinker - the help funtion to create
+/// createMipsMCLinker - the help funtion to create corresponding MipsMCLinker
 //===----------------------------------------------------------------------===//
-/// corresponding MipsMCLinker
-///
-MCLinker* createMipsMCLinker(const std::string &pTriple,
-                             LinkerConfig& pConfig,
-                             mcld::Module& pModule,
-                             MemoryArea& pOutput)
+mcld::MCLinker* createMipsMCLinker(const std::string &pTriple,
+                                   mcld::LinkerConfig& pConfig,
+                                   mcld::Module& pModule,
+                                   mcld::MemoryArea& pOutput)
 {
   llvm::Triple theTriple(pTriple);
   if (theTriple.isOSDarwin()) {
@@ -36,7 +32,7 @@ MCLinker* createMipsMCLinker(const std::string &pTriple,
     return NULL;
   }
 
-  return new MipsELFMCLinker(pConfig, pModule, pOutput);
+  return new mcld::MipsELFMCLinker(pConfig, pModule, pOutput);
 }
 
 } // namespace of mcld
@@ -45,6 +41,8 @@ MCLinker* createMipsMCLinker(const std::string &pTriple,
 // MipsMCLinker
 //===----------------------------------------------------------------------===//
 extern "C" void MCLDInitializeMipsMCLinker() {
-  // Register the linker frontend
-  mcld::TargetRegistry::RegisterMCLinker(TheMipselTarget, createMipsMCLinker);
+  mcld::TargetRegistry::RegisterMCLinker(mcld::TheMipselTarget,
+                                         createMipsMCLinker);
+  mcld::TargetRegistry::RegisterMCLinker(mcld::TheMips64elTarget,
+                                         createMipsMCLinker);
 }

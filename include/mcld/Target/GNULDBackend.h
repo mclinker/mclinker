@@ -220,6 +220,32 @@ public:
                               uint64_t& pOffset,
                               int64_t& pAddend) const;
 
+  /// emitRelocation - write data to the ELF32_Rel entry
+  virtual void emitRelocation(llvm::ELF::Elf32_Rel& pRel,
+                              Relocation::Type pType,
+                              uint32_t pSymIdx,
+                              uint32_t pOffset) const;
+
+  /// emitRelocation - write data to the ELF32_Rela entry
+  virtual void emitRelocation(llvm::ELF::Elf32_Rela& pRel,
+                              Relocation::Type pType,
+                              uint32_t pSymIdx,
+                              uint32_t pOffset,
+                              int32_t pAddend) const;
+
+  /// emitRelocation - write data to the ELF64_Rel entry
+  virtual void emitRelocation(llvm::ELF::Elf64_Rel& pRel,
+                              Relocation::Type pType,
+                              uint32_t pSymIdx,
+                              uint64_t pOffset) const;
+
+  /// emitRelocation - write data to the ELF64_Rela entry
+  virtual void emitRelocation(llvm::ELF::Elf64_Rela& pRel,
+                              Relocation::Type pType,
+                              uint32_t pSymIdx,
+                              uint64_t pOffset,
+                              int64_t pAddend) const;
+
   /// symbolNeedsPLT - return whether the symbol needs a PLT entry
   /// @ref Google gold linker, symtab.h:596
   bool symbolNeedsPLT(const ResolveInfo& pSym) const;
@@ -290,6 +316,12 @@ public:
   void checkAndSetHasTextRel(const LDSection& pSection);
 
 protected:
+  /// getRelEntrySize - the size in BYTE of rel type relocation
+  virtual size_t getRelEntrySize() = 0;
+
+  /// getRelEntrySize - the size in BYTE of rela type relocation
+  virtual size_t getRelaEntrySize() = 0;
+
   uint64_t getSymbolSize(const LDSymbol& pSymbol) const;
 
   uint64_t getSymbolInfo(const LDSymbol& pSymbol) const;
@@ -387,12 +419,6 @@ private:
   /// otherwise set it to false.
   virtual bool doRelax(Module& pModule, IRBuilder& pBuilder, bool& pFinished)
   { return false; }
-
-  /// getRelEntrySize - the size in BYTE of rel type relocation
-  virtual size_t getRelEntrySize() = 0;
-
-  /// getRelEntrySize - the size in BYTE of rela type relocation
-  virtual size_t getRelaEntrySize() = 0;
 
 protected:
   // Based on Kind in LDFileFormat to define basic section orders for ELF, and
