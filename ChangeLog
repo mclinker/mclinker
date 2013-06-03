@@ -1,12 +1,19 @@
-2013-05-30 Chinyen Chou <petechou@gmail.com>
+2013-06-03 Chinyen Chou <petechou@gmail.com>
 	* Executive Summary:
 	1. Add linker script framework and some script commands support.
+	2. Add MIPS executable linking support.
 
 	* Command Line Options and Building System:
 	1. Require flex 2.5.35 and bison 2.4.3, or later.
 
 	* New Features:
 	1. Support processing simple linker script files like libc.so in linux.
+
+	* Target Backends:
+	1. MIPS: Add PLT and GOTPLT support.
+	2. MIPS: Add LA25 stub for a non-PIC interface to a PIC function.
+	3. MIPS: Support more relocations. (R_MIPS_26, R_MIPS_JALR,
+	   R_MIPS_LA25_LUI, R_MIPS_LA25_J, R_MIPS_LA25_ADD, and R_MIPS_PC32)
 
 	* Linker Script:
 	1. Support ENTRY command.
