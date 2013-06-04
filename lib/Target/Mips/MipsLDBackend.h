@@ -127,6 +127,8 @@ private:
   void defineGOTSymbol(IRBuilder& pBuilder);
   void defineGOTPLTSymbol(IRBuilder& pBuilder);
 
+  bool relaxRelocation(IRBuilder& pBuilder, Relocation& pRel);
+
   /// emitSymbol32 - emit an ELF32 symbol, override parent's function
   void emitSymbol32(llvm::ELF::Elf32_Sym& pSym32,
                     LDSymbol& pSymbol,

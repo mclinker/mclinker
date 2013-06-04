@@ -575,15 +575,39 @@ void MipsGNULDBackend::doCreateProgramHdrs(Module& pModule)
   // TODO
 }
 
+bool MipsGNULDBackend::relaxRelocation(IRBuilder& pBuilder, Relocation& pRel)
+{
+  uint64_t sym_value = 0x0;
+
+  LDSymbol* symbol = pRel.symInfo()->outSymbol();
+  if (symbol->hasFragRef()) {
+    uint64_t value = symbol->fragRef()->getOutputOffset();
+    uint64_t addr = symbol->fragRef()->frag()->getParent()->getSection().addr();
+    sym_value = addr + value;
+  }
+
+  Stub* stub =
+    getStubFactory()->create(pRel, sym_value, pBuilder, *getBRIslandFactory());
+
+  if (NULL == stub)
+    return false;
+
+  assert(NULL != stub->symInfo());
+  // increase the size of .symtab and .strtab
+  LDSection& symtab = getOutputFormat()->getSymTab();
+  LDSection& strtab = getOutputFormat()->getStrTab();
+  symtab.setSize(symtab.size() + sizeof(llvm::ELF::Elf32_Sym));
+  strtab.setSize(strtab.size() + stub->symInfo()->nameSize() + 1);
+
+  return true;
+}
+
 bool MipsGNULDBackend::doRelax(Module& pModule, IRBuilder& pBuilder,
                                bool& pFinished)
 {
   assert(NULL != getStubFactory() && NULL != getBRIslandFactory());
 
   bool isRelaxed = false;
-
-  ELFFileFormat* fileFormat = getOutputFormat();
-  BranchIslandFactory& bif = *getBRIslandFactory();
 
   for (Module::obj_iterator input = pModule.obj_begin();
        input != pModule.obj_end(); ++input) {
@@ -601,40 +625,20 @@ bool MipsGNULDBackend::doRelax(Module& pModule, IRBuilder& pBuilder,
         if (llvm::ELF::R_MIPS_26 != reloc->type())
           continue;
 
-        Relocation* relocation = llvm::cast<Relocation>(reloc);
-        uint64_t sym_value = 0x0;
-#if 0
-        LDSymbol* symbol = relocation->symInfo()->outSymbol();
-        if (symbol->hasFragRef()) {
-          uint64_t value = symbol->fragRef()->getOutputOffset();
-          uint64_t addr =
-            symbol->fragRef()->frag()->getParent()->getSection().addr();
-          sym_value = addr + value;
-        }
-#endif
-        Stub* stub =
-          getStubFactory()->create(*relocation, sym_value, pBuilder, bif);
-
-        if (NULL != stub) {
-          assert(NULL != stub->symInfo());
-          // increase the size of .symtab and .strtab
-          LDSection& symtab = fileFormat->getSymTab();
-          LDSection& strtab = fileFormat->getStrTab();
-          symtab.setSize(symtab.size() + sizeof(llvm::ELF::Elf32_Sym));
-          strtab.setSize(strtab.size() + stub->symInfo()->nameSize() + 1);
+        if (relaxRelocation(pBuilder, *llvm::cast<Relocation>(reloc)))
           isRelaxed = true;
-        }
       }
     }
   }
 
-  SectionData* textData = fileFormat->getText().getSectionData();
+  SectionData* textData = getOutputFormat()->getText().getSectionData();
 
   // find the first fragment w/ invalid offset due to stub insertion
   Fragment* invalid = NULL;
   pFinished = true;
-  for (BranchIslandFactory::iterator ii = bif.begin();
-       ii != bif.end(); ++ii)
+  for (BranchIslandFactory::iterator ii = getBRIslandFactory()->begin(),
+                                     ie = getBRIslandFactory()->end();
+       ii != ie; ++ii)
   {
     BranchIsland& island = *ii;
     if (island.end() == textData->end())
@@ -657,8 +661,8 @@ bool MipsGNULDBackend::doRelax(Module& pModule, IRBuilder& pBuilder,
 
   // reset the size of .text
   if (isRelaxed)
-    fileFormat->getText().setSize(textData->back().getOffset() +
-                                  textData->back().size());
+    getOutputFormat()->getText().setSize(textData->back().getOffset() +
+                                         textData->back().size());
 
   return isRelaxed;
 }
