@@ -28,6 +28,7 @@
 #include <mcld/LD/ELFSegmentFactory.h>
 #include <mcld/Target/ELFDynamic.h>
 #include <mcld/Target/GNUInfo.h>
+#include <mcld/Fragment/Relocation.h>
 
 #include <mcld/Support/GCFactory.h>
 #include <mcld/Module.h>
@@ -197,6 +198,32 @@ public:
   /// updateSectionFlags - update pTo's flags when merging pFrom
   /// update the output section flags based on input section flags.
   virtual bool updateSectionFlags(LDSection& pTo, const LDSection& pFrom);
+
+  /// readRelocation - read ELF32_Rel entry
+  virtual bool readRelocation(const llvm::ELF::Elf32_Rel& pRel,
+                              Relocation::Type& pType,
+                              uint32_t& pSymIdx,
+                              uint32_t& pOffset) const;
+
+  /// readRelocation - read ELF32_Rela entry
+  virtual bool readRelocation(const llvm::ELF::Elf32_Rela& pRel,
+                              Relocation::Type& pType,
+                              uint32_t& pSymIdx,
+                              uint32_t& pOffset,
+                              int32_t& pAddend) const;
+
+  /// readRelocation - read ELF64_Rel entry
+  virtual bool readRelocation(const llvm::ELF::Elf64_Rel& pRel,
+                              Relocation::Type& pType,
+                              uint32_t& pSymIdx,
+                              uint64_t& pOffset) const;
+
+  /// readRel - read ELF64_Rela entry
+  virtual bool readRelocation(const llvm::ELF::Elf64_Rela& pRel,
+                              Relocation::Type& pType,
+                              uint32_t& pSymIdx,
+                              uint64_t& pOffset,
+                              int64_t& pAddend) const;
 
   /// symbolNeedsPLT - return whether the symbol needs a PLT entry
   /// @ref Google gold linker, symtab.h:596

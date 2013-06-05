@@ -37,6 +37,8 @@
 #include <mcld/LD/StubFactory.h>
 #include <mcld/Object/ObjectBuilder.h>
 
+#include <llvm/Support/Host.h>
+
 namespace {
 
 //===--------------------------------------------------------------------===//
@@ -1667,6 +1669,96 @@ bool GNULDBackend::updateSectionFlags(LDSection& pTo, const LDSection& pFrom)
     flags &= ~llvm::ELF::SHF_STRINGS;
 
   pTo.setFlag(flags);
+  return true;
+}
+
+/// readRelocation - read ELF32_Rel entry
+bool GNULDBackend::readRelocation(const llvm::ELF::Elf32_Rel& pRel,
+                                  Relocation::Type& pType,
+                                  uint32_t& pSymIdx,
+                                  uint32_t& pOffset) const
+{
+  uint32_t r_info = 0x0;
+  if (llvm::sys::isLittleEndianHost()) {
+    pOffset = pRel.r_offset;
+    r_info  = pRel.r_info;
+  }
+  else {
+    pOffset = mcld::bswap32(pRel.r_offset);
+    r_info  = mcld::bswap32(pRel.r_info);
+  }
+
+  pType = static_cast<unsigned char>(r_info);
+  pSymIdx = (r_info >> 8);
+  return true;
+}
+
+/// readRelocation - read ELF32_Rela entry
+bool GNULDBackend::readRelocation(const llvm::ELF::Elf32_Rela& pRel,
+                                  Relocation::Type& pType,
+                                  uint32_t& pSymIdx,
+                                  uint32_t& pOffset,
+                                  int32_t& pAddend) const
+{
+  uint32_t r_info   = 0x0;
+  if (llvm::sys::isLittleEndianHost()) {
+    pOffset = pRel.r_offset;
+    r_info  = pRel.r_info;
+    pAddend = pRel.r_addend;
+  }
+  else {
+    pOffset = mcld::bswap32(pRel.r_offset);
+    r_info  = mcld::bswap32(pRel.r_info);
+    pAddend = mcld::bswap32(pRel.r_addend);
+  }
+
+  pType = static_cast<unsigned char>(r_info);
+  pSymIdx = (r_info >> 8);
+  return true;
+}
+
+/// readRelocation - read ELF64_Rel entry
+bool GNULDBackend::readRelocation(const llvm::ELF::Elf64_Rel& pRel,
+                              Relocation::Type& pType,
+                              uint32_t& pSymIdx,
+                              uint64_t& pOffset) const
+{
+  uint64_t r_info = 0x0;
+  if (llvm::sys::isLittleEndianHost()) {
+    pOffset = pRel.r_offset;
+    r_info  = pRel.r_info;
+  }
+  else {
+    pOffset = mcld::bswap64(pRel.r_offset);
+    r_info  = mcld::bswap64(pRel.r_info);
+  }
+
+  pType = static_cast<uint32_t>(r_info);
+  pSymIdx = (r_info >> 32);
+  return true;
+}
+
+/// readRel - read ELF64_Rela entry
+bool GNULDBackend::readRelocation(const llvm::ELF::Elf64_Rela& pRel,
+                              Relocation::Type& pType,
+                              uint32_t& pSymIdx,
+                              uint64_t& pOffset,
+                              int64_t& pAddend) const
+{
+  uint64_t r_info = 0x0;
+  if (llvm::sys::isLittleEndianHost()) {
+    pOffset = pRel.r_offset;
+    r_info  = pRel.r_info;
+    pAddend = pRel.r_addend;
+  }
+  else {
+    pOffset = mcld::bswap64(pRel.r_offset);
+    r_info  = mcld::bswap64(pRel.r_info);
+    pAddend = mcld::bswap64(pRel.r_addend);
+  }
+
+  pType = static_cast<uint32_t>(r_info);
+  pSymIdx = (r_info >> 32);
   return true;
 }
 
