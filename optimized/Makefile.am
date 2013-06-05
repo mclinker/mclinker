@@ -10,7 +10,7 @@ AM_CXXFLAGS = \
 	@NO_COVERED_SWITCH_DEFAULT@ \
 	@NO_C99_EXTENSIONS@
 
-BUILT_SOURCES = ScriptParser.h
+BUILT_SOURCES = ScriptParser.cc
 AM_YFLAGS = -d
 AM_LFLAGS = -olex.yy.c
 
