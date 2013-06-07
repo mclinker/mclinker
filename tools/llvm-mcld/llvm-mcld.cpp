@@ -851,6 +851,11 @@ ArgTextSegAddr("Ttext",
                cl::desc("Set the address of the text segment"),
                cl::init(-1U));
 
+static cl::alias
+ArgTextSegAddrAlias("Ttext-segment",
+                    cl::desc("alias for -Ttext"),
+                    cl::aliasopt(ArgTextSegAddr));
+
 //===----------------------------------------------------------------------===//
 // non-member functions
 //===----------------------------------------------------------------------===//
