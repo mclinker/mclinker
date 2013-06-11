@@ -210,7 +210,7 @@ void HexagonRelocator::scanGlobalReloc(Relocation &pReloc, IRBuilder &pBuilder,
         addCopyReloc(*cpy_sym.resolveInfo(), ld_backend);
       } else {
         rsym->setReserved(rsym->reserved() | ReserveRel);
-        ld_backend.checkAndSetHasTextRel(pSection);
+        ld_backend.checkAndSetHasTextRel(*pSection.getLink());
       }
     }
     return;

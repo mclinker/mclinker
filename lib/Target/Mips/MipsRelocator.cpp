@@ -269,7 +269,7 @@ void MipsRelocator::scanGlobalReloc(Relocation& pReloc,
         else {
           // set Rel bit
           rsym->setReserved(rsym->reserved() | ReserveRel);
-          getTarget().checkAndSetHasTextRel(pSection);
+          getTarget().checkAndSetHasTextRel(*pSection.getLink());
         }
 
         // Remeber this rsym is a global GOT entry (as if it needs an entry).
