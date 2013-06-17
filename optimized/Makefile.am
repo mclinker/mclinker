@@ -399,6 +399,7 @@ LINKERSCRIPT_HEADER = \
 	${INCDIR}/Script/StrToken.h \
 	${INCDIR}/Script/InputToken.h \
 	${INCDIR}/Script/FileToken.h \
+	${INCDIR}/Script/NameSpec.h \
 	${INCDIR}/Script/ScriptInput.h \
 	${INCDIR}/Script/EntryCmd.h \
 	${INCDIR}/Script/OutputFormatCmd.h \
@@ -425,6 +426,7 @@ LINKERSCRIPT_SOURCE = \
 	${LIBDIR}/Script/StrToken.cpp \
 	${LIBDIR}/Script/InputToken.cpp \
 	${LIBDIR}/Script/FileToken.cpp \
+	${LIBDIR}/Script/NameSpec.cpp \
 	${LIBDIR}/Script/ScriptInput.cpp \
 	${LIBDIR}/Script/EntryCmd.cpp \
 	${LIBDIR}/Script/OutputFormatCmd.cpp \
