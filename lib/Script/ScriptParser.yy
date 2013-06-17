@@ -21,6 +21,7 @@
 #define yylex m_ScriptScanner.lex
 %}
 
+%pure-parser
 %require "2.4"
 %skeleton "lalr1.cc"
 %defines "ScriptParser.h"
@@ -49,13 +50,13 @@
 }
 
 %union {
-  const std::string* strToken;
-  uint64_t intToken;
+  const std::string* string;
+  uint64_t integer;
 }
 
 %token END 0 /* EOF */
-%token <strToken> STRING
-%token <intToken> INTEGER
+%token <string> STRING LNAMESPEC
+%token <integer> INTEGER
 
 /* Initial states */
 %token LINKER_SCRIPT DEFSYM VERSION_SCRIPT DYNAMIC_LIST
@@ -163,10 +164,9 @@
 %left '*' '/' '%'
 %right UNARY_PLUS UNARY_MINUS '!' '~'
 
-%type <strToken> string
-%type <strToken> symbol
+%type <string> string symbol
 
-%% /* Grammar Rules */
+%%
 
 script_file : LINKER_SCRIPT
               { m_ScriptScanner.setLexState(ScriptFile::LDScript); }
@@ -184,9 +184,11 @@ script_command : entry_command
                | output_command
                | search_dir_command
                | output_arch_command
+               | assert_command
                | { m_ScriptScanner.setLexState(ScriptFile::Expression); }
                  symbol_assignment
                  { m_ScriptScanner.popLexState(); }
+               | sections_command
                ;
 
 entry_command : ENTRY '(' STRING ')'
@@ -206,7 +208,7 @@ group_command : GROUP
                 '(' input_list ')'
               ;
 
-search_dir_command : SEARCH_DIR '(' STRING ')'
+search_dir_command : SEARCH_DIR '(' STRING ')' opt_comma
                      { m_ScriptFile.addSearchDirCmd(*$3, m_LinkerScript); }
                    ;
 
@@ -217,6 +219,9 @@ output_command : OUTPUT '(' STRING ')'
 output_arch_command : OUTPUT_ARCH '(' STRING ')'
                       { m_ScriptFile.addOutputArchCmd(*$3); }
                     ;
+
+assert_command : ASSERT '(' script_exp ',' string ')'
+               ;
 
 input_list : input_list input_node
            | input_list ',' input_node
@@ -230,6 +235,193 @@ input_node : string
              '(' input_list ')'
              { m_ScriptFile.setAsNeeded(false); }
            ;
+
+/*
+  SECTIONS
+  {
+    sections-command
+    sections-command
+    ...
+  }
+*/
+sections_command : SECTIONS
+                   '{' sect_commands '}'
+                 ;
+
+sect_commands : sect_commands sect_cmd
+              | /* Empty */
+              ;
+
+/*
+Each sections-command may of be one of the following:
+
+an ENTRY command (see Entry command)
+a symbol assignment (see Assignments)
+an output section description
+an overlay description
+*/
+sect_cmd : entry_command
+         | symbol_assignment
+         | output_sect_desc
+         ;
+
+/*
+The full description of an output section looks like this:
+
+  section [address] [(type)] :
+    [AT(lma)]
+    [ALIGN(section_align)]
+    [SUBALIGN(subsection_align)]
+    [constraint]
+    {
+      output-section-command
+      output-section-command
+      ...
+    } [>region] [AT>lma_region] [:phdr :phdr ...] [=fillexp]
+*/
+output_sect_desc : string output_desc_prolog
+                   '{'
+                       output_sect_commands
+                   '}' output_desc_epilog
+                 ;
+
+output_desc_prolog : opt_vma_and_type
+                     ':'
+                     opt_lma opt_align opt_subalign opt_constraint
+                   ;
+
+output_sect_commands : output_sect_commands output_sect_cmd
+                     | /* Empty */
+                     ;
+
+output_desc_epilog : opt_region opt_lma_region opt_phdr opt_fill
+                   ;
+
+/* Output Section Attributes */
+opt_vma_and_type : exp opt_type
+                 | opt_type
+                 ;
+
+opt_type : '(' type ')'
+         | '(' ')'
+         | /* Empty */
+         ;
+
+type : NOLOAD
+     | DSECT
+     | COPY
+     | INFO
+     | OVERLAY
+     ;
+
+opt_lma : AT '(' script_exp ')'
+        | /* Empty */
+        ;
+
+/* Forced Output Alignment */
+opt_align : ALIGN '(' script_exp ')'
+          | /* Empty */
+          ;
+
+/* Forced Input Alignment */
+opt_subalign : SUBALIGN '(' script_exp ')'
+             | /* Empty */
+             ;
+
+opt_constraint : ONLY_IF_RO
+               | ONLY_IF_RW
+               | /* Empty */
+               ;
+
+opt_region : '>' string
+           | /* Empty */
+           ;
+
+opt_lma_region : AT '>' string
+               | /* Empty */
+               ;
+
+opt_phdr : phdrs
+         ;
+
+phdrs : phdrs ':' phdr
+      | /* Empty */
+      ;
+
+phdr : string
+     ;
+
+opt_fill : '=' script_exp
+         | /* Empty */
+         ;
+
+/*
+Each output-section-command may be one of the following:
+
+a symbol assignment (see Assignments)
+an input section description (see Input Section)
+data values to include directly (see Output Section Data)
+a special output section keyword (see Output Section Keywords)
+*/
+output_sect_cmd : symbol_assignment
+                | input_sect_desc
+                | output_sect_data
+                | output_sect_keyword
+                ;
+
+input_sect_desc : input_sect_spec
+                | KEEP '(' input_sect_spec ')'
+                ;
+
+input_sect_spec : string
+                | wildcard_file '(' opt_exclude_files input_sect_wildcard_patterns ')'
+                ;
+
+wildcard_file : wildcard_pattern
+              | SORT_BY_NAME '(' wildcard_pattern ')'
+              ;
+
+wildcard_pattern : string
+                 | '*'
+                 | '?'
+                 ;
+
+opt_exclude_files : EXCLUDE_FILE '('
+                    exclude_files ')'
+                  | /* Empty */
+                  ;
+
+exclude_files : exclude_files wildcard_pattern
+              | wildcard_pattern
+              ;
+
+input_sect_wildcard_patterns : wildcard_sections
+                             ;
+
+wildcard_sections : wildcard_sections wildcard_section
+                  | wildcard_section
+                  ;
+
+wildcard_section : wildcard_pattern
+                 | SORT_BY_NAME '(' wildcard_pattern ')'
+                 | SORT_BY_ALIGNMENT '(' wildcard_pattern ')'
+                 | SORT_BY_NAME '(' SORT_BY_ALIGNMENT '(' wildcard_pattern ')' ')'
+                 | SORT_BY_ALIGNMENT '('SORT_BY_NAME '(' wildcard_pattern ')' ')'
+                 | SORT_BY_NAME '(' SORT_BY_NAME '(' wildcard_pattern ')' ')'
+                 | SORT_BY_ALIGNMENT '(' SORT_BY_ALIGNMENT '(' wildcard_pattern ')' ')'
+                 ;
+
+output_sect_data : BYTE  '(' script_exp ')'
+                 | SHORT '(' script_exp ')'
+                 | LONG  '(' script_exp ')'
+                 | QUAD  '(' script_exp ')'
+                 | SQUAD '(' script_exp ')'
+                 ;
+
+output_sect_keyword : CREATE_OBJECT_SYMBOLS
+                    | CONSTRUCTORS
+                    | SORT_BY_NAME '(' CONSTRUCTORS ')'
+                    ;
 
 symbol_assignment : symbol
                     { m_ScriptFile.addAssignment(m_LinkerScript, *$1); }
@@ -261,6 +453,9 @@ symbol_assignment : symbol
                     }
                     '=' exp ')' ';'
                   ;
+
+script_exp : exp
+           ;
 
 exp : '(' exp ')'
     | '+' exp %prec UNARY_PLUS
@@ -346,7 +541,11 @@ string : STRING
          { $$ = $2; }
        ;
 
-%% /* Additional Code */
+opt_comma : ';'
+          | /* Empty */
+          ;
+
+%%
 
 void mcld::ScriptParser::error(const mcld::ScriptParser::location_type& pLoc,
                                const std::string &pMsg)

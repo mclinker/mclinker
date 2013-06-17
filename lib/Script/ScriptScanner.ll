@@ -35,9 +35,10 @@ typedef mcld::ScriptParser::token_type token_type;
 %}
 
 /* abbrev. of RE @ref binutils ld/ldlex.l */
-FILENAMECHAR1 [_a-zA-Z\/\.\\\$\_\~]
-SYMBOLCHARN   [_a-zA-Z\/\.\\\$\_\~0-9]
-NOCFILENAMECHAR [_a-zA-Z0-9\/\.\-\_\+\$\:\[\]\\\~]
+FILENAMECHAR1   [_a-zA-Z\/\.\\\$\_\~]
+SYMBOLCHARN     [_a-zA-Z\/\.\\\$\_\~0-9]
+NOCFILENAMECHAR [_a-zA-Z0-9\/\.\-\_\+\$\[\]\\\~]
+WILDCHAR        [_a-zA-Z0-9\/\.\-\_\+\$\[\]\\\,\~\?\*\^\!]
 WS [ \t\r]
 
 /* Start conditions */
@@ -90,9 +91,9 @@ WS [ \t\r]
 <LDSCRIPT>"OUTPUT_ARCH"                { return token::OUTPUT_ARCH; }
 <LDSCRIPT>"LD_FEATURE"                 { return token::LD_FEATURE; }
  /* Assignemnts */
-<LDSCRIPT>"HIDDEN"                     { return token::HIDDEN; }
-<LDSCRIPT>"PROVIDE"                    { return token::PROVIDE; }
-<LDSCRIPT>"PROVIDE_HIDDEN"             { return token::PROVIDE_HIDDEN; }
+<LDSCRIPT,EXPRESSION>"HIDDEN"          { return token::HIDDEN; }
+<LDSCRIPT,EXPRESSION>"PROVIDE"         { return token::PROVIDE; }
+<LDSCRIPT,EXPRESSION>"PROVIDE_HIDDEN"  { return token::PROVIDE_HIDDEN; }
  /* SECTIONS Command */
 <LDSCRIPT>"SECTIONS"                   { return token::SECTIONS; }
  /* MEMORY Command */
@@ -100,32 +101,32 @@ WS [ \t\r]
  /* PHDRS Command */
 <LDSCRIPT>"PHDRS"                      { return token::PHDRS; }
  /* Builtin Functions */
-<LDSCRIPT>"ABSOLUTE"                   { return token::ABSOLUTE; }
-<LDSCRIPT>"ADDR"                       { return token::ADDR; }
-<LDSCRIPT>"ALIGN"                      { return token::ALIGN; }
-<LDSCRIPT>"ALIGNOF"                    { return token::ALIGNOF; }
-<LDSCRIPT>"BLOCK"                      { return token::BLOCK; }
-<LDSCRIPT>"DATA_SEGMENT_ALIGN"         { return token::DATA_SEGMENT_ALIGN; }
-<LDSCRIPT>"DATA_SEGMENT_END"           { return token::DATA_SEGMENT_END; }
-<LDSCRIPT>"DATA_SEGMENT_RELRO_END"     { return token::DATA_SEGMENT_RELRO_END; }
-<LDSCRIPT>"DEFINED"                    { return token::DEFINED; }
-<LDSCRIPT>"LENGTH"                     { return token::LENGTH; }
-<LDSCRIPT>"LOADADDR"                   { return token::LOADADDR; }
-<LDSCRIPT>"MAX"                        { return token::MAX; }
-<LDSCRIPT>"MIN"                        { return token::MIN; }
-<LDSCRIPT>"NEXT"                       { return token::NEXT; }
-<LDSCRIPT>"ORIGIN"                     { return token::ORIGIN; }
-<LDSCRIPT>"SEGMENT_START"              { return token::SEGMENT_START; }
-<LDSCRIPT>"SIZEOF"                     { return token::SIZEOF; }
-<LDSCRIPT>"SIZEOF_HEADERS"             { return token::SIZEOF_HEADERS; }
-<LDSCRIPT>"CONSTANT"                   { return token::CONSTANT; }
+<EXPRESSION>"ABSOLUTE"                 { return token::ABSOLUTE; }
+<EXPRESSION>"ADDR"                     { return token::ADDR; }
+<EXPRESSION>"ALIGN"                    { return token::ALIGN; }
+<EXPRESSION>"ALIGNOF"                  { return token::ALIGNOF; }
+<EXPRESSION>"BLOCK"                    { return token::BLOCK; }
+<EXPRESSION>"DATA_SEGMENT_ALIGN"       { return token::DATA_SEGMENT_ALIGN; }
+<EXPRESSION>"DATA_SEGMENT_END"         { return token::DATA_SEGMENT_END; }
+<EXPRESSION>"DATA_SEGMENT_RELRO_END"   { return token::DATA_SEGMENT_RELRO_END; }
+<EXPRESSION>"DEFINED"                  { return token::DEFINED; }
+<EXPRESSION>"LENGTH"                   { return token::LENGTH; }
+<EXPRESSION>"LOADADDR"                 { return token::LOADADDR; }
+<EXPRESSION>"MAX"                      { return token::MAX; }
+<EXPRESSION>"MIN"                      { return token::MIN; }
+<EXPRESSION>"NEXT"                     { return token::NEXT; }
+<EXPRESSION>"ORIGIN"                   { return token::ORIGIN; }
+<EXPRESSION>"SEGMENT_START"            { return token::SEGMENT_START; }
+<EXPRESSION>"SIZEOF"                   { return token::SIZEOF; }
+<EXPRESSION>"SIZEOF_HEADERS"           { return token::SIZEOF_HEADERS; }
+<EXPRESSION>"CONSTANT"                 { return token::CONSTANT; }
  /* Symbolic Constants */
-<LDSCRIPT>"MAXPAGESIZE"                { return token::MAXPAGESIZE; }
-<LDSCRIPT>"COMMONPAGESIZE"             { return token::COMMONPAGESIZE; }
+<EXPRESSION>"MAXPAGESIZE"              { return token::MAXPAGESIZE; }
+<EXPRESSION>"COMMONPAGESIZE"           { return token::COMMONPAGESIZE; }
  /* Input Section Description */
 <LDSCRIPT>"EXCLUDE_FILE"               { return token::EXCLUDE_FILE; }
-<LDSCRIPT>"COMMON"                     { return token::COMMON; }
 <LDSCRIPT>"KEEP"                       { return token::KEEP; }
+<LDSCRIPT>"SORT"                       { return token::SORT_BY_NAME; }
 <LDSCRIPT>"SORT_BY_NAME"               { return token::SORT_BY_NAME; }
 <LDSCRIPT>"SORT_BY_ALIGNMENT"          { return token::SORT_BY_ALIGNMENT; }
  /* Output Section Data */
@@ -155,41 +156,43 @@ WS [ \t\r]
 <LDSCRIPT>"ONLY_IF_RO"                 { return token::ONLY_IF_RO; }
 <LDSCRIPT>"ONLY_IF_RW"                 { return token::ONLY_IF_RW; }
  /* Operators */
-<EXPRESSION>"<<"                       { return token::LSHIFT; }
-<EXPRESSION>">>"                       { return token::RSHIFT; }
-<EXPRESSION>"=="                       { return token::EQ; }
-<EXPRESSION>"!="                       { return token::NE; }
-<EXPRESSION>"<="                       { return token::LE; }
-<EXPRESSION>">="                       { return token::GE; }
-<EXPRESSION>"&&"                       { return token::LOGICAL_AND; }
-<EXPRESSION>"||"                       { return token::LOGICAL_OR; }
-<EXPRESSION>"+="                       { return token::ADD_ASSIGN; }
-<EXPRESSION>"-="                       { return token::SUB_ASSIGN; }
-<EXPRESSION>"*="                       { return token::MUL_ASSIGN; }
-<EXPRESSION>"/="                       { return token::DIV_ASSIGN; }
-<EXPRESSION>"&="                       { return token::AND_ASSIGN; }
-<EXPRESSION>"|="                       { return token::OR_ASSIGN; }
-<EXPRESSION>"<<="                      { return token::LS_ASSIGN; }
-<EXPRESSION>">>="                      { return token::RS_ASSIGN; }
-<EXPRESSION>","                        { return static_cast<token_type>(*yytext); }
-<EXPRESSION>"="                        { return static_cast<token_type>(*yytext); }
-<EXPRESSION>"?"                        { return static_cast<token_type>(*yytext); }
-<EXPRESSION>":"                        { return static_cast<token_type>(*yytext); }
-<EXPRESSION>"|"                        { return static_cast<token_type>(*yytext); }
-<EXPRESSION>"^"                        { return static_cast<token_type>(*yytext); }
-<EXPRESSION>"&"                        { return static_cast<token_type>(*yytext); }
-<EXPRESSION>"<"                        { return static_cast<token_type>(*yytext); }
-<EXPRESSION>">"                        { return static_cast<token_type>(*yytext); }
-<EXPRESSION>"+"                        { return static_cast<token_type>(*yytext); }
-<EXPRESSION>"-"                        { return static_cast<token_type>(*yytext); }
-<EXPRESSION>"*"                        { return static_cast<token_type>(*yytext); }
-<EXPRESSION>"/"                        { return static_cast<token_type>(*yytext); }
-<EXPRESSION>"%"                        { return static_cast<token_type>(*yytext); }
-<EXPRESSION>"!"                        { return static_cast<token_type>(*yytext); }
-<EXPRESSION>"~"                        { return static_cast<token_type>(*yytext); }
-<EXPRESSION>";"                        { return static_cast<token_type>(*yytext); }
+<LDSCRIPT,EXPRESSION>"<<"              { return token::LSHIFT; }
+<LDSCRIPT,EXPRESSION>">>"              { return token::RSHIFT; }
+<LDSCRIPT,EXPRESSION>"=="              { return token::EQ; }
+<LDSCRIPT,EXPRESSION>"!="              { return token::NE; }
+<LDSCRIPT,EXPRESSION>"<="              { return token::LE; }
+<LDSCRIPT,EXPRESSION>">="              { return token::GE; }
+<LDSCRIPT,EXPRESSION>"&&"              { return token::LOGICAL_AND; }
+<LDSCRIPT,EXPRESSION>"||"              { return token::LOGICAL_OR; }
+<LDSCRIPT,EXPRESSION>"+="              { return token::ADD_ASSIGN; }
+<LDSCRIPT,EXPRESSION>"-="              { return token::SUB_ASSIGN; }
+<LDSCRIPT,EXPRESSION>"*="              { return token::MUL_ASSIGN; }
+<LDSCRIPT,EXPRESSION>"/="              { return token::DIV_ASSIGN; }
+<LDSCRIPT,EXPRESSION>"&="              { return token::AND_ASSIGN; }
+<LDSCRIPT,EXPRESSION>"|="              { return token::OR_ASSIGN; }
+<LDSCRIPT,EXPRESSION>"<<="             { return token::LS_ASSIGN; }
+<LDSCRIPT,EXPRESSION>">>="             { return token::RS_ASSIGN; }
+<LDSCRIPT,EXPRESSION>","               { return static_cast<token_type>(*yytext); }
+<LDSCRIPT,EXPRESSION>"="               { return static_cast<token_type>(*yytext); }
+<LDSCRIPT,EXPRESSION>"?"               { return static_cast<token_type>(*yytext); }
+<LDSCRIPT,EXPRESSION>":"               { return static_cast<token_type>(*yytext); }
+<LDSCRIPT,EXPRESSION>"|"               { return static_cast<token_type>(*yytext); }
+<LDSCRIPT,EXPRESSION>"^"               { return static_cast<token_type>(*yytext); }
+<LDSCRIPT,EXPRESSION>"&"               { return static_cast<token_type>(*yytext); }
+<LDSCRIPT,EXPRESSION>"<"               { return static_cast<token_type>(*yytext); }
+<LDSCRIPT,EXPRESSION>">"               { return static_cast<token_type>(*yytext); }
+<LDSCRIPT,EXPRESSION>"+"               { return static_cast<token_type>(*yytext); }
+<LDSCRIPT,EXPRESSION>"-"               { return static_cast<token_type>(*yytext); }
+<LDSCRIPT,EXPRESSION>"*"               { return static_cast<token_type>(*yytext); }
+<LDSCRIPT,EXPRESSION>"/"               { return static_cast<token_type>(*yytext); }
+<LDSCRIPT,EXPRESSION>"%"               { return static_cast<token_type>(*yytext); }
+<LDSCRIPT,EXPRESSION>"!"               { return static_cast<token_type>(*yytext); }
+<LDSCRIPT,EXPRESSION>"~"               { return static_cast<token_type>(*yytext); }
+<LDSCRIPT,EXPRESSION>";"               { return static_cast<token_type>(*yytext); }
 <LDSCRIPT,EXPRESSION>"("               { return static_cast<token_type>(*yytext); }
 <LDSCRIPT,EXPRESSION>")"               { return static_cast<token_type>(*yytext); }
+<LDSCRIPT,EXPRESSION>"{"               { return static_cast<token_type>(*yytext); }
+<LDSCRIPT,EXPRESSION>"}"               { return static_cast<token_type>(*yytext); }
 
  /* Numbers */
 <EXPRESSION>((("$"|0[xX])([0-9A-Fa-f])+)|(([0-9])+))(M|K|m|k)? {
@@ -197,16 +200,16 @@ WS [ \t\r]
   switch (str.back()) {
   case 'k':
   case 'K':
-    str.substr(0, yyleng - 1).getAsInteger(0, yylval->intToken);
-    yylval->intToken *= 1024;
+    str.substr(0, yyleng - 1).getAsInteger(0, yylval->integer);
+    yylval->integer *= 1024;
     break;
   case 'm':
   case 'M':
-    str.substr(0, yyleng - 1).getAsInteger(0, yylval->intToken);
-    yylval->intToken *= 1024 * 1024;
+    str.substr(0, yyleng - 1).getAsInteger(0, yylval->integer);
+    yylval->integer *= 1024 * 1024;
     break;
   default:
-    str.getAsInteger(0, yylval->intToken);
+    str.getAsInteger(0, yylval->integer);
     break;
   }
   return token::INTEGER;
@@ -215,15 +218,34 @@ WS [ \t\r]
  /* Expression string */
 <EXPRESSION>{FILENAMECHAR1}{SYMBOLCHARN}* {
   const std::string& str = pScriptFile.createParserStr(yytext, yyleng);
-  yylval->strToken = &str;
+  yylval->string = &str;
   return token::STRING;
 }
 
  /* String */
 <LDSCRIPT>{FILENAMECHAR1}{NOCFILENAMECHAR}* {
   const std::string& str = pScriptFile.createParserStr(yytext, yyleng);
-  yylval->strToken = &str;
+  yylval->string = &str;
   return token::STRING;
+}
+
+<LDSCRIPT>\"(\\.|[^\\"])*\" {
+  /*" c string literal */
+  const std::string& str = pScriptFile.createParserStr(yytext, yyleng);
+  yylval->string = &str;
+  return token::STRING;
+}
+
+ /* WILDCHAR String */
+<LDSCRIPT>{WILDCHAR}* {
+  if (yytext[0] == '/' && yytext[1] == '*') {
+    yyless (2);
+    enterComments(*yylloc);
+  } else {
+    const std::string& str = pScriptFile.createParserStr(yytext, yyleng);
+    yylval->string = &str;
+    return token::STRING;
+  }
 }
 
  /* gobble up C comments */
