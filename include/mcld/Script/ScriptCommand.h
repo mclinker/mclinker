@@ -29,6 +29,7 @@ public:
     Output,
     SearchDir,
     OutputArch,
+    Assert,
     Assignment
   };
 

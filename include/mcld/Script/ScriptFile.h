@@ -26,7 +26,7 @@ class InputBuilder;
 class GroupReader;
 class LinkerConfig;
 class LinkerScript;
-class ExprToken;
+class RpnExpr;
 
 /** \class ScriptFile
  *  \brief This class defines the interfaces to a linker script file.
@@ -121,6 +121,9 @@ public:
 
   /// OUTPUT_ARCH(bfdarch)
   void addOutputArchCmd(const std::string& pArch);
+
+  /// ASSERT(exp, message)
+  void addAssertCmd(RpnExpr& pRpnExpr, const std::string& pMessage);
 
   /// assignment
   void addAssignment(LinkerScript& pLDScript,

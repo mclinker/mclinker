@@ -403,6 +403,7 @@ LINKERSCRIPT_HEADER = \
 	${INCDIR}/Script/OutputCmd.h \
 	${INCDIR}/Script/SearchDirCmd.h \
 	${INCDIR}/Script/OutputArchCmd.h \
+	${INCDIR}/Script/AssertCmd.h \
 	${INCDIR}/Script/Assignment.h \
 	${INCDIR}/Script/ExprToken.h \
 	${INCDIR}/Script/Operator.h \
@@ -425,6 +426,7 @@ LINKERSCRIPT_SOURCE = \
 	${LIBDIR}/Script/OutputCmd.cpp \
 	${LIBDIR}/Script/SearchDirCmd.cpp \
 	${LIBDIR}/Script/OutputArchCmd.cpp \
+	${LIBDIR}/Script/AssertCmd.cpp \
 	${LIBDIR}/Script/Assignment.cpp \
 	${LIBDIR}/Script/Operator.cpp \
 	${LIBDIR}/Script/UnaryOp.cpp \

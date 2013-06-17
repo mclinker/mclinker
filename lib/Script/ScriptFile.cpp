@@ -15,6 +15,7 @@
 #include <mcld/Script/OutputCmd.h>
 #include <mcld/Script/SearchDirCmd.h>
 #include <mcld/Script/OutputArchCmd.h>
+#include <mcld/Script/AssertCmd.h>
 #include <mcld/Script/RpnExpr.h>
 #include <mcld/Script/Operand.h>
 #include <mcld/MC/MCLDInput.h>
@@ -155,6 +156,11 @@ void ScriptFile::addSearchDirCmd(const std::string& pPath,
 void ScriptFile::addOutputArchCmd(const std::string& pArch)
 {
   m_CommandQueue.push_back(new OutputArchCmd(pArch));
+}
+
+void ScriptFile::addAssertCmd(RpnExpr& pRpnExpr, const std::string& pMessage)
+{
+  m_CommandQueue.push_back(new AssertCmd(pRpnExpr, pMessage));
 }
 
 void ScriptFile::addAssignment(LinkerScript& pLDScript,

@@ -223,6 +223,7 @@ output_arch_command : OUTPUT_ARCH '(' STRING ')'
                     ;
 
 assert_command : ASSERT '(' script_exp ',' string ')'
+                 { m_ScriptFile.addAssertCmd(*$3, *$5); }
                ;
 
 input_list : input_list input_node
