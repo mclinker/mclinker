@@ -224,6 +224,22 @@ void ScriptFile::leaveOutputSectDesc(const OutputSectDesc::Epilog& pEpilog)
   m_InOutputSectDesc = false;
 }
 
+void ScriptFile::addInputSectDesc(InputSectDesc::KeepPolicy pPolicy,
+                                  const InputSectDesc::Spec& pSpec)
+{
+  assert(!m_CommandQueue.empty());
+  assert(m_InSectionsCmd);
+  SectionsCmd* sections = llvm::cast<SectionsCmd>(back());
+
+  assert(!sections->empty() && m_InOutputSectDesc);
+  OutputSectDesc* output_sect =  llvm::cast<OutputSectDesc>(sections->back());
+
+  output_sect->push_back(new InputSectDesc(pPolicy,
+                                           *pSpec.file,
+                                           *pSpec.exclude_files,
+                                           *pSpec.wildcard_sections));
+}
+
 const std::string& ScriptFile::createParserStr(const char* pText,
                                                size_t pLength)
 {

@@ -80,6 +80,8 @@ public:
   const_reference back()  const { return m_OutputSectCmds.back(); }
   reference       back()        { return m_OutputSectCmds.back(); }
 
+  const std::string& name() const { return m_Name; }
+
   size_t size() const { return m_OutputSectCmds.size(); }
 
   bool empty() const { return m_OutputSectCmds.empty(); }
@@ -147,7 +149,6 @@ public:
 
 private:
   OutputSectCmds m_OutputSectCmds;
-  /* Name */
   std::string m_Name;
   Prolog m_Prolog;
   Epilog m_Epilog;

@@ -14,6 +14,7 @@
 
 #include <mcld/Script/Assignment.h>
 #include <mcld/Script/OutputSectDesc.h>
+#include <mcld/Script/InputSectDesc.h>
 #include <vector>
 #include <string>
 
@@ -140,6 +141,9 @@ public:
                            const OutputSectDesc::Prolog& pProlog);
 
   void leaveOutputSectDesc(const OutputSectDesc::Epilog& pEpilog);
+
+  void addInputSectDesc(InputSectDesc::KeepPolicy pPolicy,
+                        const InputSectDesc::Spec& pSpec);
 
   static const std::string& createParserStr(const char* pText, size_t pLength);
 

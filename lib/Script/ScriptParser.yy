@@ -17,6 +17,7 @@
 #include <mcld/Script/RpnExpr.h>
 #include <mcld/Script/FileToken.h>
 #include <mcld/Script/NameSpec.h>
+#include <mcld/Script/WildcardPattern.h>
 #include <mcld/Support/MsgHandling.h>
 #include <mcld/MC/MCLDInput.h>
 
@@ -28,6 +29,7 @@
 #include <mcld/Script/StrToken.h>
 #include <mcld/Script/ScriptInput.h>
 #include <mcld/Script/OutputSectDesc.h>
+#include <mcld/Script/InputSectDesc.h>
 #include <llvm/Support/DataTypes.h>
 }
 
@@ -68,6 +70,8 @@
   OutputSectDesc::Type output_type;
   OutputSectDesc::Constraint output_constraint;
   OutputSectDesc::Epilog output_epilog;
+  WildcardPattern* wildcard;
+  InputSectDesc::Spec input_spec;
 }
 
 %token END 0 /* EOF */
@@ -180,14 +184,16 @@
 %left '*' '/' '%'
 %right UNARY_PLUS UNARY_MINUS '!' '~'
 
-%type <string> string symbol opt_region opt_lma_region
+%type <string> string symbol opt_region opt_lma_region wildcard_pattern
 %type <rpn_expr> script_exp opt_lma opt_align opt_subalign opt_fill
 %type <str_token> input phdr
-%type <str_tokens> input_list  opt_phdr
+%type <str_tokens> input_list opt_phdr opt_exclude_files input_sect_wildcard_patterns
 %type <output_prolog> output_desc_prolog opt_vma_and_type
 %type <output_type> opt_type type
 %type <output_constraint> opt_constraint
 %type <output_epilog> output_desc_epilog
+%type <wildcard> wildcard_file wildcard_section
+%type <input_spec> input_sect_spec
 
 %%
 
@@ -469,45 +475,88 @@ output_sect_cmd : symbol_assignment
                 ;
 
 input_sect_desc : input_sect_spec
+                  { m_ScriptFile.addInputSectDesc(InputSectDesc::NoKeep, $1); }
                 | KEEP '(' input_sect_spec ')'
+                  { m_ScriptFile.addInputSectDesc(InputSectDesc::Keep, $3); }
                 ;
 
 input_sect_spec : string
+                  {
+                    $$.file = WildcardPattern::create(*$1, WildcardPattern::SORT_NONE);
+                    $$.exclude_files = ScriptInput::create();
+                    $$.wildcard_sections = ScriptInput::create();
+                  }
                 | wildcard_file '(' opt_exclude_files input_sect_wildcard_patterns ')'
+                  {
+                    $$.file = $1;
+                    $$.exclude_files = $3;
+                    $$.wildcard_sections = $4;
+                  }
                 ;
 
 wildcard_file : wildcard_pattern
+                { $$ = WildcardPattern::create(*$1, WildcardPattern::SORT_NONE); }
               | SORT_BY_NAME '(' wildcard_pattern ')'
+                { $$ = WildcardPattern::create(*$3, WildcardPattern::SORT_BY_NAME); }
               ;
 
 wildcard_pattern : string
+                   { $$ = $1; }
                  | '*'
+                   { $$ = &m_ScriptFile.createParserStr("*", 1); }
                  | '?'
+                   { $$ = &m_ScriptFile.createParserStr("?", 1); }
                  ;
 
 opt_exclude_files : EXCLUDE_FILE '('
+                    { m_pScriptInput = ScriptInput::create(); }
                     exclude_files ')'
+                    { $$ = m_pScriptInput; }
                   | /* Empty */
+                    { $$ = ScriptInput::create(); }
                   ;
 
 exclude_files : exclude_files wildcard_pattern
+                {
+                  m_pScriptInput->push_back(
+                    WildcardPattern::create(*$2, WildcardPattern::SORT_NONE));
+                }
               | wildcard_pattern
+                {
+                  m_pScriptInput->push_back(
+                    WildcardPattern::create(*$1, WildcardPattern::SORT_NONE));
+                }
               ;
 
-input_sect_wildcard_patterns : wildcard_sections
+input_sect_wildcard_patterns : { m_pScriptInput = ScriptInput::create(); }
+                               wildcard_sections
+                               { $$ = m_pScriptInput; }
                              ;
 
 wildcard_sections : wildcard_sections wildcard_section
+                    {
+                      m_pScriptInput->push_back($2);
+                    }
                   | wildcard_section
+                    {
+                      m_pScriptInput->push_back($1);
+                    }
                   ;
 
 wildcard_section : wildcard_pattern
+                   { $$ = WildcardPattern::create(*$1, WildcardPattern::SORT_NONE); }
                  | SORT_BY_NAME '(' wildcard_pattern ')'
+                   { $$ = WildcardPattern::create(*$3, WildcardPattern::SORT_BY_NAME); }
                  | SORT_BY_ALIGNMENT '(' wildcard_pattern ')'
+                   { $$ = WildcardPattern::create(*$3, WildcardPattern::SORT_BY_ALIGNMENT); }
                  | SORT_BY_NAME '(' SORT_BY_ALIGNMENT '(' wildcard_pattern ')' ')'
+                   { $$ = WildcardPattern::create(*$5, WildcardPattern::SORT_BY_NAME_ALIGNMENT); }
                  | SORT_BY_ALIGNMENT '('SORT_BY_NAME '(' wildcard_pattern ')' ')'
+                   { $$ = WildcardPattern::create(*$5, WildcardPattern::SORT_BY_ALIGNMENT_NAME); }
                  | SORT_BY_NAME '(' SORT_BY_NAME '(' wildcard_pattern ')' ')'
+                   { $$ = WildcardPattern::create(*$5, WildcardPattern::SORT_BY_NAME); }
                  | SORT_BY_ALIGNMENT '(' SORT_BY_ALIGNMENT '(' wildcard_pattern ')' ')'
+                   { $$ = WildcardPattern::create(*$5, WildcardPattern::SORT_BY_ALIGNMENT); }
                  ;
 
 output_sect_data : BYTE  '(' script_exp ')'
