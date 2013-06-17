@@ -410,6 +410,7 @@ LINKERSCRIPT_HEADER = \
 	${INCDIR}/Script/AssertCmd.h \
 	${INCDIR}/Script/Assignment.h \
 	${INCDIR}/Script/SectionsCmd.h \
+	${INCDIR}/Script/OutputSectDesc.h \
 	${INCDIR}/Script/ExprToken.h \
 	${INCDIR}/Script/Operator.h \
 	${INCDIR}/Script/UnaryOp.h \
@@ -438,6 +439,7 @@ LINKERSCRIPT_SOURCE = \
 	${LIBDIR}/Script/AssertCmd.cpp \
 	${LIBDIR}/Script/Assignment.cpp \
 	${LIBDIR}/Script/SectionsCmd.cpp \
+	${LIBDIR}/Script/OutputSectDesc.cpp \
 	${LIBDIR}/Script/Operator.cpp \
 	${LIBDIR}/Script/UnaryOp.cpp \
 	${LIBDIR}/Script/BinaryOp.cpp \

@@ -51,7 +51,8 @@ ScriptFile::ScriptFile(Kind pKind, Input& pInput, InputBuilder& pBuilder)
     m_pInputTree(NULL),
     m_Builder(pBuilder),
     m_HasSectionsCmd(false),
-    m_InSectionsCmd(false)
+    m_InSectionsCmd(false),
+    m_InOutputSectDesc(false)
 {
   m_Data.input = &pInput;
   if (pInput.hasMemArea() && pInput.memArea()->hasHandler())
@@ -70,7 +71,8 @@ ScriptFile::ScriptFile(Kind pKind,
     m_pInputTree(NULL),
     m_Builder(pBuilder),
     m_HasSectionsCmd(false),
-    m_InSectionsCmd(false)
+    m_InSectionsCmd(false),
+    m_InOutputSectDesc(false)
 {
   m_Data.str = &pData;
   // FIXME: move creation of input tree out of ScriptFile.
@@ -168,7 +170,14 @@ void ScriptFile::addAssignment(LinkerScript& pLDScript,
   if (m_InSectionsCmd) {
     assert(!m_CommandQueue.empty());
     SectionsCmd* sections = llvm::cast<SectionsCmd>(back());
-    sections->push_back(assignment);
+    if (m_InOutputSectDesc) {
+      assert(!sections->empty());
+      OutputSectDesc* output_desc =
+        llvm::cast<OutputSectDesc>(sections->back());
+      output_desc->push_back(assignment);
+    } else {
+      sections->push_back(assignment);
+    }
   } else {
     m_CommandQueue.push_back(assignment);
   }
@@ -189,6 +198,30 @@ void ScriptFile::enterSectionsCmd()
 void ScriptFile::leaveSectionsCmd()
 {
   m_InSectionsCmd = false;
+}
+
+void ScriptFile::enterOutputSectDesc(const std::string& pName,
+                                     const OutputSectDesc::Prolog& pProlog)
+{
+  assert(!m_CommandQueue.empty());
+  assert(m_InSectionsCmd);
+  SectionsCmd* sections = llvm::cast<SectionsCmd>(back());
+  sections->push_back(new OutputSectDesc(pName, pProlog));
+
+  m_InOutputSectDesc = true;
+}
+
+void ScriptFile::leaveOutputSectDesc(const OutputSectDesc::Epilog& pEpilog)
+{
+  assert(!m_CommandQueue.empty());
+  assert(m_InSectionsCmd);
+  SectionsCmd* sections = llvm::cast<SectionsCmd>(back());
+
+  assert(!sections->empty() && m_InOutputSectDesc);
+  OutputSectDesc* output_sect =  llvm::cast<OutputSectDesc>(sections->back());
+  output_sect->setEpilog(pEpilog);
+
+  m_InOutputSectDesc = false;
 }
 
 const std::string& ScriptFile::createParserStr(const char* pText,

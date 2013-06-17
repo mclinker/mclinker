@@ -13,6 +13,7 @@
 #endif
 
 #include <mcld/Script/Assignment.h>
+#include <mcld/Script/OutputSectDesc.h>
 #include <vector>
 #include <string>
 
@@ -135,6 +136,11 @@ public:
 
   void leaveSectionsCmd();
 
+  void enterOutputSectDesc(const std::string& pName,
+                           const OutputSectDesc::Prolog& pProlog);
+
+  void leaveOutputSectDesc(const OutputSectDesc::Epilog& pEpilog);
+
   static const std::string& createParserStr(const char* pText, size_t pLength);
 
   static void clearParserStrPool();
@@ -156,6 +162,7 @@ private:
   CommandQueue m_CommandQueue;
   bool m_HasSectionsCmd;
   bool m_InSectionsCmd;
+  bool m_InOutputSectDesc;
 };
 
 } // namespace of mcld

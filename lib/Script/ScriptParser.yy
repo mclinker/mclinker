@@ -27,6 +27,7 @@
 %code requires {
 #include <mcld/Script/StrToken.h>
 #include <mcld/Script/ScriptInput.h>
+#include <mcld/Script/OutputSectDesc.h>
 #include <llvm/Support/DataTypes.h>
 }
 
@@ -63,6 +64,10 @@
   RpnExpr* rpn_expr;
   StrToken* str_token;
   ScriptInput* str_tokens;
+  OutputSectDesc::Prolog output_prolog;
+  OutputSectDesc::Type output_type;
+  OutputSectDesc::Constraint output_constraint;
+  OutputSectDesc::Epilog output_epilog;
 }
 
 %token END 0 /* EOF */
@@ -175,10 +180,14 @@
 %left '*' '/' '%'
 %right UNARY_PLUS UNARY_MINUS '!' '~'
 
-%type <string> string symbol
-%type <rpn_expr> script_exp
-%type <str_token> input
-%type <str_tokens> input_list
+%type <string> string symbol opt_region opt_lma_region
+%type <rpn_expr> script_exp opt_lma opt_align opt_subalign opt_fill
+%type <str_token> input phdr
+%type <str_tokens> input_list  opt_phdr
+%type <output_prolog> output_desc_prolog opt_vma_and_type
+%type <output_type> opt_type type
+%type <output_constraint> opt_constraint
+%type <output_epilog> output_desc_epilog
 
 %%
 
@@ -313,14 +322,30 @@ The full description of an output section looks like this:
     } [>region] [AT>lma_region] [:phdr :phdr ...] [=fillexp]
 */
 output_sect_desc : string output_desc_prolog
+                   { m_ScriptFile.enterOutputSectDesc(*$1, $2); }
                    '{'
                        output_sect_commands
                    '}' output_desc_epilog
+                   { m_ScriptFile.leaveOutputSectDesc($7); }
                  ;
 
-output_desc_prolog : opt_vma_and_type
+output_desc_prolog : {
+                       m_ScriptScanner.setLexState(ScriptFile::Expression);
+                       /* create exp for vma */
+                       m_pRpnExpr = RpnExpr::create();
+                     }
+                     opt_vma_and_type
+                     { m_ScriptScanner.popLexState(); }
                      ':'
                      opt_lma opt_align opt_subalign opt_constraint
+                     {
+                       $$.vma        = $2.vma;
+                       $$.type       = $2.type;
+                       $$.lma        = $5;
+                       $$.align      = $6;
+                       $$.sub_align  = $7;
+                       $$.constraint = $8;
+                     }
                    ;
 
 output_sect_commands : output_sect_commands output_sect_cmd
@@ -328,64 +353,105 @@ output_sect_commands : output_sect_commands output_sect_cmd
                      ;
 
 output_desc_epilog : opt_region opt_lma_region opt_phdr opt_fill
+                     {
+                        $$.region     = $1;
+                        $$.lma_region = $2;
+                        $$.phdrs      = $3;
+                        $$.fill_exp   = $4;
+                     }
                    ;
 
 /* Output Section Attributes */
 opt_vma_and_type : exp opt_type
+                   {
+                     $$.vma  = m_pRpnExpr;
+                     $$.type = $2;
+                   }
                  | opt_type
+                   {
+                     $$.vma  = NULL;
+                     $$.type = $1;
+                   }
                  ;
 
 opt_type : '(' type ')'
+           { $$ = $2; }
          | '(' ')'
+           { $$ = OutputSectDesc::LOAD; }
          | /* Empty */
+           { $$ = OutputSectDesc::LOAD; }
          ;
 
 type : NOLOAD
+       { $$ = OutputSectDesc::NOLOAD; }
      | DSECT
+       { $$ = OutputSectDesc::DSECT; }
      | COPY
+       { $$ = OutputSectDesc::COPY; }
      | INFO
+       { $$ = OutputSectDesc::INFO; }
      | OVERLAY
+       { $$ = OutputSectDesc::OVERLAY; }
      ;
 
 opt_lma : AT '(' script_exp ')'
+          { $$ = $3; }
         | /* Empty */
+          { $$ = NULL; }
         ;
 
 /* Forced Output Alignment */
 opt_align : ALIGN '(' script_exp ')'
+            { $$ = $3; }
           | /* Empty */
+            { $$ = NULL; }
           ;
 
 /* Forced Input Alignment */
 opt_subalign : SUBALIGN '(' script_exp ')'
+               { $$ = $3; }
              | /* Empty */
+               { $$ = NULL; }
              ;
 
 opt_constraint : ONLY_IF_RO
+                 { $$ = OutputSectDesc::ONLY_IF_RO; }
                | ONLY_IF_RW
+                 { $$ = OutputSectDesc::ONLY_IF_RW; }
                | /* Empty */
+                 { $$ = OutputSectDesc::NO_CONSTRAINT; }
                ;
 
 opt_region : '>' string
+             { $$ = $2; }
            | /* Empty */
+             { $$ = NULL; }
            ;
 
 opt_lma_region : AT '>' string
+                 { $$ = $3; }
                | /* Empty */
+                 { $$ = NULL; }
                ;
 
-opt_phdr : phdrs
+opt_phdr : { m_pScriptInput = ScriptInput::create(); }
+           phdrs
+           { $$ = m_pScriptInput; }
          ;
 
 phdrs : phdrs ':' phdr
+        { m_pScriptInput->push_back($3); }
       | /* Empty */
       ;
 
 phdr : string
+       { $$ = StrToken::create(*$1); }
      ;
 
 opt_fill : '=' script_exp
+           { $$ = $2; }
          | /* Empty */
+           { $$ = NULL; }
          ;
 
 /*
