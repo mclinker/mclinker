@@ -16,6 +16,7 @@
 #include <mcld/Script/SearchDirCmd.h>
 #include <mcld/Script/OutputArchCmd.h>
 #include <mcld/Script/AssertCmd.h>
+#include <mcld/Script/SectionsCmd.h>
 #include <mcld/Script/RpnExpr.h>
 #include <mcld/Script/Operand.h>
 #include <mcld/Script/StrToken.h>
@@ -48,7 +49,9 @@ ScriptFile::ScriptFile(Kind pKind, Input& pInput, InputBuilder& pBuilder)
     m_Kind(pKind),
     m_Name(pInput.name()),
     m_pInputTree(NULL),
-    m_Builder(pBuilder)
+    m_Builder(pBuilder),
+    m_HasSectionsCmd(false),
+    m_InSectionsCmd(false)
 {
   m_Data.input = &pInput;
   if (pInput.hasMemArea() && pInput.memArea()->hasHandler())
@@ -65,15 +68,21 @@ ScriptFile::ScriptFile(Kind pKind,
     m_Kind(pKind),
     m_Name(pName),
     m_pInputTree(NULL),
-    m_Builder(pBuilder)
+    m_Builder(pBuilder),
+    m_HasSectionsCmd(false),
+    m_InSectionsCmd(false)
 {
   m_Data.str = &pData;
+  // FIXME: move creation of input tree out of ScriptFile.
+  m_pInputTree = new InputTree();
 }
 
 ScriptFile::~ScriptFile()
 {
-  for (iterator it = begin(), ie = end(); it != ie; ++it)
-    delete *it;
+  for (iterator it = begin(), ie = end(); it != ie; ++it) {
+    if (*it != NULL)
+      delete *it;
+  }
   if (NULL != m_pInputTree)
     delete m_pInputTree;
 }
@@ -92,7 +101,15 @@ void ScriptFile::activate()
 
 void ScriptFile::addEntryPoint(const std::string& pSymbol, LinkerScript& pScript)
 {
-  m_CommandQueue.push_back(new EntryCmd(pSymbol, pScript));
+  EntryCmd* entry = new EntryCmd(pSymbol, pScript);
+
+  if (m_InSectionsCmd) {
+    assert(!m_CommandQueue.empty());
+    SectionsCmd* sections = llvm::cast<SectionsCmd>(back());
+    sections->push_back(entry);
+  } else {
+    m_CommandQueue.push_back(entry);
+  }
 }
 
 void ScriptFile::addOutputFormatCmd(const std::string& pName)
@@ -144,10 +161,34 @@ void ScriptFile::addAssignment(LinkerScript& pLDScript,
                                RpnExpr& pRpnExpr,
                                Assignment::Type pType)
 {
-  m_CommandQueue.push_back(
+  Assignment* assignment =
     new Assignment(pLDScript, pType,
-                   *(Operand::create(Operand::SYMBOL, pSymbolName)),
-                   pRpnExpr));
+                   *(Operand::create(Operand::SYMBOL, pSymbolName)), pRpnExpr);
+
+  if (m_InSectionsCmd) {
+    assert(!m_CommandQueue.empty());
+    SectionsCmd* sections = llvm::cast<SectionsCmd>(back());
+    sections->push_back(assignment);
+  } else {
+    m_CommandQueue.push_back(assignment);
+  }
+}
+
+bool ScriptFile::hasSectionsCmd() const
+{
+  return m_HasSectionsCmd;
+}
+
+void ScriptFile::enterSectionsCmd()
+{
+  m_HasSectionsCmd = true;
+  m_InSectionsCmd = true;
+  m_CommandQueue.push_back(new SectionsCmd());
+}
+
+void ScriptFile::leaveSectionsCmd()
+{
+  m_InSectionsCmd = false;
 }
 
 const std::string& ScriptFile::createParserStr(const char* pText,

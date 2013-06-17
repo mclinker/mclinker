@@ -276,7 +276,9 @@ input : string
   }
 */
 sections_command : SECTIONS
+                   { m_ScriptFile.enterSectionsCmd(); }
                    '{' sect_commands '}'
+                   { m_ScriptFile.leaveSectionsCmd(); }
                  ;
 
 sect_commands : sect_commands sect_cmd

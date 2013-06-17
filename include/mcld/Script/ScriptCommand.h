@@ -30,7 +30,10 @@ public:
     SearchDir,
     OutputArch,
     Assert,
-    Assignment
+    Assignment,
+    Sections,
+    OutputSectDesc,
+    InputSectDesc
   };
 
 protected:

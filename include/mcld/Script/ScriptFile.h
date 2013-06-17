@@ -129,6 +129,12 @@ public:
                      RpnExpr& pRpnExpr,
                      Assignment::Type pType = Assignment::DEFAULT);
 
+  bool hasSectionsCmd() const;
+
+  void enterSectionsCmd();
+
+  void leaveSectionsCmd();
+
   static const std::string& createParserStr(const char* pText, size_t pLength);
 
   static void clearParserStrPool();
@@ -148,6 +154,8 @@ private:
   InputTree* m_pInputTree;
   InputBuilder& m_Builder;
   CommandQueue m_CommandQueue;
+  bool m_HasSectionsCmd;
+  bool m_InSectionsCmd;
 };
 
 } // namespace of mcld
