@@ -12,41 +12,33 @@
 #include <gtest.h>
 #endif
 
-#include <mcld/Support/Path.h>
+#include <mcld/Config/Config.h>
+#include <mcld/Support/Allocators.h>
 #include <vector>
 
 namespace mcld
 {
 
-class Path;
+class StrToken;
+
+/** \class ScriptInput
+ *  \brief This class defines the interfaces to ScriptInput.
+ */
 
 class ScriptInput
 {
 public:
-  class Node {
-  public:
-    Node(const std::string& pPath, bool pAsNeeded)
-      : m_Path(pPath), m_bAsNeeded(pAsNeeded)
-    {}
-    ~Node()
-    {}
-
-    const sys::fs::Path& path() const { return m_Path; }
-
-    bool asNeeded() const { return m_bAsNeeded; }
-  private:
-    sys::fs::Path m_Path;
-    bool m_bAsNeeded;
-  };
-
-  typedef std::vector<Node> InputList;
+  typedef std::vector<StrToken*> InputList;
   typedef InputList::const_iterator const_iterator;
   typedef InputList::iterator iterator;
   typedef InputList::const_reference const_reference;
   typedef InputList::reference reference;
 
-public:
+private:
+  friend class Chunk<ScriptInput, MCLD_SYMBOLS_PER_INPUT>;
   ScriptInput();
+
+public:
   ~ScriptInput();
 
   const_iterator  begin() const { return m_InputList.begin(); }
@@ -61,15 +53,15 @@ public:
 
   bool empty() const { return m_InputList.empty(); }
 
-  void append(const std::string& pPath);
+  void push_back(StrToken* pToken);
 
-  /// AS_NEEDED(file, file, ...)
-  /// AS_NEEDED(file file ...)
-  void setAsNeeded(bool pEnable = true);
+  /* factory methods */
+  static ScriptInput* create();
+  static void destroy(ScriptInput*& pScriptInput);
+  static void clear();
 
 private:
   InputList m_InputList;
-  bool m_bAsNeeded;
 };
 
 } // namepsace of mcld

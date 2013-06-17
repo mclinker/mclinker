@@ -18,6 +18,7 @@
 #include <mcld/Script/AssertCmd.h>
 #include <mcld/Script/RpnExpr.h>
 #include <mcld/Script/Operand.h>
+#include <mcld/Script/StrToken.h>
 #include <mcld/MC/MCLDInput.h>
 #include <mcld/MC/InputBuilder.h>
 #include <mcld/Support/MemoryArea.h>
@@ -106,39 +107,12 @@ void ScriptFile::addOutputFormatCmd(const std::string& pDefault,
   m_CommandQueue.push_back(new OutputFormatCmd(pDefault, pBig, pLittle));
 }
 
-void ScriptFile::addScriptInput(const std::string& pPath)
-{
-  assert(!m_CommandQueue.empty());
-  ScriptCommand* cmd = back();
-  switch (cmd->getKind()) {
-  case ScriptCommand::Group:
-    llvm::cast<GroupCmd>(cmd)->scriptInput().append(pPath);
-    break;
-  default:
-    assert(0 && "Invalid command to add script input!");
-    break;
-  }
-}
-
-void ScriptFile::setAsNeeded(bool pEnable)
-{
-  assert(!m_CommandQueue.empty());
-  ScriptCommand* cmd = back();
-  switch (cmd->getKind()) {
-  case ScriptCommand::Group:
-    llvm::cast<GroupCmd>(cmd)->scriptInput().setAsNeeded(pEnable);
-    break;
-  default:
-    assert(0 && "Invalid command to use AS_NEEDED!");
-    break;
-  }
-}
-
-void ScriptFile::addGroupCmd(GroupReader& pGroupReader,
+void ScriptFile::addGroupCmd(ScriptInput& pScriptInput,
+                             GroupReader& pGroupReader,
                              const LinkerConfig& pConfig)
 {
   m_CommandQueue.push_back(
-    new GroupCmd(*m_pInputTree, m_Builder, pGroupReader, pConfig));
+    new GroupCmd(pScriptInput, *m_pInputTree, m_Builder, pGroupReader, pConfig));
 }
 
 void ScriptFile::addOutputCmd(const std::string& pFileName,

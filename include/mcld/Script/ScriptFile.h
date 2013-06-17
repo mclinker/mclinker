@@ -27,6 +27,7 @@ class GroupReader;
 class LinkerConfig;
 class LinkerScript;
 class RpnExpr;
+class ScriptInput;
 
 /** \class ScriptFile
  *  \brief This class defines the interfaces to a linker script file.
@@ -103,15 +104,11 @@ public:
                           const std::string& pBig,
                           const std::string& pLittle);
 
-  void addScriptInput(const std::string& pPath);
-
-  /// AS_NEEDED(file, file, ...)
-  /// AS_NEEDED(file file ...)
-  void setAsNeeded(bool pEnable = true);
-
   /// GROUP(file, file, ...)
   /// GROUP(file file ...)
-  void addGroupCmd(GroupReader& pGroupReader, const LinkerConfig& pConfig);
+  void addGroupCmd(ScriptInput& pScriptInput,
+                   GroupReader& pGroupReader,
+                   const LinkerConfig& pConfig);
 
   /// OUTPUT(filename)
   void addOutputCmd(const std::string& pFileName, LinkerScript& pScript);

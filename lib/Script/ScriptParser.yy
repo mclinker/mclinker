@@ -15,12 +15,19 @@
 #include <mcld/Script/Operator.h>
 #include <mcld/Script/Assignment.h>
 #include <mcld/Script/RpnExpr.h>
+#include <mcld/Script/FileToken.h>
 #include <mcld/Support/MsgHandling.h>
 #include <mcld/MC/MCLDInput.h>
 
 #undef yylex
 #define yylex m_ScriptScanner.lex
 %}
+
+%code requires {
+#include <mcld/Script/StrToken.h>
+#include <mcld/Script/ScriptInput.h>
+#include <llvm/Support/DataTypes.h>
+}
 
 %pure-parser
 %require "2.4"
@@ -36,6 +43,8 @@
 %parse-param { class ScriptScanner& m_ScriptScanner }
 %parse-param { class GroupReader& m_GroupReader}
 %parse-param { class RpnExpr* m_pRpnExpr }
+%parse-param { class ScriptInput* m_pScriptInput }
+%parse-param { bool m_bAsNeeded }
 %lex-param { const class ScriptFile& m_ScriptFile }
 
 %locations
@@ -47,14 +56,12 @@
 
 %start script_file
 
-%code requires {
-#include <llvm/Support/DataTypes.h>
-}
-
 %union {
   const std::string* string;
   uint64_t integer;
   RpnExpr* rpn_expr;
+  StrToken* str_token;
+  ScriptInput* str_tokens;
 }
 
 %token END 0 /* EOF */
@@ -169,6 +176,8 @@
 
 %type <string> string symbol
 %type <rpn_expr> script_exp
+%type <str_token> input
+%type <str_tokens> input_list
 
 %%
 
@@ -203,11 +212,10 @@ output_format_command : OUTPUT_FORMAT '(' STRING ')'
                         { m_ScriptFile.addOutputFormatCmd(*$3, *$5, *$7); }
                       ;
 
-group_command : GROUP
+group_command : GROUP '(' input_list ')'
                 {
-                  m_ScriptFile.addGroupCmd(m_GroupReader, m_Config);
+                  m_ScriptFile.addGroupCmd(*$3, m_GroupReader, m_Config);
                 }
-                '(' input_list ')'
               ;
 
 search_dir_command : SEARCH_DIR '(' STRING ')' opt_comma
@@ -226,18 +234,34 @@ assert_command : ASSERT '(' script_exp ',' string ')'
                  { m_ScriptFile.addAssertCmd(*$3, *$5); }
                ;
 
-input_list : input_list input_node
-           | input_list ',' input_node
-           | /* Empty */
+input_list : { m_pScriptInput = ScriptInput::create(); }
+             inputs
+             { $$ = m_pScriptInput; }
            ;
 
-input_node : string
-             { m_ScriptFile.addScriptInput(*$1); }
-           | AS_NEEDED
-             { m_ScriptFile.setAsNeeded(true); }
-             '(' input_list ')'
-             { m_ScriptFile.setAsNeeded(false); }
-           ;
+inputs : input
+         { m_pScriptInput->push_back($1); }
+       | inputs input
+         { m_pScriptInput->push_back($2); }
+       | inputs ',' input
+         { m_pScriptInput->push_back($3); }
+       | AS_NEEDED '('
+         { m_bAsNeeded = true; }
+         inputs ')'
+         { m_bAsNeeded = false; }
+       | inputs AS_NEEDED '('
+         { m_bAsNeeded = true; }
+         inputs ')'
+         { m_bAsNeeded = false; }
+       | inputs ',' AS_NEEDED '('
+         { m_bAsNeeded = true; }
+         inputs ')'
+         { m_bAsNeeded = false; }
+       ;
+
+input : string
+        { $$ = FileToken::create(*$1, m_bAsNeeded); }
+      ;
 
 /*
   SECTIONS
