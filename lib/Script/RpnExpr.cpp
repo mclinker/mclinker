@@ -33,7 +33,7 @@ void RpnExpr::dump() const
     (*it)->dump();
 }
 
-void RpnExpr::append(ExprToken* pToken)
+void RpnExpr::push_back(ExprToken* pToken)
 {
   m_TokenQueue.push_back(pToken);
 }

@@ -159,27 +159,13 @@ void ScriptFile::addOutputArchCmd(const std::string& pArch)
 
 void ScriptFile::addAssignment(LinkerScript& pLDScript,
                                const std::string& pSymbolName,
+                               RpnExpr& pRpnExpr,
                                Assignment::Type pType)
 {
   m_CommandQueue.push_back(
     new Assignment(pLDScript, pType,
                    *(Operand::create(Operand::SYMBOL, pSymbolName)),
-                   *(RpnExpr::create())));
-}
-
-void ScriptFile::addExprToken(ExprToken* pToken)
-{
-  ScriptCommand* cmd = back();
-  switch (cmd->getKind()) {
-  case ScriptCommand::Assignment: {
-    Assignment* assignment = llvm::cast<Assignment>(cmd);
-    assignment->getRpnExpr().append(pToken);
-    break;
-  }
-  default:
-    assert(0 && "Invalid command to add expression token.\n");
-    break;
-  }
+                   pRpnExpr));
 }
 
 const std::string& ScriptFile::createParserStr(const char* pText,

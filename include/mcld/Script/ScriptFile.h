@@ -12,7 +12,6 @@
 #include <gtest.h>
 #endif
 
-#include <mcld/Script/ScriptInput.h>
 #include <mcld/Script/Assignment.h>
 #include <vector>
 #include <string>
@@ -63,15 +62,17 @@ public:
              InputBuilder& pBuilder);
   ~ScriptFile();
 
-  const_iterator   begin()  const { return m_CommandQueue.begin(); }
-  iterator         begin()        { return m_CommandQueue.begin(); }
-  const_iterator   end()    const { return m_CommandQueue.end(); }
-  iterator         end()          { return m_CommandQueue.end(); }
+  const_iterator  begin() const { return m_CommandQueue.begin(); }
+  iterator        begin()       { return m_CommandQueue.begin(); }
+  const_iterator  end()   const { return m_CommandQueue.end(); }
+  iterator        end()         { return m_CommandQueue.end(); }
 
-  const_reference  front()  const { return m_CommandQueue.front(); }
-  reference        front()        { return m_CommandQueue.front(); }
-  const_reference  back()   const { return m_CommandQueue.back(); }
-  reference        back()         { return m_CommandQueue.back(); }
+  const_reference front() const { return m_CommandQueue.front(); }
+  reference       front()       { return m_CommandQueue.front(); }
+  const_reference back()  const { return m_CommandQueue.back(); }
+  reference       back()        { return m_CommandQueue.back(); }
+
+  size_t size() const { return m_CommandQueue.size(); }
 
   Type getType() const { return m_Type; }
 
@@ -124,9 +125,8 @@ public:
   /// assignment
   void addAssignment(LinkerScript& pLDScript,
                      const std::string& pSymbol,
+                     RpnExpr& pRpnExpr,
                      Assignment::Type pType = Assignment::DEFAULT);
-  void addExprToken(ExprToken* pToken);
-
 
   static const std::string& createParserStr(const char* pText, size_t pLength);
 

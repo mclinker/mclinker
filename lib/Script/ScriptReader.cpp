@@ -63,7 +63,8 @@ bool ScriptReader::readScript(const LinkerConfig& pConfig,
 
   std::istream in(&buf);
   ScriptScanner scanner(&in);
-  ScriptParser parser(pConfig, pLDScript, pScriptFile, scanner, m_GroupReader);
+  ScriptParser parser(pConfig, pLDScript, pScriptFile, scanner, m_GroupReader,
+                      NULL /* for local rpn exp processing */);
 
   result = (0 == parser.parse());;
 

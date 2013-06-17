@@ -50,7 +50,7 @@ public:
 
   void dump() const;
 
-  void append(ExprToken* pToken);
+  void push_back(ExprToken* pToken);
 
   /* factory methods */
   static RpnExpr* create();

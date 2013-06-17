@@ -66,7 +66,7 @@ void Assignment::dump() const
   if (type() != DEFAULT)
     mcld::outs() << " )";
 
-  mcld::outs() << "\n";
+  mcld::outs() << ";\n";
 }
 
 void Assignment::activate()
