@@ -18,7 +18,7 @@
 #include <mcld/MC/MCLDInput.h>
 
 #undef yylex
-#define yylex pScriptScanner.lex
+#define yylex m_ScriptScanner.lex
 %}
 
 %require "2.4"
@@ -28,18 +28,18 @@
 %error-verbose
 %define namespace "mcld"
 %define "parser_class_name" "ScriptParser"
-%parse-param { const class LinkerConfig& pConfig }
-%parse-param { class LinkerScript& pLDScript }
-%parse-param { class ScriptFile& pScriptFile }
-%parse-param { class ScriptScanner& pScriptScanner }
-%parse-param { class GroupReader& pGroupReader}
-%lex-param { const class ScriptFile& pScriptFile }
+%parse-param { const class LinkerConfig& m_Config }
+%parse-param { class LinkerScript& m_LinkerScript }
+%parse-param { class ScriptFile& m_ScriptFile }
+%parse-param { class ScriptScanner& m_ScriptScanner }
+%parse-param { class GroupReader& m_GroupReader}
+%lex-param { const class ScriptFile& m_ScriptFile }
 
 %locations
 %initial-action
 {
   /* Initialize the initial location. */
-  @$.begin.filename = @$.end.filename = &(pScriptFile.name());
+  @$.begin.filename = @$.end.filename = &(m_ScriptFile.name());
 }
 
 %start script_file
@@ -169,9 +169,9 @@
 %% /* Grammar Rules */
 
 script_file : LINKER_SCRIPT
-              { pScriptScanner.setLexState(ScriptFile::LDScript); }
+              { m_ScriptScanner.setLexState(ScriptFile::LDScript); }
               linker_script
-              { pScriptScanner.popLexState(); }
+              { m_ScriptScanner.popLexState(); }
             ;
 
 linker_script : linker_script script_command
@@ -184,38 +184,38 @@ script_command : entry_command
                | output_command
                | search_dir_command
                | output_arch_command
-               | { pScriptScanner.setLexState(ScriptFile::Expression); }
+               | { m_ScriptScanner.setLexState(ScriptFile::Expression); }
                  symbol_assignment
-                 { pScriptScanner.popLexState(); }
+                 { m_ScriptScanner.popLexState(); }
                ;
 
 entry_command : ENTRY '(' STRING ')'
-                { pScriptFile.addEntryPoint(*$3, pLDScript); }
+                { m_ScriptFile.addEntryPoint(*$3, m_LinkerScript); }
               ;
 
 output_format_command : OUTPUT_FORMAT '(' STRING ')'
-                        { pScriptFile.addOutputFormatCmd(*$3); }
+                        { m_ScriptFile.addOutputFormatCmd(*$3); }
                       | OUTPUT_FORMAT '(' STRING ',' STRING ',' STRING ')'
-                        { pScriptFile.addOutputFormatCmd(*$3, *$5, *$7); }
+                        { m_ScriptFile.addOutputFormatCmd(*$3, *$5, *$7); }
                       ;
 
 group_command : GROUP
                 {
-                  pScriptFile.addGroupCmd(pGroupReader, pConfig);
+                  m_ScriptFile.addGroupCmd(m_GroupReader, m_Config);
                 }
                 '(' input_list ')'
               ;
 
 search_dir_command : SEARCH_DIR '(' STRING ')'
-                     { pScriptFile.addSearchDirCmd(*$3, pLDScript); }
+                     { m_ScriptFile.addSearchDirCmd(*$3, m_LinkerScript); }
                    ;
 
 output_command : OUTPUT '(' STRING ')'
-                 { pScriptFile.addOutputCmd(*$3, pLDScript); }
+                 { m_ScriptFile.addOutputCmd(*$3, m_LinkerScript); }
                ;
 
 output_arch_command : OUTPUT_ARCH '(' STRING ')'
-                      { pScriptFile.addOutputArchCmd(*$3); }
+                      { m_ScriptFile.addOutputArchCmd(*$3); }
                     ;
 
 input_list : input_list input_node
@@ -224,15 +224,15 @@ input_list : input_list input_node
            ;
 
 input_node : string
-             { pScriptFile.addScriptInput(*$1); }
+             { m_ScriptFile.addScriptInput(*$1); }
            | AS_NEEDED
-             { pScriptFile.setAsNeeded(true); }
+             { m_ScriptFile.setAsNeeded(true); }
              '(' input_list ')'
-             { pScriptFile.setAsNeeded(false); }
+             { m_ScriptFile.setAsNeeded(false); }
            ;
 
 symbol_assignment : symbol
-                    { pScriptFile.addAssignment(pLDScript, *$1); }
+                    { m_ScriptFile.addAssignment(m_LinkerScript, *$1); }
                     '=' exp ';'
                   | symbol ADD_ASSIGN exp ';'
                   | symbol SUB_ASSIGN exp ';'
@@ -244,71 +244,71 @@ symbol_assignment : symbol
                   | symbol RS_ASSIGN exp ';'
                   | HIDDEN '(' symbol
                     {
-                      pScriptFile.addAssignment(pLDScript, *$3,
-                                                Assignment::HIDDEN);
+                      m_ScriptFile.addAssignment(m_LinkerScript, *$3,
+                                                 Assignment::HIDDEN);
                     }
                     '=' exp ')' ';'
                   | PROVIDE '(' symbol
                     {
-                      pScriptFile.addAssignment(pLDScript, *$3,
-                                                Assignment::PROVIDE);
+                      m_ScriptFile.addAssignment(m_LinkerScript, *$3,
+                                                 Assignment::PROVIDE);
                     }
                     '=' exp ')' ';'
                   | PROVIDE_HIDDEN '(' symbol
                     {
-                      pScriptFile.addAssignment(pLDScript, *$3,
-                                                Assignment::PROVIDE_HIDDEN);
+                      m_ScriptFile.addAssignment(m_LinkerScript, *$3,
+                                                 Assignment::PROVIDE_HIDDEN);
                     }
                     '=' exp ')' ';'
                   ;
 
 exp : '(' exp ')'
     | '+' exp %prec UNARY_PLUS
-      { pScriptFile.addExprToken(&Operator::create<Operator::UNARY_PLUS>()); }
+      { m_ScriptFile.addExprToken(&Operator::create<Operator::UNARY_PLUS>()); }
     | '-' exp %prec UNARY_MINUS
-      { pScriptFile.addExprToken(&Operator::create<Operator::UNARY_MINUS>()); }
+      { m_ScriptFile.addExprToken(&Operator::create<Operator::UNARY_MINUS>()); }
     | '!' exp
-      { pScriptFile.addExprToken(&Operator::create<Operator::LOGICAL_NOT>()); }
+      { m_ScriptFile.addExprToken(&Operator::create<Operator::LOGICAL_NOT>()); }
     | '~' exp
-      { pScriptFile.addExprToken(&Operator::create<Operator::BITWISE_NOT>()); }
+      { m_ScriptFile.addExprToken(&Operator::create<Operator::BITWISE_NOT>()); }
     | exp '*' exp
-      { pScriptFile.addExprToken(&Operator::create<Operator::MUL>()); }
+      { m_ScriptFile.addExprToken(&Operator::create<Operator::MUL>()); }
     | exp '/' exp
-      { pScriptFile.addExprToken(&Operator::create<Operator::DIV>()); }
+      { m_ScriptFile.addExprToken(&Operator::create<Operator::DIV>()); }
     | exp '%' exp
-      { pScriptFile.addExprToken(&Operator::create<Operator::MOD>()); }
+      { m_ScriptFile.addExprToken(&Operator::create<Operator::MOD>()); }
     | exp '+' exp
-      { pScriptFile.addExprToken(&Operator::create<Operator::ADD>()); }
+      { m_ScriptFile.addExprToken(&Operator::create<Operator::ADD>()); }
     | exp '-' exp
-      { pScriptFile.addExprToken(&Operator::create<Operator::SUB>()); }
+      { m_ScriptFile.addExprToken(&Operator::create<Operator::SUB>()); }
     | exp LSHIFT exp
-      { pScriptFile.addExprToken(&Operator::create<Operator::LSHIFT>()); }
+      { m_ScriptFile.addExprToken(&Operator::create<Operator::LSHIFT>()); }
     | exp RSHIFT exp
-      { pScriptFile.addExprToken(&Operator::create<Operator::RSHIFT>()); }
+      { m_ScriptFile.addExprToken(&Operator::create<Operator::RSHIFT>()); }
     | exp '<' exp
-      { pScriptFile.addExprToken(&Operator::create<Operator::LT>()); }
+      { m_ScriptFile.addExprToken(&Operator::create<Operator::LT>()); }
     | exp LE exp
-      { pScriptFile.addExprToken(&Operator::create<Operator::LE>()); }
+      { m_ScriptFile.addExprToken(&Operator::create<Operator::LE>()); }
     | exp '>' exp
-      { pScriptFile.addExprToken(&Operator::create<Operator::GT>()); }
+      { m_ScriptFile.addExprToken(&Operator::create<Operator::GT>()); }
     | exp GE exp
-      { pScriptFile.addExprToken(&Operator::create<Operator::GE>()); }
+      { m_ScriptFile.addExprToken(&Operator::create<Operator::GE>()); }
     | exp EQ exp
-      { pScriptFile.addExprToken(&Operator::create<Operator::EQ>()); }
+      { m_ScriptFile.addExprToken(&Operator::create<Operator::EQ>()); }
     | exp NE exp
-      { pScriptFile.addExprToken(&Operator::create<Operator::NE>()); }
+      { m_ScriptFile.addExprToken(&Operator::create<Operator::NE>()); }
     | exp '&' exp
-      { pScriptFile.addExprToken(&Operator::create<Operator::BITWISE_AND>()); }
+      { m_ScriptFile.addExprToken(&Operator::create<Operator::BITWISE_AND>()); }
     | exp '^' exp
-      { pScriptFile.addExprToken(&Operator::create<Operator::BITWISE_XOR>()); }
+      { m_ScriptFile.addExprToken(&Operator::create<Operator::BITWISE_XOR>()); }
     | exp '|' exp
-      { pScriptFile.addExprToken(&Operator::create<Operator::BITWISE_OR>()); }
+      { m_ScriptFile.addExprToken(&Operator::create<Operator::BITWISE_OR>()); }
     | exp LOGICAL_AND exp
-      { pScriptFile.addExprToken(&Operator::create<Operator::LOGICAL_AND>()); }
+      { m_ScriptFile.addExprToken(&Operator::create<Operator::LOGICAL_AND>()); }
     | exp LOGICAL_OR exp
-      { pScriptFile.addExprToken(&Operator::create<Operator::LOGICAL_OR>()); }
+      { m_ScriptFile.addExprToken(&Operator::create<Operator::LOGICAL_OR>()); }
     | exp '?' exp ':' exp
-      { pScriptFile.addExprToken(&Operator::create<Operator::TERNARY_IF>()); }
+      { m_ScriptFile.addExprToken(&Operator::create<Operator::TERNARY_IF>()); }
     | ABSOLUTE '(' exp ')'
     | ADDR '(' string ')'
     | ALIGN '(' exp ')'
@@ -331,9 +331,9 @@ exp : '(' exp ')'
     | CONSTANT '(' MAXPAGESIZE ')'
     | CONSTANT '(' COMMONPAGESIZE')'
     | INTEGER
-      { pScriptFile.addExprToken(Operand::create($1)); }
+      { m_ScriptFile.addExprToken(Operand::create($1)); }
     | symbol
-      { pScriptFile.addExprToken(Operand::create(Operand::SYMBOL, *$1)); }
+      { m_ScriptFile.addExprToken(Operand::create(Operand::SYMBOL, *$1)); }
     ;
 
 symbol : STRING
