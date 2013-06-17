@@ -16,6 +16,7 @@
 #include <mcld/Script/Assignment.h>
 #include <mcld/Script/RpnExpr.h>
 #include <mcld/Script/FileToken.h>
+#include <mcld/Script/NameSpec.h>
 #include <mcld/Support/MsgHandling.h>
 #include <mcld/MC/MCLDInput.h>
 
@@ -214,7 +215,8 @@ output_format_command : OUTPUT_FORMAT '(' STRING ')'
 
 group_command : GROUP '(' input_list ')'
                 {
-                  m_ScriptFile.addGroupCmd(*$3, m_GroupReader, m_Config);
+                  m_ScriptFile.addGroupCmd(*$3, m_GroupReader, m_Config,
+                                           m_LinkerScript);
                 }
               ;
 
@@ -261,6 +263,8 @@ inputs : input
 
 input : string
         { $$ = FileToken::create(*$1, m_bAsNeeded); }
+      | LNAMESPEC
+        { $$ = NameSpec::create(*$1, m_bAsNeeded); }
       ;
 
 /*

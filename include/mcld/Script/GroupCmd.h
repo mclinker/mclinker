@@ -17,11 +17,12 @@
 namespace mcld
 {
 
+class ScriptInput;
 class InputTree;
 class InputBuilder;
 class GroupReader;
 class LinkerConfig;
-class ScriptInput;
+class LinkerScript;
 
 /** \class GroupCmd
  *  \brief This class defines the interfaces to Group command.
@@ -34,7 +35,8 @@ public:
            InputTree& pInputTree,
            InputBuilder& pBuilder,
            GroupReader& m_GroupReader,
-           const LinkerConfig& pConfig);
+           const LinkerConfig& pConfig,
+           const LinkerScript& pScript);
   ~GroupCmd();
 
   void dump() const;
@@ -52,6 +54,7 @@ private:
   InputBuilder& m_Builder;
   GroupReader& m_GroupReader;
   const LinkerConfig& m_Config;
+  const LinkerScript& m_Script;
 };
 
 } // namespace of mcld

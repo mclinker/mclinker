@@ -236,6 +236,13 @@ WS [ \t\r]
   return token::STRING;
 }
 
+ /* -l namespec */
+<LDSCRIPT>"-l"{FILENAMECHAR1}{NOCFILENAMECHAR}* {
+  const std::string& str = pScriptFile.createParserStr(yytext + 2, yyleng - 2);
+  yylval->string = &str;
+  return token::LNAMESPEC;
+}
+
  /* WILDCHAR String */
 <LDSCRIPT>{WILDCHAR}* {
   if (yytext[0] == '/' && yytext[1] == '*') {

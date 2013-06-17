@@ -108,7 +108,8 @@ public:
   /// GROUP(file file ...)
   void addGroupCmd(ScriptInput& pScriptInput,
                    GroupReader& pGroupReader,
-                   const LinkerConfig& pConfig);
+                   const LinkerConfig& pConfig,
+                   const LinkerScript& pScript);
 
   /// OUTPUT(filename)
   void addOutputCmd(const std::string& pFileName, LinkerScript& pScript);

@@ -109,10 +109,12 @@ void ScriptFile::addOutputFormatCmd(const std::string& pDefault,
 
 void ScriptFile::addGroupCmd(ScriptInput& pScriptInput,
                              GroupReader& pGroupReader,
-                             const LinkerConfig& pConfig)
+                             const LinkerConfig& pConfig,
+                             const LinkerScript& pScript)
 {
   m_CommandQueue.push_back(
-    new GroupCmd(pScriptInput, *m_pInputTree, m_Builder, pGroupReader, pConfig));
+    new GroupCmd(pScriptInput, *m_pInputTree, m_Builder, pGroupReader, pConfig,
+                 pScript));
 }
 
 void ScriptFile::addOutputCmd(const std::string& pFileName,
