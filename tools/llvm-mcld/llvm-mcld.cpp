@@ -852,6 +852,16 @@ ArgTextSegAddrAlias("Ttext-segment",
                     cl::desc("alias for -Ttext"),
                     cl::aliasopt(ArgTextSegAddr));
 
+static cl::opt<std::string>
+ArgScriptFile("T",
+              cl::desc("Use scriptfile as the linker script."),
+              cl::value_desc("scriptfile"));
+
+static cl::alias
+ArgScriptFileAlias("script",
+                   cl::desc("alias for -T"),
+                   cl::aliasopt(ArgScriptFile));
+
 //===----------------------------------------------------------------------===//
 // non-member functions
 //===----------------------------------------------------------------------===//
@@ -1256,6 +1266,8 @@ static bool ProcessLinkerOptionsFromCommand(mcld::LinkerScript& pScript,
                      pScript.addressMap().insert(script.substr(0, pos), exist);
     addr_mapping->setValue(address);
   }
+  // -T scriptfile
+  pConfig.options().setDefaultLDScript(ArgScriptFile);
 
   // --defsym symbols
   for (cl::list<std::string>::iterator

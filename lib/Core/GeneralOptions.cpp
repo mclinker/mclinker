@@ -63,16 +63,17 @@ GeneralOptions::~GeneralOptions()
 
 bool GeneralOptions::hasDefaultLDScript() const
 {
-  return true;
+  return false;
 }
 
-const char* GeneralOptions::defaultLDScript() const
+const std::string& GeneralOptions::defaultLDScript() const
 {
-  return NULL;
+  return m_DefaultLDScript;
 }
 
 void GeneralOptions::setDefaultLDScript(const std::string& pFilename)
 {
+  m_DefaultLDScript.assign(pFilename);
 }
 
 void GeneralOptions::setSOName(const std::string& pName)

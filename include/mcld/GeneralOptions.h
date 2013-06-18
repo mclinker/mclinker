@@ -56,7 +56,7 @@ public:
 
   /// default link script
   bool hasDefaultLDScript() const;
-  const char* defaultLDScript() const;
+  const std::string& defaultLDScript() const;
   void setDefaultLDScript(const std::string& pFilename);
 
   /// trace
