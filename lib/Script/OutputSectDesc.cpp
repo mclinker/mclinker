@@ -34,150 +34,16 @@ OutputSectDesc::~OutputSectDesc()
   }
 }
 
-bool OutputSectDesc::hasVMA() const
-{
-  return m_Prolog.vma != NULL && !m_Prolog.vma->empty();
-}
-
-RpnExpr& OutputSectDesc::vma()
-{
-  assert(hasVMA());
-  return *m_Prolog.vma;
-}
-
-const RpnExpr& OutputSectDesc::vma() const
-{
-  assert(hasVMA());
-  return *m_Prolog.vma;
-}
-
-OutputSectDesc::Type OutputSectDesc::type() const
-{
-  return m_Prolog.type;
-}
-
-bool OutputSectDesc::hasLMA() const
-{
-  return m_Prolog.lma != NULL && !m_Prolog.lma->empty();
-}
-
-RpnExpr& OutputSectDesc::lma()
-{
-  assert(hasLMA());
-  return *m_Prolog.lma;
-}
-
-const RpnExpr& OutputSectDesc::lma() const
-{
-  assert(hasLMA());
-  return *m_Prolog.lma;
-}
-
-bool OutputSectDesc::hasAlign() const
-{
-  return m_Prolog.align != NULL && !m_Prolog.align->empty();
-}
-
-RpnExpr& OutputSectDesc::align()
-{
-  assert(hasAlign());
-  return *m_Prolog.align;
-}
-
-const RpnExpr& OutputSectDesc::align() const
-{
-  assert(hasAlign());
-  return *m_Prolog.align;
-}
-
-bool OutputSectDesc::hasSubAlign() const
-{
-  return m_Prolog.sub_align != NULL && !m_Prolog.sub_align->empty();
-}
-
-RpnExpr& OutputSectDesc::subAlign()
-{
-  assert(hasSubAlign());
-  return *m_Prolog.sub_align;
-}
-
-const RpnExpr& OutputSectDesc::subAlign() const
-{
-  assert(hasSubAlign());
-  return *m_Prolog.sub_align;
-}
-
-OutputSectDesc::Constraint OutputSectDesc::constraint() const
-{
-  return m_Prolog.constraint;
-}
-
-bool OutputSectDesc::hasRegion() const
-{
-  return m_Epilog.region != NULL;
-}
-
-const std::string& OutputSectDesc::region() const
-{
-  assert(hasRegion());
-  return *m_Epilog.region;
-}
-
-bool OutputSectDesc::hasLMARegion() const
-{
-  return m_Epilog.lma_region != NULL;
-}
-
-const std::string& OutputSectDesc::lmaRegion() const
-{
-  assert(hasLMARegion());
-  return *m_Epilog.lma_region;
-}
-
-bool OutputSectDesc::hasPhdrs() const
-{
-  return m_Epilog.phdrs != NULL && !m_Epilog.phdrs->empty();
-}
-
-ScriptInput& OutputSectDesc::phdrs()
-{
-  assert(hasPhdrs());
-  return *m_Epilog.phdrs;
-}
-
-const ScriptInput& OutputSectDesc::phdrs() const
-{
-  assert(hasPhdrs());
-  return *m_Epilog.phdrs;
-}
-
-bool OutputSectDesc::hasFillExp() const
-{
-  return m_Epilog.fill_exp != NULL && !m_Epilog.fill_exp->empty();
-}
-
-RpnExpr& OutputSectDesc::fillExp()
-{
-  assert(hasFillExp());
-  return *m_Epilog.fill_exp;
-}
-
-const RpnExpr& OutputSectDesc::fillExp() const
-{
-  assert(hasFillExp());
-  return *m_Epilog.fill_exp;
-}
-
 void OutputSectDesc::dump() const
 {
   mcld::outs() << m_Name << "\t";
 
-  if (hasVMA()) {
-    vma().dump();
+  if (m_Prolog.hasVMA()) {
+    m_Prolog.vma().dump();
     mcld::outs() << "\t";
   }
 
-  switch (type()) {
+  switch (m_Prolog.type()) {
   case NOLOAD:
     mcld::outs() << "NOLOAD";
     break;
@@ -198,25 +64,25 @@ void OutputSectDesc::dump() const
   }
   mcld::outs() << ":\n";
 
-  if (hasLMA()) {
+  if (m_Prolog.hasLMA()) {
     mcld::outs() << "\tAT ( ";
-    lma().dump();
+    m_Prolog.lma().dump();
     mcld::outs() << " )\n";
   }
 
-  if (hasAlign()) {
+  if (m_Prolog.hasAlign()) {
     mcld::outs() << "\tALIGN ( ";
-    align().dump();
+    m_Prolog.align().dump();
     mcld::outs() << " )\n";
   }
 
-  if (hasSubAlign()) {
+  if (m_Prolog.hasSubAlign()) {
     mcld::outs() << "\tSUBALIGN ( ";
-    subAlign().dump();
+    m_Prolog.subAlign().dump();
     mcld::outs() << " )\n";
   }
 
-  switch (constraint()) {
+  switch (m_Prolog.constraint()) {
   case ONLY_IF_RO:
     mcld::outs() << "\tONLY_IF_RO\n";
     break;
@@ -243,22 +109,22 @@ void OutputSectDesc::dump() const
   }
   mcld::outs() << "\t}";
 
-  if (hasRegion())
-    mcld::outs() << "\t>" << region();
-  if (hasLMARegion())
-    mcld::outs() << "\tAT>" << lmaRegion();
+  if (m_Epilog.hasRegion())
+    mcld::outs() << "\t>" << m_Epilog.region();
+  if (m_Epilog.hasLMARegion())
+    mcld::outs() << "\tAT>" << m_Epilog.lmaRegion();
 
-  if (hasPhdrs()) {
-    for (ScriptInput::const_iterator it = phdrs().begin(), ie = phdrs().end();
-      it != ie; ++it) {
+  if (m_Epilog.hasPhdrs()) {
+    for (ScriptInput::const_iterator it = m_Epilog.phdrs().begin(),
+      ie = m_Epilog.phdrs().end(); it != ie; ++it) {
       assert((*it)->kind() == StrToken::String);
       mcld::outs() << ":" << (*it)->name() << " ";
     }
   }
 
-  if (hasFillExp()) {
+  if (m_Epilog.hasFillExp()) {
     mcld::outs() << "= ";
-    fillExp().dump();
+    m_Epilog.fillExp().dump();
   }
   mcld::outs() << "\n";
 }
@@ -278,10 +144,10 @@ void OutputSectDesc::push_back(ScriptCommand* pCommand)
 
 void OutputSectDesc::setEpilog(const Epilog& pEpilog)
 {
-  m_Epilog.region = pEpilog.region;
-  m_Epilog.lma_region = pEpilog.lma_region;
-  m_Epilog.phdrs = pEpilog.phdrs;
-  m_Epilog.fill_exp = pEpilog.fill_exp;
+  m_Epilog.m_pRegion    = pEpilog.m_pRegion;
+  m_Epilog.m_pLMARegion = pEpilog.m_pLMARegion;
+  m_Epilog.m_pPhdrs     = pEpilog.m_pPhdrs;
+  m_Epilog.m_pFillExp   = pEpilog.m_pFillExp;
 }
 
 void OutputSectDesc::activate()

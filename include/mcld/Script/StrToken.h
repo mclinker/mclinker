@@ -45,7 +45,7 @@ public:
 
   Kind kind() const { return m_Kind; }
 
-  const std::string& name() { return m_Name; }
+  const std::string& name() const { return m_Name; }
 
   static bool classof(const StrToken* pToken)
   {

@@ -234,10 +234,7 @@ void ScriptFile::addInputSectDesc(InputSectDesc::KeepPolicy pPolicy,
   assert(!sections->empty() && m_InOutputSectDesc);
   OutputSectDesc* output_sect =  llvm::cast<OutputSectDesc>(sections->back());
 
-  output_sect->push_back(new InputSectDesc(pPolicy,
-                                           *pSpec.file,
-                                           *pSpec.exclude_files,
-                                           *pSpec.wildcard_sections));
+  output_sect->push_back(new InputSectDesc(pPolicy, pSpec));
 }
 
 const std::string& ScriptFile::createParserStr(const char* pText,

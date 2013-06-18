@@ -345,12 +345,12 @@ output_desc_prolog : {
                      ':'
                      opt_lma opt_align opt_subalign opt_constraint
                      {
-                       $$.vma        = $2.vma;
-                       $$.type       = $2.type;
-                       $$.lma        = $5;
-                       $$.align      = $6;
-                       $$.sub_align  = $7;
-                       $$.constraint = $8;
+                       $$.m_pVMA       = $2.m_pVMA;
+                       $$.m_Type       = $2.m_Type;
+                       $$.m_pLMA       = $5;
+                       $$.m_pAlign     = $6;
+                       $$.m_pSubAlign  = $7;
+                       $$.m_Constraint = $8;
                      }
                    ;
 
@@ -360,23 +360,23 @@ output_sect_commands : output_sect_commands output_sect_cmd
 
 output_desc_epilog : opt_region opt_lma_region opt_phdr opt_fill
                      {
-                        $$.region     = $1;
-                        $$.lma_region = $2;
-                        $$.phdrs      = $3;
-                        $$.fill_exp   = $4;
+                        $$.m_pRegion    = $1;
+                        $$.m_pLMARegion = $2;
+                        $$.m_pPhdrs     = $3;
+                        $$.m_pFillExp   = $4;
                      }
                    ;
 
 /* Output Section Attributes */
 opt_vma_and_type : exp opt_type
                    {
-                     $$.vma  = m_pRpnExpr;
-                     $$.type = $2;
+                     $$.m_pVMA = m_pRpnExpr;
+                     $$.m_Type = $2;
                    }
                  | opt_type
                    {
-                     $$.vma  = NULL;
-                     $$.type = $1;
+                     $$.m_pVMA = NULL;
+                     $$.m_Type = $1;
                    }
                  ;
 
@@ -483,8 +483,8 @@ input_sect_desc : input_sect_spec
 input_sect_spec : string
                   {
                     $$.file = WildcardPattern::create(*$1, WildcardPattern::SORT_NONE);
-                    $$.exclude_files = ScriptInput::create();
-                    $$.wildcard_sections = ScriptInput::create();
+                    $$.exclude_files = NULL;
+                    $$.wildcard_sections = NULL;
                   }
                 | wildcard_file '(' opt_exclude_files input_sect_wildcard_patterns ')'
                   {
@@ -513,7 +513,7 @@ opt_exclude_files : EXCLUDE_FILE '('
                     exclude_files ')'
                     { $$ = m_pScriptInput; }
                   | /* Empty */
-                    { $$ = ScriptInput::create(); }
+                    { $$ = NULL; }
                   ;
 
 exclude_files : exclude_files wildcard_pattern

@@ -15,6 +15,7 @@
 #include <mcld/Script/ScriptCommand.h>
 #include <vector>
 #include <string>
+#include <cassert>
 
 namespace mcld
 {
@@ -45,19 +46,71 @@ public:
   };
 
   struct Prolog {
-    RpnExpr* vma;
-    Type type;
-    RpnExpr* lma;
-    RpnExpr* align;
-    RpnExpr* sub_align;
-    Constraint constraint;
+    bool hasVMA() const { return m_pVMA != NULL; }
+    const RpnExpr& vma() const {
+      assert(hasVMA());
+      return *m_pVMA;
+    }
+
+    Type type() const { return m_Type; }
+
+    bool hasLMA() const { return m_pLMA != NULL; }
+    const RpnExpr& lma() const {
+      assert(hasLMA());
+      return *m_pLMA;
+    }
+
+    bool hasAlign() const { return m_pAlign != NULL; }
+    const RpnExpr& align() const {
+      assert(hasAlign());
+      return *m_pAlign;
+    }
+
+    bool hasSubAlign() const { return m_pSubAlign != NULL; }
+    const RpnExpr& subAlign() const {
+      assert(hasSubAlign());
+      return *m_pSubAlign;
+    }
+
+    Constraint constraint() const { return m_Constraint; }
+
+    RpnExpr* m_pVMA;
+    Type m_Type;
+    RpnExpr* m_pLMA;
+    RpnExpr* m_pAlign;
+    RpnExpr* m_pSubAlign;
+    Constraint m_Constraint;
   };
 
   struct Epilog {
-    const std::string* region;
-    const std::string* lma_region;
-    ScriptInput* phdrs;
-    RpnExpr* fill_exp;
+    bool hasRegion() const { return m_pRegion != NULL; }
+    const std::string& region() const {
+      assert(hasRegion());
+      return *m_pRegion;
+    }
+
+    bool hasLMARegion() const { return m_pLMARegion != NULL; }
+    const std::string& lmaRegion() const {
+      assert(hasLMARegion());
+      return *m_pLMARegion;
+    }
+
+    bool hasPhdrs() const { return m_pPhdrs != NULL; }
+    const ScriptInput& phdrs() const {
+      assert(hasPhdrs());
+      return *m_pPhdrs;
+    }
+
+    bool hasFillExp() const { return m_pFillExp != NULL; }
+    const RpnExpr& fillExp() const {
+      assert(hasFillExp());
+      return *m_pFillExp;
+    }
+
+    const std::string* m_pRegion;
+    const std::string* m_pLMARegion;
+    ScriptInput* m_pPhdrs;
+    RpnExpr* m_pFillExp;
   };
 
   typedef std::vector<ScriptCommand*> OutputSectCmds;
@@ -86,54 +139,6 @@ public:
 
   bool empty() const { return m_OutputSectCmds.empty(); }
 
-  bool hasVMA() const;
-
-  RpnExpr& vma();
-
-  const RpnExpr& vma() const;
-
-  Type type() const;
-
-  bool hasLMA() const;
-
-  RpnExpr& lma();
-
-  const RpnExpr& lma() const;
-
-  bool hasAlign() const;
-
-  RpnExpr& align();
-
-  const RpnExpr& align() const;
-
-  bool hasSubAlign() const;
-
-  RpnExpr& subAlign();
-
-  const RpnExpr& subAlign() const;
-
-  Constraint constraint() const;
-
-  bool hasRegion() const;
-
-  const std::string& region() const;
-
-  bool hasLMARegion() const;
-
-  const std::string& lmaRegion() const;
-
-  bool hasPhdrs() const;
-
-  ScriptInput& phdrs();
-
-  const ScriptInput& phdrs() const;
-
-  bool hasFillExp() const;
-
-  RpnExpr& fillExp();
-
-  const RpnExpr& fillExp() const;
-
   void dump() const;
 
   static bool classof(const ScriptCommand* pCmd)
@@ -146,6 +151,10 @@ public:
   void push_back(ScriptCommand* pCommand);
 
   void setEpilog(const Epilog& pEpilog);
+
+  const Prolog& prolog() const { return m_Prolog; }
+
+  const Epilog& epilog() const { return m_Epilog; }
 
 private:
   OutputSectCmds m_OutputSectCmds;

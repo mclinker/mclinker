@@ -39,19 +39,19 @@ public:
   };
 
 public:
-  InputSectDesc(KeepPolicy pPolicy,
-                WildcardPattern& pWildcardFile,
-                ScriptInput& pExculdeFiles,
-                ScriptInput& pWildcardSections);
+  InputSectDesc(KeepPolicy pPolicy, const Spec& pSpec);
   ~InputSectDesc();
 
   KeepPolicy policy() const { return m_KeepPolicy; }
 
-  const WildcardPattern& file() const { return m_WildcardFile; }
+  bool hasFile() const;
+  const WildcardPattern& file() const;
 
-  const ScriptInput& excludeFiles() const { return m_ExcludeFiles; }
+  bool hasExcludeFiles() const;
+  const ScriptInput& excludeFiles() const;
 
-  const ScriptInput& sections() const { return m_WildcardSections; }
+  bool hasSections() const;
+  const ScriptInput& sections() const;
 
   void dump() const;
 
@@ -64,9 +64,9 @@ public:
 
 private:
   KeepPolicy m_KeepPolicy;
-  WildcardPattern& m_WildcardFile;
-  ScriptInput& m_ExcludeFiles;
-  ScriptInput& m_WildcardSections;
+  WildcardPattern* m_pWildcardFile;
+  ScriptInput* m_pExcludeFiles;
+  ScriptInput* m_pWildcardSections;
 };
 
 } // namespace of mcld
