@@ -96,6 +96,7 @@ void EhFrame::addFragment(RegionFragment& pFrag)
     offset = m_pSectionData->back().getOffset() + m_pSectionData->back().size();
 
   m_pSectionData->getFragmentList().push_back(&pFrag);
+  pFrag.setParent(m_pSectionData);
   pFrag.setOffset(offset);
 }
 
@@ -106,6 +107,7 @@ void EhFrame::addFragment(NullFragment& pFrag)
     offset = m_pSectionData->back().getOffset() + m_pSectionData->back().size();
 
   m_pSectionData->getFragmentList().push_back(&pFrag);
+  pFrag.setParent(m_pSectionData);
   pFrag.setOffset(offset);
 }
 
