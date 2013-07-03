@@ -75,8 +75,8 @@ ListDigraph::Arc* ListDigraph::addArc(Node& pU, Node& pV)
   }
 
   // 2. set up arc
-  result->target = &pU;
-  result->source = &pV;
+  result->source = &pU;
+  result->target = &pV;
 
   // 3. set up fan-out linked list
   result->next_out = pU.first_out;
@@ -109,10 +109,29 @@ void ListDigraph::erase(ListDigraph::Node& pNode)
     m_pNodeHead = pNode.next;
   }
 
-  // 2. put pNode in the free node list
+  // 2. remove all fan-in arcs
+  Arc* last_fan_in = pNode.first_in;
+  if (NULL != last_fan_in) {
+    while (NULL != last_fan_in->next_in)
+      last_fan_in = last_fan_in->next_in;
+
+    last_fan_in->next_in = m_pFreeArcHead;
+    m_pFreeArcHead = pNode.first_in;
+  }
+
+  // 3. remove all fan-out arcs
+  Arc* last_fan_out = pNode.first_out;
+  while(NULL != last_fan_out) {
+    last_fan_out->next_in = m_pFreeArcHead;
+    m_pFreeArcHead = last_fan_out;
+    last_fan_out = last_fan_out->next_out;
+  }
+
+  // 4. put pNode in the free node list
   pNode.next = m_pFreeNodeHead;
-  m_pFreeNodeHead->prev = &pNode;
   pNode.prev = NULL;
+  if (NULL != m_pFreeNodeHead)
+    m_pFreeNodeHead->prev = &pNode;
   m_pFreeNodeHead = &pNode;
 }
 
@@ -144,11 +163,9 @@ void ListDigraph::erase(ListDigraph::Arc& pArc)
   }
 
   // 3. put pArc in the free arc list
-  pArc.next_in = pArc.next_out = m_pFreeArcHead;
+  // Use fan-in links to chain the free list
+  pArc.next_in = m_pFreeArcHead;
   m_pFreeArcHead = &pArc;
-
-  pArc.prev_in = pArc.prev_out = NULL;
-  pArc.target = pArc.source = NULL;
 }
 
 
