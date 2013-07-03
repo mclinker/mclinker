@@ -110,21 +110,19 @@ void ListDigraph::erase(ListDigraph::Node& pNode)
   }
 
   // 2. remove all fan-in arcs
-  Arc* last_fan_in = pNode.first_in;
-  if (NULL != last_fan_in) {
-    while (NULL != last_fan_in->next_in)
-      last_fan_in = last_fan_in->next_in;
-
-    last_fan_in->next_in = m_pFreeArcHead;
-    m_pFreeArcHead = pNode.first_in;
+  Arc* fan_in = pNode.first_in;
+  while(NULL != fan_in) {
+    Arc* next_in = fan_in->next_in;
+    erase(*fan_in);
+    fan_in = next_in;
   }
 
   // 3. remove all fan-out arcs
-  Arc* last_fan_out = pNode.first_out;
-  while(NULL != last_fan_out) {
-    last_fan_out->next_in = m_pFreeArcHead;
-    m_pFreeArcHead = last_fan_out;
-    last_fan_out = last_fan_out->next_out;
+  Arc* fan_out = pNode.first_out;
+  while(NULL != fan_out) {
+    Arc* next_out = fan_out->next_out;
+    erase(*fan_out);
+    fan_out = next_out;
   }
 
   // 4. put pNode in the free node list
