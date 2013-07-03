@@ -57,6 +57,8 @@ public:
 
   void clear();
 
+  void getHead(Node*& pNode) const { pNode = m_pNodeHead; }
+
 private:
   typedef GCFactory<Node, 0> NodeList;
   typedef GCFactory<Arc, 0> ArcList;
