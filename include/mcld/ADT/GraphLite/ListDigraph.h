@@ -31,8 +31,6 @@ namespace graph {
  *  Remove edge     | O(1)       |
  *  Query adjacency | O(E)       | O(#(fan-in) + #(fan-out))
  *
- *  If your algorithm heavily relies on query the adjacency of two nodes, then
- *  you can use AdjMatrix.
  */
 class ListDigraph
 {
