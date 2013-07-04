@@ -2419,7 +2419,7 @@ unsigned GNULDBackend::getGNUHashMaskbitslog2(unsigned pNumOfSymbols) const
 
 /// isDynamicSymbol
 /// @ref Google gold linker: symtab.cc:311
-bool GNULDBackend::isDynamicSymbol(const LDSymbol& pSymbol)
+bool GNULDBackend::isDynamicSymbol(const LDSymbol& pSymbol) const
 {
   // If a local symbol is in the LDContext's symbol table, it's a real local
   // symbol. We should not add it
@@ -2440,7 +2440,7 @@ bool GNULDBackend::isDynamicSymbol(const LDSymbol& pSymbol)
 
 /// isDynamicSymbol
 /// @ref Google gold linker: symtab.cc:311
-bool GNULDBackend::isDynamicSymbol(const ResolveInfo& pResolveInfo)
+bool GNULDBackend::isDynamicSymbol(const ResolveInfo& pResolveInfo) const
 {
   // If a local symbol is in the LDContext's symbol table, it's a real local
   // symbol. We should not add it

@@ -250,11 +250,11 @@ public:
 
   /// isDynamicSymbol
   /// @ref Google gold linker: symtab.cc:311
-  bool isDynamicSymbol(const LDSymbol& pSymbol);
+  bool isDynamicSymbol(const LDSymbol& pSymbol) const;
 
   /// isDynamicSymbol
   /// @ref Google gold linker: symtab.cc:311
-  bool isDynamicSymbol(const ResolveInfo& pResolveInfo);
+  bool isDynamicSymbol(const ResolveInfo& pResolveInfo) const;
 
   virtual ResolveInfo::Desc getSymDesc(uint16_t pShndx) const {
     return ResolveInfo::Define;
