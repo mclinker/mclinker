@@ -18,6 +18,21 @@ namespace graph {
 
 /** \class ListDigraph
  *  \brief ListDigraph provides an linked-list inplementation of a graph.
+ *
+ *  ListDigraph is designed to get well performance for most algorithms of
+ *  graph theory.
+ *
+ *  Function        | Complexity | Best Complexity
+ *  ----------------|------------|--------------------------
+ *  Storage         | V + E      |
+ *  Add node        | O(1)       |
+ *  Add arc         | O(1)       |
+ *  Remove node     | O(E)       | O(#(fan-in) + #(fan-out))
+ *  Remove edge     | O(1)       |
+ *  Query adjacency | O(E)       | O(#(fan-in) + #(fan-out))
+ *
+ *  If your algorithm heavily relies on query the adjacency of two nodes, then
+ *  you can use AdjMatrix.
  */
 class ListDigraph
 {
