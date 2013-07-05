@@ -28,14 +28,6 @@ public:
   { }
 };
 
-namespace proxy
-{
-  template<size_t DIRECT>
-  inline void hook(NodeBase *X, const NodeBase *Y)
-  { assert(0 && "not allowed"); }
-
-} // namespace of template proxy
-
 class TreeIteratorBase
 {
 public:
@@ -65,6 +57,9 @@ public:
   template<size_t DIRECT>
   void move() { assert(0 && "not allowed"); }
 
+  template<size_t DIRECT>
+  void hook(NodeBase* pNode) { assert(0 && "not allowed"); }
+
   bool isRoot() const
   { return (m_pNode->right == m_pNode); }
 
@@ -93,17 +88,17 @@ void TreeIteratorBase::move<TreeIteratorBase::Rightward>()
   this->m_pNode = this->m_pNode->right;
 }
 
-namespace proxy
+template<> inline
+void TreeIteratorBase::hook<TreeIteratorBase::Leftward>(NodeBase* pOther)
 {
-  template<>
-  inline void hook<TreeIteratorBase::Leftward>(NodeBase *X, const NodeBase *Y)
-  { X->left = const_cast<NodeBase*>(Y); }
+  this->m_pNode->left = pOther;
+}
 
-  template<>
-  inline void hook<TreeIteratorBase::Rightward>(NodeBase* X, const NodeBase* Y)
-  { X->right = const_cast<NodeBase*>(Y); }
-
-} //namespace of template proxy
+template<> inline
+void TreeIteratorBase::hook<TreeIteratorBase::Rightward>(NodeBase* pOther)
+{
+  this->m_pNode->right = pOther;
+}
 
 template<typename DataType>
 class Node : public NodeBase

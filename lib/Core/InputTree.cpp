@@ -24,7 +24,7 @@ InputTree& InputTree::merge(TreeIteratorBase pRoot,
     return *this;
 
   if (!pTree.empty()) {
-    pMover.connect(pRoot, iterator(pTree.m_Root.node.right));
+    pMover.connect(pRoot, pTree.m_Root.node.right);
     BinaryTreeBase<Input>::m_Root.summon(
         pTree.BinaryTreeBase<Input>::m_Root);
     BinaryTreeBase<Input>::m_Root.delegate(pTree.m_Root);
@@ -37,7 +37,7 @@ InputTree& InputTree::enterGroup(TreeIteratorBase pRoot,
                                  const InputTree::Mover& pMover)
 {
   NodeBase* node = createNode();
-  pMover.connect(pRoot, iterator(node));
+  pMover.connect(pRoot, node);
   return *this;
 }
 
@@ -47,7 +47,7 @@ InputTree& InputTree::insert(TreeIteratorBase pRoot,
 {
   BinaryTree<Input>::node_type* node = createNode();
   node->data = &pInput;
-  pMover.connect(pRoot, iterator(node));
+  pMover.connect(pRoot, node);
   return *this;
 }
 

@@ -442,14 +442,12 @@ public:
   BinaryTree& join(TreeIteratorBase& pPosition, const DataType& pValue) {
     node_type *node = BinaryTreeBase<DataType>::createNode();
     node->data = const_cast<DataType*>(&pValue);
-    if (pPosition.isRoot()) {
-      proxy::hook<TreeIteratorBase::Leftward>(pPosition.m_pNode,
-                          const_cast<const node_type*>(node));
-    }
-    else {
-      proxy::hook<DIRECT>(pPosition.m_pNode,
-                          const_cast<const node_type*>(node));
-    }
+
+    if (pPosition.isRoot())
+      pPosition.hook<TreeIteratorBase::Leftward>(node);
+    else
+      pPosition.hook<DIRECT>(node);
+
     return *this;
   }
 
@@ -464,8 +462,7 @@ public:
       return *this;
 
     if (!pTree.empty()) {
-      proxy::hook<DIRECT>(pPosition.m_pNode,
-                        const_cast<const NodeBase*>(pTree.m_Root.node.left));
+      pPosition.hook<DIRECT>(pTree.m_Root.node.left);
       BinaryTreeBase<DataType>::m_Root.summon(
                                    pTree.BinaryTreeBase<DataType>::m_Root);
       BinaryTreeBase<DataType>::m_Root.delegate(pTree.m_Root);
