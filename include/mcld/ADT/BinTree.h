@@ -438,16 +438,16 @@ public:
   //  @param DIRECT the direction of the connecting edge of the parent node.
   //  @param position the parent node
   //  @param value the value being pushed.
-  template<size_t DIRECT, class Pos>
-  BinaryTree& join(Pos position, const DataType& value) {
+  template<size_t DIRECT>
+  BinaryTree& join(TreeIteratorBase& pPosition, const DataType& pValue) {
     node_type *node = BinaryTreeBase<DataType>::createNode();
-    node->data = const_cast<DataType*>(&value);
-    if (position.isRoot()) {
-      proxy::hook<TreeIteratorBase::Leftward>(position.m_pNode,
+    node->data = const_cast<DataType*>(&pValue);
+    if (pPosition.isRoot()) {
+      proxy::hook<TreeIteratorBase::Leftward>(pPosition.m_pNode,
                           const_cast<const node_type*>(node));
     }
     else {
-      proxy::hook<DIRECT>(position.m_pNode,
+      proxy::hook<DIRECT>(pPosition.m_pNode,
                           const_cast<const node_type*>(node));
     }
     return *this;
@@ -458,13 +458,13 @@ public:
   //  @param position the parent node
   //  @param the tree being joined.
   //  @return the joined tree
-  template<size_t DIRECT, class Pos>
-  BinaryTree& merge(Pos position, BinaryTree& pTree) {
+  template<size_t DIRECT>
+  BinaryTree& merge(TreeIteratorBase& pPosition, BinaryTree& pTree) {
     if (this == &pTree)
       return *this;
 
     if (!pTree.empty()) {
-      proxy::hook<DIRECT>(position.m_pNode,
+      proxy::hook<DIRECT>(pPosition.m_pNode,
                         const_cast<const NodeBase*>(pTree.m_Root.node.left));
       BinaryTreeBase<DataType>::m_Root.summon(
                                    pTree.BinaryTreeBase<DataType>::m_Root);
