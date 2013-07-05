@@ -31,10 +31,6 @@ public:
 namespace proxy
 {
   template<size_t DIRECT>
-  inline void move(NodeBase *&X)
-  { assert(0 && "not allowed"); }
-
-  template<size_t DIRECT>
   inline void hook(NodeBase *X, const NodeBase *Y)
   { assert(0 && "not allowed"); }
 
@@ -67,9 +63,7 @@ public:
   virtual ~TreeIteratorBase(){};
 
   template<size_t DIRECT>
-  inline void move() {
-    proxy::move<DIRECT>(m_pNode);
-  }
+  void move() { assert(0 && "not allowed"); }
 
   bool isRoot() const
   { return (m_pNode->right == m_pNode); }
@@ -87,16 +81,20 @@ public:
   { return this->m_pNode != y.m_pNode; }
 };
 
+template<> inline
+void TreeIteratorBase::move<TreeIteratorBase::Leftward>()
+{
+  this->m_pNode = this->m_pNode->left;
+}
+
+template<> inline
+void TreeIteratorBase::move<TreeIteratorBase::Rightward>()
+{
+  this->m_pNode = this->m_pNode->right;
+}
+
 namespace proxy
 {
-  template<>
-  inline void move<TreeIteratorBase::Leftward>(NodeBase *&X)
-  { X = X->left; }
-
-  template<>
-  inline void move<TreeIteratorBase::Rightward>(NodeBase *&X)
-  { X = X->right; }
-
   template<>
   inline void hook<TreeIteratorBase::Leftward>(NodeBase *X, const NodeBase *Y)
   { X->left = const_cast<NodeBase*>(Y); }
