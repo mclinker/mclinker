@@ -8,7 +8,7 @@
 //===----------------------------------------------------------------------===//
 #ifndef MCLD_TREE_BASE_H
 #define MCLD_TREE_BASE_H
-#include "mcld/ADT/TypeTraits.h"
+#include <mcld/ADT/TypeTraits.h>
 
 #include <cstddef>
 #include <cassert>

@@ -442,12 +442,14 @@ public:
   BinaryTree& join(Pos position, const DataType& value) {
     node_type *node = BinaryTreeBase<DataType>::createNode();
     node->data = const_cast<DataType*>(&value);
-    if (position.isRoot())
+    if (position.isRoot()) {
       proxy::hook<TreeIteratorBase::Leftward>(position.m_pNode,
                           const_cast<const node_type*>(node));
-    else
+    }
+    else {
       proxy::hook<DIRECT>(position.m_pNode,
                           const_cast<const node_type*>(node));
+    }
     return *this;
   }
 

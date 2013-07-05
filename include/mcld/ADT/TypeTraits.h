@@ -14,8 +14,8 @@
 
 #include <cstdlib>
 
-namespace mcld
-{
+namespace mcld {
+
 template<typename DataType>
 struct NonConstTraits;
 

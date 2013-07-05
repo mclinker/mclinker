@@ -7,8 +7,9 @@
 //
 //===----------------------------------------------------------------------===//
 
-//===--------------------------------------------------------------------===//
+//===----------------------------------------------------------------------===//
 // internal non-member functions
+//===----------------------------------------------------------------------===//
 inline static unsigned int compute_bucket_count(unsigned int pNumOfBuckets)
 {
   static const unsigned int bucket_size[] =
@@ -30,8 +31,9 @@ inline static unsigned int compute_bucket_count(unsigned int pNumOfBuckets)
   return (pNumOfBuckets+131101); // rare case. increase constantly
 }
 
-//===--------------------------------------------------------------------===//
+//===----------------------------------------------------------------------===//
 // template implementation of HashBucket
+//===----------------------------------------------------------------------===//
 template<typename DataType>
 typename HashBucket<DataType>::entry_type*
 HashBucket<DataType>::getEmptyBucket()
@@ -48,8 +50,9 @@ HashBucket<DataType>::getTombstone()
   return tombstone;
 }
 
-//===--------------------------------------------------------------------===//
+//===----------------------------------------------------------------------===//
 // template implementation of HashTableImpl
+//===----------------------------------------------------------------------===//
 template<typename HashEntryTy,
          typename HashFunctionTy>
 HashTableImpl<HashEntryTy, HashFunctionTy>::HashTableImpl()
