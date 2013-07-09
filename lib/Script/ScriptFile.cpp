@@ -7,7 +7,7 @@
 //
 //===----------------------------------------------------------------------===//
 #include <mcld/Script/ScriptFile.h>
-#include <mcld/Script/ScriptInput.h>
+#include <mcld/Script/StringList.h>
 #include <mcld/Script/ScriptCommand.h>
 #include <mcld/Script/EntryCmd.h>
 #include <mcld/Script/OutputFormatCmd.h>
@@ -126,13 +126,13 @@ void ScriptFile::addOutputFormatCmd(const std::string& pDefault,
   m_CommandQueue.push_back(new OutputFormatCmd(pDefault, pBig, pLittle));
 }
 
-void ScriptFile::addGroupCmd(ScriptInput& pScriptInput,
+void ScriptFile::addGroupCmd(StringList& pStringList,
                              GroupReader& pGroupReader,
                              const LinkerConfig& pConfig,
                              const LinkerScript& pScript)
 {
   m_CommandQueue.push_back(
-    new GroupCmd(pScriptInput, *m_pInputTree, m_Builder, pGroupReader, pConfig,
+    new GroupCmd(pStringList, *m_pInputTree, m_Builder, pGroupReader, pConfig,
                  pScript));
 }
 

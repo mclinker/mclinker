@@ -7,7 +7,7 @@
 //
 //===----------------------------------------------------------------------===//
 #include <mcld/Script/GroupCmd.h>
-#include <mcld/Script/ScriptInput.h>
+#include <mcld/Script/StringList.h>
 #include <mcld/Script/InputToken.h>
 #include <mcld/MC/InputBuilder.h>
 #include <mcld/MC/Attribute.h>
@@ -24,14 +24,14 @@ using namespace mcld;
 //===----------------------------------------------------------------------===//
 // GroupCmd
 //===----------------------------------------------------------------------===//
-GroupCmd::GroupCmd(ScriptInput& pScriptInput,
+GroupCmd::GroupCmd(StringList& pStringList,
                    InputTree& pInputTree,
                    InputBuilder& pBuilder,
                    GroupReader& pGroupReader,
                    const LinkerConfig& pConfig,
                    const LinkerScript& pScript)
   : ScriptCommand(ScriptCommand::Group),
-    m_ScriptInput(pScriptInput),
+    m_StringList(pStringList),
     m_InputTree(pInputTree),
     m_Builder(pBuilder),
     m_GroupReader(pGroupReader),
@@ -48,8 +48,8 @@ void GroupCmd::dump() const
 {
   mcld::outs() << "GROUP ( ";
   bool prev = false, cur = false;
-  for (ScriptInput::const_iterator it = m_ScriptInput.begin(),
-    ie = m_ScriptInput.end(); it != ie; ++it) {
+  for (StringList::const_iterator it = m_StringList.begin(),
+    ie = m_StringList.end(); it != ie; ++it) {
     assert((*it)->kind() == StrToken::Input);
     InputToken* input = llvm::cast<InputToken>(*it);
     cur = input->asNeeded();
@@ -65,7 +65,7 @@ void GroupCmd::dump() const
     prev = cur;
   }
 
-  if (!m_ScriptInput.empty() && prev)
+  if (!m_StringList.empty() && prev)
     mcld::outs() << " )";
 
   mcld::outs() << " )\n";
@@ -79,8 +79,8 @@ void GroupCmd::activate()
   m_Builder.enterGroup();
   InputTree::iterator group = m_Builder.getCurrentNode();
 
-  for (ScriptInput::const_iterator it = m_ScriptInput.begin(),
-    ie = m_ScriptInput.end(); it != ie; ++it) {
+  for (StringList::const_iterator it = m_StringList.begin(),
+    ie = m_StringList.end(); it != ie; ++it) {
 
     assert((*it)->kind() == StrToken::Input);
     InputToken* token = llvm::cast<InputToken>(*it);

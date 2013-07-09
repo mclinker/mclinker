@@ -27,7 +27,7 @@
 
 %code requires {
 #include <mcld/Script/StrToken.h>
-#include <mcld/Script/ScriptInput.h>
+#include <mcld/Script/StringList.h>
 #include <mcld/Script/OutputSectDesc.h>
 #include <mcld/Script/InputSectDesc.h>
 #include <llvm/Support/DataTypes.h>
@@ -47,7 +47,7 @@
 %parse-param { class ScriptScanner& m_ScriptScanner }
 %parse-param { class GroupReader& m_GroupReader}
 %parse-param { class RpnExpr* m_pRpnExpr }
-%parse-param { class ScriptInput* m_pScriptInput }
+%parse-param { class StringList* m_pStringList }
 %parse-param { bool m_bAsNeeded }
 %lex-param { const class ScriptFile& m_ScriptFile }
 
@@ -65,7 +65,7 @@
   uint64_t integer;
   RpnExpr* rpn_expr;
   StrToken* str_token;
-  ScriptInput* str_tokens;
+  StringList* str_tokens;
   OutputSectDesc::Prolog output_prolog;
   OutputSectDesc::Type output_type;
   OutputSectDesc::Constraint output_constraint;
@@ -251,17 +251,17 @@ assert_command : ASSERT '(' script_exp ',' string ')'
                  { m_ScriptFile.addAssertCmd(*$3, *$5); }
                ;
 
-input_list : { m_pScriptInput = ScriptInput::create(); }
+input_list : { m_pStringList = StringList::create(); }
              inputs
-             { $$ = m_pScriptInput; }
+             { $$ = m_pStringList; }
            ;
 
 inputs : input
-         { m_pScriptInput->push_back($1); }
+         { m_pStringList->push_back($1); }
        | inputs input
-         { m_pScriptInput->push_back($2); }
+         { m_pStringList->push_back($2); }
        | inputs ',' input
-         { m_pScriptInput->push_back($3); }
+         { m_pStringList->push_back($3); }
        | AS_NEEDED '('
          { m_bAsNeeded = true; }
          inputs ')'
@@ -440,13 +440,13 @@ opt_lma_region : AT '>' string
                  { $$ = NULL; }
                ;
 
-opt_phdr : { m_pScriptInput = ScriptInput::create(); }
+opt_phdr : { m_pStringList = StringList::create(); }
            phdrs
-           { $$ = m_pScriptInput; }
+           { $$ = m_pStringList; }
          ;
 
 phdrs : phdrs ':' phdr
-        { m_pScriptInput->push_back($3); }
+        { m_pStringList->push_back($3); }
       | /* Empty */
       ;
 
@@ -509,37 +509,37 @@ wildcard_pattern : string
                  ;
 
 opt_exclude_files : EXCLUDE_FILE '('
-                    { m_pScriptInput = ScriptInput::create(); }
+                    { m_pStringList = StringList::create(); }
                     exclude_files ')'
-                    { $$ = m_pScriptInput; }
+                    { $$ = m_pStringList; }
                   | /* Empty */
                     { $$ = NULL; }
                   ;
 
 exclude_files : exclude_files wildcard_pattern
                 {
-                  m_pScriptInput->push_back(
+                  m_pStringList->push_back(
                     WildcardPattern::create(*$2, WildcardPattern::SORT_NONE));
                 }
               | wildcard_pattern
                 {
-                  m_pScriptInput->push_back(
+                  m_pStringList->push_back(
                     WildcardPattern::create(*$1, WildcardPattern::SORT_NONE));
                 }
               ;
 
-input_sect_wildcard_patterns : { m_pScriptInput = ScriptInput::create(); }
+input_sect_wildcard_patterns : { m_pStringList = StringList::create(); }
                                wildcard_sections
-                               { $$ = m_pScriptInput; }
+                               { $$ = m_pStringList; }
                              ;
 
 wildcard_sections : wildcard_sections wildcard_section
                     {
-                      m_pScriptInput->push_back($2);
+                      m_pStringList->push_back($2);
                     }
                   | wildcard_section
                     {
-                      m_pScriptInput->push_back($1);
+                      m_pStringList->push_back($1);
                     }
                   ;
 

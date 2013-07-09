@@ -18,7 +18,7 @@ namespace mcld
 {
 
 class WildcardPattern;
-class ScriptInput;
+class StringList;
 
 /** \class InputSectDesc
  *  \brief This class defines the interfaces to input section description.
@@ -34,8 +34,8 @@ public:
 
   struct Spec {
     WildcardPattern* file;
-    ScriptInput* exclude_files;
-    ScriptInput* wildcard_sections;
+    StringList* exclude_files;
+    StringList* wildcard_sections;
   };
 
 public:
@@ -48,10 +48,10 @@ public:
   const WildcardPattern& file() const;
 
   bool hasExcludeFiles() const;
-  const ScriptInput& excludeFiles() const;
+  const StringList& excludeFiles() const;
 
   bool hasSections() const;
-  const ScriptInput& sections() const;
+  const StringList& sections() const;
 
   void dump() const;
 
@@ -65,8 +65,8 @@ public:
 private:
   KeepPolicy m_KeepPolicy;
   WildcardPattern* m_pWildcardFile;
-  ScriptInput* m_pExcludeFiles;
-  ScriptInput* m_pWildcardSections;
+  StringList* m_pExcludeFiles;
+  StringList* m_pWildcardSections;
 };
 
 } // namespace of mcld

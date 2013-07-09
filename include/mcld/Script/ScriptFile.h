@@ -29,7 +29,7 @@ class GroupReader;
 class LinkerConfig;
 class LinkerScript;
 class RpnExpr;
-class ScriptInput;
+class StringList;
 
 /** \class ScriptFile
  *  \brief This class defines the interfaces to a linker script file.
@@ -108,7 +108,7 @@ public:
 
   /// GROUP(file, file, ...)
   /// GROUP(file file ...)
-  void addGroupCmd(ScriptInput& pScriptInput,
+  void addGroupCmd(StringList& pStringList,
                    GroupReader& pGroupReader,
                    const LinkerConfig& pConfig,
                    const LinkerScript& pScript);

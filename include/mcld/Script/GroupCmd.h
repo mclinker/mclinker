@@ -17,7 +17,7 @@
 namespace mcld
 {
 
-class ScriptInput;
+class StringList;
 class InputTree;
 class InputBuilder;
 class GroupReader;
@@ -31,7 +31,7 @@ class LinkerScript;
 class GroupCmd : public ScriptCommand
 {
 public:
-  GroupCmd(ScriptInput& pScriptInput,
+  GroupCmd(StringList& pStringList,
            InputTree& pInputTree,
            InputBuilder& pBuilder,
            GroupReader& m_GroupReader,
@@ -49,7 +49,7 @@ public:
   void activate();
 
 private:
-  ScriptInput& m_ScriptInput;
+  StringList& m_StringList;
   InputTree& m_InputTree;
   InputBuilder& m_Builder;
   GroupReader& m_GroupReader;

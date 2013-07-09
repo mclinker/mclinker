@@ -8,7 +8,7 @@
 //===----------------------------------------------------------------------===//
 #include <mcld/Script/OutputSectDesc.h>
 #include <mcld/Script/RpnExpr.h>
-#include <mcld/Script/ScriptInput.h>
+#include <mcld/Script/StringList.h>
 #include <mcld/Script/StrToken.h>
 #include <mcld/Support/raw_ostream.h>
 #include <llvm/Support/Casting.h>
@@ -115,7 +115,7 @@ void OutputSectDesc::dump() const
     mcld::outs() << "\tAT>" << m_Epilog.lmaRegion();
 
   if (m_Epilog.hasPhdrs()) {
-    for (ScriptInput::const_iterator it = m_Epilog.phdrs().begin(),
+    for (StringList::const_iterator it = m_Epilog.phdrs().begin(),
       ie = m_Epilog.phdrs().end(); it != ie; ++it) {
       assert((*it)->kind() == StrToken::String);
       mcld::outs() << ":" << (*it)->name() << " ";

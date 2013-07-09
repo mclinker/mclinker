@@ -21,7 +21,7 @@ namespace mcld
 {
 
 class RpnExpr;
-class ScriptInput;
+class StringList;
 
 /** \class OutputSectDesc
  *  \brief This class defines the interfaces to output section description.
@@ -96,7 +96,7 @@ public:
     }
 
     bool hasPhdrs() const { return m_pPhdrs != NULL; }
-    const ScriptInput& phdrs() const {
+    const StringList& phdrs() const {
       assert(hasPhdrs());
       return *m_pPhdrs;
     }
@@ -109,7 +109,7 @@ public:
 
     const std::string* m_pRegion;
     const std::string* m_pLMARegion;
-    ScriptInput* m_pPhdrs;
+    StringList* m_pPhdrs;
     RpnExpr* m_pFillExp;
   };
 
