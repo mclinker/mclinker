@@ -231,7 +231,7 @@ void FragmentLinker::writeRelocationResult(Relocation& pReloc, uint8_t* pOutput)
 
   uint8_t* target_addr = pOutput + out_offset;
   // byte swapping if target and host has different endian, and then write back
-  if(llvm::sys::isLittleEndianHost() != m_Config.targets().isLittleEndian()) {
+  if(llvm::sys::IsLittleEndianHost != m_Config.targets().isLittleEndian()) {
      uint64_t tmp_data = 0;
 
      switch(pReloc.size(*m_Backend.getRelocator())) {

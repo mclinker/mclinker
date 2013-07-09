@@ -45,7 +45,7 @@ Relocation* RelocationFactory::produce(RelocationFactory::Type pType,
   DWord target_data = 0;
 
   // byte swapping if the host and target have different endian
-  if(llvm::sys::isLittleEndianHost() != m_pConfig->targets().isLittleEndian()) {
+  if(llvm::sys::IsLittleEndianHost != m_pConfig->targets().isLittleEndian()) {
      uint32_t tmp_data;
 
      switch (m_pConfig->targets().bitclass()) {

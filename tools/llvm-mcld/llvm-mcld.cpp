@@ -29,6 +29,7 @@
 #include <llvm/IR/Module.h>
 #include <llvm/IR/DataLayout.h>
 #include <llvm/IR/LLVMContext.h>
+#include <llvm/IRReader/IRReader.h>
 #include <llvm/ADT/Triple.h>
 #include <llvm/ADT/StringSwitch.h>
 #include <llvm/MC/SubtargetFeature.h>
@@ -36,9 +37,9 @@
 #include <llvm/Support/Debug.h>
 #include <llvm/Support/FormattedStream.h>
 #include <llvm/Support/Host.h>
-#include <llvm/Support/IRReader.h>
 #include <llvm/Support/ManagedStatic.h>
 #include <llvm/Support/Signals.h>
+#include <llvm/Support/SourceMgr.h>
 #include <llvm/Support/TargetRegistry.h>
 #include <llvm/Support/TargetSelect.h>
 #include <llvm/Support/Process.h>
@@ -197,11 +198,6 @@ FloatABIForCalls("float-abi",
 static cl::opt<bool>
 DontPlaceZerosInBSS("nozero-initialized-in-bss",
   cl::desc("Don't place zero-initialized symbols into bss section"),
-  cl::init(false));
-
-static cl::opt<bool>
-EnableJITExceptionHandling("jit-enable-eh",
-  cl::desc("Emit exception handling information"),
   cl::init(false));
 
 // In debug builds, make this default to true.
@@ -1460,7 +1456,6 @@ int main(int argc, char* argv[])
   if (FloatABIForCalls != FloatABI::Default)
     Options.FloatABIType = FloatABIForCalls;
   Options.NoZerosInBSS = DontPlaceZerosInBSS;
-  Options.JITExceptionHandling = EnableJITExceptionHandling;
   Options.JITEmitDebugInfo = EmitJitDebugInfo;
   Options.JITEmitDebugInfoToDisk = EmitJitDebugInfoToDisk;
   Options.GuaranteedTailCallOpt = EnableGuaranteedTailCallOpt;

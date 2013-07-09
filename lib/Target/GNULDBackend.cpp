@@ -1679,7 +1679,7 @@ bool GNULDBackend::readRelocation(const llvm::ELF::Elf32_Rel& pRel,
                                   uint32_t& pOffset) const
 {
   uint32_t r_info = 0x0;
-  if (llvm::sys::isLittleEndianHost()) {
+  if (llvm::sys::IsLittleEndianHost) {
     pOffset = pRel.r_offset;
     r_info  = pRel.r_info;
   }
@@ -1701,7 +1701,7 @@ bool GNULDBackend::readRelocation(const llvm::ELF::Elf32_Rela& pRel,
                                   int32_t& pAddend) const
 {
   uint32_t r_info   = 0x0;
-  if (llvm::sys::isLittleEndianHost()) {
+  if (llvm::sys::IsLittleEndianHost) {
     pOffset = pRel.r_offset;
     r_info  = pRel.r_info;
     pAddend = pRel.r_addend;
@@ -1724,7 +1724,7 @@ bool GNULDBackend::readRelocation(const llvm::ELF::Elf64_Rel& pRel,
                               uint64_t& pOffset) const
 {
   uint64_t r_info = 0x0;
-  if (llvm::sys::isLittleEndianHost()) {
+  if (llvm::sys::IsLittleEndianHost) {
     pOffset = pRel.r_offset;
     r_info  = pRel.r_info;
   }
@@ -1746,7 +1746,7 @@ bool GNULDBackend::readRelocation(const llvm::ELF::Elf64_Rela& pRel,
                               int64_t& pAddend) const
 {
   uint64_t r_info = 0x0;
-  if (llvm::sys::isLittleEndianHost()) {
+  if (llvm::sys::IsLittleEndianHost) {
     pOffset = pRel.r_offset;
     r_info  = pRel.r_info;
     pAddend = pRel.r_addend;

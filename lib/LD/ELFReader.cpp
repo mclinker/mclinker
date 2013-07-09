@@ -91,7 +91,7 @@ bool ELFReader<32, true>::readSymbols(Input& pInput,
     st_info  = symtab[idx].st_info;
     st_other = symtab[idx].st_other;
 
-    if (llvm::sys::isLittleEndianHost()) {
+    if (llvm::sys::IsLittleEndianHost) {
       st_name  = symtab[idx].st_name;
       st_value = symtab[idx].st_value;
       st_size  = symtab[idx].st_size;
@@ -279,7 +279,7 @@ bool ELFReader<32, true>::isMyMachine(void* pELFHeader) const
   llvm::ELF::Elf32_Ehdr* hdr =
                           reinterpret_cast<llvm::ELF::Elf32_Ehdr*>(pELFHeader);
 
-  if (llvm::sys::isLittleEndianHost())
+  if (llvm::sys::IsLittleEndianHost)
     return (hdr->e_machine == target().getInfo().machine());
   return (mcld::bswap16(hdr->e_machine) == target().getInfo().machine());
 }
@@ -290,7 +290,7 @@ Input::Type ELFReader<32, true>::fileType(void* pELFHeader) const
   llvm::ELF::Elf32_Ehdr* hdr =
                           reinterpret_cast<llvm::ELF::Elf32_Ehdr*>(pELFHeader);
   uint32_t type = 0x0;
-  if (llvm::sys::isLittleEndianHost())
+  if (llvm::sys::IsLittleEndianHost)
     type = hdr->e_type;
   else
     type = mcld::bswap16(hdr->e_type);
@@ -322,7 +322,7 @@ ELFReader<32, true>::readSectionHeaders(Input& pInput, void* pELFHeader) const
   uint32_t shnum     = 0x0;
   uint32_t shstrtab  = 0x0;
 
-  if (llvm::sys::isLittleEndianHost()) {
+  if (llvm::sys::IsLittleEndianHost) {
     shoff     = ehdr->e_shoff;
     shentsize = ehdr->e_shentsize;
     shnum     = ehdr->e_shnum;
@@ -356,7 +356,7 @@ ELFReader<32, true>::readSectionHeaders(Input& pInput, void* pELFHeader) const
                                             shentsize);
     shdr = reinterpret_cast<llvm::ELF::Elf32_Shdr*>(shdr_region->start());
 
-    if (llvm::sys::isLittleEndianHost()) {
+    if (llvm::sys::IsLittleEndianHost) {
       sh_size = shdr->sh_size;
       sh_link = shdr->sh_link;
     }
@@ -381,7 +381,7 @@ ELFReader<32, true>::readSectionHeaders(Input& pInput, void* pELFHeader) const
 
   // get .shstrtab first
   shdr = &shdrTab[shstrtab];
-  if (llvm::sys::isLittleEndianHost()) {
+  if (llvm::sys::IsLittleEndianHost) {
     sh_offset = shdr->sh_offset;
     sh_size   = shdr->sh_size;
   }
@@ -399,7 +399,7 @@ ELFReader<32, true>::readSectionHeaders(Input& pInput, void* pELFHeader) const
 
   // create all LDSections, including first NULL section.
   for (size_t idx = 0; idx < shnum; ++idx) {
-    if (llvm::sys::isLittleEndianHost()) {
+    if (llvm::sys::IsLittleEndianHost) {
       sh_name      = shdrTab[idx].sh_name;
       sh_type      = shdrTab[idx].sh_type;
       sh_flags     = shdrTab[idx].sh_flags;
@@ -479,7 +479,7 @@ ResolveInfo* ELFReader<32, true>::readSignature(Input& pInput,
   uint16_t st_shndx = 0x0;
   st_info  = entry->st_info;
   st_other = entry->st_other;
-  if (llvm::sys::isLittleEndianHost()) {
+  if (llvm::sys::IsLittleEndianHost) {
     st_name  = entry->st_name;
     st_shndx = entry->st_shndx;
   }
@@ -541,7 +541,7 @@ bool ELFReader<32, true>::readDynamic(Input& pInput) const
     llvm::ELF::Elf32_Sword d_tag = 0x0;
     llvm::ELF::Elf32_Word d_val = 0x0;
 
-    if (llvm::sys::isLittleEndianHost()) {
+    if (llvm::sys::IsLittleEndianHost) {
       d_tag = dynamic[idx].d_tag;
       d_val = dynamic[idx].d_un.d_val;
     } else {
@@ -636,7 +636,7 @@ bool ELFReader<64, true>::readSymbols(Input& pInput,
     st_info  = symtab[idx].st_info;
     st_other = symtab[idx].st_other;
 
-    if (llvm::sys::isLittleEndianHost()) {
+    if (llvm::sys::IsLittleEndianHost) {
       st_name  = symtab[idx].st_name;
       st_value = symtab[idx].st_value;
       st_size  = symtab[idx].st_size;
@@ -820,7 +820,7 @@ bool ELFReader<64, true>::isMyMachine(void* pELFHeader) const
   llvm::ELF::Elf64_Ehdr* hdr =
                           reinterpret_cast<llvm::ELF::Elf64_Ehdr*>(pELFHeader);
 
-  if (llvm::sys::isLittleEndianHost())
+  if (llvm::sys::IsLittleEndianHost)
     return (hdr->e_machine == target().getInfo().machine());
   return (mcld::bswap16(hdr->e_machine) == target().getInfo().machine());
 }
@@ -831,7 +831,7 @@ Input::Type ELFReader<64, true>::fileType(void* pELFHeader) const
   llvm::ELF::Elf64_Ehdr* hdr =
                           reinterpret_cast<llvm::ELF::Elf64_Ehdr*>(pELFHeader);
   uint32_t type = 0x0;
-  if (llvm::sys::isLittleEndianHost())
+  if (llvm::sys::IsLittleEndianHost)
     type = hdr->e_type;
   else
     type = mcld::bswap16(hdr->e_type);
@@ -863,7 +863,7 @@ ELFReader<64, true>::readSectionHeaders(Input& pInput, void* pELFHeader) const
   uint32_t shnum     = 0x0;
   uint32_t shstrtab  = 0x0;
 
-  if (llvm::sys::isLittleEndianHost()) {
+  if (llvm::sys::IsLittleEndianHost) {
     shoff     = ehdr->e_shoff;
     shentsize = ehdr->e_shentsize;
     shnum     = ehdr->e_shnum;
@@ -897,7 +897,7 @@ ELFReader<64, true>::readSectionHeaders(Input& pInput, void* pELFHeader) const
                                             shentsize);
     shdr = reinterpret_cast<llvm::ELF::Elf64_Shdr*>(shdr_region->start());
 
-    if (llvm::sys::isLittleEndianHost()) {
+    if (llvm::sys::IsLittleEndianHost) {
       sh_size = shdr->sh_size;
       sh_link = shdr->sh_link;
     }
@@ -922,7 +922,7 @@ ELFReader<64, true>::readSectionHeaders(Input& pInput, void* pELFHeader) const
 
   // get .shstrtab first
   shdr = &shdrTab[shstrtab];
-  if (llvm::sys::isLittleEndianHost()) {
+  if (llvm::sys::IsLittleEndianHost) {
     sh_offset = shdr->sh_offset;
     sh_size   = shdr->sh_size;
   }
@@ -940,7 +940,7 @@ ELFReader<64, true>::readSectionHeaders(Input& pInput, void* pELFHeader) const
 
   // create all LDSections, including first NULL section.
   for (size_t idx = 0; idx < shnum; ++idx) {
-    if (llvm::sys::isLittleEndianHost()) {
+    if (llvm::sys::IsLittleEndianHost) {
       sh_name      = shdrTab[idx].sh_name;
       sh_type      = shdrTab[idx].sh_type;
       sh_flags     = shdrTab[idx].sh_flags;
@@ -1020,7 +1020,7 @@ ResolveInfo* ELFReader<64, true>::readSignature(Input& pInput,
   uint16_t st_shndx = 0x0;
   st_info  = entry->st_info;
   st_other = entry->st_other;
-  if (llvm::sys::isLittleEndianHost()) {
+  if (llvm::sys::IsLittleEndianHost) {
     st_name  = entry->st_name;
     st_shndx = entry->st_shndx;
   }
@@ -1082,7 +1082,7 @@ bool ELFReader<64, true>::readDynamic(Input& pInput) const
     llvm::ELF::Elf64_Sxword d_tag = 0x0;
     llvm::ELF::Elf64_Xword d_val = 0x0;
 
-    if (llvm::sys::isLittleEndianHost()) {
+    if (llvm::sys::IsLittleEndianHost) {
       d_tag = dynamic[idx].d_tag;
       d_val = dynamic[idx].d_un.d_val;
     } else {
