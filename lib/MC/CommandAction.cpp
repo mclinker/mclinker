@@ -218,3 +218,20 @@ bool BStaticAction::activate(InputBuilder& pBuilder) const
   return true;
 }
 
+//===----------------------------------------------------------------------===//
+// DefSymAction
+//===----------------------------------------------------------------------===//
+DefSymAction::DefSymAction(unsigned int pPosition, std::string& pAssignment)
+  : InputAction(pPosition), m_Assignment(pAssignment) {
+}
+
+bool DefSymAction::activate(InputBuilder& pBuilder) const
+{
+  pBuilder.createNode<InputTree::Positional>("defsym", "NAN");
+  Input* input = *pBuilder.getCurrentNode();
+  pBuilder.setContext(*input, false);
+
+  m_Assignment.append(";");
+  pBuilder.setMemory(*input, &m_Assignment[0], m_Assignment.size());
+  return true;
+}

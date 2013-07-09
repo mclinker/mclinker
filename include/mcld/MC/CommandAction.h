@@ -159,6 +159,20 @@ public:
   bool activate(InputBuilder&) const;
 };
 
+/// DefSymAction
+class DefSymAction : public InputAction
+{
+public:
+  explicit DefSymAction(unsigned int pPosition, std::string& pAssignment);
+
+  bool activate(InputBuilder&) const;
+
+  const std::string& assignment() const { return m_Assignment; }
+
+private:
+  std::string& m_Assignment;
+};
+
 } // end of namespace mcld
 
 #endif
