@@ -830,12 +830,6 @@ ArgAddressMapList("section-start",
                   cl::value_desc("Set address of section"),
                   cl::Prefix);
 
-static cl::list<std::string>
-ArgDefSymList("defsym",
-              cl::ZeroOrMore,
-              cl::desc("Define a symbol"),
-              cl::value_desc("symbol=expression"));
-
 static cl::opt<unsigned long long>
 ArgBssSegAddr("Tbss",
               cl::desc("Set the address of the bss segment"),
@@ -1272,13 +1266,6 @@ static bool ProcessLinkerOptionsFromCommand(mcld::LinkerScript& pScript,
   }
   // -T scriptfile
   pConfig.options().setDefaultLDScript(ArgScriptFile);
-
-  // --defsym symbols
-  for (cl::list<std::string>::iterator
-       it = ArgDefSymList.begin(), ie = ArgDefSymList.end();
-       it != ie ; ++it) {
-    pScript.defSyms().append(*it);
-  }
 
   // set up filter/aux filter for shared object
   pConfig.options().setFilter(ArgFilter);

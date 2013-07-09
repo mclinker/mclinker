@@ -41,19 +41,6 @@ public:
 
   typedef std::vector<std::pair<LDSymbol*, Assignment> > Assignments;
 
-  class DefSyms {
-  public:
-    void append(const std::string& pDefSym)
-    {
-      m_DefSymList.append(pDefSym).append(";");
-    }
-    const std::string& data() const { return m_DefSymList; }
-    std::string&       data()       { return m_DefSymList; }
-
-  private:
-    std::string m_DefSymList;
-  };
-
 public:
   LinkerScript();
 
@@ -70,10 +57,6 @@ public:
 
   const Assignments& assignments() const { return m_Assignments; }
   Assignments&       assignments()       { return m_Assignments; }
-
-  // --defsym
-  const DefSyms& defSyms() const { return m_DefSyms; }
-  DefSyms&       defSyms()       { return m_DefSyms; }
 
   /// search directory
   const SearchDirs& directories() const { return m_SearchDirs; }
@@ -105,7 +88,6 @@ private:
   AddressMap m_AddressMap;
   SectionMap m_SectionMap;
   Assignments m_Assignments;
-  DefSyms m_DefSyms;
   SearchDirs m_SearchDirs;
   std::string m_Entry;
   std::string m_OutputFile;

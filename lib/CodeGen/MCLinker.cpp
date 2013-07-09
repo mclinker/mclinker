@@ -186,6 +186,15 @@ ArgEndGroupListAlias(")",
                      cl::aliasopt(ArgEndGroupList));
 
 //===----------------------------------------------------------------------===//
+// --defsym
+//===----------------------------------------------------------------------===//
+static cl::list<std::string>
+ArgDefSymList("defsym",
+              cl::ZeroOrMore,
+              cl::desc("Define a symbol"),
+              cl::value_desc("symbol=expression"));
+
+//===----------------------------------------------------------------------===//
 // MCLinker
 //===----------------------------------------------------------------------===//
 MCLinker::MCLinker(LinkerConfig& pConfig,
@@ -258,9 +267,19 @@ void MCLinker::initializeInputTree(IRBuilder& pBuilder)
                        ArgBStaticList.size() +
                        ArgStartGroupList.size() +
                        ArgEndGroupList.size() +
+                       ArgDefSymList.size() +
                        1; // bitcode
   std::vector<InputAction*> actions;
   actions.reserve(num_actions);
+
+  // -----  scripts  ----- //
+  cl::list<std::string>::iterator defsym, dsBegin, dsEnd;
+  dsBegin = ArgDefSymList.begin();
+  dsEnd = ArgDefSymList.end();
+  for (defsym = dsBegin; defsym != dsEnd; ++defsym) {
+    unsigned int pos = ArgDefSymList.getPosition(defsym - dsBegin);
+    actions.push_back(new DefSymAction(pos, *defsym));
+  }
 
   // -----  inputs  ----- //
   cl::list<mcld::sys::fs::Path>::iterator input, inBegin, inEnd;
@@ -277,11 +296,10 @@ void MCLinker::initializeInputTree(IRBuilder& pBuilder)
   cl::list<std::string>::iterator namespec, nsBegin, nsEnd;
   nsBegin = ArgNameSpecList.begin();
   nsEnd = ArgNameSpecList.end();
-  mcld::Module& module = pBuilder.getModule();
   for (namespec = nsBegin; namespec != nsEnd; ++namespec) {
     unsigned int pos = ArgNameSpecList.getPosition(namespec - nsBegin);
     actions.push_back(new NamespecAction(pos, *namespec,
-                                         module.getScript().directories()));
+                                         m_Module.getScript().directories()));
     actions.push_back(new ContextAction(pos));
     actions.push_back(new MemoryAreaAction(pos, FileHandle::ReadOnly));
   }
