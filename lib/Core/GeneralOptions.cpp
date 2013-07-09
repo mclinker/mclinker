@@ -63,7 +63,7 @@ GeneralOptions::~GeneralOptions()
 
 bool GeneralOptions::hasDefaultLDScript() const
 {
-  return false;
+  return !m_DefaultLDScript.empty();
 }
 
 const std::string& GeneralOptions::defaultLDScript() const
