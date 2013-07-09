@@ -698,6 +698,10 @@ ArgY("Y",
      cl::desc("Add path to the default library search path"),
      cl::value_desc("default-search-path"));
 
+static cl::opt<bool>
+ArgARMCompatibility("p",
+                    cl::desc("Ignore for ARM backward compatibility"),
+                    cl::init(false));
 /// @{
 /// @name FIXME: end of unsupported options
 /// @}
