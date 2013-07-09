@@ -16,7 +16,7 @@ using namespace mcld;
 // OutputCmd
 //===----------------------------------------------------------------------===//
 OutputCmd::OutputCmd(const std::string& pOutputFile, LinkerScript& pScript)
-  : ScriptCommand(ScriptCommand::Output),
+  : ScriptCommand(ScriptCommand::OUTPUT),
     m_OutputFile(pOutputFile),
     m_Script(pScript)
 {

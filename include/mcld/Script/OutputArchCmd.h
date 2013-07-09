@@ -32,7 +32,7 @@ public:
 
   static bool classof(const ScriptCommand* pCmd)
   {
-    return pCmd->getKind() == ScriptCommand::OutputArch;
+    return pCmd->getKind() == ScriptCommand::OUTPUT_ARCH;
   }
 
   void activate();

@@ -19,7 +19,7 @@ using namespace mcld;
 // InputSectDesc
 //===----------------------------------------------------------------------===//
 InputSectDesc::InputSectDesc(KeepPolicy pPolicy, const Spec& pSpec)
-  : ScriptCommand(ScriptCommand::InputSectDesc),
+  : ScriptCommand(ScriptCommand::INPUT_SECT_DESC),
     m_KeepPolicy(pPolicy),
     m_pWildcardFile(pSpec.file),
     m_pExcludeFiles(pSpec.exclude_files),

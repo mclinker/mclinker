@@ -46,7 +46,7 @@ public:
 
   static bool classof(const ScriptCommand* pCmd)
   {
-    return pCmd->getKind() == ScriptCommand::OutputFormat;
+    return pCmd->getKind() == ScriptCommand::OUTPUT_FORMAT;
   }
 
   void activate();

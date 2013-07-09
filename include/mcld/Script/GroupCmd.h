@@ -43,7 +43,7 @@ public:
 
   static bool classof(const ScriptCommand* pCmd)
   {
-    return pCmd->getKind() == ScriptCommand::Group;
+    return pCmd->getKind() == ScriptCommand::GROUP;
   }
 
   void activate();

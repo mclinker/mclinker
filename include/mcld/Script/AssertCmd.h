@@ -18,9 +18,7 @@
 namespace mcld
 {
 
-class LinkerScript;
 class RpnExpr;
-class Operand;
 
 /** \class AssertCmd
  *  \brief This class defines the interfaces to assert command.
@@ -40,7 +38,7 @@ public:
 
   static bool classof(const ScriptCommand* pCmd)
   {
-    return pCmd->getKind() == ScriptCommand::Assert;
+    return pCmd->getKind() == ScriptCommand::ASSERT;
   }
 
   void activate();

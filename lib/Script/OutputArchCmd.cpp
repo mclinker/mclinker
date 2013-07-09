@@ -15,7 +15,7 @@ using namespace mcld;
 // OutputArchCmd
 //===----------------------------------------------------------------------===//
 OutputArchCmd::OutputArchCmd(const std::string& pArch)
-  : ScriptCommand(ScriptCommand::OutputArch),
+  : ScriptCommand(ScriptCommand::OUTPUT_ARCH),
     m_Arch(pArch)
 {
 }

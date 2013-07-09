@@ -16,7 +16,7 @@ using namespace mcld;
 // SectionsCmd
 //===----------------------------------------------------------------------===//
 SectionsCmd::SectionsCmd()
-  : ScriptCommand(ScriptCommand::Sections)
+  : ScriptCommand(ScriptCommand::SECTIONS)
 {
 }
 
@@ -34,9 +34,9 @@ void SectionsCmd::dump() const
 
   for (const_iterator it = begin(), ie = end(); it != ie; ++it) {
     switch ((*it)->getKind()) {
-    case ScriptCommand::Entry:
-    case ScriptCommand::Assignment:
-    case ScriptCommand::OutputSectDesc:
+    case ScriptCommand::ENTRY:
+    case ScriptCommand::ASSIGNMENT:
+    case ScriptCommand::OUTPUT_SECT_DESC:
       mcld::outs() << "\t";
       (*it)->dump();
       break;
@@ -52,9 +52,9 @@ void SectionsCmd::dump() const
 void SectionsCmd::push_back(ScriptCommand* pCommand)
 {
   switch (pCommand->getKind()) {
-  case ScriptCommand::Entry:
-  case ScriptCommand::Assignment:
-  case ScriptCommand::OutputSectDesc:
+  case ScriptCommand::ENTRY:
+  case ScriptCommand::ASSIGNMENT:
+  case ScriptCommand::OUTPUT_SECT_DESC:
     m_SectionCommands.push_back(pCommand);
     break;
   default:
@@ -67,9 +67,9 @@ void SectionsCmd::activate()
 {
   for (const_iterator it = begin(), ie = end(); it != ie; ++it) {
     switch ((*it)->getKind()) {
-    case ScriptCommand::Entry:
-    case ScriptCommand::Assignment:
-    case ScriptCommand::OutputSectDesc:
+    case ScriptCommand::ENTRY:
+    case ScriptCommand::ASSIGNMENT:
+    case ScriptCommand::OUTPUT_SECT_DESC:
       (*it)->activate();
       break;
     default:

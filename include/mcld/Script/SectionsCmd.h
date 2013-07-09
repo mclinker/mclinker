@@ -54,7 +54,7 @@ public:
 
   static bool classof(const ScriptCommand* pCmd)
   {
-    return pCmd->getKind() == ScriptCommand::Sections;
+    return pCmd->getKind() == ScriptCommand::SECTIONS;
   }
 
   void activate();

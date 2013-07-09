@@ -16,7 +16,7 @@ using namespace mcld;
 // SearchDirCmd
 //===----------------------------------------------------------------------===//
 SearchDirCmd::SearchDirCmd(const std::string& pPath, LinkerScript& pScript)
-  : ScriptCommand(ScriptCommand::SearchDir),
+  : ScriptCommand(ScriptCommand::SEARCH_DIR),
     m_Path(pPath),
     m_Script(pScript)
 {

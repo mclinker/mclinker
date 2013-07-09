@@ -20,7 +20,7 @@ using namespace mcld;
 // OutputSectDesc
 //===----------------------------------------------------------------------===//
 OutputSectDesc::OutputSectDesc(const std::string& pName, const Prolog& pProlog)
-  : ScriptCommand(ScriptCommand::OutputSectDesc),
+  : ScriptCommand(ScriptCommand::OUTPUT_SECT_DESC),
     m_Name(pName),
     m_Prolog(pProlog)
 {
@@ -96,9 +96,8 @@ void OutputSectDesc::dump() const
   mcld::outs() << "\t{\n";
   for (const_iterator it = begin(), ie = end(); it != ie; ++it) {
     switch ((*it)->getKind()) {
-    case ScriptCommand::Entry:
-    case ScriptCommand::Assignment:
-    case ScriptCommand::InputSectDesc:
+    case ScriptCommand::ASSIGNMENT:
+    case ScriptCommand::INPUT_SECT_DESC:
       mcld::outs() << "\t\t";
       (*it)->dump();
       break;
@@ -132,8 +131,8 @@ void OutputSectDesc::dump() const
 void OutputSectDesc::push_back(ScriptCommand* pCommand)
 {
   switch (pCommand->getKind()) {
-  case ScriptCommand::Assignment:
-  case ScriptCommand::InputSectDesc:
+  case ScriptCommand::ASSIGNMENT:
+  case ScriptCommand::INPUT_SECT_DESC:
     m_OutputSectCmds.push_back(pCommand);
     break;
   default:
@@ -154,8 +153,8 @@ void OutputSectDesc::activate()
 {
   for (const_iterator it = begin(), ie = end(); it != ie; ++it) {
     switch ((*it)->getKind()) {
-    case ScriptCommand::Assignment:
-    case ScriptCommand::InputSectDesc:
+    case ScriptCommand::ASSIGNMENT:
+    case ScriptCommand::INPUT_SECT_DESC:
       (*it)->activate();
       break;
     default:

@@ -17,7 +17,7 @@ using namespace mcld;
 // AssertCmd
 //===----------------------------------------------------------------------===//
 AssertCmd::AssertCmd(RpnExpr& pRpnExpr, const std::string& pMessage)
-  : ScriptCommand(ScriptCommand::Assert),
+  : ScriptCommand(ScriptCommand::ASSERT),
     m_RpnExpr(pRpnExpr),
     m_Message(pMessage)
 {

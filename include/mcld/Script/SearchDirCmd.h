@@ -34,6 +34,11 @@ public:
 
   void activate();
 
+  static bool classof(const ScriptCommand* pCmd)
+  {
+    return pCmd->getKind() == ScriptCommand::SEARCH_DIR;
+  }
+
 private:
   std::string m_Path;
   LinkerScript& m_Script;

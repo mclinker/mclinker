@@ -22,7 +22,7 @@ Assignment::Assignment(LinkerScript& pScript,
                        Type pType,
                        Operand& pSymbol,
                        RpnExpr& pRpnExpr)
-  : ScriptCommand(ScriptCommand::Assignment),
+  : ScriptCommand(ScriptCommand::ASSIGNMENT),
     m_Script(pScript),
     m_Type(pType),
     m_Symbol(pSymbol),

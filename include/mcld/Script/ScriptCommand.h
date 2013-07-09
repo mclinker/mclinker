@@ -23,17 +23,17 @@ class ScriptCommand
 {
 public:
   enum Kind {
-    Entry,
-    OutputFormat,
-    Group,
-    Output,
-    SearchDir,
-    OutputArch,
-    Assert,
-    Assignment,
-    Sections,
-    OutputSectDesc,
-    InputSectDesc
+    ENTRY,
+    OUTPUT_FORMAT,
+    GROUP,
+    OUTPUT,
+    SEARCH_DIR,
+    OUTPUT_ARCH,
+    ASSERT,
+    ASSIGNMENT,
+    SECTIONS,
+    OUTPUT_SECT_DESC,
+    INPUT_SECT_DESC
   };
 
 protected:

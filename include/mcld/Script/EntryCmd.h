@@ -19,7 +19,6 @@ namespace mcld
 {
 
 class LinkerScript;
-class StringRef;
 
 /** \class EntryCmd
  *  \brief This class defines the interfaces to Entry command.
@@ -35,7 +34,7 @@ public:
 
   static bool classof(const ScriptCommand* pCmd)
   {
-    return pCmd->getKind() == ScriptCommand::Entry;
+    return pCmd->getKind() == ScriptCommand::ENTRY;
   }
 
   void activate();

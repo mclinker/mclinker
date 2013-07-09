@@ -30,7 +30,7 @@ GroupCmd::GroupCmd(StringList& pStringList,
                    GroupReader& pGroupReader,
                    const LinkerConfig& pConfig,
                    const LinkerScript& pScript)
-  : ScriptCommand(ScriptCommand::Group),
+  : ScriptCommand(ScriptCommand::GROUP),
     m_StringList(pStringList),
     m_InputTree(pInputTree),
     m_Builder(pBuilder),
