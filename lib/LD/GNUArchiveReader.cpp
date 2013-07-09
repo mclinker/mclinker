@@ -45,6 +45,9 @@ GNUArchiveReader::~GNUArchiveReader()
 bool GNUArchiveReader::isMyFormat(Input& pInput) const
 {
   assert(pInput.hasMemArea());
+  if (pInput.memArea()->size() < Archive::MAGIC_LEN)
+    return false;
+
   MemoryRegion* region = pInput.memArea()->request(pInput.fileOffset(),
                                                    Archive::MAGIC_LEN);
   const char* str = reinterpret_cast<const char*>(region->getBuffer());

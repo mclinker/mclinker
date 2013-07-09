@@ -51,6 +51,9 @@ bool ELFDynObjReader::isMyFormat(Input &pInput) const
   // Don't warning about the frequently requests.
   // MemoryArea has a list of cache to handle this.
   size_t hdr_size = m_pELFReader->getELFHeaderSize();
+  if (pInput.memArea()->size() < hdr_size)
+    return false;
+
   MemoryRegion* region = pInput.memArea()->request(pInput.fileOffset(),
                                                    hdr_size);
 
