@@ -337,15 +337,7 @@ private:
 
   /// getSegmentFlag - give a section flag and return the corresponding segment
   /// flag
-  inline uint32_t getSegmentFlag(const uint32_t pSectionFlag)
-  {
-    uint32_t flag = llvm::ELF::PF_R;
-    if (0 != (pSectionFlag & llvm::ELF::SHF_WRITE))
-      flag |= llvm::ELF::PF_W;
-    if (0 != (pSectionFlag & llvm::ELF::SHF_EXECINSTR))
-      flag |= llvm::ELF::PF_X;
-    return flag;
-  }
+  inline uint32_t getSegmentFlag(const uint32_t pSectionFlag);
 
   /// setupGNUStackInfo - setup the section flag of .note.GNU-stack in output
   void setupGNUStackInfo(Module& pModule);

@@ -1777,7 +1777,7 @@ void GNULDBackend::createProgramHdrs(Module& pModule)
     interp_seg->append(&file_format->getInterp());
   }
 
-  uint32_t cur_flag, prev_flag = getSegmentFlag(0);
+  uint32_t cur_flag, prev_flag = 0x0;
   ELFSegment* load_seg = NULL;
   // make possible PT_LOAD segments
   LinkerScript::AddressMap::iterator addrEnd
@@ -1884,7 +1884,7 @@ void GNULDBackend::createProgramHdrs(Module& pModule)
 
   // make PT_NOTE
   ELFSegment *note_seg = NULL;
-  prev_flag = getSegmentFlag(0);
+  prev_flag = 0x0;
   for (sect = pModule.begin(); sect != sect_end; ++sect) {
     if ((*sect)->kind() != LDFileFormat::Note ||
         ((*sect)->flag() & llvm::ELF::SHF_ALLOC) == 0)
@@ -1955,6 +1955,20 @@ void GNULDBackend::setupProgramHdrs(const LinkerScript& pScript)
 
     segment.setMemsz(last_sect->addr() - segment.vaddr() + last_sect->size());
   }
+}
+
+/// getSegmentFlag - give a section flag and return the corresponding segment
+/// flag
+uint32_t GNULDBackend::getSegmentFlag(const uint32_t pSectionFlag)
+{
+  uint32_t flag = 0x0;
+  if ((pSectionFlag & llvm::ELF::SHF_ALLOC) != 0x0)
+    flag |= llvm::ELF::PF_R;
+  if ((pSectionFlag & llvm::ELF::SHF_WRITE) != 0x0)
+    flag |= llvm::ELF::PF_W;
+  if ((pSectionFlag & llvm::ELF::SHF_EXECINSTR) != 0x0)
+    flag |= llvm::ELF::PF_X;
+  return flag;
 }
 
 /// setupGNUStackInfo - setup the section flag of .note.GNU-stack in output
