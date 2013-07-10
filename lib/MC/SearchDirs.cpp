@@ -73,89 +73,136 @@ bool SearchDirs::insert(const sys::fs::Path& pPath)
   return insert(pPath.native());
 }
 
-mcld::sys::fs::Path* SearchDirs::find(const std::string& pNamespec, mcld::Input::Type pType)
+mcld::sys::fs::Path*
+SearchDirs::find(const std::string& pNamespec, mcld::Input::Type pType)
 {
-  assert(Input::DynObj == pType || Input::Archive == pType);
+  assert(Input::DynObj  == pType ||
+         Input::Archive == pType ||
+         Input::Script  == pType);
 
   std::string file;
-  SpecToFilename(pNamespec, file);
+  switch(pType) {
+  case Input::Script:
+    file.assign(pNamespec);
+    break;
+  case Input::DynObj:
+  case Input::Archive :
+    SpecToFilename(pNamespec, file);
+    break;
+  default:
+    break;
+  } // end of switch
+
   // for all MCLDDirectorys
   DirList::iterator mcld_dir, mcld_dir_end = m_DirList.end();
-  for (mcld_dir=m_DirList.begin(); mcld_dir!=mcld_dir_end; ++mcld_dir) {
+  for (mcld_dir = m_DirList.begin(); mcld_dir != mcld_dir_end; ++mcld_dir) {
     // for all entries in MCLDDirectory
     MCLDDirectory::iterator entry = (*mcld_dir)->begin();
     MCLDDirectory::iterator enEnd = (*mcld_dir)->end();
 
     switch(pType) {
-      case Input::DynObj: {
-        while (entry!=enEnd) {
-          if (file == entry.path()->stem().native() ) {
-            if(mcld::sys::fs::detail::shared_library_extension == entry.path()->extension().native()) {
-              return entry.path();
-            }
-          }
-          ++entry;
-        }
+    case Input::Script: {
+      while (entry != enEnd) {
+        if (file == entry.path()->filename())
+          return entry.path();
+        ++entry;
       }
-      /** Fall through **/
-      case Input::Archive : {
-        entry = (*mcld_dir)->begin();
-        enEnd = (*mcld_dir)->end();
-        while ( entry!=enEnd ) {
-          if (file == entry.path()->stem().native() &&
-            mcld::sys::fs::detail::static_library_extension == entry.path()->extension().native()) {
+      break;
+    }
+    case Input::DynObj: {
+      while (entry != enEnd) {
+        if (file == entry.path()->stem().native() ) {
+          if (mcld::sys::fs::detail::shared_library_extension ==
+                entry.path()->extension().native()) {
             return entry.path();
           }
-          ++entry;
         }
+        ++entry;
       }
-      default:
-        break;
+    }
+    /** Fall through **/
+    case Input::Archive : {
+      entry = (*mcld_dir)->begin();
+      enEnd = (*mcld_dir)->end();
+      while (entry != enEnd) {
+        if (file == entry.path()->stem().native() &&
+            mcld::sys::fs::detail::static_library_extension ==
+              entry.path()->extension().native()) {
+          return entry.path();
+        }
+        ++entry;
+      }
+    }
+    default:
+      break;
     } // end of switch
-  } // end of while
+  } // end of for
   return NULL;
 }
 
 const mcld::sys::fs::Path*
 SearchDirs::find(const std::string& pNamespec, mcld::Input::Type pType) const
 {
-  assert(Input::DynObj == pType || Input::Archive == pType);
+  assert(Input::DynObj  == pType ||
+         Input::Archive == pType ||
+         Input::Script  == pType);
 
   std::string file;
-  SpecToFilename(pNamespec, file);
+  switch(pType) {
+  case Input::Script:
+    file.assign(pNamespec);
+    break;
+  case Input::DynObj:
+  case Input::Archive :
+    SpecToFilename(pNamespec, file);
+    break;
+  default:
+    break;
+  } // end of switch
+
   // for all MCLDDirectorys
   DirList::const_iterator mcld_dir, mcld_dir_end = m_DirList.end();
-  for (mcld_dir=m_DirList.begin(); mcld_dir!=mcld_dir_end; ++mcld_dir) {
+  for (mcld_dir = m_DirList.begin(); mcld_dir != mcld_dir_end; ++mcld_dir) {
     // for all entries in MCLDDirectory
     MCLDDirectory::iterator entry = (*mcld_dir)->begin();
     MCLDDirectory::iterator enEnd = (*mcld_dir)->end();
 
     switch(pType) {
-      case Input::DynObj: {
-        while (entry!=enEnd) {
-          if (file == entry.path()->stem().native() ) {
-            if(mcld::sys::fs::detail::shared_library_extension == entry.path()->extension().native()) {
-              return entry.path();
-            }
-          }
-          ++entry;
-        }
+    case Input::Script: {
+      while (entry != enEnd) {
+        if (file == entry.path()->filename())
+          return entry.path();
+        ++entry;
       }
-      /** Fall through **/
-      case Input::Archive : {
-        entry = (*mcld_dir)->begin();
-        enEnd = (*mcld_dir)->end();
-        while ( entry!=enEnd ) {
-          if (file == entry.path()->stem().native() &&
-            mcld::sys::fs::detail::static_library_extension == entry.path()->extension().native()) {
+      break;
+    }
+    case Input::DynObj: {
+      while (entry != enEnd) {
+        if (file == entry.path()->stem().native() ) {
+          if (mcld::sys::fs::detail::shared_library_extension ==
+                entry.path()->extension().native()) {
             return entry.path();
           }
-          ++entry;
         }
+        ++entry;
       }
-      default:
-        break;
+    }
+    /** Fall through **/
+    case Input::Archive : {
+      entry = (*mcld_dir)->begin();
+      enEnd = (*mcld_dir)->end();
+      while ( entry!=enEnd ) {
+        if (file == entry.path()->stem().native() &&
+            mcld::sys::fs::detail::static_library_extension ==
+              entry.path()->extension().native()) {
+          return entry.path();
+        }
+        ++entry;
+      }
+    }
+    default:
+      break;
     } // end of switch
-  } // end of while
+  } // end of for 
   return NULL;
 }
