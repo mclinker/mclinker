@@ -19,7 +19,7 @@ namespace mcld
 
 class LinkerScript;
 class RpnExpr;
-class Operand;
+class SymOperand;
 
 /** \class Assignment
  *  \brief This class defines the interfaces to assignment command.
@@ -38,7 +38,7 @@ public:
 public:
   Assignment(LinkerScript& pScript,
              Type pType,
-             Operand& pSymbol,
+             SymOperand& pSymbol,
              RpnExpr& pRpnExpr);
 
   ~Assignment();
@@ -47,7 +47,8 @@ public:
 
   Type type() const { return m_Type; }
 
-  const Operand& symbol() const { return m_Symbol; }
+  const SymOperand& symbol() const { return m_Symbol; }
+  SymOperand&       symbol()       { return m_Symbol; }
 
   const RpnExpr& getRpnExpr() const { return m_RpnExpr; }
   RpnExpr&       getRpnExpr()       { return m_RpnExpr; }
@@ -64,7 +65,7 @@ public:
 private:
   LinkerScript& m_Script;
   Type m_Type;
-  Operand& m_Symbol;
+  SymOperand& m_Symbol;
   RpnExpr& m_RpnExpr;
 };
 

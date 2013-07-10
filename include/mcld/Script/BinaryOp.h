@@ -13,10 +13,13 @@
 #endif
 
 #include <mcld/Script/Operator.h>
-#include <cassert>
+#include <cstddef>
 
 namespace mcld
 {
+
+class Operand;
+class IntOperand;
 
 /** \class BinaryOP
  *  \brief This class defines the interfaces to an binary operator token.
@@ -31,82 +34,63 @@ private:
   BinaryOp()
     : Operator(Operator::Binary, TYPE), m_Size(0)
   {
-    m_Operand[0] = m_Operand[1] = 0;
+    m_pOperand[0] = m_pOperand[1] = NULL;
   }
 
 public:
   ~BinaryOp()
   {}
 
-  Operator::ValueType eval();
+  IntOperand* eval();
 
-  void appendOperand(Operator::ValueType pValue)
+  void appendOperand(Operand* pOperand)
   {
-    assert(m_Size < 2);
-    m_Operand[m_Size++] = pValue;
+    m_pOperand[m_Size++] = pOperand;
     if (m_Size == 2)
       m_Size = 0;
   }
 
 private:
   size_t m_Size;
-  ValueType m_Operand[2];
+  Operand* m_pOperand[2];
 };
 
 template<>
-Operator::ValueType BinaryOp<Operator::MUL>::eval();
+IntOperand* BinaryOp<Operator::MUL>::eval();
 template<>
-Operator::ValueType BinaryOp<Operator::DIV>::eval();
+IntOperand* BinaryOp<Operator::DIV>::eval();
 template<>
-Operator::ValueType BinaryOp<Operator::MOD>::eval();
+IntOperand* BinaryOp<Operator::MOD>::eval();
 template<>
-Operator::ValueType BinaryOp<Operator::ADD>::eval();
+IntOperand* BinaryOp<Operator::ADD>::eval();
 template<>
-Operator::ValueType BinaryOp<Operator::SUB>::eval();
+IntOperand* BinaryOp<Operator::SUB>::eval();
 template<>
-Operator::ValueType BinaryOp<Operator::LSHIFT>::eval();
+IntOperand* BinaryOp<Operator::LSHIFT>::eval();
 template<>
-Operator::ValueType BinaryOp<Operator::RSHIFT>::eval();
+IntOperand* BinaryOp<Operator::RSHIFT>::eval();
 template<>
-Operator::ValueType BinaryOp<Operator::LT>::eval();
+IntOperand* BinaryOp<Operator::LT>::eval();
 template<>
-Operator::ValueType BinaryOp<Operator::LE>::eval();
+IntOperand* BinaryOp<Operator::LE>::eval();
 template<>
-Operator::ValueType BinaryOp<Operator::GT>::eval();
+IntOperand* BinaryOp<Operator::GT>::eval();
 template<>
-Operator::ValueType BinaryOp<Operator::GE>::eval();
+IntOperand* BinaryOp<Operator::GE>::eval();
 template<>
-Operator::ValueType BinaryOp<Operator::EQ>::eval();
+IntOperand* BinaryOp<Operator::EQ>::eval();
 template<>
-Operator::ValueType BinaryOp<Operator::NE>::eval();
+IntOperand* BinaryOp<Operator::NE>::eval();
 template<>
-Operator::ValueType BinaryOp<Operator::BITWISE_AND>::eval();
+IntOperand* BinaryOp<Operator::BITWISE_AND>::eval();
 template<>
-Operator::ValueType BinaryOp<Operator::BITWISE_XOR>::eval();
+IntOperand* BinaryOp<Operator::BITWISE_XOR>::eval();
 template<>
-Operator::ValueType BinaryOp<Operator::BITWISE_OR>::eval();
+IntOperand* BinaryOp<Operator::BITWISE_OR>::eval();
 template<>
-Operator::ValueType BinaryOp<Operator::LOGICAL_AND>::eval();
+IntOperand* BinaryOp<Operator::LOGICAL_AND>::eval();
 template<>
-Operator::ValueType BinaryOp<Operator::LOGICAL_OR>::eval();
-template<>
-Operator::ValueType BinaryOp<Operator::ASSIGN>::eval();
-template<>
-Operator::ValueType BinaryOp<Operator::ADD_ASSIGN>::eval();
-template<>
-Operator::ValueType BinaryOp<Operator::SUB_ASSIGN>::eval();
-template<>
-Operator::ValueType BinaryOp<Operator::MUL_ASSIGN>::eval();
-template<>
-Operator::ValueType BinaryOp<Operator::DIV_ASSIGN>::eval();
-template<>
-Operator::ValueType BinaryOp<Operator::AND_ASSIGN>::eval();
-template<>
-Operator::ValueType BinaryOp<Operator::OR_ASSIGN>::eval();
-template<>
-Operator::ValueType BinaryOp<Operator::LS_ASSIGN>::eval();
-template<>
-Operator::ValueType BinaryOp<Operator::RS_ASSIGN>::eval();
+IntOperand* BinaryOp<Operator::LOGICAL_OR>::eval();
 
 } // namespace of mcld
 

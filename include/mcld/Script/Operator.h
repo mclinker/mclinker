@@ -14,11 +14,12 @@
 
 #include <mcld/Script/ExprToken.h>
 #include <llvm/Support/DataTypes.h>
-#include <vector>
-#include <cassert>
 
 namespace mcld
 {
+
+class Operand;
+class IntOperand;
 
 /** \class Operator
  *  \brief This class defines the interfaces to an operator token.
@@ -27,8 +28,6 @@ namespace mcld
 class Operator : public ExprToken
 {
 public:
-  typedef uint64_t ValueType;
-
   enum Arity {
     Unary,
     Binary,
@@ -73,13 +72,13 @@ public:
   static const char* OpNames[];
 
 protected:
-  Operator(Arity pArity, Type pType)
-    : ExprToken(ExprToken::OPERATOR), m_Arity(pArity), m_Type(pType)
-  {}
+  Operator(Arity pArity, Type pType);
+
+  const IntOperand* result() const { return m_pIntOperand; }
+  IntOperand*       result()       { return m_pIntOperand; }
 
 public:
-  virtual ~Operator()
-  {}
+  virtual ~Operator();
 
   Arity arity() const { return m_Arity; }
 
@@ -87,9 +86,9 @@ public:
 
   virtual void dump() const;
 
-  virtual ValueType eval() = 0;
+  virtual IntOperand* eval() = 0;
 
-  virtual void appendOperand(ValueType pValue) = 0;
+  virtual void appendOperand(Operand* pOperand) = 0;
 
   static bool classof(const ExprToken* pToken)
   {
@@ -102,6 +101,7 @@ public:
 private:
   Arity m_Arity;
   Type m_Type;
+  IntOperand* m_pIntOperand;
 };
 
 /* Unary operator */
@@ -151,24 +151,6 @@ template<>
 Operator& Operator::create<Operator::LOGICAL_AND>();
 template<>
 Operator& Operator::create<Operator::LOGICAL_OR>();
-template<>
-Operator& Operator::create<Operator::ASSIGN>();
-template<>
-Operator& Operator::create<Operator::ADD_ASSIGN>();
-template<>
-Operator& Operator::create<Operator::SUB_ASSIGN>();
-template<>
-Operator& Operator::create<Operator::MUL_ASSIGN>();
-template<>
-Operator& Operator::create<Operator::DIV_ASSIGN>();
-template<>
-Operator& Operator::create<Operator::AND_ASSIGN>();
-template<>
-Operator& Operator::create<Operator::OR_ASSIGN>();
-template<>
-Operator& Operator::create<Operator::LS_ASSIGN>();
-template<>
-Operator& Operator::create<Operator::RS_ASSIGN>();
 
 /* Ternary operator */
 template<>

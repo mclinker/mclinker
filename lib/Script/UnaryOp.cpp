@@ -7,34 +7,42 @@
 //
 //===----------------------------------------------------------------------===//
 #include <mcld/Script/UnaryOp.h>
-#include <mcld/Support/raw_ostream.h>
+#include <mcld/Script/Operand.h>
 
 using namespace mcld;
 //===----------------------------------------------------------------------===//
 // UnaryOp
 //===----------------------------------------------------------------------===//
 template<>
-Operator::ValueType UnaryOp<Operator::UNARY_PLUS>::eval()
+IntOperand* UnaryOp<Operator::UNARY_PLUS>::eval()
 {
-  return + m_Operand;
+  IntOperand* res = result();
+  res->setValue(+ m_pOperand->value());
+  return res;
 }
 
 template<>
-Operator::ValueType UnaryOp<Operator::UNARY_MINUS>::eval()
+IntOperand* UnaryOp<Operator::UNARY_MINUS>::eval()
 {
-  return - m_Operand;
+  IntOperand* res = result();
+  res->setValue(- m_pOperand->value());
+  return res;
 }
 
 template<>
-Operator::ValueType UnaryOp<Operator::LOGICAL_NOT>::eval()
+IntOperand* UnaryOp<Operator::LOGICAL_NOT>::eval()
 {
-  return ! m_Operand;
+  IntOperand* res = result();
+  res->setValue(! m_pOperand->value());
+  return res;
 }
 
 template<>
-Operator::ValueType UnaryOp<Operator::BITWISE_NOT>::eval()
+IntOperand* UnaryOp<Operator::BITWISE_NOT>::eval()
 {
-  return ~ m_Operand;
+  IntOperand* res = result();
+  res->setValue(~ m_pOperand->value());
+  return res;
 }
 
 

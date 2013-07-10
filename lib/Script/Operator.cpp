@@ -10,6 +10,7 @@
 #include <mcld/Script/UnaryOp.h>
 #include <mcld/Script/BinaryOp.h>
 #include <mcld/Script/TernaryOp.h>
+#include <mcld/Script/Operand.h>
 #include <mcld/Support/raw_ostream.h>
 
 using namespace mcld;
@@ -51,9 +52,21 @@ const char* Operator::OpNames[] = {
   ">>="
 };
 
+Operator::Operator(Arity pArity, Type pType)
+  : ExprToken(ExprToken::OPERATOR),
+    m_Arity(pArity),
+    m_Type(pType)
+{
+  m_pIntOperand = IntOperand::create(0);
+}
+
+Operator::~Operator()
+{
+}
+
 void Operator::dump() const
 {
-  mcld::outs() << OpNames[type()] << " ";
+  mcld::outs() << OpNames[type()];
 }
 
 template<>
@@ -207,69 +220,6 @@ template<>
 Operator& Operator::create<Operator::LOGICAL_OR>()
 {
   static BinaryOp<Operator::LOGICAL_OR> op;
-  return op;
-}
-
-template<>
-Operator& Operator::create<Operator::ASSIGN>()
-{
-  static BinaryOp<Operator::ASSIGN> op;
-  return op;
-}
-
-template<>
-Operator& Operator::create<Operator::ADD_ASSIGN>()
-{
-  static BinaryOp<Operator::ADD_ASSIGN> op;
-  return op;
-}
-
-template<>
-Operator& Operator::create<Operator::SUB_ASSIGN>()
-{
-  static BinaryOp<Operator::SUB_ASSIGN> op;
-  return op;
-}
-
-template<>
-Operator& Operator::create<Operator::MUL_ASSIGN>()
-{
-  static BinaryOp<Operator::MUL_ASSIGN> op;
-  return op;
-}
-
-template<>
-Operator& Operator::create<Operator::DIV_ASSIGN>()
-{
-  static BinaryOp<Operator::DIV_ASSIGN> op;
-  return op;
-}
-
-template<>
-Operator& Operator::create<Operator::AND_ASSIGN>()
-{
-  static BinaryOp<Operator::AND_ASSIGN> op;
-  return op;
-}
-
-template<>
-Operator& Operator::create<Operator::OR_ASSIGN>()
-{
-  static BinaryOp<Operator::OR_ASSIGN> op;
-  return op;
-}
-
-template<>
-Operator& Operator::create<Operator::LS_ASSIGN>()
-{
-  static BinaryOp<Operator::LS_ASSIGN> op;
-  return op;
-}
-
-template<>
-Operator& Operator::create<Operator::RS_ASSIGN>()
-{
-  static BinaryOp<Operator::RS_ASSIGN> op;
   return op;
 }
 

@@ -14,74 +14,100 @@
 
 using namespace mcld;
 
-typedef GCFactory<Operand, MCLD_SYMBOLS_PER_INPUT> OperandFactory;
-static llvm::ManagedStatic<OperandFactory> g_OperandFactory;
-
 //===----------------------------------------------------------------------===//
 // Operand
 //===----------------------------------------------------------------------===//
-Operand::Operand()
-  : ExprToken(ExprToken::OPERAND), m_Type(UNKNOWN)
-{
-}
-
-Operand::Operand(Type pType, const std::string& pValue)
+Operand::Operand(Type pType)
   : ExprToken(ExprToken::OPERAND), m_Type(pType)
 {
-  m_Data.strVal = &pValue;
-}
-
-Operand::Operand(uint64_t pValue)
-  : ExprToken(ExprToken::OPERAND), m_Type(INTEGER)
-{
-  m_Data.intVal = pValue;
 }
 
 Operand::~Operand()
 {
 }
 
-void Operand::dump() const
+//===----------------------------------------------------------------------===//
+// SymOperand
+//===----------------------------------------------------------------------===//
+typedef GCFactory<SymOperand, MCLD_SYMBOLS_PER_INPUT> SymOperandFactory;
+static llvm::ManagedStatic<SymOperandFactory> g_SymOperandFactory;
+
+SymOperand::SymOperand()
+  : Operand(Operand::SYMBOL)
 {
-  switch (type()) {
-  case SYMBOL:
-  case SECTION:
-  case DOT:
-    mcld::outs() << *(m_Data.strVal) << " ";
-    break;
-  case INTEGER:
-    mcld::outs() << m_Data.intVal << " ";
-    break;
-  case UNKNOWN:
-  default:
-    assert(0 && "Invalid Operand!");
-    break;
-  }
 }
 
-Operand* Operand::create(uint64_t pValue)
+SymOperand::SymOperand(const std::string& pName)
+  : Operand(Operand::SYMBOL), m_Name(pName)
 {
-  Operand* result = g_OperandFactory->allocate();
-  new (result) Operand(pValue);
+}
+
+void SymOperand::dump() const
+{
+  mcld::outs() << m_Name;
+}
+
+bool SymOperand::isDot() const
+{
+  assert(!m_Name.empty());
+  return m_Name.size() == 1 && m_Name[0] == '.';
+}
+
+SymOperand* SymOperand::create(const std::string& pName)
+{
+  SymOperand* result = g_SymOperandFactory->allocate();
+  new (result) SymOperand(pName);
   return result;
 }
 
-Operand* Operand::create(Type pType, const std::string& pValue)
+void SymOperand::destroy(SymOperand*& pOperand)
 {
-  Operand* result = g_OperandFactory->allocate();
-  new (result) Operand(pType, pValue);
-  return result;
-}
-
-void Operand::destroy(Operand*& pOperand)
-{
-  g_OperandFactory->destroy(pOperand);
-  g_OperandFactory->deallocate(pOperand);
+  g_SymOperandFactory->destroy(pOperand);
+  g_SymOperandFactory->deallocate(pOperand);
   pOperand = NULL;
 }
 
-void Operand::clear()
+void SymOperand::clear()
 {
-  g_OperandFactory->clear();
+  g_SymOperandFactory->clear();
 }
 
+//===----------------------------------------------------------------------===//
+// IntOperand
+//===----------------------------------------------------------------------===//
+typedef GCFactory<IntOperand, MCLD_SYMBOLS_PER_INPUT> IntOperandFactory;
+static llvm::ManagedStatic<IntOperandFactory> g_IntOperandFactory;
+
+IntOperand::IntOperand()
+  : Operand(Operand::INTEGER)
+{
+}
+
+IntOperand::IntOperand(uint64_t pValue)
+  : Operand(Operand::INTEGER), m_Value(pValue)
+{
+}
+
+void IntOperand::dump() const
+{
+  mcld::outs() << m_Value;
+}
+
+IntOperand* IntOperand::create(uint64_t pValue)
+{
+  IntOperand* result = g_IntOperandFactory->allocate();
+  new (result) IntOperand(pValue);
+  return result;
+}
+
+void IntOperand::destroy(IntOperand*& pOperand)
+{
+  g_IntOperandFactory->destroy(pOperand);
+  g_IntOperandFactory->deallocate(pOperand);
+  pOperand = NULL;
+}
+
+void IntOperand::clear()
+{
+  g_IntOperandFactory->clear();
+}

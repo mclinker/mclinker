@@ -143,8 +143,10 @@ void ScriptFile::addAssignment(LinkerScript& pLDScript,
                                Assignment::Type pType)
 {
   Assignment* assignment =
-    new Assignment(pLDScript, pType,
-                   *(Operand::create(Operand::SYMBOL, pSymbolName)), pRpnExpr);
+    new Assignment(pLDScript,
+                   pType,
+                   *(SymOperand::create(pSymbolName)),
+                   pRpnExpr);
 
   if (m_InSectionsCmd) {
     assert(!m_CommandQueue.empty());

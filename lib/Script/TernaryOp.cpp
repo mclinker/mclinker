@@ -7,14 +7,20 @@
 //
 //===----------------------------------------------------------------------===//
 #include <mcld/Script/TernaryOp.h>
+#include <mcld/Script/Operand.h>
 
 using namespace mcld;
 //===----------------------------------------------------------------------===//
 // TernaryOp
 //===----------------------------------------------------------------------===//
 template<>
-Operator::ValueType TernaryOp<Operator::TERNARY_IF>::eval()
+IntOperand* TernaryOp<Operator::TERNARY_IF>::eval()
 {
-  return m_Operand[0] ? m_Operand[1] : m_Operand[2];
+  IntOperand* res = result();
+  if (m_pOperand[0]->value())
+    res->setValue(m_pOperand[1]->value());
+  else
+    res->setValue(m_pOperand[2]->value());
+  return res;
 }
 

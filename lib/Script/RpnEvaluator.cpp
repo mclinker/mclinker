@@ -28,7 +28,7 @@ RpnEvaluator::RpnEvaluator(const Module& pModule)
 
 bool RpnEvaluator::eval(const RpnExpr& pExpr, uint64_t& pResult)
 {
-  std::stack<uint64_t> operandStack;
+  std::stack<Operand*> operandStack;
   for (RpnExpr::const_iterator it = pExpr.begin(), ie = pExpr.end(); it != ie;
     ++it) {
     switch((*it)->kind()) {
@@ -36,16 +36,16 @@ bool RpnEvaluator::eval(const RpnExpr& pExpr, uint64_t& pResult)
       Operator* op = llvm::cast<Operator>(*it);
       switch (op->arity()) {
       case Operator::Unary: {
-        uint64_t opd = operandStack.top();
+        Operand* opd = operandStack.top();
         operandStack.pop();
         op->appendOperand(opd);
         operandStack.push(op->eval());
         break;
       }
       case Operator::Binary: {
-        uint64_t opd2 = operandStack.top();
+        Operand* opd2 = operandStack.top();
         operandStack.pop();
-        uint64_t opd1 = operandStack.top();
+        Operand* opd1 = operandStack.top();
         operandStack.pop();
         op->appendOperand(opd1);
         op->appendOperand(opd2);
@@ -53,11 +53,11 @@ bool RpnEvaluator::eval(const RpnExpr& pExpr, uint64_t& pResult)
         break;
       }
       case Operator::Ternary: {
-        uint64_t opd3 = operandStack.top();
+        Operand* opd3 = operandStack.top();
         operandStack.pop();
-        uint64_t opd2 = operandStack.top();
+        Operand* opd2 = operandStack.top();
         operandStack.pop();
-        uint64_t opd1 = operandStack.top();
+        Operand* opd1 = operandStack.top();
         operandStack.pop();
         op->appendOperand(opd1);
         op->appendOperand(opd2);
@@ -68,7 +68,7 @@ bool RpnEvaluator::eval(const RpnExpr& pExpr, uint64_t& pResult)
       default:
         assert(0 && "Unsupport operator!");
         break;
-      }
+      } // end of switch operator arity
       break;
     }
 
@@ -76,31 +76,30 @@ bool RpnEvaluator::eval(const RpnExpr& pExpr, uint64_t& pResult)
       Operand* opd = llvm::cast<Operand>(*it);
       switch (opd->type()) {
       case Operand::SYMBOL: {
-        const LDSymbol* symbol =
-          m_Module.getNamePool().findSymbol(opd->strVal());
-        if (symbol == NULL) {
-          fatal(diag::fail_sym_resolution) << __FILE__ << __LINE__
-                                           << "mclinker@googlegroups.com";
+        if (!opd->isDOT()) {
+          SymOperand* sym_opd = llvm::cast<SymOperand>(opd);
+          const LDSymbol* symbol =
+            m_Module.getNamePool().findSymbol(sym_opd->name());
+          if (symbol == NULL) {
+            fatal(diag::fail_sym_resolution) << __FILE__ << __LINE__
+                                             << "mclinker@googlegroups.com";
+          }
+          sym_opd->setValue(symbol->value());
         }
-        operandStack.push(symbol->value());
-        break;
       }
-      case Operand::INTEGER:
-        operandStack.push(opd->intVal());
-        break;
-      case Operand::SECTION:
-      case Operand::DOT:
+      // fall through
       default:
-        assert(0 && "Unsupport operand!");
+        operandStack.push(opd);
         break;
-      }
+      } // end of switch operand type
       break;
     }
 
     } // end of switch
   } // end of for
+
   // stack top is result
-  pResult = operandStack.top();
+  pResult = operandStack.top()->value();
   return true;
 }
 

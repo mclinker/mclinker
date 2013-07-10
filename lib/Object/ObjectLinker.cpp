@@ -361,7 +361,8 @@ bool ObjectLinker::addScriptSymbols()
   // go through the entire symbol assignments
   for (it = script.assignments().begin(); it != ie; ++it) {
     LDSymbol* symbol = NULL;
-    const llvm::StringRef symName =  (*it).second.symbol().strVal();
+    assert((*it).second.symbol().type() == Operand::SYMBOL);
+    const llvm::StringRef symName =  (*it).second.symbol().name();
     ResolveInfo::Type       type = ResolveInfo::NoType;
     ResolveInfo::Visibility vis  = ResolveInfo::Default;
     size_t size = 0;

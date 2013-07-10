@@ -30,50 +30,98 @@ class Operand : public ExprToken
 public:
   enum Type {
     SYMBOL,
-    SECTION,
-    INTEGER,
-    DOT,
-    UNKNOWN
+    INTEGER
   };
 
-private:
-  friend class Chunk<Operand, MCLD_SYMBOLS_PER_INPUT>;
-  Operand();
-  Operand(uint64_t pValue);
-  Operand(Type pType, const std::string& pValue);
+protected:
+  Operand(Type pType);
+  virtual ~Operand();
 
 public:
-  ~Operand();
-
   Type type() const { return m_Type; }
 
-  void dump() const;
+  virtual bool isDOT() const { return false; }
 
-  const std::string& strVal() const { return *(m_Data.strVal); }
+  virtual uint64_t value() const = 0;
 
-  uint64_t intVal() const { return m_Data.intVal; }
+  virtual void setValue(uint64_t pValue) = 0;
 
   static bool classof(const ExprToken* pToken)
   {
     return pToken->kind() == ExprToken::OPERAND;
   }
 
+private:
+  Type m_Type;
+};
+
+/** \class SymOperand
+ *  \brief This class defines the interfaces to a symbol operand.
+ */
+
+class SymOperand : public Operand
+{
+private:
+  friend class Chunk<SymOperand, MCLD_SYMBOLS_PER_INPUT>;
+  SymOperand();
+  SymOperand(const std::string& pName);
+
+public:
+  void dump() const;
+
+  const std::string& name() const { return m_Name; }
+
+  bool isDot() const;
+
+  uint64_t value() const { return m_Value; }
+
+  void setValue(uint64_t pValue) { m_Value = pValue; }
+
+  static bool classof(const Operand* pOperand)
+  {
+    return pOperand->type() == Operand::SYMBOL;
+  }
+
   /* factory method */
-  static Operand* create(uint64_t pValue);
-  static Operand* create(Type pType, const std::string& pValue);
-  static void destroy(Operand*& pOperand);
+  static SymOperand* create(const std::string& pName);
+  static void destroy(SymOperand*& pOperand);
   static void clear();
 
 private:
-  union Data
+  std::string m_Name;
+  uint64_t m_Value;
+};
+
+/** \class IntOperand
+ *  \brief This class defines the interfaces to an integer operand.
+ */
+
+class IntOperand : public Operand
+{
+private:
+  friend class Chunk<IntOperand, MCLD_SYMBOLS_PER_INPUT>;
+  IntOperand();
+  IntOperand(uint64_t pValue);
+
+public:
+  void dump() const;
+
+  uint64_t value() const { return m_Value; }
+
+  void setValue(uint64_t pValue) { m_Value = pValue; }
+
+  static bool classof(const Operand* pOperand)
   {
-    const std::string* strVal;
-    uint64_t intVal;
-  };
+    return pOperand->type() == Operand::INTEGER;
+  }
+
+  /* factory method */
+  static IntOperand* create(uint64_t pValue);
+  static void destroy(IntOperand*& pOperand);
+  static void clear();
 
 private:
-  Type m_Type;
-  Data m_Data;
+  uint64_t m_Value;
 };
 
 } // namespace of mcld

@@ -13,9 +13,13 @@
 #endif
 
 #include <mcld/Script/Operator.h>
+#include <cstddef>
 
 namespace mcld
 {
+
+class Operand;
+class IntOperand;
 
 /** \class UnaryOp
  *  \brief This class defines the interfaces to an unary operator token.
@@ -28,36 +32,32 @@ private:
   friend class Operator;
 
   UnaryOp()
-    : Operator(Operator::Unary, TYPE), m_Operand(0)
-  {
-  }
+    : Operator(Operator::Unary, TYPE), m_pOperand(NULL)
+  {}
 
 public:
   ~UnaryOp()
   {}
 
-  Operator::ValueType eval();
+  IntOperand* eval();
 
-  void appendOperand(Operator::ValueType pValue)
+  void appendOperand(Operand* pOperand)
   {
-    m_Operand = pValue;
+    m_pOperand = pOperand;
   }
 
 private:
-  ValueType m_Operand;
+  Operand* m_pOperand;
 };
 
 template<>
-Operator::ValueType UnaryOp<Operator::UNARY_PLUS>::eval();
-
+IntOperand* UnaryOp<Operator::UNARY_PLUS>::eval();
 template<>
-Operator::ValueType  UnaryOp<Operator::UNARY_MINUS>::eval();
-
+IntOperand* UnaryOp<Operator::UNARY_MINUS>::eval();
 template<>
-Operator::ValueType UnaryOp<Operator::LOGICAL_NOT>::eval();
-
+IntOperand* UnaryOp<Operator::LOGICAL_NOT>::eval();
 template<>
-Operator::ValueType UnaryOp<Operator::BITWISE_NOT>::eval();
+IntOperand* UnaryOp<Operator::BITWISE_NOT>::eval();
 
 } // namespace of mcld
 

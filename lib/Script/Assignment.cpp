@@ -20,7 +20,7 @@ using namespace mcld;
 //===----------------------------------------------------------------------===//
 Assignment::Assignment(LinkerScript& pScript,
                        Type pType,
-                       Operand& pSymbol,
+                       SymOperand& pSymbol,
                        RpnExpr& pRpnExpr)
   : ScriptCommand(ScriptCommand::ASSIGNMENT),
     m_Script(pScript),
@@ -59,7 +59,7 @@ void Assignment::dump() const
 
   m_Symbol.dump();
 
-  mcld::outs() << "= ";
+  mcld::outs() << " = ";
 
   m_RpnExpr.dump();
 
@@ -77,9 +77,6 @@ void Assignment::activate()
     m_Script.assignments().push_back(std::make_pair(sym, *this));
     break;
   }
-  case Operand::DOT:
-    // TODO
-    break;
   default:
     assert(0 && "Vaild lvalue required as left operand of assignment!");
     break;

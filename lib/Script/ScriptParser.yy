@@ -678,9 +678,9 @@ exp : '(' exp ')'
     | CONSTANT '(' MAXPAGESIZE ')'
     | CONSTANT '(' COMMONPAGESIZE')'
     | INTEGER
-      { m_pRpnExpr->push_back(Operand::create($1)); }
+      { m_pRpnExpr->push_back(IntOperand::create($1)); }
     | symbol
-      { m_pRpnExpr->push_back(Operand::create(Operand::SYMBOL, *$1)); }
+      { m_pRpnExpr->push_back(SymOperand::create(*$1)); }
     ;
 
 symbol : STRING
