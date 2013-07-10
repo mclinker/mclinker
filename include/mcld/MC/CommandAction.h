@@ -15,11 +15,13 @@
 #include <string>
 #include <mcld/Support/Path.h>
 #include <mcld/MC/InputAction.h>
+#include <mcld/Script/ScriptFile.h>
 
 namespace mcld {
 
 class SearchDirs;
 class InputBuilder;
+class LinkerConfig;
 
 //===----------------------------------------------------------------------===//
 // Derived InputAction
@@ -171,6 +173,29 @@ public:
 
 private:
   std::string& m_Assignment;
+};
+
+/// ScriptAction
+class ScriptAction : public InputAction
+{
+public:
+  explicit ScriptAction(unsigned int pPosition,
+                        const std::string& pFileName,
+                        ScriptFile::Kind pKind,
+                        SearchDirs& pSearchDirs,
+                        LinkerConfig& pLDConfig);
+
+  bool activate(InputBuilder&) const;
+
+  const std::string& filename() const { return m_FileName; }
+
+  ScriptFile::Kind kind() const { return m_Kind; }
+
+private:
+  std::string m_FileName;
+  ScriptFile::Kind m_Kind;
+  SearchDirs& m_SearchDirs;
+  LinkerConfig& m_LDConfig;
 };
 
 } // end of namespace mcld
