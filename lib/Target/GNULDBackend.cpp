@@ -1886,7 +1886,7 @@ void GNULDBackend::createProgramHdrs(Module& pModule)
   ELFSegment *note_seg = NULL;
   prev_flag = 0x0;
   for (sect = pModule.begin(); sect != sect_end; ++sect) {
-    if ((*sect)->kind() != LDFileFormat::Note ||
+    if ((*sect)->type() != llvm::ELF::SHT_NOTE ||
         ((*sect)->flag() & llvm::ELF::SHF_ALLOC) == 0)
       continue;
 
