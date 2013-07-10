@@ -1352,7 +1352,7 @@ unsigned int GNULDBackend::getSectionOrder(const LDSection& pSectHdr) const
 
   // NULL section should be the "1st" section
   if (LDFileFormat::Null == pSectHdr.kind())
-    return 0;
+    return SHO_NULL;
 
   if (&pSectHdr == &file_format->getStrTab())
     return SHO_STRTAB;
