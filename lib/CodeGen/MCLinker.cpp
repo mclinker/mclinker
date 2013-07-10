@@ -273,6 +273,18 @@ void MCLinker::initializeInputTree(IRBuilder& pBuilder)
   actions.reserve(num_actions);
 
   // -----  scripts  ----- //
+  /// -T
+  if (m_Config.options().hasDefaultLDScript()) {
+    actions.push_back(new ScriptAction(0x0,
+                                       m_Config.options().defaultLDScript(),
+                                       ScriptFile::LDScript,
+                                       m_Module.getScript().directories(),
+                                       m_Config));
+    actions.push_back(new ContextAction(0x0));
+    actions.push_back(new MemoryAreaAction(0x0, FileHandle::ReadOnly));
+  }
+
+  /// --defsym
   cl::list<std::string>::iterator defsym, dsBegin, dsEnd;
   dsBegin = ArgDefSymList.begin();
   dsEnd = ArgDefSymList.end();
