@@ -143,11 +143,11 @@ WS [ \t\r]
 <LDSCRIPT>"CONSTRUCTORS"               { return token::CONSTRUCTORS; }
  /* Output Section Attributes */
  /* Output Section Type */
-<LDSCRIPT>"NOLOAD"                     { return token::NOLOAD; }
-<LDSCRIPT>"DSECT"                      { return token::DSECT; }
-<LDSCRIPT>"COPY"                       { return token::COPY; }
-<LDSCRIPT>"INFO"                       { return token::INFO; }
-<LDSCRIPT>"OVERLAY"                    { return token::OVERLAY; }
+<LDSCRIPT,EXPRESSION>"NOLOAD"          { return token::NOLOAD; }
+<LDSCRIPT,EXPRESSION>"DSECT"           { return token::DSECT; }
+<LDSCRIPT,EXPRESSION>"COPY"            { return token::COPY; }
+<LDSCRIPT,EXPRESSION>"INFO"            { return token::INFO; }
+<LDSCRIPT,EXPRESSION>"OVERLAY"         { return token::OVERLAY; }
  /* Output Section LMA */
 <LDSCRIPT>"AT"                         { return token::AT; }
  /* Forced Input Alignment */
@@ -195,7 +195,7 @@ WS [ \t\r]
 <LDSCRIPT,EXPRESSION>"}"               { return static_cast<token_type>(*yytext); }
 
  /* Numbers */
-<EXPRESSION>((("$"|0[xX])([0-9A-Fa-f])+)|(([0-9])+))(M|K|m|k)? {
+<LDSCRIPT,EXPRESSION>((("$"|0[xX])([0-9A-Fa-f])+)|(([0-9])+))(M|K|m|k)? {
   llvm::StringRef str(yytext, yyleng);
   switch (str.back()) {
   case 'k':
