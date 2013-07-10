@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_STRING_LIST_INTERFACE_H
-#define MCLD_STRING_LIST_INTERFACE_H
+#ifndef MCLD_SCRIPT_STRING_LIST_INTERFACE_H
+#define MCLD_SCRIPT_STRING_LIST_INTERFACE_H
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif
