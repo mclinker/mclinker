@@ -45,19 +45,19 @@ void OutputSectDesc::dump() const
 
   switch (m_Prolog.type()) {
   case NOLOAD:
-    mcld::outs() << "NOLOAD";
+    mcld::outs() << "(NOLOAD)";
     break;
   case DSECT:
-    mcld::outs() << "DSECT";
+    mcld::outs() << "(DSECT)";
     break;
   case COPY:
-    mcld::outs() << "COPY";
+    mcld::outs() << "(COPY)";
     break;
   case INFO:
-    mcld::outs() << "INFO";
+    mcld::outs() << "(INFO)";
     break;
   case OVERLAY:
-    mcld::outs() << "OVERLAY";
+    mcld::outs() << "(OVERLAY)";
     break;
   default:
     break;
