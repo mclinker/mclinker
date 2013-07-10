@@ -170,11 +170,6 @@ public:
   virtual unsigned int getTargetSectionOrder(const LDSection& pSectHdr) const
   { return (unsigned int)-1; }
 
-  /// numOfSegments - return the number of segments
-  /// if the target favors other ways to emit program header, please override
-  /// this function
-  size_t numOfSegments() const { return m_ELFSegmentTable.size(); }
-
   /// elfSegmentTable - return the reference of the elf segment table
   ELFSegmentFactory&       elfSegmentTable()       { return m_ELFSegmentTable; }
 

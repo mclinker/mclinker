@@ -639,7 +639,7 @@ void ARMGNULDBackend::doCreateProgramHdrs(Module& pModule)
      // make PT_ARM_EXIDX
      ELFSegment* exidx_seg = elfSegmentTable().produce(llvm::ELF::PT_ARM_EXIDX,
                                                        llvm::ELF::PF_R);
-     exidx_seg->addSection(m_pEXIDX);
+     exidx_seg->append(m_pEXIDX);
    }
 }
 

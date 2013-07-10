@@ -11,33 +11,51 @@
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif
-#include <mcld/Support/GCFactory.h>
-#include <mcld/LD/ELFSegment.h>
+
+#include <llvm/Support/DataTypes.h>
+#include <llvm/Support/ELF.h>
 
 namespace mcld
 {
 
+class ELFSegment;
+
 /** \class ELFSegmentFactory
  *  \brief provide the interface to create and delete an ELFSegment
  */
-class ELFSegmentFactory : public GCFactory<ELFSegment, 0>
+class ELFSegmentFactory
 {
 public:
-  /// ELFSegmentFactory - the factory of ELFSegment
-  /// pNum is the magic number of the ELF segments in the output
-  ELFSegmentFactory(size_t pNum);
-  ~ELFSegmentFactory();
+  typedef std::vector<ELFSegment*> Segments;
+  typedef Segments::const_iterator const_iterator;
+  typedef Segments::iterator iterator;
+
+  const_iterator begin() const { return m_Segments.begin(); }
+  iterator       begin()       { return m_Segments.begin(); }
+  const_iterator end()   const { return m_Segments.end(); }
+  iterator       end()         { return m_Segments.end(); }
+
+  const ELFSegment* front() const { return m_Segments.front(); }
+  ELFSegment*       front()       { return m_Segments.front(); }
+  const ELFSegment* back()  const { return m_Segments.back(); }
+  ELFSegment*       back()        { return m_Segments.back(); }
+
+  size_t size() const { return m_Segments.size(); }
+
+  bool empty() const { return m_Segments.empty(); }
+
+  iterator find(uint32_t pType, uint32_t pFlagSet, uint32_t pFlagClear);
+
+  const_iterator
+  find(uint32_t pType, uint32_t pFlagSet, uint32_t pFlagClear) const;
 
   /// produce - produce an empty ELF segment information.
   /// this function will create an ELF segment
   /// @param pType - p_type in ELF program header
   ELFSegment* produce(uint32_t pType, uint32_t pFlag = llvm::ELF::PF_R);
 
-  ELFSegment*
-  find(uint32_t pType, uint32_t pFlagSet, uint32_t pFlagClear);
-
-  const ELFSegment*
-  find(uint32_t pType, uint32_t pFlagSet, uint32_t pFlagClear) const;
+private:
+  Segments m_Segments;
 };
 
 } // namespace of mcld

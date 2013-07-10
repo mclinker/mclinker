@@ -1133,11 +1133,14 @@ X86Relocator::Result tls_le(Relocation& pReloc, X86_32Relocator& pParent)
 
   // perform static relocation
   // get TLS segment
-  ELFSegment* tls_seg = pParent.getTarget().elfSegmentTable().find(
-                                       llvm::ELF::PT_TLS, llvm::ELF::PF_R, 0x0);
+  ELFSegmentFactory::const_iterator tls_seg =
+    pParent.getTarget().elfSegmentTable().find(llvm::ELF::PT_TLS,
+                                               llvm::ELF::PF_R,
+                                               0x0);
+  assert(tls_seg != pParent.getTarget().elfSegmentTable().end());
   Relocator::DWord A = pReloc.target() + pReloc.addend();
   X86Relocator::Address S = pReloc.symValue();
-  pReloc.target() = S + A - tls_seg->memsz();
+  pReloc.target() = S + A - (*tls_seg)->memsz();
   return X86Relocator::OK;
 }
 

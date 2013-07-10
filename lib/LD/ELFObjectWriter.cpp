@@ -144,9 +144,9 @@ llvm::error_code ELFObjectWriter::writeObject(Module& pModule,
     ELFSegmentFactory::iterator seg, segEnd = target().elfSegmentTable().end();
 
     for (seg = target().elfSegmentTable().begin(); seg != segEnd; ++seg) {
-      if (llvm::ELF::PT_LOAD == (*seg).type()) {
-        ELFSegment::sect_iterator sect, sectEnd = (*seg).end();
-        for (sect = (*seg).begin(); sect != sectEnd; ++sect)
+      if (llvm::ELF::PT_LOAD == (*seg)->type()) {
+        ELFSegment::iterator sect, sectEnd = (*seg)->end();
+        for (sect = (*seg)->begin(); sect != sectEnd; ++sect)
           writeSection(pOutput, *sect);
       }
     }
@@ -235,7 +235,7 @@ void ELFObjectWriter::writeELFHeader(const LinkerConfig& pConfig,
   header->e_flags     = target().getInfo().flags();
   header->e_ehsize    = sizeof(ElfXX_Ehdr);
   header->e_phentsize = sizeof(ElfXX_Phdr);
-  header->e_phnum     = target().numOfSegments();
+  header->e_phnum     = target().elfSegmentTable().size();
   header->e_shentsize = sizeof(ElfXX_Shdr);
   header->e_shnum     = pModule.size();
   header->e_shstrndx  = pModule.getSection(".shstrtab")->index();
@@ -334,8 +334,9 @@ void ELFObjectWriter::emitProgramHeader(MemoryArea& pOutput) const
   start_offset = sizeof(ElfXX_Ehdr);
   phdr_size = sizeof(ElfXX_Phdr);
   // Program header must start directly after ELF header
-  MemoryRegion *region = pOutput.request(start_offset,
-                                         target().numOfSegments() * phdr_size);
+  MemoryRegion *region =
+    pOutput.request(start_offset,
+                    target().elfSegmentTable().size() * phdr_size);
 
   ElfXX_Phdr* phdr = (ElfXX_Phdr*)region->start();
 
@@ -344,14 +345,14 @@ void ELFObjectWriter::emitProgramHeader(MemoryArea& pOutput) const
   ELFSegmentFactory::const_iterator seg = target().elfSegmentTable().begin(),
                                  segEnd = target().elfSegmentTable().end();
   for (; seg != segEnd; ++seg, ++index) {
-    phdr[index].p_type   = (*seg).type();
-    phdr[index].p_flags  = (*seg).flag();
-    phdr[index].p_offset = (*seg).offset();
-    phdr[index].p_vaddr  = (*seg).vaddr();
-    phdr[index].p_paddr  = (*seg).paddr();
-    phdr[index].p_filesz = (*seg).filesz();
-    phdr[index].p_memsz  = (*seg).memsz();
-    phdr[index].p_align  = (*seg).align();
+    phdr[index].p_type   = (*seg)->type();
+    phdr[index].p_flags  = (*seg)->flag();
+    phdr[index].p_offset = (*seg)->offset();
+    phdr[index].p_vaddr  = (*seg)->vaddr();
+    phdr[index].p_paddr  = (*seg)->paddr();
+    phdr[index].p_filesz = (*seg)->filesz();
+    phdr[index].p_memsz  = (*seg)->memsz();
+    phdr[index].p_align  = (*seg)->align();
   }
 }
 
