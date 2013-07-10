@@ -14,6 +14,7 @@
 
 #include <llvm/Support/DataTypes.h>
 #include <llvm/Support/ELF.h>
+#include <vector>
 
 namespace mcld
 {
