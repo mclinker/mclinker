@@ -21,18 +21,18 @@ static llvm::ManagedStatic<OperandFactory> g_OperandFactory;
 // Operand
 //===----------------------------------------------------------------------===//
 Operand::Operand()
-  : ExprToken(ExprToken::Opd), m_Type(UNKNOWN)
+  : ExprToken(ExprToken::OPERAND), m_Type(UNKNOWN)
 {
 }
 
 Operand::Operand(Type pType, const std::string& pValue)
-  : ExprToken(ExprToken::Opd), m_Type(pType)
+  : ExprToken(ExprToken::OPERAND), m_Type(pType)
 {
   m_Data.strVal = &pValue;
 }
 
 Operand::Operand(uint64_t pValue)
-  : ExprToken(ExprToken::Opd), m_Type(INTEGER)
+  : ExprToken(ExprToken::OPERAND), m_Type(INTEGER)
 {
   m_Data.intVal = pValue;
 }

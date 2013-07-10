@@ -55,7 +55,7 @@ public:
 
   static bool classof(const ExprToken* pToken)
   {
-    return pToken->kind() == ExprToken::Opd;
+    return pToken->kind() == ExprToken::OPERAND;
   }
 
   /* factory method */

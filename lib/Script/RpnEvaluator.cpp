@@ -32,7 +32,7 @@ bool RpnEvaluator::eval(const RpnExpr& pExpr, uint64_t& pResult)
   for (RpnExpr::const_iterator it = pExpr.begin(), ie = pExpr.end(); it != ie;
     ++it) {
     switch((*it)->kind()) {
-    case ExprToken::Op: {
+    case ExprToken::OPERATOR: {
       Operator* op = llvm::cast<Operator>(*it);
       switch (op->arity()) {
       case Operator::Unary: {
@@ -72,7 +72,7 @@ bool RpnEvaluator::eval(const RpnExpr& pExpr, uint64_t& pResult)
       break;
     }
 
-    case ExprToken::Opd: {
+    case ExprToken::OPERAND: {
       Operand* opd = llvm::cast<Operand>(*it);
       switch (opd->type()) {
       case Operand::SYMBOL: {
@@ -97,12 +97,8 @@ bool RpnEvaluator::eval(const RpnExpr& pExpr, uint64_t& pResult)
       break;
     }
 
-    case ExprToken::Func:
-    default:
-      assert(0 && "Unsupport expression token!");
-      break;
-    }
-  }
+    } // end of switch
+  } // end of for
   // stack top is result
   pResult = operandStack.top();
   return true;

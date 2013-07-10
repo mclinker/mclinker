@@ -23,9 +23,8 @@ class ExprToken
 {
 public:
   enum Kind {
-    Op,
-    Opd,
-    Func
+    OPERATOR,
+    OPERAND
   };
 
 protected:

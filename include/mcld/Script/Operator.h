@@ -74,7 +74,7 @@ public:
 
 protected:
   Operator(Arity pArity, Type pType)
-    : ExprToken(ExprToken::Op), m_Arity(pArity), m_Type(pType)
+    : ExprToken(ExprToken::OPERATOR), m_Arity(pArity), m_Type(pType)
   {}
 
 public:
@@ -93,7 +93,7 @@ public:
 
   static bool classof(const ExprToken* pToken)
   {
-    return pToken->kind() == ExprToken::Op;
+    return pToken->kind() == ExprToken::OPERATOR;
   }
 
   template<Operator::Type TYPE>
