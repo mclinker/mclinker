@@ -13,8 +13,10 @@
 #include <mcld/Script/ExprToken.h>
 #include <mcld/Script/Operator.h>
 #include <mcld/Script/Operand.h>
+#include <mcld/Module.h>
 #include <llvm/Support/Casting.h>
 #include <llvm/Support/DataTypes.h>
+#include <stack>
 #include <cassert>
 
 using namespace mcld;
@@ -24,7 +26,7 @@ RpnEvaluator::RpnEvaluator(const Module& pModule)
 {
 }
 
-bool RpnEvaluator::eval(const RpnExpr& pExpr, uint64_t& pSymVal)
+bool RpnEvaluator::eval(const RpnExpr& pExpr, uint64_t& pResult)
 {
   std::stack<uint64_t> operandStack;
   for (RpnExpr::const_iterator it = pExpr.begin(), ie = pExpr.end(); it != ie;
@@ -102,7 +104,7 @@ bool RpnEvaluator::eval(const RpnExpr& pExpr, uint64_t& pSymVal)
     }
   }
   // stack top is result
-  pSymVal = operandStack.top();
+  pResult = operandStack.top();
   return true;
 }
 
