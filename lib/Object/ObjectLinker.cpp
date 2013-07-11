@@ -324,6 +324,29 @@ bool ObjectLinker::mergeSections()
       } // end of switch
     } // for each section
   } // for each obj
+
+  SectionMap::iterator out, outBegin, outEnd;
+  outBegin = m_pModule->getScript().sectionMap().begin();
+  outEnd = m_pModule->getScript().sectionMap().end();
+  for (out = outBegin; out != outEnd; ++out) {
+    SectionMap::Output::iterator in, inBegin, inEnd;
+    inBegin = (*out)->begin();
+    inEnd = (*out)->end();
+    for (in = inBegin; in != inEnd; ++in) {
+      if (builder.MoveSectionData(*(*in)->getSection()->getSectionData(),
+                                  *(*out)->getSection()->getSectionData()))
+        builder.UpdateSectionAlign(*(*out)->getSection(), *(*in)->getSection());
+    } // for each input section description
+
+    if ((*out)->hasContent()) {
+      LDSection* target = m_pModule->getSection((*out)->name());
+      assert(target != NULL && target->hasSectionData());
+      if (builder.MoveSectionData(*(*out)->getSection()->getSectionData(),
+                                  *target->getSectionData()))
+        builder.UpdateSectionAlign(*target, *(*out)->getSection());
+    }
+  } // for each output section description
+
   return true;
 }
 

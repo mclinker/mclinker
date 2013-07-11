@@ -7,112 +7,152 @@
 //
 //===----------------------------------------------------------------------===//
 #include <mcld/Object/SectionMap.h>
-#include <mcld/ADT/StringHash.h>
+#include <mcld/Script/WildcardPattern.h>
+#include <mcld/Script/StringList.h>
+#include <mcld/LD/LDSection.h>
+#include <mcld/LD/SectionData.h>
+#include <mcld/Fragment/NullFragment.h>
 #include <cassert>
 #include <cstring>
+#include <climits>
+#include <fnmatch.h>
 
 using namespace mcld;
-
-
-SectionMap::NamePair SectionMap::NullName;
-
 //===----------------------------------------------------------------------===//
-// SectionMap::NamePair
+// SectionMap::Input
 //===----------------------------------------------------------------------===//
-SectionMap::NamePair::NamePair()
-  : hash(-1) {
-}
-
-SectionMap::NamePair::NamePair(const std::string& pFrom, const std::string& pTo)
-  : from(pFrom), to(pTo) {
-  hash = SectionMap::hash(pFrom);
-}
-
-bool SectionMap::NamePair::isNull() const
+SectionMap::Input::Input(const std::string& pName)
+  : m_Policy(InputSectDesc::NoKeep)
 {
-  return (&NullName == this);
+  m_Spec.m_pWildcardFile =
+    WildcardPattern::create("*", WildcardPattern::SORT_NONE);
+  m_Spec.m_pExcludeFiles = NULL;
+
+  StringList* sections = StringList::create();
+  sections->push_back(
+    WildcardPattern::create(pName, WildcardPattern::SORT_NONE));
+  m_Spec.m_pWildcardSections = sections;
+
+  m_pSection = LDSection::Create(pName, LDFileFormat::Regular, 0, 0);
+  SectionData* sd = SectionData::Create(*m_pSection);
+  m_pSection->setSectionData(sd);
+}
+
+//===----------------------------------------------------------------------===//
+// SectionMap::Output
+//===----------------------------------------------------------------------===//
+SectionMap::Output::Output(const std::string& pName)
+  : m_Name(pName),
+    m_Order(UINT_MAX)
+{
+  m_Prolog.m_pVMA = NULL;
+  m_Prolog.m_Type = OutputSectDesc::LOAD;
+  m_Prolog.m_pLMA = NULL;
+  m_Prolog.m_pAlign = NULL;
+  m_Prolog.m_pSubAlign = NULL;
+  m_Prolog.m_Constraint = OutputSectDesc::NO_CONSTRAINT;
+
+  m_Epilog.m_pRegion = NULL;
+  m_Epilog.m_pLMARegion = NULL;
+  m_Epilog.m_pPhdrs = NULL;
+  m_Epilog.m_pFillExp = NULL;
+
+  m_pSection = LDSection::Create(pName, LDFileFormat::Regular, 0, 0);
+  SectionData* sd = SectionData::Create(*m_pSection);
+  m_pSection->setSectionData(sd);
+}
+
+bool SectionMap::Output::hasContent() const
+{
+  return m_pSection != NULL && m_pSection->size() != 0;
 }
 
 //===----------------------------------------------------------------------===//
 // SectionMap
 //===----------------------------------------------------------------------===//
-const SectionMap::NamePair& SectionMap::find(const std::string& pFrom) const
+SectionMap::~SectionMap()
 {
-  unsigned int hash = SectionMap::hash(pFrom);
-  return find(pFrom, hash);
-}
-
-SectionMap::NamePair& SectionMap::find(const std::string& pFrom)
-{
-  unsigned int hash = SectionMap::hash(pFrom);
-  return find(pFrom, hash);
-}
-
-const SectionMap::NamePair&
-SectionMap::find(const std::string& pFrom, unsigned int pHash) const
-{
-  NamePairList::const_iterator name_hash, nEnd = m_NamePairList.end();
-  for (name_hash = m_NamePairList.begin(); name_hash != nEnd; ++name_hash) {
-    if (matched(*name_hash, pFrom, pHash)) {
-      return *name_hash;
+  iterator out, outBegin = begin(), outEnd = end();
+  for (out = outBegin; out != outEnd; ++out) {
+    if (*out != NULL) {
+      Output::iterator in, inBegin = (*out)->begin(), inEnd = (*out)->end();
+      for (in = inBegin; in != inEnd; ++in) {
+        if (*in != NULL)
+          delete *in;
+      }
+      delete *out;
     }
   }
-  return NullName;
 }
 
-SectionMap::NamePair&
-SectionMap::find(const std::string& pFrom, unsigned int pHash)
+SectionMap::const_mapping
+SectionMap::find(const std::string& pInputSection) const
 {
-  NamePairList::iterator name_hash, nEnd = m_NamePairList.end();
-  for (name_hash = m_NamePairList.begin(); name_hash != nEnd; ++name_hash) {
-    if (matched(*name_hash, pFrom, pHash)) {
-      return *name_hash;
+  const_iterator out, outBegin = begin(), outEnd = end();
+  for (out = outBegin; out != outEnd; ++out) {
+    Output::const_iterator in, inBegin = (*out)->begin(), inEnd = (*out)->end();
+    for (in = inBegin; in != inEnd; ++in) {
+      if (matched(**in, pInputSection))
+        return std::make_pair(*out, *in);
     }
   }
-  return NullName;
+  return std::make_pair((const Output*)NULL, (const Input*)NULL);
 }
 
-SectionMap::NamePair& SectionMap::append(const std::string &pFrom,
-                                         const std::string &pTo,
-                                         bool &pExist)
+SectionMap::mapping SectionMap::find(const std::string& pInputSection)
 {
-  NamePair& result = find(pFrom);
-  if (!result.isNull()) {
-    pExist = true;
-    return result;
+  iterator out, outBegin = begin(), outEnd = end();
+  for (out = outBegin; out != outEnd; ++out) {
+    Output::iterator in, inBegin = (*out)->begin(), inEnd = (*out)->end();
+    for (in = inBegin; in != inEnd; ++in) {
+      if (matched(**in, pInputSection))
+        return std::make_pair(*out, *in);
+    }
   }
-
-  pExist = false;
-  NamePair entry(pFrom, pTo);
-  m_NamePairList.push_back(entry);
-  return m_NamePairList.back();
+  return std::make_pair((Output*)NULL, (Input*)NULL);
 }
 
-bool SectionMap::matched(const NamePair& pNamePair,
-                         const std::string& pInput,
-                         unsigned int pHashValue) const
+std::pair<SectionMap::mapping, bool>
+SectionMap::insert(const std::string& pInputSection,
+                   const std::string& pOutputSection)
 {
-  if ('*' == pNamePair.from[0])
-    return true;
+  iterator out, outBegin = begin(), outEnd = end();
+  for (out = outBegin; out != outEnd; ++out) {
+    if ((*out)->name().compare(pOutputSection) == 0)
+      break;
+  }
+  if (out != end()) {
+    Output::iterator in, inBegin = (*out)->begin(), inEnd = (*out)->end();
+    for (in = inBegin; in != inEnd; ++in) {
+      if ((*in)->getSection()->name().compare(pInputSection) == 0)
+        break;
+    }
 
-  if (pNamePair.from.size() > pInput.size())
-    return false;
-
-  if (!hash::StringHash<hash::ES>::may_include(pNamePair.hash, pHashValue))
-    return false;
-
-  if (0 == strncmp(pInput.c_str(),
-                   pNamePair.from.c_str(),
-                   pNamePair.from.size())) {
-    return true;
+    if (in != (*out)->end()) {
+      return std::make_pair(std::make_pair(*out, *in), false);
+    } else {
+      Input* input = new Input(pInputSection);
+      (*out)->append(input);
+      return std::make_pair(std::make_pair(*out, input), true);
+    }
   }
 
+  Output* output = new Output(pOutputSection);
+  m_OutputDescList.push_back(output);
+  Input* input = new Input(pInputSection);
+  output->append(input);
+
+  return std::make_pair(std::make_pair(output, input), true);
+}
+
+bool SectionMap::matched(const Input& pInput, const std::string& pString) const
+{
+  if (pInput.spec().hasSections()) {
+    for (StringList::const_iterator it = pInput.spec().sections().begin(),
+      ie = pInput.spec().sections().end(); it != ie; ++it) {
+      if (fnmatch((*it)->name().c_str(), pString.c_str(), 0) == 0)
+        return true;
+    }
+  }
   return false;
 }
-
-unsigned int SectionMap::hash(const std::string& pString)
-{
-  static hash::StringHash<hash::ES> hash_func;
-  return hash_func(pString);
-}
-

@@ -40,20 +40,28 @@ LDSection* ObjectBuilder::CreateSection(const std::string& pName,
                                         uint32_t pAlign)
 {
   // try to get one from output LDSection
-  const SectionMap::NamePair& pair = m_Module.getScript().sectionMap().find(pName);
-  std::string output_name = (pair.isNull())?pName:pair.to;
-  LDSection* output_sect = LDSection::Create(output_name, pKind, pType, pFlag);
-  output_sect->setAlign(pAlign);
-  m_Module.getSectionTable().push_back(output_sect);
+  SectionMap::const_mapping pair =
+    m_Module.getScript().sectionMap().find(pName);
+
+  std::string output_name = (pair.first == NULL) ? pName : pair.first->name();
+
+  LDSection* output_sect = m_Module.getSection(output_name);
+  if (NULL == output_sect) {
+    output_sect = LDSection::Create(pName, pKind, pType, pFlag);
+    output_sect->setAlign(pAlign);
+    m_Module.getSectionTable().push_back(output_sect);
+  }
   return output_sect;
 }
 
 /// MergeSection - merge the pInput section to the pOutput section
 LDSection* ObjectBuilder::MergeSection(LDSection& pInputSection)
 {
-  const SectionMap::NamePair& pair =
-              m_Module.getScript().sectionMap().find(pInputSection.name());
-  std::string output_name = (pair.isNull())?pInputSection.name():pair.to;
+  SectionMap::mapping pair =
+    m_Module.getScript().sectionMap().find(pInputSection.name());
+
+  std::string output_name = (pair.first == NULL) ?
+                            pInputSection.name() : pair.first->name();
   LDSection* target = m_Module.getSection(output_name);
 
   if (NULL == target) {
@@ -79,15 +87,21 @@ LDSection* ObjectBuilder::MergeSection(LDSection& pInputSection)
         eh_frame = IRBuilder::CreateEhFrame(*target);
 
       eh_frame->merge(*pInputSection.getEhFrame());
-			UpdateSectionAlign(*target, pInputSection);
+      UpdateSectionAlign(*target, pInputSection);
       return target;
     }
     default: {
+      if (!target->hasSectionData())
+        IRBuilder::CreateSectionData(*target);
+
       SectionData* data = NULL;
-      if (target->hasSectionData())
+      if (pair.first != NULL) {
+        assert(pair.second != NULL);
+        data = pair.second->getSection()->getSectionData();
+      } else {
+        // orphan section
         data = target->getSectionData();
-      else
-        data = IRBuilder::CreateSectionData(*target);
+      }
 
       if (MoveSectionData(*pInputSection.getSectionData(), *data)) {
         UpdateSectionAlign(*target, pInputSection);
@@ -104,7 +118,7 @@ bool ObjectBuilder::MoveSectionData(SectionData& pFrom, SectionData& pTo)
 {
   assert(&pFrom != &pTo && "Cannot move section data to itself!");
 
-  uint32_t offset = pTo.getSection().size();
+  uint64_t offset = pTo.getSection().size();
   AlignFragment* align = NULL;
   if (pFrom.getSection().align() > 1) {
     // if the align constraint is larger than 1, append an alignment
@@ -149,7 +163,7 @@ uint64_t ObjectBuilder::AppendFragment(Fragment& pFrag,
                                        uint32_t pAlignConstraint)
 {
   // get initial offset.
-  uint32_t offset = 0;
+  uint64_t offset = 0;
   if (!pSD.empty())
     offset = pSD.back().getOffset() + pSD.back().size();
 
