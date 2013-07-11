@@ -35,6 +35,10 @@ bool RpnEvaluator::eval(const RpnExpr& pExpr, uint64_t& pResult)
     case ExprToken::OPERATOR: {
       Operator* op = llvm::cast<Operator>(*it);
       switch (op->arity()) {
+      case Operator::Nullary: {
+        operandStack.push(op->eval());
+        break;
+      }
       case Operator::Unary: {
         Operand* opd = operandStack.top();
         operandStack.pop();

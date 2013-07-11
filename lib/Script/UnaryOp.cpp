@@ -8,6 +8,7 @@
 //===----------------------------------------------------------------------===//
 #include <mcld/Script/UnaryOp.h>
 #include <mcld/Script/Operand.h>
+#include <cassert>
 
 using namespace mcld;
 //===----------------------------------------------------------------------===//
@@ -45,4 +46,82 @@ IntOperand* UnaryOp<Operator::BITWISE_NOT>::eval()
   return res;
 }
 
+template<>
+IntOperand* UnaryOp<Operator::ABSOLUTE>::eval()
+{
+  // TODO
+  assert(0);
+  return result();
+}
 
+template<>
+IntOperand* UnaryOp<Operator::ADDR>::eval()
+{
+  // TODO
+  assert(0);
+  return result();
+}
+
+template<>
+IntOperand* UnaryOp<Operator::ALIGNOF>::eval()
+{
+  // TODO
+  assert(0);
+  return result();
+}
+
+template<>
+IntOperand* UnaryOp<Operator::DATA_SEGMENT_END>::eval()
+{
+  // TODO
+  assert(0);
+  return result();
+}
+
+template<>
+IntOperand* UnaryOp<Operator::DEFINED>::eval()
+{
+  // TODO
+  assert(0);
+  return result();
+}
+
+template<>
+IntOperand* UnaryOp<Operator::LENGTH>::eval()
+{
+  // TODO
+  assert(0);
+  return result();
+}
+
+template<>
+IntOperand* UnaryOp<Operator::LOADADDR>::eval()
+{
+  // TODO
+  assert(0);
+  return result();
+}
+
+template<>
+IntOperand* UnaryOp<Operator::NEXT>::eval()
+{
+  // TODO
+  assert(0);
+  return result();
+}
+
+template<>
+IntOperand* UnaryOp<Operator::ORIGIN>::eval()
+{
+  // TODO
+  assert(0);
+  return result();
+}
+
+template<>
+IntOperand* UnaryOp<Operator::SIZEOF>::eval()
+{
+  // TODO
+  assert(0);
+  return result();
+}

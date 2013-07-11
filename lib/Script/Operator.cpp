@@ -7,6 +7,7 @@
 //
 //===----------------------------------------------------------------------===//
 #include <mcld/Script/Operator.h>
+#include <mcld/Script/NullaryOp.h>
 #include <mcld/Script/UnaryOp.h>
 #include <mcld/Script/BinaryOp.h>
 #include <mcld/Script/TernaryOp.h>
@@ -49,7 +50,27 @@ const char* Operator::OpNames[] = {
   "&=",
   "|=",
   "<<=",
-  ">>="
+  ">>=",
+  "ABSOLUTE",
+  "ADDR",
+  "ALIGN",
+  "ALIGNOF",
+  "BLOCK",
+  "DATA_SEGMENT_ALIGN",
+  "DATA_SEGMENT_END",
+  "DATA_SEGMENT_RELRO_END",
+  "DEFINED",
+  "LENGTH",
+  "LOADADDR",
+  "MAX",
+  "MIN",
+  "NEXT",
+  "ORIGIN",
+  "SEGMENT_START",
+  "SIZEOF",
+  "SIZEOF_HEADERS",
+  "MAXPAGESIZE",
+  "COMMONPAGESIZE"
 };
 
 Operator::Operator(Arity pArity, Type pType)
@@ -69,6 +90,29 @@ void Operator::dump() const
   mcld::outs() << OpNames[type()];
 }
 
+/* Nullary operator */
+template<>
+Operator& Operator::create<Operator::SIZEOF_HEADERS>()
+{
+  static NullaryOp<Operator::SIZEOF_HEADERS> op;
+  return op;
+}
+
+template<>
+Operator& Operator::create<Operator::MAXPAGESIZE>()
+{
+  static NullaryOp<Operator::MAXPAGESIZE> op;
+  return op;
+}
+
+template<>
+Operator& Operator::create<Operator::COMMONPAGESIZE>()
+{
+  static NullaryOp<Operator::COMMONPAGESIZE> op;
+  return op;
+}
+
+/* Unary operator */
 template<>
 Operator& Operator::create<Operator::UNARY_PLUS>()
 {
@@ -97,6 +141,77 @@ Operator& Operator::create<Operator::BITWISE_NOT>()
   return op;
 }
 
+template<>
+Operator& Operator::create<Operator::ABSOLUTE>()
+{
+  static UnaryOp<Operator::ABSOLUTE> op;
+  return op;
+}
+
+template<>
+Operator& Operator::create<Operator::ADDR>()
+{
+  static UnaryOp<Operator::ADDR> op;
+  return op;
+}
+
+template<>
+Operator& Operator::create<Operator::ALIGNOF>()
+{
+  static UnaryOp<Operator::ALIGNOF> op;
+  return op;
+}
+
+template<>
+Operator& Operator::create<Operator::DATA_SEGMENT_END>()
+{
+  static UnaryOp<Operator::DATA_SEGMENT_END> op;
+  return op;
+}
+
+template<>
+Operator& Operator::create<Operator::DEFINED>()
+{
+  static UnaryOp<Operator::DEFINED> op;
+  return op;
+}
+
+template<>
+Operator& Operator::create<Operator::LENGTH>()
+{
+  static UnaryOp<Operator::LENGTH> op;
+  return op;
+}
+
+template<>
+Operator& Operator::create<Operator::LOADADDR>()
+{
+  static UnaryOp<Operator::LOADADDR> op;
+  return op;
+}
+
+template<>
+Operator& Operator::create<Operator::NEXT>()
+{
+  static UnaryOp<Operator::NEXT> op;
+  return op;
+}
+
+template<>
+Operator& Operator::create<Operator::ORIGIN>()
+{
+  static UnaryOp<Operator::ORIGIN> op;
+  return op;
+}
+
+template<>
+Operator& Operator::create<Operator::SIZEOF>()
+{
+  static UnaryOp<Operator::SIZEOF> op;
+  return op;
+}
+
+/* Binary operator */
 template<>
 Operator& Operator::create<Operator::MUL>()
 {
@@ -223,6 +338,49 @@ Operator& Operator::create<Operator::LOGICAL_OR>()
   return op;
 }
 
+template<>
+Operator& Operator::create<Operator::ALIGN>()
+{
+  static BinaryOp<Operator::ALIGN> op;
+  return op;
+}
+
+template<>
+Operator& Operator::create<Operator::DATA_SEGMENT_ALIGN>()
+{
+  static BinaryOp<Operator::DATA_SEGMENT_ALIGN> op;
+  return op;
+}
+
+template<>
+Operator& Operator::create<Operator::DATA_SEGMENT_RELRO_END>()
+{
+  static BinaryOp<Operator::DATA_SEGMENT_RELRO_END> op;
+  return op;
+}
+
+template<>
+Operator& Operator::create<Operator::MAX>()
+{
+  static BinaryOp<Operator::MAX> op;
+  return op;
+}
+
+template<>
+Operator& Operator::create<Operator::MIN>()
+{
+  static BinaryOp<Operator::MIN> op;
+  return op;
+}
+
+template<>
+Operator& Operator::create<Operator::SEGMENT_START>()
+{
+  static BinaryOp<Operator::SEGMENT_START> op;
+  return op;
+}
+
+/* Ternary operator */
 template<>
 Operator& Operator::create<Operator::TERNARY_IF>()
 {

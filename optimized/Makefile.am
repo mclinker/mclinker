@@ -415,6 +415,7 @@ LINKERSCRIPT_HEADER = \
 	${INCDIR}/Script/InputSectDesc.h \
 	${INCDIR}/Script/ExprToken.h \
 	${INCDIR}/Script/Operator.h \
+	${INCDIR}/Script/NullaryOp.h \
 	${INCDIR}/Script/UnaryOp.h \
 	${INCDIR}/Script/BinaryOp.h \
 	${INCDIR}/Script/TernaryOp.h \
@@ -445,6 +446,7 @@ LINKERSCRIPT_SOURCE = \
 	${LIBDIR}/Script/OutputSectDesc.cpp \
 	${LIBDIR}/Script/InputSectDesc.cpp \
 	${LIBDIR}/Script/Operator.cpp \
+	${LIBDIR}/Script/NullaryOp.cpp \
 	${LIBDIR}/Script/UnaryOp.cpp \
 	${LIBDIR}/Script/BinaryOp.cpp \
 	${LIBDIR}/Script/TernaryOp.cpp \

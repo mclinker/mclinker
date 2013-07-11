@@ -92,6 +92,19 @@ IntOperand* BinaryOp<Operator::LOGICAL_AND>::eval();
 template<>
 IntOperand* BinaryOp<Operator::LOGICAL_OR>::eval();
 
+template<>
+IntOperand* BinaryOp<Operator::ALIGN>::eval();
+template<>
+IntOperand* BinaryOp<Operator::DATA_SEGMENT_ALIGN>::eval();
+template<>
+IntOperand* BinaryOp<Operator::DATA_SEGMENT_RELRO_END>::eval();
+template<>
+IntOperand* BinaryOp<Operator::MAX>::eval();
+template<>
+IntOperand* BinaryOp<Operator::MIN>::eval();
+template<>
+IntOperand* BinaryOp<Operator::SEGMENT_START>::eval();
+
 } // namespace of mcld
 
 #endif

@@ -8,6 +8,7 @@
 //===----------------------------------------------------------------------===//
 #include <mcld/Script/BinaryOp.h>
 #include <mcld/Script/Operand.h>
+#include <cassert>
 
 using namespace mcld;
 //===----------------------------------------------------------------------===//
@@ -154,5 +155,59 @@ IntOperand* BinaryOp<Operator::LOGICAL_OR>::eval()
 {
   IntOperand* res = result();
   res->setValue(m_pOperand[0]->value() || m_pOperand[1]->value());
+  return res;
+}
+
+template<>
+IntOperand* BinaryOp<Operator::ALIGN>::eval()
+{
+  // TODO
+  assert(0);
+  IntOperand* res = result();
+  return res;
+}
+
+template<>
+IntOperand* BinaryOp<Operator::DATA_SEGMENT_ALIGN>::eval()
+{
+  // TODO
+  assert(0);
+  IntOperand* res = result();
+  return res;
+}
+
+template<>
+IntOperand* BinaryOp<Operator::DATA_SEGMENT_RELRO_END>::eval()
+{
+  // TODO
+  assert(0);
+  IntOperand* res = result();
+  return res;
+}
+
+template<>
+IntOperand* BinaryOp<Operator::MAX>::eval()
+{
+  // TODO
+  assert(0);
+  IntOperand* res = result();
+  return res;
+}
+
+template<>
+IntOperand* BinaryOp<Operator::MIN>::eval()
+{
+  // TODO
+  assert(0);
+  IntOperand* res = result();
+  return res;
+}
+
+template<>
+IntOperand* BinaryOp<Operator::SEGMENT_START>::eval()
+{
+  // TODO
+  assert(0);
+  IntOperand* res = result();
   return res;
 }

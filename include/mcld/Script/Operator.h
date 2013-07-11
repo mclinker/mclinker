@@ -29,12 +29,14 @@ class Operator : public ExprToken
 {
 public:
   enum Arity {
+    Nullary,
     Unary,
     Binary,
     Ternary
   };
 
   enum Type {
+    /* arithmetic operator */
     UNARY_PLUS  = 0,
     UNARY_MINUS = 1,
     LOGICAL_NOT = 2,
@@ -66,7 +68,28 @@ public:
     AND_ASSIGN  = 28,
     OR_ASSIGN   = 29,
     LS_ASSIGN   = 30,
-    RS_ASSIGN   = 31
+    RS_ASSIGN   = 31,
+    /* function */
+    ABSOLUTE               = 32,
+    ADDR                   = 33,
+    ALIGN                  = 34,
+    ALIGNOF                = 35,
+    BLOCK                  = 36,
+    DATA_SEGMENT_ALIGN     = 37,
+    DATA_SEGMENT_END       = 38,
+    DATA_SEGMENT_RELRO_END = 39,
+    DEFINED                = 40,
+    LENGTH                 = 41,
+    LOADADDR               = 42,
+    MAX                    = 43,
+    MIN                    = 44,
+    NEXT                   = 45,
+    ORIGIN                 = 46,
+    SEGMENT_START          = 47,
+    SIZEOF                 = 48,
+    SIZEOF_HEADERS         = 49,
+    MAXPAGESIZE            = 50,
+    COMMONPAGESIZE         = 51
   };
 
   static const char* OpNames[];
@@ -104,6 +127,14 @@ private:
   IntOperand* m_pIntOperand;
 };
 
+/* Nullary operator */
+template<>
+Operator& Operator::create<Operator::SIZEOF_HEADERS>();
+template<>
+Operator& Operator::create<Operator::MAXPAGESIZE>();
+template<>
+Operator& Operator::create<Operator::COMMONPAGESIZE>();
+
 /* Unary operator */
 template<>
 Operator& Operator::create<Operator::UNARY_PLUS>();
@@ -113,6 +144,27 @@ template<>
 Operator& Operator::create<Operator::LOGICAL_NOT>();
 template<>
 Operator& Operator::create<Operator::BITWISE_NOT>();
+
+template<>
+Operator& Operator::create<Operator::ABSOLUTE>();
+template<>
+Operator& Operator::create<Operator::ADDR>();
+template<>
+Operator& Operator::create<Operator::ALIGNOF>();
+template<>
+Operator& Operator::create<Operator::DATA_SEGMENT_END>();
+template<>
+Operator& Operator::create<Operator::DEFINED>();
+template<>
+Operator& Operator::create<Operator::LENGTH>();
+template<>
+Operator& Operator::create<Operator::LOADADDR>();
+template<>
+Operator& Operator::create<Operator::NEXT>();
+template<>
+Operator& Operator::create<Operator::ORIGIN>();
+template<>
+Operator& Operator::create<Operator::SIZEOF>();
 
 /* Binary operator */
 template<>
@@ -151,6 +203,19 @@ template<>
 Operator& Operator::create<Operator::LOGICAL_AND>();
 template<>
 Operator& Operator::create<Operator::LOGICAL_OR>();
+
+template<>
+Operator& Operator::create<Operator::ALIGN>();
+template<>
+Operator& Operator::create<Operator::DATA_SEGMENT_ALIGN>();
+template<>
+Operator& Operator::create<Operator::DATA_SEGMENT_RELRO_END>();
+template<>
+Operator& Operator::create<Operator::MAX>();
+template<>
+Operator& Operator::create<Operator::MIN>();
+template<>
+Operator& Operator::create<Operator::SEGMENT_START>();
 
 /* Ternary operator */
 template<>

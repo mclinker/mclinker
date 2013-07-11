@@ -59,6 +59,27 @@ IntOperand* UnaryOp<Operator::LOGICAL_NOT>::eval();
 template<>
 IntOperand* UnaryOp<Operator::BITWISE_NOT>::eval();
 
+template<>
+IntOperand* UnaryOp<Operator::ABSOLUTE>::eval();
+template<>
+IntOperand* UnaryOp<Operator::ADDR>::eval();
+template<>
+IntOperand* UnaryOp<Operator::ALIGNOF>::eval();
+template<>
+IntOperand* UnaryOp<Operator::DATA_SEGMENT_END>::eval();
+template<>
+IntOperand* UnaryOp<Operator::DEFINED>::eval();
+template<>
+IntOperand* UnaryOp<Operator::LENGTH>::eval();
+template<>
+IntOperand* UnaryOp<Operator::LOADADDR>::eval();
+template<>
+IntOperand* UnaryOp<Operator::NEXT>::eval();
+template<>
+IntOperand* UnaryOp<Operator::ORIGIN>::eval();
+template<>
+IntOperand* UnaryOp<Operator::SIZEOF>::eval();
+
 } // namespace of mcld
 
 #endif
