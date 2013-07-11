@@ -117,7 +117,8 @@ bool LinkerConfig::initializeLDInfo() {
     {".gnu.linkonce.l*", ".ldata"},
   };
 
-  if (mLDConfig->codeGenType() != mcld::LinkerConfig::Object) {
+  if (!mLDConfig->options().hasDefaultLDScript() &&
+      mLDConfig->codeGenType() != mcld::LinkerConfig::Object) {
     const unsigned int map_size =  (sizeof(map) / sizeof(map[0]) );
     for (unsigned int i = 0; i < map_size; ++i) {
       mLDScript->sectionMap().insert(map[i].from, map[i].to);

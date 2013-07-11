@@ -34,7 +34,8 @@ static bool MCLDEmulateARMELF(LinkerScript& pScript, LinkerConfig& pConfig)
   pConfig.attribute().predefined().setDynamic();
 
   // set up section map
-  if (pConfig.codeGenType() != LinkerConfig::Object) {
+  if (!pConfig.options().hasDefaultLDScript() &&
+      pConfig.codeGenType() != LinkerConfig::Object) {
     pScript.sectionMap().insert(".ARM.exidx*", ".ARM.exidx");
     pScript.sectionMap().insert(".ARM.extab*", ".ARM.extab");
     pScript.sectionMap().insert(".ARM.attributes*", ".ARM.attributes");

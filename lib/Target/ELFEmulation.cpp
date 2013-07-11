@@ -66,7 +66,8 @@ bool mcld::MCLDEmulateELF(LinkerScript& pScript, LinkerConfig& pConfig)
 // FIXME: LinkerConfig& pConfig should be constant
 {
   // set up section map
-  if (pConfig.codeGenType() != LinkerConfig::Object) {
+  if (!pConfig.options().hasDefaultLDScript() &&
+      pConfig.codeGenType() != LinkerConfig::Object) {
     const unsigned int map_size =  (sizeof(map) / sizeof(map[0]) );
     for (unsigned int i = 0; i < map_size; ++i) {
       std::pair<SectionMap::mapping, bool> res =
