@@ -182,12 +182,13 @@ void ScriptFile::leaveSectionsCmd()
 }
 
 void ScriptFile::enterOutputSectDesc(const std::string& pName,
-                                     const OutputSectDesc::Prolog& pProlog)
+                                     const OutputSectDesc::Prolog& pProlog,
+                                     LinkerScript& pScript)
 {
   assert(!m_CommandQueue.empty());
   assert(m_InSectionsCmd);
   SectionsCmd* sections = llvm::cast<SectionsCmd>(back());
-  sections->push_back(new OutputSectDesc(pName, pProlog));
+  sections->push_back(new OutputSectDesc(pName, pProlog, pScript));
 
   m_InOutputSectDesc = true;
 }
@@ -199,8 +200,8 @@ void ScriptFile::leaveOutputSectDesc(const OutputSectDesc::Epilog& pEpilog)
   SectionsCmd* sections = llvm::cast<SectionsCmd>(back());
 
   assert(!sections->empty() && m_InOutputSectDesc);
-  OutputSectDesc* output_sect =  llvm::cast<OutputSectDesc>(sections->back());
-  output_sect->setEpilog(pEpilog);
+  OutputSectDesc* output_desc = llvm::cast<OutputSectDesc>(sections->back());
+  output_desc->setEpilog(pEpilog);
 
   m_InOutputSectDesc = false;
 }

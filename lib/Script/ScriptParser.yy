@@ -328,7 +328,7 @@ The full description of an output section looks like this:
     } [>region] [AT>lma_region] [:phdr :phdr ...] [=fillexp]
 */
 output_sect_desc : string output_desc_prolog
-                   { m_ScriptFile.enterOutputSectDesc(*$1, $2); }
+                   { m_ScriptFile.enterOutputSectDesc(*$1, $2, m_LDScript); }
                    '{'
                        output_sect_commands
                    '}' output_desc_epilog

@@ -22,6 +22,7 @@ namespace mcld
 
 class RpnExpr;
 class StringList;
+class LinkerScript;
 
 /** \class OutputSectDesc
  *  \brief This class defines the interfaces to output section description.
@@ -74,6 +75,25 @@ public:
 
     Constraint constraint() const { return m_Constraint; }
 
+    bool operator==(const Prolog& pRHS) const {
+      /* FIXME: currently I don't check the real content */
+      if (this == &pRHS)
+        return true;
+      if (m_pVMA != pRHS.m_pVMA)
+        return false;
+      if (m_Type != pRHS.m_Type)
+        return false;
+      if (m_pLMA!= pRHS.m_pLMA)
+        return false;
+      if (m_pAlign != pRHS.m_pAlign)
+        return false;
+      if (m_pSubAlign != pRHS.m_pSubAlign)
+        return false;
+      if (m_Constraint != pRHS.m_Constraint)
+        return false;
+      return true;
+    }
+
     RpnExpr* m_pVMA;
     Type m_Type;
     RpnExpr* m_pLMA;
@@ -107,6 +127,21 @@ public:
       return *m_pFillExp;
     }
 
+    bool operator==(const Epilog& pRHS) const {
+      /* FIXME: currently I don't check the real content */
+      if (this == &pRHS)
+        return true;
+      if (m_pRegion != pRHS.m_pRegion)
+        return false;
+      if (m_pLMARegion != pRHS.m_pLMARegion)
+        return false;
+      if (m_pPhdrs != pRHS.m_pPhdrs)
+        return false;
+      if (m_pFillExp != pRHS.m_pFillExp)
+        return false;
+      return true;
+    }
+
     const std::string* m_pRegion;
     const std::string* m_pLMARegion;
     StringList* m_pPhdrs;
@@ -120,7 +155,9 @@ public:
   typedef OutputSectCmds::reference reference;
 
 public:
-  OutputSectDesc(const std::string& pName, const Prolog& pProlog);
+  OutputSectDesc(const std::string& pName,
+                 const Prolog& pProlog,
+                 LinkerScript& pLDScript);
   ~OutputSectDesc();
 
   const_iterator  begin() const { return m_OutputSectCmds.begin(); }
@@ -161,6 +198,7 @@ private:
   std::string m_Name;
   Prolog m_Prolog;
   Epilog m_Epilog;
+  LinkerScript& m_LDScript;
 };
 
 } // namespace of mcld

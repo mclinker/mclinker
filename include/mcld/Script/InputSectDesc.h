@@ -58,6 +58,19 @@ public:
       return *m_pWildcardSections;
     }
 
+    bool operator==(const Spec& pRHS) const {
+      /* FIXME: currently I don't check the real content */
+      if (this == &pRHS)
+        return true;
+      if (m_pWildcardFile != pRHS.m_pWildcardFile)
+        return false;
+      if (m_pExcludeFiles != pRHS.m_pExcludeFiles)
+        return false;
+      if (m_pWildcardSections != pRHS.m_pWildcardSections)
+        return false;
+      return true;
+    }
+
     WildcardPattern* m_pWildcardFile;
     StringList* m_pExcludeFiles;
     StringList* m_pWildcardSections;

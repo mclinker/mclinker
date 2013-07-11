@@ -19,10 +19,13 @@ using namespace mcld;
 //===----------------------------------------------------------------------===//
 // OutputSectDesc
 //===----------------------------------------------------------------------===//
-OutputSectDesc::OutputSectDesc(const std::string& pName, const Prolog& pProlog)
+OutputSectDesc::OutputSectDesc(const std::string& pName,
+                               const Prolog& pProlog,
+                               LinkerScript& pLDScript)
   : ScriptCommand(ScriptCommand::OUTPUT_SECT_DESC),
     m_Name(pName),
-    m_Prolog(pProlog)
+    m_Prolog(pProlog),
+    m_LDScript(pLDScript)
 {
 }
 

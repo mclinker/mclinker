@@ -9,6 +9,7 @@
 #include <mcld/Script/InputSectDesc.h>
 #include <mcld/Script/WildcardPattern.h>
 #include <mcld/Support/raw_ostream.h>
+#include <mcld/LinkerScript.h>
 #include <llvm/Support/Casting.h>
 
 using namespace mcld;
@@ -98,5 +99,5 @@ void InputSectDesc::dump() const
 
 void InputSectDesc::activate()
 {
-  // TODO
+  m_LDScript.sectionMap().insert(*this, m_OutputSectDesc);
 }

@@ -124,7 +124,8 @@ public:
   void leaveSectionsCmd();
 
   void enterOutputSectDesc(const std::string& pName,
-                           const OutputSectDesc::Prolog& pProlog);
+                           const OutputSectDesc::Prolog& pProlog,
+                           LinkerScript& pScript);
 
   void leaveOutputSectDesc(const OutputSectDesc::Epilog& pEpilog);
 

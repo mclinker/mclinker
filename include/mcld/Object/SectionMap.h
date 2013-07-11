@@ -32,6 +32,7 @@ public:
   class Input {
   public:
     Input(const std::string& pName);
+    Input(const InputSectDesc& pInputDesc);
 
     InputSectDesc::KeepPolicy policy() const { return m_Policy; }
 
@@ -55,6 +56,7 @@ public:
     typedef InputList::reference reference;
 
     Output(const std::string& pName);
+    Output(const OutputSectDesc& pOutputDesc);
 
     const std::string& name() const { return m_Name; }
 
@@ -113,6 +115,8 @@ public:
 
   std::pair<mapping, bool>
   insert(const std::string& pInputSection, const std::string& pOutputSection);
+  std::pair<mapping, bool>
+  insert(const InputSectDesc& pInputDesc, const OutputSectDesc& pOutputDesc);
 
   bool   empty() const { return m_OutputDescList.empty(); }
   size_t size () const { return m_OutputDescList.size(); }

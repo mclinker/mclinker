@@ -38,6 +38,15 @@ SectionMap::Input::Input(const std::string& pName)
   m_pSection->setSectionData(sd);
 }
 
+SectionMap::Input::Input(const InputSectDesc& pInputDesc)
+  : m_Policy(pInputDesc.policy()),
+    m_Spec(pInputDesc.spec())
+{
+  m_pSection = LDSection::Create("", LDFileFormat::Regular, 0, 0);
+  SectionData* sd = SectionData::Create(*m_pSection);
+  m_pSection->setSectionData(sd);
+}
+
 //===----------------------------------------------------------------------===//
 // SectionMap::Output
 //===----------------------------------------------------------------------===//
@@ -58,6 +67,17 @@ SectionMap::Output::Output(const std::string& pName)
   m_Epilog.m_pFillExp = NULL;
 
   m_pSection = LDSection::Create(pName, LDFileFormat::Regular, 0, 0);
+  SectionData* sd = SectionData::Create(*m_pSection);
+  m_pSection->setSectionData(sd);
+}
+
+SectionMap::Output::Output(const OutputSectDesc& pOutputDesc)
+  : m_Name(pOutputDesc.name()),
+    m_Prolog(pOutputDesc.prolog()),
+    m_Epilog(pOutputDesc.epilog()),
+    m_Order(UINT_MAX)
+{
+  m_pSection = LDSection::Create(m_Name, LDFileFormat::Regular, 0, 0);
   SectionData* sd = SectionData::Create(*m_pSection);
   m_pSection->setSectionData(sd);
 }
@@ -140,6 +160,43 @@ SectionMap::insert(const std::string& pInputSection,
   Output* output = new Output(pOutputSection);
   m_OutputDescList.push_back(output);
   Input* input = new Input(pInputSection);
+  output->append(input);
+
+  return std::make_pair(std::make_pair(output, input), true);
+}
+
+std::pair<SectionMap::mapping, bool>
+SectionMap::insert(const InputSectDesc& pInputDesc,
+                   const OutputSectDesc& pOutputDesc)
+{
+  iterator out, outBegin = begin(), outEnd = end();
+  for (out = outBegin; out != outEnd; ++out) {
+    if ((*out)->name().compare(pOutputDesc.name()) == 0 &&
+        (*out)->prolog() == pOutputDesc.prolog() &&
+        (*out)->epilog() == pOutputDesc.epilog())
+      break;
+  }
+
+  if (out != end()) {
+    Output::iterator in, inBegin = (*out)->begin(), inEnd = (*out)->end();
+    for (in = inBegin; in != inEnd; ++in) {
+      if ((*in)->policy() == pInputDesc.policy() &&
+          (*in)->spec() == pInputDesc.spec())
+        break;
+    }
+
+    if (in != (*out)->end()) {
+      return std::make_pair(std::make_pair(*out, *in), false);
+    } else {
+      Input* input = new Input(pInputDesc);
+      (*out)->append(input);
+      return std::make_pair(std::make_pair(*out, input), true);
+    }
+  }
+
+  Output* output = new Output(pOutputDesc);
+  m_OutputDescList.push_back(output);
+  Input* input = new Input(pInputDesc);
   output->append(input);
 
   return std::make_pair(std::make_pair(output, input), true);
