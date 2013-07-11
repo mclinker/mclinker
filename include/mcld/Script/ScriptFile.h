@@ -129,7 +129,8 @@ public:
   void leaveOutputSectDesc(const OutputSectDesc::Epilog& pEpilog);
 
   void addInputSectDesc(InputSectDesc::KeepPolicy pPolicy,
-                        const InputSectDesc::Spec& pSpec);
+                        const InputSectDesc::Spec& pSpec,
+                        LinkerScript& pScript);
 
   static const std::string& createParserStr(const char* pText, size_t pLength);
 

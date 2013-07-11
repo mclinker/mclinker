@@ -13,12 +13,15 @@
 #endif
 
 #include <mcld/Script/ScriptCommand.h>
+#include <mcld/Script/StringList.h>
+#include <cassert>
 
 namespace mcld
 {
 
 class WildcardPattern;
-class StringList;
+class OutputSectDesc;
+class LinkerScript;
 
 /** \class InputSectDesc
  *  \brief This class defines the interfaces to input section description.
@@ -33,25 +36,43 @@ public:
   };
 
   struct Spec {
-    WildcardPattern* file;
-    StringList* exclude_files;
-    StringList* wildcard_sections;
+    bool hasFile() const { return m_pWildcardFile != NULL; }
+    const WildcardPattern& file() const {
+      assert(hasFile());
+      return *m_pWildcardFile;
+    }
+
+    bool hasExcludeFiles() const {
+      return m_pExcludeFiles != NULL && !m_pExcludeFiles->empty();
+    }
+    const StringList& excludeFiles() const {
+      assert(hasExcludeFiles());
+      return *m_pExcludeFiles;
+    }
+
+    bool hasSections() const {
+      return m_pWildcardSections != NULL && !m_pWildcardSections->empty();
+    }
+    const StringList& sections() const {
+      assert(hasSections());
+      return *m_pWildcardSections;
+    }
+
+    WildcardPattern* m_pWildcardFile;
+    StringList* m_pExcludeFiles;
+    StringList* m_pWildcardSections;
   };
 
 public:
-  InputSectDesc(KeepPolicy pPolicy, const Spec& pSpec);
+  InputSectDesc(KeepPolicy pPolicy,
+                const Spec& pSpec,
+                const OutputSectDesc& pOutputDesc,
+                LinkerScript& pLDScript);
   ~InputSectDesc();
 
   KeepPolicy policy() const { return m_KeepPolicy; }
 
-  bool hasFile() const;
-  const WildcardPattern& file() const;
-
-  bool hasExcludeFiles() const;
-  const StringList& excludeFiles() const;
-
-  bool hasSections() const;
-  const StringList& sections() const;
+  const Spec& spec() const { return m_Spec; }
 
   void dump() const;
 
@@ -64,9 +85,9 @@ public:
 
 private:
   KeepPolicy m_KeepPolicy;
-  WildcardPattern* m_pWildcardFile;
-  StringList* m_pExcludeFiles;
-  StringList* m_pWildcardSections;
+  Spec m_Spec;
+  const OutputSectDesc& m_OutputSectDesc;
+  LinkerScript& m_LDScript;
 };
 
 } // namespace of mcld

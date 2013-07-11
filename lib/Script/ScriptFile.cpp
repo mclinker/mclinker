@@ -206,7 +206,8 @@ void ScriptFile::leaveOutputSectDesc(const OutputSectDesc::Epilog& pEpilog)
 }
 
 void ScriptFile::addInputSectDesc(InputSectDesc::KeepPolicy pPolicy,
-                                  const InputSectDesc::Spec& pSpec)
+                                  const InputSectDesc::Spec& pSpec,
+                                  LinkerScript& pScript)
 {
   assert(!m_CommandQueue.empty());
   assert(m_InSectionsCmd);
@@ -215,7 +216,8 @@ void ScriptFile::addInputSectDesc(InputSectDesc::KeepPolicy pPolicy,
   assert(!sections->empty() && m_InOutputSectDesc);
   OutputSectDesc* output_sect =  llvm::cast<OutputSectDesc>(sections->back());
 
-  output_sect->push_back(new InputSectDesc(pPolicy, pSpec));
+  output_sect->push_back(
+    new InputSectDesc(pPolicy, pSpec, *output_sect, pScript));
 }
 
 const std::string& ScriptFile::createParserStr(const char* pText,

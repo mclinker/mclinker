@@ -41,8 +41,8 @@
 %error-verbose
 %define namespace "mcld"
 %define "parser_class_name" "ScriptParser"
-%parse-param { const class LinkerConfig& m_Config }
-%parse-param { class LinkerScript& m_LinkerScript }
+%parse-param { const class LinkerConfig& m_LDConfig }
+%parse-param { class LinkerScript& m_LDScript }
 %parse-param { class ScriptFile& m_ScriptFile }
 %parse-param { class ScriptScanner& m_ScriptScanner }
 %parse-param { class GroupReader& m_GroupReader}
@@ -219,7 +219,7 @@ script_command : entry_command
                ;
 
 entry_command : ENTRY '(' STRING ')'
-                { m_ScriptFile.addEntryPoint(*$3, m_LinkerScript); }
+                { m_ScriptFile.addEntryPoint(*$3, m_LDScript); }
               ;
 
 output_format_command : OUTPUT_FORMAT '(' STRING ')'
@@ -230,17 +230,17 @@ output_format_command : OUTPUT_FORMAT '(' STRING ')'
 
 group_command : GROUP '(' input_list ')'
                 {
-                  m_ScriptFile.addGroupCmd(*$3, m_GroupReader, m_Config,
-                                           m_LinkerScript);
+                  m_ScriptFile.addGroupCmd(*$3, m_GroupReader, m_LDConfig,
+                                           m_LDScript);
                 }
               ;
 
 search_dir_command : SEARCH_DIR '(' STRING ')' opt_comma
-                     { m_ScriptFile.addSearchDirCmd(*$3, m_LinkerScript); }
+                     { m_ScriptFile.addSearchDirCmd(*$3, m_LDScript); }
                    ;
 
 output_command : OUTPUT '(' STRING ')'
-                 { m_ScriptFile.addOutputCmd(*$3, m_LinkerScript); }
+                 { m_ScriptFile.addOutputCmd(*$3, m_LDScript); }
                ;
 
 output_arch_command : OUTPUT_ARCH '(' STRING ')'
@@ -475,22 +475,29 @@ output_sect_cmd : symbol_assignment
                 ;
 
 input_sect_desc : input_sect_spec
-                  { m_ScriptFile.addInputSectDesc(InputSectDesc::NoKeep, $1); }
+                  {
+                    m_ScriptFile.addInputSectDesc(InputSectDesc::NoKeep, $1,
+                                                  m_LDScript);
+                  }
                 | KEEP '(' input_sect_spec ')'
-                  { m_ScriptFile.addInputSectDesc(InputSectDesc::Keep, $3); }
+                  {
+                    m_ScriptFile.addInputSectDesc(InputSectDesc::Keep, $3,
+                                                  m_LDScript);
+                  }
                 ;
 
 input_sect_spec : string
                   {
-                    $$.file = WildcardPattern::create(*$1, WildcardPattern::SORT_NONE);
-                    $$.exclude_files = NULL;
-                    $$.wildcard_sections = NULL;
+                    $$.m_pWildcardFile =
+                      WildcardPattern::create(*$1, WildcardPattern::SORT_NONE);
+                    $$.m_pExcludeFiles = NULL;
+                    $$.m_pWildcardSections = NULL;
                   }
                 | wildcard_file '(' opt_exclude_files input_sect_wildcard_patterns ')'
                   {
-                    $$.file = $1;
-                    $$.exclude_files = $3;
-                    $$.wildcard_sections = $4;
+                    $$.m_pWildcardFile = $1;
+                    $$.m_pExcludeFiles = $3;
+                    $$.m_pWildcardSections = $4;
                   }
                 ;
 
@@ -572,7 +579,7 @@ output_sect_keyword : CREATE_OBJECT_SYMBOLS
                     ;
 
 symbol_assignment : symbol '=' script_exp ';'
-                    { m_ScriptFile.addAssignment(m_LinkerScript, *$1, *$3); }
+                    { m_ScriptFile.addAssignment(m_LDScript, *$1, *$3); }
                   | symbol ADD_ASSIGN exp ';'
                   | symbol SUB_ASSIGN exp ';'
                   | symbol MUL_ASSIGN exp ';'
@@ -583,17 +590,17 @@ symbol_assignment : symbol '=' script_exp ';'
                   | symbol RS_ASSIGN exp ';'
                   | HIDDEN '(' symbol '=' script_exp ')' ';'
                     {
-                      m_ScriptFile.addAssignment(m_LinkerScript, *$3, *$5,
+                      m_ScriptFile.addAssignment(m_LDScript, *$3, *$5,
                                                  Assignment::HIDDEN);
                     }
                   | PROVIDE '(' symbol '=' script_exp ')' ';'
                     {
-                      m_ScriptFile.addAssignment(m_LinkerScript, *$3, *$5,
+                      m_ScriptFile.addAssignment(m_LDScript, *$3, *$5,
                                                  Assignment::PROVIDE);
                     }
                   | PROVIDE_HIDDEN '(' symbol '=' script_exp ')' ';'
                     {
-                      m_ScriptFile.addAssignment(m_LinkerScript, *$3, *$5,
+                      m_ScriptFile.addAssignment(m_LDScript, *$3, *$5,
                                                  Assignment::PROVIDE_HIDDEN);
                     }
                   ;
