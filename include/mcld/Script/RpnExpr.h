@@ -52,6 +52,10 @@ public:
 
   void push_back(ExprToken* pToken);
 
+  iterator insert(iterator pPosition, ExprToken* pToken);
+
+  void erase(iterator pPosition);
+
   /* factory methods */
   static RpnExpr* create();
   static void destroy(RpnExpr*& pRpnExpr);

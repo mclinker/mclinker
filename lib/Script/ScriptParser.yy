@@ -184,6 +184,7 @@
 %left '*' '/' '%'
 %right UNARY_PLUS UNARY_MINUS '!' '~'
 
+%type <integer> exp
 %type <string> string symbol opt_region opt_lma_region wildcard_pattern
 %type <rpn_expr> script_exp opt_lma opt_align opt_subalign opt_fill
 %type <str_token> input phdr
@@ -617,77 +618,244 @@ script_exp : {
            ;
 
 exp : '(' exp ')'
+      {
+        $$ = $2;
+      }
     | '+' exp %prec UNARY_PLUS
-      { m_pRpnExpr->push_back(&Operator::create<Operator::UNARY_PLUS>()); }
+      {
+        m_pRpnExpr->push_back(&Operator::create<Operator::UNARY_PLUS>());
+        $$ = $2 + 1;
+      }
     | '-' exp %prec UNARY_MINUS
-      { m_pRpnExpr->push_back(&Operator::create<Operator::UNARY_MINUS>()); }
+      {
+        m_pRpnExpr->push_back(&Operator::create<Operator::UNARY_MINUS>());
+        $$ = $2 + 1;
+      }
     | '!' exp
-      { m_pRpnExpr->push_back(&Operator::create<Operator::LOGICAL_NOT>()); }
+      {
+        m_pRpnExpr->push_back(&Operator::create<Operator::LOGICAL_NOT>());
+        $$ = $2 + 1;
+      }
     | '~' exp
-      { m_pRpnExpr->push_back(&Operator::create<Operator::BITWISE_NOT>()); }
+      {
+        m_pRpnExpr->push_back(&Operator::create<Operator::BITWISE_NOT>());
+        $$ = $2 + 1;
+      }
     | exp '*' exp
-      { m_pRpnExpr->push_back(&Operator::create<Operator::MUL>()); }
+      {
+        m_pRpnExpr->push_back(&Operator::create<Operator::MUL>());
+        $$ = $1 + $3 + 1;
+      }
     | exp '/' exp
-      { m_pRpnExpr->push_back(&Operator::create<Operator::DIV>()); }
+      {
+        m_pRpnExpr->push_back(&Operator::create<Operator::DIV>());
+        $$ = $1 + $3 + 1;
+      }
     | exp '%' exp
-      { m_pRpnExpr->push_back(&Operator::create<Operator::MOD>()); }
+      {
+        m_pRpnExpr->push_back(&Operator::create<Operator::MOD>());
+        $$ = $1 + $3 + 1;
+      }
     | exp '+' exp
-      { m_pRpnExpr->push_back(&Operator::create<Operator::ADD>()); }
+      {
+        m_pRpnExpr->push_back(&Operator::create<Operator::ADD>());
+        $$ = $1 + $3 + 1;
+      }
     | exp '-' exp
-      { m_pRpnExpr->push_back(&Operator::create<Operator::SUB>()); }
+      {
+        m_pRpnExpr->push_back(&Operator::create<Operator::SUB>());
+        $$ = $1 + $3 + 1;
+      }
     | exp LSHIFT exp
-      { m_pRpnExpr->push_back(&Operator::create<Operator::LSHIFT>()); }
+      {
+        m_pRpnExpr->push_back(&Operator::create<Operator::LSHIFT>());
+        $$ = $1 + $3 + 1;
+      }
     | exp RSHIFT exp
-      { m_pRpnExpr->push_back(&Operator::create<Operator::RSHIFT>()); }
+      {
+        m_pRpnExpr->push_back(&Operator::create<Operator::RSHIFT>());
+        $$ = $1 + $3 + 1;
+      }
     | exp '<' exp
-      { m_pRpnExpr->push_back(&Operator::create<Operator::LT>()); }
+      {
+        m_pRpnExpr->push_back(&Operator::create<Operator::LT>());
+        $$ = $1 + $3 + 1;
+      }
     | exp LE exp
-      { m_pRpnExpr->push_back(&Operator::create<Operator::LE>()); }
+      {
+        m_pRpnExpr->push_back(&Operator::create<Operator::LE>());
+        $$ = $1 + $3 + 1;
+      }
     | exp '>' exp
-      { m_pRpnExpr->push_back(&Operator::create<Operator::GT>()); }
+      {
+        m_pRpnExpr->push_back(&Operator::create<Operator::GT>());
+        $$ = $1 + $3 + 1;
+      }
     | exp GE exp
-      { m_pRpnExpr->push_back(&Operator::create<Operator::GE>()); }
+      {
+        m_pRpnExpr->push_back(&Operator::create<Operator::GE>());
+        $$ = $1 + $3 + 1;
+      }
     | exp EQ exp
-      { m_pRpnExpr->push_back(&Operator::create<Operator::EQ>()); }
+      {
+        m_pRpnExpr->push_back(&Operator::create<Operator::EQ>());
+        $$ = $1 + $3 + 1;
+      }
     | exp NE exp
-      { m_pRpnExpr->push_back(&Operator::create<Operator::NE>()); }
+      {
+        m_pRpnExpr->push_back(&Operator::create<Operator::NE>());
+        $$ = $1 + $3 + 1;
+      }
     | exp '&' exp
-      { m_pRpnExpr->push_back(&Operator::create<Operator::BITWISE_AND>()); }
+      {
+        m_pRpnExpr->push_back(&Operator::create<Operator::BITWISE_AND>());
+        $$ = $1 + $3 + 1;
+      }
     | exp '^' exp
-      { m_pRpnExpr->push_back(&Operator::create<Operator::BITWISE_XOR>()); }
+      {
+        m_pRpnExpr->push_back(&Operator::create<Operator::BITWISE_XOR>());
+        $$ = $1 + $3 + 1;
+      }
     | exp '|' exp
-      { m_pRpnExpr->push_back(&Operator::create<Operator::BITWISE_OR>()); }
+      {
+        m_pRpnExpr->push_back(&Operator::create<Operator::BITWISE_OR>());
+        $$ = $1 + $3 + 1;
+      }
     | exp LOGICAL_AND exp
-      { m_pRpnExpr->push_back(&Operator::create<Operator::LOGICAL_AND>()); }
+      {
+        m_pRpnExpr->push_back(&Operator::create<Operator::LOGICAL_AND>());
+        $$ = $1 + $3 + 1;
+      }
     | exp LOGICAL_OR exp
-      { m_pRpnExpr->push_back(&Operator::create<Operator::LOGICAL_OR>()); }
+      {
+        m_pRpnExpr->push_back(&Operator::create<Operator::LOGICAL_OR>());
+      }
     | exp '?' exp ':' exp
-      { m_pRpnExpr->push_back(&Operator::create<Operator::TERNARY_IF>()); }
+      {
+        m_pRpnExpr->push_back(&Operator::create<Operator::TERNARY_IF>());
+        $$ = $1 + $3 + $5 + 1;
+      }
     | ABSOLUTE '(' exp ')'
+      {
+        m_pRpnExpr->push_back(&Operator::create<Operator::ABSOLUTE>());
+        $$ = $3 + 1;
+      }
     | ADDR '(' string ')'
+      {
+        m_pRpnExpr->push_back(SectOperand::create(*$3));
+        m_pRpnExpr->push_back(&Operator::create<Operator::ADDR>());
+        $$ = 2;
+      }
     | ALIGN '(' exp ')'
+      {
+        RpnExpr::iterator pos = m_pRpnExpr->begin() + m_pRpnExpr->size() - $3;
+        m_pRpnExpr->insert(pos, SymOperand::create("."));
+        m_pRpnExpr->push_back(&Operator::create<Operator::ALIGN>());
+        $$ = $3 + 2;
+      }
     | ALIGN '(' exp ',' exp ')'
+      {
+        m_pRpnExpr->push_back(&Operator::create<Operator::ALIGN>());
+        $$ = $3 + $5 + 1;
+      }
     | ALIGNOF '(' string ')'
+      {
+        m_pRpnExpr->push_back(SectOperand::create(*$3));
+        m_pRpnExpr->push_back(&Operator::create<Operator::ALIGNOF>());
+        $$ = 2;
+      }
     | BLOCK '(' exp ')'
+      {
+        RpnExpr::iterator pos = m_pRpnExpr->begin() + m_pRpnExpr->size() - $3;
+        m_pRpnExpr->insert(pos, SymOperand::create("."));
+        m_pRpnExpr->push_back(&Operator::create<Operator::ALIGN>());
+        $$ = $3 + 2;
+      }
     | DATA_SEGMENT_ALIGN '(' exp ',' exp ')'
+      {
+        m_pRpnExpr->push_back(&Operator::create<Operator::DATA_SEGMENT_ALIGN>());
+        $$ = $3 + $5 + 1;
+      }
     | DATA_SEGMENT_END '(' exp ')'
+      {
+        m_pRpnExpr->push_back(&Operator::create<Operator::DATA_SEGMENT_END>());
+        $$ = $3 + 1;
+      }
     | DATA_SEGMENT_RELRO_END '(' exp ',' exp ')'
-    | DEFINED '(' string ')'
+      {
+        m_pRpnExpr->push_back(&Operator::create<Operator::DATA_SEGMENT_RELRO_END>());
+        $$ = $3 + $5 + 1;
+      }
+    | DEFINED '(' symbol ')'
+      {
+        m_pRpnExpr->push_back(SymOperand::create(*$3));
+        m_pRpnExpr->push_back(&Operator::create<Operator::DEFINED>());
+        $$ = 2;
+      }
     | LENGTH '(' string ')'
+      {
+        /* TODO */
+      }
     | LOADADDR '(' string ')'
+      {
+        m_pRpnExpr->push_back(SectOperand::create(*$3));
+        m_pRpnExpr->push_back(&Operator::create<Operator::LOADADDR>());
+        $$ = 2;
+      }
     | MAX '(' exp ',' exp ')'
+      {
+        m_pRpnExpr->push_back(&Operator::create<Operator::MAX>());
+        $$ = $3 + $5 + 1;
+      }
     | MIN '(' exp ',' exp ')'
+      {
+        m_pRpnExpr->push_back(&Operator::create<Operator::MIN>());
+        $$ = $3 + $5 + 1;
+      }
     | NEXT '(' exp ')'
+      {
+        m_pRpnExpr->push_back(&Operator::create<Operator::NEXT>());
+        $$ = $3 + 1;
+      }
     | ORIGIN '(' string ')'
+      {
+        /* TODO */
+      }
     | SEGMENT_START '(' string ',' exp ')'
+      {
+        /* TODO */
+      }
     | SIZEOF '(' string ')'
+      {
+        m_pRpnExpr->push_back(SectOperand::create(*$3));
+        m_pRpnExpr->push_back(&Operator::create<Operator::SIZEOF>());
+        $$ = 2;
+      }
     | SIZEOF_HEADERS
+      {
+        m_pRpnExpr->push_back(&Operator::create<Operator::SIZEOF_HEADERS>());
+        $$ = 1;
+      }
     | CONSTANT '(' MAXPAGESIZE ')'
+      {
+        m_pRpnExpr->push_back(&Operator::create<Operator::MAXPAGESIZE>());
+        $$ = 1;
+      }
     | CONSTANT '(' COMMONPAGESIZE')'
+      {
+        m_pRpnExpr->push_back(&Operator::create<Operator::COMMONPAGESIZE>());
+        $$ = 1;
+      }
     | INTEGER
-      { m_pRpnExpr->push_back(IntOperand::create($1)); }
+      {
+        m_pRpnExpr->push_back(IntOperand::create($1));
+        $$ = 1;
+      }
     | symbol
-      { m_pRpnExpr->push_back(SymOperand::create(*$1)); }
+      {
+        m_pRpnExpr->push_back(SymOperand::create(*$1));
+        $$ = 1;
+      }
     ;
 
 symbol : STRING
