@@ -1772,11 +1772,11 @@ void GNULDBackend::createProgramHdrs(Module& pModule)
 {
   ELFFileFormat *file_format = getOutputFormat();
 
-  // make PT_PHDR
-  m_ELFSegmentTable.produce(llvm::ELF::PT_PHDR);
-
   // make PT_INTERP
   if (file_format->hasInterp()) {
+    // make PT_PHDR
+    m_ELFSegmentTable.produce(llvm::ELF::PT_PHDR);
+
     ELFSegment* interp_seg = m_ELFSegmentTable.produce(llvm::ELF::PT_INTERP);
     interp_seg->append(&file_format->getInterp());
   }
