@@ -34,6 +34,7 @@ public:
     SYMBOL,
     INTEGER,
     SECTION,
+    SECTION_DESC,
     FRAGMENT
   };
 
@@ -129,13 +130,55 @@ private:
 /** \class SectOperand
  *  \brief This class defines the interfaces to an section name operand.
  */
+class LDSection;
 
 class SectOperand : public Operand
 {
 private:
   friend class Chunk<SectOperand, MCLD_SECTIONS_PER_INPUT>;
   SectOperand();
-  SectOperand(const SectionMap::Output* pOutputDesc);
+  SectOperand(const std::string& pName);
+
+public:
+  void dump() const;
+
+  const std::string& name() const { return m_Name; }
+
+  const LDSection* getSection() const { return m_pSection; }
+
+  void setSection(const LDSection* pSection) { m_pSection = pSection; }
+
+  uint64_t value() const
+  {
+    assert(0);
+    return 0;
+  }
+
+  static bool classof(const Operand* pOperand)
+  {
+    return pOperand->type() == Operand::SECTION;
+  }
+
+  /* factory method */
+  static SectOperand* create(const std::string& pName);
+  static void destroy(SectOperand*& pOperand);
+  static void clear();
+
+private:
+  std::string m_Name;
+  const LDSection* m_pSection;
+};
+
+/** \class SectDescOperand
+ *  \brief This class defines the interfaces to an section name operand.
+ */
+
+class SectDescOperand : public Operand
+{
+private:
+  friend class Chunk<SectDescOperand, MCLD_SECTIONS_PER_INPUT>;
+  SectDescOperand();
+  SectDescOperand(const SectionMap::Output* pOutputDesc);
 
 public:
   void dump() const;
@@ -150,12 +193,12 @@ public:
 
   static bool classof(const Operand* pOperand)
   {
-    return pOperand->type() == Operand::SECTION;
+    return pOperand->type() == Operand::SECTION_DESC;
   }
 
   /* factory method */
-  static SectOperand* create(const SectionMap::Output* pOutputDesc);
-  static void destroy(SectOperand*& pOperand);
+  static SectDescOperand* create(const SectionMap::Output* pOutputDesc);
+  static void destroy(SectDescOperand*& pOperand);
   static void clear();
 
 private:

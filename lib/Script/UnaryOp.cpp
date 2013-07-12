@@ -61,8 +61,18 @@ template<>
 IntOperand* UnaryOp<Operator::ADDR>::eval()
 {
   IntOperand* res = result();
-  const LDSection* sect =
-    llvm::cast<SectOperand>(m_pOperand)->outputDesc()->getSection();
+  const LDSection* sect = NULL;
+  switch (m_pOperand->type()) {
+  case Operand::SECTION:
+    sect = llvm::cast<SectOperand>(m_pOperand)->getSection();
+    break;
+  case Operand::SECTION_DESC:
+    sect = llvm::cast<SectDescOperand>(m_pOperand)->outputDesc()->getSection();
+    break;
+  default:
+    assert(0);
+    break;
+  }
   res->setValue(sect->addr());
   return res;
 }
@@ -71,8 +81,18 @@ template<>
 IntOperand* UnaryOp<Operator::ALIGNOF>::eval()
 {
   IntOperand* res = result();
-  const LDSection* sect =
-    llvm::cast<SectOperand>(m_pOperand)->outputDesc()->getSection();
+  const LDSection* sect = NULL;
+  switch (m_pOperand->type()) {
+  case Operand::SECTION:
+    sect = llvm::cast<SectOperand>(m_pOperand)->getSection();
+    break;
+  case Operand::SECTION_DESC:
+    sect = llvm::cast<SectDescOperand>(m_pOperand)->outputDesc()->getSection();
+    break;
+  default:
+    assert(0);
+    break;
+  }
   res->setValue(sect->align());
   return res;
 }
@@ -129,8 +149,18 @@ template<>
 IntOperand* UnaryOp<Operator::SIZEOF>::eval()
 {
   IntOperand* res = result();
-  const LDSection* sect =
-    llvm::cast<SectOperand>(m_pOperand)->outputDesc()->getSection();
+  const LDSection* sect = NULL;
+  switch (m_pOperand->type()) {
+  case Operand::SECTION:
+    sect = llvm::cast<SectOperand>(m_pOperand)->getSection();
+    break;
+  case Operand::SECTION_DESC:
+    sect = llvm::cast<SectDescOperand>(m_pOperand)->outputDesc()->getSection();
+    break;
+  default:
+    assert(0);
+    break;
+  }
   res->setValue(sect->size());
   return res;
 }

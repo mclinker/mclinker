@@ -120,25 +120,24 @@ void IntOperand::clear()
 typedef GCFactory<SectOperand, MCLD_SECTIONS_PER_INPUT> SectOperandFactory;
 static llvm::ManagedStatic<SectOperandFactory> g_SectOperandFactory;
 SectOperand::SectOperand()
-  : Operand(Operand::SECTION), m_pOutputDesc(NULL)
+  : Operand(Operand::SECTION), m_pSection(NULL)
 {
 }
 
-SectOperand::SectOperand(const SectionMap::Output* pOutputDesc)
-  : Operand(Operand::SECTION), m_pOutputDesc(pOutputDesc)
+SectOperand::SectOperand(const std::string& pName)
+  : Operand(Operand::SECTION), m_Name(pName), m_pSection(NULL)
 {
 }
 
 void SectOperand::dump() const
 {
-  assert(m_pOutputDesc != NULL);
-  mcld::outs() << m_pOutputDesc->getSection()->name();
+  mcld::outs() << m_Name;
 }
 
-SectOperand* SectOperand::create(const SectionMap::Output* pOutputDesc)
+SectOperand* SectOperand::create(const std::string& pName)
 {
   SectOperand* result = g_SectOperandFactory->allocate();
-  new (result) SectOperand(pOutputDesc);
+  new (result) SectOperand(pName);
   return result;
 }
 
@@ -152,6 +151,47 @@ void SectOperand::destroy(SectOperand*& pOperand)
 void SectOperand::clear()
 {
   g_SectOperandFactory->clear();
+}
+
+//===----------------------------------------------------------------------===//
+// SectDescOperand
+//===----------------------------------------------------------------------===//
+typedef GCFactory<SectDescOperand,
+                  MCLD_SECTIONS_PER_INPUT> SectDescOperandFactory;
+static llvm::ManagedStatic<SectDescOperandFactory> g_SectDescOperandFactory;
+SectDescOperand::SectDescOperand()
+  : Operand(Operand::SECTION_DESC), m_pOutputDesc(NULL)
+{
+}
+
+SectDescOperand::SectDescOperand(const SectionMap::Output* pOutputDesc)
+  : Operand(Operand::SECTION_DESC), m_pOutputDesc(pOutputDesc)
+{
+}
+
+void SectDescOperand::dump() const
+{
+  assert(m_pOutputDesc != NULL);
+  mcld::outs() << m_pOutputDesc->getSection()->name();
+}
+
+SectDescOperand* SectDescOperand::create(const SectionMap::Output* pOutputDesc)
+{
+  SectDescOperand* result = g_SectDescOperandFactory->allocate();
+  new (result) SectDescOperand(pOutputDesc);
+  return result;
+}
+
+void SectDescOperand::destroy(SectDescOperand*& pOperand)
+{
+  g_SectDescOperandFactory->destroy(pOperand);
+  g_SectDescOperandFactory->deallocate(pOperand);
+  pOperand = NULL;
+}
+
+void SectDescOperand::clear()
+{
+  g_SectDescOperandFactory->clear();
 }
 
 //===----------------------------------------------------------------------===//

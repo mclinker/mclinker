@@ -90,8 +90,16 @@ bool RpnEvaluator::eval(const RpnExpr& pExpr, uint64_t& pResult)
           }
           sym_opd->setValue(symbol->value());
         }
+        operandStack.push(opd);
+        break;
       }
-      // fall through
+      case Operand::SECTION: {
+        SectOperand* sect_opd = llvm::cast<SectOperand>(opd);
+        const LDSection* sect = m_Module.getSection(sect_opd->name());
+        sect_opd->setSection(sect);
+        operandStack.push(opd);
+        break;
+      }
       default:
         operandStack.push(opd);
         break;

@@ -97,9 +97,9 @@ void Assignment::activate()
         // . = ADDR ( `output_sect' ) + SIZEOF ( `output_sect' )
         SymOperand* dot = SymOperand::create(".");
         RpnExpr* expr = RpnExpr::create();
-        expr->push_back(SectOperand::create(*prev));
+        expr->push_back(SectDescOperand::create(*prev));
         expr->push_back(&Operator::create<Operator::ADDR>());
-        expr->push_back(SectOperand::create(*prev));
+        expr->push_back(SectDescOperand::create(*prev));
         expr->push_back(&Operator::create<Operator::SIZEOF>());
         expr->push_back(&Operator::create<Operator::ADD>());
         Assignment assign(m_Module, m_Script, OUTPUT_SECTION, DEFAULT, *dot,
