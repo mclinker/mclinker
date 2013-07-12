@@ -13,6 +13,7 @@
 #endif
 
 #include <mcld/Script/ExprToken.h>
+#include <mcld/Object/SectionMap.h>
 #include <mcld/Support/Allocators.h>
 #include <mcld/Config/Config.h>
 #include <llvm/Support/DataTypes.h>
@@ -42,7 +43,7 @@ protected:
 public:
   Type type() const { return m_Type; }
 
-  virtual bool isDOT() const { return false; }
+  virtual bool isDot() const { return false; }
 
   virtual uint64_t value() const = 0;
 
@@ -133,12 +134,12 @@ class SectOperand : public Operand
 private:
   friend class Chunk<SectOperand, MCLD_SECTIONS_PER_INPUT>;
   SectOperand();
-  SectOperand(const std::string& pName);
+  SectOperand(const SectionMap::Output* pOutputDesc);
 
 public:
   void dump() const;
 
-  const std::string& name() const { return m_Name; }
+  const SectionMap::Output* outputDesc() const { return m_pOutputDesc; }
 
   uint64_t value() const
   {
@@ -152,13 +153,14 @@ public:
   }
 
   /* factory method */
-  static SectOperand* create(const std::string& pName);
+  static SectOperand* create(const SectionMap::Output* pOutputDesc);
   static void destroy(SectOperand*& pOperand);
   static void clear();
 
 private:
-  std::string m_Name;
+  const SectionMap::Output* m_pOutputDesc;
 };
+
 
 } // namespace of mcld
 

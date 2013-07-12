@@ -48,6 +48,8 @@ public:
 
   bool empty() const { return m_TokenQueue.empty(); }
 
+  bool hasDot() const;
+
   void dump() const;
 
   void push_back(ExprToken* pToken);

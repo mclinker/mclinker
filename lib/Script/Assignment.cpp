@@ -9,9 +9,11 @@
 #include <mcld/Script/Assignment.h>
 #include <mcld/Script/RpnExpr.h>
 #include <mcld/Script/Operand.h>
+#include <mcld/Script/Operator.h>
 #include <mcld/Script/RpnEvaluator.h>
 #include <mcld/Support/raw_ostream.h>
 #include <mcld/LinkerScript.h>
+#include <llvm/Support/Casting.h>
 #include <cassert>
 
 using namespace mcld;
@@ -76,16 +78,55 @@ void Assignment::dump() const
 
 void Assignment::activate()
 {
-  switch (m_Symbol.type()) {
-  case Operand::SYMBOL: {
-    LDSymbol* sym = NULL;
-    m_Script.assignments().push_back(std::make_pair(sym, *this));
+  bool isLhsDot = m_Symbol.isDot();
+  switch (m_Level) {
+  case OUTSIDES_SECTIONS:
+    assert(!isLhsDot);
+    m_Script.assignments().push_back(std::make_pair((LDSymbol*)NULL, *this));
+    break;
+
+  case OUTPUT_SECTION: {
+    bool hasDotInRhs = m_RpnExpr.hasDot();
+    SectionMap::reference out = m_Script.sectionMap().back();
+    if (hasDotInRhs) {
+      if (out->dotAssignments().empty()) {
+        SectionMap::iterator prev = m_Script.sectionMap().begin() +
+                                    m_Script.sectionMap().size() - 2;
+        // . = ADDR ( `output_sect' ) + SIZEOF ( `output_sect' )
+        SymOperand* dot = SymOperand::create(".");
+        RpnExpr* expr = RpnExpr::create();
+        expr->push_back(SectOperand::create(*prev));
+        expr->push_back(&Operator::create<Operator::ADDR>());
+        expr->push_back(SectOperand::create(*prev));
+        expr->push_back(&Operator::create<Operator::SIZEOF>());
+        expr->push_back(&Operator::create<Operator::ADD>());
+        Assignment assign(m_Module, m_Script, OUTPUT_SECTION, DEFAULT, *dot, *expr);
+        out->dotAssignments().push_back(assign);
+      }
+
+      for (RpnExpr::iterator it = m_RpnExpr.begin(), ie = m_RpnExpr.end();
+        it != ie; ++it) {
+        if ((*it)->kind() == ExprToken::OPERAND &&
+            llvm::cast<Operand>(*it)->isDot())
+          (*it) = &(out->dotAssignments().back().symbol());
+      } // for each expression token
+    }
+
+    if (isLhsDot) {
+      out->dotAssignments().push_back(*this);
+    } else {
+      m_Script.assignments().push_back(std::make_pair((LDSymbol*)NULL, *this));
+    }
+
     break;
   }
-  default:
-    assert(0 && "Vaild lvalue required as left operand of assignment!");
+
+  case INPUT_SECTION: {
+    m_Script.assignments().push_back(std::make_pair((LDSymbol*)NULL, *this));
     break;
   }
+
+  } // end of switch
 }
 
 bool Assignment::assign()

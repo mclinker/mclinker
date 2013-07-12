@@ -80,7 +80,7 @@ bool RpnEvaluator::eval(const RpnExpr& pExpr, uint64_t& pResult)
       Operand* opd = llvm::cast<Operand>(*it);
       switch (opd->type()) {
       case Operand::SYMBOL: {
-        if (!opd->isDOT()) {
+        if (!opd->isDot()) {
           SymOperand* sym_opd = llvm::cast<SymOperand>(opd);
           const LDSymbol* symbol =
             m_Module.getNamePool().findSymbol(sym_opd->name());

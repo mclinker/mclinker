@@ -38,6 +38,8 @@
 #include <mcld/Object/ObjectBuilder.h>
 #include <mcld/Object/SectionMap.h>
 #include <mcld/Script/RpnEvaluator.h>
+#include <mcld/Script/Operand.h>
+#include <mcld/Script/OutputSectDesc.h>
 
 #include <llvm/Support/Host.h>
 
@@ -2073,22 +2075,31 @@ void GNULDBackend::setOutputSectionAddress(Module& pModule)
       continue;
     }
 
+    // process dot assignments between 2 output sections
+    for (SectionMap::Output::dot_iterator it = (*out)->dot_begin(),
+      ie = (*out)->dot_end(); it != ie; ++it) {
+      (*it).assign();
+    }
+
     seg = elfSegmentTable().find(llvm::ELF::PT_LOAD, cur);
-    if ((*out)->prolog().hasVMA()) {
-      evaluator.eval((*out)->prolog().vma(), vma);
-    } else if (seg != segEnd && cur == (*seg)->front()) {
+    if (seg != segEnd && cur == (*seg)->front()) {
       if ((*seg)->isBssSegment())
         addr = script.addressMap().find(".bss");
       else if ((*seg)->isDataSegment())
         addr = script.addressMap().find(".data");
       else
         addr = script.addressMap().find(cur->name());
-    } else
-      addr = addrEnd;
+    }
 
     if (addr != addrEnd) {
       // use address mapping in script options
       vma = addr.getEntry()->value();
+    } else if ((*out)->prolog().hasVMA()) {
+      // use address from output section description
+      evaluator.eval((*out)->prolog().vma(), vma);
+    } else if (!(*out)->dotAssignments().empty()) {
+      // assign address based on `.' symbol in ldscript
+      vma = (*out)->dotAssignments().back().symbol().value();
     } else {
       if ((cur->flag() & llvm::ELF::SHF_ALLOC) != 0) {
         if (prev->kind() == LDFileFormat::Null)
@@ -2285,6 +2296,9 @@ void GNULDBackend::layout(Module& pModule)
         (*out)->getSection()->kind() == LDFileFormat::Null) {
       (*out)->getSection()->setIndex(pModule.size());
       pModule.getSectionTable().push_back((*out)->getSection());
+    } else {
+      SectionMap::iterator prev = out - 1;
+      (*out)->getSection()->setFlag((*prev)->getSection()->flag());
     }
   } // for each output section description
 

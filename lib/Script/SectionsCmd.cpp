@@ -65,13 +65,27 @@ void SectionsCmd::push_back(ScriptCommand* pCommand)
 
 void SectionsCmd::activate()
 {
+  // Assignment between output sections
+  SectionCommands assignments;
+
   for (const_iterator it = begin(), ie = end(); it != ie; ++it) {
     switch ((*it)->getKind()) {
     case ScriptCommand::ENTRY:
-    case ScriptCommand::ASSIGNMENT:
-    case ScriptCommand::OUTPUT_SECT_DESC:
       (*it)->activate();
       break;
+    case ScriptCommand::ASSIGNMENT:
+      assignments.push_back(*it);
+      break;
+    case ScriptCommand::OUTPUT_SECT_DESC: {
+      (*it)->activate();
+
+      iterator assign, assignEnd = assignments.end();
+      for (assign = assignments.begin(); assign != assignEnd; ++assign)
+        (*assign)->activate();
+      assignments.clear();
+
+      break;
+    }
     default:
       assert(0);
       break;

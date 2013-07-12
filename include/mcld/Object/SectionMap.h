@@ -55,6 +55,10 @@ public:
     typedef InputList::const_reference const_reference;
     typedef InputList::reference reference;
 
+    typedef std::vector<Assignment> DotAssignments;
+    typedef DotAssignments::const_iterator const_dot_iterator;
+    typedef DotAssignments::iterator dot_iterator;
+
     Output(const std::string& pName);
     Output(const OutputSectDesc& pOutputDesc);
 
@@ -91,6 +95,14 @@ public:
 
     void append(Input* pInput) { m_InputList.push_back(pInput); }
 
+    const_dot_iterator dot_begin() const { return m_DotAssignments.begin(); }
+    dot_iterator       dot_begin()       { return m_DotAssignments.begin(); }
+    const_dot_iterator dot_end  () const { return m_DotAssignments.end(); }
+    dot_iterator       dot_end  ()       { return m_DotAssignments.end(); }
+
+    const DotAssignments& dotAssignments() const { return m_DotAssignments; }
+    DotAssignments&       dotAssignments()       { return m_DotAssignments; }
+
   private:
     std::string m_Name;
     OutputSectDesc::Prolog m_Prolog;
@@ -98,6 +110,7 @@ public:
     LDSection* m_pSection;
     size_t m_Order;
     InputList m_InputList;
+    DotAssignments m_DotAssignments;
   };
 
   struct SHOCompare
@@ -118,8 +131,13 @@ public:
 public:
   ~SectionMap();
 
-  const_mapping find(const std::string& pInputSection) const;
-  mapping       find(const std::string& pInputSection);
+  const_mapping find(const std::string& pInputFile,
+                     const std::string& pInputSection) const;
+  mapping       find(const std::string& pInputFile,
+                     const std::string& pInputSection);
+
+  const_iterator find(const std::string& pOutputSection) const;
+  iterator       find(const std::string& pOutputSection);
 
   std::pair<mapping, bool>
   insert(const std::string& pInputSection, const std::string& pOutputSection);

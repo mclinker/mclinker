@@ -9,6 +9,7 @@
 #include <mcld/Script/Operand.h>
 #include <mcld/Support/raw_ostream.h>
 #include <mcld/Support/GCFactory.h>
+#include <mcld/LD/LDSection.h>
 #include <llvm/Support/ManagedStatic.h>
 #include <cassert>
 
@@ -118,24 +119,25 @@ void IntOperand::clear()
 typedef GCFactory<SectOperand, MCLD_SECTIONS_PER_INPUT> SectOperandFactory;
 static llvm::ManagedStatic<SectOperandFactory> g_SectOperandFactory;
 SectOperand::SectOperand()
-  : Operand(Operand::SECTION)
+  : Operand(Operand::SECTION), m_pOutputDesc(NULL)
 {
 }
 
-SectOperand::SectOperand(const std::string& pName)
-  : Operand(Operand::SECTION), m_Name(pName)
+SectOperand::SectOperand(const SectionMap::Output* pOutputDesc)
+  : Operand(Operand::SECTION), m_pOutputDesc(pOutputDesc)
 {
 }
 
 void SectOperand::dump() const
 {
-  mcld::outs() << m_Name;
+  assert(m_pOutputDesc != NULL);
+  mcld::outs() << m_pOutputDesc->getSection()->name();
 }
 
-SectOperand* SectOperand::create(const std::string& pName)
+SectOperand* SectOperand::create(const SectionMap::Output* pOutputDesc)
 {
   SectOperand* result = g_SectOperandFactory->allocate();
-  new (result) SectOperand(pName);
+  new (result) SectOperand(pOutputDesc);
   return result;
 }
 
@@ -150,4 +152,3 @@ void SectOperand::clear()
 {
   g_SectOperandFactory->clear();
 }
-

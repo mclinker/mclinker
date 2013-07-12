@@ -106,8 +106,10 @@ SectionMap::~SectionMap()
 }
 
 SectionMap::const_mapping
-SectionMap::find(const std::string& pInputSection) const
+SectionMap::find(const std::string& pInputFile,
+                 const std::string& pInputSection) const
 {
+  // TODO: check input file pattern
   const_iterator out, outBegin = begin(), outEnd = end();
   for (out = outBegin; out != outEnd; ++out) {
     Output::const_iterator in, inBegin = (*out)->begin(), inEnd = (*out)->end();
@@ -119,8 +121,10 @@ SectionMap::find(const std::string& pInputSection) const
   return std::make_pair((const Output*)NULL, (const Input*)NULL);
 }
 
-SectionMap::mapping SectionMap::find(const std::string& pInputSection)
+SectionMap::mapping SectionMap::find(const std::string& pInputFile,
+                                     const std::string& pInputSection)
 {
+  // TODO: check input file pattern
   iterator out, outBegin = begin(), outEnd = end();
   for (out = outBegin; out != outEnd; ++out) {
     Output::iterator in, inBegin = (*out)->begin(), inEnd = (*out)->end();
@@ -130,6 +134,28 @@ SectionMap::mapping SectionMap::find(const std::string& pInputSection)
     }
   }
   return std::make_pair((Output*)NULL, (Input*)NULL);
+}
+
+SectionMap::const_iterator
+SectionMap::find(const std::string& pOutputSection) const
+{
+  const_iterator out, outBegin = begin(), outEnd = end();
+  for (out = outBegin; out != outEnd; ++out) {
+    if ((*out)->name().compare(pOutputSection) == 0)
+      return out;
+  }
+  return outEnd;
+}
+
+SectionMap::iterator
+SectionMap::find(const std::string& pOutputSection)
+{
+  iterator out, outBegin = begin(), outEnd = end();
+  for (out = outBegin; out != outEnd; ++out) {
+    if ((*out)->name().compare(pOutputSection) == 0)
+      return out;
+  }
+  return outEnd;
 }
 
 std::pair<SectionMap::mapping, bool>

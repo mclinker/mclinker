@@ -19,7 +19,9 @@
 #include <mcld/Script/NameSpec.h>
 #include <mcld/Script/WildcardPattern.h>
 #include <mcld/Support/MsgHandling.h>
-#include <mcld/MC/MCLDInput.h>
+#include <mcld/Object/SectionMap.h>
+#include <mcld/LinkerScript.h>
+#include <cassert>
 
 #undef yylex
 #define yylex m_ScriptScanner.lex
@@ -757,7 +759,9 @@ exp : '(' exp ')'
       }
     | ADDR '(' string ')'
       {
-        m_pRpnExpr->push_back(SectOperand::create(*$3));
+        SectionMap::const_iterator sect = m_LDScript.sectionMap().find(*$3);
+        assert(sect != m_LDScript.sectionMap().end());
+        m_pRpnExpr->push_back(SectOperand::create(*sect));
         m_pRpnExpr->push_back(&Operator::create<Operator::ADDR>());
         $$ = 2;
       }
@@ -775,7 +779,9 @@ exp : '(' exp ')'
       }
     | ALIGNOF '(' string ')'
       {
-        m_pRpnExpr->push_back(SectOperand::create(*$3));
+        SectionMap::const_iterator sect = m_LDScript.sectionMap().find(*$3);
+        assert(sect != m_LDScript.sectionMap().end());
+        m_pRpnExpr->push_back(SectOperand::create(*sect));
         m_pRpnExpr->push_back(&Operator::create<Operator::ALIGNOF>());
         $$ = 2;
       }
@@ -813,7 +819,9 @@ exp : '(' exp ')'
       }
     | LOADADDR '(' string ')'
       {
-        m_pRpnExpr->push_back(SectOperand::create(*$3));
+        SectionMap::const_iterator sect = m_LDScript.sectionMap().find(*$3);
+        assert(sect != m_LDScript.sectionMap().end());
+        m_pRpnExpr->push_back(SectOperand::create(*sect));
         m_pRpnExpr->push_back(&Operator::create<Operator::LOADADDR>());
         $$ = 2;
       }
@@ -842,7 +850,9 @@ exp : '(' exp ')'
       }
     | SIZEOF '(' string ')'
       {
-        m_pRpnExpr->push_back(SectOperand::create(*$3));
+        SectionMap::const_iterator sect = m_LDScript.sectionMap().find(*$3);
+        assert(sect != m_LDScript.sectionMap().end());
+        m_pRpnExpr->push_back(SectOperand::create(*sect));
         m_pRpnExpr->push_back(&Operator::create<Operator::SIZEOF>());
         $$ = 2;
       }

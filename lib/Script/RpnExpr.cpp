@@ -8,9 +8,11 @@
 //===----------------------------------------------------------------------===//
 #include <mcld/Script/RpnExpr.h>
 #include <mcld/Script/ExprToken.h>
+#include <mcld/Script/Operand.h>
 #include <mcld/Support/GCFactory.h>
 #include <mcld/Support/raw_ostream.h>
 #include <llvm/Support/ManagedStatic.h>
+#include <llvm/Support/Casting.h>
 
 using namespace mcld;
 
@@ -26,6 +28,16 @@ RpnExpr::RpnExpr()
 
 RpnExpr::~RpnExpr()
 {
+}
+
+bool RpnExpr::hasDot() const
+{
+  for (const_iterator it = begin(), ie = end(); it != ie; ++it) {
+    if ((*it)->kind() == ExprToken::OPERAND &&
+        llvm::cast<Operand>(*it)->isDot())
+      return true;
+  }
+  return false;
 }
 
 void RpnExpr::dump() const
