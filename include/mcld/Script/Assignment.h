@@ -28,6 +28,12 @@ class SymOperand;
 class Assignment : public ScriptCommand
 {
 public:
+  enum Level {
+    OUTSIDES_SECTIONS, // outsied SECTIONS command
+    OUTPUT_SECTION,    // related to an output section
+    INPUT_SECTION      // related to an input section
+  };
+
   enum Type {
     DEFAULT,
     HIDDEN,
@@ -37,6 +43,7 @@ public:
 
 public:
   Assignment(LinkerScript& pScript,
+             Level pLevel,
              Type pType,
              SymOperand& pSymbol,
              RpnExpr& pRpnExpr);
@@ -44,6 +51,8 @@ public:
   ~Assignment();
 
   Assignment& operator=(const Assignment& pAssignment);
+
+  Level level() const { return m_Level; }
 
   Type type() const { return m_Type; }
 
@@ -64,6 +73,7 @@ public:
 
 private:
   LinkerScript& m_Script;
+  Level m_Level;
   Type m_Type;
   SymOperand& m_Symbol;
   RpnExpr& m_RpnExpr;

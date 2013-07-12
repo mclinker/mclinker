@@ -19,11 +19,13 @@ using namespace mcld;
 // Assignment
 //===----------------------------------------------------------------------===//
 Assignment::Assignment(LinkerScript& pScript,
+                       Level pLevel,
                        Type pType,
                        SymOperand& pSymbol,
                        RpnExpr& pRpnExpr)
   : ScriptCommand(ScriptCommand::ASSIGNMENT),
     m_Script(pScript),
+    m_Level(pLevel),
     m_Type(pType),
     m_Symbol(pSymbol),
     m_RpnExpr(pRpnExpr)

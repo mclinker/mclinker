@@ -144,9 +144,9 @@ private:
   InputTree* m_pInputTree;
   InputBuilder& m_Builder;
   CommandQueue m_CommandQueue;
-  bool m_HasSectionsCmd;
-  bool m_InSectionsCmd;
-  bool m_InOutputSectDesc;
+  bool m_bHasSectionsCmd;
+  bool m_bInSectionsCmd;
+  bool m_bInOutputSectDesc;
 };
 
 } // namespace of mcld
