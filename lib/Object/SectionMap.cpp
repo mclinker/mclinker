@@ -36,6 +36,8 @@ SectionMap::Input::Input(const std::string& pName)
   m_pSection = LDSection::Create(pName, LDFileFormat::Regular, 0, 0);
   SectionData* sd = SectionData::Create(*m_pSection);
   m_pSection->setSectionData(sd);
+  new NullFragment(sd);
+  new NullFragment(sd);
 }
 
 SectionMap::Input::Input(const InputSectDesc& pInputDesc)
@@ -45,6 +47,8 @@ SectionMap::Input::Input(const InputSectDesc& pInputDesc)
   m_pSection = LDSection::Create("", LDFileFormat::Regular, 0, 0);
   SectionData* sd = SectionData::Create(*m_pSection);
   m_pSection->setSectionData(sd);
+  new NullFragment(sd);
+  new NullFragment(sd);
 }
 
 //===----------------------------------------------------------------------===//

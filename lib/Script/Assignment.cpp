@@ -13,6 +13,8 @@
 #include <mcld/Script/RpnEvaluator.h>
 #include <mcld/Support/raw_ostream.h>
 #include <mcld/LinkerScript.h>
+#include <mcld/LD/LDSection.h>
+#include <mcld/LD/SectionData.h>
 #include <llvm/Support/Casting.h>
 #include <cassert>
 
@@ -100,7 +102,8 @@ void Assignment::activate()
         expr->push_back(SectOperand::create(*prev));
         expr->push_back(&Operator::create<Operator::SIZEOF>());
         expr->push_back(&Operator::create<Operator::ADD>());
-        Assignment assign(m_Module, m_Script, OUTPUT_SECTION, DEFAULT, *dot, *expr);
+        Assignment assign(m_Module, m_Script, OUTPUT_SECTION, DEFAULT, *dot,
+                          *expr);
         out->dotAssignments().push_back(assign);
       }
 
@@ -122,7 +125,36 @@ void Assignment::activate()
   }
 
   case INPUT_SECTION: {
-    m_Script.assignments().push_back(std::make_pair((LDSymbol*)NULL, *this));
+    bool hasDotInRhs = m_RpnExpr.hasDot();
+    SectionMap::Output::reference in = m_Script.sectionMap().back()->back();
+    if (hasDotInRhs) {
+      if (in->dotAssignments().empty()) {
+        // . = `frag'
+        SymOperand* dot = SymOperand::create(".");
+        RpnExpr* expr = RpnExpr::create();
+        expr->push_back(
+          FragOperand::create(in->getSection()->getSectionData()->front()));
+        Assignment assign(m_Module, m_Script, INPUT_SECTION, DEFAULT, *dot,
+                          *expr);
+        in->dotAssignments().push_back(std::make_pair((Fragment*)NULL, assign));
+      }
+
+      for (RpnExpr::iterator it = m_RpnExpr.begin(), ie = m_RpnExpr.end();
+        it != ie; ++it) {
+        if ((*it)->kind() == ExprToken::OPERAND &&
+            llvm::cast<Operand>(*it)->isDot())
+          (*it) = &(in->dotAssignments().back().second.symbol());
+      } // end of for
+    }
+
+    if (isLhsDot) {
+      in->dotAssignments().push_back(
+        std::make_pair(in->getSection()->getSectionData()->front().getNextNode(),
+                       *this));
+    } else {
+      m_Script.assignments().push_back(std::make_pair((LDSymbol*)NULL, *this));
+    }
+
     break;
   }
 

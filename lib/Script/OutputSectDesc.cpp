@@ -10,7 +10,9 @@
 #include <mcld/Script/RpnExpr.h>
 #include <mcld/Script/StringList.h>
 #include <mcld/Script/StrToken.h>
+#include <mcld/Script/InputSectDesc.h>
 #include <mcld/Support/raw_ostream.h>
+#include <mcld/LinkerScript.h>
 #include <llvm/Support/Casting.h>
 #include <cassert>
 
@@ -154,15 +156,42 @@ void OutputSectDesc::setEpilog(const Epilog& pEpilog)
 
 void OutputSectDesc::activate()
 {
+  // Assignment in an output section
+  OutputSectCmds assignments;
+
   for (const_iterator it = begin(), ie = end(); it != ie; ++it) {
     switch ((*it)->getKind()) {
     case ScriptCommand::ASSIGNMENT:
-    case ScriptCommand::INPUT_SECT_DESC:
-      (*it)->activate();
+      assignments.push_back(*it);
       break;
+    case ScriptCommand::INPUT_SECT_DESC: {
+      (*it)->activate();
+
+      for (iterator assign = assignments.begin(), assignEnd = assignments.end();
+        assign != assignEnd; ++assign) {
+        (*assign)->activate();
+      }
+      assignments.clear();
+      break;
+    }
     default:
       assert(0);
       break;
     }
+  }
+
+  if (!assignments.empty()) {
+    InputSectDesc::Spec spec;;
+    spec.m_pWildcardFile = NULL;
+    spec.m_pExcludeFiles = NULL;
+    spec.m_pWildcardSections = NULL;
+    InputSectDesc inputDesc(InputSectDesc::Keep, spec, *this, m_LDScript);
+    m_LDScript.sectionMap().insert(inputDesc, *this);
+
+    for (iterator assign = assignments.begin(), assignEnd = assignments.end();
+      assign != assignEnd; ++assign) {
+      (*assign)->activate();
+    }
+    assignments.clear();
   }
 }

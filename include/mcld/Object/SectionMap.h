@@ -21,6 +21,7 @@
 
 namespace mcld {
 
+class Fragment;
 class LDSection;
 
 /** \class SectionMap
@@ -31,6 +32,10 @@ class SectionMap
 public:
   class Input {
   public:
+    typedef std::vector<std::pair<Fragment*, Assignment> > DotAssignments;
+    typedef DotAssignments::const_iterator const_dot_iterator;
+    typedef DotAssignments::iterator dot_iterator;
+
     Input(const std::string& pName);
     Input(const InputSectDesc& pInputDesc);
 
@@ -41,10 +46,19 @@ public:
     const LDSection* getSection() const { return m_pSection; }
     LDSection*       getSection()       { return m_pSection; }
 
+    const_dot_iterator dot_begin() const { return m_DotAssignments.begin(); }
+    dot_iterator       dot_begin()       { return m_DotAssignments.begin(); }
+    const_dot_iterator dot_end  () const { return m_DotAssignments.end(); }
+    dot_iterator       dot_end  ()       { return m_DotAssignments.end(); }
+
+    const DotAssignments& dotAssignments() const { return m_DotAssignments; }
+    DotAssignments&       dotAssignments()       { return m_DotAssignments; }
+
   private:
     InputSectDesc::KeepPolicy m_Policy;
     InputSectDesc::Spec m_Spec;
     LDSection* m_pSection;
+    DotAssignments m_DotAssignments;
   };
 
   class Output {

@@ -2172,6 +2172,47 @@ void GNULDBackend::setOutputSectionAddress(Module& pModule)
       }
     }
     cur->setOffset(offset);
+
+    // process dot assignments in the output section
+    bool changed = false;
+    Fragment* invalid = NULL;
+    for (SectionMap::Output::iterator in = (*out)->begin(),
+      inEnd = (*out)->end(); in != inEnd; ++in) {
+
+      if (invalid != NULL && !(*in)->dotAssignments().empty()) {
+        while (invalid != (*in)->dotAssignments().front().first) {
+          Fragment* prev = invalid->getPrevNode();
+          invalid->setOffset(prev->getOffset() + prev->size());
+          invalid = invalid->getNextNode();
+        }
+        invalid = NULL;
+      }
+
+      for (SectionMap::Input::dot_iterator it = (*in)->dot_begin(),
+        ie = (*in)->dot_end(); it != ie; ++it) {
+        (*it).second.assign();
+        if ((*it).first != NULL) {
+          uint64_t new_offset = (*it).second.symbol().value() - vma;
+          if (new_offset != (*it).first->getOffset()) {
+            (*it).first->setOffset(new_offset);
+            invalid = (*it).first->getNextNode();
+            changed = true;
+          }
+        }
+      } // for each dot assignment
+    } // for each input description
+
+    if (changed) {
+      while (invalid != NULL) {
+        Fragment* prev = invalid->getPrevNode();
+        invalid->setOffset(prev->getOffset() + prev->size());
+        invalid = invalid->getNextNode();
+      }
+
+      cur->setSize(cur->getSectionData()->back().getOffset() +
+                   cur->getSectionData()->back().size());
+    }
+
   } // for each output section description
 }
 
