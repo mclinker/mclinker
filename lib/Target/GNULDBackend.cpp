@@ -2306,11 +2306,16 @@ void GNULDBackend::placeOutputSections(Module& pModule)
     SectionMap::iterator out, outBegin, outEnd;
     outBegin = sectionMap.begin();
     outEnd = sectionMap.end();
-    for (out = outBegin; out != outEnd; ++out) {
-      if ((*out)->hasContent() && ((*out)->order() > order))
-        break;
+
+    if ((*it)->kind() == LDFileFormat::Null)
+      out = sectionMap.insert(outBegin, *it);
+    else {
+      for (out = outBegin; out != outEnd; ++out) {
+        if ((*out)->hasContent() && ((*out)->order() > order))
+          break;
+      }
+      out = sectionMap.insert(out, *it);
     }
-    out = sectionMap.insert(out, *it);
     (*out)->setOrder(order);
   } // for each orphan section
 }
