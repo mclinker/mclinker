@@ -33,7 +33,8 @@ public:
   enum Type {
     SYMBOL,
     INTEGER,
-    SECTION
+    SECTION,
+    FRAGMENT
   };
 
 protected:
@@ -161,6 +162,40 @@ private:
   const SectionMap::Output* m_pOutputDesc;
 };
 
+/** \class FragOperand
+ *  \brief This class defines the interfaces to a fragment operand.
+ */
+
+class Fragment;
+
+class FragOperand : public Operand
+{
+private:
+  friend class Chunk<FragOperand, MCLD_SYMBOLS_PER_INPUT>;
+  FragOperand();
+  FragOperand(Fragment& pFragment);
+
+public:
+  void dump() const;
+
+  const Fragment* frag() const { return m_pFragment; }
+  Fragment*       frag()       { return m_pFragment; }
+
+  uint64_t value() const;
+
+  static bool classof(const Operand* pOperand)
+  {
+    return pOperand->type() == Operand::FRAGMENT;
+  }
+
+  /* factory method */
+  static FragOperand* create(Fragment& pFragment);
+  static void destroy(FragOperand*& pOperand);
+  static void clear();
+
+private:
+  Fragment* m_pFragment;
+};
 
 } // namespace of mcld
 

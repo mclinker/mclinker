@@ -10,8 +10,9 @@
 #include <mcld/Support/raw_ostream.h>
 #include <mcld/Support/GCFactory.h>
 #include <mcld/LD/LDSection.h>
+#include <mcld/LD/SectionData.h>
+#include <mcld/Fragment/Fragment.h>
 #include <llvm/Support/ManagedStatic.h>
-#include <cassert>
 
 using namespace mcld;
 
@@ -151,4 +152,50 @@ void SectOperand::destroy(SectOperand*& pOperand)
 void SectOperand::clear()
 {
   g_SectOperandFactory->clear();
+}
+
+//===----------------------------------------------------------------------===//
+// FragOperand
+//===----------------------------------------------------------------------===//
+typedef GCFactory<FragOperand, MCLD_SYMBOLS_PER_INPUT> FragOperandFactory;
+static llvm::ManagedStatic<FragOperandFactory> g_FragOperandFactory;
+
+FragOperand::FragOperand()
+  : Operand(Operand::FRAGMENT), m_pFragment(NULL)
+{
+}
+
+FragOperand::FragOperand(Fragment& pFragment)
+  : Operand(Operand::FRAGMENT), m_pFragment(&pFragment)
+{
+}
+
+void FragOperand::dump() const
+{
+  mcld::outs() << "fragment";
+}
+
+uint64_t FragOperand::value() const
+{
+  return m_pFragment->getOffset() +
+         m_pFragment->getParent()->getSection().addr();
+}
+
+FragOperand* FragOperand::create(Fragment& pFragment)
+{
+  FragOperand* result = g_FragOperandFactory->allocate();
+  new (result) FragOperand(pFragment);
+  return result;
+}
+
+void FragOperand::destroy(FragOperand*& pOperand)
+{
+  g_FragOperandFactory->destroy(pOperand);
+  g_FragOperandFactory->deallocate(pOperand);
+  pOperand = NULL;
+}
+
+void FragOperand::clear()
+{
+  g_FragOperandFactory->clear();
 }
