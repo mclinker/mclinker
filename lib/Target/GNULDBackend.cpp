@@ -2167,6 +2167,8 @@ void GNULDBackend::setOutputSectionAddress(Module& pModule)
 /// placeOutputSections - place output sections based on SectionMap
 void GNULDBackend::placeOutputSections(Module& pModule)
 {
+  typedef std::vector<LDSection*> Orphans;
+  Orphans orphans;
   SectionMap& sectionMap = pModule.getScript().sectionMap();
 
   for (Module::iterator it = pModule.begin(), ie = pModule.end(); it != ie;
@@ -2240,17 +2242,25 @@ void GNULDBackend::placeOutputSections(Module& pModule)
         (*out)->setSection(*it);
         (*out)->setOrder(getSectionOrder(**it));
       } else {
-        // find a place for this orphan section!
-        size_t order = getSectionOrder(**it);
-        for (out = outBegin; out != outEnd; ++out) {
-          if ((*out)->hasContent() && ((*out)->order() > order))
-            break;
-        }
-        out = sectionMap.insert(out, *it);
-        (*out)->setOrder(order);
+        orphans.push_back(*it);
       }
     }
   } // for each section in Module
+
+  // place orphan sections
+  for (Orphans::iterator it = orphans.begin(), ie = orphans.end(); it != ie;
+    ++it) {
+    size_t order = getSectionOrder(**it);
+    SectionMap::iterator out, outBegin, outEnd;
+    outBegin = sectionMap.begin();
+    outEnd = sectionMap.end();
+    for (out = outBegin; out != outEnd; ++out) {
+      if ((*out)->hasContent() && ((*out)->order() > order))
+        break;
+    }
+    out = sectionMap.insert(out, *it);
+    (*out)->setOrder(order);
+  } // for each orphan section
 }
 
 /// layout - layout method
