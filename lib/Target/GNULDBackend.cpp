@@ -1918,51 +1918,92 @@ void GNULDBackend::createProgramHdrs(Module& pModule)
 void GNULDBackend::setupProgramHdrs(const LinkerScript& pScript)
 {
   // update segment info
-  uint64_t seg_start_addr = getSegmentStartAddr(pScript);
-  ELFSegmentFactory::iterator seg, seg_end = m_ELFSegmentTable.end();
-  for (seg = m_ELFSegmentTable.begin(); seg != seg_end; ++seg) {
-    ELFSegment& segment = **seg;
+  for (ELFSegmentFactory::iterator seg = m_ELFSegmentTable.begin(),
+    segEnd = m_ELFSegmentTable.end(); seg != segEnd; ++seg) {
 
-    // update PT_PHDR
-    if (llvm::ELF::PT_PHDR == segment.type()) {
-      uint64_t offset = 0, phdr_size = 0;
+    // bypass if there is no section in this segment (e.g., PT_GNU_STACK)
+    if ((*seg)->size() == 0)
+      continue;
+
+    // bypass the PT_LOAD that only has NULL section now
+    if ((*seg)->type() == llvm::ELF::PT_LOAD &&
+        (*seg)->front()->kind() == LDFileFormat::Null &&
+        (*seg)->size() == 1)
+       continue;
+
+    (*seg)->setOffset((*seg)->front()->offset());
+    if ((*seg)->type() == llvm::ELF::PT_LOAD &&
+        (*seg)->front()->kind() == LDFileFormat::Null) {
+      const LDSection* second = *((*seg)->begin() + 1);
+      assert(second != NULL);
+      (*seg)->setVaddr(second->addr() - second->offset());
+    } else {
+      (*seg)->setVaddr((*seg)->front()->addr());
+    }
+    (*seg)->setPaddr((*seg)->vaddr());
+
+   const LDSection* last = (*seg)->back();
+    assert(NULL != last);
+    uint64_t fileSz = last->offset() - (*seg)->offset();
+    if (LDFileFormat::BSS != last->kind())
+      fileSz += last->size();
+    (*seg)->setFilesz(fileSz);
+
+    (*seg)->setMemsz(last->addr() - (*seg)->vaddr() + last->size());
+  } // end of for
+
+  // handle the case if text segment only has NULL section
+  ELFSegmentFactory::iterator null =
+    m_ELFSegmentTable.find(llvm::ELF::PT_LOAD, 0x0, 0x0);
+
+  if ((*null)->size() == 1) {
+    // find 2nd PT_LOAD
+    ELFSegmentFactory::iterator seg, segEnd;
+    for (seg = m_ELFSegmentTable.begin(), segEnd = m_ELFSegmentTable.end();
+      seg != segEnd; ++seg) {
+      if ((*seg)->type() == llvm::ELF::PT_LOAD)
+        break;
+    }
+    if (seg != segEnd) {
+      uint64_t addr = (*seg)->vaddr() - (*seg)->offset();
+      if (addr < (*seg)->vaddr()) {
+        (*null)->setOffset(0x0);
+        (*null)->setVaddr(addr);
+        (*null)->setPaddr(addr);
+
+        uint64_t fileSz = sectionStartOffset();
+        (*null)->setFilesz(fileSz);
+        (*null)->setMemsz(fileSz);
+      } else {
+        elfSegmentTable().erase(null);
+        null = segEnd;
+      }
+    }
+  }
+
+  // set up PT_PHDR
+  ELFSegmentFactory::iterator phdr =
+    m_ELFSegmentTable.find(llvm::ELF::PT_PHDR, llvm::ELF::PF_R, 0x0);
+
+  if (phdr != m_ELFSegmentTable.end()) {
+    if (null != m_ELFSegmentTable.end()) {
+      uint64_t offset = 0x0, phdr_size = 0x0;
       if (config().targets().is32Bits()) {
         offset = sizeof(llvm::ELF::Elf32_Ehdr);
         phdr_size = sizeof(llvm::ELF::Elf32_Phdr);
-      }
-      else {
+      } else {
         offset = sizeof(llvm::ELF::Elf64_Ehdr);
         phdr_size = sizeof(llvm::ELF::Elf64_Phdr);
       }
-      segment.setOffset(offset);
-      segment.setVaddr(seg_start_addr + offset);
-      segment.setPaddr(segment.vaddr());
-      segment.setFilesz(m_ELFSegmentTable.size() * phdr_size);
-      segment.setMemsz(m_ELFSegmentTable.size() * phdr_size);
-      segment.setAlign(config().targets().bitclass() / 8);
-      continue;
+      (*phdr)->setOffset(offset);
+      (*phdr)->setVaddr((*null)->vaddr() + offset);
+      (*phdr)->setPaddr((*phdr)->vaddr());
+      (*phdr)->setFilesz(m_ELFSegmentTable.size() * phdr_size);
+      (*phdr)->setMemsz(m_ELFSegmentTable.size() * phdr_size);
+      (*phdr)->setAlign(config().targets().bitclass() / 8);
+    } else {
+      elfSegmentTable().erase(phdr);
     }
-
-    // bypass if there is no section in this segment (e.g., PT_GNU_STACK)
-    if (segment.size() == 0)
-      continue;
-
-    segment.setOffset(segment.front()->offset());
-    if (llvm::ELF::PT_LOAD == segment.type() &&
-        LDFileFormat::Null == segment.front()->kind())
-      segment.setVaddr(seg_start_addr);
-    else
-      segment.setVaddr(segment.front()->addr());
-    segment.setPaddr(segment.vaddr());
-
-    const LDSection* last_sect = segment.back();
-    assert(NULL != last_sect);
-    uint64_t file_size = last_sect->offset() - segment.offset();
-    if (LDFileFormat::BSS != last_sect->kind())
-      file_size += last_sect->size();
-    segment.setFilesz(file_size);
-
-    segment.setMemsz(last_sect->addr() - segment.vaddr() + last_sect->size());
   }
 }
 

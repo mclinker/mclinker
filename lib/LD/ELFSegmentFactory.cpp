@@ -82,3 +82,8 @@ ELFSegment* ELFSegmentFactory::produce(uint32_t pType, uint32_t pFlag)
   m_Segments.push_back(ELFSegment::Create(pType, pFlag));
   return back();
 }
+
+void ELFSegmentFactory::erase(iterator pSegment)
+{
+  m_Segments.erase(pSegment);
+}
