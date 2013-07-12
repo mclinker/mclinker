@@ -202,6 +202,15 @@ SectionMap::insert(const InputSectDesc& pInputDesc,
   return std::make_pair(std::make_pair(output, input), true);
 }
 
+SectionMap::iterator
+SectionMap::insert(iterator pPosition, LDSection* pSection)
+{
+  Output* output = new Output(pSection->name());
+  output->append(new Input(pSection->name()));
+  output->setSection(pSection);
+  return m_OutputDescList.insert(pPosition, output);
+}
+
 bool SectionMap::matched(const Input& pInput, const std::string& pString) const
 {
   if (pInput.spec().hasSections()) {

@@ -66,6 +66,8 @@ public:
 
     size_t order() const { return m_Order; }
 
+    void setOrder(size_t pOrder) { m_Order = pOrder; }
+
     bool hasContent() const;
 
     const LDSection* getSection() const { return m_pSection; }
@@ -96,6 +98,12 @@ public:
     LDSection* m_pSection;
     size_t m_Order;
     InputList m_InputList;
+  };
+
+  struct SHOCompare
+  {
+    bool operator()(const Output* LHS, const Output* RHS) const
+    { return LHS->order() < RHS->order(); }
   };
 
   typedef std::pair<const Output*, const Input*> const_mapping;
@@ -130,6 +138,8 @@ public:
   reference       front()       { return m_OutputDescList.front(); }
   const_reference back () const { return m_OutputDescList.back(); }
   reference       back ()       { return m_OutputDescList.back(); }
+
+  iterator insert(iterator pPosition, LDSection* pSection);
 
 private:
   bool matched(const Input& pInput, const std::string& pString) const;

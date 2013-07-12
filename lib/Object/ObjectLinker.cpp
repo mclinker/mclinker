@@ -329,21 +329,27 @@ bool ObjectLinker::mergeSections()
   outBegin = m_pModule->getScript().sectionMap().begin();
   outEnd = m_pModule->getScript().sectionMap().end();
   for (out = outBegin; out != outEnd; ++out) {
+    LDSection* out_sect = (*out)->getSection();
     SectionMap::Output::iterator in, inBegin, inEnd;
     inBegin = (*out)->begin();
     inEnd = (*out)->end();
     for (in = inBegin; in != inEnd; ++in) {
-      if (builder.MoveSectionData(*(*in)->getSection()->getSectionData(),
-                                  *(*out)->getSection()->getSectionData()))
-        builder.UpdateSectionAlign(*(*out)->getSection(), *(*in)->getSection());
+      LDSection* in_sect = (*in)->getSection();
+      if (builder.MoveSectionData(*in_sect->getSectionData(),
+                                  *out_sect->getSectionData())) {
+        builder.UpdateSectionAlign(*out_sect, *in_sect);
+        m_LDBackend.updateSectionFlags(*out_sect, *in_sect);
+      }
     } // for each input section description
 
     if ((*out)->hasContent()) {
       LDSection* target = m_pModule->getSection((*out)->name());
       assert(target != NULL && target->hasSectionData());
-      if (builder.MoveSectionData(*(*out)->getSection()->getSectionData(),
-                                  *target->getSectionData()))
-        builder.UpdateSectionAlign(*target, *(*out)->getSection());
+      if (builder.MoveSectionData(*out_sect->getSectionData(),
+                                  *target->getSectionData())) {
+        builder.UpdateSectionAlign(*target, *out_sect);
+        m_LDBackend.updateSectionFlags(*target, *out_sect);
+      }
     }
   } // for each output section description
 

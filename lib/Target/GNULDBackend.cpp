@@ -36,6 +36,7 @@
 #include <mcld/LD/BranchIslandFactory.h>
 #include <mcld/LD/StubFactory.h>
 #include <mcld/Object/ObjectBuilder.h>
+#include <mcld/Object/SectionMap.h>
 
 #include <llvm/Support/Host.h>
 
@@ -2188,32 +2189,33 @@ void GNULDBackend::setOutputSectionAddress(Module& pModule,
   }
 }
 
-/// layout - layout method
-void GNULDBackend::layout(Module& pModule)
+/// placeOutputSections - place output sections based on SectionMap
+void GNULDBackend::placeOutputSections(Module& pModule)
 {
-  std::vector<SHOEntry> output_list;
-  // 1. determine what sections will go into final output, and push the needed
-  // sections into output_list for later processing
+  SectionMap& sectionMap = pModule.getScript().sectionMap();
+
   for (Module::iterator it = pModule.begin(), ie = pModule.end(); it != ie;
-       ++it) {
+    ++it) {
+    bool wanted = false;
+
     switch ((*it)->kind()) {
     // take NULL and StackNote directly
     case LDFileFormat::Null:
     case LDFileFormat::StackNote:
-      output_list.push_back(std::make_pair(*it, getSectionOrder(**it)));
+      wanted = true;
       break;
     // ignore if section size is 0
     case LDFileFormat::EhFrame:
       if (((*it)->size() != 0) ||
           ((*it)->hasEhFrame() &&
            config().codeGenType() == LinkerConfig::Object))
-        output_list.push_back(std::make_pair(*it, getSectionOrder(**it)));
+        wanted = true;
       break;
     case LDFileFormat::Relocation:
       if (((*it)->size() != 0) ||
           ((*it)->hasRelocData() &&
            config().codeGenType() == LinkerConfig::Object))
-        output_list.push_back(std::make_pair(*it, getSectionOrder(**it)));
+        wanted = true;
       break;
     case LDFileFormat::Regular:
     case LDFileFormat::Target:
@@ -2227,7 +2229,7 @@ void GNULDBackend::layout(Module& pModule)
       if (((*it)->size() != 0) ||
           ((*it)->hasSectionData() &&
            config().codeGenType() == LinkerConfig::Object))
-        output_list.push_back(std::make_pair(*it, getSectionOrder(**it)));
+        wanted = true;
       break;
     case LDFileFormat::Group:
       if (LinkerConfig::Object == config().codeGenType()) {
@@ -2236,28 +2238,70 @@ void GNULDBackend::layout(Module& pModule)
       }
       break;
     case LDFileFormat::Version:
-      if (0 != (*it)->size()) {
-        output_list.push_back(std::make_pair(*it, getSectionOrder(**it)));
+      if ((*it)->size() != 0) {
+        wanted = true;
         warning(diag::warn_unsupported_symbolic_versioning) << (*it)->name();
       }
       break;
     default:
-      if (0 != (*it)->size()) {
+      if ((*it)->size() != 0) {
         error(diag::err_unsupported_section) << (*it)->name() << (*it)->kind();
       }
       break;
-    }
-  } // end of for
+    } // end of switch
 
-  // 2. sort output section orders
-  std::stable_sort(output_list.begin(), output_list.end(), SHOCompare());
+    if (wanted) {
+      SectionMap::iterator out, outBegin, outEnd;
+      outBegin = sectionMap.begin();
+      outEnd = sectionMap.end();
+      for (out = outBegin; out != outEnd; ++out) {
+        /* FIXME: we should also check other output attributes */
+        if ((*it)->name().compare((*out)->name()) == 0)
+          break;
+      } // for each output section description
+
+      if (out != outEnd) {
+        // set up the section
+        (*out)->setSection(*it);
+        (*out)->setOrder(getSectionOrder(**it));
+      } else {
+        // find a place for this orphan section!
+        size_t order = getSectionOrder(**it);
+        for (out = outBegin; out != outEnd; ++out) {
+          if ((*out)->hasContent() && ((*out)->order() > order))
+            break;
+        }
+        out = sectionMap.insert(out, *it);
+        (*out)->setOrder(order);
+      }
+    }
+  } // for each section in Module
+}
+
+/// layout - layout method
+void GNULDBackend::layout(Module& pModule)
+{
+  // 1. place output sections based on SectionMap from SECTIONS command
+  placeOutputSections(pModule);
+
+  // 2. sort output section orders if there is no default ldscript
+  SectionMap& sectionMap = pModule.getScript().sectionMap();
+  if (!config().options().hasDefaultLDScript()) {
+    std::stable_sort(sectionMap.begin(),
+                     sectionMap.end(),
+                     SectionMap::SHOCompare());
+  }
 
   // 3. update output sections in Module
   pModule.getSectionTable().clear();
-  for(size_t index = 0; index < output_list.size(); ++index) {
-    (output_list[index].first)->setIndex(index);
-    pModule.getSectionTable().push_back(output_list[index].first);
-  }
+  for (SectionMap::iterator out = sectionMap.begin(), outEnd = sectionMap.end();
+    out != outEnd; ++out) {
+    if ((*out)->hasContent() ||
+        (*out)->getSection()->kind() == LDFileFormat::Null) {
+      (*out)->getSection()->setIndex(pModule.size());
+      pModule.getSectionTable().push_back((*out)->getSection());
+    }
+  } // for each output section description
 
   // 4. create program headers
   if (LinkerConfig::Object != config().codeGenType()) {
