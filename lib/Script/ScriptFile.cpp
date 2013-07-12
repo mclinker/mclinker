@@ -137,7 +137,8 @@ void ScriptFile::addAssertCmd(RpnExpr& pRpnExpr, const std::string& pMessage)
   m_CommandQueue.push_back(new AssertCmd(pRpnExpr, pMessage));
 }
 
-void ScriptFile::addAssignment(LinkerScript& pLDScript,
+void ScriptFile::addAssignment(const Module& pModule,
+                               LinkerScript& pLDScript,
                                const std::string& pSymbolName,
                                RpnExpr& pRpnExpr,
                                Assignment::Type pType)
@@ -149,20 +150,23 @@ void ScriptFile::addAssignment(LinkerScript& pLDScript,
       assert(!sections->empty());
       OutputSectDesc* output_desc =
         llvm::cast<OutputSectDesc>(sections->back());
-      output_desc->push_back(new Assignment(pLDScript,
+      output_desc->push_back(new Assignment(pModule,
+                                            pLDScript,
                                             Assignment::INPUT_SECTION,
                                             pType,
                                             *(SymOperand::create(pSymbolName)),
                                             pRpnExpr));
     } else {
-      sections->push_back(new Assignment(pLDScript,
+      sections->push_back(new Assignment(pModule,
+                                         pLDScript,
                                          Assignment::OUTPUT_SECTION,
                                          pType,
                                          *(SymOperand::create(pSymbolName)),
                                          pRpnExpr));
     }
   } else {
-    m_CommandQueue.push_back(new Assignment(pLDScript,
+    m_CommandQueue.push_back(new Assignment(pModule,
+                                            pLDScript,
                                             Assignment::OUTSIDES_SECTIONS,
                                             pType,
                                             *(SymOperand::create(pSymbolName)),

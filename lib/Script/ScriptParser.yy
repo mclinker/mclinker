@@ -41,6 +41,7 @@
 %error-verbose
 %define namespace "mcld"
 %define "parser_class_name" "ScriptParser"
+%parse-param { const class Module& m_Module }
 %parse-param { const class LinkerConfig& m_LDConfig }
 %parse-param { class LinkerScript& m_LDScript }
 %parse-param { class ScriptFile& m_ScriptFile }
@@ -580,7 +581,12 @@ output_sect_keyword : CREATE_OBJECT_SYMBOLS
                     ;
 
 symbol_assignment : symbol '=' script_exp ';'
-                    { m_ScriptFile.addAssignment(m_LDScript, *$1, *$3); }
+                    {
+                      m_ScriptFile.addAssignment(m_Module,
+                                                 m_LDScript,
+                                                 *$1,
+                                                 *$3);
+                    }
                   | symbol ADD_ASSIGN exp ';'
                   | symbol SUB_ASSIGN exp ';'
                   | symbol MUL_ASSIGN exp ';'
@@ -591,17 +597,26 @@ symbol_assignment : symbol '=' script_exp ';'
                   | symbol RS_ASSIGN exp ';'
                   | HIDDEN '(' symbol '=' script_exp ')' ';'
                     {
-                      m_ScriptFile.addAssignment(m_LDScript, *$3, *$5,
+                      m_ScriptFile.addAssignment(m_Module,
+                                                 m_LDScript,
+                                                 *$3,
+                                                 *$5,
                                                  Assignment::HIDDEN);
                     }
                   | PROVIDE '(' symbol '=' script_exp ')' ';'
                     {
-                      m_ScriptFile.addAssignment(m_LDScript, *$3, *$5,
+                      m_ScriptFile.addAssignment(m_Module,
+                                                 m_LDScript,
+                                                 *$3,
+                                                 *$5,
                                                  Assignment::PROVIDE);
                     }
                   | PROVIDE_HIDDEN '(' symbol '=' script_exp ')' ';'
                     {
-                      m_ScriptFile.addAssignment(m_LDScript, *$3, *$5,
+                      m_ScriptFile.addAssignment(m_Module,
+                                                 m_LDScript,
+                                                 *$3,
+                                                 *$5,
                                                  Assignment::PROVIDE_HIDDEN);
                     }
                   ;

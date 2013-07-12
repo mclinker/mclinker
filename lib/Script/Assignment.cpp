@@ -9,6 +9,7 @@
 #include <mcld/Script/Assignment.h>
 #include <mcld/Script/RpnExpr.h>
 #include <mcld/Script/Operand.h>
+#include <mcld/Script/RpnEvaluator.h>
 #include <mcld/Support/raw_ostream.h>
 #include <mcld/LinkerScript.h>
 #include <cassert>
@@ -18,12 +19,14 @@ using namespace mcld;
 //===----------------------------------------------------------------------===//
 // Assignment
 //===----------------------------------------------------------------------===//
-Assignment::Assignment(LinkerScript& pScript,
+Assignment::Assignment(const Module& pModule,
+                       LinkerScript& pScript,
                        Level pLevel,
                        Type pType,
                        SymOperand& pSymbol,
                        RpnExpr& pRpnExpr)
   : ScriptCommand(ScriptCommand::ASSIGNMENT),
+    m_Module(pModule),
     m_Script(pScript),
     m_Level(pLevel),
     m_Type(pType),
@@ -85,3 +88,12 @@ void Assignment::activate()
   }
 }
 
+bool Assignment::assign()
+{
+  RpnEvaluator evaluator(m_Module);
+  uint64_t result = 0;
+  bool success = evaluator.eval(m_RpnExpr, result);
+  if (success)
+    m_Symbol.setValue(result);
+  return success;
+}

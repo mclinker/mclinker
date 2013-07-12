@@ -30,6 +30,7 @@ class LinkerConfig;
 class LinkerScript;
 class RpnExpr;
 class StringList;
+class Module;
 
 /** \class ScriptFile
  *  \brief This class defines the interfaces to a linker script file.
@@ -112,7 +113,8 @@ public:
   void addAssertCmd(RpnExpr& pRpnExpr, const std::string& pMessage);
 
   /// assignment
-  void addAssignment(LinkerScript& pLDScript,
+  void addAssignment(const Module& pModule,
+                     LinkerScript& pLDScript,
                      const std::string& pSymbol,
                      RpnExpr& pRpnExpr,
                      Assignment::Type pType = Assignment::DEFAULT);

@@ -41,7 +41,8 @@ bool ScriptReader::isMyFormat(Input& input) const
   return true;
 }
 
-bool ScriptReader::readScript(const LinkerConfig& pConfig,
+bool ScriptReader::readScript(const Module& pModule,
+                              const LinkerConfig& pConfig,
                               LinkerScript& pLDScript,
                               ScriptFile& pScriptFile)
 {
@@ -55,7 +56,12 @@ bool ScriptReader::readScript(const LinkerConfig& pConfig,
 
   std::istream in(&buf);
   ScriptScanner scanner(&in);
-  ScriptParser parser(pConfig, pLDScript, pScriptFile, scanner, m_GroupReader,
+  ScriptParser parser(pModule,
+                      pConfig,
+                      pLDScript,
+                      pScriptFile,
+                      scanner,
+                      m_GroupReader,
                       NULL, /* for local rpn exp processing */
                       NULL, /* fol local str tokens processing */
                       false /* for AS_NEEDED */);

@@ -17,6 +17,7 @@
 namespace mcld
 {
 
+class Module;
 class LinkerScript;
 class RpnExpr;
 class SymOperand;
@@ -42,7 +43,8 @@ public:
   };
 
 public:
-  Assignment(LinkerScript& pScript,
+  Assignment(const Module& pModule,
+             LinkerScript& pScript,
              Level pLevel,
              Type pType,
              SymOperand& pSymbol,
@@ -71,7 +73,11 @@ public:
 
   void activate();
 
+  /// assign - evaluate the rhs and assign the result to lhs.
+  bool assign();
+
 private:
+  const Module& m_Module;
   LinkerScript& m_Script;
   Level m_Level;
   Type m_Type;

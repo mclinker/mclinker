@@ -17,6 +17,7 @@
 
 namespace mcld {
 
+class Module;
 class ScriptFile;
 class Input;
 class GroupReader;
@@ -31,7 +32,8 @@ public:
   ~ScriptReader();
 
   /// readScript
-  bool readScript(const LinkerConfig& pConfig,
+  bool readScript(const Module& pModule,
+                  const LinkerConfig& pConfig,
                   LinkerScript& pScript,
                   ScriptFile& pScriptFile);
 

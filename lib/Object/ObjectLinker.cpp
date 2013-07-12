@@ -188,7 +188,9 @@ void ObjectLinker::normalize()
       if (getScriptReader()->isMyFormat(**input)) {
         ScriptFile script(ScriptFile::LDScript, **input,
                           m_pBuilder->getInputBuilder());
-        if (getScriptReader()->readScript(m_Config, m_pModule->getScript(),
+        if (getScriptReader()->readScript(*m_pModule,
+                                          m_Config,
+                                          m_pModule->getScript(),
                                           script)) {
           (*input)->setType(Input::Script);
           script.activate();
