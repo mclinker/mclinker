@@ -20,6 +20,7 @@ namespace mcld
 {
 
 class ELFSegment;
+class LDSection;
 
 /** \class ELFSegmentFactory
  *  \brief provide the interface to create and delete an ELFSegment
@@ -49,6 +50,10 @@ public:
 
   const_iterator
   find(uint32_t pType, uint32_t pFlagSet, uint32_t pFlagClear) const;
+
+  iterator       find(uint32_t pType, const LDSection* pSection);
+
+  const_iterator find(uint32_t pType, const LDSection* pSection) const;
 
   /// produce - produce an empty ELF segment information.
   /// this function will create an ELF segment

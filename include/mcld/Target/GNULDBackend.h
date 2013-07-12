@@ -342,20 +342,11 @@ private:
   /// setupGNUStackInfo - setup the section flag of .note.GNU-stack in output
   void setupGNUStackInfo(Module& pModule);
 
-  /// setupRelro - setup the offset constraint of PT_RELRO
-  void setupRelro(Module& pModule);
+  /// setOutputSectionOffset - helper function to set output sections' offset.
+  void setOutputSectionOffset(Module& pModule);
 
-  /// setOutputSectionOffset - helper function to set a group of output sections'
-  /// offset, and set pSectBegin to pStartOffset if pStartOffset is not -1U.
-  void setOutputSectionOffset(Module& pModule,
-                              Module::iterator pSectBegin,
-                              Module::iterator pSectEnd,
-                              uint64_t pStartOffset = -1U);
-
-  /// setOutputSectionOffset - helper function to set output sections' address.
-  void setOutputSectionAddress(Module& pModule,
-                               Module::iterator pSectBegin,
-                               Module::iterator pSectEnd);
+  /// setOutputSectionAddress - helper function to set output sections' address.
+  void setOutputSectionAddress(Module& pModule);
 
   /// placeOutputSections - place output sections based on SectionMap
   void placeOutputSections(Module& pModule);

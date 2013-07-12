@@ -37,6 +37,7 @@
 #include <mcld/LD/StubFactory.h>
 #include <mcld/Object/ObjectBuilder.h>
 #include <mcld/Object/SectionMap.h>
+#include <mcld/Script/RpnEvaluator.h>
 
 #include <llvm/Support/Host.h>
 
@@ -2018,175 +2019,149 @@ void GNULDBackend::setupGNUStackInfo(Module& pModule)
   }
 }
 
-/// setupRelro - setup the offset constraint of PT_RELRO
-void GNULDBackend::setupRelro(Module& pModule)
+/// setOutputSectionOffset - helper function to set output sections' offset.
+void GNULDBackend::setOutputSectionOffset(Module& pModule)
 {
-  assert(config().options().hasRelro());
-  // if -z relro is given, we need to adjust sections' offset again, and let
-  // PT_GNU_RELRO end on a common page boundary
-
-  Module::iterator sect = pModule.begin();
-  for (Module::iterator sect_end = pModule.end(); sect != sect_end; ++sect) {
-    // find the first non-relro section
-    if (getSectionOrder(**sect) > SHO_RELRO_LAST)
-      break;
-  }
-
-  // align the first non-relro section to page boundary
-  uint64_t offset = (*sect)->offset();
-  alignAddress(offset, commonPageSize());
-  (*sect)->setOffset(offset);
-
-  // It seems that compiler think .got and .got.plt are continuous (w/o any
-  // padding between). If .got is the last section in PT_RELRO and it's not
-  // continuous to its next section (i.e. .got.plt), we need to add padding
-  // in front of .got instead.
-  // FIXME: Maybe we can handle this in a more general way.
-  LDSection& got = getOutputFormat()->getGOT();
-  if ((getSectionOrder(got) == SHO_RELRO_LAST) &&
-      (got.offset() + got.size() != offset)) {
-    got.setOffset(offset - got.size());
-  }
-
-  // set up remaining section's offset
-  setOutputSectionOffset(pModule, ++sect, pModule.end());
-}
-
-/// setOutputSectionOffset - helper function to set a group of output sections'
-/// offset, and set pSectBegin to pStartOffset if pStartOffset is not -1U.
-void GNULDBackend::setOutputSectionOffset(Module& pModule,
-                                          Module::iterator pSectBegin,
-                                          Module::iterator pSectEnd,
-                                          uint64_t pStartOffset)
-{
-  if (pSectBegin == pModule.end())
-    return;
-
-  assert(pSectEnd == pModule.end() ||
-         (pSectEnd != pModule.end() &&
-          (*pSectBegin)->index() <= (*pSectEnd)->index()));
-
-  if (pStartOffset != -1U) {
-    (*pSectBegin)->setOffset(pStartOffset);
-    ++pSectBegin;
-  }
-
-  // set up the "cur" and "prev" iterator
-  Module::iterator cur = pSectBegin;
-  Module::iterator prev = pSectBegin;
-  if (cur != pModule.begin())
-    --prev;
-  else
-    ++cur;
-
-  for (; cur != pSectEnd; ++cur, ++prev) {
-    uint64_t offset = 0x0;
-    switch ((*prev)->kind()) {
-      case LDFileFormat::Null:
-        offset = sectionStartOffset();
-        break;
-      case LDFileFormat::BSS:
-        offset = (*prev)->offset();
-        break;
-      default:
-        offset = (*prev)->offset() + (*prev)->size();
-        break;
-    }
-
-    alignAddress(offset, (*cur)->align());
-    (*cur)->setOffset(offset);
-  }
-}
-
-/// setOutputSectionOffset - helper function to set output sections' address
-void GNULDBackend::setOutputSectionAddress(Module& pModule,
-                                           Module::iterator pSectBegin,
-                                           Module::iterator pSectEnd)
-{
-  if (pSectBegin == pModule.end())
-    return;
-
-  assert(pSectEnd == pModule.end() ||
-         (pSectEnd != pModule.end() &&
-          (*pSectBegin)->index() <= (*pSectEnd)->index()));
-
-  const LinkerScript& script = pModule.getScript();
-  uint64_t seg_start_addr = getSegmentStartAddr(script);
-  for (ELFSegmentFactory::iterator seg = m_ELFSegmentTable.begin(),
-    segEnd = m_ELFSegmentTable.end(), prev = m_ELFSegmentTable.end();
-    seg != segEnd; prev = seg, ++seg) {
-    if (llvm::ELF::PT_LOAD != (*seg)->type())
+  LinkerScript& script = pModule.getScript();
+  uint64_t offset = 0x0;
+  LDSection* cur = NULL;
+  LDSection* prev = NULL;
+  SectionMap::iterator out, outBegin, outEnd;
+  outBegin = script.sectionMap().begin();
+  outEnd = script.sectionMap().end();
+  for (out = outBegin; out != outEnd; ++out, prev = cur) {
+    cur = (*out)->getSection();
+    if (cur->kind() == LDFileFormat::Null) {
+      cur->setOffset(0x0);
       continue;
+    }
 
-    uint64_t start_addr = 0x0;
-    LinkerScript::AddressMap::const_iterator mapping;
-    if ((*seg)->front()->kind() == LDFileFormat::Null)
-      mapping = script.addressMap().find(".text");
-    else if ((*seg)->isBssSegment())
-      mapping = script.addressMap().find(".bss");
-    else if ((*seg)->isDataSegment())
-      mapping = script.addressMap().find(".data");
-    else
-      mapping = script.addressMap().find((*seg)->front()->name());
+    switch (prev->kind()) {
+    case LDFileFormat::Null:
+      offset = sectionStartOffset();
+      break;
+    case LDFileFormat::BSS:
+      offset = prev->offset();
+      break;
+    default:
+      offset = prev->offset() + prev->size();
+      break;
+    }
+    alignAddress(offset, cur->align());
+    cur->setOffset(offset);
+  }
+}
 
-    if (mapping != script.addressMap().end()) {
+/// setOutputSectionAddress - helper function to set output sections' address.
+void GNULDBackend::setOutputSectionAddress(Module& pModule)
+{
+  RpnEvaluator evaluator(pModule);
+  LinkerScript& script = pModule.getScript();
+  uint64_t vma = 0x0, offset = 0x0;
+  LDSection* cur = NULL;
+  LDSection* prev = NULL;
+  LinkerScript::AddressMap::iterator addr, addrEnd = script.addressMap().end();
+  ELFSegmentFactory::iterator seg, segEnd = elfSegmentTable().end();
+  SectionMap::iterator out, outBegin, outEnd;
+  outBegin = script.sectionMap().begin();
+  outEnd = script.sectionMap().end();
+  for (out = outBegin; out != outEnd; prev = cur, ++out) {
+    cur = (*out)->getSection();
+
+    if (cur->kind() == LDFileFormat::Null) {
+      cur->setOffset(0x0);
+      continue;
+    }
+
+    seg = elfSegmentTable().find(llvm::ELF::PT_LOAD, cur);
+    if ((*out)->prolog().hasVMA()) {
+      evaluator.eval((*out)->prolog().vma(), vma);
+    } else if (seg != segEnd && cur == (*seg)->front()) {
+      if ((*seg)->isBssSegment())
+        addr = script.addressMap().find(".bss");
+      else if ((*seg)->isDataSegment())
+        addr = script.addressMap().find(".data");
+      else
+        addr = script.addressMap().find(cur->name());
+    } else
+      addr = addrEnd;
+
+    if (addr != addrEnd) {
       // use address mapping in script options
-      start_addr = mapping.getEntry()->value();
-    }
-    else {
-      if ((*seg)->front()->kind() == LDFileFormat::Null) {
-        // 1st PT_LOAD
-        start_addr = seg_start_addr;
+      vma = addr.getEntry()->value();
+    } else {
+      if ((cur->flag() & llvm::ELF::SHF_ALLOC) != 0) {
+        if (prev->kind() == LDFileFormat::Null)
+          vma = getSegmentStartAddr(script) + sectionStartOffset();
+        else
+          vma = prev->addr() + prev->size();
+        alignAddress(vma, cur->align());
+        if (seg != segEnd && cur == (*seg)->front()) {
+          // Try to align p_vaddr at page boundary if not in script options.
+          // To do so will add more padding in file, but can save one page
+          // at runtime.
+          alignAddress(vma, (*seg)->align());
+        }
+      } else {
+        vma = 0x0;
       }
-      else if ((*prev)->front()->kind() == LDFileFormat::Null) {
-        // prev segment is 1st PT_LOAD
-        start_addr = seg_start_addr + (*seg)->front()->offset();
-      }
-      else {
-        // Others
-        start_addr = (*prev)->front()->addr() + (*seg)->front()->offset();
-      }
-      // Try to align p_vaddr at page boundary if not in script options.
-      // To do so will add more padding in file, but can save one page
-      // at runtime.
-      alignAddress(start_addr, (*seg)->align());
-    }
 
+      if (config().options().hasRelro()) {
+        // if -z relro is given, we need to adjust sections' offset again, and
+        // let PT_GNU_RELRO end on a common page boundary
+
+        // check if current is the first non-relro section
+        SectionMap::iterator relro_last = out - 1;
+        uint64_t diff = vma;
+        if (relro_last != outEnd &&
+            (*relro_last)->order() <= SHO_RELRO_LAST &&
+            (*out)->order() > SHO_RELRO_LAST) {
+          // align the first non-relro section to page boundary
+          alignAddress(vma, commonPageSize());
+          diff = vma - diff;
+
+          // It seems that compiler think .got and .got.plt are continuous (w/o
+          // any padding between). If .got is the last section in PT_RELRO and
+          // it's not continuous to its next section (i.e. .got.plt), we need to
+          // add padding in front of .got instead.
+          // FIXME: Maybe we can handle this in a more general way.
+          LDSection& got = getOutputFormat()->getGOT();
+          if ((getSectionOrder(got) == SHO_RELRO_LAST) &&
+              (got.addr() + got.size() != vma)) {
+            got.setAddr(got.addr() + diff);
+            got.setOffset(got.offset() + diff);
+          }
+        }
+      } // end of if - for relro processing
+    }
+    cur->setAddr(vma);
+
+    switch (prev->kind()) {
+    case LDFileFormat::Null:
+      offset = sectionStartOffset();
+      break;
+    case LDFileFormat::BSS:
+      offset = prev->offset();
+      break;
+    default:
+      offset = prev->offset() + prev->size();
+      break;
+    }
+    alignAddress(offset, cur->align());
     // in p75, http://www.sco.com/developers/devspecs/gabi41.pdf
     // p_align: As "Program Loading" describes in this chapter of the
     // processor supplement, loadable process segments must have congruent
     // values for p_vaddr and p_offset, modulo the page size.
-    if ((start_addr & ((*seg)->align() - 1)) !=
-        ((*seg)->front()->offset() & ((*seg)->align() - 1))) {
-      uint64_t padding = (*seg)->align() +
-                         (start_addr & ((*seg)->align() - 1)) -
-                         ((*seg)->front()->offset() & ((*seg)->align() - 1));
-      setOutputSectionOffset(pModule,
-                             pModule.begin() + (*seg)->front()->index(),
-                             pModule.end(),
-                             (*seg)->front()->offset() + padding);
-      if (config().options().hasRelro())
-        setupRelro(pModule);
+    if (seg != segEnd && cur == (*seg)->front()) {
+      if ((vma & ((*seg)->align() - 1)) != (offset & ((*seg)->align() - 1))) {
+        uint64_t padding = (*seg)->align() +
+                           (vma & ((*seg)->align() - 1)) -
+                           (offset & ((*seg)->align() - 1));
+        offset += padding;
+      }
     }
-
-    for (ELFSegment::iterator sect = (*seg)->begin(), sectEnd = (*seg)->end();
-      sect != sectEnd; ++sect) {
-      if ((*sect)->index() < (*pSectBegin)->index())
-        continue;
-
-      if (LDFileFormat::Null == (*sect)->kind())
-        continue;
-
-      if (sect == pSectEnd)
-        return;
-
-      if (sect != (*seg)->begin())
-        (*sect)->setAddr(start_addr + (*sect)->offset() -
-                         (*seg)->front()->offset());
-      else
-        (*sect)->setAddr(start_addr);
-    }
-  }
+    cur->setOffset(offset);
+  } // for each output section description
 }
 
 /// placeOutputSections - place output sections based on SectionMap
@@ -2309,7 +2284,10 @@ void GNULDBackend::layout(Module& pModule)
   }
 
   // 5. set output section offset
-  setOutputSectionOffset(pModule, pModule.begin(), pModule.end(), 0x0);
+  if (LinkerConfig::Object != config().codeGenType())
+    setOutputSectionAddress(pModule);
+  else
+    setOutputSectionOffset(pModule);
 }
 
 /// preLayout - Backend can do any needed modification before layout
@@ -2399,24 +2377,13 @@ void GNULDBackend::preLayout(Module& pModule, IRBuilder& pBuilder)
 /// postLayout - Backend can do any needed modification after layout
 void GNULDBackend::postLayout(Module& pModule, IRBuilder& pBuilder)
 {
-  // 1. set up section address and segment attributes
   if (LinkerConfig::Object != config().codeGenType()) {
-    if (config().options().hasRelro()) {
-      // 1.1 set up the offset constraint of PT_RELRO
-      setupRelro(pModule);
-    }
-
-    // 1.2 set up the output sections' address
-    setOutputSectionAddress(pModule, pModule.begin(), pModule.end());
-
-    // 1.3 do relaxation
+    // do relaxation
     relax(pModule, pBuilder);
-
-    // 1.4 set up the attributes of program headers
+    // set up the attributes of program headers
     setupProgramHdrs(pModule.getScript());
   }
 
-  // 2. target specific post layout
   doPostLayout(pModule, pBuilder);
 }
 
@@ -2744,18 +2711,7 @@ bool GNULDBackend::relax(Module& pModule, IRBuilder& pBuilder)
   bool finished = true;
   do {
     if (doRelax(pModule, pBuilder, finished)) {
-      // If the sections (e.g., .text) are relaxed, the layout is also changed
-      // We need to do the following:
-
-      // 1. set up the offset
-      setOutputSectionOffset(pModule, pModule.begin(), pModule.end());
-
-      // 2. set up the offset constraint of PT_RELRO
-      if (config().options().hasRelro())
-        setupRelro(pModule);
-
-      // 3. set up the output sections' address
-      setOutputSectionAddress(pModule, pModule.begin(), pModule.end());
+      setOutputSectionAddress(pModule);
     }
   } while (!finished);
 
