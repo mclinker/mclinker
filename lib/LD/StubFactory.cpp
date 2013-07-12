@@ -50,11 +50,10 @@ Stub* StubFactory::create(Relocation& pReloc,
     // find the island for the input relocation
     BranchIsland* island = pBRIslandFactory.find(*(pReloc.targetRef().frag()));
     if (NULL == island) {
-      island = pBRIslandFactory.produce(*(pReloc.targetRef().frag()));
+      return NULL;
     }
 
     // find if there is such a stub in the island already
-    assert(NULL != island);
     Stub* stub = island->findStub(prototype, pReloc);
     if (NULL != stub) {
       // reset the branch target to the stub instead!

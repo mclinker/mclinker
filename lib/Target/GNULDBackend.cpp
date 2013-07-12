@@ -2824,6 +2824,8 @@ bool GNULDBackend::relax(Module& pModule, IRBuilder& pBuilder)
   if (!mayRelax())
     return true;
 
+  getBRIslandFactory()->group(pModule);
+
   bool finished = true;
   do {
     if (doRelax(pModule, pBuilder, finished)) {
