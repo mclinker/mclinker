@@ -8,6 +8,7 @@
 //===----------------------------------------------------------------------===//
 #include <mcld/Script/BinaryOp.h>
 #include <mcld/Script/Operand.h>
+#include <mcld/ADT/SizeTraits.h>
 #include <cassert>
 
 using namespace mcld;
@@ -161,9 +162,11 @@ IntOperand* BinaryOp<Operator::LOGICAL_OR>::eval()
 template<>
 IntOperand* BinaryOp<Operator::ALIGN>::eval()
 {
-  // TODO
-  assert(0);
   IntOperand* res = result();
+  uint64_t value = m_pOperand[0]->value();
+  uint64_t align = m_pOperand[1]->value();
+  alignAddress(value, align);
+  res->setValue(value);
   return res;
 }
 

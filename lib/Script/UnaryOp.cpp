@@ -8,6 +8,9 @@
 //===----------------------------------------------------------------------===//
 #include <mcld/Script/UnaryOp.h>
 #include <mcld/Script/Operand.h>
+#include <mcld/Object/SectionMap.h>
+#include <mcld/LD/LDSection.h>
+#include <llvm/Support/Casting.h>
 #include <cassert>
 
 using namespace mcld;
@@ -57,17 +60,21 @@ IntOperand* UnaryOp<Operator::ABSOLUTE>::eval()
 template<>
 IntOperand* UnaryOp<Operator::ADDR>::eval()
 {
-  // TODO
-  assert(0);
-  return result();
+  IntOperand* res = result();
+  const LDSection* sect =
+    llvm::cast<SectOperand>(m_pOperand)->outputDesc()->getSection();
+  res->setValue(sect->addr());
+  return res;
 }
 
 template<>
 IntOperand* UnaryOp<Operator::ALIGNOF>::eval()
 {
-  // TODO
-  assert(0);
-  return result();
+  IntOperand* res = result();
+  const LDSection* sect =
+    llvm::cast<SectOperand>(m_pOperand)->outputDesc()->getSection();
+  res->setValue(sect->align());
+  return res;
 }
 
 template<>
@@ -121,7 +128,9 @@ IntOperand* UnaryOp<Operator::ORIGIN>::eval()
 template<>
 IntOperand* UnaryOp<Operator::SIZEOF>::eval()
 {
-  // TODO
-  assert(0);
-  return result();
+  IntOperand* res = result();
+  const LDSection* sect =
+    llvm::cast<SectOperand>(m_pOperand)->outputDesc()->getSection();
+  res->setValue(sect->size());
+  return res;
 }
