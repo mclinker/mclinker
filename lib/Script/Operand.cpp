@@ -111,3 +111,43 @@ void IntOperand::clear()
 {
   g_IntOperandFactory->clear();
 }
+
+//===----------------------------------------------------------------------===//
+// SectOperand
+//===----------------------------------------------------------------------===//
+typedef GCFactory<SectOperand, MCLD_SECTIONS_PER_INPUT> SectOperandFactory;
+static llvm::ManagedStatic<SectOperandFactory> g_SectOperandFactory;
+SectOperand::SectOperand()
+  : Operand(Operand::SECTION)
+{
+}
+
+SectOperand::SectOperand(const std::string& pName)
+  : Operand(Operand::SECTION), m_Name(pName)
+{
+}
+
+void SectOperand::dump() const
+{
+  mcld::outs() << m_Name;
+}
+
+SectOperand* SectOperand::create(const std::string& pName)
+{
+  SectOperand* result = g_SectOperandFactory->allocate();
+  new (result) SectOperand(pName);
+  return result;
+}
+
+void SectOperand::destroy(SectOperand*& pOperand)
+{
+  g_SectOperandFactory->destroy(pOperand);
+  g_SectOperandFactory->deallocate(pOperand);
+  pOperand = NULL;
+}
+
+void SectOperand::clear()
+{
+  g_SectOperandFactory->clear();
+}
+

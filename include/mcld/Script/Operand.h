@@ -17,6 +17,7 @@
 #include <mcld/Config/Config.h>
 #include <llvm/Support/DataTypes.h>
 #include <string>
+#include <cassert>
 
 namespace mcld
 {
@@ -30,7 +31,8 @@ class Operand : public ExprToken
 public:
   enum Type {
     SYMBOL,
-    INTEGER
+    INTEGER,
+    SECTION
   };
 
 protected:
@@ -43,8 +45,6 @@ public:
   virtual bool isDOT() const { return false; }
 
   virtual uint64_t value() const = 0;
-
-  virtual void setValue(uint64_t pValue) = 0;
 
   static bool classof(const ExprToken* pToken)
   {
@@ -122,6 +122,42 @@ public:
 
 private:
   uint64_t m_Value;
+};
+
+/** \class SectOperand
+ *  \brief This class defines the interfaces to an section name operand.
+ */
+
+class SectOperand : public Operand
+{
+private:
+  friend class Chunk<SectOperand, MCLD_SECTIONS_PER_INPUT>;
+  SectOperand();
+  SectOperand(const std::string& pName);
+
+public:
+  void dump() const;
+
+  const std::string& name() const { return m_Name; }
+
+  uint64_t value() const
+  {
+    assert(0);
+    return 0;
+  }
+
+  static bool classof(const Operand* pOperand)
+  {
+    return pOperand->type() == Operand::SECTION;
+  }
+
+  /* factory method */
+  static SectOperand* create(const std::string& pName);
+  static void destroy(SectOperand*& pOperand);
+  static void clear();
+
+private:
+  std::string m_Name;
 };
 
 } // namespace of mcld
