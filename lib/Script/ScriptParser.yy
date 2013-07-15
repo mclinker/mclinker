@@ -142,6 +142,8 @@
 %token KEEP
 %token SORT_BY_NAME
 %token SORT_BY_ALIGNMENT
+%token SORT_NONE
+%token SORT_BY_INIT_PRIORITY
 /* Output Section Data */
 %token BYTE
 %token SHORT
@@ -553,6 +555,8 @@ wildcard_sections : wildcard_sections wildcard_section
 
 wildcard_section : wildcard_pattern
                    { $$ = WildcardPattern::create(*$1, WildcardPattern::SORT_NONE); }
+                 | SORT_NONE '(' wildcard_pattern ')'
+                   { $$ = WildcardPattern::create(*$3, WildcardPattern::SORT_NONE); }
                  | SORT_BY_NAME '(' wildcard_pattern ')'
                    { $$ = WildcardPattern::create(*$3, WildcardPattern::SORT_BY_NAME); }
                  | SORT_BY_ALIGNMENT '(' wildcard_pattern ')'
@@ -565,6 +569,8 @@ wildcard_section : wildcard_pattern
                    { $$ = WildcardPattern::create(*$5, WildcardPattern::SORT_BY_NAME); }
                  | SORT_BY_ALIGNMENT '(' SORT_BY_ALIGNMENT '(' wildcard_pattern ')' ')'
                    { $$ = WildcardPattern::create(*$5, WildcardPattern::SORT_BY_ALIGNMENT); }
+                 | SORT_BY_INIT_PRIORITY '(' wildcard_pattern ')'
+                   { $$ = WildcardPattern::create(*$3, WildcardPattern::SORT_BY_INIT_PRIORITY); }
                  ;
 
 output_sect_data : BYTE  '(' script_exp ')'

@@ -129,6 +129,8 @@ WS [ \t\r]
 <LDSCRIPT>"SORT"                       { return token::SORT_BY_NAME; }
 <LDSCRIPT>"SORT_BY_NAME"               { return token::SORT_BY_NAME; }
 <LDSCRIPT>"SORT_BY_ALIGNMENT"          { return token::SORT_BY_ALIGNMENT; }
+<LDSCRIPT>"SORT_NONE"                  { return token::SORT_NONE; }
+<LDSCRIPT>"SORT_BY_INIT_PRIORITY"      { return token::SORT_BY_INIT_PRIORITY; }
  /* Output Section Data */
 <LDSCRIPT>"BYTE"                       { return token::BYTE; }
 <LDSCRIPT>"SHORT"                      { return token::SHORT; }
