@@ -276,12 +276,19 @@ bool ObjectLinker::mergeSections()
         // Some *INPUT sections should not be merged.
         case LDFileFormat::Ignore:
         case LDFileFormat::Null:
-        case LDFileFormat::Relocation:
         case LDFileFormat::NamePool:
         case LDFileFormat::Group:
         case LDFileFormat::StackNote:
           // skip
           continue;
+        case LDFileFormat::Relocation: {
+          if (!(*sect)->hasRelocData())
+            continue; // skip
+
+          if ((*sect)->getLink()->kind() == LDFileFormat::Ignore)
+            (*sect)->setKind(LDFileFormat::Ignore);
+          break;
+        }
         case LDFileFormat::Target:
           if (!m_LDBackend.mergeSection(*m_pModule, **obj, **sect)) {
             error(diag::err_cannot_merge_section) << (*sect)->name()
@@ -294,16 +301,12 @@ bool ObjectLinker::mergeSections()
             continue; // skip
 
           LDSection* out_sect = NULL;
-          if (NULL == (out_sect = builder.MergeSection(**obj, **sect))) {
-            error(diag::err_cannot_merge_section) << (*sect)->name()
-                                                  << (*obj)->name();
-            return false;
-          }
-
-          if (!m_LDBackend.updateSectionFlags(*out_sect, **sect)) {
-            error(diag::err_cannot_merge_section) << (*sect)->name()
-                                                  << (*obj)->name();
-            return false;
+          if (NULL != (out_sect = builder.MergeSection(**obj, **sect))) {
+            if (!m_LDBackend.updateSectionFlags(*out_sect, **sect)) {
+              error(diag::err_cannot_merge_section) << (*sect)->name()
+                                                    << (*obj)->name();
+              return false;
+            }
           }
           break;
         }
@@ -312,16 +315,12 @@ bool ObjectLinker::mergeSections()
             continue; // skip
 
           LDSection* out_sect = NULL;
-          if (NULL == (out_sect = builder.MergeSection(**obj, **sect))) {
-            error(diag::err_cannot_merge_section) << (*sect)->name()
-                                                  << (*obj)->name();
-            return false;
-          }
-
-          if (!m_LDBackend.updateSectionFlags(*out_sect, **sect)) {
-            error(diag::err_cannot_merge_section) << (*sect)->name()
-                                                  << (*obj)->name();
-            return false;
+          if (NULL != (out_sect = builder.MergeSection(**obj, **sect))) {
+            if (!m_LDBackend.updateSectionFlags(*out_sect, **sect)) {
+              error(diag::err_cannot_merge_section) << (*sect)->name()
+                                                    << (*obj)->name();
+              return false;
+            }
           }
           break;
         }

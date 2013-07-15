@@ -107,6 +107,8 @@ public:
 
     bool empty() const { return m_InputList.empty(); }
 
+    bool isDiscard() const { return m_bIsDiscard; }
+
     void append(Input* pInput) { m_InputList.push_back(pInput); }
 
     const_dot_iterator dot_begin() const { return m_DotAssignments.begin(); }
@@ -123,6 +125,7 @@ public:
     OutputSectDesc::Epilog m_Epilog;
     LDSection* m_pSection;
     size_t m_Order;
+    bool m_bIsDiscard;
     InputList m_InputList;
     DotAssignments m_DotAssignments;
   };

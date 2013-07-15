@@ -62,6 +62,11 @@ LDSection* ObjectBuilder::MergeSection(const Input& pInputFile,
     m_Module.getScript().sectionMap().find(pInputFile.path().native(),
                                            pInputSection.name());
 
+  if (pair.first != NULL && pair.first->isDiscard()) {
+    pInputSection.setKind(LDFileFormat::Ignore);
+    return NULL;
+  }
+
   std::string output_name = (pair.first == NULL) ?
                             pInputSection.name() : pair.first->name();
   LDSection* target = m_Module.getSection(output_name);
@@ -76,11 +81,6 @@ LDSection* ObjectBuilder::MergeSection(const Input& pInputFile,
   }
 
   switch (target->kind()) {
-    // Some *OUTPUT sections should not be merged.
-    case LDFileFormat::Relocation:
-    case LDFileFormat::NamePool:
-      /** do nothing **/
-      return target;
     case LDFileFormat::EhFrame: {
       EhFrame* eh_frame = NULL;
       if (target->hasEhFrame())

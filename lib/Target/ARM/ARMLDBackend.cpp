@@ -417,7 +417,8 @@ bool ARMGNULDBackend::mergeSection(Module& pModule,
     }
     default: {
       ObjectBuilder builder(config(), pModule);
-      return builder.MergeSection(pInput, pSection);
+      builder.MergeSection(pInput, pSection);
+      return true;
     }
   } // end of switch
   return true;

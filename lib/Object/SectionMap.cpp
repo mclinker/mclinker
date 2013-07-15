@@ -73,6 +73,8 @@ SectionMap::Output::Output(const std::string& pName)
   m_pSection = LDSection::Create(pName, LDFileFormat::Regular, 0, 0);
   SectionData* sd = SectionData::Create(*m_pSection);
   m_pSection->setSectionData(sd);
+
+  m_bIsDiscard = pName.compare("/DISCARD/") == 0;
 }
 
 SectionMap::Output::Output(const OutputSectDesc& pOutputDesc)
@@ -84,6 +86,8 @@ SectionMap::Output::Output(const OutputSectDesc& pOutputDesc)
   m_pSection = LDSection::Create(m_Name, LDFileFormat::Regular, 0, 0);
   SectionData* sd = SectionData::Create(*m_pSection);
   m_pSection->setSectionData(sd);
+
+  m_bIsDiscard = m_Name.compare("/DISCARD/") == 0;
 }
 
 bool SectionMap::Output::hasContent() const

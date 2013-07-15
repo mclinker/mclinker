@@ -703,7 +703,7 @@ bool HexagonLDBackend::mergeSection(Module& pModule,
   }
   else {
     ObjectBuilder builder(config(), pModule);
-    return builder.MergeSection(pInputFile, pInputSection);
+    builder.MergeSection(pInputFile, pInputSection);
   }
   return true;
 }
