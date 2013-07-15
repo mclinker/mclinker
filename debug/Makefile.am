@@ -11,8 +11,6 @@ AM_CXXFLAGS = \
 	@NO_COVERED_SWITCH_DEFAULT@ \
 	@NO_C99_EXTENSIONS@
 
-AUTOMAKE_OPTIONS = subdir-objects 
-
 BUILT_SOURCES = ScriptParser.cc
 AM_YFLAGS = -d
 AM_LFLAGS = -olex.yy.c
