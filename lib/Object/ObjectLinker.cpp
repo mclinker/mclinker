@@ -39,6 +39,8 @@
 #include <llvm/Support/Casting.h>
 
 
+#include <mcld/Script/StringList.h>
+#include <mcld/Script/WildcardPattern.h>
 using namespace llvm;
 using namespace mcld;
 ObjectLinker::ObjectLinker(const LinkerConfig& pConfig,
@@ -281,7 +283,7 @@ bool ObjectLinker::mergeSections()
           // skip
           continue;
         case LDFileFormat::Target:
-          if (!m_LDBackend.mergeSection(*m_pModule, **sect)) {
+          if (!m_LDBackend.mergeSection(*m_pModule, **obj, **sect)) {
             error(diag::err_cannot_merge_section) << (*sect)->name()
                                                   << (*obj)->name();
             return false;
@@ -292,7 +294,7 @@ bool ObjectLinker::mergeSections()
             continue; // skip
 
           LDSection* out_sect = NULL;
-          if (NULL == (out_sect = builder.MergeSection(**sect))) {
+          if (NULL == (out_sect = builder.MergeSection(**obj, **sect))) {
             error(diag::err_cannot_merge_section) << (*sect)->name()
                                                   << (*obj)->name();
             return false;
@@ -310,7 +312,7 @@ bool ObjectLinker::mergeSections()
             continue; // skip
 
           LDSection* out_sect = NULL;
-          if (NULL == (out_sect = builder.MergeSection(**sect))) {
+          if (NULL == (out_sect = builder.MergeSection(**obj, **sect))) {
             error(diag::err_cannot_merge_section) << (*sect)->name()
                                                   << (*obj)->name();
             return false;

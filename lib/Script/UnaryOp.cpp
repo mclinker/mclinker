@@ -73,6 +73,7 @@ IntOperand* UnaryOp<Operator::ADDR>::eval()
     assert(0);
     break;
   }
+  assert(sect != NULL);
   res->setValue(sect->addr());
   return res;
 }
@@ -93,6 +94,7 @@ IntOperand* UnaryOp<Operator::ALIGNOF>::eval()
     assert(0);
     break;
   }
+  assert(sect != NULL);
   res->setValue(sect->align());
   return res;
 }
@@ -161,6 +163,7 @@ IntOperand* UnaryOp<Operator::SIZEOF>::eval()
     assert(0);
     break;
   }
+  assert(sect != NULL);
   res->setValue(sect->size());
   return res;
 }

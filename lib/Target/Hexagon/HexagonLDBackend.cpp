@@ -686,7 +686,9 @@ bool HexagonLDBackend::finalizeTargetSymbols()
 }
 
 /// merge Input Sections
-bool HexagonLDBackend::mergeSection(Module& pModule, LDSection& pInputSection)
+bool HexagonLDBackend::mergeSection(Module& pModule,
+                                    const Input& pInputFile,
+                                    LDSection& pInputSection)
 {
   if ((pInputSection.flag() & llvm::ELF::SHF_HEX_GPREL) ||
       (pInputSection.kind() == LDFileFormat::LinkOnce) ||
@@ -701,7 +703,7 @@ bool HexagonLDBackend::mergeSection(Module& pModule, LDSection& pInputSection)
   }
   else {
     ObjectBuilder builder(config(), pModule);
-    return builder.MergeSection(pInputSection);
+    return builder.MergeSection(pInputFile, pInputSection);
   }
   return true;
 }

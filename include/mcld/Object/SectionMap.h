@@ -174,7 +174,9 @@ public:
   iterator insert(iterator pPosition, LDSection* pSection);
 
 private:
-  bool matched(const Input& pInput, const std::string& pString) const;
+  bool matched(const Input& pInput,
+               const std::string& pInputFile,
+               const std::string& pInputSection) const;
 
 private:
   OutputDescList m_OutputDescList;

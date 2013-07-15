@@ -55,10 +55,12 @@ LDSection* ObjectBuilder::CreateSection(const std::string& pName,
 }
 
 /// MergeSection - merge the pInput section to the pOutput section
-LDSection* ObjectBuilder::MergeSection(LDSection& pInputSection)
+LDSection* ObjectBuilder::MergeSection(const Input& pInputFile,
+                                       LDSection& pInputSection)
 {
   SectionMap::mapping pair =
-    m_Module.getScript().sectionMap().find("*", pInputSection.name());
+    m_Module.getScript().sectionMap().find(pInputFile.path().native(),
+                                           pInputSection.name());
 
   std::string output_name = (pair.first == NULL) ?
                             pInputSection.name() : pair.first->name();

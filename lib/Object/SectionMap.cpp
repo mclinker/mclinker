@@ -113,12 +113,11 @@ SectionMap::const_mapping
 SectionMap::find(const std::string& pInputFile,
                  const std::string& pInputSection) const
 {
-  // TODO: check input file pattern
   const_iterator out, outBegin = begin(), outEnd = end();
   for (out = outBegin; out != outEnd; ++out) {
     Output::const_iterator in, inBegin = (*out)->begin(), inEnd = (*out)->end();
     for (in = inBegin; in != inEnd; ++in) {
-      if (matched(**in, pInputSection))
+      if (matched(**in, pInputFile, pInputSection))
         return std::make_pair(*out, *in);
     }
   }
@@ -128,12 +127,11 @@ SectionMap::find(const std::string& pInputFile,
 SectionMap::mapping SectionMap::find(const std::string& pInputFile,
                                      const std::string& pInputSection)
 {
-  // TODO: check input file pattern
   iterator out, outBegin = begin(), outEnd = end();
   for (out = outBegin; out != outEnd; ++out) {
     Output::iterator in, inBegin = (*out)->begin(), inEnd = (*out)->end();
     for (in = inBegin; in != inEnd; ++in) {
-      if (matched(**in, pInputSection))
+      if (matched(**in, pInputFile, pInputSection))
         return std::make_pair(*out, *in);
     }
   }
@@ -241,14 +239,26 @@ SectionMap::insert(iterator pPosition, LDSection* pSection)
   return m_OutputDescList.insert(pPosition, output);
 }
 
-bool SectionMap::matched(const Input& pInput, const std::string& pString) const
+bool SectionMap::matched(const SectionMap::Input& pInput,
+                         const std::string& pInputFile,
+                         const std::string& pInputSection) const
 {
+  bool result = false;
+  if (pInput.spec().hasFile() &&
+      fnmatch(pInput.spec().file().name().c_str(),
+              pInputFile.c_str(), 0) == 0)
+    result = true;
+
   if (pInput.spec().hasSections()) {
-    for (StringList::const_iterator it = pInput.spec().sections().begin(),
-      ie = pInput.spec().sections().end(); it != ie; ++it) {
-      if (fnmatch((*it)->name().c_str(), pString.c_str(), 0) == 0)
-        return true;
+    StringList::const_iterator sect, sectEnd = pInput.spec().sections().end();
+    for (sect = pInput.spec().sections().begin(); sect != sectEnd; ++sect) {
+      if (fnmatch((*sect)->name().c_str(), pInputSection.c_str(), 0) == 0) {
+        result = true;
+        break;
+      }
     }
+    if (sect == sectEnd)
+      result = false;
   }
-  return false;
+  return result;
 }

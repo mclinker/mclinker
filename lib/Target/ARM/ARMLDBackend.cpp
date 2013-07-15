@@ -395,7 +395,9 @@ bool ARMGNULDBackend::finalizeTargetSymbols()
   return true;
 }
 
-bool ARMGNULDBackend::mergeSection(Module& pModule, LDSection& pSection)
+bool ARMGNULDBackend::mergeSection(Module& pModule,
+                                   const Input& pInput,
+                                   LDSection& pSection)
 {
   switch (pSection.type()) {
     case llvm::ELF::SHT_ARM_ATTRIBUTES: {
@@ -415,7 +417,7 @@ bool ARMGNULDBackend::mergeSection(Module& pModule, LDSection& pSection)
     }
     default: {
       ObjectBuilder builder(config(), pModule);
-      return builder.MergeSection(pSection);
+      return builder.MergeSection(pInput, pSection);
     }
   } // end of switch
   return true;
