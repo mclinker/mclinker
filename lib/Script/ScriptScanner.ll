@@ -231,7 +231,7 @@ WS [ \t\r]
   return token::STRING;
 }
 
-<LDSCRIPT>\"(\\.|[^\\"])*\" {
+<LDSCRIPT,EXPRESSION>\"(\\.|[^\\"])*\" {
   /*" c string literal */
   const std::string& str = pScriptFile.createParserStr(yytext, yyleng);
   yylval->string = &str;
