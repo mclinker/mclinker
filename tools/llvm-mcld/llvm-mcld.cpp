@@ -702,6 +702,11 @@ static cl::opt<bool>
 ArgARMCompatibility("p",
                     cl::desc("Ignore for ARM backward compatibility"),
                     cl::init(false));
+
+static cl::opt<bool>
+ArgNoWarnMismatch("no-warn-mismatch",
+                  cl::desc("Allow linking together mismatched input files."),
+                  cl::init(false));
 /// @{
 /// @name FIXME: end of unsupported options
 /// @}
