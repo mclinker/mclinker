@@ -253,6 +253,16 @@ bool SectionMap::matched(const SectionMap::Input& pInput,
               pInputFile.c_str(), 0) == 0)
     result = true;
 
+  if (pInput.spec().hasExcludeFiles()) {
+    StringList::const_iterator file, fileEnd;
+    fileEnd = pInput.spec().excludeFiles().end();
+    for (file = pInput.spec().excludeFiles().begin(); file != fileEnd; ++file) {
+      if (fnmatch((*file)->name().c_str(), pInputFile.c_str(), 0) == 0) {
+        return false;
+      }
+    }
+  }
+
   if (pInput.spec().hasSections()) {
     StringList::const_iterator sect, sectEnd = pInput.spec().sections().end();
     for (sect = pInput.spec().sections().begin(); sect != sectEnd; ++sect) {
