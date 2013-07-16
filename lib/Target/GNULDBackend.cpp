@@ -2145,6 +2145,7 @@ void GNULDBackend::setOutputSectionAddress(Module& pModule)
     } else if (!(*out)->dotAssignments().empty()) {
       // assign address based on `.' symbol in ldscript
       vma = (*out)->dotAssignments().back().symbol().value();
+      alignAddress(vma, cur->align());
     } else {
       if ((cur->flag() & llvm::ELF::SHF_ALLOC) != 0) {
         if (prev->kind() == LDFileFormat::Null)
@@ -2161,35 +2162,35 @@ void GNULDBackend::setOutputSectionAddress(Module& pModule)
       } else {
         vma = 0x0;
       }
-
-      if (config().options().hasRelro()) {
-        // if -z relro is given, we need to adjust sections' offset again, and
-        // let PT_GNU_RELRO end on a common page boundary
-
-        // check if current is the first non-relro section
-        SectionMap::iterator relro_last = out - 1;
-        uint64_t diff = vma;
-        if (relro_last != outEnd &&
-            (*relro_last)->order() <= SHO_RELRO_LAST &&
-            (*out)->order() > SHO_RELRO_LAST) {
-          // align the first non-relro section to page boundary
-          alignAddress(vma, commonPageSize());
-          diff = vma - diff;
-
-          // It seems that compiler think .got and .got.plt are continuous (w/o
-          // any padding between). If .got is the last section in PT_RELRO and
-          // it's not continuous to its next section (i.e. .got.plt), we need to
-          // add padding in front of .got instead.
-          // FIXME: Maybe we can handle this in a more general way.
-          LDSection& got = getOutputFormat()->getGOT();
-          if ((getSectionOrder(got) == SHO_RELRO_LAST) &&
-              (got.addr() + got.size() != vma)) {
-            got.setAddr(got.addr() + diff);
-            got.setOffset(got.offset() + diff);
-          }
-        }
-      } // end of if - for relro processing
     }
+
+    if (config().options().hasRelro()) {
+      // if -z relro is given, we need to adjust sections' offset again, and
+      // let PT_GNU_RELRO end on a common page boundary
+
+      // check if current is the first non-relro section
+      SectionMap::iterator relro_last = out - 1;
+      if (relro_last != outEnd &&
+          (*relro_last)->order() <= SHO_RELRO_LAST &&
+          (*out)->order() > SHO_RELRO_LAST) {
+        // align the first non-relro section to page boundary
+        alignAddress(vma, commonPageSize());
+
+        // It seems that compiler think .got and .got.plt are continuous (w/o
+        // any padding between). If .got is the last section in PT_RELRO and
+        // it's not continuous to its next section (i.e. .got.plt), we need to
+        // add padding in front of .got instead.
+        // FIXME: Maybe we can handle this in a more general way.
+        LDSection& got = getOutputFormat()->getGOT();
+        if ((getSectionOrder(got) == SHO_RELRO_LAST) &&
+            (got.addr() + got.size() < vma)) {
+          uint64_t diff = vma - got.addr() - got.size();
+          got.setAddr(vma - got.size());
+          got.setOffset(got.offset() + diff);
+        }
+      }
+    } // end of if - for relro processing
+
     cur->setAddr(vma);
 
     switch (prev->kind()) {
@@ -2388,8 +2389,10 @@ void GNULDBackend::layout(Module& pModule)
       (*out)->getSection()->setIndex(pModule.size());
       pModule.getSectionTable().push_back((*out)->getSection());
     } else {
+      // set up the sections in SectionMap but actually doesn't exist at all.
       SectionMap::iterator prev = out - 1;
       (*out)->getSection()->setFlag((*prev)->getSection()->flag());
+      (*out)->setOrder((*prev)->order());
     }
   } // for each output section description
 
