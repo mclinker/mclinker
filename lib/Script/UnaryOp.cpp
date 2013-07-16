@@ -103,9 +103,9 @@ IntOperand* UnaryOp<Operator::ALIGNOF>::eval()
 template<>
 IntOperand* UnaryOp<Operator::DATA_SEGMENT_END>::eval()
 {
-  // TODO
-  assert(0);
-  return result();
+  IntOperand* res = result();
+  res->setValue(m_pOperand->value());
+  return res;
 }
 
 template<>

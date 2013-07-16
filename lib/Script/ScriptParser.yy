@@ -825,12 +825,16 @@ exp : '(' exp ')'
           &Operator::create<Operator::ALIGN>(m_Module, m_LDBackend));
         $$ = $3 + 2;
       }
-    | DATA_SEGMENT_ALIGN '(' exp ',' exp ')'
+    | DATA_SEGMENT_ALIGN
+      {
+        m_pRpnExpr->push_back(SymOperand::create("."));
+      }
+      '(' exp ',' exp ')'
       {
         m_pRpnExpr->push_back(
           &Operator::create<Operator::DATA_SEGMENT_ALIGN>(m_Module,
                                                           m_LDBackend));
-        $$ = $3 + $5 + 1;
+        $$ = $4 + $6 + 2;
       }
     | DATA_SEGMENT_END '(' exp ')'
       {

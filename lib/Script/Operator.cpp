@@ -400,15 +400,6 @@ Operator& Operator::create<Operator::ALIGN>(const Module& pModule,
 }
 
 template<>
-Operator&
-Operator::create<Operator::DATA_SEGMENT_ALIGN>(const Module& pModule,
-                                               const TargetLDBackend& pBackend)
-{
-  static BinaryOp<Operator::DATA_SEGMENT_ALIGN> op(pModule, pBackend);
-  return op;
-}
-
-template<>
 Operator& Operator::create<Operator::DATA_SEGMENT_RELRO_END>(
   const Module& pModule, const TargetLDBackend& pBackend)
 {
@@ -451,3 +442,11 @@ Operator::create<Operator::TERNARY_IF>(const Module& pModule,
   return op;
 }
 
+template<>
+Operator&
+Operator::create<Operator::DATA_SEGMENT_ALIGN>(const Module& pModule,
+                                               const TargetLDBackend& pBackend)
+{
+  static TernaryOp<Operator::DATA_SEGMENT_ALIGN> op(pModule, pBackend);
+  return op;
+}

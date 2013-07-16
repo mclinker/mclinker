@@ -60,6 +60,9 @@ private:
 template<>
 IntOperand* TernaryOp<Operator::TERNARY_IF>::eval();
 
+template<>
+IntOperand* TernaryOp<Operator::DATA_SEGMENT_ALIGN>::eval();
+
 } // namespace of mcld
 
 #endif

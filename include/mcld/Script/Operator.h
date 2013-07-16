@@ -256,10 +256,6 @@ Operator& Operator::create<Operator::ALIGN>(const Module&,
                                             const TargetLDBackend&);
 template<>
 Operator&
-Operator::create<Operator::DATA_SEGMENT_ALIGN>(const Module&,
-                                               const TargetLDBackend&);
-template<>
-Operator&
 Operator::create<Operator::DATA_SEGMENT_RELRO_END>(const Module&,
                                                    const TargetLDBackend&);
 template<>
@@ -277,6 +273,10 @@ template<>
 Operator& Operator::create<Operator::TERNARY_IF>(const Module&,
                                                  const TargetLDBackend&);
 
+template<>
+Operator&
+Operator::create<Operator::DATA_SEGMENT_ALIGN>(const Module&,
+                                               const TargetLDBackend&);
 } // namespace of mcld
 
 #endif

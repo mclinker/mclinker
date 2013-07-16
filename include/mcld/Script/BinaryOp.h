@@ -97,8 +97,6 @@ IntOperand* BinaryOp<Operator::LOGICAL_OR>::eval();
 template<>
 IntOperand* BinaryOp<Operator::ALIGN>::eval();
 template<>
-IntOperand* BinaryOp<Operator::DATA_SEGMENT_ALIGN>::eval();
-template<>
 IntOperand* BinaryOp<Operator::DATA_SEGMENT_RELRO_END>::eval();
 template<>
 IntOperand* BinaryOp<Operator::MAX>::eval();

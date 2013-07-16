@@ -11,6 +11,7 @@
 #include <mcld/ADT/SizeTraits.h>
 #include <mcld/Module.h>
 #include <mcld/LinkerScript.h>
+#include <mcld/Target/TargetLDBackend.h>
 #include <llvm/Support/Casting.h>
 #include <cassert>
 
@@ -174,20 +175,14 @@ IntOperand* BinaryOp<Operator::ALIGN>::eval()
 }
 
 template<>
-IntOperand* BinaryOp<Operator::DATA_SEGMENT_ALIGN>::eval()
-{
-  // TODO
-  assert(0);
-  IntOperand* res = result();
-  return res;
-}
-
-template<>
 IntOperand* BinaryOp<Operator::DATA_SEGMENT_RELRO_END>::eval()
 {
-  // TODO
-  assert(0);
+  /* FIXME: Currently we handle relro in a different way, and now the result
+     of this expression won't affect DATA_SEGMENT_ALIGN. */
   IntOperand* res = result();
+  uint64_t value = m_pOperand[0]->value() + m_pOperand[1]->value();
+  alignAddress(value, backend().commonPageSize());
+  res->setValue(value);
   return res;
 }
 
