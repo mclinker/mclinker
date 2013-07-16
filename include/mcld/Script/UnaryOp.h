@@ -34,7 +34,7 @@ private:
   friend class Operator;
 
   UnaryOp(const Module& pModule, const TargetLDBackend& pBackend)
-    : Operator(pModule, pBackend, Operator::Unary, TYPE), m_pOperand(NULL)
+    : Operator(pModule, pBackend, Operator::UNARY, TYPE), m_pOperand(NULL)
   {}
 
 public:

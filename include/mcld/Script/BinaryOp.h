@@ -34,7 +34,7 @@ private:
   friend class Operator;
 
   BinaryOp(const Module& pModule, const TargetLDBackend& pBackend)
-    : Operator(pModule, pBackend, Operator::Binary, TYPE), m_Size(0)
+    : Operator(pModule, pBackend, Operator::BINARY, TYPE), m_Size(0)
   {
     m_pOperand[0] = m_pOperand[1] = NULL;
   }

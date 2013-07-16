@@ -31,10 +31,10 @@ class Operator : public ExprToken
 {
 public:
   enum Arity {
-    Nullary,
-    Unary,
-    Binary,
-    Ternary
+    NULLARY,
+    UNARY,
+    BINARY,
+    TERNARY
   };
 
   enum Type {

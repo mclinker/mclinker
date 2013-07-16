@@ -34,7 +34,7 @@ private:
   friend class Operator;
 
   NullaryOp(const Module& pModule, const TargetLDBackend& pBackend)
-    : Operator(pModule, pBackend, Operator::Nullary, TYPE)
+    : Operator(pModule, pBackend, Operator::NULLARY, TYPE)
   {}
 
 public:
