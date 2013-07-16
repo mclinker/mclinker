@@ -194,18 +194,22 @@ IntOperand* BinaryOp<Operator::DATA_SEGMENT_RELRO_END>::eval()
 template<>
 IntOperand* BinaryOp<Operator::MAX>::eval()
 {
-  // TODO
-  assert(0);
   IntOperand* res = result();
+  if (m_pOperand[0]->value() >= m_pOperand[1]->value())
+    res->setValue(m_pOperand[0]->value());
+  else
+    res->setValue(m_pOperand[1]->value());
   return res;
 }
 
 template<>
 IntOperand* BinaryOp<Operator::MIN>::eval()
 {
-  // TODO
-  assert(0);
   IntOperand* res = result();
+  if (m_pOperand[0]->value() <= m_pOperand[1]->value())
+    res->setValue(m_pOperand[0]->value());
+  else
+    res->setValue(m_pOperand[1]->value());
   return res;
 }
 
