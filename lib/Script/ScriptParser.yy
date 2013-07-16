@@ -886,9 +886,15 @@ exp : '(' exp ')'
       {
         /* TODO */
       }
-    | SEGMENT_START '(' string ',' exp ')'
+    | SEGMENT_START '(' string
       {
-        /* TODO */
+        m_pRpnExpr->push_back(SectOperand::create(*$3));
+      }
+      ',' exp ')'
+      {
+        m_pRpnExpr->push_back(
+          &Operator::create<Operator::SEGMENT_START>(m_Module, m_LDBackend));
+        $$ = $6 + 2;
       }
     | SIZEOF '(' string ')'
       {

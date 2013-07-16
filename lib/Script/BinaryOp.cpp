@@ -9,6 +9,9 @@
 #include <mcld/Script/BinaryOp.h>
 #include <mcld/Script/Operand.h>
 #include <mcld/ADT/SizeTraits.h>
+#include <mcld/Module.h>
+#include <mcld/LinkerScript.h>
+#include <llvm/Support/Casting.h>
 #include <cassert>
 
 using namespace mcld;
@@ -206,11 +209,31 @@ IntOperand* BinaryOp<Operator::MIN>::eval()
   return res;
 }
 
+
+/* SEGMENT_START(segment, default) */
 template<>
 IntOperand* BinaryOp<Operator::SEGMENT_START>::eval()
 {
-  // TODO
-  assert(0);
   IntOperand* res = result();
+  /* Currently we look up segment address from -T command line options. */
+  SectOperand* sect = llvm::cast<SectOperand>(m_pOperand[0]);
+  const LinkerScript::AddressMap& addressMap =
+    module().getScript().addressMap();
+  LinkerScript::AddressMap::const_iterator addr;
+  if (sect->name().compare("text-segment") == 0)
+    addr = addressMap.find(".text");
+  else if (sect->name().compare("data-segment") == 0)
+    addr = addressMap.find(".data");
+  else if (sect->name().compare("bss-segment") == 0)
+    addr = addressMap.find(".bss");
+  else
+    addr = addressMap.find(sect->name());
+
+  if (addr != addressMap.end())
+    res->setValue(addr.getEntry()->value());
+  else {
+    assert(m_pOperand[1]->type() == Operand::INTEGER);
+    res->setValue(m_pOperand[1]->value());
+  }
   return res;
 }
