@@ -2330,9 +2330,23 @@ void GNULDBackend::placeOutputSections(Module& pModule)
       outBegin = sectionMap.begin();
       outEnd = sectionMap.end();
       for (out = outBegin; out != outEnd; ++out) {
-        /* FIXME: we should also check other output attributes */
-        if ((*it)->name().compare((*out)->name()) == 0)
-          break;
+        bool matched = false;
+        if ((*it)->name().compare((*out)->name()) == 0) {
+          switch ((*out)->prolog().constraint()) {
+          case OutputSectDesc::NO_CONSTRAINT:
+            matched = true;
+            break;
+          case OutputSectDesc::ONLY_IF_RO:
+            matched = ((*it)->flag() & llvm::ELF::SHF_WRITE) == 0;
+            break;
+          case OutputSectDesc::ONLY_IF_RW:
+            matched = ((*it)->flag() & llvm::ELF::SHF_WRITE) != 0;
+            break;
+          } // end of switch
+
+          if (matched)
+            break;
+        }
       } // for each output section description
 
       if (out != outEnd) {
