@@ -20,6 +20,8 @@ namespace mcld
 
 class Operand;
 class IntOperand;
+class Module;
+class TargetLDBackend;
 
 /** \class UnaryOp
  *  \brief This class defines the interfaces to an unary operator token.
@@ -31,8 +33,8 @@ class UnaryOp : public Operator
 private:
   friend class Operator;
 
-  UnaryOp()
-    : Operator(Operator::Unary, TYPE), m_pOperand(NULL)
+  UnaryOp(const Module& pModule, const TargetLDBackend& pBackend)
+    : Operator(pModule, pBackend, Operator::Unary, TYPE), m_pOperand(NULL)
   {}
 
 public:

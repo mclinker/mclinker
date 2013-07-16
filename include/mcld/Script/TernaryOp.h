@@ -20,6 +20,8 @@ namespace mcld
 
 class Operand;
 class IntOperand;
+class Module;
+class TargetLDBackend;
 
 /** \class TernaryOP
  *  \brief This class defines the interfaces to an binary operator token.
@@ -31,8 +33,8 @@ class TernaryOp : public Operator
 private:
   friend class Operator;
 
-  TernaryOp()
-    : Operator(Operator::Ternary, TYPE)
+  TernaryOp(const Module& pModule, const TargetLDBackend& pBackend)
+    : Operator(pModule, pBackend, Operator::Ternary, TYPE)
   {
     m_pOperand[0] = m_pOperand[1] = m_pOperand[2] = NULL;
   }

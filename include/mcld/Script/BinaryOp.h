@@ -20,6 +20,8 @@ namespace mcld
 
 class Operand;
 class IntOperand;
+class Module;
+class TargetLDBackend;
 
 /** \class BinaryOP
  *  \brief This class defines the interfaces to an binary operator token.
@@ -31,8 +33,8 @@ class BinaryOp : public Operator
 private:
   friend class Operator;
 
-  BinaryOp()
-    : Operator(Operator::Binary, TYPE), m_Size(0)
+  BinaryOp(const Module& pModule, const TargetLDBackend& pBackend)
+    : Operator(pModule, pBackend, Operator::Binary, TYPE), m_Size(0)
   {
     m_pOperand[0] = m_pOperand[1] = NULL;
   }

@@ -42,6 +42,7 @@ bool ScriptReader::isMyFormat(Input& input) const
 }
 
 bool ScriptReader::readScript(const Module& pModule,
+                              const TargetLDBackend& pBackend,
                               const LinkerConfig& pConfig,
                               LinkerScript& pLDScript,
                               ScriptFile& pScriptFile)
@@ -57,6 +58,7 @@ bool ScriptReader::readScript(const Module& pModule,
   std::istream in(&buf);
   ScriptScanner scanner(&in);
   ScriptParser parser(pModule,
+                      pBackend,
                       pConfig,
                       pLDScript,
                       pScriptFile,

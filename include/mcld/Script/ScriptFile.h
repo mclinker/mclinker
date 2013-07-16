@@ -31,6 +31,7 @@ class LinkerScript;
 class RpnExpr;
 class StringList;
 class Module;
+class TargetLDBackend;
 
 /** \class ScriptFile
  *  \brief This class defines the interfaces to a linker script file.
@@ -114,6 +115,7 @@ public:
 
   /// assignment
   void addAssignment(const Module& pModule,
+                     const TargetLDBackend& pBackend,
                      LinkerScript& pLDScript,
                      const std::string& pSymbol,
                      RpnExpr& pRpnExpr,

@@ -21,6 +21,7 @@ class Module;
 class LinkerScript;
 class RpnExpr;
 class SymOperand;
+class TargetLDBackend;
 
 /** \class Assignment
  *  \brief This class defines the interfaces to assignment command.
@@ -44,6 +45,7 @@ public:
 
 public:
   Assignment(const Module& pModule,
+             const TargetLDBackend& pBackend,
              LinkerScript& pScript,
              Level pLevel,
              Type pType,
@@ -78,6 +80,7 @@ public:
 
 private:
   const Module& m_Module;
+  const TargetLDBackend& m_LDBackend;
   LinkerScript& m_Script;
   Level m_Level;
   Type m_Type;

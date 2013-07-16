@@ -191,6 +191,7 @@ void ObjectLinker::normalize()
         ScriptFile script(ScriptFile::LDScript, **input,
                           m_pBuilder->getInputBuilder());
         if (getScriptReader()->readScript(*m_pModule,
+                                          m_LDBackend,
                                           m_Config,
                                           m_pModule->getScript(),
                                           script)) {

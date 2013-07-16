@@ -23,6 +23,7 @@ class Input;
 class GroupReader;
 class LinkerConfig;
 class LinkerScript;
+class TargetLDBackend;
 
 class ScriptReader : public LDReader
 {
@@ -33,6 +34,7 @@ public:
 
   /// readScript
   bool readScript(const Module& pModule,
+                  const TargetLDBackend& pBackend,
                   const LinkerConfig& pConfig,
                   LinkerScript& pScript,
                   ScriptFile& pScriptFile);

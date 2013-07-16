@@ -20,6 +20,8 @@ namespace mcld
 
 class Operand;
 class IntOperand;
+class Module;
+class TargetLDBackend;
 
 /** \class Operator
  *  \brief This class defines the interfaces to an operator token.
@@ -95,10 +97,17 @@ public:
   static const char* OpNames[];
 
 protected:
-  Operator(Arity pArity, Type pType);
+  Operator(const Module& pModule,
+           const TargetLDBackend& pBackend,
+           Arity pArity,
+           Type pType);
 
   const IntOperand* result() const { return m_pIntOperand; }
   IntOperand*       result()       { return m_pIntOperand; }
+
+  const Module& module() const { return m_Module; }
+
+  const TargetLDBackend& backend() const { return m_LDBackend; }
 
 public:
   virtual ~Operator();
@@ -119,9 +128,12 @@ public:
   }
 
   template<Operator::Type TYPE>
-  static Operator& create();
+  static Operator& create(const Module& pModule,
+                          const TargetLDBackend& pBackend);
 
 private:
+  const Module& m_Module;
+  const TargetLDBackend& m_LDBackend;
   Arity m_Arity;
   Type m_Type;
   IntOperand* m_pIntOperand;
@@ -129,97 +141,141 @@ private:
 
 /* Nullary operator */
 template<>
-Operator& Operator::create<Operator::SIZEOF_HEADERS>();
+Operator& Operator::create<Operator::SIZEOF_HEADERS>(const Module&,
+                                                     const TargetLDBackend&);
 template<>
-Operator& Operator::create<Operator::MAXPAGESIZE>();
+Operator& Operator::create<Operator::MAXPAGESIZE>(const Module&,
+                                                  const TargetLDBackend&);
 template<>
-Operator& Operator::create<Operator::COMMONPAGESIZE>();
+Operator& Operator::create<Operator::COMMONPAGESIZE>(const Module&,
+                                                     const TargetLDBackend&);
 
 /* Unary operator */
 template<>
-Operator& Operator::create<Operator::UNARY_PLUS>();
+Operator& Operator::create<Operator::UNARY_PLUS>(const Module&,
+                                                 const TargetLDBackend&);
 template<>
-Operator& Operator::create<Operator::UNARY_MINUS>();
+Operator& Operator::create<Operator::UNARY_MINUS>(const Module&,
+                                                  const TargetLDBackend&);
 template<>
-Operator& Operator::create<Operator::LOGICAL_NOT>();
+Operator& Operator::create<Operator::LOGICAL_NOT>(const Module&,
+                                                  const TargetLDBackend&);
 template<>
-Operator& Operator::create<Operator::BITWISE_NOT>();
+Operator& Operator::create<Operator::BITWISE_NOT>(const Module&,
+                                                  const TargetLDBackend&);
 
 template<>
-Operator& Operator::create<Operator::ABSOLUTE>();
+Operator& Operator::create<Operator::ABSOLUTE>(const Module&,
+                                               const TargetLDBackend&);
 template<>
-Operator& Operator::create<Operator::ADDR>();
+Operator& Operator::create<Operator::ADDR>(const Module&,
+                                           const TargetLDBackend&);
 template<>
-Operator& Operator::create<Operator::ALIGNOF>();
+Operator& Operator::create<Operator::ALIGNOF>(const Module&,
+                                              const TargetLDBackend&);
 template<>
-Operator& Operator::create<Operator::DATA_SEGMENT_END>();
+Operator& Operator::create<Operator::DATA_SEGMENT_END>(const Module&,
+                                                       const TargetLDBackend&);
 template<>
-Operator& Operator::create<Operator::DEFINED>();
+Operator& Operator::create<Operator::DEFINED>(const Module&,
+                                              const TargetLDBackend&);
 template<>
-Operator& Operator::create<Operator::LENGTH>();
+Operator& Operator::create<Operator::LENGTH>(const Module&,
+                                             const TargetLDBackend&);
 template<>
-Operator& Operator::create<Operator::LOADADDR>();
+Operator& Operator::create<Operator::LOADADDR>(const Module&,
+                                               const TargetLDBackend&);
 template<>
-Operator& Operator::create<Operator::NEXT>();
+Operator& Operator::create<Operator::NEXT>(const Module&,
+                                           const TargetLDBackend&);
 template<>
-Operator& Operator::create<Operator::ORIGIN>();
+Operator& Operator::create<Operator::ORIGIN>(const Module&,
+                                             const TargetLDBackend&);
 template<>
-Operator& Operator::create<Operator::SIZEOF>();
+Operator& Operator::create<Operator::SIZEOF>(const Module&,
+                                             const TargetLDBackend&);
 
 /* Binary operator */
 template<>
-Operator& Operator::create<Operator::MUL>();
+Operator& Operator::create<Operator::MUL>(const Module&,
+                                          const TargetLDBackend&);
 template<>
-Operator& Operator::create<Operator::DIV>();
+Operator& Operator::create<Operator::DIV>(const Module&,
+                                          const TargetLDBackend&);
 template<>
-Operator& Operator::create<Operator::MOD>();
+Operator& Operator::create<Operator::MOD>(const Module&,
+                                          const TargetLDBackend&);
 template<>
-Operator& Operator::create<Operator::ADD>();
+Operator& Operator::create<Operator::ADD>(const Module&,
+                                          const TargetLDBackend&);
 template<>
-Operator& Operator::create<Operator::SUB>();
+Operator& Operator::create<Operator::SUB>(const Module&,
+                                          const TargetLDBackend&);
 template<>
-Operator& Operator::create<Operator::LSHIFT>();
+Operator& Operator::create<Operator::LSHIFT>(const Module&,
+                                             const TargetLDBackend&);
 template<>
-Operator& Operator::create<Operator::RSHIFT>();
+Operator& Operator::create<Operator::RSHIFT>(const Module&,
+                                             const TargetLDBackend&);
 template<>
-Operator& Operator::create<Operator::LT>();
+Operator& Operator::create<Operator::LT>(const Module&,
+                                         const TargetLDBackend&);
 template<>
-Operator& Operator::create<Operator::LE>();
+Operator& Operator::create<Operator::LE>(const Module&,
+                                         const TargetLDBackend&);
 template<>
-Operator& Operator::create<Operator::GT>();
+Operator& Operator::create<Operator::GT>(const Module&,
+                                         const TargetLDBackend&);
 template<>
-Operator& Operator::create<Operator::GE>();
+Operator& Operator::create<Operator::GE>(const Module&,
+                                         const TargetLDBackend&);
 template<>
-Operator& Operator::create<Operator::EQ>();
+Operator& Operator::create<Operator::EQ>(const Module&,
+                                         const TargetLDBackend&);
 template<>
-Operator& Operator::create<Operator::NE>();
+Operator& Operator::create<Operator::NE>(const Module&,
+                                         const TargetLDBackend&);
 template<>
-Operator& Operator::create<Operator::BITWISE_AND>();
+Operator& Operator::create<Operator::BITWISE_AND>(const Module&,
+                                                  const TargetLDBackend&);
 template<>
-Operator& Operator::create<Operator::BITWISE_XOR>();
+Operator& Operator::create<Operator::BITWISE_XOR>(const Module&,
+                                                  const TargetLDBackend&);
 template<>
-Operator& Operator::create<Operator::BITWISE_OR>();
+Operator& Operator::create<Operator::BITWISE_OR>(const Module&,
+                                                 const TargetLDBackend&);
 template<>
-Operator& Operator::create<Operator::LOGICAL_AND>();
+Operator& Operator::create<Operator::LOGICAL_AND>(const Module&,
+                                                  const TargetLDBackend&);
 template<>
-Operator& Operator::create<Operator::LOGICAL_OR>();
+Operator& Operator::create<Operator::LOGICAL_OR>(const Module&,
+                                                 const TargetLDBackend&);
 
 template<>
-Operator& Operator::create<Operator::ALIGN>();
+Operator& Operator::create<Operator::ALIGN>(const Module&,
+                                            const TargetLDBackend&);
 template<>
-Operator& Operator::create<Operator::DATA_SEGMENT_ALIGN>();
+Operator&
+Operator::create<Operator::DATA_SEGMENT_ALIGN>(const Module&,
+                                               const TargetLDBackend&);
 template<>
-Operator& Operator::create<Operator::DATA_SEGMENT_RELRO_END>();
+Operator&
+Operator::create<Operator::DATA_SEGMENT_RELRO_END>(const Module&,
+                                                   const TargetLDBackend&);
 template<>
-Operator& Operator::create<Operator::MAX>();
+Operator& Operator::create<Operator::MAX>(const Module&,
+                                          const TargetLDBackend&);
 template<>
-Operator& Operator::create<Operator::MIN>();
+Operator& Operator::create<Operator::MIN>(const Module&,
+                                          const TargetLDBackend&);
 template<>
-Operator& Operator::create<Operator::SEGMENT_START>();
+Operator& Operator::create<Operator::SEGMENT_START>(const Module&,
+                                                    const TargetLDBackend&);
 
 /* Ternary operator */
 template<>
-Operator& Operator::create<Operator::TERNARY_IF>();
+Operator& Operator::create<Operator::TERNARY_IF>(const Module&,
+                                                 const TargetLDBackend&);
 
 } // namespace of mcld
 

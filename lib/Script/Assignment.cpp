@@ -24,6 +24,7 @@ using namespace mcld;
 // Assignment
 //===----------------------------------------------------------------------===//
 Assignment::Assignment(const Module& pModule,
+                       const TargetLDBackend& pLDBackend,
                        LinkerScript& pScript,
                        Level pLevel,
                        Type pType,
@@ -31,6 +32,7 @@ Assignment::Assignment(const Module& pModule,
                        RpnExpr& pRpnExpr)
   : ScriptCommand(ScriptCommand::ASSIGNMENT),
     m_Module(pModule),
+    m_LDBackend(pLDBackend),
     m_Script(pScript),
     m_Level(pLevel),
     m_Type(pType),
@@ -98,12 +100,15 @@ void Assignment::activate()
         SymOperand* dot = SymOperand::create(".");
         RpnExpr* expr = RpnExpr::create();
         expr->push_back(SectDescOperand::create(*prev));
-        expr->push_back(&Operator::create<Operator::ADDR>());
+        expr->push_back(
+          &Operator::create<Operator::ADDR>(m_Module, m_LDBackend));
         expr->push_back(SectDescOperand::create(*prev));
-        expr->push_back(&Operator::create<Operator::SIZEOF>());
-        expr->push_back(&Operator::create<Operator::ADD>());
-        Assignment assign(m_Module, m_Script, OUTPUT_SECTION, DEFAULT, *dot,
-                          *expr);
+        expr->push_back(
+          &Operator::create<Operator::SIZEOF>(m_Module, m_LDBackend));
+        expr->push_back(
+          &Operator::create<Operator::ADD>(m_Module, m_LDBackend));
+        Assignment assign(m_Module, m_LDBackend, m_Script, OUTPUT_SECTION,
+                          DEFAULT, *dot, *expr);
         out->dotAssignments().push_back(assign);
       }
 
@@ -134,8 +139,8 @@ void Assignment::activate()
         RpnExpr* expr = RpnExpr::create();
         expr->push_back(
           FragOperand::create(in->getSection()->getSectionData()->front()));
-        Assignment assign(m_Module, m_Script, INPUT_SECTION, DEFAULT, *dot,
-                          *expr);
+        Assignment assign(m_Module, m_LDBackend, m_Script, INPUT_SECTION,
+                          DEFAULT, *dot, *expr);
         in->dotAssignments().push_back(std::make_pair((Fragment*)NULL, assign));
       }
 

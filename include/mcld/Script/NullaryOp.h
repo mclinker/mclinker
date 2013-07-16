@@ -20,6 +20,8 @@ namespace mcld
 
 class Operand;
 class IntOperand;
+class Module;
+class TargetLDBackend;
 
 /** \class NullaryOp
  *  \brief This class defines the interfaces to an nullary operator token.
@@ -31,8 +33,8 @@ class NullaryOp : public Operator
 private:
   friend class Operator;
 
-  NullaryOp()
-    : Operator(Operator::Nullary, TYPE)
+  NullaryOp(const Module& pModule, const TargetLDBackend& pBackend)
+    : Operator(pModule, pBackend, Operator::Nullary, TYPE)
   {}
 
 public:
