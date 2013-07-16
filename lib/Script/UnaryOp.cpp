@@ -10,6 +10,7 @@
 #include <mcld/Script/Operand.h>
 #include <mcld/Object/SectionMap.h>
 #include <mcld/LD/LDSection.h>
+#include <mcld/Module.h>
 #include <llvm/Support/Casting.h>
 #include <cassert>
 
@@ -64,7 +65,7 @@ IntOperand* UnaryOp<Operator::ADDR>::eval()
   const LDSection* sect = NULL;
   switch (m_pOperand->type()) {
   case Operand::SECTION:
-    sect = llvm::cast<SectOperand>(m_pOperand)->getSection();
+    sect = module().getSection(llvm::cast<SectOperand>(m_pOperand)->name());
     break;
   case Operand::SECTION_DESC:
     sect = llvm::cast<SectDescOperand>(m_pOperand)->outputDesc()->getSection();
@@ -85,7 +86,7 @@ IntOperand* UnaryOp<Operator::ALIGNOF>::eval()
   const LDSection* sect = NULL;
   switch (m_pOperand->type()) {
   case Operand::SECTION:
-    sect = llvm::cast<SectOperand>(m_pOperand)->getSection();
+    sect = module().getSection(llvm::cast<SectOperand>(m_pOperand)->name());
     break;
   case Operand::SECTION_DESC:
     sect = llvm::cast<SectDescOperand>(m_pOperand)->outputDesc()->getSection();
@@ -154,7 +155,7 @@ IntOperand* UnaryOp<Operator::SIZEOF>::eval()
   const LDSection* sect = NULL;
   switch (m_pOperand->type()) {
   case Operand::SECTION:
-    sect = llvm::cast<SectOperand>(m_pOperand)->getSection();
+    sect = module().getSection(llvm::cast<SectOperand>(m_pOperand)->name());
     break;
   case Operand::SECTION_DESC:
     sect = llvm::cast<SectDescOperand>(m_pOperand)->outputDesc()->getSection();

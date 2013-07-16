@@ -80,6 +80,8 @@ bool RpnEvaluator::eval(const RpnExpr& pExpr, uint64_t& pResult)
       Operand* opd = llvm::cast<Operand>(*it);
       switch (opd->type()) {
       case Operand::SYMBOL: {
+        // It's possible that there are no operators in an expression, so
+        // we set up symbol operand here.
         if (!opd->isDot()) {
           SymOperand* sym_opd = llvm::cast<SymOperand>(opd);
           const LDSymbol* symbol =
@@ -90,13 +92,6 @@ bool RpnEvaluator::eval(const RpnExpr& pExpr, uint64_t& pResult)
           }
           sym_opd->setValue(symbol->value());
         }
-        operandStack.push(opd);
-        break;
-      }
-      case Operand::SECTION: {
-        SectOperand* sect_opd = llvm::cast<SectOperand>(opd);
-        const LDSection* sect = m_Module.getSection(sect_opd->name());
-        sect_opd->setSection(sect);
         operandStack.push(opd);
         break;
       }
@@ -111,6 +106,9 @@ bool RpnEvaluator::eval(const RpnExpr& pExpr, uint64_t& pResult)
   } // end of for
 
   // stack top is result
+  assert(operandStack.top()->type() == Operand::SYMBOL ||
+         operandStack.top()->type() == Operand::INTEGER ||
+         operandStack.top()->type() == Operand::FRAGMENT);
   pResult = operandStack.top()->value();
   return true;
 }

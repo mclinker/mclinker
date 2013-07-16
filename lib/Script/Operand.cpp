@@ -120,12 +120,12 @@ void IntOperand::clear()
 typedef GCFactory<SectOperand, MCLD_SECTIONS_PER_INPUT> SectOperandFactory;
 static llvm::ManagedStatic<SectOperandFactory> g_SectOperandFactory;
 SectOperand::SectOperand()
-  : Operand(Operand::SECTION), m_pSection(NULL)
+  : Operand(Operand::SECTION)
 {
 }
 
 SectOperand::SectOperand(const std::string& pName)
-  : Operand(Operand::SECTION), m_Name(pName), m_pSection(NULL)
+  : Operand(Operand::SECTION), m_Name(pName)
 {
 }
 

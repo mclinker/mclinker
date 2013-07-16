@@ -144,10 +144,6 @@ public:
 
   const std::string& name() const { return m_Name; }
 
-  const LDSection* getSection() const { return m_pSection; }
-
-  void setSection(const LDSection* pSection) { m_pSection = pSection; }
-
   uint64_t value() const
   {
     assert(0);
@@ -166,7 +162,6 @@ public:
 
 private:
   std::string m_Name;
-  const LDSection* m_pSection;
 };
 
 /** \class SectDescOperand
