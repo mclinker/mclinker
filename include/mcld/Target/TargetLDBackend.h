@@ -147,6 +147,12 @@ public:
   /// mayRelax - return true if the backend needs to do relaxation
   virtual bool mayRelax() = 0;
 
+  /// commonPageSize - the common page size of the target machine
+  virtual uint64_t commonPageSize() const = 0;
+
+  /// abiPageSize - the abi page size of the target machine
+  virtual uint64_t abiPageSize() const = 0;
+
 protected:
   const LinkerConfig& config() const { return m_Config; }
 

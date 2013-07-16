@@ -8,6 +8,7 @@
 //===----------------------------------------------------------------------===//
 #include <mcld/Script/NullaryOp.h>
 #include <mcld/Script/Operand.h>
+#include <mcld/Target/TargetLDBackend.h>
 
 using namespace mcld;
 //===----------------------------------------------------------------------===//
@@ -16,23 +17,23 @@ using namespace mcld;
 template<>
 IntOperand* NullaryOp<Operator::SIZEOF_HEADERS>::eval()
 {
-  // TODO
-  assert(0);
-  return result();
+  IntOperand* res = result();
+  res->setValue(backend().sectionStartOffset());
+  return res;
 }
 
 template<>
 IntOperand* NullaryOp<Operator::MAXPAGESIZE>::eval()
 {
-  // TODO
-  assert(0);
-  return result();
+  IntOperand* res = result();
+  res->setValue(backend().abiPageSize());
+  return res;
 }
 
 template<>
 IntOperand* NullaryOp<Operator::COMMONPAGESIZE>::eval()
 {
-  // TODO
-  assert(0);
-  return result();
+  IntOperand* res = result();
+  res->setValue(backend().commonPageSize());
+  return res;
 }
