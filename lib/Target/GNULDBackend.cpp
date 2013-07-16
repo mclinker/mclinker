@@ -1958,9 +1958,8 @@ void GNULDBackend::setupProgramHdrs(const LinkerScript& pScript)
 
   if ((*null)->size() == 1) {
     // find 2nd PT_LOAD
-    ELFSegmentFactory::iterator seg, segEnd;
-    for (seg = m_ELFSegmentTable.begin(), segEnd = m_ELFSegmentTable.end();
-      seg != segEnd; ++seg) {
+    ELFSegmentFactory::iterator seg, segEnd = m_ELFSegmentTable.end();
+    for (seg = null + 1; seg != segEnd; ++seg) {
       if ((*seg)->type() == llvm::ELF::PT_LOAD)
         break;
     }
