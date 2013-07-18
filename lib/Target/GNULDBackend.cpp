@@ -2383,6 +2383,22 @@ void GNULDBackend::placeOutputSections(Module& pModule)
     }
     (*out)->setOrder(order);
   } // for each orphan section
+
+  // set up sections in SectionMap but do not exist at all.
+  uint32_t flag = 0x0;
+  unsigned int order = SHO_UNDEFINED;
+  for (SectionMap::reverse_iterator out = sectionMap.rbegin(),
+    outEnd = sectionMap.rend(); out != outEnd; ++out) {
+    if ((*out)->hasContent() ||
+        (*out)->getSection()->kind() == LDFileFormat::Null ||
+        (*out)->getSection()->kind() == LDFileFormat::StackNote) {
+      flag = (*out)->getSection()->flag();
+      order = (*out)->order();
+    } else {
+      (*out)->getSection()->setFlag(flag);
+      (*out)->setOrder(order);
+    }
+  } // for each output section description
 }
 
 /// layout - layout method
@@ -2408,11 +2424,6 @@ void GNULDBackend::layout(Module& pModule)
         (*out)->getSection()->kind() == LDFileFormat::StackNote) {
       (*out)->getSection()->setIndex(pModule.size());
       pModule.getSectionTable().push_back((*out)->getSection());
-    } else {
-      // set up the sections in SectionMap but actually doesn't exist at all.
-      SectionMap::iterator prev = out - 1;
-      (*out)->getSection()->setFlag((*prev)->getSection()->flag());
-      (*out)->setOrder((*prev)->order());
     }
   } // for each output section description
 
