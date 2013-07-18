@@ -1786,18 +1786,19 @@ void GNULDBackend::createProgramHdrs(Module& pModule)
   // make possible PT_LOAD segments
   LinkerScript& ldscript = pModule.getScript();
   LinkerScript::AddressMap::iterator addrEnd= ldscript.addressMap().end();
-  Module::iterator sect, prev, sectBegin, sectEnd;
-  sectBegin = pModule.begin();
-  sectEnd = pModule.end();
-  for (sect = sectBegin, prev = sectEnd; sect != sectEnd; prev = sect, ++sect) {
+  SectionMap::iterator out, prev, outBegin, outEnd;
+  outBegin = ldscript.sectionMap().begin();
+  outEnd = ldscript.sectionMap().end();
+  for (out = outBegin, prev = outEnd; out != outEnd; prev = out, ++out) {
+    LDSection* sect = (*out)->getSection();
 
-    if (0 == ((*sect)->flag() & llvm::ELF::SHF_ALLOC) &&
-        LDFileFormat::Null != (*sect)->kind())
-      continue;
+    if (0 == (sect->flag() & llvm::ELF::SHF_ALLOC) &&
+        LDFileFormat::Null != sect->kind())
+      break;
 
-    cur_flag = getSegmentFlag((*sect)->flag());
+    cur_flag = getSegmentFlag(sect->flag());
     bool createPT_LOAD = false;
-    if (LDFileFormat::Null == (*sect)->kind()) {
+    if (LDFileFormat::Null == sect->kind()) {
       // 1. create text segment
       createPT_LOAD = true;
     }
@@ -1806,21 +1807,22 @@ void GNULDBackend::createProgramHdrs(Module& pModule)
       // 2. create data segment if w/o omagic set
       createPT_LOAD = true;
     }
-    else if ((*sect)->kind() == LDFileFormat::BSS &&
+    else if (sect->kind() == LDFileFormat::BSS &&
              load_seg->isDataSegment() &&
              addrEnd != ldscript.addressMap().find(".bss")) {
       // 3. create bss segment if w/ -Tbss and there is a data segment
       createPT_LOAD = true;
     }
-    else if ((*sect != &(file_format->getText())) &&
-             (*sect != &(file_format->getData())) &&
-             (*sect != &(file_format->getBSS())) &&
-             (addrEnd != ldscript.addressMap().find((*sect)->name()))) {
+    else if ((sect != &(file_format->getText())) &&
+             (sect != &(file_format->getData())) &&
+             (sect != &(file_format->getBSS())) &&
+             (addrEnd != ldscript.addressMap().find(sect->name()))) {
       // 4. create PT_LOAD for sections in address map except for text, data,
       // and bss
       createPT_LOAD = true;
-    } else if (LDFileFormat::Null == (*prev)->kind() &&
-               config().options().hasDefaultLDScript()) {
+    }
+    else if (LDFileFormat::Null == (*prev)->getSection()->kind() &&
+             config().options().hasDefaultLDScript()) {
       // 5. create PT_LOAD to hold NULL section if there is a default ldscript
       createPT_LOAD = true;
     }
@@ -1833,7 +1835,7 @@ void GNULDBackend::createProgramHdrs(Module& pModule)
     }
 
     assert(NULL != load_seg);
-    load_seg->append((*sect));
+    load_seg->append(sect);
     if (cur_flag != prev_flag)
       load_seg->updateFlag(cur_flag);
 
@@ -1894,6 +1896,9 @@ void GNULDBackend::createProgramHdrs(Module& pModule)
   // make PT_NOTE
   ELFSegment *note_seg = NULL;
   prev_flag = 0x0;
+  Module::iterator sect, sectBegin, sectEnd;
+  sectBegin = pModule.begin();
+  sectEnd = pModule.end();
   for (sect = sectBegin; sect != sectEnd; ++sect) {
     if ((*sect)->type() != llvm::ELF::SHT_NOTE ||
         ((*sect)->flag() & llvm::ELF::SHF_ALLOC) == 0)
