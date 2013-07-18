@@ -2148,9 +2148,14 @@ void GNULDBackend::setOutputSectionAddress(Module& pModule)
       alignAddress(vma, cur->align());
     } else {
       if ((cur->flag() & llvm::ELF::SHF_ALLOC) != 0) {
-        if (prev->kind() == LDFileFormat::Null)
-          vma = getSegmentStartAddr(script) + sectionStartOffset();
-        else
+        if (prev->kind() == LDFileFormat::Null) {
+          // Let SECTIONS starts at 0 if we have a default ldscript but don't
+          // have any initial value (VMA or `.').
+          if (config().options().hasDefaultLDScript())
+            vma = 0x0;
+          else
+            vma = getSegmentStartAddr(script) + sectionStartOffset();
+        } else
           vma = prev->addr() + prev->size();
         alignAddress(vma, cur->align());
         if (seg != segEnd && cur == (*seg)->front()) {
