@@ -145,6 +145,9 @@ public:
   typedef OutputDescList::const_reference const_reference;
   typedef OutputDescList::reference reference;
 
+  typedef OutputDescList::const_reverse_iterator const_reverse_iterator;
+  typedef OutputDescList::reverse_iterator reverse_iterator;
+
 public:
   ~SectionMap();
 
@@ -173,6 +176,11 @@ public:
   reference       front()       { return m_OutputDescList.front(); }
   const_reference back () const { return m_OutputDescList.back(); }
   reference       back ()       { return m_OutputDescList.back(); }
+
+  const_reverse_iterator rbegin() const { return m_OutputDescList.rbegin(); }
+  reverse_iterator       rbegin()       { return m_OutputDescList.rbegin(); }
+  const_reverse_iterator rend  () const { return m_OutputDescList.rend(); }
+  reverse_iterator       rend  ()       { return m_OutputDescList.rend(); }
 
   iterator insert(iterator pPosition, LDSection* pSection);
 
