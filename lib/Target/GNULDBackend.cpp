@@ -2399,7 +2399,8 @@ void GNULDBackend::layout(Module& pModule)
   for (SectionMap::iterator out = sectionMap.begin(), outEnd = sectionMap.end();
     out != outEnd; ++out) {
     if ((*out)->hasContent() ||
-        (*out)->getSection()->kind() == LDFileFormat::Null) {
+        (*out)->getSection()->kind() == LDFileFormat::Null ||
+        (*out)->getSection()->kind() == LDFileFormat::StackNote) {
       (*out)->getSection()->setIndex(pModule.size());
       pModule.getSectionTable().push_back((*out)->getSection());
     } else {
