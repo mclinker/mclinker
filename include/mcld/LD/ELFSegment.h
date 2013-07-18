@@ -96,6 +96,8 @@ public:
   void setAlign(uint64_t pAlign)
   { m_Align = pAlign; }
 
+  iterator insert(iterator pPos, LDSection* pSection);
+
   void append(LDSection* pSection);
 
   /* factory methods */

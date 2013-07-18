@@ -1947,7 +1947,7 @@ void GNULDBackend::setupProgramHdrs(const LinkerScript& pScript)
     }
     (*seg)->setPaddr((*seg)->vaddr());
 
-   const LDSection* last = (*seg)->back();
+    const LDSection* last = (*seg)->back();
     assert(NULL != last);
     uint64_t fileSz = last->offset() - (*seg)->offset();
     if (LDFileFormat::BSS != last->kind())
@@ -1958,29 +1958,46 @@ void GNULDBackend::setupProgramHdrs(const LinkerScript& pScript)
   } // end of for
 
   // handle the case if text segment only has NULL section
-  ELFSegmentFactory::iterator null =
-    m_ELFSegmentTable.find(llvm::ELF::PT_LOAD, 0x0, 0x0);
+  LDSection* null_sect = &getOutputFormat()->getNULLSection();
+  ELFSegmentFactory::iterator null_seg =
+    m_ELFSegmentTable.find(llvm::ELF::PT_LOAD, null_sect);
 
-  if ((*null)->size() == 1) {
+  if ((*null_seg)->size() == 1) {
     // find 2nd PT_LOAD
     ELFSegmentFactory::iterator seg, segEnd = m_ELFSegmentTable.end();
-    for (seg = null + 1; seg != segEnd; ++seg) {
+    for (seg = null_seg + 1; seg != segEnd; ++seg) {
       if ((*seg)->type() == llvm::ELF::PT_LOAD)
         break;
     }
     if (seg != segEnd) {
-      uint64_t addr = (*seg)->vaddr() - (*seg)->offset();
-      if (addr < (*seg)->vaddr()) {
-        (*null)->setOffset(0x0);
-        (*null)->setVaddr(addr);
-        (*null)->setPaddr(addr);
+      uint64_t addr = (*seg)->front()->addr() - (*seg)->front()->offset();
+      uint64_t size = sectionStartOffset();
+      if (addr + size == (*seg)->front()->addr()) {
+        // if there is no space between the 2 segments, we can merge them.
+        (*seg)->setOffset(0x0);
+        (*seg)->setVaddr(addr);
+        (*seg)->setPaddr(addr);
 
-        uint64_t fileSz = sectionStartOffset();
-        (*null)->setFilesz(fileSz);
-        (*null)->setMemsz(fileSz);
+        const LDSection* last = (*seg)->back();
+        assert(NULL != last);
+        size = last->offset() - (*seg)->offset();
+        if (LDFileFormat::BSS != last->kind())
+          size += last->size();
+        (*seg)->setFilesz(size);
+        (*seg)->setMemsz(last->addr() - (*seg)->vaddr() + last->size());
+
+        (*seg)->insert((*seg)->begin(), null_sect);
+        elfSegmentTable().erase(null_seg);
+
+      } else if (addr + size < (*seg)->vaddr()) {
+        (*null_seg)->setOffset(0x0);
+        (*null_seg)->setVaddr(addr);
+        (*null_seg)->setPaddr(addr);
+        (*null_seg)->setFilesz(size);
+        (*null_seg)->setMemsz(size);
       } else {
-        elfSegmentTable().erase(null);
-        null = segEnd;
+        // erase the non valid segment contains NULL.
+        elfSegmentTable().erase(null_seg);
       }
     }
   }
@@ -1990,7 +2007,9 @@ void GNULDBackend::setupProgramHdrs(const LinkerScript& pScript)
     m_ELFSegmentTable.find(llvm::ELF::PT_PHDR, llvm::ELF::PF_R, 0x0);
 
   if (phdr != m_ELFSegmentTable.end()) {
-    if (null != m_ELFSegmentTable.end()) {
+    ELFSegmentFactory::iterator null_seg =
+      m_ELFSegmentTable.find(llvm::ELF::PT_LOAD, null_sect);
+    if (null_seg != m_ELFSegmentTable.end()) {
       uint64_t offset = 0x0, phdr_size = 0x0;
       if (config().targets().is32Bits()) {
         offset = sizeof(llvm::ELF::Elf32_Ehdr);
@@ -2000,7 +2019,7 @@ void GNULDBackend::setupProgramHdrs(const LinkerScript& pScript)
         phdr_size = sizeof(llvm::ELF::Elf64_Phdr);
       }
       (*phdr)->setOffset(offset);
-      (*phdr)->setVaddr((*null)->vaddr() + offset);
+      (*phdr)->setVaddr((*null_seg)->vaddr() + offset);
       (*phdr)->setPaddr((*phdr)->vaddr());
       (*phdr)->setFilesz(m_ELFSegmentTable.size() * phdr_size);
       (*phdr)->setMemsz(m_ELFSegmentTable.size() * phdr_size);

@@ -72,6 +72,12 @@ bool ELFSegment::isBssSegment() const
   return true;
 }
 
+ELFSegment::iterator ELFSegment::insert(ELFSegment::iterator pPos,
+                                        LDSection* pSection)
+{
+  return m_SectionList.insert(pPos, pSection);
+}
+
 void ELFSegment::append(LDSection* pSection)
 {
   assert(NULL != pSection);
