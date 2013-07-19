@@ -2238,14 +2238,16 @@ void GNULDBackend::setOutputSectionAddress(Module& pModule)
     // p_align: As "Program Loading" describes in this chapter of the
     // processor supplement, loadable process segments must have congruent
     // values for p_vaddr and p_offset, modulo the page size.
-    if (seg != segEnd && cur == (*seg)->front()) {
-      if ((vma & ((*seg)->align() - 1)) != (offset & ((*seg)->align() - 1))) {
-        uint64_t padding = (*seg)->align() +
-                           (vma & ((*seg)->align() - 1)) -
-                           (offset & ((*seg)->align() - 1));
-        offset += padding;
-      }
+    // FIXME: Now make all sh_addr and sh_offset are congruent, modulo the page
+    // size. Otherwise, old objcopy (e.g., binutils 2.17) may fail with our
+    // output!
+    if ((vma & (commonPageSize() - 1)) != (offset & (commonPageSize() - 1))) {
+      uint64_t padding = commonPageSize() +
+                         (vma & (commonPageSize() - 1)) -
+                         (offset & (commonPageSize() - 1));
+      offset += padding;
     }
+
     cur->setOffset(offset);
 
     // process dot assignments in the output section
