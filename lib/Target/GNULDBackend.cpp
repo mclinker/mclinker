@@ -2388,26 +2388,6 @@ void GNULDBackend::placeOutputSections(Module& pModule)
     }
   } // for each section in Module
 
-  // place orphan sections
-  for (Orphans::iterator it = orphans.begin(), ie = orphans.end(); it != ie;
-    ++it) {
-    size_t order = getSectionOrder(**it);
-    SectionMap::iterator out, outBegin, outEnd;
-    outBegin = sectionMap.begin();
-    outEnd = sectionMap.end();
-
-    if ((*it)->kind() == LDFileFormat::Null)
-      out = sectionMap.insert(outBegin, *it);
-    else {
-      for (out = outBegin; out != outEnd; ++out) {
-        if ((*out)->hasContent() && ((*out)->order() > order))
-          break;
-      }
-      out = sectionMap.insert(out, *it);
-    }
-    (*out)->setOrder(order);
-  } // for each orphan section
-
   // set up sections in SectionMap but do not exist at all.
   uint32_t flag = 0x0;
   unsigned int order = SHO_UNDEFINED;
@@ -2423,6 +2403,26 @@ void GNULDBackend::placeOutputSections(Module& pModule)
       (*out)->setOrder(order);
     }
   } // for each output section description
+
+  // place orphan sections
+  for (Orphans::iterator it = orphans.begin(), ie = orphans.end(); it != ie;
+    ++it) {
+    size_t order = getSectionOrder(**it);
+    SectionMap::iterator out, outBegin, outEnd;
+    outBegin = sectionMap.begin();
+    outEnd = sectionMap.end();
+
+    if ((*it)->kind() == LDFileFormat::Null)
+      out = sectionMap.insert(outBegin, *it);
+    else {
+      for (out = outBegin; out != outEnd; ++out) {
+        if ((*out)->order() > order)
+          break;
+      }
+      out = sectionMap.insert(out, *it);
+    }
+    (*out)->setOrder(order);
+  } // for each orphan section
 }
 
 /// layout - layout method
