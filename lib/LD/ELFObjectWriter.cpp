@@ -502,7 +502,6 @@ void ELFObjectWriter::emitRela(const LinkerConfig& pConfig,
       r_offset = static_cast<ElfXX_Addr>(frag_ref->getOutputOffset());
     }
 
-    ElfXX_Word Index;
     if( relocation->symInfo() == NULL )
       r_sym = 0;
     else
