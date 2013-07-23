@@ -1,7 +1,6 @@
 # Automake file
 
 ACLOCAL_AMFLAGS = -I m4
-AUTOMAKE_OPTIONS = subdir-objects
 
 # We define the global AM_CPPFLAGS as everything we compile includes from these
 # directories.
