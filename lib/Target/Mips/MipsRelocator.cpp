@@ -266,13 +266,15 @@ void MipsRelocator::scanRelocation(Relocation& pReloc,
 
 bool MipsRelocator::initializeScan(Input& pInput)
 {
-  getTarget().getGOT().initializeScan(pInput);
+  if (LinkerConfig::Object != config().codeGenType())
+    getTarget().getGOT().initializeScan(pInput);
   return true;
 }
 
 bool MipsRelocator::finalizeScan(Input& pInput)
 {
-  getTarget().getGOT().finalizeScan(pInput);
+  if (LinkerConfig::Object != config().codeGenType())
+    getTarget().getGOT().finalizeScan(pInput);
   return true;
 }
 
