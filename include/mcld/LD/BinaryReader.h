@@ -25,13 +25,8 @@ class Input;
  */
 class BinaryReader : public LDReader
 {
-protected:
-  BinaryReader()
-  { }
-
 public:
-  virtual ~BinaryReader()
-  { }
+  virtual ~BinaryReader() = 0;
 
   virtual bool isMyFormat(Input& pInput) const
   { return true; }

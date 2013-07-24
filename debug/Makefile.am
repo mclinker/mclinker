@@ -244,6 +244,7 @@ SOURCE = ${LIBDIR}/ADT/StringEntry.cpp \
 	${LIBDIR}/LD/ELFObjectReader.cpp \
 	${LIBDIR}/LD/ELFDynObjReader.cpp \
 	${LIBDIR}/LD/ELFObjectWriter.cpp \
+	${LIBDIR}/LD/BinaryReader.cpp \
 	${LIBDIR}/LD/ELFBinaryReader.cpp \
 	${LIBDIR}/LD/LDFileFormat.cpp \
 	${LIBDIR}/LD/ELFFileFormat.cpp \
