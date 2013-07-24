@@ -417,6 +417,7 @@ LINKERSCRIPT_HEADER = \
 	${INCDIR}/Script/ScriptReader.h
 
 LINKERSCRIPT_SOURCE = \
+	${LIBDIR}/Script/ScriptCommand.cpp \
 	${LIBDIR}/Script/ScriptInput.cpp \
 	${LIBDIR}/Script/EntryCmd.cpp \
 	${LIBDIR}/Script/OutputFormatCmd.cpp \
