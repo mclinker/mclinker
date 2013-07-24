@@ -12,11 +12,10 @@
 #include <gtest.h>
 
 namespace mcld {
-class ${class_name};
-} // namespace for mcld
 
-namespace mcldtest
-{
+class ${class_name};
+
+namespace test {
 
 class ${class_name}Test : public ::testing::Test
 {
@@ -34,7 +33,8 @@ public:
   virtual void TearDown();
 };
 
-} // namespace of mcldtest
+} // namespace of test
+} // namespace of mcld
 
 #endif
 
