@@ -34,7 +34,9 @@ public:
 
   ~ELFBinaryReader();
 
-  virtual bool readBinary(Input& pInput);
+  bool isMyFormat(Input& pInput) const;
+
+  bool readBinary(Input& pInput);
 
 private:
   GNULDBackend& m_Backend;

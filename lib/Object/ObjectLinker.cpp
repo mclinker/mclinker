@@ -161,7 +161,7 @@ void ObjectLinker::normalize()
     }
 
     // read input as a binary file
-    if (m_Config.options().isBinaryInput()) {
+    if (getBinaryReader()->isMyFormat(**input)) {
       (*input)->setType(Input::Object);
       getBinaryReader()->readBinary(**input);
       m_pModule->getObjectList().push_back(*input);

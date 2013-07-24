@@ -29,7 +29,7 @@ public:
   virtual ~BinaryReader() = 0;
 
   virtual bool isMyFormat(Input& pInput) const
-  { return true; }
+  { return false; }
 
   virtual bool readBinary(Input& pFile) = 0;
 };

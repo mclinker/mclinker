@@ -38,6 +38,11 @@ ELFBinaryReader::~ELFBinaryReader()
 {
 }
 
+bool ELFBinaryReader::isMyFormat(Input& pInput) const
+{
+  return m_Config.options().isBinaryInput();
+}
+
 bool ELFBinaryReader::readBinary(Input& pInput)
 {
   // section: NULL
