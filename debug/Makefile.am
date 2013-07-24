@@ -439,7 +439,9 @@ UNITTEST_SOURCE = \
 	${UNITTEST}/LinkerTest.h \
 	${UNITTEST}/LinkerTest.cpp \
 	${UNITTEST}/ELFReaderTest.h \
-	${UNITTEST}/ELFReaderTest.cpp
+	${UNITTEST}/ELFReaderTest.cpp \
+	${UNITTEST}/ELFBinaryReaderTest.h \
+	${UNITTEST}/ELFBinaryReaderTest.cpp
 
 else
 UNITTEST_SOURCE =
