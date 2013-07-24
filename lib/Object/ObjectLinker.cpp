@@ -191,25 +191,25 @@ void ObjectLinker::normalize()
                                                               archive.inputs());
       }
     }
-    else {
-      // try to parse input as a linker script
-      if (getScriptReader()->isMyFormat(**input)) {
-        ScriptFile script(ScriptFile::LDScript, **input,
-                          m_pBuilder->getInputBuilder());
-        if (getScriptReader()->readScript(m_Config, m_pModule->getScript(),
-                                          script)) {
-          (*input)->setType(Input::Script);
-          script.activate();
-          if (script.inputs().size() > 0) {
-            m_pModule->getInputTree().merge<InputTree::Inclusive>(input,
+    // try to parse input as a linker script
+    else if (getScriptReader()->isMyFormat(**input)) {
+      ScriptFile script(ScriptFile::LDScript, **input,
+                        m_pBuilder->getInputBuilder());
+
+      if (getScriptReader()->readScript(m_Config,
+                                        m_pModule->getScript(),
+                                        script)) {
+        (*input)->setType(Input::Script);
+        script.activate();
+        if (script.inputs().size() > 0) {
+          m_pModule->getInputTree().merge<InputTree::Inclusive>(input,
               script.inputs());
-          }
-        }
-        else {
-          fatal(diag::err_unrecognized_input_file) << (*input)->path()
-            << m_Config.targets().triple().str();
         }
       }
+    }
+    else {
+      fatal(diag::err_unrecognized_input_file) << (*input)->path()
+                                          << m_Config.targets().triple().str();
     }
   } // end of for
 }
