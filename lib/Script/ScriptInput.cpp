@@ -19,10 +19,6 @@ ScriptInput::ScriptInput()
 {
 }
 
-ScriptInput::~ScriptInput()
-{
-}
-
 void ScriptInput::append(const std::string& pPath)
 {
   m_InputList.push_back(Node(pPath, m_bAsNeeded));

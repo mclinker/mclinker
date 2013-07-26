@@ -15,8 +15,7 @@
 #include <mcld/Support/Path.h>
 #include <vector>
 
-namespace mcld
-{
+namespace mcld {
 
 class Path;
 
@@ -28,12 +27,11 @@ public:
     Node(const std::string& pPath, bool pAsNeeded)
       : m_Path(pPath), m_bAsNeeded(pAsNeeded)
     {}
-    ~Node()
-    {}
 
     const sys::fs::Path& path() const { return m_Path; }
 
     bool asNeeded() const { return m_bAsNeeded; }
+
   private:
     sys::fs::Path m_Path;
     bool m_bAsNeeded;
@@ -47,7 +45,6 @@ public:
 
 public:
   ScriptInput();
-  ~ScriptInput();
 
   const_iterator  begin() const { return m_InputList.begin(); }
   iterator        begin()       { return m_InputList.begin(); }

@@ -56,7 +56,8 @@ bool ScriptReader::readScript(const LinkerConfig& pConfig,
     region = input->memArea()->request(input->fileOffset(), size);
     char* str = reinterpret_cast<char*>(region->getBuffer());
     buf.pubsetbuf(str, size);
-  } else {
+  }
+  else {
     // ScriptFile is from a string data
     buf.str(*(pScriptFile.strData()));
   }
