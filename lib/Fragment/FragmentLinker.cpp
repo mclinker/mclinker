@@ -19,7 +19,7 @@
 #include <mcld/LinkerConfig.h>
 #include <mcld/Module.h>
 #include <mcld/LD/LDSection.h>
-#include <mcld/MC/MCLDInput.h>
+#include <mcld/MC/Input.h>
 #include <mcld/LD/LDSection.h>
 #include <mcld/LD/BranchIslandFactory.h>
 #include <mcld/LD/Resolver.h>

@@ -72,7 +72,7 @@ HEADER = ${INCDIR}/ADT/Uncopyable.h \
 	${INCDIR}/Fragment/Stub.h \
 	${INCDIR}/Fragment/Relocation.h \
 	${INCDIR}/MC/SymbolCategory.h \
-	${INCDIR}/MC/MCLDInput.h \
+	${INCDIR}/MC/Input.h \
 	${INCDIR}/MC/InputFactory.h \
 	${INCDIR}/MC/ContextFactory.h \
 	${INCDIR}/MC/SearchDirs.h \
@@ -197,7 +197,7 @@ SOURCE = ${LIBDIR}/ADT/StringEntry.cpp \
 	${LIBDIR}/Fragment/Relocation.cpp \
 	${LIBDIR}/Fragment/Stub.cpp \
 	${LIBDIR}/Fragment/NullFragment.cpp \
-	${LIBDIR}/MC/MCLDInput.cpp \
+	${LIBDIR}/MC/Input.cpp \
 	${LIBDIR}/MC/InputFactory.cpp \
 	${LIBDIR}/Core/LinkerScript.cpp \
 	${LIBDIR}/Core/Module.cpp \
