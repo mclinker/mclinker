@@ -37,6 +37,7 @@ class ObjectWriter;
 class DynObjWriter;
 class ExecWriter;
 class BinaryWriter;
+class Relocation;
 
 /** \class ObjectLinker
  *  \brief ObjectLinker prepares parameters for FragmentLinker.
@@ -157,6 +158,19 @@ public:
 
   const ObjectWriter*  getWriter () const { return m_pWriter;  }
   ObjectWriter*        getWriter ()       { return m_pWriter;  }
+
+private:
+  /// normalSyncRelocationResult - sync relocation result when producing shared
+  /// objects or executables
+  void normalSyncRelocationResult(MemoryArea& pOutput);
+
+  /// partialSyncRelocationResult - sync relocation result when doing partial
+  /// link
+  void partialSyncRelocationResult(MemoryArea& pOutput);
+
+  /// writeRelocationResult - helper function of syncRelocationResult, write
+  /// relocation target data to output
+  void writeRelocationResult(Relocation& pReloc, uint8_t* pOutput);
 
 private:
   const LinkerConfig& m_Config;

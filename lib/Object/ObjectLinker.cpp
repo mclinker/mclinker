@@ -33,12 +33,15 @@
 #include <mcld/Script/RpnEvaluator.h>
 #include <mcld/Support/RealPath.h>
 #include <mcld/Support/MemoryArea.h>
+#include <mcld/Support/MemoryRegion.h>
 #include <mcld/Support/MsgHandling.h>
 #include <mcld/Target/TargetLDBackend.h>
 #include <mcld/Fragment/FragmentLinker.h>
+#include <mcld/Fragment/Relocation.h>
 #include <mcld/Object/ObjectBuilder.h>
 
 #include <llvm/Support/Casting.h>
+#include <llvm/Support/Host.h>
 
 
 using namespace llvm;
@@ -644,12 +647,138 @@ bool ObjectLinker::emitOutput(MemoryArea& pOutput)
 /// postProcessing - do modification after all processes
 bool ObjectLinker::postProcessing(MemoryArea& pOutput)
 {
-  m_pLinker->syncRelocationResult(pOutput);
+  if (LinkerConfig::Object != m_Config.codeGenType())
+    normalSyncRelocationResult(pOutput);
+  else
+    partialSyncRelocationResult(pOutput);
 
   // emit .eh_frame_hdr
   // eh_frame_hdr should be emitted after syncRelocation, because eh_frame_hdr
   // needs FDE PC value, which will be corrected at syncRelocation
   m_LDBackend.postProcessing(pOutput);
   return true;
+}
+
+void ObjectLinker::normalSyncRelocationResult(MemoryArea& pOutput)
+{
+  MemoryRegion* region = pOutput.request(0, pOutput.handler()->size());
+
+  uint8_t* data = region->getBuffer();
+
+  // sync all relocations of all inputs
+  Module::obj_iterator input, inEnd = m_pModule->obj_end();
+  for (input = m_pModule->obj_begin(); input != inEnd; ++input) {
+    LDContext::sect_iterator rs, rsEnd = (*input)->context()->relocSectEnd();
+    for (rs = (*input)->context()->relocSectBegin(); rs != rsEnd; ++rs) {
+      // bypass the reloc section if
+      // 1. its section kind is changed to Ignore. (The target section is a
+      // discarded group section.)
+      // 2. it has no reloc data. (All symbols in the input relocs are in the
+      // discarded group sections)
+      if (LDFileFormat::Ignore == (*rs)->kind() || !(*rs)->hasRelocData())
+        continue;
+      RelocData::iterator reloc, rEnd = (*rs)->getRelocData()->end();
+      for (reloc = (*rs)->getRelocData()->begin(); reloc != rEnd; ++reloc) {
+        Relocation* relocation = llvm::cast<Relocation>(reloc);
+
+        // bypass the relocation with NONE type. This is to avoid overwrite the
+        // target result by NONE type relocation if there is a place which has
+        // two relocations to apply to, and one of it is NONE type. The result
+        // we want is the value of the other relocation result. For example,
+        // in .exidx, there are usually an R_ARM_NONE and R_ARM_PREL31 apply to
+        // the same place
+        if (0x0 == relocation->type())
+          continue;
+        writeRelocationResult(*relocation, data);
+      } // for all relocations
+    } // for all relocation section
+  } // for all inputs
+
+  // sync relocations created by relaxation
+  BranchIslandFactory* br_factory = m_LDBackend.getBRIslandFactory();
+  BranchIslandFactory::iterator facIter, facEnd = br_factory->end();
+  for (facIter = br_factory->begin(); facIter != facEnd; ++facIter) {
+    BranchIsland& island = *facIter;
+    BranchIsland::reloc_iterator iter, iterEnd = island.reloc_end();
+    for (iter = island.reloc_begin(); iter != iterEnd; ++iter) {
+      Relocation* reloc = *iter;
+      writeRelocationResult(*reloc, data);
+    }
+  }
+
+  pOutput.clear();
+}
+
+void ObjectLinker::partialSyncRelocationResult(MemoryArea& pOutput)
+{
+  MemoryRegion* region = pOutput.request(0, pOutput.handler()->size());
+
+  uint8_t* data = region->getBuffer();
+
+  // traverse outputs' LDSection to get RelocData
+  Module::iterator sectIter, sectEnd = m_pModule->end();
+  for (sectIter = m_pModule->begin(); sectIter != sectEnd; ++sectIter) {
+    if (LDFileFormat::Relocation != (*sectIter)->kind())
+      continue;
+
+    RelocData* reloc_data = (*sectIter)->getRelocData();
+    RelocData::iterator relocIter, relocEnd = reloc_data->end();
+    for (relocIter = reloc_data->begin(); relocIter != relocEnd; ++relocIter) {
+      Relocation* reloc = llvm::cast<Relocation>(relocIter);
+
+      // bypass the relocation with NONE type. This is to avoid overwrite the
+      // target result by NONE type relocation if there is a place which has
+      // two relocations to apply to, and one of it is NONE type. The result
+      // we want is the value of the other relocation result. For example,
+      // in .exidx, there are usually an R_ARM_NONE and R_ARM_PREL31 apply to
+      // the same place
+      if (0x0 == reloc->type())
+        continue;
+      writeRelocationResult(*reloc, data);
+    }
+  }
+
+  pOutput.clear();
+}
+
+void ObjectLinker::writeRelocationResult(Relocation& pReloc, uint8_t* pOutput)
+{
+  // get output file offset
+  size_t out_offset =
+                 pReloc.targetRef().frag()->getParent()->getSection().offset() +
+                 pReloc.targetRef().getOutputOffset();
+
+  uint8_t* target_addr = pOutput + out_offset;
+  // byte swapping if target and host has different endian, and then write back
+  if(llvm::sys::IsLittleEndianHost != m_Config.targets().isLittleEndian()) {
+     uint64_t tmp_data = 0;
+
+     switch(pReloc.size(*m_LDBackend.getRelocator())) {
+       case 8u:
+         std::memcpy(target_addr, &pReloc.target(), 1);
+         break;
+
+       case 16u:
+         tmp_data = mcld::bswap16(pReloc.target());
+         std::memcpy(target_addr, &tmp_data, 2);
+         break;
+
+       case 32u:
+         tmp_data = mcld::bswap32(pReloc.target());
+         std::memcpy(target_addr, &tmp_data, 4);
+         break;
+
+       case 64u:
+         tmp_data = mcld::bswap64(pReloc.target());
+         std::memcpy(target_addr, &tmp_data, 8);
+         break;
+
+       default:
+         break;
+    }
+  }
+  else
+    std::memcpy(target_addr, &pReloc.target(),
+                                      pReloc.size(*m_LDBackend.getRelocator())/8);
 }
 
