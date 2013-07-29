@@ -44,9 +44,6 @@ public:
 
   ~FragmentLinker();
 
-  /// applyRelocations - apply all relocation enties.
-  bool applyRelocations();
-
   /// syncRelocationResult - After applying relocation, write back relocation target
   /// data to output file.
   void syncRelocationResult(MemoryArea& pOutput);

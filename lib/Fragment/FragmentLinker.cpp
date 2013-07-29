@@ -57,47 +57,6 @@ FragmentLinker::~FragmentLinker()
 //===----------------------------------------------------------------------===//
 // Relocation Operations
 //===----------------------------------------------------------------------===//
-bool FragmentLinker::applyRelocations()
-{
-  // when producing relocatables, no need to apply relocation
-  if (LinkerConfig::Object == m_Config.codeGenType())
-    return true;
-
-  // apply all relocations of all inputs
-  Module::obj_iterator input, inEnd = m_Module.obj_end();
-  for (input = m_Module.obj_begin(); input != inEnd; ++input) {
-    m_Backend.getRelocator()->initializeApply(**input);
-    LDContext::sect_iterator rs, rsEnd = (*input)->context()->relocSectEnd();
-    for (rs = (*input)->context()->relocSectBegin(); rs != rsEnd; ++rs) {
-      // bypass the reloc section if
-      // 1. its section kind is changed to Ignore. (The target section is a
-      // discarded group section.)
-      // 2. it has no reloc data. (All symbols in the input relocs are in the
-      // discarded group sections)
-      if (LDFileFormat::Ignore == (*rs)->kind() || !(*rs)->hasRelocData())
-        continue;
-      RelocData::iterator reloc, rEnd = (*rs)->getRelocData()->end();
-      for (reloc = (*rs)->getRelocData()->begin(); reloc != rEnd; ++reloc) {
-        Relocation* relocation = llvm::cast<Relocation>(reloc);
-        relocation->apply(*m_Backend.getRelocator());
-      } // for all relocations
-    } // for all relocation section
-    m_Backend.getRelocator()->finalizeApply(**input);
-  } // for all inputs
-
-  // apply relocations created by relaxation
-  BranchIslandFactory* br_factory = m_Backend.getBRIslandFactory();
-  BranchIslandFactory::iterator facIter, facEnd = br_factory->end();
-  for (facIter = br_factory->begin(); facIter != facEnd; ++facIter) {
-    BranchIsland& island = *facIter;
-    BranchIsland::reloc_iterator iter, iterEnd = island.reloc_end();
-    for (iter = island.reloc_begin(); iter != iterEnd; ++iter)
-      (*iter)->apply(*m_Backend.getRelocator());
-  }
-  return true;
-}
-
-
 void FragmentLinker::syncRelocationResult(MemoryArea& pOutput)
 {
   if (LinkerConfig::Object != m_Config.codeGenType())

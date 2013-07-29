@@ -25,6 +25,7 @@
 #include <mcld/LD/RelocData.h>
 #include <mcld/LD/Relocator.h>
 #include <mcld/LD/SectionData.h>
+#include <mcld/LD/BranchIslandFactory.h>
 #include <mcld/Script/ScriptFile.h>
 #include <mcld/Script/ScriptReader.h>
 #include <mcld/Script/Assignment.h>
@@ -595,7 +596,42 @@ bool ObjectLinker::finalizeSymbolValue()
 /// and push_back into the relocation section
 bool ObjectLinker::relocation()
 {
-  return m_pLinker->applyRelocations();
+  // when producing relocatables, no need to apply relocation
+  if (LinkerConfig::Object == m_Config.codeGenType())
+    return true;
+
+  // apply all relocations of all inputs
+  Module::obj_iterator input, inEnd = m_pModule->obj_end();
+  for (input = m_pModule->obj_begin(); input != inEnd; ++input) {
+    m_LDBackend.getRelocator()->initializeApply(**input);
+    LDContext::sect_iterator rs, rsEnd = (*input)->context()->relocSectEnd();
+    for (rs = (*input)->context()->relocSectBegin(); rs != rsEnd; ++rs) {
+      // bypass the reloc section if
+      // 1. its section kind is changed to Ignore. (The target section is a
+      // discarded group section.)
+      // 2. it has no reloc data. (All symbols in the input relocs are in the
+      // discarded group sections)
+      if (LDFileFormat::Ignore == (*rs)->kind() || !(*rs)->hasRelocData())
+        continue;
+      RelocData::iterator reloc, rEnd = (*rs)->getRelocData()->end();
+      for (reloc = (*rs)->getRelocData()->begin(); reloc != rEnd; ++reloc) {
+        Relocation* relocation = llvm::cast<Relocation>(reloc);
+        relocation->apply(*m_LDBackend.getRelocator());
+      } // for all relocations
+    } // for all relocation section
+    m_LDBackend.getRelocator()->finalizeApply(**input);
+  } // for all inputs
+
+  // apply relocations created by relaxation
+  BranchIslandFactory* br_factory = m_LDBackend.getBRIslandFactory();
+  BranchIslandFactory::iterator facIter, facEnd = br_factory->end();
+  for (facIter = br_factory->begin(); facIter != facEnd; ++facIter) {
+    BranchIsland& island = *facIter;
+    BranchIsland::reloc_iterator iter, iterEnd = island.reloc_end();
+    for (iter = island.reloc_begin(); iter != iterEnd; ++iter)
+      (*iter)->apply(*m_LDBackend.getRelocator());
+  }
+  return true;
 }
 
 /// emitOutput - emit the output file.
