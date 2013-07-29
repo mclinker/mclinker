@@ -24,6 +24,7 @@
 #include <mcld/LD/ResolveInfo.h>
 #include <mcld/LD/RelocData.h>
 #include <mcld/LD/Relocator.h>
+#include <mcld/LD/SectionData.h>
 #include <mcld/Script/ScriptFile.h>
 #include <mcld/Script/ScriptReader.h>
 #include <mcld/Script/Assignment.h>
@@ -537,7 +538,36 @@ bool ObjectLinker::postlayout()
 ///   symbol.
 bool ObjectLinker::finalizeSymbolValue()
 {
-  bool finalized = m_pLinker->finalizeSymbols() && m_LDBackend.finalizeSymbols();
+
+  Module::sym_iterator symbol, symEnd = m_pModule->sym_end();
+  for (symbol = m_pModule->sym_begin(); symbol != symEnd; ++symbol) {
+
+    if ((*symbol)->resolveInfo()->isAbsolute() ||
+        (*symbol)->resolveInfo()->type() == ResolveInfo::File) {
+      // absolute symbols or symbols with function type should have
+      // zero value
+      (*symbol)->setValue(0x0);
+      continue;
+    }
+
+    if ((*symbol)->resolveInfo()->type() == ResolveInfo::ThreadLocal) {
+      m_LDBackend.finalizeTLSSymbol(**symbol);
+      continue;
+    }
+
+    if ((*symbol)->hasFragRef()) {
+      // set the virtual address of the symbol. If the output file is
+      // relocatable object file, the section's virtual address becomes zero.
+      // And the symbol's value become section relative offset.
+      uint64_t value = (*symbol)->fragRef()->getOutputOffset();
+      assert(NULL != (*symbol)->fragRef()->frag());
+      uint64_t addr = (*symbol)->fragRef()->frag()->getParent()->getSection().addr();
+      (*symbol)->setValue(value + addr);
+      continue;
+    }
+  }
+
+  bool finalized = m_LDBackend.finalizeSymbols();
   bool scriptSymsAdded = true;
   uint64_t symVal;
   const LinkerScript& script = m_pModule->getScript();

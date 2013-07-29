@@ -54,39 +54,6 @@ FragmentLinker::~FragmentLinker()
 {
 }
 
-bool FragmentLinker::finalizeSymbols()
-{
-  Module::sym_iterator symbol, symEnd = m_Module.sym_end();
-  for (symbol = m_Module.sym_begin(); symbol != symEnd; ++symbol) {
-
-    if ((*symbol)->resolveInfo()->isAbsolute() ||
-        (*symbol)->resolveInfo()->type() == ResolveInfo::File) {
-      // absolute symbols or symbols with function type should have
-      // zero value
-      (*symbol)->setValue(0x0);
-      continue;
-    }
-
-    if ((*symbol)->resolveInfo()->type() == ResolveInfo::ThreadLocal) {
-      m_Backend.finalizeTLSSymbol(**symbol);
-      continue;
-    }
-
-    if ((*symbol)->hasFragRef()) {
-      // set the virtual address of the symbol. If the output file is
-      // relocatable object file, the section's virtual address becomes zero.
-      // And the symbol's value become section relative offset.
-      uint64_t value = (*symbol)->fragRef()->getOutputOffset();
-      assert(NULL != (*symbol)->fragRef()->frag());
-      uint64_t addr = (*symbol)->fragRef()->frag()->getParent()->getSection().addr();
-      (*symbol)->setValue(value + addr);
-      continue;
-    }
-  }
-
-  return true;
-}
-
 //===----------------------------------------------------------------------===//
 // Relocation Operations
 //===----------------------------------------------------------------------===//

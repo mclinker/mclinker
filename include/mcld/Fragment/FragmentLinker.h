@@ -44,8 +44,6 @@ public:
 
   ~FragmentLinker();
 
-  bool finalizeSymbols();
-
   /// applyRelocations - apply all relocation enties.
   bool applyRelocations();
 
