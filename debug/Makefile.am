@@ -188,8 +188,6 @@ SOURCE = ${LIBDIR}/ADT/StringEntry.cpp \
 	${LIBDIR}/Object/ObjectBuilder.cpp \
 	${LIBDIR}/Object/SectionMap.cpp \
 	${LIBDIR}/MC/SymbolCategory.cpp \
-	${INCDIR}/Fragment/FragmentLinker.h \
-	${LIBDIR}/Fragment/FragmentLinker.cpp \
 	${LIBDIR}/Fragment/Fragment.cpp \
 	${LIBDIR}/Fragment/FragmentRef.cpp \
 	${LIBDIR}/Fragment/AlignFragment.cpp \

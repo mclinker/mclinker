@@ -36,7 +36,6 @@
 #include <mcld/Support/MemoryRegion.h>
 #include <mcld/Support/MsgHandling.h>
 #include <mcld/Target/TargetLDBackend.h>
-#include <mcld/Fragment/FragmentLinker.h>
 #include <mcld/Fragment/Relocation.h>
 #include <mcld/Object/ObjectBuilder.h>
 
@@ -49,7 +48,6 @@ using namespace mcld;
 ObjectLinker::ObjectLinker(const LinkerConfig& pConfig,
                            TargetLDBackend& pLDBackend)
   : m_Config(pConfig),
-    m_pLinker(NULL),
     m_pModule(NULL),
     m_pBuilder(NULL),
     m_LDBackend(pLDBackend),
@@ -64,7 +62,6 @@ ObjectLinker::ObjectLinker(const LinkerConfig& pConfig,
 
 ObjectLinker::~ObjectLinker()
 {
-  delete m_pLinker;
   delete m_pObjectReader;
   delete m_pDynObjReader;
   delete m_pArchiveReader;
@@ -74,7 +71,7 @@ ObjectLinker::~ObjectLinker()
   delete m_pWriter;
 }
 
-void ObjectLinker::setup(Module& pModule, IRBuilder& pBuilder)
+bool ObjectLinker::initialize(Module& pModule, IRBuilder& pBuilder)
 {
   m_pModule = &pModule;
   m_pBuilder = &pBuilder;
@@ -83,21 +80,8 @@ void ObjectLinker::setup(Module& pModule, IRBuilder& pBuilder)
   if (!m_Config.options().soname().empty()) {
     m_pModule->setName(m_Config.options().soname());
   }
-}
-
-/// initFragmentLinker - initialize FragmentLinker
-///  Connect all components with FragmentLinker
-bool ObjectLinker::initFragmentLinker()
-{
-  if (NULL == m_pLinker) {
-    m_pLinker = new FragmentLinker(m_Config,
-                                   *m_pModule,
-                                   m_LDBackend);
-  }
 
   // initialize the readers and writers
-  // Because constructor can not be failed, we initalize all readers and
-  // writers outside the FragmentLinker constructors.
   m_pObjectReader  = m_LDBackend.createObjectReader(*m_pBuilder);
   m_pArchiveReader = m_LDBackend.createArchiveReader(*m_pModule);
   m_pDynObjReader  = m_LDBackend.createDynObjReader(*m_pBuilder);
@@ -510,7 +494,7 @@ bool ObjectLinker::prelayout()
   /// In ELF, will compute  the size of.symtab, .strtab, .dynsym, .dynstr,
   /// .hash and .shstrtab sections.
   ///
-  /// dump all symbols and strings from FragmentLinker and build the format-dependent
+  /// dump all symbols and strings from ObjectLinker and build the format-dependent
   /// hash table.
   /// @note sizeNamePools replies on LinkerConfig::CodePosition. Must determine
   /// code position model before calling GNULDBackend::sizeNamePools()
@@ -538,7 +522,7 @@ bool ObjectLinker::postlayout()
 }
 
 /// finalizeSymbolValue - finalize the resolved symbol value.
-///   Before relocate(), after layout(), FragmentLinker should correct value of all
+///   Before relocate(), after layout(), ObjectLinker should correct value of all
 ///   symbol.
 bool ObjectLinker::finalizeSymbolValue()
 {

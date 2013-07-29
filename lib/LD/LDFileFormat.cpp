@@ -7,7 +7,6 @@
 //
 //===----------------------------------------------------------------------===//
 #include <mcld/LD/LDFileFormat.h>
-#include <mcld/Fragment/FragmentLinker.h>
 
 using namespace mcld;
 
