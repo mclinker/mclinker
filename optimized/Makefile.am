@@ -54,6 +54,7 @@ HEADER = ${INCDIR}/ADT/Uncopyable.h \
 	${INCDIR}/Support/GCFactory.h \
 	${INCDIR}/Support/UniqueGCFactory.h \
 	${INCDIR}/Support/GCFactoryListTraits.h \
+	${INCDIR}/Support/Target.h \
 	${INCDIR}/Support/TargetRegistry.h \
 	${INCDIR}/Support/TargetSelect.h \
 	${INCDIR}/Support/raw_ostream.h \

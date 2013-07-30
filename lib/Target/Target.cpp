@@ -6,16 +6,18 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include <mcld/Support/TargetRegistry.h>
+#include <mcld/Support/Target.h>
 
-using namespace llvm;
+using namespace mcld;
 
-mcld::Target::Target()
+//===----------------------------------------------------------------------===//
+// Target
+//===----------------------------------------------------------------------===//
+Target::Target()
   : TargetMachineCtorFn(NULL),
     MCLinkerCtorFn(NULL),
     TargetLDBackendCtorFn(NULL),
     DiagnosticLineInfoCtorFn(NULL),
-    m_pT(NULL)
-{
+    m_pT(NULL) {
 }
 
