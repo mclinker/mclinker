@@ -9,7 +9,7 @@
 #ifndef MCLD_TARGET_REGISTRY_H
 #define MCLD_TARGET_REGISTRY_H
 #include <mcld/Support/Target.h>
-#include <llvm/Support/TargetRegistry.h>
+
 #include <string>
 #include <list>
 
