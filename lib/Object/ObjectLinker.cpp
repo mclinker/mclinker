@@ -557,9 +557,8 @@ bool ObjectLinker::finalizeSymbolValue()
 
     if ((*symbol)->resolveInfo()->isAbsolute() ||
         (*symbol)->resolveInfo()->type() == ResolveInfo::File) {
-      // absolute symbols or symbols with function type should have
-      // zero value
-      (*symbol)->setValue(0x0);
+      // absolute symbols should just use its value directly (i.e., the result
+      // of symbol resolution)
       continue;
     }
 
