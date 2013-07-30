@@ -12,27 +12,17 @@
 #include <string>
 #include <list>
 
-namespace llvm {
-class TargetMachine;
-class MCCodeEmitter;
-class MCContext;
-class AsmPrinter;
-} // namespace of llvm
-
 namespace mcld {
 
-class Module;
-class LinkerConfig;
-class LinkerScript;
-class MemoryArea;
 class MCLDTargetMachine;
 class TargetRegistry;
 class MCLinker;
-class TargetLDBackend;
-class AttributeFactory;
-class InputFactory;
-class ContextFactory;
+class LinkerScript;
+class LinkerConfig;
+class Module;
+class MemoryArea;
 class DiagnosticLineInfo;
+class TargetLDBackend;
 
 //===----------------------------------------------------------------------===//
 /// Target - mcld::Target is an object adapter of llvm::Target
@@ -65,20 +55,12 @@ public:
   void setTarget(const llvm::Target& pTarget)
   { m_pT = &pTarget; }
 
-  mcld::MCLDTargetMachine *createTargetMachine(const std::string &pTriple,
+  MCLDTargetMachine* createTargetMachine(const std::string &pTriple,
                           const std::string &pCPU, const std::string &pFeatures,
                           const llvm::TargetOptions &Options,
                           llvm::Reloc::Model RM = llvm::Reloc::Default,
                           llvm::CodeModel::Model CM = llvm::CodeModel::Default,
-                          llvm::CodeGenOpt::Level OL = llvm::CodeGenOpt::Default) const
-  {
-    if (TargetMachineCtorFn && m_pT) {
-      llvm::TargetMachine *tm = m_pT->createTargetMachine(pTriple, pCPU, pFeatures, Options, RM, CM, OL);
-      if (tm)
-        return TargetMachineCtorFn(*this, *tm, pTriple);
-    }
-    return NULL;
-  }
+                          llvm::CodeGenOpt::Level OL = llvm::CodeGenOpt::Default) const;
 
   /// createMCLinker - create target-specific MCLinker
   ///
