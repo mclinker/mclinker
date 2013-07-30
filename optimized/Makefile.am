@@ -173,6 +173,7 @@ SOURCE = ${LIBDIR}/ADT/StringEntry.cpp \
 	${LIBDIR}/Support/raw_mem_ostream.cpp \
 	${LIBDIR}/Support/ToolOutputFile.cpp \
 	${LIBDIR}/Support/CommandLine.cpp \
+	${LIBDIR}/Support/Target.cpp \
 	${LIBDIR}/Support/TargetRegistry.cpp \
 	${LIBDIR}/Support/raw_ostream.cpp \
 	${LIBDIR}/Support/MsgHandling.cpp \
@@ -274,7 +275,6 @@ SOURCE = ${LIBDIR}/ADT/StringEntry.cpp \
 	${INCDIR}/Target/GOT.h \
 	${LIBDIR}/Target/GOT.cpp \
 	${INCDIR}/Target/TargetMachine.h \
-	${LIBDIR}/Target/Target.cpp \
 	${INCDIR}/Target/TargetLDBackend.h \
 	${LIBDIR}/Target/TargetLDBackend.cpp \
 	${INCDIR}/Target/GNULDBackend.h \
