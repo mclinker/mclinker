@@ -460,7 +460,7 @@ ld_mcld_LDFLAGS = ${LLVM_LDFLAGS}
 
 ld_mcld_LDADD = libmcld.a
 
-dist_ld_mcld_SOURCES = ${TOOLDIR}/llvm-mcld/llvm-mcld.cpp
+dist_ld_mcld_SOURCES = ${TOOLDIR}/ld.mcld/main.cpp
 
 # ld.bcc
 ld_bcc_CPPFLAGS = -g -I$(TOPLEVEL)/include -I$(BUILDTOP)/include ${LLVM_CPPFLAGS} ${ANDROID_CPPFLAGS} -I$(TOPLEVEL)/tools/bcc/include -I$(BUILDTOP)/tools/bcc/include

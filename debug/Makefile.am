@@ -529,7 +529,7 @@ ld_bcc_LDFLAGS = ${LLVM_LDFLAGS}
 ld_bcc_LDADD = libmcld.a
 endif
 
-dist_ld_mcld_SOURCES = ${TOOLDIR}/llvm-mcld/llvm-mcld.cpp \
+dist_ld_mcld_SOURCES = ${TOOLDIR}/ld.mcld/main.cpp \
     ${UNITTEST_SOURCE}
 
 dist_ld_bcc_SOURCES = ${TOOLDIR}/bcc/main.cpp \
