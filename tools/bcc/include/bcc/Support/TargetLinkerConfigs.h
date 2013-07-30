@@ -12,8 +12,8 @@
 
 #include <string>
 
-#include "alone/Config/Config.h"
-#include "alone/Support/LinkerConfig.h"
+#include "bcc/Config/Config.h"
+#include "bcc/Support/LinkerConfig.h"
 
 namespace alone {
 

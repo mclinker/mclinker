@@ -533,13 +533,13 @@ dist_ld_mcld_SOURCES = ${TOOLDIR}/llvm-mcld/llvm-mcld.cpp \
     ${UNITTEST_SOURCE}
 
 dist_ld_bcc_SOURCES = ${TOOLDIR}/bcc/main.cpp \
-    ${TOOLDIR}/bcc/include/alone/Linker.h \
+    ${TOOLDIR}/bcc/include/bcc/Linker.h \
     ${TOOLDIR}/bcc/lib/Core/Linker.cpp \
-    ${TOOLDIR}/bcc/include/alone/Support/LinkerConfig.h \
+    ${TOOLDIR}/bcc/include/bcc/Support/LinkerConfig.h \
     ${TOOLDIR}/bcc/lib/Support/LinkerConfig.cpp \
-    ${TOOLDIR}/bcc/include/alone/Support/TargetLinkerConfigs.h \
+    ${TOOLDIR}/bcc/include/bcc/Support/TargetLinkerConfigs.h \
     ${TOOLDIR}/bcc/lib/Support/TargetLinkerConfigs.cpp \
-    ${TOOLDIR}/bcc/include/alone/Support/Initialization.h \
+    ${TOOLDIR}/bcc/include/bcc/Support/Initialization.h \
     ${TOOLDIR}/bcc/lib/Support/Initialization.cpp \
-    ${TOOLDIR}/bcc/include/alone/Support/Log.h
+    ${TOOLDIR}/bcc/include/bcc/Support/Log.h
 

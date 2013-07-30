@@ -7,8 +7,8 @@
 //
 //===----------------------------------------------------------------------===//
 
-#include "alone/Support/LinkerConfig.h"
-#include "alone/Support/Log.h"
+#include "bcc/Support/LinkerConfig.h"
+#include "bcc/Support/Log.h"
 
 #include <llvm/Support/Signals.h>
 

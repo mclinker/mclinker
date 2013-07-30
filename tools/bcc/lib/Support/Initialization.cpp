@@ -7,7 +7,7 @@
 //
 //===----------------------------------------------------------------------===//
 
-#include "alone/Support/Initialization.h"
+#include "bcc/Support/Initialization.h"
 
 #include <cstdlib>
 
@@ -17,8 +17,8 @@
 #include <mcld/Support/TargetSelect.h>
 #include <mcld/Support/TargetRegistry.h>
 
-#include "alone/Config/Config.h"
-#include "alone/Support/Log.h"
+#include "bcc/Config/Config.h"
+#include "bcc/Support/Log.h"
 
 namespace {
 
