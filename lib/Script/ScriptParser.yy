@@ -15,7 +15,7 @@
 #include <mcld/Script/Operator.h>
 #include <mcld/Script/Assignment.h>
 #include <mcld/Support/MsgHandling.h>
-#include <mcld/MC/MCLDInput.h>
+#include <mcld/MC/Input.h>
 
 #undef yylex
 #define yylex pScriptScanner.lex

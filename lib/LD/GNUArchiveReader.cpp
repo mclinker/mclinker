@@ -11,7 +11,7 @@
 #include <mcld/Module.h>
 #include <mcld/InputTree.h>
 #include <mcld/MC/Attribute.h>
-#include <mcld/MC/MCLDInput.h>
+#include <mcld/MC/Input.h>
 #include <mcld/LD/ResolveInfo.h>
 #include <mcld/LD/ELFObjectReader.h>
 #include <mcld/Support/FileSystem.h>

@@ -12,7 +12,7 @@
 #include <gtest.h>
 #endif
 #include <mcld/Support/GCFactory.h>
-#include <mcld/MC/MCLDInput.h>
+#include <mcld/MC/Input.h>
 
 namespace mcld {
 

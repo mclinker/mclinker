@@ -11,7 +11,7 @@
 #include <llvm/ADT/StringRef.h>
 #include <llvm/Support/Dwarf.h>
 
-#include <mcld/MC/MCLDInput.h>
+#include <mcld/MC/Input.h>
 #include <mcld/LD/EhFrame.h>
 #include <mcld/LD/LDSection.h>
 #include <mcld/Support/MemoryArea.h>

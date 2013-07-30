@@ -29,7 +29,7 @@
 #include <mcld/LD/NamePool.h>
 #include <mcld/LD/SectionSymbolSet.h>
 #include <mcld/MC/SymbolCategory.h>
-#include <mcld/MC/MCLDInput.h>
+#include <mcld/MC/Input.h>
 
 #include <llvm/ADT/ilist.h>
 

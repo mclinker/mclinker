@@ -15,7 +15,7 @@
 
 #include <mcld/Module.h>
 #include <mcld/IRBuilder.h>
-#include <mcld/MC/MCLDInput.h>
+#include <mcld/MC/Input.h>
 #include <mcld/Linker.h>
 #include <mcld/LD/LDSection.h>
 #include <mcld/LD/LDContext.h>

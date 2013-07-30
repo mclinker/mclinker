@@ -10,7 +10,7 @@
 
 #include <mcld/IRBuilder.h>
 #include <mcld/LinkerConfig.h>
-#include <mcld/MC/MCLDInput.h>
+#include <mcld/MC/Input.h>
 #include <mcld/Support/MemoryArea.h>
 
 #include <llvm/Support/ELF.h>

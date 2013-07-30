@@ -7,7 +7,7 @@
 //
 //===----------------------------------------------------------------------===//
 #include <mcld/GeneralOptions.h>
-#include <mcld/MC/MCLDInput.h>
+#include <mcld/MC/Input.h>
 
 using namespace mcld;
 

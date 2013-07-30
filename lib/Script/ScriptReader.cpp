@@ -10,7 +10,7 @@
 #include <mcld/Script/ScriptScanner.h>
 #include <mcld/Script/ScriptCommand.h>
 #include <mcld/Script/ScriptFile.h>
-#include <mcld/MC/MCLDInput.h>
+#include <mcld/MC/Input.h>
 #include <mcld/LD/GroupReader.h>
 #include <mcld/LinkerConfig.h>
 #include <mcld/LinkerScript.h>

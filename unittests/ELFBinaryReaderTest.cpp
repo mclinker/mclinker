@@ -12,7 +12,7 @@
 #include <mcld/LinkerConfig.h>
 #include <mcld/IRBuilder.h>
 #include <mcld/GeneralOptions.h>
-#include <mcld/MC/MCLDInput.h>
+#include <mcld/MC/Input.h>
 
 #include "ELFBinaryReaderTest.h"
 

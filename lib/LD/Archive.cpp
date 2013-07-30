@@ -8,7 +8,7 @@
 //===----------------------------------------------------------------------===//
 #include <mcld/LD/Archive.h>
 #include <mcld/MC/InputBuilder.h>
-#include <mcld/MC/MCLDInput.h>
+#include <mcld/MC/Input.h>
 #include <llvm/ADT/StringRef.h>
 #include <mcld/Support/MsgHandling.h>
 
