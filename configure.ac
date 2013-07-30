@@ -148,7 +148,7 @@ AC_CONFIG_FILES([utils/gtest/Makefile])
 AC_CONFIG_FILES([utils/gtest/obj/Makefile])
 AC_CONFIG_FILES([include/mcld/Config/Targets.def])
 AC_CONFIG_FILES([include/mcld/Config/Linkers.def])
-AC_CONFIG_FILES([tools/mcld/include/alone/Config/Config.h])
+AC_CONFIG_FILES([tools/bcc/include/alone/Config/Config.h])
 AC_CONFIG_FILES([test/Makefile])
 
 AC_OUTPUT

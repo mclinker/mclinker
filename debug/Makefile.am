@@ -504,14 +504,14 @@ nobase_include_HEADERS = ${HEADER} ${LINKERSCRIPT_HEADER}
 bin_PROGRAMS = ld.mcld ld.bcc
 
 if ENABLE_UNITTEST
-AM_CPPFLAGS = -g -DTOPDIR=\"${abs_top_srcdir}\" -DENABLE_UNITTEST -DMCLD_DEBUG -I$(TOPLEVEL)/utils/gtest/include -I$(TOPLEVEL)/include -I$(TOPLEVEL)/unittests -I$(BUILDTOP)/include ${LLVM_CPPFLAGS} -DGTEST_HAS_RTTI=0 ${ANDROID_CPPFLAGS} -I$(TOOLDIR)/mcld/include -I$(BUILDTOP)/tools/mcld/include -I$(INCDIR)/Script
+AM_CPPFLAGS = -g -DTOPDIR=\"${abs_top_srcdir}\" -DENABLE_UNITTEST -DMCLD_DEBUG -I$(TOPLEVEL)/utils/gtest/include -I$(TOPLEVEL)/include -I$(TOPLEVEL)/unittests -I$(BUILDTOP)/include ${LLVM_CPPFLAGS} -DGTEST_HAS_RTTI=0 ${ANDROID_CPPFLAGS} -I$(TOOLDIR)/mcld/include -I$(BUILDTOP)/tools/bcc/include -I$(INCDIR)/Script
 
 ld_mcld_CPPFLAGS = -g -DTOPDIR=\"${abs_top_srcdir}\" -DENABLE_UNITTEST -DMCLD_DEBUG -I$(TOPLEVEL)/utils/gtest/include -I$(TOPLEVEL)/include -I$(TOPLEVEL)/unittests -I$(BUILDTOP)/include ${LLVM_CPPFLAGS} -DGTEST_HAS_RTTI=0 ${ANDROID_CPPFLAGS}
 
 ld_mcld_LDFLAGS = -L$(BUILDTOP)/utils/gtest/lib -lgtest ${LLVM_LDFLAGS}
 ld_mcld_LDADD = libmcld.a
 
-ld_bcc_CPPFLAGS = -g -DTOPDIR=\"${abs_top_srcdir}\" -DENABLE_UNITTEST -DMCLD_DEBUG -I$(TOPLEVEL)/utils/gtest/include -I$(TOPLEVEL)/include -I$(TOPLEVEL)/unittests -I$(BUILDTOP)/include ${LLVM_CPPFLAGS} -DGTEST_HAS_RTTI=0 ${ANDROID_CPPFLAGS} -I$(TOPLEVEL)/tools/mcld/include -I$(BUILDTOP)/tools/mcld/include
+ld_bcc_CPPFLAGS = -g -DTOPDIR=\"${abs_top_srcdir}\" -DENABLE_UNITTEST -DMCLD_DEBUG -I$(TOPLEVEL)/utils/gtest/include -I$(TOPLEVEL)/include -I$(TOPLEVEL)/unittests -I$(BUILDTOP)/include ${LLVM_CPPFLAGS} -DGTEST_HAS_RTTI=0 ${ANDROID_CPPFLAGS} -I$(TOPLEVEL)/tools/bcc/include -I$(BUILDTOP)/tools/bcc/include
 
 ld_bcc_LDFLAGS = -L$(BUILDTOP)/utils/gtest/lib -lgtest ${LLVM_LDFLAGS}
 ld_bcc_LDADD = libmcld.a
@@ -523,7 +523,7 @@ ld_mcld_CPPFLAGS = -g -I$(TOPLEVEL)/include -I$(BUILDTOP)/include ${LLVM_CPPFLAG
 ld_mcld_LDFLAGS = ${LLVM_LDFLAGS}
 ld_mcld_LDADD = libmcld.a
 
-ld_bcc_CPPFLAGS = -g -I$(TOPLEVEL)/include -I$(BUILDTOP)/include ${LLVM_CPPFLAGS} ${ANDROID_CPPFLAGS} -I$(TOPLEVEL)/tools/mcld/include -I$(BUILDTOP)/tools/mcld/include
+ld_bcc_CPPFLAGS = -g -I$(TOPLEVEL)/include -I$(BUILDTOP)/include ${LLVM_CPPFLAGS} ${ANDROID_CPPFLAGS} -I$(TOPLEVEL)/tools/bcc/include -I$(BUILDTOP)/tools/bcc/include
 
 ld_bcc_LDFLAGS = ${LLVM_LDFLAGS}
 ld_bcc_LDADD = libmcld.a
@@ -532,14 +532,14 @@ endif
 dist_ld_mcld_SOURCES = ${TOOLDIR}/llvm-mcld/llvm-mcld.cpp \
     ${UNITTEST_SOURCE}
 
-dist_ld_bcc_SOURCES = ${TOOLDIR}/mcld/main.cpp \
-    ${TOOLDIR}/mcld/include/alone/Linker.h \
-    ${TOOLDIR}/mcld/lib/Core/Linker.cpp \
-    ${TOOLDIR}/mcld/include/alone/Support/LinkerConfig.h \
-    ${TOOLDIR}/mcld/lib/Support/LinkerConfig.cpp \
-    ${TOOLDIR}/mcld/include/alone/Support/TargetLinkerConfigs.h \
-    ${TOOLDIR}/mcld/lib/Support/TargetLinkerConfigs.cpp \
-    ${TOOLDIR}/mcld/include/alone/Support/Initialization.h \
-    ${TOOLDIR}/mcld/lib/Support/Initialization.cpp \
-    ${TOOLDIR}/mcld/include/alone/Support/Log.h
+dist_ld_bcc_SOURCES = ${TOOLDIR}/bcc/main.cpp \
+    ${TOOLDIR}/bcc/include/alone/Linker.h \
+    ${TOOLDIR}/bcc/lib/Core/Linker.cpp \
+    ${TOOLDIR}/bcc/include/alone/Support/LinkerConfig.h \
+    ${TOOLDIR}/bcc/lib/Support/LinkerConfig.cpp \
+    ${TOOLDIR}/bcc/include/alone/Support/TargetLinkerConfigs.h \
+    ${TOOLDIR}/bcc/lib/Support/TargetLinkerConfigs.cpp \
+    ${TOOLDIR}/bcc/include/alone/Support/Initialization.h \
+    ${TOOLDIR}/bcc/lib/Support/Initialization.cpp \
+    ${TOOLDIR}/bcc/include/alone/Support/Log.h
 
