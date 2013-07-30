@@ -31,8 +31,6 @@ class MemoryArea;
 class LinkerConfig;
 class ToolOutputFile;
 
-using namespace llvm;
-
 enum CodeGenFileType {
   CGFT_ASMFile,
   CGFT_OBJFile,
@@ -67,16 +65,16 @@ public:
 
   /// appPassesToEmitFile - The target function which we has to modify as
   /// upstreaming.
-  bool addPassesToEmitFile(PassManagerBase &,
+  bool addPassesToEmitFile(llvm::PassManagerBase &,
                            mcld::ToolOutputFile& pOutput,
                            mcld::CodeGenFileType,
-                           CodeGenOpt::Level,
+                           llvm::CodeGenOpt::Level,
                            mcld::Module& pModule,
                            mcld::LinkerConfig& pConfig,
                            bool DisableVerify = true);
 
   /// getDataLayout
-  const DataLayout *getDataLayout() const { return m_TM.getDataLayout(); }
+  const llvm::DataLayout *getDataLayout() const { return m_TM.getDataLayout(); }
 
   /// setAsmVerbosityDefault
   static void setAsmVerbosityDefault(bool pAsmVerbose) {
@@ -86,23 +84,23 @@ public:
 private:
   /// addCommonCodeGenPasses - Add standard LLVM codegen passes used for
   /// both emitting to assembly files or machine code output.
-  bool addCommonCodeGenPasses(PassManagerBase &,
+  bool addCommonCodeGenPasses(llvm::PassManagerBase &,
                               mcld::CodeGenFileType,
-                              CodeGenOpt::Level,
+                              llvm::CodeGenOpt::Level,
                               bool DisableVerify,
                               llvm::MCContext *&OutCtx);
 
-  bool addCompilerPasses(PassManagerBase &pPM,
+  bool addCompilerPasses(llvm::PassManagerBase &pPM,
                          llvm::formatted_raw_ostream &pOutput,
                          llvm::MCContext *&OutCtx);
 
-  bool addAssemblerPasses(PassManagerBase &pPM,
+  bool addAssemblerPasses(llvm::PassManagerBase &pPM,
                           llvm::raw_ostream &pOutput,
                           llvm::MCContext *&OutCtx);
 
-  bool addLinkerPasses(PassManagerBase &pPM,
-                       LinkerConfig& pConfig,
-                       Module& pModule,
+  bool addLinkerPasses(llvm::PassManagerBase &pPM,
+                       mcld::LinkerConfig& pConfig,
+                       mcld::Module& pModule,
                        mcld::MemoryArea& pOutput,
                        llvm::MCContext *&OutCtx);
 

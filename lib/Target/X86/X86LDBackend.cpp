@@ -43,13 +43,13 @@ X86GNULDBackend::X86GNULDBackend(const LinkerConfig& pConfig,
     m_pGOTSymbol(NULL),
     m_CopyRel(pCopyRel)
 {
-  Triple::ArchType arch = pConfig.targets().triple().getArch();
-  assert (arch == Triple::x86 || arch == Triple::x86_64);
-  if (arch == Triple::x86 ||
-      pConfig.targets().triple().getEnvironment() == Triple::GNUX32) {
+  llvm::Triple::ArchType arch = pConfig.targets().triple().getArch();
+  assert (arch == llvm::Triple::x86 || arch == llvm::Triple::x86_64);
+  if (arch == llvm::Triple::x86 ||
+      pConfig.targets().triple().getEnvironment() == llvm::Triple::GNUX32) {
     m_RelEntrySize = 8;
     m_RelaEntrySize = 12;
-    if (arch == Triple::x86)
+    if (arch == llvm::Triple::x86)
       m_PointerRel = llvm::ELF::R_386_32;
     else
       m_PointerRel = llvm::ELF::R_X86_64_32;
@@ -618,11 +618,11 @@ TargetLDBackend* createX86LDBackend(const llvm::Target& pTarget,
                                createX86COFFObjectWriter);
     **/
   }
-  Triple::ArchType arch = pConfig.targets().triple().getArch();
-  if (arch == Triple::x86)
+  llvm::Triple::ArchType arch = pConfig.targets().triple().getArch();
+  if (arch == llvm::Triple::x86)
     return new X86_32GNULDBackend(pConfig,
 				  new X86_32GNUInfo(pConfig.targets().triple()));
-  assert (arch == Triple::x86_64);
+  assert (arch == llvm::Triple::x86_64);
   return new X86_64GNULDBackend(pConfig,
 				new X86_64GNUInfo(pConfig.targets().triple()));
 }

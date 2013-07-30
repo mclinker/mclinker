@@ -23,7 +23,7 @@ MCLinker* createHexagonMCLinker(const std::string &pTriple,
                                 mcld::Module& pModule,
                                 MemoryArea& pOutput)
 {
-  Triple theTriple(pTriple);
+  llvm::Triple theTriple(pTriple);
   if (theTriple.isOSDarwin()) {
     assert(0 && "MachO linker has not supported yet");
     return NULL;

@@ -22,10 +22,10 @@ static bool MCLDEmulateX86ELF(LinkerScript& pScript, LinkerConfig& pConfig)
   // set up bitclass and endian
   pConfig.targets().setEndian(TargetOptions::Little);
   unsigned int bitclass;
-  Triple::ArchType arch = pConfig.targets().triple().getArch();
-  assert (arch == Triple::x86 || arch == Triple::x86_64);
-  if (arch == Triple::x86 ||
-      pConfig.targets().triple().getEnvironment() == Triple::GNUX32) {
+  llvm::Triple::ArchType arch = pConfig.targets().triple().getArch();
+  assert (arch == llvm::Triple::x86 || arch == llvm::Triple::x86_64);
+  if (arch == llvm::Triple::x86 ||
+      pConfig.targets().triple().getEnvironment() == llvm::Triple::GNUX32) {
     bitclass = 32;
   }
   else {
