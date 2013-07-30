@@ -7,9 +7,6 @@
 //
 //===----------------------------------------------------------------------===//
 #include <mcld/Support/TargetRegistry.h>
-#include <mcld/Target/TargetMachine.h>
-#include <llvm/Support/TargetRegistry.h>
-#include <llvm/Target/TargetMachine.h>
 
 using namespace llvm;
 
