@@ -1991,14 +1991,28 @@ void GNULDBackend::setupProgramHdrs(const LinkerScript& pScript)
     }
     (*seg)->setPaddr((*seg)->vaddr());
 
-    const LDSection* last = (*seg)->back();
-    assert(NULL != last);
-    uint64_t fileSz = last->offset() - (*seg)->offset();
-    if (LDFileFormat::BSS != last->kind())
-      fileSz += last->size();
-    (*seg)->setFilesz(fileSz);
+    ELFSegment::iterator sect, sectEnd = (*seg)->end();
+    for (sect = (*seg)->begin(); sect != sectEnd; ++sect) {
+      if ((*sect)->kind() == LDFileFormat::BSS) {
+        break;
+      }
+    }
+    if (sect == sectEnd) {
+      (*seg)->setFilesz((*seg)->back()->offset() +
+                        (*seg)->back()->size() -
+                        (*seg)->offset());
+    } else if (*sect != (*seg)->front()) {
+      --sect;
+      (*seg)->setFilesz((*sect)->offset() +
+                        (*sect)->size() -
+                        (*seg)->offset());
+    } else {
+      (*seg)->setFilesz(0x0);
+    }
 
-    (*seg)->setMemsz(last->addr() - (*seg)->vaddr() + last->size());
+    (*seg)->setMemsz((*seg)->back()->addr() +
+                     (*seg)->back()->size() -
+                     (*seg)->vaddr());
   } // end of for
 
   // handle the case if text segment only has NULL section
@@ -2022,13 +2036,29 @@ void GNULDBackend::setupProgramHdrs(const LinkerScript& pScript)
         (*seg)->setVaddr(addr);
         (*seg)->setPaddr(addr);
 
-        const LDSection* last = (*seg)->back();
-        assert(NULL != last);
-        size = last->offset() - (*seg)->offset();
-        if (LDFileFormat::BSS != last->kind())
-          size += last->size();
-        (*seg)->setFilesz(size);
-        (*seg)->setMemsz(last->addr() - (*seg)->vaddr() + last->size());
+        ELFSegment::iterator sect, sectEnd = (*seg)->end();
+        for (sect = (*seg)->begin(); sect != sectEnd; ++sect) {
+          if ((*sect)->kind() == LDFileFormat::BSS) {
+            --sect;
+            break;
+          }
+        }
+        if (sect == sectEnd) {
+          (*seg)->setFilesz((*seg)->back()->offset() +
+                            (*seg)->back()->size() -
+                            (*seg)->offset());
+        } else if (*sect != (*seg)->front()) {
+          --sect;
+          (*seg)->setFilesz((*sect)->offset() +
+                            (*sect)->size() -
+                            (*seg)->offset());
+        } else {
+          (*seg)->setFilesz(0x0);
+        }
+
+        (*seg)->setMemsz((*seg)->back()->addr() +
+                         (*seg)->back()->size() -
+                         (*seg)->vaddr());
 
         (*seg)->insert((*seg)->begin(), null_sect);
         elfSegmentTable().erase(null_seg);
