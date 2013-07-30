@@ -22,19 +22,6 @@ class AsmPrinter;
 
 namespace mcld {
 
-class Module;
-class LinkerConfig;
-class LinkerScript;
-class MemoryArea;
-class MCLDTargetMachine;
-class TargetRegistry;
-class MCLinker;
-class TargetLDBackend;
-class AttributeFactory;
-class InputFactory;
-class ContextFactory;
-class DiagnosticLineInfo;
-
 /** \class TargetRegistry
  *  \brief TargetRegistry is an object adapter of llvm::TargetRegistry
  */
