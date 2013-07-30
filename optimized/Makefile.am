@@ -54,6 +54,7 @@ HEADER = ${INCDIR}/ADT/Uncopyable.h \
 	${INCDIR}/Support/GCFactory.h \
 	${INCDIR}/Support/UniqueGCFactory.h \
 	${INCDIR}/Support/GCFactoryListTraits.h \
+	${INCDIR}/Support/Target.h \
 	${INCDIR}/Support/TargetRegistry.h \
 	${INCDIR}/Support/TargetSelect.h \
 	${INCDIR}/Support/raw_ostream.h \
@@ -72,7 +73,7 @@ HEADER = ${INCDIR}/ADT/Uncopyable.h \
 	${INCDIR}/Fragment/Stub.h \
 	${INCDIR}/Fragment/Relocation.h \
 	${INCDIR}/MC/SymbolCategory.h \
-	${INCDIR}/MC/MCLDInput.h \
+	${INCDIR}/MC/Input.h \
 	${INCDIR}/MC/InputFactory.h \
 	${INCDIR}/MC/ContextFactory.h \
 	${INCDIR}/MC/SearchDirs.h \
@@ -172,6 +173,7 @@ SOURCE = ${LIBDIR}/ADT/StringEntry.cpp \
 	${LIBDIR}/Support/raw_mem_ostream.cpp \
 	${LIBDIR}/Support/ToolOutputFile.cpp \
 	${LIBDIR}/Support/CommandLine.cpp \
+	${LIBDIR}/Support/Target.cpp \
 	${LIBDIR}/Support/TargetRegistry.cpp \
 	${LIBDIR}/Support/raw_ostream.cpp \
 	${LIBDIR}/Support/MsgHandling.cpp \
@@ -187,8 +189,6 @@ SOURCE = ${LIBDIR}/ADT/StringEntry.cpp \
 	${LIBDIR}/Object/ObjectBuilder.cpp \
 	${LIBDIR}/Object/SectionMap.cpp \
 	${LIBDIR}/MC/SymbolCategory.cpp \
-	${INCDIR}/Fragment/FragmentLinker.h \
-	${LIBDIR}/Fragment/FragmentLinker.cpp \
 	${LIBDIR}/Fragment/Fragment.cpp \
 	${LIBDIR}/Fragment/FragmentRef.cpp \
 	${LIBDIR}/Fragment/AlignFragment.cpp \
@@ -197,7 +197,7 @@ SOURCE = ${LIBDIR}/ADT/StringEntry.cpp \
 	${LIBDIR}/Fragment/Relocation.cpp \
 	${LIBDIR}/Fragment/Stub.cpp \
 	${LIBDIR}/Fragment/NullFragment.cpp \
-	${LIBDIR}/MC/MCLDInput.cpp \
+	${LIBDIR}/MC/Input.cpp \
 	${LIBDIR}/MC/InputFactory.cpp \
 	${LIBDIR}/Core/LinkerScript.cpp \
 	${LIBDIR}/Core/Module.cpp \
@@ -243,6 +243,7 @@ SOURCE = ${LIBDIR}/ADT/StringEntry.cpp \
 	${LIBDIR}/LD/ELFObjectReader.cpp \
 	${LIBDIR}/LD/ELFDynObjReader.cpp \
 	${LIBDIR}/LD/ELFObjectWriter.cpp \
+	${LIBDIR}/LD/BinaryReader.cpp \
 	${LIBDIR}/LD/ELFBinaryReader.cpp \
 	${LIBDIR}/LD/LDFileFormat.cpp \
 	${LIBDIR}/LD/ELFFileFormat.cpp \
@@ -274,7 +275,6 @@ SOURCE = ${LIBDIR}/ADT/StringEntry.cpp \
 	${INCDIR}/Target/GOT.h \
 	${LIBDIR}/Target/GOT.cpp \
 	${INCDIR}/Target/TargetMachine.h \
-	${LIBDIR}/Target/Target.cpp \
 	${INCDIR}/Target/TargetLDBackend.h \
 	${LIBDIR}/Target/TargetLDBackend.cpp \
 	${INCDIR}/Target/GNULDBackend.h \
@@ -434,6 +434,7 @@ LINKERSCRIPT_SOURCE = \
 	${LIBDIR}/Script/NameSpec.cpp \
 	${LIBDIR}/Script/WildcardPattern.cpp \
 	${LIBDIR}/Script/StringList.cpp \
+	${LIBDIR}/Script/ScriptCommand.cpp \
 	${LIBDIR}/Script/EntryCmd.cpp \
 	${LIBDIR}/Script/OutputFormatCmd.cpp \
 	${LIBDIR}/Script/GroupCmd.cpp \
@@ -481,23 +482,23 @@ ld_mcld_LDFLAGS = ${LLVM_LDFLAGS}
 
 ld_mcld_LDADD = libmcld.a
 
-dist_ld_mcld_SOURCES = ${TOOLDIR}/llvm-mcld/llvm-mcld.cpp
+dist_ld_mcld_SOURCES = ${TOOLDIR}/ld.mcld/main.cpp
 
 # ld.bcc
-ld_bcc_CPPFLAGS = -g -I$(TOPLEVEL)/include -I$(BUILDTOP)/include ${LLVM_CPPFLAGS} ${ANDROID_CPPFLAGS} -I$(TOPLEVEL)/tools/mcld/include -I$(BUILDTOP)/tools/mcld/include
+ld_bcc_CPPFLAGS = -g -I$(TOPLEVEL)/include -I$(BUILDTOP)/include ${LLVM_CPPFLAGS} ${ANDROID_CPPFLAGS} -I$(TOPLEVEL)/tools/bcc/include -I$(BUILDTOP)/tools/bcc/include
 
 ld_bcc_LDFLAGS = ${LLVM_LDFLAGS}
 
 ld_bcc_LDADD = libmcld.a
 
-dist_ld_bcc_SOURCES = ${TOOLDIR}/mcld/main.cpp \
-	${TOOLDIR}/mcld/include/alone/Linker.h \
-	${TOOLDIR}/mcld/lib/Core/Linker.cpp \
-	${TOOLDIR}/mcld/include/alone/Support/LinkerConfig.h \
-	${TOOLDIR}/mcld/lib/Support/LinkerConfig.cpp \
-	${TOOLDIR}/mcld/include/alone/Support/TargetLinkerConfigs.h \
-	${TOOLDIR}/mcld/lib/Support/TargetLinkerConfigs.cpp \
-	${TOOLDIR}/mcld/include/alone/Support/Initialization.h \
-	${TOOLDIR}/mcld/lib/Support/Initialization.cpp \
-	${TOOLDIR}/mcld/include/alone/Support/Log.h
+dist_ld_bcc_SOURCES = ${TOOLDIR}/bcc/main.cpp \
+	${TOOLDIR}/bcc/include/bcc/Linker.h \
+	${TOOLDIR}/bcc/lib/Core/Linker.cpp \
+	${TOOLDIR}/bcc/include/bcc/Support/LinkerConfig.h \
+	${TOOLDIR}/bcc/lib/Support/LinkerConfig.cpp \
+	${TOOLDIR}/bcc/include/bcc/Support/TargetLinkerConfigs.h \
+	${TOOLDIR}/bcc/lib/Support/TargetLinkerConfigs.cpp \
+	${TOOLDIR}/bcc/include/bcc/Support/Initialization.h \
+	${TOOLDIR}/bcc/lib/Support/Initialization.cpp \
+	${TOOLDIR}/bcc/include/bcc/Support/Log.h
 

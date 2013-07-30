@@ -20,7 +20,7 @@
 #include <mcld/Script/RpnExpr.h>
 #include <mcld/Script/Operand.h>
 #include <mcld/Script/StrToken.h>
-#include <mcld/MC/MCLDInput.h>
+#include <mcld/MC/Input.h>
 #include <mcld/MC/InputBuilder.h>
 #include <mcld/Support/MemoryArea.h>
 #include <mcld/InputTree.h>

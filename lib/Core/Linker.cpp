@@ -82,10 +82,8 @@ bool Linker::normalize(Module& pModule, IRBuilder& pBuilder)
 
   m_pObjLinker = new ObjectLinker(*m_pConfig, *m_pBackend);
 
-  m_pObjLinker->setup(pModule, pBuilder);
-
-  // 2. - initialize FragmentLinker
-  if (!m_pObjLinker->initFragmentLinker())
+  // 2. - initialize ObjectLinker
+  if (!m_pObjLinker->initialize(pModule, pBuilder))
     return false;
 
   // 3. - initialize output's standard sections

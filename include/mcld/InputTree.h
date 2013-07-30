@@ -14,7 +14,7 @@
 
 #include <mcld/ADT/BinTree.h>
 #include <mcld/ADT/TypeTraits.h>
-#include <mcld/MC/MCLDInput.h>
+#include <mcld/MC/Input.h>
 #include <mcld/Support/Path.h>
 
 #include <string>

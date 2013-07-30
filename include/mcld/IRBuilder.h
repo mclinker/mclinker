@@ -14,7 +14,7 @@
 #ifndef MCLD_IRBUILDER_H
 #define MCLD_IRBUILDER_H
 
-#include <mcld/MC/MCLDInput.h>
+#include <mcld/MC/Input.h>
 #include <mcld/MC/InputBuilder.h>
 
 #include <mcld/LD/LDSection.h>

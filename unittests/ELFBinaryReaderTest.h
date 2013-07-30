@@ -1,4 +1,4 @@
-//===- headerTest.h -------------------------------------------------------===//
+//===- ELFBinaryReaderTest.h ----------------------------------------------===//
 //
 //                     The MCLinker Project
 //
@@ -6,25 +6,24 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_${CLASS_NAME}_TEST_H
-#define MCLD_${CLASS_NAME}_TEST_H
+#ifndef MCLD_ELFBINARYREADER_TEST_H
+#define MCLD_ELFBINARYREADER_TEST_H
 
 #include <gtest.h>
 
 namespace mcld {
-
-class ${class_name};
+class ELFBinaryReader;
 
 namespace test {
 
-class ${class_name}Test : public ::testing::Test
+class ELFBinaryReaderTest : public ::testing::Test
 {
 public:
   // Constructor can do set-up work for all test here.
-  ${class_name}Test();
+  ELFBinaryReaderTest();
 
   // Destructor can do clean-up work that doesn't throw exceptions here.
-  virtual ~${class_name}Test();
+  virtual ~ELFBinaryReaderTest();
 
   // SetUp() will be called immediately before each test.
   virtual void SetUp();

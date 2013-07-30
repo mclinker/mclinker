@@ -10,7 +10,7 @@
 #include "${class_name}Test.h"
 
 using namespace mcld;
-using namespace mcldtest;
+using namespace mcld::test;
 
 
 // Constructor can do set-up work for all test here.

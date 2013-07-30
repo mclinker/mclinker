@@ -11,7 +11,7 @@
 #include <mcld/LinkerConfig.h>
 #include <mcld/IRBuilder.h>
 #include <mcld/LD/ELFReader.h>
-#include <mcld/MC/MCLDInput.h>
+#include <mcld/MC/Input.h>
 #include <mcld/Support/MemoryRegion.h>
 #include <mcld/Target/GNULDBackend.h>
 

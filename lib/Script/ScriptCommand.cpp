@@ -1,4 +1,4 @@
-//===- LDFileFormat.cpp ---------------------------------------------------===//
+//===- ScriptCommand.cpp --------------------------------------------------===//
 //
 //                     The MCLinker Project
 //
@@ -6,21 +6,14 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include <mcld/LD/LDFileFormat.h>
+#include <mcld/Script/ScriptCommand.h>
 
 using namespace mcld;
 
 //===----------------------------------------------------------------------===//
-// LDFileInfo
+// ScriptCommand
 //===----------------------------------------------------------------------===//
-LDFileFormat::LDFileFormat()
-  : f_pTextSection(NULL),
-    f_pDataSection(NULL),
-    f_pBSSSection(NULL),
-    f_pReadOnlySection(NULL) {
-}
-
-LDFileFormat::~LDFileFormat()
+ScriptCommand::~ScriptCommand()
 {
 }
 

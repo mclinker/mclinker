@@ -12,13 +12,11 @@
 #include <gtest.h>
 #endif
 
-namespace mcld
-{
+namespace mcld {
 
 /** \class ScriptCommand
  *  \brief This class defines the interfaces to a script command.
  */
-
 class ScriptCommand
 {
 public:
@@ -42,8 +40,7 @@ protected:
   {}
 
 public:
-  virtual ~ScriptCommand()
-  {}
+  virtual ~ScriptCommand() = 0;
 
   virtual void dump() const = 0;
 

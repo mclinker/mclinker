@@ -6,24 +6,18 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-//
-// ObjectLinker plays the same role as GNU collect2 to prepare all implicit
-// parameters for FragmentLinker.
-//
-//===----------------------------------------------------------------------===//
 #ifndef MCLD_OBJECT_OBJECT_LINKER_H
 #define MCLD_OBJECT_OBJECT_LINKER_H
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif
-#include <stddef.h>
+#include <llvm/Support/DataTypes.h>
 
 namespace mcld {
 
 class Module;
 class LinkerConfig;
 class IRBuilder;
-class FragmentLinker;
 class TargetLDBackend;
 class MemoryArea;
 class MemoryAreaFactory;
@@ -37,9 +31,9 @@ class ObjectWriter;
 class DynObjWriter;
 class ExecWriter;
 class BinaryWriter;
+class Relocation;
 
 /** \class ObjectLinker
- *  \brief ObjectLinker prepares parameters for FragmentLinker.
  */
 class ObjectLinker
 {
@@ -49,11 +43,7 @@ public:
 
   ~ObjectLinker();
 
-  void setup(Module& pModule, IRBuilder& pBuilder);
-
-  /// initFragmentLinker - initialize FragmentLinker
-  ///  Connect all components in FragmentLinker
-  bool initFragmentLinker();
+  bool initialize(Module& pModule, IRBuilder& pBuilder);
 
   /// initStdSections - initialize standard sections of the output file.
   bool initStdSections();
@@ -128,14 +118,6 @@ public:
   /// postProcessing - do modificatiion after all processes
   bool postProcessing(MemoryArea& pOutput);
 
-  /// getLinker - get internal FragmentLinker object
-  const FragmentLinker* getLinker() const { return m_pLinker; }
-  FragmentLinker*       getLinker()       { return m_pLinker; }
-
-  /// hasInitLinker - has Linker been initialized?
-  bool hasInitLinker() const
-  { return (NULL != m_pLinker); }
-
   // -----  readers and writers  ----- //
   const ObjectReader*  getObjectReader () const { return m_pObjectReader;  }
   ObjectReader*        getObjectReader ()       { return m_pObjectReader;  }
@@ -159,8 +141,20 @@ public:
   ObjectWriter*        getWriter ()       { return m_pWriter;  }
 
 private:
+  /// normalSyncRelocationResult - sync relocation result when producing shared
+  /// objects or executables
+  void normalSyncRelocationResult(MemoryArea& pOutput);
+
+  /// partialSyncRelocationResult - sync relocation result when doing partial
+  /// link
+  void partialSyncRelocationResult(MemoryArea& pOutput);
+
+  /// writeRelocationResult - helper function of syncRelocationResult, write
+  /// relocation target data to output
+  void writeRelocationResult(Relocation& pReloc, uint8_t* pOutput);
+
+private:
   const LinkerConfig& m_Config;
-  FragmentLinker* m_pLinker;
   Module* m_pModule;
   IRBuilder* m_pBuilder;
 

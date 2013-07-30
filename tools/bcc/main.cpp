@@ -19,13 +19,13 @@
 
 #include <mcld/Config/Config.h>
 
-#include <alone/Config/Config.h>
-#include <alone/Support/LinkerConfig.h>
-#include <alone/Support/Initialization.h>
-#include <alone/Support/TargetLinkerConfigs.h>
-#include <alone/Linker.h>
+#include <bcc/Config/Config.h>
+#include <bcc/Support/LinkerConfig.h>
+#include <bcc/Support/Initialization.h>
+#include <bcc/Support/TargetLinkerConfigs.h>
+#include <bcc/Linker.h>
 
-using namespace alone;
+using namespace bcc;
 
 //===----------------------------------------------------------------------===//
 // Compiler Options

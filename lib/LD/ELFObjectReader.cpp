@@ -15,7 +15,7 @@
 #include <llvm/ADT/Twine.h>
 
 #include <mcld/IRBuilder.h>
-#include <mcld/MC/MCLDInput.h>
+#include <mcld/MC/Input.h>
 #include <mcld/LD/ELFReader.h>
 #include <mcld/LD/EhFrameReader.h>
 #include <mcld/LD/EhFrame.h>

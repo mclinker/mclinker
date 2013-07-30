@@ -15,12 +15,12 @@
 #include <mcld/Support/MemoryRegion.h>
 #include <mcld/Support/MsgHandling.h>
 #include <mcld/ADT/SizeTraits.h>
-#include <mcld/Fragment/FragmentLinker.h>
 #include <mcld/Fragment/AlignFragment.h>
 #include <mcld/Fragment/FillFragment.h>
 #include <mcld/Fragment/RegionFragment.h>
 #include <mcld/Fragment/Stub.h>
 #include <mcld/Fragment/NullFragment.h>
+#include <mcld/LD/LDSymbol.h>
 #include <mcld/LD/LDSection.h>
 #include <mcld/LD/SectionData.h>
 #include <mcld/LD/ELFSegment.h>

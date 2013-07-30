@@ -7,21 +7,21 @@
 //
 //===----------------------------------------------------------------------===//
 
-#include "alone/Linker.h"
-#include "alone/Support/LinkerConfig.h"
-#include "alone/Support/Log.h"
+#include "bcc/Linker.h"
+#include "bcc/Support/LinkerConfig.h"
+#include "bcc/Support/Log.h"
 
 #include <llvm/Support/ELF.h>
 
 #include <mcld/Module.h>
 #include <mcld/IRBuilder.h>
-#include <mcld/MC/MCLDInput.h>
+#include <mcld/MC/Input.h>
 #include <mcld/Linker.h>
 #include <mcld/LD/LDSection.h>
 #include <mcld/LD/LDContext.h>
 #include <mcld/Support/Path.h>
 
-using namespace alone;
+using namespace bcc;
 
 const char* Linker::GetErrorString(enum Linker::ErrorCode pErrCode) {
   static const char* ErrorString[] = {

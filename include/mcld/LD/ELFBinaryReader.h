@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_ELF_Binary_READER_H
-#define MCLD_ELF_Binary_READER_H
+#ifndef MCLD_ELF_BINARY_READER_H
+#define MCLD_ELF_BINARY_READER_H
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif
@@ -19,7 +19,6 @@ namespace mcld {
 class Module;
 class Input;
 class IRBuilder;
-class GNULDBackend;
 class LinkerConfig;
 
 /** \lclass ELFBinaryReader
@@ -28,16 +27,15 @@ class LinkerConfig;
 class ELFBinaryReader : public BinaryReader
 {
 public:
-  ELFBinaryReader(GNULDBackend& pBackend,
-                  IRBuilder& pBuilder,
-                  const LinkerConfig& pConfig);
+  ELFBinaryReader(IRBuilder& pBuilder, const LinkerConfig& pConfig);
 
   ~ELFBinaryReader();
 
-  virtual bool readBinary(Input& pInput);
+  bool isMyFormat(Input& pInput) const;
+
+  bool readBinary(Input& pInput);
 
 private:
-  GNULDBackend& m_Backend;
   IRBuilder& m_Builder;
   const LinkerConfig& m_Config;
 };

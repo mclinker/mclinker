@@ -12,7 +12,7 @@
 #include <mcld/IRBuilder.h>
 #include <mcld/TargetOptions.h>
 #include <mcld/LD/ELFReader.h>
-#include <mcld/MC/MCLDInput.h>
+#include <mcld/MC/Input.h>
 #include <mcld/Support/Path.h>
 #include <../lib/Target/X86/X86LDBackend.h>
 #include <../lib/Target/X86/X86GNUInfo.h>

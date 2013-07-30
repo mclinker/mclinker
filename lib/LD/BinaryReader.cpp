@@ -1,4 +1,4 @@
-//===- LDFileFormat.cpp ---------------------------------------------------===//
+//===- BinaryReader.cpp ---------------------------------------------------===//
 //
 //                     The MCLinker Project
 //
@@ -6,21 +6,14 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include <mcld/LD/LDFileFormat.h>
+#include <mcld/LD/BinaryReader.h>
 
 using namespace mcld;
 
 //===----------------------------------------------------------------------===//
-// LDFileInfo
+// BinaryReader
 //===----------------------------------------------------------------------===//
-LDFileFormat::LDFileFormat()
-  : f_pTextSection(NULL),
-    f_pDataSection(NULL),
-    f_pBSSSection(NULL),
-    f_pReadOnlySection(NULL) {
-}
-
-LDFileFormat::~LDFileFormat()
+BinaryReader::~BinaryReader()
 {
 }
 

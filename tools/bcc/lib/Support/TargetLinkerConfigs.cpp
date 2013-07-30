@@ -7,14 +7,14 @@
 //
 //===----------------------------------------------------------------------===//
 
-#include "alone/Config/Config.h"
-#include "alone/Support/TargetLinkerConfigs.h"
+#include "bcc/Config/Config.h"
+#include "bcc/Support/TargetLinkerConfigs.h"
 
 #include <mcld/TargetOptions.h>
 #include <mcld/MC/InputFactory.h>
 #include <mcld/Fragment/Relocation.h>
 
-using namespace alone;
+using namespace bcc;
 
 #ifdef TARGET_BUILD
 static const char* gDefaultDyld = "/system/bin/linker";
