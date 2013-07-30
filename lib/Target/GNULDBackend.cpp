@@ -2232,7 +2232,8 @@ void GNULDBackend::setOutputSectionAddress(Module& pModule)
         addr = script.addressMap().find(".data");
       else
         addr = script.addressMap().find(cur->name());
-    }
+    } else
+      addr = addrEnd;
 
     if (addr != addrEnd) {
       // use address mapping in script options
@@ -2315,7 +2316,8 @@ void GNULDBackend::setOutputSectionAddress(Module& pModule)
     // FIXME: Now make all sh_addr and sh_offset are congruent, modulo the page
     // size. Otherwise, old objcopy (e.g., binutils 2.17) may fail with our
     // output!
-    if ((vma & (commonPageSize() - 1)) != (offset & (commonPageSize() - 1))) {
+    if ((cur->flag() & llvm::ELF::SHF_ALLOC) != 0 &&
+        (vma & (commonPageSize() - 1)) != (offset & (commonPageSize() - 1))) {
       uint64_t padding = commonPageSize() +
                          (vma & (commonPageSize() - 1)) -
                          (offset & (commonPageSize() - 1));
