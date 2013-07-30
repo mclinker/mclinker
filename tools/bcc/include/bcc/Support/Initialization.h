@@ -10,7 +10,7 @@
 #ifndef ALONE_SUPPORT_INITIALIZATION_H
 #define ALONE_SUPPORT_INITIALIZATION_H
 
-namespace alone {
+namespace bcc {
 
 namespace init {
 
@@ -18,6 +18,6 @@ void Initialize();
 
 } // end namespace init
 
-} // end namespace alone
+} // end namespace bcc
 
 #endif // ALONE_SUPPORT_INITIALIZATION_H

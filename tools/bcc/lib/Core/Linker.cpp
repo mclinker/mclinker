@@ -21,7 +21,7 @@
 #include <mcld/LD/LDContext.h>
 #include <mcld/Support/Path.h>
 
-using namespace alone;
+using namespace bcc;
 
 const char* Linker::GetErrorString(enum Linker::ErrorCode pErrCode) {
   static const char* ErrorString[] = {

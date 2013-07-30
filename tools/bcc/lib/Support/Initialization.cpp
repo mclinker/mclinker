@@ -30,7 +30,7 @@ void llvm_error_handler(void *pUserData, const std::string &pMessage,
 
 } // end anonymous namespace
 
-void alone::init::Initialize() {
+void bcc::init::Initialize() {
   static bool is_initialized = false;
 
   if (is_initialized) {

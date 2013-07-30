@@ -15,7 +15,7 @@
 #include "bcc/Config/Config.h"
 #include "bcc/Support/LinkerConfig.h"
 
-namespace alone {
+namespace bcc {
 
 //===----------------------------------------------------------------------===//
 // ARM
@@ -84,6 +84,6 @@ public:
 };
 #endif // !defined(TARGET_BUILD)
 
-} // end namespace alone
+} // end namespace bcc
 
 #endif // ALONE_SUPPORT_LINKER_CONFIG_H

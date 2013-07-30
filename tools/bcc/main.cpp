@@ -25,7 +25,7 @@
 #include <bcc/Support/TargetLinkerConfigs.h>
 #include <bcc/Linker.h>
 
-using namespace alone;
+using namespace bcc;
 
 //===----------------------------------------------------------------------===//
 // Compiler Options

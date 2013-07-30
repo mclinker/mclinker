@@ -29,7 +29,7 @@ class Path;
 
 } // end namespace mcld
 
-namespace alone {
+namespace bcc {
 
 class LinkerConfig;
 
@@ -89,6 +89,6 @@ private:
   enum ErrorCode extractFiles(const LinkerConfig& pConfig);
 };
 
-} // end namespace alone
+} // end namespace bcc
 
 #endif // ALONE_LINKER_H

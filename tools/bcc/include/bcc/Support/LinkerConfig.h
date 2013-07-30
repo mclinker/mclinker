@@ -18,7 +18,7 @@
 #include <mcld/LD/DiagnosticLineInfo.h>
 #include <mcld/LD/DiagnosticPrinter.h>
 
-namespace alone {
+namespace bcc {
 
 class LinkerConfig {
 private:
@@ -118,6 +118,6 @@ public:
   virtual ~LinkerConfig();
 };
 
-} // end namespace alone
+} // end namespace bcc
 
 #endif // ALONE_SUPPORT_LINKER_CONFIG_H

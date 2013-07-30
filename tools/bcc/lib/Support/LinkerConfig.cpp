@@ -19,7 +19,7 @@
 #include <mcld/Support/MsgHandling.h>
 #include <mcld/Support/raw_ostream.h>
 
-using namespace alone;
+using namespace bcc;
 
 LinkerConfig::LinkerConfig(const std::string &pTriple)
   : mTriple(pTriple), mSOName(), mTarget(NULL), mLDConfig(NULL),

@@ -14,7 +14,7 @@
 #include <mcld/MC/InputFactory.h>
 #include <mcld/Fragment/Relocation.h>
 
-using namespace alone;
+using namespace bcc;
 
 #ifdef TARGET_BUILD
 static const char* gDefaultDyld = "/system/bin/linker";
