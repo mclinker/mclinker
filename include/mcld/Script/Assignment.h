@@ -31,9 +31,9 @@ class Assignment : public ScriptCommand
 {
 public:
   enum Level {
-    OUTSIDES_SECTIONS, // outsied SECTIONS command
-    OUTPUT_SECTION,    // related to an output section
-    INPUT_SECTION      // related to an input section
+    OUTSIDE_SECTIONS, // outside SECTIONS command
+    OUTPUT_SECTION,   // related to an output section
+    INPUT_SECTION     // related to an input section
   };
 
   enum Type {

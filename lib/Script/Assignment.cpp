@@ -84,7 +84,7 @@ void Assignment::activate()
 {
   bool isLhsDot = m_Symbol.isDot();
   switch (m_Level) {
-  case OUTSIDES_SECTIONS:
+  case OUTSIDE_SECTIONS:
     assert(!isLhsDot);
     m_Script.assignments().push_back(std::make_pair((LDSymbol*)NULL, *this));
     break;

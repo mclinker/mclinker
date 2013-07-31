@@ -171,7 +171,7 @@ void ScriptFile::addAssignment(const Module& pModule,
     m_CommandQueue.push_back(new Assignment(pModule,
                                             pBackend,
                                             pLDScript,
-                                            Assignment::OUTSIDES_SECTIONS,
+                                            Assignment::OUTSIDE_SECTIONS,
                                             pType,
                                             *(SymOperand::create(pSymbolName)),
                                             pRpnExpr));
