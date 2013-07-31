@@ -33,11 +33,7 @@ public:
   ~ScriptReader();
 
   /// readScript
-  bool readScript(const Module& pModule,
-                  const TargetLDBackend& pBackend,
-                  const LinkerConfig& pConfig,
-                  LinkerScript& pScript,
-                  ScriptFile& pScriptFile);
+  bool readScript(const LinkerConfig& pConfig, ScriptFile& pScriptFile);
 
   /// isMyFormat
   bool isMyFormat(Input& pInput) const;

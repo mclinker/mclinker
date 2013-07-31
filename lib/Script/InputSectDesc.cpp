@@ -10,6 +10,7 @@
 #include <mcld/Script/WildcardPattern.h>
 #include <mcld/Support/raw_ostream.h>
 #include <mcld/LinkerScript.h>
+#include <mcld/Module.h>
 #include <llvm/Support/Casting.h>
 
 using namespace mcld;
@@ -19,13 +20,11 @@ using namespace mcld;
 //===----------------------------------------------------------------------===//
 InputSectDesc::InputSectDesc(KeepPolicy pPolicy,
                              const Spec& pSpec,
-                             const OutputSectDesc& pOutputDesc,
-                             LinkerScript& pLDScript)
+                             const OutputSectDesc& pOutputDesc)
   : ScriptCommand(ScriptCommand::INPUT_SECT_DESC),
     m_KeepPolicy(pPolicy),
     m_Spec(pSpec),
-    m_OutputSectDesc(pOutputDesc),
-    m_LDScript(pLDScript)
+    m_OutputSectDesc(pOutputDesc)
 {
 }
 
@@ -97,7 +96,7 @@ void InputSectDesc::dump() const
   mcld::outs() << "\n";
 }
 
-void InputSectDesc::activate()
+void InputSectDesc::activate(Module& pModule)
 {
-  m_LDScript.sectionMap().insert(*this, m_OutputSectDesc);
+  pModule.getScript().sectionMap().insert(*this, m_OutputSectDesc);
 }

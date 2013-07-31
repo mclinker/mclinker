@@ -19,7 +19,8 @@ using namespace mcld;
 // UnaryOp
 //===----------------------------------------------------------------------===//
 template<>
-IntOperand* UnaryOp<Operator::UNARY_PLUS>::eval()
+IntOperand* UnaryOp<Operator::UNARY_PLUS>::eval(const Module& pModule,
+                                                const TargetLDBackend& pBackend)
 {
   IntOperand* res = result();
   res->setValue(+ m_pOperand->value());
@@ -27,7 +28,9 @@ IntOperand* UnaryOp<Operator::UNARY_PLUS>::eval()
 }
 
 template<>
-IntOperand* UnaryOp<Operator::UNARY_MINUS>::eval()
+IntOperand*
+UnaryOp<Operator::UNARY_MINUS>::eval(const Module& pModule,
+                                     const TargetLDBackend& pBackend)
 {
   IntOperand* res = result();
   res->setValue(- m_pOperand->value());
@@ -35,7 +38,9 @@ IntOperand* UnaryOp<Operator::UNARY_MINUS>::eval()
 }
 
 template<>
-IntOperand* UnaryOp<Operator::LOGICAL_NOT>::eval()
+IntOperand*
+UnaryOp<Operator::LOGICAL_NOT>::eval(const Module& pModule,
+                                     const TargetLDBackend& pBackend)
 {
   IntOperand* res = result();
   res->setValue(! m_pOperand->value());
@@ -43,7 +48,9 @@ IntOperand* UnaryOp<Operator::LOGICAL_NOT>::eval()
 }
 
 template<>
-IntOperand* UnaryOp<Operator::BITWISE_NOT>::eval()
+IntOperand*
+UnaryOp<Operator::BITWISE_NOT>::eval(const Module& pModule,
+                                     const TargetLDBackend& pBackend)
 {
   IntOperand* res = result();
   res->setValue(~ m_pOperand->value());
@@ -51,7 +58,8 @@ IntOperand* UnaryOp<Operator::BITWISE_NOT>::eval()
 }
 
 template<>
-IntOperand* UnaryOp<Operator::ABSOLUTE>::eval()
+IntOperand* UnaryOp<Operator::ABSOLUTE>::eval(const Module& pModule,
+                                              const TargetLDBackend& pBackend)
 {
   // TODO
   assert(0);
@@ -59,13 +67,14 @@ IntOperand* UnaryOp<Operator::ABSOLUTE>::eval()
 }
 
 template<>
-IntOperand* UnaryOp<Operator::ADDR>::eval()
+IntOperand* UnaryOp<Operator::ADDR>::eval(const Module& pModule,
+                                          const TargetLDBackend& pBackend)
 {
   IntOperand* res = result();
   const LDSection* sect = NULL;
   switch (m_pOperand->type()) {
   case Operand::SECTION:
-    sect = module().getSection(llvm::cast<SectOperand>(m_pOperand)->name());
+    sect = pModule.getSection(llvm::cast<SectOperand>(m_pOperand)->name());
     break;
   case Operand::SECTION_DESC:
     sect = llvm::cast<SectDescOperand>(m_pOperand)->outputDesc()->getSection();
@@ -80,13 +89,14 @@ IntOperand* UnaryOp<Operator::ADDR>::eval()
 }
 
 template<>
-IntOperand* UnaryOp<Operator::ALIGNOF>::eval()
+IntOperand* UnaryOp<Operator::ALIGNOF>::eval(const Module& pModule,
+                                             const TargetLDBackend& pBackend)
 {
   IntOperand* res = result();
   const LDSection* sect = NULL;
   switch (m_pOperand->type()) {
   case Operand::SECTION:
-    sect = module().getSection(llvm::cast<SectOperand>(m_pOperand)->name());
+    sect = pModule.getSection(llvm::cast<SectOperand>(m_pOperand)->name());
     break;
   case Operand::SECTION_DESC:
     sect = llvm::cast<SectDescOperand>(m_pOperand)->outputDesc()->getSection();
@@ -101,7 +111,9 @@ IntOperand* UnaryOp<Operator::ALIGNOF>::eval()
 }
 
 template<>
-IntOperand* UnaryOp<Operator::DATA_SEGMENT_END>::eval()
+IntOperand*
+UnaryOp<Operator::DATA_SEGMENT_END>::eval(const Module& pModule,
+                                          const TargetLDBackend& pBackend)
 {
   IntOperand* res = result();
   res->setValue(m_pOperand->value());
@@ -109,7 +121,8 @@ IntOperand* UnaryOp<Operator::DATA_SEGMENT_END>::eval()
 }
 
 template<>
-IntOperand* UnaryOp<Operator::DEFINED>::eval()
+IntOperand* UnaryOp<Operator::DEFINED>::eval(const Module& pModule,
+                                             const TargetLDBackend& pBackend)
 {
   // TODO
   assert(0);
@@ -117,7 +130,8 @@ IntOperand* UnaryOp<Operator::DEFINED>::eval()
 }
 
 template<>
-IntOperand* UnaryOp<Operator::LENGTH>::eval()
+IntOperand* UnaryOp<Operator::LENGTH>::eval(const Module& pModule,
+                                            const TargetLDBackend& pBackend)
 {
   // TODO
   assert(0);
@@ -125,7 +139,8 @@ IntOperand* UnaryOp<Operator::LENGTH>::eval()
 }
 
 template<>
-IntOperand* UnaryOp<Operator::LOADADDR>::eval()
+IntOperand* UnaryOp<Operator::LOADADDR>::eval(const Module& pModule,
+                                              const TargetLDBackend& pBackend)
 {
   // TODO
   assert(0);
@@ -133,7 +148,8 @@ IntOperand* UnaryOp<Operator::LOADADDR>::eval()
 }
 
 template<>
-IntOperand* UnaryOp<Operator::NEXT>::eval()
+IntOperand* UnaryOp<Operator::NEXT>::eval(const Module& pModule,
+                                          const TargetLDBackend& pBackend)
 {
   // TODO
   assert(0);
@@ -141,7 +157,8 @@ IntOperand* UnaryOp<Operator::NEXT>::eval()
 }
 
 template<>
-IntOperand* UnaryOp<Operator::ORIGIN>::eval()
+IntOperand* UnaryOp<Operator::ORIGIN>::eval(const Module& pModule,
+                                            const TargetLDBackend& pBackend)
 {
   // TODO
   assert(0);
@@ -149,13 +166,14 @@ IntOperand* UnaryOp<Operator::ORIGIN>::eval()
 }
 
 template<>
-IntOperand* UnaryOp<Operator::SIZEOF>::eval()
+IntOperand* UnaryOp<Operator::SIZEOF>::eval(const Module& pModule,
+                                            const TargetLDBackend& pBackend)
 {
   IntOperand* res = result();
   const LDSection* sect = NULL;
   switch (m_pOperand->type()) {
   case Operand::SECTION:
-    sect = module().getSection(llvm::cast<SectOperand>(m_pOperand)->name());
+    sect = pModule.getSection(llvm::cast<SectOperand>(m_pOperand)->name());
     break;
   case Operand::SECTION_DESC:
     sect = llvm::cast<SectDescOperand>(m_pOperand)->outputDesc()->getSection();

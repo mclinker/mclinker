@@ -29,7 +29,7 @@ void OutputArchCmd::dump() const
   mcld::outs() << "OUTPUT_ARCH ( " << m_Arch << " )\n";
 }
 
-void OutputArchCmd::activate()
+void OutputArchCmd::activate(Module& pModule)
 {
   // TODO
 }

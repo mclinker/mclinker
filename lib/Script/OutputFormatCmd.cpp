@@ -46,7 +46,7 @@ void OutputFormatCmd::dump() const
   mcld::outs() << " )\n";
 }
 
-void OutputFormatCmd::activate()
+void OutputFormatCmd::activate(Module& pModule)
 {
   // TODO
 }

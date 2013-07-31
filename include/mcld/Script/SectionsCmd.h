@@ -19,6 +19,8 @@
 namespace mcld
 {
 
+class Module;
+
 /** \class SectionsCmd
  *  \brief This class defines the interfaces to SECTIONS command.
  */
@@ -57,7 +59,7 @@ public:
     return pCmd->getKind() == ScriptCommand::SECTIONS;
   }
 
-  void activate();
+  void activate(Module& pModule);
 
   void push_back(ScriptCommand* pCommand);
 

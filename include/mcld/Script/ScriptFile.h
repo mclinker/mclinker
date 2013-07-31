@@ -27,11 +27,9 @@ class InputTree;
 class InputBuilder;
 class GroupReader;
 class LinkerConfig;
-class LinkerScript;
 class RpnExpr;
 class StringList;
 class Module;
-class TargetLDBackend;
 
 /** \class ScriptFile
  *  \brief This class defines the interfaces to a linker script file.
@@ -82,10 +80,10 @@ public:
   std::string&       name()       { return m_Name; }
 
   void dump() const;
-  void activate();
+  void activate(Module& pModule);
 
   /// ENTRY(symbol)
-  void addEntryPoint(const std::string& pSymbol, LinkerScript& pScript);
+  void addEntryPoint(const std::string& pSymbol);
 
   /// OUTPUT_FORMAT(bfdname)
   /// OUTPUT_FORMAT(default, big, little)
@@ -98,14 +96,13 @@ public:
   /// GROUP(file file ...)
   void addGroupCmd(StringList& pStringList,
                    GroupReader& pGroupReader,
-                   const LinkerConfig& pConfig,
-                   const LinkerScript& pScript);
+                   const LinkerConfig& pConfig);
 
   /// OUTPUT(filename)
-  void addOutputCmd(const std::string& pFileName, LinkerScript& pScript);
+  void addOutputCmd(const std::string& pFileName);
 
   /// SEARCH_DIR(path)
-  void addSearchDirCmd(const std::string& pPath, LinkerScript& pScript);
+  void addSearchDirCmd(const std::string& pPath);
 
   /// OUTPUT_ARCH(bfdarch)
   void addOutputArchCmd(const std::string& pArch);
@@ -114,10 +111,7 @@ public:
   void addAssertCmd(RpnExpr& pRpnExpr, const std::string& pMessage);
 
   /// assignment
-  void addAssignment(const Module& pModule,
-                     const TargetLDBackend& pBackend,
-                     LinkerScript& pLDScript,
-                     const std::string& pSymbol,
+  void addAssignment(const std::string& pSymbol,
                      RpnExpr& pRpnExpr,
                      Assignment::Type pType = Assignment::DEFAULT);
 
@@ -128,14 +122,12 @@ public:
   void leaveSectionsCmd();
 
   void enterOutputSectDesc(const std::string& pName,
-                           const OutputSectDesc::Prolog& pProlog,
-                           LinkerScript& pScript);
+                           const OutputSectDesc::Prolog& pProlog);
 
   void leaveOutputSectDesc(const OutputSectDesc::Epilog& pEpilog);
 
   void addInputSectDesc(InputSectDesc::KeepPolicy pPolicy,
-                        const InputSectDesc::Spec& pSpec,
-                        LinkerScript& pScript);
+                        const InputSectDesc::Spec& pSpec);
 
   static const std::string& createParserStr(const char* pText, size_t pLength);
 

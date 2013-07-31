@@ -33,15 +33,15 @@ class UnaryOp : public Operator
 private:
   friend class Operator;
 
-  UnaryOp(const Module& pModule, const TargetLDBackend& pBackend)
-    : Operator(pModule, pBackend, Operator::UNARY, TYPE), m_pOperand(NULL)
+  UnaryOp()
+    : Operator(Operator::UNARY, TYPE), m_pOperand(NULL)
   {}
 
 public:
   ~UnaryOp()
   {}
 
-  IntOperand* eval();
+  IntOperand* eval(const Module& pModule, const TargetLDBackend& pBackend);
 
   void appendOperand(Operand* pOperand)
   {
@@ -53,34 +53,48 @@ private:
 };
 
 template<>
-IntOperand* UnaryOp<Operator::UNARY_PLUS>::eval();
+IntOperand* UnaryOp<Operator::UNARY_PLUS>::eval(const Module&,
+                                                const TargetLDBackend&);
 template<>
-IntOperand* UnaryOp<Operator::UNARY_MINUS>::eval();
+IntOperand* UnaryOp<Operator::UNARY_MINUS>::eval(const Module&,
+                                                 const TargetLDBackend&);
 template<>
-IntOperand* UnaryOp<Operator::LOGICAL_NOT>::eval();
+IntOperand* UnaryOp<Operator::LOGICAL_NOT>::eval(const Module&,
+                                                 const TargetLDBackend&);
 template<>
-IntOperand* UnaryOp<Operator::BITWISE_NOT>::eval();
+IntOperand* UnaryOp<Operator::BITWISE_NOT>::eval(const Module&,
+                                                 const TargetLDBackend&);
 
 template<>
-IntOperand* UnaryOp<Operator::ABSOLUTE>::eval();
+IntOperand* UnaryOp<Operator::ABSOLUTE>::eval(const Module&,
+                                              const TargetLDBackend&);
 template<>
-IntOperand* UnaryOp<Operator::ADDR>::eval();
+IntOperand* UnaryOp<Operator::ADDR>::eval(const Module&,
+                                          const TargetLDBackend&);
 template<>
-IntOperand* UnaryOp<Operator::ALIGNOF>::eval();
+IntOperand* UnaryOp<Operator::ALIGNOF>::eval(const Module&,
+                                             const TargetLDBackend&);
 template<>
-IntOperand* UnaryOp<Operator::DATA_SEGMENT_END>::eval();
+IntOperand* UnaryOp<Operator::DATA_SEGMENT_END>::eval(const Module&,
+                                                      const TargetLDBackend&);
 template<>
-IntOperand* UnaryOp<Operator::DEFINED>::eval();
+IntOperand* UnaryOp<Operator::DEFINED>::eval(const Module&,
+                                             const TargetLDBackend&);
 template<>
-IntOperand* UnaryOp<Operator::LENGTH>::eval();
+IntOperand* UnaryOp<Operator::LENGTH>::eval(const Module&,
+                                            const TargetLDBackend&);
 template<>
-IntOperand* UnaryOp<Operator::LOADADDR>::eval();
+IntOperand* UnaryOp<Operator::LOADADDR>::eval(const Module&,
+                                              const TargetLDBackend&);
 template<>
-IntOperand* UnaryOp<Operator::NEXT>::eval();
+IntOperand* UnaryOp<Operator::NEXT>::eval(const Module&,
+                                          const TargetLDBackend&);
 template<>
-IntOperand* UnaryOp<Operator::ORIGIN>::eval();
+IntOperand* UnaryOp<Operator::ORIGIN>::eval(const Module&,
+                                            const TargetLDBackend&);
 template<>
-IntOperand* UnaryOp<Operator::SIZEOF>::eval();
+IntOperand* UnaryOp<Operator::SIZEOF>::eval(const Module&,
+                                            const TargetLDBackend&);
 
 } // namespace of mcld
 

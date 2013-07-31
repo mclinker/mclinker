@@ -36,7 +36,7 @@ void AssertCmd::dump() const
   mcld::outs() << " , " << m_Message << " )\n";
 }
 
-void AssertCmd::activate()
+void AssertCmd::activate(Module& pModule)
 {
  // TODO
 }

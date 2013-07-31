@@ -33,8 +33,8 @@ class TernaryOp : public Operator
 private:
   friend class Operator;
 
-  TernaryOp(const Module& pModule, const TargetLDBackend& pBackend)
-    : Operator(pModule, pBackend, Operator::TERNARY, TYPE)
+  TernaryOp()
+    : Operator(Operator::TERNARY, TYPE)
   {
     m_pOperand[0] = m_pOperand[1] = m_pOperand[2] = NULL;
   }
@@ -43,7 +43,7 @@ public:
   ~TernaryOp()
   {}
 
-  IntOperand* eval();
+  IntOperand* eval(const Module& pModule, const TargetLDBackend& pBackend);
 
   void appendOperand(Operand* pOperand)
   {
@@ -58,10 +58,13 @@ private:
 };
 
 template<>
-IntOperand* TernaryOp<Operator::TERNARY_IF>::eval();
+IntOperand* TernaryOp<Operator::TERNARY_IF>::eval(const Module&,
+                                                  const TargetLDBackend&);
 
 template<>
-IntOperand* TernaryOp<Operator::DATA_SEGMENT_ALIGN>::eval();
+IntOperand*
+TernaryOp<Operator::DATA_SEGMENT_ALIGN>::eval(const Module&,
+                                              const TargetLDBackend&);
 
 } // namespace of mcld
 

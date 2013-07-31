@@ -177,14 +177,9 @@ void ObjectLinker::normalize()
     else if (getScriptReader()->isMyFormat(**input)) {
       ScriptFile script(ScriptFile::LDScript, **input,
                         m_pBuilder->getInputBuilder());
-
-      if (getScriptReader()->readScript(*m_pModule,
-                                        m_LDBackend,
-                                        m_Config,
-                                        m_pModule->getScript(),
-                                        script)) {
+      if (getScriptReader()->readScript(m_Config, script)) {
         (*input)->setType(Input::Script);
-        script.activate();
+        script.activate(*m_pModule);
         if (script.inputs().size() > 0) {
           m_pModule->getInputTree().merge<InputTree::Inclusive>(input,
             script.inputs());
@@ -588,7 +583,7 @@ bool ObjectLinker::finalizeSymbolValue()
     if (symbol == NULL)
       continue;
 
-    scriptSymsFinalized &= assignment.assign();
+    scriptSymsFinalized &= assignment.assign(*m_pModule, m_LDBackend);
     if (!scriptSymsFinalized)
       break;
 

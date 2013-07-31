@@ -21,7 +21,6 @@ namespace mcld
 
 class WildcardPattern;
 class OutputSectDesc;
-class LinkerScript;
 
 /** \class InputSectDesc
  *  \brief This class defines the interfaces to input section description.
@@ -79,8 +78,7 @@ public:
 public:
   InputSectDesc(KeepPolicy pPolicy,
                 const Spec& pSpec,
-                const OutputSectDesc& pOutputDesc,
-                LinkerScript& pLDScript);
+                const OutputSectDesc& pOutputDesc);
   ~InputSectDesc();
 
   KeepPolicy policy() const { return m_KeepPolicy; }
@@ -94,13 +92,12 @@ public:
     return pCmd->getKind() == ScriptCommand::INPUT_SECT_DESC;
   }
 
-  void activate();
+  void activate(Module& pModule);
 
 private:
   KeepPolicy m_KeepPolicy;
   Spec m_Spec;
   const OutputSectDesc& m_OutputSectDesc;
-  LinkerScript& m_LDScript;
 };
 
 } // namespace of mcld

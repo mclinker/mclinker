@@ -19,6 +19,8 @@
 namespace mcld
 {
 
+class Module;
+
 /** \class OutputFormatCmd
  *  \brief This class defines the interfaces to OutputFormat command.
  */
@@ -49,7 +51,7 @@ public:
     return pCmd->getKind() == ScriptCommand::OUTPUT_FORMAT;
   }
 
-  void activate();
+  void activate(Module& pModule);
 
 private:
   FormatList m_FormatList;

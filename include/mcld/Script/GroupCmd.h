@@ -22,7 +22,6 @@ class InputTree;
 class InputBuilder;
 class GroupReader;
 class LinkerConfig;
-class LinkerScript;
 
 /** \class GroupCmd
  *  \brief This class defines the interfaces to Group command.
@@ -35,8 +34,7 @@ public:
            InputTree& pInputTree,
            InputBuilder& pBuilder,
            GroupReader& m_GroupReader,
-           const LinkerConfig& pConfig,
-           const LinkerScript& pScript);
+           const LinkerConfig& pConfig);
   ~GroupCmd();
 
   void dump() const;
@@ -46,7 +44,7 @@ public:
     return pCmd->getKind() == ScriptCommand::GROUP;
   }
 
-  void activate();
+  void activate(Module& pModule);
 
 private:
   StringList& m_StringList;
@@ -54,7 +52,6 @@ private:
   InputBuilder& m_Builder;
   GroupReader& m_GroupReader;
   const LinkerConfig& m_Config;
-  const LinkerScript& m_Script;
 };
 
 } // namespace of mcld

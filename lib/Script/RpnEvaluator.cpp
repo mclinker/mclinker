@@ -21,8 +21,10 @@
 
 using namespace mcld;
 
-RpnEvaluator::RpnEvaluator(const Module& pModule)
-  : m_Module(pModule)
+RpnEvaluator::RpnEvaluator(const Module& pModule,
+                           const TargetLDBackend& pBackend)
+  : m_Module(pModule),
+    m_Backend(pBackend)
 {
 }
 
@@ -36,14 +38,14 @@ bool RpnEvaluator::eval(const RpnExpr& pExpr, uint64_t& pResult)
       Operator* op = llvm::cast<Operator>(*it);
       switch (op->arity()) {
       case Operator::NULLARY: {
-        operandStack.push(op->eval());
+        operandStack.push(op->eval(m_Module, m_Backend));
         break;
       }
       case Operator::UNARY: {
         Operand* opd = operandStack.top();
         operandStack.pop();
         op->appendOperand(opd);
-        operandStack.push(op->eval());
+        operandStack.push(op->eval(m_Module, m_Backend));
         break;
       }
       case Operator::BINARY: {
@@ -53,7 +55,7 @@ bool RpnEvaluator::eval(const RpnExpr& pExpr, uint64_t& pResult)
         operandStack.pop();
         op->appendOperand(opd1);
         op->appendOperand(opd2);
-        operandStack.push(op->eval());
+        operandStack.push(op->eval(m_Module, m_Backend));
         break;
       }
       case Operator::TERNARY: {
@@ -66,12 +68,9 @@ bool RpnEvaluator::eval(const RpnExpr& pExpr, uint64_t& pResult)
         op->appendOperand(opd1);
         op->appendOperand(opd2);
         op->appendOperand(opd3);
-        operandStack.push(op->eval());
+        operandStack.push(op->eval(m_Module, m_Backend));
         break;
       }
-      default:
-        assert(0 && "Unsupport operator!");
-        break;
       } // end of switch operator arity
       break;
     }

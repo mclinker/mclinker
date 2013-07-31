@@ -22,7 +22,6 @@ namespace mcld
 
 class RpnExpr;
 class StringList;
-class LinkerScript;
 
 /** \class OutputSectDesc
  *  \brief This class defines the interfaces to output section description.
@@ -155,9 +154,7 @@ public:
   typedef OutputSectCmds::reference reference;
 
 public:
-  OutputSectDesc(const std::string& pName,
-                 const Prolog& pProlog,
-                 LinkerScript& pLDScript);
+  OutputSectDesc(const std::string& pName, const Prolog& pProlog);
   ~OutputSectDesc();
 
   const_iterator  begin() const { return m_OutputSectCmds.begin(); }
@@ -183,7 +180,7 @@ public:
     return pCmd->getKind() == ScriptCommand::OUTPUT_SECT_DESC;
   }
 
-  void activate();
+  void activate(Module& pModule);
 
   void push_back(ScriptCommand* pCommand);
 
@@ -198,7 +195,6 @@ private:
   std::string m_Name;
   Prolog m_Prolog;
   Epilog m_Epilog;
-  LinkerScript& m_LDScript;
 };
 
 } // namespace of mcld

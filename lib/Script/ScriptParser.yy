@@ -40,10 +40,7 @@
 %error-verbose
 %define namespace "mcld"
 %define "parser_class_name" "ScriptParser"
-%parse-param { const class Module& m_Module }
-%parse-param { const class TargetLDBackend& m_LDBackend }
 %parse-param { const class LinkerConfig& m_LDConfig }
-%parse-param { class LinkerScript& m_LDScript }
 %parse-param { class ScriptFile& m_ScriptFile }
 %parse-param { class ScriptScanner& m_ScriptScanner }
 %parse-param { class GroupReader& m_GroupReader}
@@ -223,7 +220,7 @@ script_command : entry_command
                ;
 
 entry_command : ENTRY '(' STRING ')'
-                { m_ScriptFile.addEntryPoint(*$3, m_LDScript); }
+                { m_ScriptFile.addEntryPoint(*$3); }
               ;
 
 output_format_command : OUTPUT_FORMAT '(' STRING ')'
@@ -233,18 +230,15 @@ output_format_command : OUTPUT_FORMAT '(' STRING ')'
                       ;
 
 group_command : GROUP '(' input_list ')'
-                {
-                  m_ScriptFile.addGroupCmd(*$3, m_GroupReader, m_LDConfig,
-                                           m_LDScript);
-                }
+                { m_ScriptFile.addGroupCmd(*$3, m_GroupReader, m_LDConfig); }
               ;
 
 search_dir_command : SEARCH_DIR '(' STRING ')' opt_comma
-                     { m_ScriptFile.addSearchDirCmd(*$3, m_LDScript); }
+                     { m_ScriptFile.addSearchDirCmd(*$3); }
                    ;
 
 output_command : OUTPUT '(' STRING ')'
-                 { m_ScriptFile.addOutputCmd(*$3, m_LDScript); }
+                 { m_ScriptFile.addOutputCmd(*$3); }
                ;
 
 output_arch_command : OUTPUT_ARCH '(' STRING ')'
@@ -332,7 +326,7 @@ The full description of an output section looks like this:
     } [>region] [AT>lma_region] [:phdr :phdr ...] [=fillexp]
 */
 output_sect_desc : string output_desc_prolog
-                   { m_ScriptFile.enterOutputSectDesc(*$1, $2, m_LDScript); }
+                   { m_ScriptFile.enterOutputSectDesc(*$1, $2); }
                    '{'
                        output_sect_commands
                    '}' output_desc_epilog
@@ -479,15 +473,9 @@ output_sect_cmd : symbol_assignment
                 ;
 
 input_sect_desc : input_sect_spec
-                  {
-                    m_ScriptFile.addInputSectDesc(InputSectDesc::NoKeep, $1,
-                                                  m_LDScript);
-                  }
+                  { m_ScriptFile.addInputSectDesc(InputSectDesc::NoKeep, $1); }
                 | KEEP '(' input_sect_spec ')'
-                  {
-                    m_ScriptFile.addInputSectDesc(InputSectDesc::Keep, $3,
-                                                  m_LDScript);
-                  }
+                  { m_ScriptFile.addInputSectDesc(InputSectDesc::Keep, $3); }
                 ;
 
 input_sect_spec : string
@@ -587,13 +575,7 @@ output_sect_keyword : CREATE_OBJECT_SYMBOLS
                     ;
 
 symbol_assignment : symbol '=' script_exp ';'
-                    {
-                      m_ScriptFile.addAssignment(m_Module,
-                                                 m_LDBackend,
-                                                 m_LDScript,
-                                                 *$1,
-                                                 *$3);
-                    }
+                    { m_ScriptFile.addAssignment(*$1, *$3); }
                   | symbol ADD_ASSIGN exp ';'
                   | symbol SUB_ASSIGN exp ';'
                   | symbol MUL_ASSIGN exp ';'
@@ -604,29 +586,17 @@ symbol_assignment : symbol '=' script_exp ';'
                   | symbol RS_ASSIGN exp ';'
                   | HIDDEN '(' symbol '=' script_exp ')' ';'
                     {
-                      m_ScriptFile.addAssignment(m_Module,
-                                                 m_LDBackend,
-                                                 m_LDScript,
-                                                 *$3,
-                                                 *$5,
+                      m_ScriptFile.addAssignment(*$3, *$5,
                                                  Assignment::HIDDEN);
                     }
                   | PROVIDE '(' symbol '=' script_exp ')' ';'
                     {
-                      m_ScriptFile.addAssignment(m_Module,
-                                                 m_LDBackend,
-                                                 m_LDScript,
-                                                 *$3,
-                                                 *$5,
+                      m_ScriptFile.addAssignment(*$3, *$5,
                                                  Assignment::PROVIDE);
                     }
                   | PROVIDE_HIDDEN '(' symbol '=' script_exp ')' ';'
                     {
-                      m_ScriptFile.addAssignment(m_Module,
-                                                 m_LDBackend,
-                                                 m_LDScript,
-                                                 *$3,
-                                                 *$5,
+                      m_ScriptFile.addAssignment(*$3, *$5,
                                                  Assignment::PROVIDE_HIDDEN);
                     }
                   ;
@@ -648,181 +618,152 @@ exp : '(' exp ')'
       }
     | '+' exp %prec UNARY_PLUS
       {
-        m_pRpnExpr->push_back(
-          &Operator::create<Operator::UNARY_PLUS>(m_Module, m_LDBackend));
+        m_pRpnExpr->push_back(&Operator::create<Operator::UNARY_PLUS>());
         $$ = $2 + 1;
       }
     | '-' exp %prec UNARY_MINUS
       {
-        m_pRpnExpr->push_back(
-          &Operator::create<Operator::UNARY_MINUS>(m_Module, m_LDBackend));
+        m_pRpnExpr->push_back(&Operator::create<Operator::UNARY_MINUS>());
         $$ = $2 + 1;
       }
     | '!' exp
       {
-        m_pRpnExpr->push_back(
-          &Operator::create<Operator::LOGICAL_NOT>(m_Module, m_LDBackend));
+        m_pRpnExpr->push_back(&Operator::create<Operator::LOGICAL_NOT>());
         $$ = $2 + 1;
       }
     | '~' exp
       {
-        m_pRpnExpr->push_back(
-          &Operator::create<Operator::BITWISE_NOT>(m_Module, m_LDBackend));
+        m_pRpnExpr->push_back(&Operator::create<Operator::BITWISE_NOT>());
         $$ = $2 + 1;
       }
     | exp '*' exp
       {
-        m_pRpnExpr->push_back(
-          &Operator::create<Operator::MUL>(m_Module, m_LDBackend));
+        m_pRpnExpr->push_back(&Operator::create<Operator::MUL>());
         $$ = $1 + $3 + 1;
       }
     | exp '/' exp
       {
-        m_pRpnExpr->push_back(
-          &Operator::create<Operator::DIV>(m_Module, m_LDBackend));
+        m_pRpnExpr->push_back(&Operator::create<Operator::DIV>());
         $$ = $1 + $3 + 1;
       }
     | exp '%' exp
       {
-        m_pRpnExpr->push_back(
-          &Operator::create<Operator::MOD>(m_Module, m_LDBackend));
+        m_pRpnExpr->push_back(&Operator::create<Operator::MOD>());
         $$ = $1 + $3 + 1;
       }
     | exp '+' exp
       {
-        m_pRpnExpr->push_back(
-          &Operator::create<Operator::ADD>(m_Module, m_LDBackend));
+        m_pRpnExpr->push_back(&Operator::create<Operator::ADD>());
         $$ = $1 + $3 + 1;
       }
     | exp '-' exp
       {
-        m_pRpnExpr->push_back(
-          &Operator::create<Operator::SUB>(m_Module, m_LDBackend));
+        m_pRpnExpr->push_back(&Operator::create<Operator::SUB>());
         $$ = $1 + $3 + 1;
       }
     | exp LSHIFT exp
       {
-        m_pRpnExpr->push_back(
-          &Operator::create<Operator::LSHIFT>(m_Module, m_LDBackend));
+        m_pRpnExpr->push_back(&Operator::create<Operator::LSHIFT>());
         $$ = $1 + $3 + 1;
       }
     | exp RSHIFT exp
       {
-        m_pRpnExpr->push_back(
-          &Operator::create<Operator::RSHIFT>(m_Module, m_LDBackend));
+        m_pRpnExpr->push_back(&Operator::create<Operator::RSHIFT>());
         $$ = $1 + $3 + 1;
       }
     | exp '<' exp
       {
-        m_pRpnExpr->push_back(
-          &Operator::create<Operator::LT>(m_Module, m_LDBackend));
+        m_pRpnExpr->push_back(&Operator::create<Operator::LT>());
         $$ = $1 + $3 + 1;
       }
     | exp LE exp
       {
-        m_pRpnExpr->push_back(
-          &Operator::create<Operator::LE>(m_Module, m_LDBackend));
+        m_pRpnExpr->push_back(&Operator::create<Operator::LE>());
         $$ = $1 + $3 + 1;
       }
     | exp '>' exp
       {
-        m_pRpnExpr->push_back(
-          &Operator::create<Operator::GT>(m_Module, m_LDBackend));
+        m_pRpnExpr->push_back(&Operator::create<Operator::GT>());
         $$ = $1 + $3 + 1;
       }
     | exp GE exp
       {
-        m_pRpnExpr->push_back(
-          &Operator::create<Operator::GE>(m_Module, m_LDBackend));
+        m_pRpnExpr->push_back(&Operator::create<Operator::GE>());
         $$ = $1 + $3 + 1;
       }
     | exp EQ exp
       {
-        m_pRpnExpr->push_back(
-          &Operator::create<Operator::EQ>(m_Module, m_LDBackend));
+        m_pRpnExpr->push_back(&Operator::create<Operator::EQ>());
         $$ = $1 + $3 + 1;
       }
     | exp NE exp
       {
-        m_pRpnExpr->push_back(
-          &Operator::create<Operator::NE>(m_Module, m_LDBackend));
+        m_pRpnExpr->push_back(&Operator::create<Operator::NE>());
         $$ = $1 + $3 + 1;
       }
     | exp '&' exp
       {
-        m_pRpnExpr->push_back(
-          &Operator::create<Operator::BITWISE_AND>(m_Module, m_LDBackend));
+        m_pRpnExpr->push_back(&Operator::create<Operator::BITWISE_AND>());
         $$ = $1 + $3 + 1;
       }
     | exp '^' exp
       {
-        m_pRpnExpr->push_back(
-          &Operator::create<Operator::BITWISE_XOR>(m_Module, m_LDBackend));
+        m_pRpnExpr->push_back(&Operator::create<Operator::BITWISE_XOR>());
         $$ = $1 + $3 + 1;
       }
     | exp '|' exp
       {
-        m_pRpnExpr->push_back(
-          &Operator::create<Operator::BITWISE_OR>(m_Module, m_LDBackend));
+        m_pRpnExpr->push_back(&Operator::create<Operator::BITWISE_OR>());
         $$ = $1 + $3 + 1;
       }
     | exp LOGICAL_AND exp
       {
-        m_pRpnExpr->push_back(
-          &Operator::create<Operator::LOGICAL_AND>(m_Module, m_LDBackend));
+        m_pRpnExpr->push_back(&Operator::create<Operator::LOGICAL_AND>());
         $$ = $1 + $3 + 1;
       }
     | exp LOGICAL_OR exp
       {
-        m_pRpnExpr->push_back(
-          &Operator::create<Operator::LOGICAL_OR>(m_Module, m_LDBackend));
+        m_pRpnExpr->push_back(&Operator::create<Operator::LOGICAL_OR>());
       }
     | exp '?' exp ':' exp
       {
-        m_pRpnExpr->push_back(
-          &Operator::create<Operator::TERNARY_IF>(m_Module, m_LDBackend));
+        m_pRpnExpr->push_back(&Operator::create<Operator::TERNARY_IF>());
         $$ = $1 + $3 + $5 + 1;
       }
     | ABSOLUTE '(' exp ')'
       {
-        m_pRpnExpr->push_back(
-          &Operator::create<Operator::ABSOLUTE>(m_Module, m_LDBackend));
+        m_pRpnExpr->push_back(&Operator::create<Operator::ABSOLUTE>());
         $$ = $3 + 1;
       }
     | ADDR '(' string ')'
       {
         m_pRpnExpr->push_back(SectOperand::create(*$3));
-        m_pRpnExpr->push_back(
-          &Operator::create<Operator::ADDR>(m_Module, m_LDBackend));
+        m_pRpnExpr->push_back(&Operator::create<Operator::ADDR>());
         $$ = 2;
       }
     | ALIGN '(' exp ')'
       {
         RpnExpr::iterator pos = m_pRpnExpr->begin() + m_pRpnExpr->size() - $3;
         m_pRpnExpr->insert(pos, SymOperand::create("."));
-        m_pRpnExpr->push_back(
-          &Operator::create<Operator::ALIGN>(m_Module, m_LDBackend));
+        m_pRpnExpr->push_back(&Operator::create<Operator::ALIGN>());
         $$ = $3 + 2;
       }
     | ALIGN '(' exp ',' exp ')'
       {
-        m_pRpnExpr->push_back(
-          &Operator::create<Operator::ALIGN>(m_Module, m_LDBackend));
+        m_pRpnExpr->push_back(&Operator::create<Operator::ALIGN>());
         $$ = $3 + $5 + 1;
       }
     | ALIGNOF '(' string ')'
       {
         m_pRpnExpr->push_back(SectOperand::create(*$3));
-        m_pRpnExpr->push_back(
-          &Operator::create<Operator::ALIGNOF>(m_Module, m_LDBackend));
+        m_pRpnExpr->push_back(&Operator::create<Operator::ALIGNOF>());
         $$ = 2;
       }
     | BLOCK '(' exp ')'
       {
         RpnExpr::iterator pos = m_pRpnExpr->begin() + m_pRpnExpr->size() - $3;
         m_pRpnExpr->insert(pos, SymOperand::create("."));
-        m_pRpnExpr->push_back(
-          &Operator::create<Operator::ALIGN>(m_Module, m_LDBackend));
+        m_pRpnExpr->push_back(&Operator::create<Operator::ALIGN>());
         $$ = $3 + 2;
       }
     | DATA_SEGMENT_ALIGN
@@ -832,29 +773,24 @@ exp : '(' exp ')'
       '(' exp ',' exp ')'
       {
         m_pRpnExpr->push_back(
-          &Operator::create<Operator::DATA_SEGMENT_ALIGN>(m_Module,
-                                                          m_LDBackend));
+          &Operator::create<Operator::DATA_SEGMENT_ALIGN>());
         $$ = $4 + $6 + 2;
       }
     | DATA_SEGMENT_END '(' exp ')'
       {
-        m_pRpnExpr->push_back(
-          &Operator::create<Operator::DATA_SEGMENT_END>(m_Module,
-                                                        m_LDBackend));
+        m_pRpnExpr->push_back(&Operator::create<Operator::DATA_SEGMENT_END>());
         $$ = $3 + 1;
       }
     | DATA_SEGMENT_RELRO_END '(' exp ',' exp ')'
       {
         m_pRpnExpr->push_back(
-          &Operator::create<Operator::DATA_SEGMENT_RELRO_END>(m_Module,
-                                                              m_LDBackend));
+          &Operator::create<Operator::DATA_SEGMENT_RELRO_END>());
         $$ = $3 + $5 + 1;
       }
     | DEFINED '(' symbol ')'
       {
         m_pRpnExpr->push_back(SymOperand::create(*$3));
-        m_pRpnExpr->push_back(
-          &Operator::create<Operator::DEFINED>(m_Module, m_LDBackend));
+        m_pRpnExpr->push_back(&Operator::create<Operator::DEFINED>());
         $$ = 2;
       }
     | LENGTH '(' string ')'
@@ -864,26 +800,22 @@ exp : '(' exp ')'
     | LOADADDR '(' string ')'
       {
         m_pRpnExpr->push_back(SectOperand::create(*$3));
-        m_pRpnExpr->push_back(
-          &Operator::create<Operator::LOADADDR>(m_Module, m_LDBackend));
+        m_pRpnExpr->push_back(&Operator::create<Operator::LOADADDR>());
         $$ = 2;
       }
     | MAX '(' exp ',' exp ')'
       {
-        m_pRpnExpr->push_back(
-          &Operator::create<Operator::MAX>(m_Module, m_LDBackend));
+        m_pRpnExpr->push_back(&Operator::create<Operator::MAX>());
         $$ = $3 + $5 + 1;
       }
     | MIN '(' exp ',' exp ')'
       {
-        m_pRpnExpr->push_back(
-          &Operator::create<Operator::MIN>(m_Module, m_LDBackend));
+        m_pRpnExpr->push_back(&Operator::create<Operator::MIN>());
         $$ = $3 + $5 + 1;
       }
     | NEXT '(' exp ')'
       {
-        m_pRpnExpr->push_back(
-          &Operator::create<Operator::NEXT>(m_Module, m_LDBackend));
+        m_pRpnExpr->push_back(&Operator::create<Operator::NEXT>());
         $$ = $3 + 1;
       }
     | ORIGIN '(' string ')'
@@ -896,33 +828,28 @@ exp : '(' exp ')'
       }
       ',' exp ')'
       {
-        m_pRpnExpr->push_back(
-          &Operator::create<Operator::SEGMENT_START>(m_Module, m_LDBackend));
+        m_pRpnExpr->push_back(&Operator::create<Operator::SEGMENT_START>());
         $$ = $6 + 2;
       }
     | SIZEOF '(' string ')'
       {
         m_pRpnExpr->push_back(SectOperand::create(*$3));
-        m_pRpnExpr->push_back(
-          &Operator::create<Operator::SIZEOF>(m_Module, m_LDBackend));
+        m_pRpnExpr->push_back(&Operator::create<Operator::SIZEOF>());
         $$ = 2;
       }
     | SIZEOF_HEADERS
       {
-        m_pRpnExpr->push_back(
-          &Operator::create<Operator::SIZEOF_HEADERS>(m_Module, m_LDBackend));
+        m_pRpnExpr->push_back(&Operator::create<Operator::SIZEOF_HEADERS>());
         $$ = 1;
       }
     | CONSTANT '(' MAXPAGESIZE ')'
       {
-        m_pRpnExpr->push_back(
-          &Operator::create<Operator::MAXPAGESIZE>(m_Module, m_LDBackend));
+        m_pRpnExpr->push_back(&Operator::create<Operator::MAXPAGESIZE>());
         $$ = 1;
       }
     | CONSTANT '(' COMMONPAGESIZE')'
       {
-        m_pRpnExpr->push_back(
-          &Operator::create<Operator::COMMONPAGESIZE>(m_Module, m_LDBackend));
+        m_pRpnExpr->push_back(&Operator::create<Operator::COMMONPAGESIZE>());
         $$ = 1;
       }
     | INTEGER

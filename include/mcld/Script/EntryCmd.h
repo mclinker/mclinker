@@ -18,7 +18,7 @@
 namespace mcld
 {
 
-class LinkerScript;
+class Module;
 
 /** \class EntryCmd
  *  \brief This class defines the interfaces to Entry command.
@@ -27,7 +27,7 @@ class LinkerScript;
 class EntryCmd : public ScriptCommand
 {
 public:
-  EntryCmd(const std::string& pEntry, LinkerScript& pScript);
+  EntryCmd(const std::string& pEntry);
   ~EntryCmd();
 
   void dump() const;
@@ -37,11 +37,10 @@ public:
     return pCmd->getKind() == ScriptCommand::ENTRY;
   }
 
-  void activate();
+  void activate(Module& pModule);
 
 private:
   std::string m_Entry;
-  LinkerScript& m_Script;
 };
 
 } // namespace of mcld

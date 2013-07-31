@@ -13,6 +13,7 @@
 #include <mcld/Script/InputSectDesc.h>
 #include <mcld/Support/raw_ostream.h>
 #include <mcld/LinkerScript.h>
+#include <mcld/Module.h>
 #include <llvm/Support/Casting.h>
 #include <cassert>
 
@@ -22,12 +23,10 @@ using namespace mcld;
 // OutputSectDesc
 //===----------------------------------------------------------------------===//
 OutputSectDesc::OutputSectDesc(const std::string& pName,
-                               const Prolog& pProlog,
-                               LinkerScript& pLDScript)
+                               const Prolog& pProlog)
   : ScriptCommand(ScriptCommand::OUTPUT_SECT_DESC),
     m_Name(pName),
-    m_Prolog(pProlog),
-    m_LDScript(pLDScript)
+    m_Prolog(pProlog)
 {
 }
 
@@ -154,7 +153,7 @@ void OutputSectDesc::setEpilog(const Epilog& pEpilog)
   m_Epilog.m_pFillExp   = pEpilog.m_pFillExp;
 }
 
-void OutputSectDesc::activate()
+void OutputSectDesc::activate(Module& pModule)
 {
   // Assignment in an output section
   OutputSectCmds assignments;
@@ -165,11 +164,11 @@ void OutputSectDesc::activate()
       assignments.push_back(*it);
       break;
     case ScriptCommand::INPUT_SECT_DESC: {
-      (*it)->activate();
+      (*it)->activate(pModule);
 
       for (iterator assign = assignments.begin(), assignEnd = assignments.end();
         assign != assignEnd; ++assign) {
-        (*assign)->activate();
+        (*assign)->activate(pModule);
       }
       assignments.clear();
       break;
@@ -185,12 +184,12 @@ void OutputSectDesc::activate()
     spec.m_pWildcardFile = NULL;
     spec.m_pExcludeFiles = NULL;
     spec.m_pWildcardSections = NULL;
-    InputSectDesc inputDesc(InputSectDesc::Keep, spec, *this, m_LDScript);
-    m_LDScript.sectionMap().insert(inputDesc, *this);
+    InputSectDesc inputDesc(InputSectDesc::Keep, spec, *this);
+    pModule.getScript().sectionMap().insert(inputDesc, *this);
 
     for (iterator assign = assignments.begin(), assignEnd = assignments.end();
       assign != assignEnd; ++assign) {
-      (*assign)->activate();
+      (*assign)->activate(pModule);
     }
     assignments.clear();
   }

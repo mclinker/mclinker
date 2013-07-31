@@ -74,15 +74,15 @@ void ScriptFile::dump() const
     (*it)->dump();
 }
 
-void ScriptFile::activate()
+void ScriptFile::activate(Module& pModule)
 {
   for (const_iterator it = begin(), ie = end(); it != ie; ++it)
-    (*it)->activate();
+    (*it)->activate(pModule);
 }
 
-void ScriptFile::addEntryPoint(const std::string& pSymbol, LinkerScript& pScript)
+void ScriptFile::addEntryPoint(const std::string& pSymbol)
 {
-  EntryCmd* entry = new EntryCmd(pSymbol, pScript);
+  EntryCmd* entry = new EntryCmd(pSymbol);
 
   if (m_bInSectionsCmd) {
     assert(!m_CommandQueue.empty());
@@ -107,24 +107,20 @@ void ScriptFile::addOutputFormatCmd(const std::string& pDefault,
 
 void ScriptFile::addGroupCmd(StringList& pStringList,
                              GroupReader& pGroupReader,
-                             const LinkerConfig& pConfig,
-                             const LinkerScript& pScript)
+                             const LinkerConfig& pConfig)
 {
   m_CommandQueue.push_back(
-    new GroupCmd(pStringList, *m_pInputTree, m_Builder, pGroupReader, pConfig,
-                 pScript));
+    new GroupCmd(pStringList, *m_pInputTree, m_Builder, pGroupReader, pConfig));
 }
 
-void ScriptFile::addOutputCmd(const std::string& pFileName,
-                              LinkerScript& pScript)
+void ScriptFile::addOutputCmd(const std::string& pFileName)
 {
-  m_CommandQueue.push_back(new OutputCmd(pFileName, pScript));
+  m_CommandQueue.push_back(new OutputCmd(pFileName));
 }
 
-void ScriptFile::addSearchDirCmd(const std::string& pPath,
-                                 LinkerScript& pScript)
+void ScriptFile::addSearchDirCmd(const std::string& pPath)
 {
-  m_CommandQueue.push_back(new SearchDirCmd(pPath, pScript));
+  m_CommandQueue.push_back(new SearchDirCmd(pPath));
 }
 
 void ScriptFile::addOutputArchCmd(const std::string& pArch)
@@ -137,10 +133,7 @@ void ScriptFile::addAssertCmd(RpnExpr& pRpnExpr, const std::string& pMessage)
   m_CommandQueue.push_back(new AssertCmd(pRpnExpr, pMessage));
 }
 
-void ScriptFile::addAssignment(const Module& pModule,
-                               const TargetLDBackend& pBackend,
-                               LinkerScript& pLDScript,
-                               const std::string& pSymbolName,
+void ScriptFile::addAssignment(const std::string& pSymbolName,
                                RpnExpr& pRpnExpr,
                                Assignment::Type pType)
 {
@@ -151,27 +144,18 @@ void ScriptFile::addAssignment(const Module& pModule,
       assert(!sections->empty());
       OutputSectDesc* output_desc =
         llvm::cast<OutputSectDesc>(sections->back());
-      output_desc->push_back(new Assignment(pModule,
-                                            pBackend,
-                                            pLDScript,
-                                            Assignment::INPUT_SECTION,
+      output_desc->push_back(new Assignment(Assignment::INPUT_SECTION,
                                             pType,
                                             *(SymOperand::create(pSymbolName)),
                                             pRpnExpr));
     } else {
-      sections->push_back(new Assignment(pModule,
-                                         pBackend,
-                                         pLDScript,
-                                         Assignment::OUTPUT_SECTION,
+      sections->push_back(new Assignment(Assignment::OUTPUT_SECTION,
                                          pType,
                                          *(SymOperand::create(pSymbolName)),
                                          pRpnExpr));
     }
   } else {
-    m_CommandQueue.push_back(new Assignment(pModule,
-                                            pBackend,
-                                            pLDScript,
-                                            Assignment::OUTSIDE_SECTIONS,
+    m_CommandQueue.push_back(new Assignment(Assignment::OUTSIDE_SECTIONS,
                                             pType,
                                             *(SymOperand::create(pSymbolName)),
                                             pRpnExpr));
@@ -196,13 +180,12 @@ void ScriptFile::leaveSectionsCmd()
 }
 
 void ScriptFile::enterOutputSectDesc(const std::string& pName,
-                                     const OutputSectDesc::Prolog& pProlog,
-                                     LinkerScript& pScript)
+                                     const OutputSectDesc::Prolog& pProlog)
 {
   assert(!m_CommandQueue.empty());
   assert(m_bInSectionsCmd);
   SectionsCmd* sections = llvm::cast<SectionsCmd>(back());
-  sections->push_back(new OutputSectDesc(pName, pProlog, pScript));
+  sections->push_back(new OutputSectDesc(pName, pProlog));
 
   m_bInOutputSectDesc = true;
 }
@@ -221,18 +204,16 @@ void ScriptFile::leaveOutputSectDesc(const OutputSectDesc::Epilog& pEpilog)
 }
 
 void ScriptFile::addInputSectDesc(InputSectDesc::KeepPolicy pPolicy,
-                                  const InputSectDesc::Spec& pSpec,
-                                  LinkerScript& pScript)
+                                  const InputSectDesc::Spec& pSpec)
 {
   assert(!m_CommandQueue.empty());
   assert(m_bInSectionsCmd);
   SectionsCmd* sections = llvm::cast<SectionsCmd>(back());
 
   assert(!sections->empty() && m_bInOutputSectDesc);
-  OutputSectDesc* output_sect =  llvm::cast<OutputSectDesc>(sections->back());
+  OutputSectDesc* output_sect = llvm::cast<OutputSectDesc>(sections->back());
 
-  output_sect->push_back(
-    new InputSectDesc(pPolicy, pSpec, *output_sect, pScript));
+  output_sect->push_back(new InputSectDesc(pPolicy, pSpec, *output_sect));
 }
 
 const std::string& ScriptFile::createParserStr(const char* pText,

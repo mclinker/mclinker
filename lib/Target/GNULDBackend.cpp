@@ -2200,7 +2200,7 @@ void GNULDBackend::setOutputSectionOffset(Module& pModule)
 /// setOutputSectionAddress - helper function to set output sections' address.
 void GNULDBackend::setOutputSectionAddress(Module& pModule)
 {
-  RpnEvaluator evaluator(pModule);
+  RpnEvaluator evaluator(pModule, *this);
   LinkerScript& script = pModule.getScript();
   uint64_t vma = 0x0, offset = 0x0;
   LDSection* cur = NULL;
@@ -2221,7 +2221,7 @@ void GNULDBackend::setOutputSectionAddress(Module& pModule)
     // process dot assignments between 2 output sections
     for (SectionMap::Output::dot_iterator it = (*out)->dot_begin(),
       ie = (*out)->dot_end(); it != ie; ++it) {
-      (*it).assign();
+      (*it).assign(pModule, *this);
     }
 
     seg = elfSegmentTable().find(llvm::ELF::PT_LOAD, cur);
@@ -2343,7 +2343,7 @@ void GNULDBackend::setOutputSectionAddress(Module& pModule)
 
       for (SectionMap::Input::dot_iterator it = (*in)->dot_begin(),
         ie = (*in)->dot_end(); it != ie; ++it) {
-        (*it).second.assign();
+        (*it).second.assign(pModule, *this);
         if ((*it).first != NULL) {
           uint64_t new_offset = (*it).second.symbol().value() - vma;
           if (new_offset != (*it).first->getOffset()) {

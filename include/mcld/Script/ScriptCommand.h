@@ -14,6 +14,8 @@
 
 namespace mcld {
 
+class Module;
+
 /** \class ScriptCommand
  *  \brief This class defines the interfaces to a script command.
  */
@@ -44,7 +46,7 @@ public:
 
   virtual void dump() const = 0;
 
-  virtual void activate() = 0;
+  virtual void activate(Module&) = 0;
 
   Kind getKind() const { return m_Kind; }
 

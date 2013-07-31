@@ -73,13 +73,9 @@ const char* Operator::OpNames[] = {
   "COMMONPAGESIZE"
 };
 
-Operator::Operator(const Module& pModule,
-                   const TargetLDBackend& pBackend,
-                   Arity pArity,
+Operator::Operator(Arity pArity,
                    Type pType)
   : ExprToken(ExprToken::OPERATOR),
-    m_Module(pModule),
-    m_LDBackend(pBackend),
     m_Arity(pArity),
     m_Type(pType)
 {
@@ -97,356 +93,298 @@ void Operator::dump() const
 
 /* Nullary operator */
 template<>
-Operator&
-Operator::create<Operator::SIZEOF_HEADERS>(const Module& pModule,
-                                           const TargetLDBackend& pBackend)
+Operator& Operator::create<Operator::SIZEOF_HEADERS>()
 {
-  static NullaryOp<Operator::SIZEOF_HEADERS> op(pModule, pBackend);
+  static NullaryOp<Operator::SIZEOF_HEADERS> op;
   return op;
 }
 
 template<>
-Operator&
-Operator::create<Operator::MAXPAGESIZE>(const Module& pModule,
-                                        const TargetLDBackend& pBackend)
+Operator& Operator::create<Operator::MAXPAGESIZE>()
 {
-  static NullaryOp<Operator::MAXPAGESIZE> op(pModule, pBackend);
+  static NullaryOp<Operator::MAXPAGESIZE> op;
   return op;
 }
 
 template<>
-Operator&
-Operator::create<Operator::COMMONPAGESIZE>(const Module& pModule,
-                                           const TargetLDBackend& pBackend)
+Operator& Operator::create<Operator::COMMONPAGESIZE>()
 {
-  static NullaryOp<Operator::COMMONPAGESIZE> op(pModule, pBackend);
+  static NullaryOp<Operator::COMMONPAGESIZE> op;
   return op;
 }
 
 /* Unary operator */
 template<>
-Operator&
-Operator::create<Operator::UNARY_PLUS>(const Module& pModule,
-                                       const TargetLDBackend& pBackend)
+Operator& Operator::create<Operator::UNARY_PLUS>()
 {
-  static UnaryOp<Operator::UNARY_PLUS> op(pModule, pBackend);
+  static UnaryOp<Operator::UNARY_PLUS> op;
   return op;
 }
 
 template<>
-Operator&
-Operator::create<Operator::UNARY_MINUS>(const Module& pModule,
-                                        const TargetLDBackend& pBackend)
+Operator& Operator::create<Operator::UNARY_MINUS>()
 {
-  static UnaryOp<Operator::UNARY_MINUS> op(pModule, pBackend);
+  static UnaryOp<Operator::UNARY_MINUS> op;
   return op;
 }
 
 template<>
-Operator&
-Operator::create<Operator::LOGICAL_NOT>(const Module& pModule,
-                                        const TargetLDBackend& pBackend)
+Operator& Operator::create<Operator::LOGICAL_NOT>()
 {
-  static UnaryOp<Operator::LOGICAL_NOT> op(pModule, pBackend);
+  static UnaryOp<Operator::LOGICAL_NOT> op;
   return op;
 }
 
 template<>
-Operator&
-Operator::create<Operator::BITWISE_NOT>(const Module& pModule,
-                                        const TargetLDBackend& pBackend)
+Operator& Operator::create<Operator::BITWISE_NOT>()
 {
-  static UnaryOp<Operator::BITWISE_NOT> op(pModule, pBackend);
+  static UnaryOp<Operator::BITWISE_NOT> op;
   return op;
 }
 
 template<>
-Operator& Operator::create<Operator::ABSOLUTE>(const Module& pModule,
-                                               const TargetLDBackend& pBackend)
+Operator& Operator::create<Operator::ABSOLUTE>()
 {
-  static UnaryOp<Operator::ABSOLUTE> op(pModule, pBackend);
+  static UnaryOp<Operator::ABSOLUTE> op;
   return op;
 }
 
 template<>
-Operator& Operator::create<Operator::ADDR>(const Module& pModule,
-                                           const TargetLDBackend& pBackend)
+Operator& Operator::create<Operator::ADDR>()
 {
-  static UnaryOp<Operator::ADDR> op(pModule, pBackend);
+  static UnaryOp<Operator::ADDR> op;
   return op;
 }
 
 template<>
-Operator& Operator::create<Operator::ALIGNOF>(const Module& pModule,
-                                              const TargetLDBackend& pBackend)
+Operator& Operator::create<Operator::ALIGNOF>()
 {
-  static UnaryOp<Operator::ALIGNOF> op(pModule, pBackend);
+  static UnaryOp<Operator::ALIGNOF> op;
   return op;
 }
 
 template<>
-Operator&
-Operator::create<Operator::DATA_SEGMENT_END>(const Module& pModule,
-                                             const TargetLDBackend& pBackend)
+Operator& Operator::create<Operator::DATA_SEGMENT_END>()
 {
-  static UnaryOp<Operator::DATA_SEGMENT_END> op(pModule, pBackend);
+  static UnaryOp<Operator::DATA_SEGMENT_END> op;
   return op;
 }
 
 template<>
-Operator& Operator::create<Operator::DEFINED>(const Module& pModule,
-                                              const TargetLDBackend& pBackend)
+Operator& Operator::create<Operator::DEFINED>()
 {
-  static UnaryOp<Operator::DEFINED> op(pModule, pBackend);
+  static UnaryOp<Operator::DEFINED> op;
   return op;
 }
 
 template<>
-Operator& Operator::create<Operator::LENGTH>(const Module& pModule,
-                                             const TargetLDBackend& pBackend)
+Operator& Operator::create<Operator::LENGTH>()
 {
-  static UnaryOp<Operator::LENGTH> op(pModule, pBackend);
+  static UnaryOp<Operator::LENGTH> op;
   return op;
 }
 
 template<>
-Operator& Operator::create<Operator::LOADADDR>(const Module& pModule,
-                                               const TargetLDBackend& pBackend)
+Operator& Operator::create<Operator::LOADADDR>()
 {
-  static UnaryOp<Operator::LOADADDR> op(pModule, pBackend);
+  static UnaryOp<Operator::LOADADDR> op;
   return op;
 }
 
 template<>
-Operator& Operator::create<Operator::NEXT>(const Module& pModule,
-                                           const TargetLDBackend& pBackend)
+Operator& Operator::create<Operator::NEXT>()
 {
-  static UnaryOp<Operator::NEXT> op(pModule, pBackend);
+  static UnaryOp<Operator::NEXT> op;
   return op;
 }
 
 template<>
-Operator& Operator::create<Operator::ORIGIN>(const Module& pModule,
-                                             const TargetLDBackend& pBackend)
+Operator& Operator::create<Operator::ORIGIN>()
 {
-  static UnaryOp<Operator::ORIGIN> op(pModule, pBackend);
+  static UnaryOp<Operator::ORIGIN> op;
   return op;
 }
 
 template<>
-Operator& Operator::create<Operator::SIZEOF>(const Module& pModule,
-                                             const TargetLDBackend& pBackend)
+Operator& Operator::create<Operator::SIZEOF>()
 {
-  static UnaryOp<Operator::SIZEOF> op(pModule, pBackend);
+  static UnaryOp<Operator::SIZEOF> op;
   return op;
 }
 
 /* Binary operator */
 template<>
-Operator& Operator::create<Operator::MUL>(const Module& pModule,
-                                          const TargetLDBackend& pBackend)
+Operator& Operator::create<Operator::MUL>()
 {
-  static BinaryOp<Operator::MUL> op(pModule, pBackend);
+  static BinaryOp<Operator::MUL> op;
   return op;
 }
 
 template<>
-Operator& Operator::create<Operator::DIV>(const Module& pModule,
-                                          const TargetLDBackend& pBackend)
+Operator& Operator::create<Operator::DIV>()
 {
-  static BinaryOp<Operator::DIV> op(pModule, pBackend);
+  static BinaryOp<Operator::DIV> op;
   return op;
 }
 
 template<>
-Operator& Operator::create<Operator::MOD>(const Module& pModule,
-                                          const TargetLDBackend& pBackend)
+Operator& Operator::create<Operator::MOD>()
 {
-  static BinaryOp<Operator::MOD> op(pModule, pBackend);
+  static BinaryOp<Operator::MOD> op;
   return op;
 }
 
 template<>
-Operator& Operator::create<Operator::ADD>(const Module& pModule,
-                                          const TargetLDBackend& pBackend)
+Operator& Operator::create<Operator::ADD>()
 {
-  static BinaryOp<Operator::ADD> op(pModule, pBackend);
+  static BinaryOp<Operator::ADD> op;
   return op;
 }
 
 template<>
-Operator& Operator::create<Operator::SUB>(const Module& pModule,
-                                          const TargetLDBackend& pBackend)
+Operator& Operator::create<Operator::SUB>()
 {
-  static BinaryOp<Operator::SUB> op(pModule, pBackend);
+  static BinaryOp<Operator::SUB> op;
   return op;
 }
 
 template<>
-Operator& Operator::create<Operator::LSHIFT>(const Module& pModule,
-                                             const TargetLDBackend& pBackend)
+Operator& Operator::create<Operator::LSHIFT>()
 {
-  static BinaryOp<Operator::LSHIFT> op(pModule, pBackend);
+  static BinaryOp<Operator::LSHIFT> op;
   return op;
 }
 
 template<>
-Operator& Operator::create<Operator::RSHIFT>(const Module& pModule,
-                                             const TargetLDBackend& pBackend)
+Operator& Operator::create<Operator::RSHIFT>()
 {
-  static BinaryOp<Operator::RSHIFT> op(pModule, pBackend);
+  static BinaryOp<Operator::RSHIFT> op;
   return op;
 }
 
 template<>
-Operator& Operator::create<Operator::LT>(const Module& pModule,
-                                         const TargetLDBackend& pBackend)
+Operator& Operator::create<Operator::LT>()
 {
-  static BinaryOp<Operator::LT> op(pModule, pBackend);
+  static BinaryOp<Operator::LT> op;
   return op;
 }
 
 template<>
-Operator& Operator::create<Operator::LE>(const Module& pModule,
-                                         const TargetLDBackend& pBackend)
+Operator& Operator::create<Operator::LE>()
 {
-  static BinaryOp<Operator::LE> op(pModule, pBackend);
+  static BinaryOp<Operator::LE> op;
   return op;
 }
 
 template<>
-Operator& Operator::create<Operator::GT>(const Module& pModule,
-                                         const TargetLDBackend& pBackend)
+Operator& Operator::create<Operator::GT>()
 {
-  static BinaryOp<Operator::GT> op(pModule, pBackend);
+  static BinaryOp<Operator::GT> op;
   return op;
 }
 
 template<>
-Operator& Operator::create<Operator::GE>(const Module& pModule,
-                                         const TargetLDBackend& pBackend)
+Operator& Operator::create<Operator::GE>()
 {
-  static BinaryOp<Operator::GE> op(pModule, pBackend);
+  static BinaryOp<Operator::GE> op;
   return op;
 }
 
 template<>
-Operator& Operator::create<Operator::EQ>(const Module& pModule,
-                                         const TargetLDBackend& pBackend)
+Operator& Operator::create<Operator::EQ>()
 {
-  static BinaryOp<Operator::EQ> op(pModule, pBackend);
+  static BinaryOp<Operator::EQ> op;
   return op;
 }
 
 template<>
-Operator& Operator::create<Operator::NE>(const Module& pModule,
-                                         const TargetLDBackend& pBackend)
+Operator& Operator::create<Operator::NE>()
 {
-  static BinaryOp<Operator::NE> op(pModule, pBackend);
+  static BinaryOp<Operator::NE> op;
   return op;
 }
 
 template<>
-Operator&
-Operator::create<Operator::BITWISE_AND>(const Module& pModule,
-                                        const TargetLDBackend& pBackend)
+Operator& Operator::create<Operator::BITWISE_AND>()
 {
-  static BinaryOp<Operator::BITWISE_AND> op(pModule, pBackend);
+  static BinaryOp<Operator::BITWISE_AND> op;
   return op;
 }
 
 template<>
-Operator&
-Operator::create<Operator::BITWISE_XOR>(const Module& pModule,
-                                        const TargetLDBackend& pBackend)
+Operator& Operator::create<Operator::BITWISE_XOR>()
 {
-  static BinaryOp<Operator::BITWISE_XOR> op(pModule, pBackend);
+  static BinaryOp<Operator::BITWISE_XOR> op;
   return op;
 }
 
 template<>
-Operator&
-Operator::create<Operator::BITWISE_OR>(const Module& pModule,
-                                       const TargetLDBackend& pBackend)
+Operator& Operator::create<Operator::BITWISE_OR>()
 {
-  static BinaryOp<Operator::BITWISE_OR> op(pModule, pBackend);
+  static BinaryOp<Operator::BITWISE_OR> op;
   return op;
 }
 
 template<>
-Operator&
-Operator::create<Operator::LOGICAL_AND>(const Module& pModule,
-                                        const TargetLDBackend& pBackend)
+Operator& Operator::create<Operator::LOGICAL_AND>()
 {
-  static BinaryOp<Operator::LOGICAL_AND> op(pModule, pBackend);
+  static BinaryOp<Operator::LOGICAL_AND> op;
   return op;
 }
 
 template<>
-Operator&
-Operator::create<Operator::LOGICAL_OR>(const Module& pModule,
-                                       const TargetLDBackend& pBackend)
+Operator& Operator::create<Operator::LOGICAL_OR>()
 {
-  static BinaryOp<Operator::LOGICAL_OR> op(pModule, pBackend);
+  static BinaryOp<Operator::LOGICAL_OR> op;
   return op;
 }
 
 template<>
-Operator& Operator::create<Operator::ALIGN>(const Module& pModule,
-                                            const TargetLDBackend& pBackend)
+Operator& Operator::create<Operator::ALIGN>()
 {
-  static BinaryOp<Operator::ALIGN> op(pModule, pBackend);
+  static BinaryOp<Operator::ALIGN> op;
   return op;
 }
 
 template<>
-Operator& Operator::create<Operator::DATA_SEGMENT_RELRO_END>(
-  const Module& pModule, const TargetLDBackend& pBackend)
+Operator& Operator::create<Operator::DATA_SEGMENT_RELRO_END>()
 {
-  static BinaryOp<Operator::DATA_SEGMENT_RELRO_END> op(pModule, pBackend);
+  static BinaryOp<Operator::DATA_SEGMENT_RELRO_END> op;
   return op;
 }
 
 template<>
-Operator& Operator::create<Operator::MAX>(const Module& pModule,
-                                          const TargetLDBackend& pBackend)
+Operator& Operator::create<Operator::MAX>()
 {
-  static BinaryOp<Operator::MAX> op(pModule, pBackend);
+  static BinaryOp<Operator::MAX> op;
   return op;
 }
 
 template<>
-Operator& Operator::create<Operator::MIN>(const Module& pModule,
-                                          const TargetLDBackend& pBackend)
+Operator& Operator::create<Operator::MIN>()
 {
-  static BinaryOp<Operator::MIN> op(pModule, pBackend);
+  static BinaryOp<Operator::MIN> op;
   return op;
 }
 
 template<>
-Operator&
-Operator::create<Operator::SEGMENT_START>(const Module& pModule,
-                                          const TargetLDBackend& pBackend)
+Operator& Operator::create<Operator::SEGMENT_START>()
 {
-  static BinaryOp<Operator::SEGMENT_START> op(pModule, pBackend);
+  static BinaryOp<Operator::SEGMENT_START> op;
   return op;
 }
 
 /* Ternary operator */
 template<>
-Operator&
-Operator::create<Operator::TERNARY_IF>(const Module& pModule,
-                                       const TargetLDBackend& pBackend)
+Operator& Operator::create<Operator::TERNARY_IF>()
 {
-  static TernaryOp<Operator::TERNARY_IF> op(pModule, pBackend);
+  static TernaryOp<Operator::TERNARY_IF> op;
   return op;
 }
 
 template<>
-Operator&
-Operator::create<Operator::DATA_SEGMENT_ALIGN>(const Module& pModule,
-                                               const TargetLDBackend& pBackend)
+Operator& Operator::create<Operator::DATA_SEGMENT_ALIGN>()
 {
-  static TernaryOp<Operator::DATA_SEGMENT_ALIGN> op(pModule, pBackend);
+  static TernaryOp<Operator::DATA_SEGMENT_ALIGN> op;
   return op;
 }

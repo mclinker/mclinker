@@ -15,25 +15,31 @@ using namespace mcld;
 // NullaryOp
 //===----------------------------------------------------------------------===//
 template<>
-IntOperand* NullaryOp<Operator::SIZEOF_HEADERS>::eval()
+IntOperand*
+NullaryOp<Operator::SIZEOF_HEADERS>::eval(const Module& pModule,
+                                          const TargetLDBackend& pBackend)
 {
   IntOperand* res = result();
-  res->setValue(backend().sectionStartOffset());
+  res->setValue(pBackend.sectionStartOffset());
   return res;
 }
 
 template<>
-IntOperand* NullaryOp<Operator::MAXPAGESIZE>::eval()
+IntOperand*
+NullaryOp<Operator::MAXPAGESIZE>::eval(const Module& pModule,
+                                       const TargetLDBackend& pBackend)
 {
   IntOperand* res = result();
-  res->setValue(backend().abiPageSize());
+  res->setValue(pBackend.abiPageSize());
   return res;
 }
 
 template<>
-IntOperand* NullaryOp<Operator::COMMONPAGESIZE>::eval()
+IntOperand*
+NullaryOp<Operator::COMMONPAGESIZE>::eval(const Module& pModule,
+                                          const TargetLDBackend& pBackend)
 {
   IntOperand* res = result();
-  res->setValue(backend().commonPageSize());
+  res->setValue(pBackend.commonPageSize());
   return res;
 }

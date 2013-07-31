@@ -19,6 +19,7 @@ namespace mcld
 {
 
 class RpnExpr;
+class Module;
 
 /** \class AssertCmd
  *  \brief This class defines the interfaces to assert command.
@@ -41,7 +42,7 @@ public:
     return pCmd->getKind() == ScriptCommand::ASSERT;
   }
 
-  void activate();
+  void activate(Module& pModule);
 
 private:
   RpnExpr& m_RpnExpr;

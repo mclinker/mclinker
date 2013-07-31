@@ -18,7 +18,6 @@ namespace mcld
 {
 
 class Module;
-class LinkerScript;
 class RpnExpr;
 class SymOperand;
 class TargetLDBackend;
@@ -44,10 +43,7 @@ public:
   };
 
 public:
-  Assignment(const Module& pModule,
-             const TargetLDBackend& pBackend,
-             LinkerScript& pScript,
-             Level pLevel,
+  Assignment(Level pLevel,
              Type pType,
              SymOperand& pSymbol,
              RpnExpr& pRpnExpr);
@@ -73,15 +69,12 @@ public:
     return pCmd->getKind() == ScriptCommand::ASSIGNMENT;
   }
 
-  void activate();
+  void activate(Module& pModule);
 
   /// assign - evaluate the rhs and assign the result to lhs.
-  bool assign();
+  bool assign(const Module& pModule, const TargetLDBackend& pBackend);
 
 private:
-  const Module& m_Module;
-  const TargetLDBackend& m_LDBackend;
-  LinkerScript& m_Script;
   Level m_Level;
   Type m_Type;
   SymOperand& m_Symbol;

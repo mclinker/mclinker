@@ -20,7 +20,8 @@ using namespace mcld;
 // BinaryOp
 //===----------------------------------------------------------------------===//
 template<>
-IntOperand* BinaryOp<Operator::MUL>::eval()
+IntOperand* BinaryOp<Operator::MUL>::eval(const Module& pModule,
+                                          const TargetLDBackend& pBackend)
 {
   IntOperand* res = result();
   res->setValue(m_pOperand[0]->value() * m_pOperand[1]->value());
@@ -28,7 +29,8 @@ IntOperand* BinaryOp<Operator::MUL>::eval()
 }
 
 template<>
-IntOperand* BinaryOp<Operator::DIV>::eval()
+IntOperand* BinaryOp<Operator::DIV>::eval(const Module& pModule,
+                                          const TargetLDBackend& pBackend)
 {
   IntOperand* res = result();
   res->setValue(m_pOperand[0]->value() / m_pOperand[1]->value());
@@ -36,7 +38,8 @@ IntOperand* BinaryOp<Operator::DIV>::eval()
 }
 
 template<>
-IntOperand* BinaryOp<Operator::MOD>::eval()
+IntOperand* BinaryOp<Operator::MOD>::eval(const Module& pModule,
+                                          const TargetLDBackend& pBackend)
 {
   IntOperand* res = result();
   res->setValue(m_pOperand[0]->value() % m_pOperand[1]->value());
@@ -44,7 +47,8 @@ IntOperand* BinaryOp<Operator::MOD>::eval()
 }
 
 template<>
-IntOperand* BinaryOp<Operator::ADD>::eval()
+IntOperand* BinaryOp<Operator::ADD>::eval(const Module& pModule,
+                                          const TargetLDBackend& pBackend)
 {
   IntOperand* res = result();
   res->setValue(m_pOperand[0]->value() + m_pOperand[1]->value());
@@ -52,7 +56,8 @@ IntOperand* BinaryOp<Operator::ADD>::eval()
 }
 
 template<>
-IntOperand* BinaryOp<Operator::SUB>::eval()
+IntOperand* BinaryOp<Operator::SUB>::eval(const Module& pModule,
+                                          const TargetLDBackend& pBackend)
 {
   IntOperand* res = result();
   res->setValue(m_pOperand[0]->value() - m_pOperand[1]->value());
@@ -60,7 +65,8 @@ IntOperand* BinaryOp<Operator::SUB>::eval()
 }
 
 template<>
-IntOperand* BinaryOp<Operator::LSHIFT>::eval()
+IntOperand* BinaryOp<Operator::LSHIFT>::eval(const Module& pModule,
+                                             const TargetLDBackend& pBackend)
 {
   IntOperand* res = result();
   res->setValue(m_pOperand[0]->value() << m_pOperand[1]->value());
@@ -68,7 +74,8 @@ IntOperand* BinaryOp<Operator::LSHIFT>::eval()
 }
 
 template<>
-IntOperand* BinaryOp<Operator::RSHIFT>::eval()
+IntOperand* BinaryOp<Operator::RSHIFT>::eval(const Module& pModule,
+                                             const TargetLDBackend& pBackend)
 {
   IntOperand* res = result();
   res->setValue(m_pOperand[0]->value() >> m_pOperand[1]->value());
@@ -76,7 +83,8 @@ IntOperand* BinaryOp<Operator::RSHIFT>::eval()
 }
 
 template<>
-IntOperand* BinaryOp<Operator::LT>::eval()
+IntOperand* BinaryOp<Operator::LT>::eval(const Module& pModule,
+                                         const TargetLDBackend& pBackend)
 {
   IntOperand* res = result();
   res->setValue(m_pOperand[0]->value() < m_pOperand[1]->value());
@@ -84,7 +92,8 @@ IntOperand* BinaryOp<Operator::LT>::eval()
 }
 
 template<>
-IntOperand* BinaryOp<Operator::LE>::eval()
+IntOperand* BinaryOp<Operator::LE>::eval(const Module& pModule,
+                                         const TargetLDBackend& pBackend)
 {
   IntOperand* res = result();
   res->setValue(m_pOperand[0]->value() <= m_pOperand[1]->value());
@@ -92,7 +101,8 @@ IntOperand* BinaryOp<Operator::LE>::eval()
 }
 
 template<>
-IntOperand* BinaryOp<Operator::GT>::eval()
+IntOperand* BinaryOp<Operator::GT>::eval(const Module& pModule,
+                                         const TargetLDBackend& pBackend)
 {
   IntOperand* res = result();
   res->setValue(m_pOperand[0]->value() > m_pOperand[1]->value());
@@ -100,7 +110,8 @@ IntOperand* BinaryOp<Operator::GT>::eval()
 }
 
 template<>
-IntOperand* BinaryOp<Operator::GE>::eval()
+IntOperand* BinaryOp<Operator::GE>::eval(const Module& pModule,
+                                         const TargetLDBackend& pBackend)
 {
   IntOperand* res = result();
   res->setValue(m_pOperand[0]->value() >= m_pOperand[1]->value());
@@ -108,7 +119,8 @@ IntOperand* BinaryOp<Operator::GE>::eval()
 }
 
 template<>
-IntOperand* BinaryOp<Operator::EQ>::eval()
+IntOperand* BinaryOp<Operator::EQ>::eval(const Module& pModule,
+                                         const TargetLDBackend& pBackend)
 {
   IntOperand* res = result();
   res->setValue(m_pOperand[0]->value() == m_pOperand[1]->value());
@@ -116,7 +128,8 @@ IntOperand* BinaryOp<Operator::EQ>::eval()
 }
 
 template<>
-IntOperand* BinaryOp<Operator::NE>::eval()
+IntOperand* BinaryOp<Operator::NE>::eval(const Module& pModule,
+                                         const TargetLDBackend& pBackend)
 {
   IntOperand* res = result();
   res->setValue(m_pOperand[0]->value() != m_pOperand[1]->value());
@@ -124,7 +137,9 @@ IntOperand* BinaryOp<Operator::NE>::eval()
 }
 
 template<>
-IntOperand* BinaryOp<Operator::BITWISE_AND>::eval()
+IntOperand*
+BinaryOp<Operator::BITWISE_AND>::eval(const Module& pModule,
+                                      const TargetLDBackend& pBackend)
 {
   IntOperand* res = result();
   res->setValue(m_pOperand[0]->value() & m_pOperand[1]->value());
@@ -132,7 +147,9 @@ IntOperand* BinaryOp<Operator::BITWISE_AND>::eval()
 }
 
 template<>
-IntOperand* BinaryOp<Operator::BITWISE_XOR>::eval()
+IntOperand*
+BinaryOp<Operator::BITWISE_XOR>::eval(const Module& pModule,
+                                      const TargetLDBackend& pBackend)
 {
   IntOperand* res = result();
   res->setValue(m_pOperand[0]->value() ^ m_pOperand[1]->value());
@@ -140,7 +157,9 @@ IntOperand* BinaryOp<Operator::BITWISE_XOR>::eval()
 }
 
 template<>
-IntOperand* BinaryOp<Operator::BITWISE_OR>::eval()
+IntOperand*
+BinaryOp<Operator::BITWISE_OR>::eval(const Module& pModule,
+                                     const TargetLDBackend& pBackend)
 {
   IntOperand* res = result();
   res->setValue(m_pOperand[0]->value() | m_pOperand[1]->value());
@@ -148,7 +167,9 @@ IntOperand* BinaryOp<Operator::BITWISE_OR>::eval()
 }
 
 template<>
-IntOperand* BinaryOp<Operator::LOGICAL_AND>::eval()
+IntOperand*
+BinaryOp<Operator::LOGICAL_AND>::eval(const Module& pModule,
+                                      const TargetLDBackend& pBackend)
 {
   IntOperand* res = result();
   res->setValue(m_pOperand[0]->value() && m_pOperand[1]->value());
@@ -156,7 +177,9 @@ IntOperand* BinaryOp<Operator::LOGICAL_AND>::eval()
 }
 
 template<>
-IntOperand* BinaryOp<Operator::LOGICAL_OR>::eval()
+IntOperand*
+BinaryOp<Operator::LOGICAL_OR>::eval(const Module& pModule,
+                                     const TargetLDBackend& pBackend)
 {
   IntOperand* res = result();
   res->setValue(m_pOperand[0]->value() || m_pOperand[1]->value());
@@ -164,7 +187,8 @@ IntOperand* BinaryOp<Operator::LOGICAL_OR>::eval()
 }
 
 template<>
-IntOperand* BinaryOp<Operator::ALIGN>::eval()
+IntOperand* BinaryOp<Operator::ALIGN>::eval(const Module& pModule,
+                                            const TargetLDBackend& pBackend)
 {
   IntOperand* res = result();
   uint64_t value = m_pOperand[0]->value();
@@ -175,19 +199,22 @@ IntOperand* BinaryOp<Operator::ALIGN>::eval()
 }
 
 template<>
-IntOperand* BinaryOp<Operator::DATA_SEGMENT_RELRO_END>::eval()
+IntOperand*
+BinaryOp<Operator::DATA_SEGMENT_RELRO_END>::eval(const Module& pModule,
+  const TargetLDBackend& pBackend)
 {
   /* FIXME: Currently we handle relro in a different way, and now the result
      of this expression won't affect DATA_SEGMENT_ALIGN. */
   IntOperand* res = result();
   uint64_t value = m_pOperand[0]->value() + m_pOperand[1]->value();
-  alignAddress(value, backend().commonPageSize());
+  alignAddress(value, pBackend.commonPageSize());
   res->setValue(value);
   return res;
 }
 
 template<>
-IntOperand* BinaryOp<Operator::MAX>::eval()
+IntOperand* BinaryOp<Operator::MAX>::eval(const Module& pModule,
+                                          const TargetLDBackend& pBackend)
 {
   IntOperand* res = result();
   if (m_pOperand[0]->value() >= m_pOperand[1]->value())
@@ -198,7 +225,8 @@ IntOperand* BinaryOp<Operator::MAX>::eval()
 }
 
 template<>
-IntOperand* BinaryOp<Operator::MIN>::eval()
+IntOperand* BinaryOp<Operator::MIN>::eval(const Module& pModule,
+                                          const TargetLDBackend& pBackend)
 {
   IntOperand* res = result();
   if (m_pOperand[0]->value() <= m_pOperand[1]->value())
@@ -211,13 +239,15 @@ IntOperand* BinaryOp<Operator::MIN>::eval()
 
 /* SEGMENT_START(segment, default) */
 template<>
-IntOperand* BinaryOp<Operator::SEGMENT_START>::eval()
+IntOperand*
+BinaryOp<Operator::SEGMENT_START>::eval(const Module& pModule,
+                                        const TargetLDBackend& pBackend)
 {
   IntOperand* res = result();
   /* Currently we look up segment address from -T command line options. */
   SectOperand* sect = llvm::cast<SectOperand>(m_pOperand[0]);
   const LinkerScript::AddressMap& addressMap =
-    module().getScript().addressMap();
+    pModule.getScript().addressMap();
   LinkerScript::AddressMap::const_iterator addr;
   if (sect->name().compare("text-segment") == 0)
     addr = addressMap.find(".text");

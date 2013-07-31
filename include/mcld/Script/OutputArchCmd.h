@@ -18,6 +18,8 @@
 namespace mcld
 {
 
+class Module;
+
 /** \class OutputArchCmd
  *  \brief This class defines the interfaces to OutputArch command.
  */
@@ -35,7 +37,7 @@ public:
     return pCmd->getKind() == ScriptCommand::OUTPUT_ARCH;
   }
 
-  void activate();
+  void activate(Module& pModule);
 
 private:
   std::string m_Arch;

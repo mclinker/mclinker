@@ -15,7 +15,9 @@ using namespace mcld;
 // TernaryOp
 //===----------------------------------------------------------------------===//
 template<>
-IntOperand* TernaryOp<Operator::TERNARY_IF>::eval()
+IntOperand*
+TernaryOp<Operator::TERNARY_IF>::eval(const Module& pModule,
+                                      const TargetLDBackend& pBackend)
 {
   IntOperand* res = result();
   if (m_pOperand[0]->value())
@@ -27,7 +29,9 @@ IntOperand* TernaryOp<Operator::TERNARY_IF>::eval()
 
 /* DATA_SEGMENT_ALIGN(maxpagesize, commonpagesize) */
 template<>
-IntOperand* TernaryOp<Operator::DATA_SEGMENT_ALIGN>::eval()
+IntOperand*
+TernaryOp<Operator::DATA_SEGMENT_ALIGN>::eval(const Module& pModule,
+                                              const TargetLDBackend& pBackend)
 {
   /* This is equivalent to either
        (ALIGN(maxpagesize) + (. & (maxpagesize - 1)))

@@ -15,6 +15,7 @@
 #include <mcld/LinkerScript.h>
 #include <mcld/LD/LDSection.h>
 #include <mcld/LD/SectionData.h>
+#include <mcld/Module.h>
 #include <llvm/Support/Casting.h>
 #include <cassert>
 
@@ -23,17 +24,11 @@ using namespace mcld;
 //===----------------------------------------------------------------------===//
 // Assignment
 //===----------------------------------------------------------------------===//
-Assignment::Assignment(const Module& pModule,
-                       const TargetLDBackend& pLDBackend,
-                       LinkerScript& pScript,
-                       Level pLevel,
+Assignment::Assignment(Level pLevel,
                        Type pType,
                        SymOperand& pSymbol,
                        RpnExpr& pRpnExpr)
   : ScriptCommand(ScriptCommand::ASSIGNMENT),
-    m_Module(pModule),
-    m_LDBackend(pLDBackend),
-    m_Script(pScript),
     m_Level(pLevel),
     m_Type(pType),
     m_Symbol(pSymbol),
@@ -80,35 +75,32 @@ void Assignment::dump() const
   mcld::outs() << ";\n";
 }
 
-void Assignment::activate()
+void Assignment::activate(Module& pModule)
 {
   bool isLhsDot = m_Symbol.isDot();
+  LinkerScript& script = pModule.getScript();
   switch (m_Level) {
   case OUTSIDE_SECTIONS:
     assert(!isLhsDot);
-    m_Script.assignments().push_back(std::make_pair((LDSymbol*)NULL, *this));
+    script.assignments().push_back(std::make_pair((LDSymbol*)NULL, *this));
     break;
 
   case OUTPUT_SECTION: {
     bool hasDotInRhs = m_RpnExpr.hasDot();
-    SectionMap::reference out = m_Script.sectionMap().back();
+    SectionMap::reference out = script.sectionMap().back();
     if (hasDotInRhs) {
       if (out->dotAssignments().empty()) {
-        SectionMap::iterator prev = m_Script.sectionMap().begin() +
-                                    m_Script.sectionMap().size() - 2;
+        SectionMap::iterator prev = script.sectionMap().begin() +
+                                    script.sectionMap().size() - 2;
         // . = ADDR ( `output_sect' ) + SIZEOF ( `output_sect' )
         SymOperand* dot = SymOperand::create(".");
         RpnExpr* expr = RpnExpr::create();
         expr->push_back(SectDescOperand::create(*prev));
-        expr->push_back(
-          &Operator::create<Operator::ADDR>(m_Module, m_LDBackend));
+        expr->push_back(&Operator::create<Operator::ADDR>());
         expr->push_back(SectDescOperand::create(*prev));
-        expr->push_back(
-          &Operator::create<Operator::SIZEOF>(m_Module, m_LDBackend));
-        expr->push_back(
-          &Operator::create<Operator::ADD>(m_Module, m_LDBackend));
-        Assignment assign(m_Module, m_LDBackend, m_Script, OUTPUT_SECTION,
-                          DEFAULT, *dot, *expr);
+        expr->push_back(&Operator::create<Operator::SIZEOF>());
+        expr->push_back(&Operator::create<Operator::ADD>());
+        Assignment assign(OUTPUT_SECTION, DEFAULT, *dot, *expr);
         out->dotAssignments().push_back(assign);
       }
 
@@ -116,14 +108,14 @@ void Assignment::activate()
         it != ie; ++it) {
         if ((*it)->kind() == ExprToken::OPERAND &&
             llvm::cast<Operand>(*it)->isDot())
-          (*it) = &(out->dotAssignments().back().symbol());
+          *it = &(out->dotAssignments().back().symbol());
       } // for each expression token
     }
 
     if (isLhsDot) {
       out->dotAssignments().push_back(*this);
     } else {
-      m_Script.assignments().push_back(std::make_pair((LDSymbol*)NULL, *this));
+      script.assignments().push_back(std::make_pair((LDSymbol*)NULL, *this));
     }
 
     break;
@@ -131,7 +123,7 @@ void Assignment::activate()
 
   case INPUT_SECTION: {
     bool hasDotInRhs = m_RpnExpr.hasDot();
-    SectionMap::Output::reference in = m_Script.sectionMap().back()->back();
+    SectionMap::Output::reference in = script.sectionMap().back()->back();
     if (hasDotInRhs) {
       if (in->dotAssignments().empty()) {
         // . = `frag'
@@ -139,8 +131,7 @@ void Assignment::activate()
         RpnExpr* expr = RpnExpr::create();
         expr->push_back(
           FragOperand::create(in->getSection()->getSectionData()->front()));
-        Assignment assign(m_Module, m_LDBackend, m_Script, INPUT_SECTION,
-                          DEFAULT, *dot, *expr);
+        Assignment assign(INPUT_SECTION, DEFAULT, *dot, *expr);
         in->dotAssignments().push_back(std::make_pair((Fragment*)NULL, assign));
       }
 
@@ -148,7 +139,7 @@ void Assignment::activate()
         it != ie; ++it) {
         if ((*it)->kind() == ExprToken::OPERAND &&
             llvm::cast<Operand>(*it)->isDot())
-          (*it) = &(in->dotAssignments().back().second.symbol());
+          *it = &(in->dotAssignments().back().second.symbol());
       } // end of for
     }
 
@@ -157,7 +148,7 @@ void Assignment::activate()
         std::make_pair(in->getSection()->getSectionData()->front().getNextNode(),
                        *this));
     } else {
-      m_Script.assignments().push_back(std::make_pair((LDSymbol*)NULL, *this));
+      script.assignments().push_back(std::make_pair((LDSymbol*)NULL, *this));
     }
 
     break;
@@ -166,9 +157,9 @@ void Assignment::activate()
   } // end of switch
 }
 
-bool Assignment::assign()
+bool Assignment::assign(const Module& pModule, const TargetLDBackend& pBackend)
 {
-  RpnEvaluator evaluator(m_Module);
+  RpnEvaluator evaluator(pModule, pBackend);
   uint64_t result = 0;
   bool success = evaluator.eval(m_RpnExpr, result);
   if (success)

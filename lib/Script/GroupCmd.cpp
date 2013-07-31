@@ -28,15 +28,13 @@ GroupCmd::GroupCmd(StringList& pStringList,
                    InputTree& pInputTree,
                    InputBuilder& pBuilder,
                    GroupReader& pGroupReader,
-                   const LinkerConfig& pConfig,
-                   const LinkerScript& pScript)
+                   const LinkerConfig& pConfig)
   : ScriptCommand(ScriptCommand::GROUP),
     m_StringList(pStringList),
     m_InputTree(pInputTree),
     m_Builder(pBuilder),
     m_GroupReader(pGroupReader),
-    m_Config(pConfig),
-    m_Script(pScript)
+    m_Config(pConfig)
 {
 }
 
@@ -71,8 +69,9 @@ void GroupCmd::dump() const
   mcld::outs() << " )\n";
 }
 
-void GroupCmd::activate()
+void GroupCmd::activate(Module& pModule)
 {
+  LinkerScript& script = pModule.getScript();
   // construct the Group tree
   m_Builder.setCurrentTree(m_InputTree);
   // --start-group
@@ -104,15 +103,15 @@ void GroupCmd::activate()
         // and shared object.
         if (m_Builder.getAttributes().isStatic()) {
           // with --static, we must search an archive.
-          path = m_Script.directories().find(token->name(), Input::Archive);
+          path = script.directories().find(token->name(), Input::Archive);
         } else {
           // otherwise, with --Bdynamic, we can find either an archive or a
           // shared object.
-          path = m_Script.directories().find(token->name(), Input::DynObj);
+          path = script.directories().find(token->name(), Input::DynObj);
         }
       } else {
         // In the system without shared object support, only look for an archive
-        path = m_Script.directories().find(token->name(), Input::Archive);
+        path = script.directories().find(token->name(), Input::Archive);
       }
 
       if (NULL == path)
@@ -139,6 +138,5 @@ void GroupCmd::activate()
 
   // read the group
   m_GroupReader.readGroup(group, m_InputTree.end(), m_Builder, m_Config);
-
 }
 

@@ -33,15 +33,15 @@ class NullaryOp : public Operator
 private:
   friend class Operator;
 
-  NullaryOp(const Module& pModule, const TargetLDBackend& pBackend)
-    : Operator(pModule, pBackend, Operator::NULLARY, TYPE)
+  NullaryOp()
+    : Operator(Operator::NULLARY, TYPE)
   {}
 
 public:
   ~NullaryOp()
   {}
 
-  IntOperand* eval();
+  IntOperand* eval(const Module& pModule, const TargetLDBackend& pBackend);
 
   void appendOperand(Operand* pOperand)
   {
@@ -50,11 +50,15 @@ public:
 };
 
 template<>
-IntOperand* NullaryOp<Operator::SIZEOF_HEADERS>::eval();
+IntOperand* NullaryOp<Operator::SIZEOF_HEADERS>::eval(const Module&,
+                                                      const TargetLDBackend&);
 template<>
-IntOperand* NullaryOp<Operator::MAXPAGESIZE>::eval();
+IntOperand* NullaryOp<Operator::MAXPAGESIZE>::eval(const Module&,
+                                                   const TargetLDBackend&);
+
 template<>
-IntOperand* NullaryOp<Operator::COMMONPAGESIZE>::eval();
+IntOperand* NullaryOp<Operator::COMMONPAGESIZE>::eval(const Module&,
+                                                      const TargetLDBackend&);
 
 } // namespace of mcld
 

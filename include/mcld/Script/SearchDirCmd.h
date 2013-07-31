@@ -18,7 +18,7 @@
 namespace mcld
 {
 
-class LinkerScript;
+class Module;
 
 /** \class SearchDirCmd
  *  \brief This class defines the interfaces to SEARCH_DIR command.
@@ -27,12 +27,12 @@ class LinkerScript;
 class SearchDirCmd : public ScriptCommand
 {
 public:
-  SearchDirCmd(const std::string& pPath, LinkerScript& pScript);
+  SearchDirCmd(const std::string& pPath);
   ~SearchDirCmd();
 
   void dump() const;
 
-  void activate();
+  void activate(Module& pModule);
 
   static bool classof(const ScriptCommand* pCmd)
   {
@@ -41,7 +41,6 @@ public:
 
 private:
   std::string m_Path;
-  LinkerScript& m_Script;
 };
 
 } // namespace of mcld

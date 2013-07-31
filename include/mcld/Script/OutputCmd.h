@@ -18,7 +18,7 @@
 namespace mcld
 {
 
-class LinkerScript;
+class Module;
 
 /** \class OutputCmd
  *  \brief This class defines the interfaces to Output command.
@@ -27,7 +27,7 @@ class LinkerScript;
 class OutputCmd : public ScriptCommand
 {
 public:
-  OutputCmd(const std::string& pOutputFile, LinkerScript& pScript);
+  OutputCmd(const std::string& pOutputFile);
 
   ~OutputCmd();
 
@@ -38,11 +38,10 @@ public:
     return pCmd->getKind() == ScriptCommand::OUTPUT;
   }
 
-  void activate();
+  void activate(Module& pModule);
 
 private:
   std::string m_OutputFile;
-  LinkerScript& m_Script;
 };
 
 } // namespace of mcld
