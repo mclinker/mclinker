@@ -30,7 +30,6 @@
 #include <mcld/Script/ScriptReader.h>
 #include <mcld/Script/Assignment.h>
 #include <mcld/Script/Operand.h>
-#include <mcld/Script/RpnEvaluator.h>
 #include <mcld/Support/RealPath.h>
 #include <mcld/Support/MemoryArea.h>
 #include <mcld/Support/MemoryRegion.h>
@@ -551,7 +550,6 @@ bool ObjectLinker::postlayout()
 ///   symbol.
 bool ObjectLinker::finalizeSymbolValue()
 {
-
   Module::sym_iterator symbol, symEnd = m_pModule->sym_end();
   for (symbol = m_pModule->sym_begin(); symbol != symEnd; ++symbol) {
 
@@ -580,24 +578,24 @@ bool ObjectLinker::finalizeSymbolValue()
   }
 
   bool finalized = m_LDBackend.finalizeSymbols();
-  bool scriptSymsAdded = true;
-  uint64_t symVal;
-  const LinkerScript& script = m_pModule->getScript();
-  LinkerScript::Assignments::const_iterator it;
-  LinkerScript::Assignments::const_iterator ie = script.assignments().end();
-  // go through the entire symbol assignments
-
-  RpnEvaluator evaluator(*m_pModule);
+  bool scriptSymsFinalized = true;
+  LinkerScript& script = m_pModule->getScript();
+  LinkerScript::Assignments::iterator it, ie = script.assignments().end();
   for (it = script.assignments().begin(); it != ie; ++it) {
-    if ((*it).first == NULL)
+    LDSymbol* symbol = (*it).first;
+    Assignment& assignment = (*it).second;
+
+    if (symbol == NULL)
       continue;
 
-    scriptSymsAdded &= evaluator.eval((*it).second.getRpnExpr(), symVal);
-    if (!scriptSymsAdded)
+    scriptSymsFinalized &= assignment.assign();
+    if (!scriptSymsFinalized)
       break;
-    (*it).first->setValue(symVal);
-  }
-  return finalized && scriptSymsAdded ;
+
+    symbol->setValue(assignment.symbol().value());
+  } // for each script symbol assignment
+
+  return finalized && scriptSymsFinalized;
 }
 
 /// relocate - applying relocation entries and create relocation
