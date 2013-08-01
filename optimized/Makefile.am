@@ -453,6 +453,7 @@ nobase_include_HEADERS = ${HEADER} ${LINKERSCRIPT_HEADER}
 
 bin_PROGRAMS = ld.mcld ld.bcc
 
+###################
 # ld.mcld
 ld_mcld_CPPFLAGS = -g -I$(TOPLEVEL)/include -I$(BUILDTOP)/include ${LLVM_CPPFLAGS} ${ANDROID_CPPFLAGS}
 
@@ -462,6 +463,7 @@ ld_mcld_LDADD = libmcld.a
 
 dist_ld_mcld_SOURCES = ${TOOLDIR}/ld.mcld/main.cpp
 
+###################
 # ld.bcc
 ld_bcc_CPPFLAGS = -g -I$(TOPLEVEL)/include -I$(BUILDTOP)/include ${LLVM_CPPFLAGS} ${ANDROID_CPPFLAGS} -I$(TOPLEVEL)/tools/bcc/include -I$(BUILDTOP)/tools/bcc/include
 
