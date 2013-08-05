@@ -1365,17 +1365,18 @@ int main(int argc, char* argv[])
     } else {
       // 4. Use the default target triple.
       TheTriple.setTriple(mcld::sys::getDefaultTargetTriple());
-      if (!ArgEmulation.empty()) {
-        // Process target emulation.
-        Triple EmulationTriple = ParseEmulation(ArgEmulation);
-        if (EmulationTriple.getArch() != Triple::UnknownArch)
-          TheTriple.setArch(EmulationTriple.getArch());
-        if (EmulationTriple.getOS() != Triple::UnknownOS)
-          TheTriple.setOS(EmulationTriple.getOS());
-        if (EmulationTriple.getEnvironment() != Triple::UnknownEnvironment)
-          TheTriple.setEnvironment(EmulationTriple.getEnvironment());
-      }
     }
+  }
+
+  // If a specific emulation was requested, apply it now.
+  if (!ArgEmulation.empty()) {
+    Triple EmulationTriple = ParseEmulation(ArgEmulation);
+    if (EmulationTriple.getArch() != Triple::UnknownArch)
+      TheTriple.setArch(EmulationTriple.getArch());
+    if (EmulationTriple.getOS() != Triple::UnknownOS)
+      TheTriple.setOS(EmulationTriple.getOS());
+    if (EmulationTriple.getEnvironment() != Triple::UnknownEnvironment)
+      TheTriple.setEnvironment(EmulationTriple.getEnvironment());
   }
 
   // Allocate target machine.  First, check whether the user has explicitly
