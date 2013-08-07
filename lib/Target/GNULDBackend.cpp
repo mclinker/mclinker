@@ -2252,7 +2252,7 @@ void GNULDBackend::setOutputSectionAddress(Module& pModule)
 
     if (config().options().hasRelro()) {
       // if -z relro is given, we need to adjust sections' offset again, and
-      // let PT_GNU_RELRO end on a common page boundary
+      // let PT_GNU_RELRO end on a abi page boundary
 
       // check if current is the first non-relro section
       SectionMap::iterator relro_last = out - 1;
@@ -2260,7 +2260,7 @@ void GNULDBackend::setOutputSectionAddress(Module& pModule)
           (*relro_last)->order() <= SHO_RELRO_LAST &&
           (*out)->order() > SHO_RELRO_LAST) {
         // align the first non-relro section to page boundary
-        alignAddress(vma, commonPageSize());
+        alignAddress(vma, abiPageSize());
 
         // It seems that compiler think .got and .got.plt are continuous (w/o
         // any padding between). If .got is the last section in PT_RELRO and
@@ -2299,10 +2299,10 @@ void GNULDBackend::setOutputSectionAddress(Module& pModule)
     // size. Otherwise, old objcopy (e.g., binutils 2.17) may fail with our
     // output!
     if ((cur->flag() & llvm::ELF::SHF_ALLOC) != 0 &&
-        (vma & (commonPageSize() - 1)) != (offset & (commonPageSize() - 1))) {
-      uint64_t padding = commonPageSize() +
-                         (vma & (commonPageSize() - 1)) -
-                         (offset & (commonPageSize() - 1));
+        (vma & (abiPageSize() - 1)) != (offset & (abiPageSize() - 1))) {
+      uint64_t padding = abiPageSize() +
+                         (vma & (abiPageSize() - 1)) -
+                         (offset & (abiPageSize() - 1));
       offset += padding;
     }
 
