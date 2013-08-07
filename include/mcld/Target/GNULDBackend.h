@@ -13,25 +13,14 @@
 #endif
 #include <mcld/Target/TargetLDBackend.h>
 
-#include <llvm/Support/ELF.h>
-#include <mcld/ADT/HashTable.h>
-#include <mcld/ADT/HashEntry.h>
-#include <mcld/LD/ELFDynObjFileFormat.h>
-#include <mcld/LD/ELFExecFileFormat.h>
-#include <mcld/LD/ELFObjectFileFormat.h>
+#include <mcld/Module.h>
 #include <mcld/LD/GNUArchiveReader.h>
-#include <mcld/LD/ELFObjectReader.h>
 #include <mcld/LD/ELFDynObjReader.h>
 #include <mcld/LD/ELFBinaryReader.h>
+#include <mcld/LD/ELFObjectReader.h>
 #include <mcld/LD/ELFObjectWriter.h>
-#include <mcld/LD/ELFSegment.h>
-#include <mcld/LD/ELFSegmentFactory.h>
-#include <mcld/Target/ELFDynamic.h>
-#include <mcld/Target/GNUInfo.h>
-#include <mcld/Fragment/Relocation.h>
 
-#include <mcld/Support/GCFactory.h>
-#include <mcld/Module.h>
+#include <llvm/Support/ELF.h>
 
 namespace mcld {
 
@@ -43,6 +32,13 @@ class EhFrameHdr;
 class BranchIslandFactory;
 class StubFactory;
 class GNUInfo;
+class ELFFileFormat;
+class ELFSegmentFactory;
+class ELFDynamic;
+class ELFDynObjFileFormat;
+class ELFExecFileFormat;
+class ELFObjectFileFormat;
+class LinkerScript;
 
 /** \class GNULDBackend
  *  \brief GNULDBackend provides a common interface for all GNU Unix-OS
@@ -173,13 +169,13 @@ public:
   /// numOfSegments - return the number of segments
   /// if the target favors other ways to emit program header, please override
   /// this function
-  size_t numOfSegments() const { return m_ELFSegmentTable.size(); }
+  size_t numOfSegments() const;
 
   /// elfSegmentTable - return the reference of the elf segment table
-  ELFSegmentFactory&       elfSegmentTable()       { return m_ELFSegmentTable; }
+  ELFSegmentFactory&       elfSegmentTable();
 
   /// elfSegmentTable - return the reference of the elf segment table
-  const ELFSegmentFactory& elfSegmentTable() const { return m_ELFSegmentTable; }
+  const ELFSegmentFactory& elfSegmentTable() const;
 
   /// commonPageSize - the common page size of the target machine
   uint64_t commonPageSize() const;
@@ -201,52 +197,52 @@ public:
 
   /// readRelocation - read ELF32_Rel entry
   virtual bool readRelocation(const llvm::ELF::Elf32_Rel& pRel,
-                              Relocation::Type& pType,
+                              uint32_t& pType,
                               uint32_t& pSymIdx,
                               uint32_t& pOffset) const;
 
   /// readRelocation - read ELF32_Rela entry
   virtual bool readRelocation(const llvm::ELF::Elf32_Rela& pRel,
-                              Relocation::Type& pType,
+                              uint32_t& pType,
                               uint32_t& pSymIdx,
                               uint32_t& pOffset,
                               int32_t& pAddend) const;
 
   /// readRelocation - read ELF64_Rel entry
   virtual bool readRelocation(const llvm::ELF::Elf64_Rel& pRel,
-                              Relocation::Type& pType,
+                              uint32_t& pType,
                               uint32_t& pSymIdx,
                               uint64_t& pOffset) const;
 
   /// readRel - read ELF64_Rela entry
   virtual bool readRelocation(const llvm::ELF::Elf64_Rela& pRel,
-                              Relocation::Type& pType,
+                              uint32_t& pType,
                               uint32_t& pSymIdx,
                               uint64_t& pOffset,
                               int64_t& pAddend) const;
 
   /// emitRelocation - write data to the ELF32_Rel entry
   virtual void emitRelocation(llvm::ELF::Elf32_Rel& pRel,
-                              Relocation::Type pType,
+                              uint32_t pType,
                               uint32_t pSymIdx,
                               uint32_t pOffset) const;
 
   /// emitRelocation - write data to the ELF32_Rela entry
   virtual void emitRelocation(llvm::ELF::Elf32_Rela& pRel,
-                              Relocation::Type pType,
+                              uint32_t pType,
                               uint32_t pSymIdx,
                               uint32_t pOffset,
                               int32_t pAddend) const;
 
   /// emitRelocation - write data to the ELF64_Rel entry
   virtual void emitRelocation(llvm::ELF::Elf64_Rel& pRel,
-                              Relocation::Type pType,
+                              uint32_t pType,
                               uint32_t pSymIdx,
                               uint64_t pOffset) const;
 
   /// emitRelocation - write data to the ELF64_Rela entry
   virtual void emitRelocation(llvm::ELF::Elf64_Rela& pRel,
-                              Relocation::Type pType,
+                              uint32_t pType,
                               uint32_t pSymIdx,
                               uint64_t pOffset,
                               int64_t pAddend) const;
@@ -520,7 +516,7 @@ protected:
   GNUInfo* m_pInfo;
 
   // ELF segment factory
-  ELFSegmentFactory m_ELFSegmentTable;
+  ELFSegmentFactory* m_pELFSegmentTable;
 
   // branch island factory
   BranchIslandFactory* m_pBRIslandFactory;

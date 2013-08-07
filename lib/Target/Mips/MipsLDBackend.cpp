@@ -24,6 +24,7 @@
 #include <mcld/LD/BranchIslandFactory.h>
 #include <mcld/LD/LDContext.h>
 #include <mcld/LD/StubFactory.h>
+#include <mcld/LD/ELFFileFormat.h>
 #include <mcld/MC/Attribute.h>
 #include <mcld/Fragment/FillFragment.h>
 #include <mcld/Support/MemoryRegion.h>

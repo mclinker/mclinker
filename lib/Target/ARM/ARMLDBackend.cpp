@@ -28,17 +28,19 @@
 #include <mcld/Fragment/FillFragment.h>
 #include <mcld/Fragment/AlignFragment.h>
 #include <mcld/Fragment/RegionFragment.h>
+#include <mcld/Fragment/Stub.h>
+#include <mcld/Fragment/NullFragment.h>
 #include <mcld/Support/MemoryRegion.h>
 #include <mcld/Support/MemoryArea.h>
 #include <mcld/Support/MsgHandling.h>
 #include <mcld/Support/TargetRegistry.h>
-#include <mcld/Fragment/Stub.h>
 #include <mcld/LD/BranchIslandFactory.h>
 #include <mcld/LD/StubFactory.h>
-#include <mcld/Object/ObjectBuilder.h>
-#include <mcld/Fragment/NullFragment.h>
 #include <mcld/LD/LDContext.h>
+#include <mcld/LD/ELFFileFormat.h>
+#include <mcld/LD/ELFSegmentFactory.h>
 #include <mcld/Target/GNUInfo.h>
+#include <mcld/Object/ObjectBuilder.h>
 
 using namespace mcld;
 

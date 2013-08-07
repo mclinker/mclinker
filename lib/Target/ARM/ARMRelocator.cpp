@@ -15,6 +15,7 @@
 #include <llvm/Support/Host.h>
 #include <mcld/Support/MsgHandling.h>
 #include <mcld/LD/LDSymbol.h>
+#include <mcld/LD/ELFFileFormat.h>
 #include <mcld/Object/ObjectBuilder.h>
 #include "ARMRelocator.h"
 #include "ARMRelocationFunctions.h"

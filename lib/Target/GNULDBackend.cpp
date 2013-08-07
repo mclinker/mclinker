@@ -23,19 +23,26 @@
 #include <mcld/ADT/SizeTraits.h>
 #include <mcld/LD/LDSymbol.h>
 #include <mcld/LD/LDContext.h>
-#include <mcld/Fragment/FillFragment.h>
 #include <mcld/LD/EhFrame.h>
 #include <mcld/LD/EhFrameHdr.h>
 #include <mcld/LD/RelocData.h>
 #include <mcld/LD/RelocationFactory.h>
-#include <mcld/MC/Attribute.h>
+#include <mcld/LD/BranchIslandFactory.h>
+#include <mcld/LD/ELFSegmentFactory.h>
+#include <mcld/LD/StubFactory.h>
+#include <mcld/LD/ELFFileFormat.h>
+#include <mcld/LD/ELFObjectFileFormat.h>
+#include <mcld/LD/ELFDynObjFileFormat.h>
+#include <mcld/LD/ELFExecFileFormat.h>
+#include <mcld/Target/ELFDynamic.h>
+#include <mcld/Target/GNUInfo.h>
 #include <mcld/Support/MemoryArea.h>
 #include <mcld/Support/MemoryRegion.h>
 #include <mcld/Support/MsgHandling.h>
 #include <mcld/Support/MemoryAreaFactory.h>
-#include <mcld/LD/BranchIslandFactory.h>
-#include <mcld/LD/StubFactory.h>
 #include <mcld/Object/ObjectBuilder.h>
+#include <mcld/Fragment/FillFragment.h>
+#include <mcld/MC/Attribute.h>
 
 #include <llvm/Support/Host.h>
 
@@ -71,7 +78,7 @@ GNULDBackend::GNULDBackend(const LinkerConfig& pConfig, GNUInfo* pInfo)
     m_pExecFileFormat(NULL),
     m_pObjectFileFormat(NULL),
     m_pInfo(pInfo),
-    m_ELFSegmentTable(9), // magic number
+    m_pELFSegmentTable(NULL),
     m_pBRIslandFactory(NULL),
     m_pStubFactory(NULL),
     m_pEhFrameHdr(NULL),
@@ -96,11 +103,13 @@ GNULDBackend::GNULDBackend(const LinkerConfig& pConfig, GNUInfo* pInfo)
     f_pBSSStart(NULL),
     f_pEnd(NULL),
     f_p_End(NULL) {
+  m_pELFSegmentTable = new ELFSegmentFactory(9); // magic number
   m_pSymIndexMap = new HashTableType(1024);
 }
 
 GNULDBackend::~GNULDBackend()
 {
+  delete m_pELFSegmentTable;
   delete m_pInfo;
   delete m_pDynObjFileFormat;
   delete m_pExecFileFormat;
@@ -574,7 +583,7 @@ bool GNULDBackend::finalizeStandardSymbols()
 
   // -----  segment symbols  ----- //
   if (NULL != f_pExecutableStart) {
-    ELFSegment* exec_start = m_ELFSegmentTable.find(llvm::ELF::PT_LOAD, 0x0, 0x0);
+    ELFSegment* exec_start = m_pELFSegmentTable->find(llvm::ELF::PT_LOAD, 0x0, 0x0);
     if (NULL != exec_start) {
       if (ResolveInfo::ThreadLocal != f_pExecutableStart->type()) {
         f_pExecutableStart->setValue(f_pExecutableStart->value() +
@@ -586,7 +595,7 @@ bool GNULDBackend::finalizeStandardSymbols()
   }
 
   if (NULL != f_pEText || NULL != f_p_EText || NULL !=f_p__EText) {
-    ELFSegment* etext = m_ELFSegmentTable.find(llvm::ELF::PT_LOAD,
+    ELFSegment* etext = m_pELFSegmentTable->find(llvm::ELF::PT_LOAD,
                                                llvm::ELF::PF_X,
                                                llvm::ELF::PF_W);
     if (NULL != etext) {
@@ -618,7 +627,7 @@ bool GNULDBackend::finalizeStandardSymbols()
 
   if (NULL != f_pEData || NULL != f_p_EData || NULL != f_pBSSStart ||
       NULL != f_pEnd || NULL != f_p_End) {
-    ELFSegment* edata = m_ELFSegmentTable.find(llvm::ELF::PT_LOAD,
+    ELFSegment* edata = m_pELFSegmentTable->find(llvm::ELF::PT_LOAD,
                                                llvm::ELF::PF_W,
                                                0x0);
     if (NULL != edata) {
@@ -674,7 +683,7 @@ bool GNULDBackend::finalizeTLSSymbol(LDSymbol& pSymbol)
     return true;
 
   // the value of a TLS symbol is the offset to the TLS segment
-  ELFSegment* tls_seg = m_ELFSegmentTable.find(llvm::ELF::PT_TLS,
+  ELFSegment* tls_seg = m_pELFSegmentTable->find(llvm::ELF::PT_TLS,
                                                llvm::ELF::PF_R, 0x0);
   uint64_t value = pSymbol.fragRef()->getOutputOffset();
   uint64_t addr  = pSymbol.fragRef()->frag()->getParent()->getSection().addr();
@@ -1812,11 +1821,11 @@ void GNULDBackend::createProgramHdrs(Module& pModule)
   ELFFileFormat *file_format = getOutputFormat();
 
   // make PT_PHDR
-  m_ELFSegmentTable.produce(llvm::ELF::PT_PHDR);
+  m_pELFSegmentTable->produce(llvm::ELF::PT_PHDR);
 
   // make PT_INTERP
   if (file_format->hasInterp()) {
-    ELFSegment* interp_seg = m_ELFSegmentTable.produce(llvm::ELF::PT_INTERP);
+    ELFSegment* interp_seg = m_pELFSegmentTable->produce(llvm::ELF::PT_INTERP);
     interp_seg->addSection(&file_format->getInterp());
   }
 
@@ -1861,7 +1870,7 @@ void GNULDBackend::createProgramHdrs(Module& pModule)
 
     if (createPT_LOAD) {
       // create new PT_LOAD segment
-      load_seg = m_ELFSegmentTable.produce(llvm::ELF::PT_LOAD, cur_flag);
+      load_seg = m_pELFSegmentTable->produce(llvm::ELF::PT_LOAD, cur_flag);
       if (!config().options().nmagic() && !config().options().omagic())
         load_seg->setAlign(abiPageSize());
     }
@@ -1876,7 +1885,7 @@ void GNULDBackend::createProgramHdrs(Module& pModule)
 
   // make PT_DYNAMIC
   if (file_format->hasDynamic()) {
-    ELFSegment* dyn_seg = m_ELFSegmentTable.produce(llvm::ELF::PT_DYNAMIC,
+    ELFSegment* dyn_seg = m_pELFSegmentTable->produce(llvm::ELF::PT_DYNAMIC,
                                                     llvm::ELF::PF_R |
                                                     llvm::ELF::PF_W);
     dyn_seg->addSection(&file_format->getDynamic());
@@ -1884,7 +1893,7 @@ void GNULDBackend::createProgramHdrs(Module& pModule)
 
   if (config().options().hasRelro()) {
     // make PT_GNU_RELRO
-    ELFSegment* relro_seg = m_ELFSegmentTable.produce(llvm::ELF::PT_GNU_RELRO);
+    ELFSegment* relro_seg = m_pELFSegmentTable->produce(llvm::ELF::PT_GNU_RELRO);
     for (ELFSegmentFactory::iterator seg = elfSegmentTable().begin(),
          segEnd = elfSegmentTable().end(); seg != segEnd; ++seg) {
       if (llvm::ELF::PT_LOAD != (*seg).type())
@@ -1904,13 +1913,13 @@ void GNULDBackend::createProgramHdrs(Module& pModule)
 
   // make PT_GNU_EH_FRAME
   if (file_format->hasEhFrameHdr()) {
-    ELFSegment* eh_seg = m_ELFSegmentTable.produce(llvm::ELF::PT_GNU_EH_FRAME);
+    ELFSegment* eh_seg = m_pELFSegmentTable->produce(llvm::ELF::PT_GNU_EH_FRAME);
     eh_seg->addSection(&file_format->getEhFrameHdr());
   }
 
   // make PT_TLS
   if (file_format->hasTData() || file_format->hasTBSS()) {
-    ELFSegment* tls_seg = m_ELFSegmentTable.produce(llvm::ELF::PT_TLS);
+    ELFSegment* tls_seg = m_pELFSegmentTable->produce(llvm::ELF::PT_TLS);
     if (file_format->hasTData())
       tls_seg->addSection(&file_format->getTData());
     if (file_format->hasTBSS())
@@ -1919,7 +1928,7 @@ void GNULDBackend::createProgramHdrs(Module& pModule)
 
   // make PT_GNU_STACK
   if (file_format->hasStackNote()) {
-    m_ELFSegmentTable.produce(llvm::ELF::PT_GNU_STACK,
+    m_pELFSegmentTable->produce(llvm::ELF::PT_GNU_STACK,
                               llvm::ELF::PF_R |
                               llvm::ELF::PF_W |
                               getSegmentFlag(file_format->getStackNote().flag()));
@@ -1938,7 +1947,7 @@ void GNULDBackend::createProgramHdrs(Module& pModule)
     // create 2 segments if needed.
     if (note_seg == NULL ||
         (cur_flag & llvm::ELF::PF_W) != (prev_flag & llvm::ELF::PF_W))
-      note_seg = m_ELFSegmentTable.produce(llvm::ELF::PT_NOTE, cur_flag);
+      note_seg = m_pELFSegmentTable->produce(llvm::ELF::PT_NOTE, cur_flag);
 
     note_seg->addSection(*sect);
     prev_flag = cur_flag;
@@ -1953,8 +1962,8 @@ void GNULDBackend::setupProgramHdrs(const LinkerScript& pScript)
 {
   // update segment info
   uint64_t seg_start_addr = getSegmentStartAddr(pScript);
-  ELFSegmentFactory::iterator seg, seg_end = m_ELFSegmentTable.end();
-  for (seg = m_ELFSegmentTable.begin(); seg != seg_end; ++seg) {
+  ELFSegmentFactory::iterator seg, seg_end = m_pELFSegmentTable->end();
+  for (seg = m_pELFSegmentTable->begin(); seg != seg_end; ++seg) {
     ELFSegment& segment = *seg;
 
     // update PT_PHDR
@@ -2501,6 +2510,29 @@ bool GNULDBackend::isDynamicSymbol(const ResolveInfo& pResolveInfo) const
       return true;
   }
   return false;
+}
+
+/// numOfSegments - return the number of segments
+/// if the target favors other ways to emit program header, please override
+/// this function
+size_t GNULDBackend::numOfSegments() const
+{
+  assert(m_pELFSegmentTable != NULL && "Do not create ELFSegmentTable!");
+  return m_pELFSegmentTable->size();
+}
+
+/// elfSegmentTable - return the reference of the elf segment table
+ELFSegmentFactory& GNULDBackend::elfSegmentTable()
+{
+  assert(m_pELFSegmentTable != NULL && "Do not create ELFSegmentTable!");
+  return *m_pELFSegmentTable;
+}
+
+/// elfSegmentTable - return the reference of the elf segment table
+const ELFSegmentFactory& GNULDBackend::elfSegmentTable() const
+{
+  assert(m_pELFSegmentTable != NULL && "Do not create ELFSegmentTable!");
+  return *m_pELFSegmentTable;
 }
 
 /// commonPageSize - the common page size of the target machine.
