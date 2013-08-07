@@ -528,11 +528,15 @@ bin_PROGRAMS = ld.mcld ld.bcc
 if ENABLE_UNITTEST
 AM_CPPFLAGS = -g -DTOPDIR=\"${abs_top_srcdir}\" -DENABLE_UNITTEST -DMCLD_DEBUG -I$(TOPLEVEL)/utils/gtest/include -I$(TOPLEVEL)/include -I$(TOPLEVEL)/unittests -I$(BUILDTOP)/include ${LLVM_CPPFLAGS} -DGTEST_HAS_RTTI=0 ${ANDROID_CPPFLAGS} -I$(TOOLDIR)/mcld/include -I$(BUILDTOP)/tools/bcc/include -I$(INCDIR)/Script
 
+###################
+# ld.mcld
 ld_mcld_CPPFLAGS = -g -DTOPDIR=\"${abs_top_srcdir}\" -DENABLE_UNITTEST -DMCLD_DEBUG -I$(TOPLEVEL)/utils/gtest/include -I$(TOPLEVEL)/include -I$(TOPLEVEL)/unittests -I$(BUILDTOP)/include ${LLVM_CPPFLAGS} -DGTEST_HAS_RTTI=0 ${ANDROID_CPPFLAGS}
 
 ld_mcld_LDFLAGS = -L$(BUILDTOP)/utils/gtest/lib -lgtest ${LLVM_LDFLAGS}
 ld_mcld_LDADD = libmcld.a
 
+###################
+# ld.bcc
 ld_bcc_CPPFLAGS = -g -DTOPDIR=\"${abs_top_srcdir}\" -DENABLE_UNITTEST -DMCLD_DEBUG -I$(TOPLEVEL)/utils/gtest/include -I$(TOPLEVEL)/include -I$(TOPLEVEL)/unittests -I$(BUILDTOP)/include ${LLVM_CPPFLAGS} -DGTEST_HAS_RTTI=0 ${ANDROID_CPPFLAGS} -I$(TOPLEVEL)/tools/bcc/include -I$(BUILDTOP)/tools/bcc/include
 
 ld_bcc_LDFLAGS = -L$(BUILDTOP)/utils/gtest/lib -lgtest ${LLVM_LDFLAGS}
@@ -540,20 +544,28 @@ ld_bcc_LDADD = libmcld.a
 else
 AM_CPPFLAGS = -g -I$(TOPLEVEL)/include -I$(TOPLEVEL)/include -I$(BUILDTOP)/include ${LLVM_CPPFLAGS} ${ANDROID_CPPFLAGS} -I$(INCDIR)/Script
 
+###################
+# ld.mcld
 ld_mcld_CPPFLAGS = -g -I$(TOPLEVEL)/include -I$(BUILDTOP)/include ${LLVM_CPPFLAGS} ${ANDROID_CPPFLAGS}
 
 ld_mcld_LDFLAGS = ${LLVM_LDFLAGS}
 ld_mcld_LDADD = libmcld.a
 
+###################
+# ld.bcc
 ld_bcc_CPPFLAGS = -g -I$(TOPLEVEL)/include -I$(BUILDTOP)/include ${LLVM_CPPFLAGS} ${ANDROID_CPPFLAGS} -I$(TOPLEVEL)/tools/bcc/include -I$(BUILDTOP)/tools/bcc/include
 
 ld_bcc_LDFLAGS = ${LLVM_LDFLAGS}
 ld_bcc_LDADD = libmcld.a
 endif
 
+###################
+# ld.mcld
 dist_ld_mcld_SOURCES = ${TOOLDIR}/ld.mcld/main.cpp \
     ${UNITTEST_SOURCE}
 
+###################
+# ld.bcc
 dist_ld_bcc_SOURCES = ${TOOLDIR}/bcc/main.cpp \
     ${TOOLDIR}/bcc/include/bcc/Linker.h \
     ${TOOLDIR}/bcc/lib/Core/Linker.cpp \

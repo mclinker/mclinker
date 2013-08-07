@@ -1,4 +1,4 @@
-; RUN: %MCLinker -march=mips64el -filetype=dso -shared \
+; RUN: %MCLinker -mtriple=mips64el-linux-gnueabi -filetype=dso -shared \
 ; RUN: %p/../../libs/MIPS/Linux/64/crti.o \
 ; RUN: %p/../../libs/MIPS/Linux/64/crtbeginS.o \
 ; RUN: %p/foo64.o \

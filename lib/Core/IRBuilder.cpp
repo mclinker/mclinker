@@ -66,6 +66,7 @@ LDFileFormat::Kind GetELFSectionKind(uint32_t pType, const char* pName,
   case llvm::ELF::SHT_STRTAB:
   case llvm::ELF::SHT_HASH:
   case llvm::ELF::SHT_DYNAMIC:
+  case llvm::ELF::SHT_SYMTAB_SHNDX:
     return LDFileFormat::NamePool;
   case llvm::ELF::SHT_RELA:
   case llvm::ELF::SHT_REL:
