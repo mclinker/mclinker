@@ -32,8 +32,12 @@ public:
 
   ~AssertCmd();
 
+  AssertCmd& operator=(const AssertCmd& pAssertCmd);
+
   const RpnExpr& getRpnExpr() const { return m_RpnExpr; }
   RpnExpr&       getRpnExpr()       { return m_RpnExpr; }
+
+  const std::string& message() const { return m_Message; }
 
   void dump() const;
 

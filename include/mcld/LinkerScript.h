@@ -20,6 +20,7 @@
 #include <mcld/Object/SectionMap.h>
 #include <mcld/MC/SearchDirs.h>
 #include <mcld/Script/Assignment.h>
+#include <mcld/Script/AssertCmd.h>
 
 namespace mcld {
 
@@ -41,6 +42,8 @@ public:
 
   typedef std::vector<std::pair<LDSymbol*, Assignment> > Assignments;
 
+  typedef std::vector<AssertCmd> Assertions;
+
 public:
   LinkerScript();
 
@@ -57,6 +60,9 @@ public:
 
   const Assignments& assignments() const { return m_Assignments; }
   Assignments&       assignments()       { return m_Assignments; }
+
+  const Assertions& assertions() const { return m_Assertions; }
+  Assertions&       assertions()       { return m_Assertions; }
 
   /// search directory
   const SearchDirs& directories() const { return m_SearchDirs; }
@@ -88,6 +94,7 @@ private:
   AddressMap m_AddressMap;
   SectionMap m_SectionMap;
   Assignments m_Assignments;
+  Assertions m_Assertions;
   SearchDirs m_SearchDirs;
   std::string m_Entry;
   std::string m_OutputFile;

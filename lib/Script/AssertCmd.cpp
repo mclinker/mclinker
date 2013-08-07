@@ -9,6 +9,8 @@
 #include <mcld/Script/AssertCmd.h>
 #include <mcld/Script/RpnExpr.h>
 #include <mcld/Support/raw_ostream.h>
+#include <mcld/Module.h>
+
 #include <cassert>
 
 using namespace mcld;
@@ -27,6 +29,11 @@ AssertCmd::~AssertCmd()
 {
 }
 
+AssertCmd& AssertCmd::operator=(const AssertCmd& pAssertCmd)
+{
+  return *this;
+}
+
 void AssertCmd::dump() const
 {
   mcld::outs() << "Assert ( ";
@@ -38,5 +45,5 @@ void AssertCmd::dump() const
 
 void AssertCmd::activate(Module& pModule)
 {
- // TODO
+  pModule.getScript().assertions().push_back(*this);
 }

@@ -30,6 +30,7 @@
 #include <mcld/Script/ScriptReader.h>
 #include <mcld/Script/Assignment.h>
 #include <mcld/Script/Operand.h>
+#include <mcld/Script/RpnEvaluator.h>
 #include <mcld/Support/RealPath.h>
 #include <mcld/Support/MemoryArea.h>
 #include <mcld/Support/MemoryRegion.h>
@@ -566,7 +567,8 @@ bool ObjectLinker::finalizeSymbolValue()
       // And the symbol's value become section relative offset.
       uint64_t value = (*symbol)->fragRef()->getOutputOffset();
       assert(NULL != (*symbol)->fragRef()->frag());
-      uint64_t addr = (*symbol)->fragRef()->frag()->getParent()->getSection().addr();
+      uint64_t addr =
+        (*symbol)->fragRef()->frag()->getParent()->getSection().addr();
       (*symbol)->setValue(value + addr);
       continue;
     }
@@ -575,10 +577,11 @@ bool ObjectLinker::finalizeSymbolValue()
   bool finalized = m_LDBackend.finalizeSymbols();
   bool scriptSymsFinalized = true;
   LinkerScript& script = m_pModule->getScript();
-  LinkerScript::Assignments::iterator it, ie = script.assignments().end();
-  for (it = script.assignments().begin(); it != ie; ++it) {
-    LDSymbol* symbol = (*it).first;
-    Assignment& assignment = (*it).second;
+  LinkerScript::Assignments::iterator assign, assignEnd;
+  assignEnd = script.assignments().end();
+  for (assign = script.assignments().begin(); assign != assignEnd; ++assign) {
+    LDSymbol* symbol = (*assign).first;
+    Assignment& assignment = (*assign).second;
 
     if (symbol == NULL)
       continue;
@@ -590,7 +593,18 @@ bool ObjectLinker::finalizeSymbolValue()
     symbol->setValue(assignment.symbol().value());
   } // for each script symbol assignment
 
-  return finalized && scriptSymsFinalized;
+  bool assertionsPassed = true;
+  RpnEvaluator evaluator(*m_pModule, m_LDBackend);
+  LinkerScript::Assertions::iterator assert, assertEnd;
+  assertEnd = script.assertions().end();
+  for (assert = script.assertions().begin(); assert != assertEnd; ++assert) {
+    uint64_t res = 0x0;
+    evaluator.eval((*assert).getRpnExpr(), res);
+    if (res == 0x0)
+      fatal(diag::err_assert_failed) << (*assert).message();
+  } // for each assertion in ldscript
+
+  return finalized && scriptSymsFinalized && assertionsPassed;
 }
 
 /// relocate - applying relocation entries and create relocation
