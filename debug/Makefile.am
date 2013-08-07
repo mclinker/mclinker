@@ -11,10 +11,6 @@ AM_CXXFLAGS = \
 	@NO_COVERED_SWITCH_DEFAULT@ \
 	@NO_C99_EXTENSIONS@
 
-BUILT_SOURCES = ScriptParser.cc
-AM_YFLAGS = -d
-AM_LFLAGS = -olex.yy.c
-
 HEADER = ${INCDIR}/ADT/Uncopyable.h \
 	${INCDIR}/ADT/TypeTraits.h \
 	${INCDIR}/ADT/SizeTraits.h \
@@ -475,8 +471,6 @@ LINKERSCRIPT_HEADER = \
 	${INCDIR}/Script/RpnExpr.h \
 	${INCDIR}/Script/RpnEvaluator.h \
 	${INCDIR}/Script/ScriptFile.h \
-	${INCDIR}/Script/FlexLexer.h \
-	${INCDIR}/Script/ScriptScanner.h \
 	${INCDIR}/Script/ScriptReader.h
 
 LINKERSCRIPT_SOURCE = \
@@ -507,8 +501,15 @@ LINKERSCRIPT_SOURCE = \
 	${LIBDIR}/Script/RpnExpr.cpp \
 	${LIBDIR}/Script/RpnEvaluator.cpp \
 	${LIBDIR}/Script/ScriptFile.cpp \
-	${LIBDIR}/Script/ScriptParser.yy \
-	${LIBDIR}/Script/ScriptScanner.ll \
+	${LIBDIR}/Script/FlexLexer.h \
+	${LIBDIR}/Script/ScriptScanner.h \
+	${LIBDIR}/Script/ScriptParser.cc \
+	${LIBDIR}/Script/ScriptParser.h \
+	${LIBDIR}/Script/ScriptScanner.cc \
+	${LIBDIR}/Script/ScriptScanner.h \
+	${LIBDIR}/Script/location.hh \
+	${LIBDIR}/Script/position.hh \
+	${LIBDIR}/Script/stack.hh \
 	${LIBDIR}/Script/ScriptReader.cpp
 
 ANDROID_CPPFLAGS=-fno-rtti -fno-exceptions -Waddress -Wchar-subscripts -Wcomment -Wformat -Wparentheses -Wreorder -Wreturn-type -Wsequence-point -Wstrict-aliasing -Wstrict-overflow=1 -Wswitch -Wtrigraphs -Wuninitialized -Wunknown-pragmas -Wunused-function -Wunused-label -Wunused-value -Wunused-variable -Wvolatile-register-var

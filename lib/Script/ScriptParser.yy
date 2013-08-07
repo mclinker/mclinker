@@ -10,7 +10,6 @@
 %{
 /* C/C++ Declarations */
 #include <mcld/Script/ScriptReader.h>
-#include <mcld/Script/ScriptScanner.h>
 #include <mcld/Script/Operand.h>
 #include <mcld/Script/Operator.h>
 #include <mcld/Script/Assignment.h>
@@ -19,6 +18,7 @@
 #include <mcld/Script/NameSpec.h>
 #include <mcld/Script/WildcardPattern.h>
 #include <mcld/Support/MsgHandling.h>
+#include "ScriptScanner.h"
 
 #undef yylex
 #define yylex m_ScriptScanner.lex
