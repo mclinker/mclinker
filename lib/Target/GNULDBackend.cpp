@@ -725,6 +725,18 @@ const ELFFileFormat* GNULDBackend::getOutputFormat() const
   }
 }
 
+/// sizeShstrtab - compute the size of .shstrtab
+void GNULDBackend::sizeShstrtab(Module& pModule)
+{
+  size_t shstrtab = 0;
+  // compute the size of .shstrtab section.
+  Module::const_iterator sect, sectEnd = pModule.end();
+  for (sect = pModule.begin(); sect != sectEnd; ++sect) {
+    shstrtab += (*sect)->name().size() + 1;
+  } // end of for
+  getOutputFormat()->getShStrTab().setSize(shstrtab);
+}
+
 /// sizeNamePools - compute the size of regular name pools
 /// In ELF executable files, regular name pools are .symtab, .strtab,
 /// .dynsym, .dynstr, .hash and .shstrtab.
@@ -741,7 +753,6 @@ void GNULDBackend::sizeNamePools(Module& pModule)
   // first byte
   size_t strtab   = 1;
   size_t dynstr   = config().isCodeStatic()? 0 : 1;
-  size_t shstrtab = 1;
   size_t hash     = 0;
   size_t gnuhash  = 0;
 
@@ -864,38 +875,9 @@ void GNULDBackend::sizeNamePools(Module& pModule)
       // index of the last local symbol
       file_format->getSymTab().setInfo(symtab_local_cnt);
 
-      // compute the size of .shstrtab section.
-      Module::const_iterator sect, sectEnd = pModule.end();
-      for (sect = pModule.begin(); sect != sectEnd; ++sect) {
-        switch ((*sect)->kind()) {
-        case LDFileFormat::Null:
-          break;
-        // take StackNote directly
-        case LDFileFormat::StackNote:
-          shstrtab += ((*sect)->name().size() + 1);
-          break;
-        case LDFileFormat::EhFrame:
-          if (((*sect)->size() != 0) ||
-              ((*sect)->hasEhFrame() &&
-               config().codeGenType() == LinkerConfig::Object))
-            shstrtab += ((*sect)->name().size() + 1);
-          break;
-        case LDFileFormat::Relocation:
-          if (((*sect)->size() != 0) ||
-              ((*sect)->hasRelocData() &&
-               config().codeGenType() == LinkerConfig::Object))
-            shstrtab += ((*sect)->name().size() + 1);
-          break;
-        default:
-          if (((*sect)->size() != 0) ||
-              ((*sect)->hasSectionData() &&
-               config().codeGenType() == LinkerConfig::Object))
-            shstrtab += ((*sect)->name().size() + 1);
-          break;
-        } // end of switch
-      } // end of for
-      shstrtab += (strlen(".shstrtab") + 1);
-      file_format->getShStrTab().setSize(shstrtab);
+      // The size of .shstrtab should be decided after output sections are all
+      // set, so we just set it to 1 here.
+      file_format->getShStrTab().setSize(0x1);
       break;
     }
     default:
@@ -2529,12 +2511,15 @@ void GNULDBackend::layout(Module& pModule)
     }
   } // for each output section description
 
-  // 4. create program headers
+  // 4. update the size of .shstrtab
+  sizeShstrtab(pModule);
+
+  // 5. create program headers
   if (LinkerConfig::Object != config().codeGenType()) {
     createProgramHdrs(pModule);
   }
 
-  // 5. set output section offset
+  // 6. set output section address/offset
   if (LinkerConfig::Object != config().codeGenType())
     setOutputSectionAddress(pModule);
   else

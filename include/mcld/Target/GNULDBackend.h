@@ -111,6 +111,9 @@ public:
   /// getSegmentStartAddr - this function returns the start address of the segment
   uint64_t getSegmentStartAddr(const LinkerScript& pScript) const;
 
+  /// sizeShstrtab - compute the size of .shstrtab
+  void sizeShstrtab(Module& pModule);
+
   /// sizeNamePools - compute the size of regular name pools
   /// In ELF executable files, regular name pools are .symtab, .strtab.,
   /// .dynsym, .dynstr, and .hash
