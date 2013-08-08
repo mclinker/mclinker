@@ -419,7 +419,8 @@ LINKERSCRIPT_HEADER = \
 	${INCDIR}/Script/RpnExpr.h \
 	${INCDIR}/Script/RpnEvaluator.h \
 	${INCDIR}/Script/ScriptFile.h \
-	${INCDIR}/Script/ScriptReader.h
+	${INCDIR}/Script/ScriptReader.h \
+	${INCDIR}/Script/FlexLexer.h
 
 LINKERSCRIPT_SOURCE = \
 	${LIBDIR}/Script/StrToken.cpp \
@@ -449,7 +450,6 @@ LINKERSCRIPT_SOURCE = \
 	${LIBDIR}/Script/RpnExpr.cpp \
 	${LIBDIR}/Script/RpnEvaluator.cpp \
 	${LIBDIR}/Script/ScriptFile.cpp \
-	${LIBDIR}/Script/FlexLexer.h \
 	${LIBDIR}/Script/ScriptScanner.h \
 	${LIBDIR}/Script/ScriptParser.cc \
 	${LIBDIR}/Script/ScriptParser.h \
