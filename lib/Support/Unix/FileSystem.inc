@@ -15,6 +15,7 @@
 #include <fcntl.h>
 #include <mcld/Support/FileHandle.h>
 #include <mcld/Support/Directory.h>
+#include <llvm/Support/ErrorHandling.h>
 
 namespace mcld{
 namespace sys{

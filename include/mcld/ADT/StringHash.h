@@ -13,8 +13,8 @@
 #endif
 #include <llvm/ADT/StringRef.h>
 #include <llvm/Support/DataTypes.h>
-#include <llvm/Support/ErrorHandling.h>
 #include <cctype>
+#include <cassert>
 #include <functional>
 
 namespace mcld {
@@ -43,7 +43,8 @@ struct StringHash : public std::unary_function<const llvm::StringRef&, uint32_t>
 {
   uint32_t operator()(const llvm::StringRef& pKey) const
   {
-    llvm::report_fatal_error("Undefined StringHash function.\n");
+    assert(false && "Undefined StringHash function.\n");
+    return 0;
   }
 };
 
