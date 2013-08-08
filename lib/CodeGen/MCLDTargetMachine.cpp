@@ -59,7 +59,6 @@ using namespace llvm;
 // Enable or disable FastISel. Both options are needed, because
 // FastISel is enabled by default with -fast, and we wish to be
 // able to enable or disable fast-isel independently from -O0.
-
 static cl::opt<cl::boolOrDefault>
 ArgEnableFastISelOption("lfast-isel", cl::Hidden,
   cl::desc("Enable the \"fast\" instruction selector"));
