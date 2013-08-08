@@ -13,6 +13,7 @@
 #include <mcld/LD/EhFrame.h>
 #include <mcld/LD/SectionData.h>
 #include <mcld/Target/GNULDBackend.h>
+#include <mcld/Target/GNUInfo.h>
 #include <mcld/Support/MemoryRegion.h>
 #include <mcld/Support/MsgHandling.h>
 #include <mcld/Object/ObjectBuilder.h>

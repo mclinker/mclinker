@@ -20,9 +20,10 @@
 
 #include <mcld/ADT/SizeTraits.h>
 #include <mcld/Target/GOT.h>
+#include <mcld/Fragment/Relocation.h>
 
-namespace mcld
-{
+namespace mcld {
+
 class Input;
 class LDSection;
 class LDSymbol;

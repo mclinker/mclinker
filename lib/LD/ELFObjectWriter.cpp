@@ -27,6 +27,8 @@
 #include <mcld/LD/ELFSegmentFactory.h>
 #include <mcld/LD/RelocData.h>
 #include <mcld/LD/EhFrame.h>
+#include <mcld/LD/ELFFileFormat.h>
+#include <mcld/Target/GNUInfo.h>
 
 #include <llvm/Support/ErrorHandling.h>
 #include <llvm/Support/system_error.h>

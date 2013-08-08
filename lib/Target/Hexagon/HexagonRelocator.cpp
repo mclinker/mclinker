@@ -6,16 +6,16 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-
-#include <llvm/ADT/Twine.h>
-#include <mcld/LD/LDSymbol.h>
-#include <llvm/Support/DataTypes.h>
-#include <llvm/Support/ELF.h>
-#include <mcld/Support/MsgHandling.h>
-
 #include "HexagonRelocator.h"
 #include "HexagonRelocationFunctions.h"
 #include "HexagonEncodings.h"
+#include <llvm/ADT/Twine.h>
+#include <llvm/Support/DataTypes.h>
+#include <llvm/Support/ELF.h>
+
+#include <mcld/LD/ELFFileFormat.h>
+#include <mcld/LD/LDSymbol.h>
+#include <mcld/Support/MsgHandling.h>
 
 using namespace mcld;
 

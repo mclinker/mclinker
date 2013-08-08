@@ -17,6 +17,7 @@
 
 #include <mcld/LinkerConfig.h>
 #include <mcld/IRBuilder.h>
+#include <mcld/LD/ELFFileFormat.h>
 #include <mcld/Fragment/FillFragment.h>
 #include <mcld/Fragment/RegionFragment.h>
 #include <mcld/Support/MemoryRegion.h>

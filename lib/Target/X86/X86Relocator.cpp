@@ -13,6 +13,9 @@
 #include <mcld/IRBuilder.h>
 #include <mcld/Support/MsgHandling.h>
 #include <mcld/LD/LDSymbol.h>
+#include <mcld/LD/ELFFileFormat.h>
+#include <mcld/LD/ELFSegmentFactory.h>
+#include <mcld/LD/ELFSegment.h>
 #include <mcld/Object/ObjectBuilder.h>
 
 #include <llvm/ADT/Twine.h>

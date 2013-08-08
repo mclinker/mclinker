@@ -23,23 +23,31 @@
 #include <mcld/ADT/SizeTraits.h>
 #include <mcld/LD/LDSymbol.h>
 #include <mcld/LD/LDContext.h>
-#include <mcld/Fragment/FillFragment.h>
 #include <mcld/LD/EhFrame.h>
 #include <mcld/LD/EhFrameHdr.h>
 #include <mcld/LD/RelocData.h>
 #include <mcld/LD/RelocationFactory.h>
-#include <mcld/MC/Attribute.h>
+#include <mcld/LD/BranchIslandFactory.h>
+#include <mcld/LD/ELFSegmentFactory.h>
+#include <mcld/LD/ELFSegment.h>
+#include <mcld/LD/StubFactory.h>
+#include <mcld/LD/ELFFileFormat.h>
+#include <mcld/LD/ELFObjectFileFormat.h>
+#include <mcld/LD/ELFDynObjFileFormat.h>
+#include <mcld/LD/ELFExecFileFormat.h>
+#include <mcld/Target/ELFDynamic.h>
+#include <mcld/Target/GNUInfo.h>
 #include <mcld/Support/MemoryArea.h>
 #include <mcld/Support/MemoryRegion.h>
 #include <mcld/Support/MsgHandling.h>
 #include <mcld/Support/MemoryAreaFactory.h>
-#include <mcld/LD/BranchIslandFactory.h>
-#include <mcld/LD/StubFactory.h>
 #include <mcld/Object/ObjectBuilder.h>
 #include <mcld/Object/SectionMap.h>
 #include <mcld/Script/RpnEvaluator.h>
 #include <mcld/Script/Operand.h>
 #include <mcld/Script/OutputSectDesc.h>
+#include <mcld/Fragment/FillFragment.h>
+#include <mcld/MC/Attribute.h>
 
 #include <llvm/Support/Host.h>
 
@@ -75,6 +83,7 @@ GNULDBackend::GNULDBackend(const LinkerConfig& pConfig, GNUInfo* pInfo)
     m_pExecFileFormat(NULL),
     m_pObjectFileFormat(NULL),
     m_pInfo(pInfo),
+    m_pELFSegmentTable(NULL),
     m_pBRIslandFactory(NULL),
     m_pStubFactory(NULL),
     m_pEhFrameHdr(NULL),
@@ -99,11 +108,13 @@ GNULDBackend::GNULDBackend(const LinkerConfig& pConfig, GNUInfo* pInfo)
     f_pBSSStart(NULL),
     f_pEnd(NULL),
     f_p_End(NULL) {
+  m_pELFSegmentTable = new ELFSegmentFactory();
   m_pSymIndexMap = new HashTableType(1024);
 }
 
 GNULDBackend::~GNULDBackend()
 {
+  delete m_pELFSegmentTable;
   delete m_pInfo;
   delete m_pDynObjFileFormat;
   delete m_pExecFileFormat;
@@ -122,10 +133,10 @@ size_t GNULDBackend::sectionStartOffset() const
   switch (config().targets().bitclass()) {
     case 32u:
       return sizeof(llvm::ELF::Elf32_Ehdr) +
-             m_ELFSegmentTable.size() * sizeof(llvm::ELF::Elf32_Phdr);
+             elfSegmentTable().size() * sizeof(llvm::ELF::Elf32_Phdr);
     case 64u:
       return sizeof(llvm::ELF::Elf64_Ehdr) +
-             m_ELFSegmentTable.size() * sizeof(llvm::ELF::Elf64_Phdr);
+             elfSegmentTable().size() * sizeof(llvm::ELF::Elf64_Phdr);
     default:
       fatal(diag::unsupported_bitclass) << config().targets().triple().str()
                                         << config().targets().bitclass();
@@ -578,8 +589,8 @@ bool GNULDBackend::finalizeStandardSymbols()
   // -----  segment symbols  ----- //
   if (NULL != f_pExecutableStart) {
     ELFSegmentFactory::const_iterator exec_start =
-      m_ELFSegmentTable.find(llvm::ELF::PT_LOAD, 0x0, 0x0);
-    if (m_ELFSegmentTable.end() != exec_start) {
+      elfSegmentTable().find(llvm::ELF::PT_LOAD, 0x0, 0x0);
+    if (elfSegmentTable().end() != exec_start) {
       if (ResolveInfo::ThreadLocal != f_pExecutableStart->type()) {
         f_pExecutableStart->setValue(f_pExecutableStart->value() +
                                      (*exec_start)->vaddr());
@@ -591,10 +602,10 @@ bool GNULDBackend::finalizeStandardSymbols()
 
   if (NULL != f_pEText || NULL != f_p_EText || NULL !=f_p__EText) {
     ELFSegmentFactory::const_iterator etext =
-      m_ELFSegmentTable.find(llvm::ELF::PT_LOAD,
+      elfSegmentTable().find(llvm::ELF::PT_LOAD,
                              llvm::ELF::PF_X,
                              llvm::ELF::PF_W);
-    if (m_ELFSegmentTable.end() != etext) {
+    if (elfSegmentTable().end() != etext) {
       if (NULL != f_pEText && ResolveInfo::ThreadLocal != f_pEText->type()) {
         f_pEText->setValue(f_pEText->value() +
                            (*etext)->vaddr() +
@@ -624,8 +635,8 @@ bool GNULDBackend::finalizeStandardSymbols()
   if (NULL != f_pEData || NULL != f_p_EData || NULL != f_pBSSStart ||
       NULL != f_pEnd || NULL != f_p_End) {
     ELFSegmentFactory::const_iterator edata =
-      m_ELFSegmentTable.find(llvm::ELF::PT_LOAD, llvm::ELF::PF_W, 0x0);
-    if (m_ELFSegmentTable.end() != edata) {
+      elfSegmentTable().find(llvm::ELF::PT_LOAD, llvm::ELF::PF_W, 0x0);
+    if (elfSegmentTable().end() != edata) {
       if (NULL != f_pEData && ResolveInfo::ThreadLocal != f_pEData->type()) {
         f_pEData->setValue(f_pEData->value() +
                            (*edata)->vaddr() +
@@ -679,8 +690,8 @@ bool GNULDBackend::finalizeTLSSymbol(LDSymbol& pSymbol)
 
   // the value of a TLS symbol is the offset to the TLS segment
   ELFSegmentFactory::iterator tls_seg =
-    m_ELFSegmentTable.find(llvm::ELF::PT_TLS, llvm::ELF::PF_R, 0x0);
-  assert(tls_seg != m_ELFSegmentTable.end());
+    elfSegmentTable().find(llvm::ELF::PT_TLS, llvm::ELF::PF_R, 0x0);
+  assert(tls_seg != elfSegmentTable().end());
   uint64_t value = pSymbol.fragRef()->getOutputOffset();
   uint64_t addr  = pSymbol.fragRef()->frag()->getParent()->getSection().addr();
   pSymbol.setValue(value + addr - (*tls_seg)->vaddr());
@@ -1801,9 +1812,9 @@ void GNULDBackend::createProgramHdrs(Module& pModule)
   // make PT_INTERP
   if (file_format->hasInterp()) {
     // make PT_PHDR
-    m_ELFSegmentTable.produce(llvm::ELF::PT_PHDR);
+    elfSegmentTable().produce(llvm::ELF::PT_PHDR);
 
-    ELFSegment* interp_seg = m_ELFSegmentTable.produce(llvm::ELF::PT_INTERP);
+    ELFSegment* interp_seg = elfSegmentTable().produce(llvm::ELF::PT_INTERP);
     interp_seg->append(&file_format->getInterp());
   }
 
@@ -1855,7 +1866,7 @@ void GNULDBackend::createProgramHdrs(Module& pModule)
 
     if (createPT_LOAD) {
       // create new PT_LOAD segment
-      load_seg = m_ELFSegmentTable.produce(llvm::ELF::PT_LOAD, cur_flag);
+      load_seg = elfSegmentTable().produce(llvm::ELF::PT_LOAD, cur_flag);
       if (!config().options().nmagic() && !config().options().omagic())
         load_seg->setAlign(abiPageSize());
     }
@@ -1870,7 +1881,7 @@ void GNULDBackend::createProgramHdrs(Module& pModule)
 
   // make PT_DYNAMIC
   if (file_format->hasDynamic()) {
-    ELFSegment* dyn_seg = m_ELFSegmentTable.produce(llvm::ELF::PT_DYNAMIC,
+    ELFSegment* dyn_seg = elfSegmentTable().produce(llvm::ELF::PT_DYNAMIC,
                                                     llvm::ELF::PF_R |
                                                     llvm::ELF::PF_W);
     dyn_seg->append(&file_format->getDynamic());
@@ -1878,9 +1889,9 @@ void GNULDBackend::createProgramHdrs(Module& pModule)
 
   if (config().options().hasRelro()) {
     // make PT_GNU_RELRO
-    ELFSegment* relro_seg = m_ELFSegmentTable.produce(llvm::ELF::PT_GNU_RELRO);
-    for (ELFSegmentFactory::iterator seg = m_ELFSegmentTable.begin(),
-      segEnd = m_ELFSegmentTable.end(); seg != segEnd; ++seg) {
+    ELFSegment* relro_seg = elfSegmentTable().produce(llvm::ELF::PT_GNU_RELRO);
+    for (ELFSegmentFactory::iterator seg = elfSegmentTable().begin(),
+      segEnd = elfSegmentTable().end(); seg != segEnd; ++seg) {
       if (llvm::ELF::PT_LOAD != (*seg)->type())
         continue;
 
@@ -1898,13 +1909,13 @@ void GNULDBackend::createProgramHdrs(Module& pModule)
 
   // make PT_GNU_EH_FRAME
   if (file_format->hasEhFrameHdr()) {
-    ELFSegment* eh_seg = m_ELFSegmentTable.produce(llvm::ELF::PT_GNU_EH_FRAME);
+    ELFSegment* eh_seg = elfSegmentTable().produce(llvm::ELF::PT_GNU_EH_FRAME);
     eh_seg->append(&file_format->getEhFrameHdr());
   }
 
   // make PT_TLS
   if (file_format->hasTData() || file_format->hasTBSS()) {
-    ELFSegment* tls_seg = m_ELFSegmentTable.produce(llvm::ELF::PT_TLS);
+    ELFSegment* tls_seg = elfSegmentTable().produce(llvm::ELF::PT_TLS);
     if (file_format->hasTData())
       tls_seg->append(&file_format->getTData());
     if (file_format->hasTBSS())
@@ -1913,7 +1924,7 @@ void GNULDBackend::createProgramHdrs(Module& pModule)
 
   // make PT_GNU_STACK
   if (file_format->hasStackNote()) {
-    m_ELFSegmentTable.produce(llvm::ELF::PT_GNU_STACK,
+    elfSegmentTable().produce(llvm::ELF::PT_GNU_STACK,
                               llvm::ELF::PF_R |
                               llvm::ELF::PF_W |
                               getSegmentFlag(file_format->getStackNote().flag()));
@@ -1935,7 +1946,7 @@ void GNULDBackend::createProgramHdrs(Module& pModule)
     // create 2 segments if needed.
     if (note_seg == NULL ||
         (cur_flag & llvm::ELF::PF_W) != (prev_flag & llvm::ELF::PF_W))
-      note_seg = m_ELFSegmentTable.produce(llvm::ELF::PT_NOTE, cur_flag);
+      note_seg = elfSegmentTable().produce(llvm::ELF::PT_NOTE, cur_flag);
 
     note_seg->append(*sect);
     prev_flag = cur_flag;
@@ -1949,8 +1960,8 @@ void GNULDBackend::createProgramHdrs(Module& pModule)
 void GNULDBackend::setupProgramHdrs(const LinkerScript& pScript)
 {
   // update segment info
-  for (ELFSegmentFactory::iterator seg = m_ELFSegmentTable.begin(),
-    segEnd = m_ELFSegmentTable.end(); seg != segEnd; ++seg) {
+  for (ELFSegmentFactory::iterator seg = elfSegmentTable().begin(),
+    segEnd = elfSegmentTable().end(); seg != segEnd; ++seg) {
 
     // bypass if there is no section in this segment (e.g., PT_GNU_STACK)
     if ((*seg)->size() == 0)
@@ -2000,11 +2011,11 @@ void GNULDBackend::setupProgramHdrs(const LinkerScript& pScript)
   // handle the case if text segment only has NULL section
   LDSection* null_sect = &getOutputFormat()->getNULLSection();
   ELFSegmentFactory::iterator null_seg =
-    m_ELFSegmentTable.find(llvm::ELF::PT_LOAD, null_sect);
+    elfSegmentTable().find(llvm::ELF::PT_LOAD, null_sect);
 
   if ((*null_seg)->size() == 1) {
     // find 2nd PT_LOAD
-    ELFSegmentFactory::iterator seg, segEnd = m_ELFSegmentTable.end();
+    ELFSegmentFactory::iterator seg, segEnd = elfSegmentTable().end();
     for (seg = null_seg + 1; seg != segEnd; ++seg) {
       if ((*seg)->type() == llvm::ELF::PT_LOAD)
         break;
@@ -2060,12 +2071,12 @@ void GNULDBackend::setupProgramHdrs(const LinkerScript& pScript)
 
   // set up PT_PHDR
   ELFSegmentFactory::iterator phdr =
-    m_ELFSegmentTable.find(llvm::ELF::PT_PHDR, llvm::ELF::PF_R, 0x0);
+    elfSegmentTable().find(llvm::ELF::PT_PHDR, llvm::ELF::PF_R, 0x0);
 
-  if (phdr != m_ELFSegmentTable.end()) {
+  if (phdr != elfSegmentTable().end()) {
     ELFSegmentFactory::iterator null_seg =
-      m_ELFSegmentTable.find(llvm::ELF::PT_LOAD, null_sect);
-    if (null_seg != m_ELFSegmentTable.end()) {
+      elfSegmentTable().find(llvm::ELF::PT_LOAD, null_sect);
+    if (null_seg != elfSegmentTable().end()) {
       uint64_t offset = 0x0, phdr_size = 0x0;
       if (config().targets().is32Bits()) {
         offset = sizeof(llvm::ELF::Elf32_Ehdr);
@@ -2077,8 +2088,8 @@ void GNULDBackend::setupProgramHdrs(const LinkerScript& pScript)
       (*phdr)->setOffset(offset);
       (*phdr)->setVaddr((*null_seg)->vaddr() + offset);
       (*phdr)->setPaddr((*phdr)->vaddr());
-      (*phdr)->setFilesz(m_ELFSegmentTable.size() * phdr_size);
-      (*phdr)->setMemsz(m_ELFSegmentTable.size() * phdr_size);
+      (*phdr)->setFilesz(elfSegmentTable().size() * phdr_size);
+      (*phdr)->setMemsz(elfSegmentTable().size() * phdr_size);
       (*phdr)->setAlign(config().targets().bitclass() / 8);
     } else {
       elfSegmentTable().erase(phdr);
@@ -2719,6 +2730,20 @@ bool GNULDBackend::isDynamicSymbol(const ResolveInfo& pResolveInfo) const
       return true;
   }
   return false;
+}
+
+/// elfSegmentTable - return the reference of the elf segment table
+ELFSegmentFactory& GNULDBackend::elfSegmentTable()
+{
+  assert(m_pELFSegmentTable != NULL && "Do not create ELFSegmentTable!");
+  return *m_pELFSegmentTable;
+}
+
+/// elfSegmentTable - return the reference of the elf segment table
+const ELFSegmentFactory& GNULDBackend::elfSegmentTable() const
+{
+  assert(m_pELFSegmentTable != NULL && "Do not create ELFSegmentTable!");
+  return *m_pELFSegmentTable;
 }
 
 /// commonPageSize - the common page size of the target machine.

@@ -30,7 +30,9 @@
 #include <mcld/LD/BranchIslandFactory.h>
 #include <mcld/LD/StubFactory.h>
 #include <mcld/LD/LDContext.h>
-
+#include <mcld/LD/ELFFileFormat.h>
+#include <mcld/LD/ELFSegmentFactory.h>
+#include <mcld/LD/ELFSegment.h>
 
 #include <cstring>
 
@@ -659,10 +661,10 @@ bool HexagonLDBackend::finalizeTargetSymbols()
     m_psdabase->setValue(m_psdata->addr());
 
   ELFSegmentFactory::const_iterator edata =
-    m_ELFSegmentTable.find(llvm::ELF::PT_LOAD,
+    elfSegmentTable().find(llvm::ELF::PT_LOAD,
                            llvm::ELF::PF_W,
                            llvm::ELF::PF_X);
-  if (m_ELFSegmentTable.end() != edata) {
+  if (elfSegmentTable().end() != edata) {
     if (NULL != f_pEData && ResolveInfo::ThreadLocal != f_pEData->type()) {
       f_pEData->setValue((*edata)->vaddr() + (*edata)->filesz());
     }
