@@ -574,6 +574,7 @@ bool ObjectLinker::finalizeSymbolValue()
     }
   }
 
+  RpnEvaluator evaluator(*m_pModule, m_LDBackend);
   bool finalized = m_LDBackend.finalizeSymbols();
   bool scriptSymsFinalized = true;
   LinkerScript& script = m_pModule->getScript();
@@ -586,7 +587,7 @@ bool ObjectLinker::finalizeSymbolValue()
     if (symbol == NULL)
       continue;
 
-    scriptSymsFinalized &= assignment.assign(*m_pModule, m_LDBackend);
+    scriptSymsFinalized &= assignment.assign(evaluator);
     if (!scriptSymsFinalized)
       break;
 
@@ -594,7 +595,6 @@ bool ObjectLinker::finalizeSymbolValue()
   } // for each script symbol assignment
 
   bool assertionsPassed = true;
-  RpnEvaluator evaluator(*m_pModule, m_LDBackend);
   LinkerScript::Assertions::iterator assert, assertEnd;
   assertEnd = script.assertions().end();
   for (assert = script.assertions().begin(); assert != assertEnd; ++assert) {

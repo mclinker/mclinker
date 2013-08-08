@@ -157,11 +157,10 @@ void Assignment::activate(Module& pModule)
   } // end of switch
 }
 
-bool Assignment::assign(const Module& pModule, const TargetLDBackend& pBackend)
+bool Assignment::assign(RpnEvaluator& pEvaluator)
 {
-  RpnEvaluator evaluator(pModule, pBackend);
   uint64_t result = 0;
-  bool success = evaluator.eval(m_RpnExpr, result);
+  bool success = pEvaluator.eval(m_RpnExpr, result);
   if (success)
     m_Symbol.setValue(result);
   return success;

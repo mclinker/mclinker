@@ -20,7 +20,7 @@ namespace mcld
 class Module;
 class RpnExpr;
 class SymOperand;
-class TargetLDBackend;
+class RpnEvaluator;
 
 /** \class Assignment
  *  \brief This class defines the interfaces to assignment command.
@@ -72,7 +72,7 @@ public:
   void activate(Module& pModule);
 
   /// assign - evaluate the rhs and assign the result to lhs.
-  bool assign(const Module& pModule, const TargetLDBackend& pBackend);
+  bool assign(RpnEvaluator& pEvaluator);
 
 private:
   Level m_Level;

@@ -2214,7 +2214,7 @@ void GNULDBackend::setOutputSectionAddress(Module& pModule)
     // process dot assignments between 2 output sections
     for (SectionMap::Output::dot_iterator it = (*out)->dot_begin(),
       ie = (*out)->dot_end(); it != ie; ++it) {
-      (*it).assign(pModule, *this);
+      (*it).assign(evaluator);
     }
 
     seg = elfSegmentTable().find(llvm::ELF::PT_LOAD, cur);
@@ -2336,7 +2336,7 @@ void GNULDBackend::setOutputSectionAddress(Module& pModule)
 
       for (SectionMap::Input::dot_iterator it = (*in)->dot_begin(),
         ie = (*in)->dot_end(); it != ie; ++it) {
-        (*it).second.assign(pModule, *this);
+        (*it).second.assign(evaluator);
         if ((*it).first != NULL) {
           uint64_t new_offset = (*it).second.symbol().value() - vma;
           if (new_offset != (*it).first->getOffset()) {
