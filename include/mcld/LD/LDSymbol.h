@@ -19,7 +19,12 @@
 #include <mcld/LD/ResolveInfo.h>
 #include <mcld/Support/Allocators.h>
 
-#include <llvm/Support/ManagedStatic.h>
+namespace llvm {
+
+// forware declaration
+template<class T> void* object_creator();
+
+} // namespace of llvm
 
 namespace mcld {
 
