@@ -33,7 +33,7 @@ public:
 
   virtual ~PLTEntryBase()
   {
-    delete m_pValue;
+    free(m_pValue);
   }
 
   void setValue(unsigned char* pValue)
