@@ -36,3 +36,43 @@ MCLDTargetMachine* Target::createTargetMachine(const std::string& pTriple,
   }
   return NULL;
 }
+
+/// createMCLinker - create target-specific MCLinker
+MCLinker*
+Target::createMCLinker(const std::string &pTriple,
+                       LinkerConfig& pConfig,
+                       Module& pModule,
+                       MemoryArea& pOutput) const
+{
+  if (!MCLinkerCtorFn)
+    return NULL;
+  return MCLinkerCtorFn(pTriple, pConfig, pModule, pOutput);
+}
+
+/// emulate - given MCLinker default values for the other aspects of the
+/// target system.
+bool Target::emulate(LinkerScript& pScript, LinkerConfig& pConfig) const
+{
+  if (!EmulationFn)
+    return false;
+  return EmulationFn(pScript, pConfig);
+}
+
+/// createLDBackend - create target-specific LDBackend
+TargetLDBackend* Target::createLDBackend(const LinkerConfig& pConfig) const
+{
+    if (!TargetLDBackendCtorFn)
+      return NULL;
+    return TargetLDBackendCtorFn(*get(), pConfig);
+}
+
+/// createDiagnosticLineInfo - create target-specific DiagnosticLineInfo
+DiagnosticLineInfo*
+Target::createDiagnosticLineInfo(const mcld::Target& pTarget,
+                                 const std::string& pTriple) const
+{
+  if (!DiagnosticLineInfoCtorFn)
+    return NULL;
+  return DiagnosticLineInfoCtorFn(pTarget, pTriple);
+}
+
