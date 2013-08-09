@@ -52,6 +52,11 @@ AC_LANG([C++])
 LT_INIT
 
 ####################
+#  Parser generator
+AM_PROG_LEX
+AC_PROG_YACC
+
+####################
 #  Check for libraries
 
 #  Configure pthreads.

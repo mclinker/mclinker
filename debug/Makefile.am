@@ -503,20 +503,20 @@ LINKERSCRIPT_SOURCE = \
 	${LIBDIR}/Script/RpnEvaluator.cpp \
 	${LIBDIR}/Script/ScriptFile.cpp \
 	${LIBDIR}/Script/ScriptScanner.h \
-	${LIBDIR}/Script/ScriptParser.cc \
-	${LIBDIR}/Script/ScriptParser.h \
-	${LIBDIR}/Script/ScriptScanner.cc \
-	${LIBDIR}/Script/ScriptScanner.h \
-	${LIBDIR}/Script/location.hh \
-	${LIBDIR}/Script/position.hh \
-	${LIBDIR}/Script/stack.hh \
+	${LIBDIR}/Script/ScriptParser.yy \
+	${LIBDIR}/Script/ScriptScanner.ll \
 	${LIBDIR}/Script/ScriptReader.cpp
+
+ScriptScanner.cc: ${LIBDIR}/Script/ScriptScanner.ll
+	$(LEX) -o $@ $<
 
 ANDROID_CPPFLAGS=-fno-rtti -fno-exceptions -Waddress -Wchar-subscripts -Wcomment -Wformat -Wparentheses -Wreorder -Wreturn-type -Wsequence-point -Wstrict-aliasing -Wstrict-overflow=1 -Wswitch -Wtrigraphs -Wuninitialized -Wunknown-pragmas -Wunused-function -Wunused-label -Wunused-value -Wunused-variable -Wvolatile-register-var
 
 if ENABLE_WERROR
 ANDROID_CPPFLAGS+=-Werror
 endif
+
+AM_YFLAGS = -d
 
 lib_LIBRARIES= libmcld.a
 
@@ -527,7 +527,7 @@ nobase_include_HEADERS = ${HEADER} ${LINKERSCRIPT_HEADER}
 bin_PROGRAMS = ld.mcld ld.bcc
 
 if ENABLE_UNITTEST
-AM_CPPFLAGS = -g -DTOPDIR=\"${abs_top_srcdir}\" -DENABLE_UNITTEST -DMCLD_DEBUG -I$(TOPLEVEL)/utils/gtest/include -I$(TOPLEVEL)/include -I$(TOPLEVEL)/unittests -I$(BUILDTOP)/include ${LLVM_CPPFLAGS} -DGTEST_HAS_RTTI=0 ${ANDROID_CPPFLAGS} -I$(TOOLDIR)/mcld/include -I$(BUILDTOP)/tools/bcc/include -I$(INCDIR)/Script
+AM_CPPFLAGS = -g -DTOPDIR=\"${abs_top_srcdir}\" -DENABLE_UNITTEST -DMCLD_DEBUG -I$(TOPLEVEL)/utils/gtest/include -I$(TOPLEVEL)/include -I$(TOPLEVEL)/unittests -I$(BUILDTOP)/include ${LLVM_CPPFLAGS} -DGTEST_HAS_RTTI=0 ${ANDROID_CPPFLAGS} -I$(TOOLDIR)/mcld/include -I$(BUILDTOP)/tools/bcc/include -I$(INCDIR)/Script -I$(TOPLEVEL)/lib/Script
 
 ###################
 # ld.mcld
@@ -543,7 +543,7 @@ ld_bcc_CPPFLAGS = -g -DTOPDIR=\"${abs_top_srcdir}\" -DENABLE_UNITTEST -DMCLD_DEB
 ld_bcc_LDFLAGS = -L$(BUILDTOP)/utils/gtest/lib -lgtest ${LLVM_LDFLAGS}
 ld_bcc_LDADD = libmcld.a
 else
-AM_CPPFLAGS = -g -I$(TOPLEVEL)/include -I$(TOPLEVEL)/include -I$(BUILDTOP)/include ${LLVM_CPPFLAGS} ${ANDROID_CPPFLAGS} -I$(INCDIR)/Script
+AM_CPPFLAGS = -g -I$(TOPLEVEL)/include -I$(TOPLEVEL)/include -I$(BUILDTOP)/include ${LLVM_CPPFLAGS} ${ANDROID_CPPFLAGS} -I$(INCDIR)/Script -I$(TOPLEVEL)/lib/Script
 
 ###################
 # ld.mcld
