@@ -274,14 +274,17 @@ void MCLinker::initializeInputTree(IRBuilder& pBuilder)
 
   // -----  scripts  ----- //
   /// -T
-  if (m_Config.options().hasDefaultLDScript()) {
-    actions.push_back(new ScriptAction(0x0,
-                                       m_Config.options().defaultLDScript(),
-                                       ScriptFile::LDScript,
-                                       m_Module.getScript().directories(),
-                                       m_Config));
-    actions.push_back(new ContextAction(0x0));
-    actions.push_back(new MemoryAreaAction(0x0, FileHandle::ReadOnly));
+  if (!m_Config.options().getScriptList().empty()) {
+    GeneralOptions::const_script_iterator ii, ie = m_Config.options().script_end();
+    for (ii = m_Config.options().script_begin(); ii != ie; ++ii) {
+      actions.push_back(new ScriptAction(0x0,
+                                         *ii,
+                                         ScriptFile::LDScript,
+                                         m_Module.getScript().directories(),
+                                         m_Config));
+      actions.push_back(new ContextAction(0x0));
+      actions.push_back(new MemoryAreaAction(0x0, FileHandle::ReadOnly));
+    }
   }
 
   /// --defsym

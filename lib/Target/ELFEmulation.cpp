@@ -66,7 +66,7 @@ bool mcld::MCLDEmulateELF(LinkerScript& pScript, LinkerConfig& pConfig)
 // FIXME: LinkerConfig& pConfig should be constant
 {
   // set up section map
-  if (!pConfig.options().hasDefaultLDScript() &&
+  if (!pConfig.options().getScriptList().empty() &&
       pConfig.codeGenType() != LinkerConfig::Object) {
     const unsigned int map_size =  (sizeof(map) / sizeof(map[0]) );
     for (unsigned int i = 0; i < map_size; ++i) {

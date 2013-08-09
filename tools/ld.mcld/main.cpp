@@ -138,11 +138,6 @@ DisableFPElim("disable-fp-elim",
   cl::desc("Disable frame pointer elimination optimization"),
   cl::init(false));
 
-static cl::opt<bool>
-DisableFPElimNonLeaf("disable-non-leaf-fp-elim",
-  cl::desc("Disable frame pointer elimination optimization for non-leaf funcs"),
-  cl::init(false));
-
 static cl::opt<llvm::FPOpFusion::FPOpFusionMode>
 FuseFPOps("fuse-fp-ops",
   cl::desc("Enable aggresive formation of fused FP ops"),
@@ -228,10 +223,12 @@ OverrideStackAlignment("stack-alignment",
   cl::desc("Override default stack alignment"),
   cl::init(0));
 
-static cl::opt<bool>
-EnableRealignStack("realign-stack",
-  cl::desc("Realign stack if needed"),
-  cl::init(true));
+// --script is an alias, but cl::alias doesn't work correctly with cl::list.
+static cl::list<std::string>
+LinkerScript("T",
+             cl::ZeroOrMore,
+             cl::desc("Linker script"),
+             cl::value_desc("file"));
 
 static cl::opt<std::string>
 TrapFuncName("trap-func", cl::Hidden,
@@ -855,16 +852,6 @@ ArgTextSegAddrAlias("Ttext-segment",
                     cl::desc("alias for -Ttext"),
                     cl::aliasopt(ArgTextSegAddr));
 
-static cl::opt<std::string>
-ArgScriptFile("T",
-              cl::desc("Use scriptfile as the linker script."),
-              cl::value_desc("scriptfile"));
-
-static cl::alias
-ArgScriptFileAlias("script",
-                   cl::desc("alias for -T"),
-                   cl::aliasopt(ArgScriptFile));
-
 //===----------------------------------------------------------------------===//
 // non-member functions
 //===----------------------------------------------------------------------===//
@@ -1078,6 +1065,13 @@ static bool ProcessLinkerOptionsFromCommand(mcld::LinkerScript& pScript,
     pConfig.options().getRpathList().push_back(*rp);
   }
 
+  // add all linker scripts
+  cl::list<std::string>::iterator sp;
+  cl::list<std::string>::iterator spEnd = LinkerScript.end();
+  for (sp = LinkerScript.begin(); sp != spEnd; ++sp) {
+    pConfig.options().getScriptList().push_back(*sp);
+  }
+
   // --fatal-warnings
   // pConfig.options().setFatalWarnings(ArgFatalWarnings);
 
@@ -1269,8 +1263,6 @@ static bool ProcessLinkerOptionsFromCommand(mcld::LinkerScript& pScript,
                      pScript.addressMap().insert(script.substr(0, pos), exist);
     addr_mapping->setValue(address);
   }
-  // -T scriptfile
-  pConfig.options().setDefaultLDScript(ArgScriptFile);
 
   // set up filter/aux filter for shared object
   pConfig.options().setFilter(ArgFilter);
@@ -1454,7 +1446,6 @@ int main(int argc, char* argv[])
   TargetOptions Options;
   Options.LessPreciseFPMADOption = EnableFPMAD;
   Options.NoFramePointerElim = DisableFPElim;
-  Options.NoFramePointerElimNonLeaf = DisableFPElimNonLeaf;
   Options.AllowFPOpFusion = FuseFPOps;
   Options.UnsafeFPMath = EnableUnsafeFPMath;
   Options.NoInfsFPMath = EnableNoInfsFPMath;
@@ -1469,7 +1460,6 @@ int main(int argc, char* argv[])
   Options.JITEmitDebugInfoToDisk = EmitJitDebugInfoToDisk;
   Options.GuaranteedTailCallOpt = EnableGuaranteedTailCallOpt;
   Options.StackAlignmentOverride = OverrideStackAlignment;
-  Options.RealignStack = EnableRealignStack;
   Options.TrapFuncName = TrapFuncName;
   Options.EnableSegmentedStacks = SegmentedStacks;
 

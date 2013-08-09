@@ -20,14 +20,14 @@ StaticResolver::~StaticResolver()
 
 bool StaticResolver::resolve(ResolveInfo& __restrict__ pOld,
                              const ResolveInfo& __restrict__ pNew,
-                             bool &pOverride) const
+                             bool &pOverride, LDSymbol::ValueType pValue) const
 {
 
   /* The state table itself.
    * The first index is a link_row and the second index is a bfd_link_hash_type.
    *
    * Cs -> all rest kind of common (d_C, wd_C)
-   * Is -> all kind of indeirect
+   * Is -> all kind of indirect
    */
   static const enum LinkAction link_action[LAST_ORD][LAST_ORD] =
   {
@@ -169,6 +169,20 @@ bool StaticResolver::resolve(ResolveInfo& __restrict__ pOld,
       }
       /* Fall through */
       case MDEF: {       /* multiple definition error.  */
+        if (pOld.isDefine() && pNew.isDefine() &&
+            pOld.isAbsolute() && pNew.isAbsolute() &&
+            (pOld.desc() == pNew.desc() || pOld.desc() == ResolveInfo::NoType ||
+             pNew.desc() == ResolveInfo::NoType)) {
+          if (pOld.outSymbol()->value() == pValue) {
+            pOverride = true;
+            old->override(pNew);
+            break;
+          } else {
+            error(diag::multiple_absolute_definitions) << pNew.name()
+              << pOld.outSymbol()->value() << pValue;
+            break;
+          }
+        }
         error(diag::multiple_definitions) << pNew.name();
         break;
       }

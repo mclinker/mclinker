@@ -53,7 +53,7 @@ ARMLinkerConfig::ARMLinkerConfig() : LinkerConfig(DEFAULT_ARM_TRIPLE_STRING) {
   }
 
   // set up section map
-  if (!getLDConfig()->options().hasDefaultLDScript() &&
+  if (m_Config.options().getScriptList().empty() &&
       getLDConfig()->codeGenType() != mcld::LinkerConfig::Object) {
     getLDScript()->sectionMap().insert(".ARM.exidx*", ".ARM.exidx");
     getLDScript()->sectionMap().insert(".ARM.extab*", ".ARM.extab");
@@ -162,7 +162,7 @@ GeneralLinkerConfig::GeneralLinkerConfig(const std::string& pTriple)
 
   // set up section map
   if (llvm::Triple::arm == getLDConfig()->targets().triple().getArch() &&
-      !getLDConfig()->options().hasDefaultLDScript() &&
+      !m_Config.options().getScriptList().empty() &&
       getLDConfig()->codeGenType() != mcld::LinkerConfig::Object) {
     getLDScript()->sectionMap().insert(".ARM.exidx*", ".ARM.exidx");
     getLDScript()->sectionMap().insert(".ARM.extab*", ".ARM.extab");

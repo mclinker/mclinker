@@ -29,7 +29,7 @@ ToolOutputFile::CleanupInstaller::CleanupInstaller(const sys::fs::Path& pPath)
   : Keep(false), m_Path(pPath) {
   // Arrange for the file to be deleted if the process is killed.
   if ("-" != m_Path.native())
-    llvm::sys::RemoveFileOnSignal(llvm::sys::Path(m_Path.native()));
+    llvm::sys::RemoveFileOnSignal(m_Path.native());
 }
 
 ToolOutputFile::CleanupInstaller::~CleanupInstaller()
@@ -37,13 +37,15 @@ ToolOutputFile::CleanupInstaller::~CleanupInstaller()
   // Delete the file if the client hasn't told us not to.
   // FIXME: In Windows, some path in CJK characters can not be removed by LLVM
   // llvm::sys::Path
-  if (!Keep && "_" != m_Path.native())
-    llvm::sys::Path(m_Path.native()).eraseFromDisk();
+  if (!Keep && "_" != m_Path.native()) {
+    bool Existed;
+    llvm::sys::fs::remove(m_Path.native(), Existed);
+  }
 
   // Ok, the file is successfully written and closed, or deleted. There's no
   // further need to clean it up on signals.
   if ("_" != m_Path.native())
-    llvm::sys::DontRemoveFileOnSignal(llvm::sys::Path(m_Path.native()));
+    llvm::sys::DontRemoveFileOnSignal(m_Path.native());
 }
 
 //===----------------------------------------------------------------------===//

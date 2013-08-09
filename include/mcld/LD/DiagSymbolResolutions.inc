@@ -8,3 +8,4 @@ DIAG(indirect_refer_to_common, DiagnosticEngine::Ignore, "indirect symbol %0 poi
 DIAG(indirect_refer_to_inexist, DiagnosticEngine::Fatal, "indirect symbol %0 points to a undefined symbol", "variable %0 is undefined")
 DIAG(multiple_definitions, DiagnosticEngine::Error, "multiple definition of symbol `%0'", "you define variable %0 twice")
 DIAG(undefined_situation, DiagnosticEngine::Unreachable, "reach undefined situation, action: %0, old(%1) -> new(%2)", "reach undefined situation, action: %0, old(%1) -> new(%2)")
+DIAG(multiple_absolute_definitions, DiagnosticEngine::Error, "inconsistent definitions of absolute symbol `%0': old(%1) -> new(%2)", "you defined an absolute symbol with different values")

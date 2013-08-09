@@ -17,3 +17,9 @@ ltversion.m4
 lt~obsolete.m4
 ltoptions.m4
 include/mcld/Config/Config.h.in
+lib/Script/ScriptParser.cc
+lib/Script/ScriptParser.h
+lib/Script/ScriptScanner.cc
+lib/Script/location.hh
+lib/Script/position.hh
+lib/Script/stack.hh

@@ -24,9 +24,9 @@ class MemoryArea;
 class DiagnosticLineInfo;
 class TargetLDBackend;
 
-//===----------------------------------------------------------------------===//
-/// Target - mcld::Target is an object adapter of llvm::Target
-//===----------------------------------------------------------------------===//
+/** \class Target
+ *  \brief Target collects target specific information
+ */
 class Target
 {
   friend class mcld::MCLDTargetMachine;
@@ -55,51 +55,31 @@ public:
   void setTarget(const llvm::Target& pTarget)
   { m_pT = &pTarget; }
 
+  /// createTargetMachine - create target-specific TargetMachine
   MCLDTargetMachine* createTargetMachine(const std::string &pTriple,
-                          const std::string &pCPU, const std::string &pFeatures,
-                          const llvm::TargetOptions &Options,
-                          llvm::Reloc::Model RM = llvm::Reloc::Default,
-                          llvm::CodeModel::Model CM = llvm::CodeModel::Default,
-                          llvm::CodeGenOpt::Level OL = llvm::CodeGenOpt::Default) const;
+                                         const std::string &pCPU,
+                                         const std::string &pFeatures,
+                                         const llvm::TargetOptions &Options,
+                                         llvm::Reloc::Model RM = llvm::Reloc::Default,
+                                         llvm::CodeModel::Model CM = llvm::CodeModel::Default,
+                                         llvm::CodeGenOpt::Level OL = llvm::CodeGenOpt::Default) const;
 
   /// createMCLinker - create target-specific MCLinker
-  ///
-  /// @return created MCLinker
   MCLinker *createMCLinker(const std::string &pTriple,
                            LinkerConfig& pConfig,
                            Module& pModule,
-                           MemoryArea& pOutput) const {
-    if (!MCLinkerCtorFn)
-      return NULL;
-    return MCLinkerCtorFn(pTriple, pConfig, pModule, pOutput);
-  }
+                           MemoryArea& pOutput) const;
 
   /// emulate - given MCLinker default values for the other aspects of the
   /// target system.
-  bool emulate(LinkerScript& pScript, LinkerConfig& pConfig) const {
-    if (!EmulationFn)
-      return false;
-    return EmulationFn(pScript, pConfig);
-  }
+  bool emulate(LinkerScript& pScript, LinkerConfig& pConfig) const;
 
   /// createLDBackend - create target-specific LDBackend
-  ///
-  /// @return created TargetLDBackend
-  TargetLDBackend* createLDBackend(const LinkerConfig& pConfig) const
-  {
-    if (!TargetLDBackendCtorFn)
-      return NULL;
-    return TargetLDBackendCtorFn(*get(), pConfig);
-  }
+  TargetLDBackend* createLDBackend(const LinkerConfig& pConfig) const;
 
   /// createDiagnosticLineInfo - create target-specific DiagnosticLineInfo
   DiagnosticLineInfo* createDiagnosticLineInfo(const mcld::Target& pTarget,
-                                               const std::string& pTriple) const
-  {
-    if (!DiagnosticLineInfoCtorFn)
-      return NULL;
-    return DiagnosticLineInfoCtorFn(pTarget, pTriple);
-  }
+                                               const std::string& pTriple) const;
 
   const llvm::Target* get() const { return m_pT; }
 

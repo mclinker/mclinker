@@ -46,6 +46,10 @@ public:
   typedef RpathList::iterator rpath_iterator;
   typedef RpathList::const_iterator const_rpath_iterator;
 
+  typedef std::vector<std::string> ScriptList;
+  typedef ScriptList::iterator script_iterator;
+  typedef ScriptList::const_iterator const_script_iterator;
+
   typedef std::vector<std::string> AuxiliaryList;
   typedef AuxiliaryList::iterator aux_iterator;
   typedef AuxiliaryList::const_iterator const_aux_iterator;
@@ -53,11 +57,6 @@ public:
 public:
   GeneralOptions();
   ~GeneralOptions();
-
-  /// default link script
-  bool hasDefaultLDScript() const;
-  const std::string& defaultLDScript() const;
-  void setDefaultLDScript(const std::string& pFilename);
 
   /// trace
   void setTrace(bool pEnableTrace = true)
@@ -290,6 +289,15 @@ public:
   const_rpath_iterator rpath_end  () const { return m_RpathList.end();   }
   rpath_iterator       rpath_end  ()       { return m_RpathList.end();   }
 
+  // -----  link-in script  ----- //
+  const ScriptList& getScriptList() const { return m_ScriptList; }
+  ScriptList&       getScriptList()       { return m_ScriptList; }
+
+  const_script_iterator script_begin() const { return m_ScriptList.begin(); }
+  script_iterator       script_begin()       { return m_ScriptList.begin(); }
+  const_script_iterator script_end  () const { return m_ScriptList.end();   }
+  script_iterator       script_end  ()       { return m_ScriptList.end();   }
+
   // -----  filter and auxiliary filter  ----- //
   void setFilter(const std::string& pFilter)
   { m_Filter = pFilter; }
@@ -360,6 +368,7 @@ private:
   uint32_t m_GPSize; // -G, --gpsize
   StripSymbolMode m_StripSymbols;
   RpathList m_RpathList;
+  ScriptList m_ScriptList;
   unsigned int m_HashStyle;
   std::string m_Filter;
   AuxiliaryList m_AuxiliaryList;

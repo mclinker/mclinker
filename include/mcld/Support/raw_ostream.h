@@ -31,7 +31,7 @@ public:
   /// output errors).
   raw_fd_ostream(const char *pFilename,
                  std::string &pErrorInfo,
-                 unsigned int pFlags = 0);
+                 llvm::sys::fs::OpenFlags pFlags = llvm::sys::fs::F_None);
 
   /// raw_fd_ostream ctor - FD is the file descriptor that this writes to.  If
   /// ShouldClose is true, this closes the file when the stream is destroyed.

@@ -13,7 +13,7 @@
 #endif
 
 #ifndef __FLEX_LEXER_H
-#include <FlexLexer.h>
+#include "FlexLexer.h"
 #endif
 
 #ifndef YY_DECL
