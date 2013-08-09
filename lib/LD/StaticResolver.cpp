@@ -27,7 +27,7 @@ bool StaticResolver::resolve(ResolveInfo& __restrict__ pOld,
    * The first index is a link_row and the second index is a bfd_link_hash_type.
    *
    * Cs -> all rest kind of common (d_C, wd_C)
-   * Is -> all kind of indeirect
+   * Is -> all kind of indirect
    */
   static const enum LinkAction link_action[LAST_ORD][LAST_ORD] =
   {
