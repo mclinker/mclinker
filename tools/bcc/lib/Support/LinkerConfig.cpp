@@ -117,7 +117,7 @@ bool LinkerConfig::initializeLDInfo() {
     {".gnu.linkonce.l*", ".ldata"},
   };
 
-  if (!m_Config.options().getScriptList().empty() &&
+  if (!mLDConfig->options().getScriptList().empty() &&
       mLDConfig->codeGenType() != mcld::LinkerConfig::Object) {
     const unsigned int map_size =  (sizeof(map) / sizeof(map[0]) );
     for (unsigned int i = 0; i < map_size; ++i) {
