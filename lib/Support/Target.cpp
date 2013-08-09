@@ -28,11 +28,11 @@ MCLDTargetMachine* Target::createTargetMachine(const std::string& pTriple,
                                                llvm::Reloc::Model pRM,
                                                llvm::CodeModel::Model pCM,
                                                llvm::CodeGenOpt::Level pOL) const
-  {
-    if (TargetMachineCtorFn && m_pT) {
-      llvm::TargetMachine *tm = m_pT->createTargetMachine(pTriple, pCPU, pFeatures, pOptions, pRM, pCM, pOL);
-      if (tm)
-        return TargetMachineCtorFn(*this, *tm, pTriple);
-    }
-    return NULL;
+{
+  if (TargetMachineCtorFn && m_pT) {
+    llvm::TargetMachine *tm = m_pT->createTargetMachine(pTriple, pCPU, pFeatures, pOptions, pRM, pCM, pOL);
+    if (tm)
+      return TargetMachineCtorFn(*this, *tm, pTriple);
   }
+  return NULL;
+}
