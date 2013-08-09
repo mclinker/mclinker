@@ -223,6 +223,16 @@ OverrideStackAlignment("stack-alignment",
   cl::desc("Override default stack alignment"),
   cl::init(0));
 
+static cl::list<std::string>
+LinkerScript("script",
+             cl::ZeroOrMore,
+             cl::desc("Linker script"),
+             cl::value_desc("file"));
+
+static cl::alias
+LinkerScriptAlias("T", cl::desc("alias for --script"),
+                    cl::aliasopt(LinkerScript));
+
 static cl::opt<std::string>
 TrapFuncName("trap-func", cl::Hidden,
   cl::desc("Emit a call to trap function rather than a trap instruction"),
@@ -1053,6 +1063,13 @@ static bool ProcessLinkerOptionsFromCommand(mcld::LinkerScript& pScript,
   cl::list<std::string>::iterator rpEnd = ArgRuntimePath.end();
   for (rp = ArgRuntimePath.begin(); rp != rpEnd; ++rp) {
     pConfig.options().getRpathList().push_back(*rp);
+  }
+
+  // add all linker scripts
+  cl::list<std::string>::iterator sp;
+  cl::list<std::string>::iterator spEnd = LinkerScript.end();
+  for (sp = LinkerScript.begin(); sp != spEnd; ++sp) {
+    pConfig.options().getScriptList().push_back(*sp);
   }
 
   // --fatal-warnings
