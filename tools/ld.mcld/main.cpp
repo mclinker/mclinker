@@ -223,15 +223,12 @@ OverrideStackAlignment("stack-alignment",
   cl::desc("Override default stack alignment"),
   cl::init(0));
 
+// --script is an alias, but cl::alias doesn't work correctly with cl::list.
 static cl::list<std::string>
-LinkerScript("script",
+LinkerScript("T",
              cl::ZeroOrMore,
              cl::desc("Linker script"),
              cl::value_desc("file"));
-
-static cl::alias
-LinkerScriptAlias("T", cl::desc("alias for --script"),
-                    cl::aliasopt(LinkerScript));
 
 static cl::opt<std::string>
 TrapFuncName("trap-func", cl::Hidden,
