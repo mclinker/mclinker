@@ -138,11 +138,6 @@ DisableFPElim("disable-fp-elim",
   cl::desc("Disable frame pointer elimination optimization"),
   cl::init(false));
 
-static cl::opt<bool>
-DisableFPElimNonLeaf("disable-non-leaf-fp-elim",
-  cl::desc("Disable frame pointer elimination optimization for non-leaf funcs"),
-  cl::init(false));
-
 static cl::opt<llvm::FPOpFusion::FPOpFusionMode>
 FuseFPOps("fuse-fp-ops",
   cl::desc("Enable aggresive formation of fused FP ops"),
@@ -1446,7 +1441,6 @@ int main(int argc, char* argv[])
   TargetOptions Options;
   Options.LessPreciseFPMADOption = EnableFPMAD;
   Options.NoFramePointerElim = DisableFPElim;
-  Options.NoFramePointerElimNonLeaf = DisableFPElimNonLeaf;
   Options.AllowFPOpFusion = FuseFPOps;
   Options.UnsafeFPMath = EnableUnsafeFPMath;
   Options.NoInfsFPMath = EnableNoInfsFPMath;
