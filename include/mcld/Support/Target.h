@@ -24,9 +24,9 @@ class MemoryArea;
 class DiagnosticLineInfo;
 class TargetLDBackend;
 
-//===----------------------------------------------------------------------===//
-/// Target - mcld::Target is an object adapter of llvm::Target
-//===----------------------------------------------------------------------===//
+/** \class Target
+ *  \brief Target collects target specific information
+ */
 class Target
 {
   friend class mcld::MCLDTargetMachine;
