@@ -125,7 +125,7 @@ static void addPassesToHandleExceptions(llvm::TargetMachine *TM,
   case llvm::ExceptionHandling::DwarfCFI:
   case llvm::ExceptionHandling::ARM:
   case llvm::ExceptionHandling::Win64:
-    PM.add(createDwarfEHPass(TM));
+    PM.add(createDwarfEHPass(TM->getTargetLowering()));
     break;
   case llvm::ExceptionHandling::None:
     PM.add(createLowerInvokePass(TM->getTargetLowering()));

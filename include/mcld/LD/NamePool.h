@@ -69,6 +69,7 @@ public:
                     ResolveInfo::Desc pDesc,
                     ResolveInfo::Binding pBinding,
                     ResolveInfo::SizeType pSize,
+                    LDSymbol::ValueType pValue,
                     ResolveInfo::Visibility pVisibility,
                     ResolveInfo* pOldInfo,
                     Resolver::Result& pResult);

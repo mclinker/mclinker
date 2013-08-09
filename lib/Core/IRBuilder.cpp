@@ -528,7 +528,7 @@ LDSymbol* IRBuilder::addSymbolFromObject(const std::string& pName,
   else {
     // if the symbol is not local, insert and resolve it immediately
     m_Module.getNamePool().insertSymbol(pName, false, pType, pDesc, pBinding,
-                                        pSize, pVisibility,
+                                        pSize, pValue, pVisibility,
                                         &old_info, resolved_result);
   }
 
@@ -629,7 +629,7 @@ LDSymbol* IRBuilder::addSymbolFromDynObj(Input& pInput,
   // resolved_result is a triple <resolved_info, existent, override>
   Resolver::Result resolved_result;
   m_Module.getNamePool().insertSymbol(pName, true, pType, pDesc,
-                                      pBinding, pSize, pVisibility,
+                                      pBinding, pSize, pValue, pVisibility,
                                       NULL, resolved_result);
 
   // the return ResolveInfo should not NULL
@@ -712,7 +712,7 @@ IRBuilder::AddSymbol<IRBuilder::Force, IRBuilder::Unresolve>(
     // create a ResolveInfo
     Resolver::Result result;
     m_Module.getNamePool().insertSymbol(pName, false, pType, pDesc,
-                                        pBinding, pSize, pVisibility,
+                                        pBinding, pSize, pValue, pVisibility,
                                         NULL, result);
     assert(!result.existent);
 
@@ -823,7 +823,7 @@ IRBuilder::AddSymbol<IRBuilder::Force, IRBuilder::Resolve>(
   Resolver::Result result;
   ResolveInfo old_info;
   m_Module.getNamePool().insertSymbol(pName, false, pType, pDesc, pBinding,
-                                      pSize, pVisibility,
+                                      pSize, pValue, pVisibility,
                                       &old_info, result);
 
   LDSymbol* output_sym = result.info->outSymbol();

@@ -59,6 +59,7 @@ void NamePool::insertSymbol(const llvm::StringRef& pName,
                               ResolveInfo::Desc pDesc,
                               ResolveInfo::Binding pBinding,
                               ResolveInfo::SizeType pSize,
+                              LDSymbol::ValueType pValue,
                               ResolveInfo::Visibility pVisibility,
                               ResolveInfo* pOldInfo,
                               Resolver::Result& pResult)
@@ -102,7 +103,7 @@ void NamePool::insertSymbol(const llvm::StringRef& pName,
   // symbol resolution
   bool override = false;
   unsigned int action = Resolver::LastAction;
-  if (m_pResolver->resolve(*old_symbol, *new_symbol, override)) {
+  if (m_pResolver->resolve(*old_symbol, *new_symbol, override, pValue)) {
     pResult.info      = old_symbol;
     pResult.existent  = true;
     pResult.overriden = override;

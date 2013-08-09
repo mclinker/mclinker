@@ -13,6 +13,7 @@
 #endif
 #include <string>
 #include <utility>
+#include <mcld/LD/LDSymbol.h>
 
 namespace mcld
 {
@@ -59,7 +60,7 @@ public:
   /// @param pNew the symbol which is used to replace pOld
   virtual bool resolve(ResolveInfo & __restrict__ pOld,
                        const ResolveInfo & __restrict__ pNew,
-                       bool &pOverride) const = 0;
+                       bool &pOverride, LDSymbol::ValueType pValue) const = 0;
 
   /// resolveAgain - Can override by derived classes.
   /// @return the pointer to resolved ResolveInfo
