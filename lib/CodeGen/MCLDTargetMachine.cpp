@@ -120,15 +120,15 @@ static void addPassesToHandleExceptions(llvm::TargetMachine *TM,
     // removed from the parent invoke(s). This could happen when a landing
     // pad is shared by multiple invokes and is also a target of a normal
     // edge from elsewhere.
-    PM.add(createSjLjEHPreparePass(TM->getTargetLowering()));
+    PM.add(createSjLjEHPreparePass(TM));
     // FALLTHROUGH
   case llvm::ExceptionHandling::DwarfCFI:
   case llvm::ExceptionHandling::ARM:
   case llvm::ExceptionHandling::Win64:
-    PM.add(createDwarfEHPass(TM->getTargetLowering()));
+    PM.add(createDwarfEHPass(TM));
     break;
   case llvm::ExceptionHandling::None:
-    PM.add(createLowerInvokePass(TM->getTargetLowering()));
+    PM.add(createLowerInvokePass(TM));
 
     // The lower invoke pass may create unreachable code. Remove it.
     PM.add(createUnreachableBlockEliminationPass());
@@ -283,7 +283,7 @@ bool mcld::MCLDTargetMachine::addCompilerPasses(PassManagerBase &pPM,
   MCInstPrinter *InstPrinter =
     getTarget().get()->createMCInstPrinter(MAI.getAssemblerDialect(), MAI,
                                            MII,
-                                           Context->getRegisterInfo(), STI);
+                                           *Context->getRegisterInfo(), STI);
 
   MCCodeEmitter* MCE = 0;
   MCAsmBackend *MAB = 0;
