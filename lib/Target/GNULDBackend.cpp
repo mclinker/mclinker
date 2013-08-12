@@ -1859,7 +1859,7 @@ void GNULDBackend::createProgramHdrs(Module& pModule)
       createPT_LOAD = true;
     }
     else if (LDFileFormat::Null == (*prev)->getSection()->kind() &&
-             config().options().getScriptList().empty()) {
+             !config().options().getScriptList().empty()) {
       // 5. create PT_LOAD to hold NULL section if there is a default ldscript
       createPT_LOAD = true;
     }
@@ -2243,7 +2243,7 @@ void GNULDBackend::setOutputSectionAddress(Module& pModule)
         if (prev->kind() == LDFileFormat::Null) {
           // Let SECTIONS starts at 0 if we have a default ldscript but don't
           // have any initial value (VMA or `.').
-          if (config().options().getScriptList().empty())
+          if (!config().options().getScriptList().empty())
             vma = 0x0;
           else
             vma = getSegmentStartAddr(script) + sectionStartOffset();
@@ -2504,7 +2504,7 @@ void GNULDBackend::layout(Module& pModule)
 
   // 2. sort output section orders if there is no default ldscript
   SectionMap& sectionMap = pModule.getScript().sectionMap();
-  if (!config().options().getScriptList().empty()) {
+  if (config().options().getScriptList().empty()) {
     std::stable_sort(sectionMap.begin(),
                      sectionMap.end(),
                      SectionMap::SHOCompare());

@@ -162,7 +162,7 @@ GeneralLinkerConfig::GeneralLinkerConfig(const std::string& pTriple)
 
   // set up section map
   if (llvm::Triple::arm == getLDConfig()->targets().triple().getArch() &&
-      !getLDConfig()->options().getScriptList().empty() &&
+      getLDConfig()->options().getScriptList().empty() &&
       getLDConfig()->codeGenType() != mcld::LinkerConfig::Object) {
     getLDScript()->sectionMap().insert(".ARM.exidx*", ".ARM.exidx");
     getLDScript()->sectionMap().insert(".ARM.extab*", ".ARM.extab");
