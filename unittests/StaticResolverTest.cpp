@@ -59,7 +59,7 @@ TEST_F( StaticResolverTest, MDEF ) {
   ASSERT_TRUE( mcld::ResolveInfo::define_flag == new_sym->info());
   ASSERT_TRUE( mcld::ResolveInfo::define_flag == old_sym->info());
   bool override = true;
-  bool result = m_pResolver->resolve(*old_sym, *new_sym, override);
+  bool result = m_pResolver->resolve(*old_sym, *new_sym, override, 0x0);
   ASSERT_TRUE(result);
   ASSERT_FALSE( override );
 }
@@ -85,7 +85,7 @@ TEST_F( StaticResolverTest, DynDefAfterDynUndef ) {
   ASSERT_TRUE( mcld::ResolveInfo::Define    == old_sym->desc());
 
   bool override = false;
-  bool result = m_pResolver->resolve(*old_sym, *new_sym, override);
+  bool result = m_pResolver->resolve(*old_sym, *new_sym, override, 0x0);
   ASSERT_TRUE(result);
   ASSERT_FALSE( override );
   ASSERT_TRUE(1 == old_sym->size());
@@ -112,7 +112,7 @@ TEST_F( StaticResolverTest, DynDefAfterDynDef ) {
   ASSERT_TRUE( mcld::ResolveInfo::Define == old_sym->desc());
 
   bool override = false;
-  bool result = m_pResolver->resolve(*old_sym, *new_sym, override);
+  bool result = m_pResolver->resolve(*old_sym, *new_sym, override, 0x0);
   ASSERT_TRUE(result);
   ASSERT_FALSE( override );
   ASSERT_TRUE(1 == old_sym->size());
@@ -139,7 +139,7 @@ TEST_F( StaticResolverTest, DynUndefAfterDynUndef ) {
   ASSERT_TRUE( mcld::ResolveInfo::Undefined ==  old_sym->desc());
 
   bool override = false;
-  bool result = m_pResolver->resolve(*old_sym, *new_sym, override);
+  bool result = m_pResolver->resolve(*old_sym, *new_sym, override, 0x0);
   ASSERT_TRUE(result);
   ASSERT_FALSE( override );
   ASSERT_TRUE(1 == old_sym->size());
@@ -161,7 +161,7 @@ TEST_F( StaticResolverTest, OverrideWeakByGlobal )
   ASSERT_TRUE( mcld::ResolveInfo::global_flag == new_sym->info());
   ASSERT_TRUE( mcld::ResolveInfo::weak_flag == old_sym->info());
   bool override = false;
-  bool result = m_pResolver->resolve(*old_sym, *new_sym, override);
+  bool result = m_pResolver->resolve(*old_sym, *new_sym, override, 0x0);
   ASSERT_TRUE(result);
   ASSERT_TRUE( override );
   ASSERT_TRUE(0 == old_sym->size());
@@ -190,7 +190,7 @@ TEST_F( StaticResolverTest, DynWeakAfterDynDef ) {
   ASSERT_TRUE( mcld::ResolveInfo::Define == new_sym->desc());
 
   bool override = false;
-  bool result = m_pResolver->resolve(*old_sym, *new_sym, override);
+  bool result = m_pResolver->resolve(*old_sym, *new_sym, override, 0x0);
   ASSERT_TRUE(result);
   ASSERT_FALSE( override );
   ASSERT_TRUE(1 == old_sym->size());
@@ -212,7 +212,7 @@ TEST_F( StaticResolverTest, MarkByBiggerCommon )
   ASSERT_TRUE( mcld::ResolveInfo::common_flag == new_sym->info());
   ASSERT_TRUE( mcld::ResolveInfo::common_flag == old_sym->info());
   bool override = true;
-  bool result = m_pResolver->resolve(*old_sym, *new_sym, override);
+  bool result = m_pResolver->resolve(*old_sym, *new_sym, override, 0x0);
   ASSERT_TRUE(result);
   ASSERT_FALSE( override );
   ASSERT_TRUE(999 == old_sym->size());
@@ -237,7 +237,7 @@ TEST_F( StaticResolverTest, OverrideByBiggerCommon )
   ASSERT_TRUE( (ResolveInfo::weak_flag | ResolveInfo::common_flag) == old_sym->info());
 
   bool override = false;
-  bool result = m_pResolver->resolve(*old_sym, *new_sym, override);
+  bool result = m_pResolver->resolve(*old_sym, *new_sym, override, 0x0);
   ASSERT_TRUE(result);
   ASSERT_TRUE( override );
   ASSERT_TRUE(999 == old_sym->size());
@@ -261,7 +261,7 @@ TEST_F( StaticResolverTest, OverrideCommonByDefine)
   ASSERT_TRUE( ResolveInfo::common_flag == old_sym->info());
 
   bool override = false;
-  bool result = m_pResolver->resolve(*old_sym, *new_sym, override);
+  bool result = m_pResolver->resolve(*old_sym, *new_sym, override, 0x0);
   ASSERT_TRUE(result);
   ASSERT_TRUE( override );
   ASSERT_TRUE(999 == old_sym->size());
