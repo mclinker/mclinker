@@ -10,6 +10,10 @@ AM_CXXFLAGS = \
 	@NO_COVERED_SWITCH_DEFAULT@ \
 	@NO_C99_EXTENSIONS@
 
+BUILT_SOURCES = ScriptParser.cc
+AM_YFLAGS = -d
+AM_LFLAGS = -olex.yy.c
+
 HEADER = ${INCDIR}/ADT/Uncopyable.h \
 	${INCDIR}/ADT/TypeTraits.h \
 	${INCDIR}/ADT/SizeTraits.h \
@@ -419,8 +423,9 @@ LINKERSCRIPT_HEADER = \
 	${INCDIR}/Script/RpnExpr.h \
 	${INCDIR}/Script/RpnEvaluator.h \
 	${INCDIR}/Script/ScriptFile.h \
-	${INCDIR}/Script/ScriptReader.h \
-	${INCDIR}/Script/FlexLexer.h
+	${INCDIR}/Script/FlexLexer.h \
+	${INCDIR}/Script/ScriptScanner.h \
+	${INCDIR}/Script/ScriptReader.h
 
 LINKERSCRIPT_SOURCE = \
 	${LIBDIR}/Script/StrToken.cpp \
@@ -454,17 +459,13 @@ LINKERSCRIPT_SOURCE = \
 	${LIBDIR}/Script/ScriptScanner.ll \
 	${LIBDIR}/Script/ScriptReader.cpp
 
-ScriptScanner.cc: ${LIBDIR}/Script/ScriptScanner.ll
-	$(LEX) -o $@ $<
-
 ANDROID_CPPFLAGS=-fno-rtti -fno-exceptions -Waddress -Wchar-subscripts -Wcomment -Wformat -Wparentheses -Wreorder -Wreturn-type -Wsequence-point -Wstrict-aliasing -Wstrict-overflow=1 -Wswitch -Wtrigraphs -Wuninitialized -Wunknown-pragmas -Wunused-function -Wunused-label -Wunused-value -Wunused-variable -Wvolatile-register-var
 
 if ENABLE_WERROR
 ANDROID_CPPFLAGS+=-Werror
 endif
 
-AM_CPPFLAGS = -g -I$(TOPLEVEL)/include -I$(BUILDTOP)/include ${LLVM_CPPFLAGS} ${ANDROID_CPPFLAGS} -I$(INCDIR)/Script -I$(TOPLEVEL)/lib/Script
-AM_YFLAGS = -d
+AM_CPPFLAGS = -g -I$(TOPLEVEL)/include -I$(BUILDTOP)/include ${LLVM_CPPFLAGS} ${ANDROID_CPPFLAGS} -I$(INCDIR)/Script
 
 lib_LIBRARIES= libmcld.a
 

@@ -7,6 +7,7 @@
 //
 //===----------------------------------------------------------------------===//
 #include <mcld/Script/ScriptReader.h>
+#include <mcld/Script/ScriptScanner.h>
 #include <mcld/Script/ScriptCommand.h>
 #include <mcld/Script/ScriptFile.h>
 #include <mcld/MC/Input.h>
@@ -16,7 +17,6 @@
 #include <mcld/Support/FileHandle.h>
 #include <mcld/Support/MemoryArea.h>
 #include <mcld/Support/MemoryRegion.h>
-#include "ScriptScanner.h"
 
 #include <istream>
 #include <sstream>

@@ -10,9 +10,9 @@
 %{
 /* C/C++ Declarations */
 
+#include <mcld/Script/ScriptScanner.h>
 #include <mcld/Script/ScriptFile.h>
 #include <mcld/Support/MsgHandling.h>
-#include "ScriptScanner.h"
 #include <llvm/ADT/StringRef.h>
 #include <string>
 
