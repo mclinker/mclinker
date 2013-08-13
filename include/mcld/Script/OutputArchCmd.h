@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_OUTPUTARCH_COMMAND_INTERFACE_H
-#define MCLD_OUTPUTARCH_COMMAND_INTERFACE_H
+#ifndef MCLD_SCRIPT_OUTPUTARCH_COMMAND_INTERFACE_H
+#define MCLD_SCRIPT_OUTPUTARCH_COMMAND_INTERFACE_H
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif
@@ -17,6 +17,8 @@
 
 namespace mcld
 {
+
+class Module;
 
 /** \class OutputArchCmd
  *  \brief This class defines the interfaces to OutputArch command.
@@ -32,10 +34,10 @@ public:
 
   static bool classof(const ScriptCommand* pCmd)
   {
-    return pCmd->getKind() == ScriptCommand::OutputArch;
+    return pCmd->getKind() == ScriptCommand::OUTPUT_ARCH;
   }
 
-  void activate();
+  void activate(Module& pModule);
 
 private:
   std::string m_Arch;

@@ -61,20 +61,6 @@ GeneralOptions::~GeneralOptions()
 {
 }
 
-bool GeneralOptions::hasDefaultLDScript() const
-{
-  return true;
-}
-
-const char* GeneralOptions::defaultLDScript() const
-{
-  return NULL;
-}
-
-void GeneralOptions::setDefaultLDScript(const std::string& pFilename)
-{
-}
-
 void GeneralOptions::setSOName(const std::string& pName)
 {
   size_t pos = pName.find_last_of(sys::fs::separator);

@@ -6,18 +6,18 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_GROUP_COMMAND_INTERFACE_H
-#define MCLD_GROUP_COMMAND_INTERFACE_H
+#ifndef MCLD_SCRIPT_GROUP_COMMAND_INTERFACE_H
+#define MCLD_SCRIPT_GROUP_COMMAND_INTERFACE_H
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif
 
 #include <mcld/Script/ScriptCommand.h>
-#include <mcld/Script/ScriptInput.h>
 
 namespace mcld
 {
 
+class StringList;
 class InputTree;
 class InputBuilder;
 class GroupReader;
@@ -30,26 +30,24 @@ class LinkerConfig;
 class GroupCmd : public ScriptCommand
 {
 public:
-  GroupCmd(InputTree& pInputTree,
+  GroupCmd(StringList& pStringList,
+           InputTree& pInputTree,
            InputBuilder& pBuilder,
            GroupReader& m_GroupReader,
            const LinkerConfig& pConfig);
   ~GroupCmd();
 
-  const ScriptInput& scriptInput() const { return m_ScriptInput; }
-  ScriptInput&       scriptInput()       { return m_ScriptInput; }
-
   void dump() const;
 
   static bool classof(const ScriptCommand* pCmd)
   {
-    return pCmd->getKind() == ScriptCommand::Group;
+    return pCmd->getKind() == ScriptCommand::GROUP;
   }
 
-  void activate();
+  void activate(Module& pModule);
 
 private:
-  ScriptInput m_ScriptInput;
+  StringList& m_StringList;
   InputTree& m_InputTree;
   InputBuilder& m_Builder;
   GroupReader& m_GroupReader;

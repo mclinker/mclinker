@@ -11,6 +11,8 @@
 #include <mcld/MC/SearchDirs.h>
 #include <mcld/MC/Attribute.h>
 #include <mcld/Support/MsgHandling.h>
+#include <mcld/Support/FileSystem.h>
+#include <mcld/LinkerConfig.h>
 
 using namespace mcld;
 
@@ -218,3 +220,66 @@ bool BStaticAction::activate(InputBuilder& pBuilder) const
   return true;
 }
 
+//===----------------------------------------------------------------------===//
+// DefSymAction
+//===----------------------------------------------------------------------===//
+DefSymAction::DefSymAction(unsigned int pPosition, std::string& pAssignment)
+  : InputAction(pPosition), m_Assignment(pAssignment) {
+}
+
+bool DefSymAction::activate(InputBuilder& pBuilder) const
+{
+  pBuilder.createNode<InputTree::Positional>("defsym", "NAN");
+  Input* input = *pBuilder.getCurrentNode();
+  pBuilder.setContext(*input, false);
+
+  m_Assignment.append(";");
+  pBuilder.setMemory(*input, &m_Assignment[0], m_Assignment.size());
+  return true;
+}
+
+//===----------------------------------------------------------------------===//
+// ScriptAction
+//===----------------------------------------------------------------------===//
+ScriptAction::ScriptAction(unsigned int pPosition,
+                           const std::string& pFileName,
+                           ScriptFile::Kind pKind,
+                           SearchDirs& pSearchDirs,
+                           LinkerConfig& pLDConfig)
+  : InputAction(pPosition),
+    m_FileName(pFileName),
+    m_Kind(pKind),
+    m_SearchDirs(pSearchDirs),
+    m_LDConfig(pLDConfig)
+{
+}
+
+bool ScriptAction::activate(InputBuilder& pBuilder) const
+{
+  sys::fs::Path path(m_FileName);
+
+  if (!exists(path)) {
+    sys::fs::Path* res = m_SearchDirs.find(m_FileName, Input::Script);
+    if (res == NULL) {
+      switch (m_Kind) {
+      case ScriptFile::LDScript:
+        fatal(diag::err_cannot_find_scriptfile) << "linker script" << m_FileName;
+        break;
+      case ScriptFile::VersionScript:
+        fatal(diag::err_cannot_find_scriptfile) << "version script" << m_FileName;
+        break;
+      case ScriptFile::DynamicList:
+        fatal(diag::err_cannot_find_scriptfile) << "dynamic list" << m_FileName;
+        break;
+      default:
+        break;
+      }
+      return false;
+    }
+    path.assign(res->native());
+  }
+
+  pBuilder.createNode<InputTree::Positional>(path.stem().native(), path);
+
+  return true;
+}

@@ -39,6 +39,7 @@
 #include <mcld/LD/LDContext.h>
 #include <mcld/LD/ELFFileFormat.h>
 #include <mcld/LD/ELFSegmentFactory.h>
+#include <mcld/LD/ELFSegment.h>
 #include <mcld/Target/GNUInfo.h>
 #include <mcld/Object/ObjectBuilder.h>
 
@@ -318,62 +319,6 @@ uint64_t ARMGNULDBackend::emitSectionData(const LDSection& pSection,
 
   const ELFFileFormat* file_format = getOutputFormat();
 
-  if (&pSection == m_pAttributes ||
-      &pSection == m_pEXIDX ||
-      &pSection == m_pEXTAB) {
-    // FIXME: Currently Emitting .ARM.attributes, .ARM.exidx, and .ARM.extab
-    // directly from the input file.
-    const SectionData* sect_data = pSection.getSectionData();
-    SectionData::const_iterator frag_iter, frag_end = sect_data->end();
-    uint8_t* out_offset = pRegion.start();
-    for (frag_iter = sect_data->begin(); frag_iter != frag_end; ++frag_iter) {
-      size_t size = frag_iter->size();
-      switch(frag_iter->getKind()) {
-        case Fragment::Fillment: {
-          const FillFragment& fill_frag =
-            llvm::cast<FillFragment>(*frag_iter);
-          if (0 == fill_frag.getValueSize()) {
-            // virtual fillment, ignore it.
-            break;
-          }
-
-          memset(out_offset, fill_frag.getValue(), fill_frag.size());
-          break;
-        }
-        case Fragment::Region: {
-          const RegionFragment& region_frag =
-            llvm::cast<RegionFragment>(*frag_iter);
-          const uint8_t* start = region_frag.getRegion().start();
-          memcpy(out_offset, start, size);
-          break;
-        }
-        case Fragment::Alignment: {
-          const AlignFragment& align_frag = llvm::cast<AlignFragment>(*frag_iter);
-          uint64_t count = size / align_frag.getValueSize();
-          switch (align_frag.getValueSize()) {
-            case 1u:
-              std::memset(out_offset, align_frag.getValue(), count);
-              break;
-            default:
-              llvm::report_fatal_error(
-                "unsupported value size for align fragment emission yet.\n");
-              break;
-          } // end switch
-          break;
-        }
-        case Fragment::Null: {
-          assert(0x0 == size);
-          break;
-        }
-        default:
-          llvm::report_fatal_error("unsupported fragment type.\n");
-          break;
-      } // end switch
-      out_offset += size;
-    } // end for
-    return pRegion.size();
-  } // end if
-
   if (&pSection == &(file_format->getPLT())) {
     assert(NULL != m_pPLT && "emitSectionData failed, m_pPLT is NULL!");
     uint64_t result = m_pPLT->emit(pRegion);
@@ -385,10 +330,58 @@ uint64_t ARMGNULDBackend::emitSectionData(const LDSection& pSection,
     uint64_t result = m_pGOT->emit(pRegion);
     return result;
   }
-  fatal(diag::unrecognized_output_sectoin)
-          << pSection.name()
-          << "mclinker@googlegroups.com";
-  return 0x0;
+
+  // FIXME: Currently Emitting .ARM.attributes, .ARM.exidx, and .ARM.extab
+  // directly from the input file.
+  const SectionData* sect_data = pSection.getSectionData();
+  SectionData::const_iterator frag_iter, frag_end = sect_data->end();
+  uint8_t* out_offset = pRegion.start();
+  for (frag_iter = sect_data->begin(); frag_iter != frag_end; ++frag_iter) {
+    size_t size = frag_iter->size();
+    switch(frag_iter->getKind()) {
+      case Fragment::Fillment: {
+        const FillFragment& fill_frag =
+          llvm::cast<FillFragment>(*frag_iter);
+        if (0 == fill_frag.getValueSize()) {
+          // virtual fillment, ignore it.
+          break;
+        }
+
+        memset(out_offset, fill_frag.getValue(), fill_frag.size());
+        break;
+      }
+      case Fragment::Region: {
+        const RegionFragment& region_frag =
+          llvm::cast<RegionFragment>(*frag_iter);
+        const uint8_t* start = region_frag.getRegion().start();
+        memcpy(out_offset, start, size);
+        break;
+      }
+      case Fragment::Alignment: {
+        const AlignFragment& align_frag = llvm::cast<AlignFragment>(*frag_iter);
+        uint64_t count = size / align_frag.getValueSize();
+        switch (align_frag.getValueSize()) {
+          case 1u:
+            std::memset(out_offset, align_frag.getValue(), count);
+            break;
+          default:
+            llvm::report_fatal_error(
+              "unsupported value size for align fragment emission yet.\n");
+            break;
+        } // end switch
+        break;
+      }
+      case Fragment::Null: {
+        assert(0x0 == size);
+        break;
+      }
+      default:
+        llvm::report_fatal_error("unsupported fragment type.\n");
+        break;
+    } // end switch
+    out_offset += size;
+  } // end for
+  return pRegion.size();
 }
 
 /// finalizeSymbol - finalize the symbol value
@@ -397,7 +390,9 @@ bool ARMGNULDBackend::finalizeTargetSymbols()
   return true;
 }
 
-bool ARMGNULDBackend::mergeSection(Module& pModule, LDSection& pSection)
+bool ARMGNULDBackend::mergeSection(Module& pModule,
+                                   const Input& pInput,
+                                   LDSection& pSection)
 {
   switch (pSection.type()) {
     case llvm::ELF::SHT_ARM_ATTRIBUTES: {
@@ -417,7 +412,8 @@ bool ARMGNULDBackend::mergeSection(Module& pModule, LDSection& pSection)
     }
     default: {
       ObjectBuilder builder(config(), pModule);
-      return builder.MergeSection(pSection);
+      builder.MergeSection(pInput, pSection);
+      return true;
     }
   } // end of switch
   return true;
@@ -641,7 +637,7 @@ void ARMGNULDBackend::doCreateProgramHdrs(Module& pModule)
      // make PT_ARM_EXIDX
      ELFSegment* exidx_seg = elfSegmentTable().produce(llvm::ELF::PT_ARM_EXIDX,
                                                        llvm::ELF::PF_R);
-     exidx_seg->addSection(m_pEXIDX);
+     exidx_seg->append(m_pEXIDX);
    }
 }
 

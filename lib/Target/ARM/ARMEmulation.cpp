@@ -34,11 +34,11 @@ static bool MCLDEmulateARMELF(LinkerScript& pScript, LinkerConfig& pConfig)
   pConfig.attribute().predefined().setDynamic();
 
   // set up section map
-  if (pConfig.codeGenType() != LinkerConfig::Object) {
-    bool exist = false;
-    pScript.sectionMap().append(".ARM.exidx", ".ARM.exidx", exist);
-    pScript.sectionMap().append(".ARM.extab", ".ARM.extab", exist);
-    pScript.sectionMap().append(".ARM.attributes", ".ARM.attributes", exist);
+  if (pConfig.options().getScriptList().empty() &&
+      pConfig.codeGenType() != LinkerConfig::Object) {
+    pScript.sectionMap().insert(".ARM.exidx*", ".ARM.exidx");
+    pScript.sectionMap().insert(".ARM.extab*", ".ARM.extab");
+    pScript.sectionMap().insert(".ARM.attributes*", ".ARM.attributes");
   }
   return true;
 }

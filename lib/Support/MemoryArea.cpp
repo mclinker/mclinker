@@ -113,11 +113,8 @@ void MemoryArea::release(MemoryRegion* pRegion)
 // clear - release all MemoryRegions
 void MemoryArea::clear()
 {
-  if (NULL == m_pFileHandle)
-    return;
-
   SpaceMapType::iterator space, sEnd = m_SpaceMap.end();
-  if (m_pFileHandle->isWritable()) {
+  if (hasHandler() && m_pFileHandle->isWritable()) {
     for (space = m_SpaceMap.begin(); space != sEnd; ++space) {
       Space::Sync(space->second, *m_pFileHandle);
       Space::Release(space->second, *m_pFileHandle);

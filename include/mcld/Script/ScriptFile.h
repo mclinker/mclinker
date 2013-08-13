@@ -12,8 +12,9 @@
 #include <gtest.h>
 #endif
 
-#include <mcld/Script/ScriptInput.h>
 #include <mcld/Script/Assignment.h>
+#include <mcld/Script/OutputSectDesc.h>
+#include <mcld/Script/InputSectDesc.h>
 #include <vector>
 #include <string>
 
@@ -26,8 +27,9 @@ class InputTree;
 class InputBuilder;
 class GroupReader;
 class LinkerConfig;
-class LinkerScript;
-class ExprToken;
+class RpnExpr;
+class StringList;
+class Module;
 
 /** \class ScriptFile
  *  \brief This class defines the interfaces to a linker script file.
@@ -36,11 +38,6 @@ class ExprToken;
 class ScriptFile
 {
 public:
-  enum Type {
-    InputData,
-    StringData
-  };
-
   enum Kind {
     LDScript,      // -T
     Expression,    // --defsym
@@ -57,31 +54,24 @@ public:
 
 public:
   ScriptFile(Kind pKind, Input& pInput, InputBuilder& pBuilder);
-  ScriptFile(Kind pKind,
-             const std::string& pName,
-             std::string& pData,
-             InputBuilder& pBuilder);
   ~ScriptFile();
 
-  const_iterator   begin()  const { return m_CommandQueue.begin(); }
-  iterator         begin()        { return m_CommandQueue.begin(); }
-  const_iterator   end()    const { return m_CommandQueue.end(); }
-  iterator         end()          { return m_CommandQueue.end(); }
+  const_iterator  begin() const { return m_CommandQueue.begin(); }
+  iterator        begin()       { return m_CommandQueue.begin(); }
+  const_iterator  end()   const { return m_CommandQueue.end(); }
+  iterator        end()         { return m_CommandQueue.end(); }
 
-  const_reference  front()  const { return m_CommandQueue.front(); }
-  reference        front()        { return m_CommandQueue.front(); }
-  const_reference  back()   const { return m_CommandQueue.back(); }
-  reference        back()         { return m_CommandQueue.back(); }
+  const_reference front() const { return m_CommandQueue.front(); }
+  reference       front()       { return m_CommandQueue.front(); }
+  const_reference back()  const { return m_CommandQueue.back(); }
+  reference       back()        { return m_CommandQueue.back(); }
 
-  Type getType() const { return m_Type; }
+  const Input& input() const { return m_Input; }
+  Input&       input()       { return m_Input; }
+
+  size_t size() const { return m_CommandQueue.size(); }
 
   Kind getKind() const { return m_Kind; }
-
-  const Input* inputData() const { return m_Data.input; }
-  Input*       inputData()       { return m_Data.input; }
-
-  const std::string* strData() const { return m_Data.str; }
-  std::string*       strData()       { return m_Data.str; }
 
   const InputTree& inputs() const { return *m_pInputTree; }
   InputTree&       inputs()       { return *m_pInputTree; }
@@ -90,10 +80,10 @@ public:
   std::string&       name()       { return m_Name; }
 
   void dump() const;
-  void activate();
+  void activate(Module& pModule);
 
   /// ENTRY(symbol)
-  void addEntryPoint(const std::string& pSymbol, LinkerScript& pScript);
+  void addEntryPoint(const std::string& pSymbol);
 
   /// OUTPUT_FORMAT(bfdname)
   /// OUTPUT_FORMAT(default, big, little)
@@ -102,48 +92,57 @@ public:
                           const std::string& pBig,
                           const std::string& pLittle);
 
-  void addScriptInput(const std::string& pPath);
-
-  /// AS_NEEDED(file, file, ...)
-  /// AS_NEEDED(file file ...)
-  void setAsNeeded(bool pEnable = true);
-
   /// GROUP(file, file, ...)
   /// GROUP(file file ...)
-  void addGroupCmd(GroupReader& pGroupReader, const LinkerConfig& pConfig);
+  void addGroupCmd(StringList& pStringList,
+                   GroupReader& pGroupReader,
+                   const LinkerConfig& pConfig);
+
+  /// OUTPUT(filename)
+  void addOutputCmd(const std::string& pFileName);
 
   /// SEARCH_DIR(path)
-  void addSearchDirCmd(const std::string& pPath, LinkerScript& pScript);
+  void addSearchDirCmd(const std::string& pPath);
 
   /// OUTPUT_ARCH(bfdarch)
   void addOutputArchCmd(const std::string& pArch);
 
-  /// assignment
-  void addAssignment(LinkerScript& pLDScript,
-                     const std::string& pSymbol,
-                     Assignment::Type pType = Assignment::DEFAULT);
-  void addExprToken(ExprToken* pToken);
+  /// ASSERT(exp, message)
+  void addAssertCmd(RpnExpr& pRpnExpr, const std::string& pMessage);
 
+  /// assignment
+  void addAssignment(const std::string& pSymbol,
+                     RpnExpr& pRpnExpr,
+                     Assignment::Type pType = Assignment::DEFAULT);
+
+  bool hasSectionsCmd() const;
+
+  void enterSectionsCmd();
+
+  void leaveSectionsCmd();
+
+  void enterOutputSectDesc(const std::string& pName,
+                           const OutputSectDesc::Prolog& pProlog);
+
+  void leaveOutputSectDesc(const OutputSectDesc::Epilog& pEpilog);
+
+  void addInputSectDesc(InputSectDesc::KeepPolicy pPolicy,
+                        const InputSectDesc::Spec& pSpec);
 
   static const std::string& createParserStr(const char* pText, size_t pLength);
 
   static void clearParserStrPool();
 
 private:
-  union ScriptData
-  {
-    Input* input;
-    std::string* str;
-  };
-
-private:
-  Type m_Type;
   Kind m_Kind;
+  Input& m_Input;
   std::string m_Name;
-  ScriptData m_Data;
   InputTree* m_pInputTree;
   InputBuilder& m_Builder;
   CommandQueue m_CommandQueue;
+  bool m_bHasSectionsCmd;
+  bool m_bInSectionsCmd;
+  bool m_bInOutputSectDesc;
 };
 
 } // namespace of mcld

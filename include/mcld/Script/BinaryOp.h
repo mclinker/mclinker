@@ -6,17 +6,22 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_BINARY_OPERATOR_INTERFACE_H
-#define MCLD_BINARY_OPERATOR_INTERFACE_H
+#ifndef MCLD_SCRIPT_BINARY_OPERATOR_INTERFACE_H
+#define MCLD_SCRIPT_BINARY_OPERATOR_INTERFACE_H
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif
 
 #include <mcld/Script/Operator.h>
-#include <cassert>
+#include <cstddef>
 
 namespace mcld
 {
+
+class Operand;
+class IntOperand;
+class Module;
+class TargetLDBackend;
 
 /** \class BinaryOP
  *  \brief This class defines the interfaces to an binary operator token.
@@ -29,84 +34,100 @@ private:
   friend class Operator;
 
   BinaryOp()
-    : Operator(Operator::Binary, TYPE), m_Size(0)
+    : Operator(Operator::BINARY, TYPE), m_Size(0)
   {
-    m_Operand[0] = m_Operand[1] = 0;
+    m_pOperand[0] = m_pOperand[1] = NULL;
   }
 
 public:
   ~BinaryOp()
   {}
 
-  Operator::ValueType eval();
+  IntOperand* eval(const Module& pModule, const TargetLDBackend& pBackend);
 
-  void appendOperand(Operator::ValueType pValue)
+  void appendOperand(Operand* pOperand)
   {
-    assert(m_Size < 2);
-    m_Operand[m_Size++] = pValue;
+    m_pOperand[m_Size++] = pOperand;
     if (m_Size == 2)
       m_Size = 0;
   }
 
 private:
   size_t m_Size;
-  ValueType m_Operand[2];
+  Operand* m_pOperand[2];
 };
 
 template<>
-Operator::ValueType BinaryOp<Operator::MUL>::eval();
+IntOperand* BinaryOp<Operator::MUL>::eval(const Module&,
+                                          const TargetLDBackend&);
 template<>
-Operator::ValueType BinaryOp<Operator::DIV>::eval();
+IntOperand* BinaryOp<Operator::DIV>::eval(const Module&,
+                                          const TargetLDBackend&);
 template<>
-Operator::ValueType BinaryOp<Operator::MOD>::eval();
+IntOperand* BinaryOp<Operator::MOD>::eval(const Module&,
+                                          const TargetLDBackend&);
 template<>
-Operator::ValueType BinaryOp<Operator::ADD>::eval();
+IntOperand* BinaryOp<Operator::ADD>::eval(const Module&,
+                                          const TargetLDBackend&);
 template<>
-Operator::ValueType BinaryOp<Operator::SUB>::eval();
+IntOperand* BinaryOp<Operator::SUB>::eval(const Module&,
+                                          const TargetLDBackend&);
 template<>
-Operator::ValueType BinaryOp<Operator::LSHIFT>::eval();
+IntOperand* BinaryOp<Operator::LSHIFT>::eval(const Module&,
+                                             const TargetLDBackend&);
 template<>
-Operator::ValueType BinaryOp<Operator::RSHIFT>::eval();
+IntOperand* BinaryOp<Operator::RSHIFT>::eval(const Module&,
+                                             const TargetLDBackend&);
 template<>
-Operator::ValueType BinaryOp<Operator::LT>::eval();
+IntOperand* BinaryOp<Operator::LT>::eval(const Module&,
+                                         const TargetLDBackend&);
 template<>
-Operator::ValueType BinaryOp<Operator::LE>::eval();
+IntOperand* BinaryOp<Operator::LE>::eval(const Module&,
+                                         const TargetLDBackend&);
 template<>
-Operator::ValueType BinaryOp<Operator::GT>::eval();
+IntOperand* BinaryOp<Operator::GT>::eval(const Module&,
+                                         const TargetLDBackend&);
 template<>
-Operator::ValueType BinaryOp<Operator::GE>::eval();
+IntOperand* BinaryOp<Operator::GE>::eval(const Module&,
+                                         const TargetLDBackend&);
 template<>
-Operator::ValueType BinaryOp<Operator::EQ>::eval();
+IntOperand* BinaryOp<Operator::EQ>::eval(const Module&,
+                                         const TargetLDBackend&);
 template<>
-Operator::ValueType BinaryOp<Operator::NE>::eval();
+IntOperand* BinaryOp<Operator::NE>::eval(const Module&,
+                                         const TargetLDBackend&);
 template<>
-Operator::ValueType BinaryOp<Operator::BITWISE_AND>::eval();
+IntOperand* BinaryOp<Operator::BITWISE_AND>::eval(const Module&,
+                                                  const TargetLDBackend&);
 template<>
-Operator::ValueType BinaryOp<Operator::BITWISE_XOR>::eval();
+IntOperand* BinaryOp<Operator::BITWISE_XOR>::eval(const Module&,
+                                                  const TargetLDBackend&);
 template<>
-Operator::ValueType BinaryOp<Operator::BITWISE_OR>::eval();
+IntOperand* BinaryOp<Operator::BITWISE_OR>::eval(const Module&,
+                                                 const TargetLDBackend&);
 template<>
-Operator::ValueType BinaryOp<Operator::LOGICAL_AND>::eval();
+IntOperand* BinaryOp<Operator::LOGICAL_AND>::eval(const Module&,
+                                                  const TargetLDBackend&);
 template<>
-Operator::ValueType BinaryOp<Operator::LOGICAL_OR>::eval();
+IntOperand* BinaryOp<Operator::LOGICAL_OR>::eval(const Module&,
+                                                 const TargetLDBackend&);
+
 template<>
-Operator::ValueType BinaryOp<Operator::ASSIGN>::eval();
+IntOperand* BinaryOp<Operator::ALIGN>::eval(const Module&,
+                                            const TargetLDBackend&);
 template<>
-Operator::ValueType BinaryOp<Operator::ADD_ASSIGN>::eval();
+IntOperand*
+BinaryOp<Operator::DATA_SEGMENT_RELRO_END>::eval(const Module&,
+                                                 const TargetLDBackend&);
 template<>
-Operator::ValueType BinaryOp<Operator::SUB_ASSIGN>::eval();
+IntOperand* BinaryOp<Operator::MAX>::eval(const Module&,
+                                          const TargetLDBackend&);
 template<>
-Operator::ValueType BinaryOp<Operator::MUL_ASSIGN>::eval();
+IntOperand* BinaryOp<Operator::MIN>::eval(const Module&,
+                                          const TargetLDBackend&);
 template<>
-Operator::ValueType BinaryOp<Operator::DIV_ASSIGN>::eval();
-template<>
-Operator::ValueType BinaryOp<Operator::AND_ASSIGN>::eval();
-template<>
-Operator::ValueType BinaryOp<Operator::OR_ASSIGN>::eval();
-template<>
-Operator::ValueType BinaryOp<Operator::LS_ASSIGN>::eval();
-template<>
-Operator::ValueType BinaryOp<Operator::RS_ASSIGN>::eval();
+IntOperand* BinaryOp<Operator::SEGMENT_START>::eval(const Module&,
+                                                    const TargetLDBackend&);
 
 } // namespace of mcld
 

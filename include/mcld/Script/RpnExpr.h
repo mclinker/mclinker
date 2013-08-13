@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_RPN_EXPR_INTERFACE_H
-#define MCLD_RPN_EXPR_INTERFACE_H
+#ifndef MCLD_SCRIPT_RPN_EXPR_INTERFACE_H
+#define MCLD_SCRIPT_RPN_EXPR_INTERFACE_H
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif
@@ -48,9 +48,15 @@ public:
 
   bool empty() const { return m_TokenQueue.empty(); }
 
+  bool hasDot() const;
+
   void dump() const;
 
-  void append(ExprToken* pToken);
+  void push_back(ExprToken* pToken);
+
+  iterator insert(iterator pPosition, ExprToken* pToken);
+
+  void erase(iterator pPosition);
 
   /* factory methods */
   static RpnExpr* create();

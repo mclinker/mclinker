@@ -14,13 +14,25 @@
 #include <mcld/Script/Operand.h>
 #include <mcld/Script/Operator.h>
 #include <mcld/Script/Assignment.h>
+#include <mcld/Script/RpnExpr.h>
+#include <mcld/Script/FileToken.h>
+#include <mcld/Script/NameSpec.h>
+#include <mcld/Script/WildcardPattern.h>
 #include <mcld/Support/MsgHandling.h>
-#include <mcld/MC/Input.h>
 
 #undef yylex
-#define yylex pScriptScanner.lex
+#define yylex m_ScriptScanner.lex
 %}
 
+%code requires {
+#include <mcld/Script/StrToken.h>
+#include <mcld/Script/StringList.h>
+#include <mcld/Script/OutputSectDesc.h>
+#include <mcld/Script/InputSectDesc.h>
+#include <llvm/Support/DataTypes.h>
+}
+
+%pure-parser
 %require "2.4"
 %skeleton "lalr1.cc"
 %defines "ScriptParser.h"
@@ -28,34 +40,41 @@
 %error-verbose
 %define namespace "mcld"
 %define "parser_class_name" "ScriptParser"
-%parse-param { const class LinkerConfig& pConfig }
-%parse-param { class LinkerScript& pLDScript }
-%parse-param { class ScriptFile& pScriptFile }
-%parse-param { class ScriptScanner& pScriptScanner }
-%parse-param { class GroupReader& pGroupReader}
-%lex-param { const class ScriptFile& pScriptFile }
+%parse-param { const class LinkerConfig& m_LDConfig }
+%parse-param { class ScriptFile& m_ScriptFile }
+%parse-param { class ScriptScanner& m_ScriptScanner }
+%parse-param { class GroupReader& m_GroupReader}
+%parse-param { class RpnExpr* m_pRpnExpr }
+%parse-param { class StringList* m_pStringList }
+%parse-param { bool m_bAsNeeded }
+%lex-param { const class ScriptFile& m_ScriptFile }
 
 %locations
 %initial-action
 {
   /* Initialize the initial location. */
-  @$.begin.filename = @$.end.filename = &(pScriptFile.name());
+  @$.begin.filename = @$.end.filename = &(m_ScriptFile.name());
 }
 
 %start script_file
 
-%code requires {
-#include <llvm/Support/DataTypes.h>
-}
-
 %union {
-  const std::string* strToken;
-  uint64_t intToken;
+  const std::string* string;
+  uint64_t integer;
+  RpnExpr* rpn_expr;
+  StrToken* str_token;
+  StringList* str_tokens;
+  OutputSectDesc::Prolog output_prolog;
+  OutputSectDesc::Type output_type;
+  OutputSectDesc::Constraint output_constraint;
+  OutputSectDesc::Epilog output_epilog;
+  WildcardPattern* wildcard;
+  InputSectDesc::Spec input_spec;
 }
 
 %token END 0 /* EOF */
-%token <strToken> STRING
-%token <intToken> INTEGER
+%token <string> STRING LNAMESPEC
+%token <integer> INTEGER
 
 /* Initial states */
 %token LINKER_SCRIPT DEFSYM VERSION_SCRIPT DYNAMIC_LIST
@@ -121,6 +140,8 @@
 %token KEEP
 %token SORT_BY_NAME
 %token SORT_BY_ALIGNMENT
+%token SORT_NONE
+%token SORT_BY_INIT_PRIORITY
 /* Output Section Data */
 %token BYTE
 %token SHORT
@@ -163,15 +184,24 @@
 %left '*' '/' '%'
 %right UNARY_PLUS UNARY_MINUS '!' '~'
 
-%type <strToken> string
-%type <strToken> symbol
+%type <integer> exp
+%type <string> string symbol opt_region opt_lma_region wildcard_pattern
+%type <rpn_expr> script_exp opt_lma opt_align opt_subalign opt_fill
+%type <str_token> input phdr
+%type <str_tokens> input_list opt_phdr opt_exclude_files input_sect_wildcard_patterns
+%type <output_prolog> output_desc_prolog opt_vma_and_type
+%type <output_type> opt_type type
+%type <output_constraint> opt_constraint
+%type <output_epilog> output_desc_epilog
+%type <wildcard> wildcard_file wildcard_section
+%type <input_spec> input_sect_spec
 
-%% /* Grammar Rules */
+%%
 
 script_file : LINKER_SCRIPT
-              { pScriptScanner.setLexState(ScriptFile::LDScript); }
+              { m_ScriptScanner.setLexState(ScriptFile::LDScript); }
               linker_script
-              { pScriptScanner.popLexState(); }
+              { m_ScriptScanner.popLexState(); }
             ;
 
 linker_script : linker_script script_command
@@ -181,54 +211,373 @@ linker_script : linker_script script_command
 script_command : entry_command
                | output_format_command
                | group_command
+               | output_command
                | search_dir_command
                | output_arch_command
-               | { pScriptScanner.setLexState(ScriptFile::Expression); }
-                 symbol_assignment
-                 { pScriptScanner.popLexState(); }
+               | assert_command
+               | symbol_assignment
+               | sections_command
+               | ';'
                ;
 
 entry_command : ENTRY '(' STRING ')'
-                { pScriptFile.addEntryPoint(*$3, pLDScript); }
+                { m_ScriptFile.addEntryPoint(*$3); }
               ;
 
 output_format_command : OUTPUT_FORMAT '(' STRING ')'
-                        { pScriptFile.addOutputFormatCmd(*$3); }
+                        { m_ScriptFile.addOutputFormatCmd(*$3); }
                       | OUTPUT_FORMAT '(' STRING ',' STRING ',' STRING ')'
-                        { pScriptFile.addOutputFormatCmd(*$3, *$5, *$7); }
+                        { m_ScriptFile.addOutputFormatCmd(*$3, *$5, *$7); }
                       ;
 
-group_command : GROUP
-                {
-                  pScriptFile.addGroupCmd(pGroupReader, pConfig);
-                }
-                '(' input_list ')'
+group_command : GROUP '(' input_list ')'
+                { m_ScriptFile.addGroupCmd(*$3, m_GroupReader, m_LDConfig); }
               ;
 
 search_dir_command : SEARCH_DIR '(' STRING ')'
-                     { pScriptFile.addSearchDirCmd(*$3, pLDScript); }
+                     { m_ScriptFile.addSearchDirCmd(*$3); }
                    ;
 
+output_command : OUTPUT '(' STRING ')'
+                 { m_ScriptFile.addOutputCmd(*$3); }
+               ;
+
 output_arch_command : OUTPUT_ARCH '(' STRING ')'
-                      { pScriptFile.addOutputArchCmd(*$3); }
+                      { m_ScriptFile.addOutputArchCmd(*$3); }
                     ;
 
-input_list : input_list input_node
-           | input_list ',' input_node
+assert_command : ASSERT '(' script_exp ',' string ')'
+                 { m_ScriptFile.addAssertCmd(*$3, *$5); }
+               ;
+
+input_list : { m_pStringList = StringList::create(); }
+             inputs
+             { $$ = m_pStringList; }
+           ;
+
+inputs : input
+         { m_pStringList->push_back($1); }
+       | inputs input
+         { m_pStringList->push_back($2); }
+       | inputs ',' input
+         { m_pStringList->push_back($3); }
+       | AS_NEEDED '('
+         { m_bAsNeeded = true; }
+         inputs ')'
+         { m_bAsNeeded = false; }
+       | inputs AS_NEEDED '('
+         { m_bAsNeeded = true; }
+         inputs ')'
+         { m_bAsNeeded = false; }
+       | inputs ',' AS_NEEDED '('
+         { m_bAsNeeded = true; }
+         inputs ')'
+         { m_bAsNeeded = false; }
+       ;
+
+input : string
+        { $$ = FileToken::create(*$1, m_bAsNeeded); }
+      | LNAMESPEC
+        { $$ = NameSpec::create(*$1, m_bAsNeeded); }
+      ;
+
+/*
+  SECTIONS
+  {
+    sections-command
+    sections-command
+    ...
+  }
+*/
+sections_command : SECTIONS
+                   { m_ScriptFile.enterSectionsCmd(); }
+                   '{' sect_commands '}'
+                   { m_ScriptFile.leaveSectionsCmd(); }
+                 ;
+
+sect_commands : sect_commands sect_cmd
+              | /* Empty */
+              ;
+
+/*
+Each sections-command may of be one of the following:
+
+an ENTRY command (see Entry command)
+a symbol assignment (see Assignments)
+an output section description
+an overlay description
+*/
+sect_cmd : entry_command
+         | symbol_assignment
+         | output_sect_desc
+         ;
+
+/*
+The full description of an output section looks like this:
+
+  section [address] [(type)] :
+    [AT(lma)]
+    [ALIGN(section_align)]
+    [SUBALIGN(subsection_align)]
+    [constraint]
+    {
+      output-section-command
+      output-section-command
+      ...
+    } [>region] [AT>lma_region] [:phdr :phdr ...] [=fillexp]
+*/
+output_sect_desc : string output_desc_prolog
+                   { m_ScriptFile.enterOutputSectDesc(*$1, $2); }
+                   '{'
+                       output_sect_commands
+                   '}' output_desc_epilog
+                   { m_ScriptFile.leaveOutputSectDesc($7); }
+                 ;
+
+output_desc_prolog : {
+                       m_ScriptScanner.setLexState(ScriptFile::Expression);
+                       /* create exp for vma */
+                       m_pRpnExpr = RpnExpr::create();
+                     }
+                     opt_vma_and_type
+                     { m_ScriptScanner.popLexState(); }
+                     ':'
+                     opt_lma opt_align opt_subalign opt_constraint
+                     {
+                       $$.m_pVMA       = $2.m_pVMA;
+                       $$.m_Type       = $2.m_Type;
+                       $$.m_pLMA       = $5;
+                       $$.m_pAlign     = $6;
+                       $$.m_pSubAlign  = $7;
+                       $$.m_Constraint = $8;
+                     }
+                   ;
+
+output_sect_commands : output_sect_commands output_sect_cmd
+                     | /* Empty */
+                     ;
+
+output_desc_epilog : opt_region opt_lma_region opt_phdr opt_fill
+                     {
+                        $$.m_pRegion    = $1;
+                        $$.m_pLMARegion = $2;
+                        $$.m_pPhdrs     = $3;
+                        $$.m_pFillExp   = $4;
+                     }
+                   ;
+
+/* Output Section Attributes */
+opt_vma_and_type : exp opt_type
+                   {
+                     $$.m_pVMA = m_pRpnExpr;
+                     $$.m_Type = $2;
+                   }
+                 | opt_type
+                   {
+                     $$.m_pVMA = NULL;
+                     $$.m_Type = $1;
+                   }
+                 ;
+
+opt_type : '(' type ')'
+           { $$ = $2; }
+         | '(' ')'
+           { $$ = OutputSectDesc::LOAD; }
+         | /* Empty */
+           { $$ = OutputSectDesc::LOAD; }
+         ;
+
+type : NOLOAD
+       { $$ = OutputSectDesc::NOLOAD; }
+     | DSECT
+       { $$ = OutputSectDesc::DSECT; }
+     | COPY
+       { $$ = OutputSectDesc::COPY; }
+     | INFO
+       { $$ = OutputSectDesc::INFO; }
+     | OVERLAY
+       { $$ = OutputSectDesc::OVERLAY; }
+     ;
+
+opt_lma : AT '(' script_exp ')'
+          { $$ = $3; }
+        | /* Empty */
+          { $$ = NULL; }
+        ;
+
+/* Forced Output Alignment */
+opt_align : ALIGN '(' script_exp ')'
+            { $$ = $3; }
+          | /* Empty */
+            { $$ = NULL; }
+          ;
+
+/* Forced Input Alignment */
+opt_subalign : SUBALIGN '(' script_exp ')'
+               { $$ = $3; }
+             | /* Empty */
+               { $$ = NULL; }
+             ;
+
+opt_constraint : ONLY_IF_RO
+                 { $$ = OutputSectDesc::ONLY_IF_RO; }
+               | ONLY_IF_RW
+                 { $$ = OutputSectDesc::ONLY_IF_RW; }
+               | /* Empty */
+                 { $$ = OutputSectDesc::NO_CONSTRAINT; }
+               ;
+
+opt_region : '>' string
+             { $$ = $2; }
            | /* Empty */
+             { $$ = NULL; }
            ;
 
-input_node : string
-             { pScriptFile.addScriptInput(*$1); }
-           | AS_NEEDED
-             { pScriptFile.setAsNeeded(true); }
-             '(' input_list ')'
-             { pScriptFile.setAsNeeded(false); }
-           ;
+opt_lma_region : AT '>' string
+                 { $$ = $3; }
+               | /* Empty */
+                 { $$ = NULL; }
+               ;
 
-symbol_assignment : symbol
-                    { pScriptFile.addAssignment(pLDScript, *$1); }
-                    '=' exp ';'
+opt_phdr : { m_pStringList = StringList::create(); }
+           phdrs
+           { $$ = m_pStringList; }
+         ;
+
+phdrs : phdrs ':' phdr
+        { m_pStringList->push_back($3); }
+      | /* Empty */
+      ;
+
+phdr : string
+       { $$ = StrToken::create(*$1); }
+     ;
+
+opt_fill : '=' script_exp
+           { $$ = $2; }
+         | /* Empty */
+           { $$ = NULL; }
+         ;
+
+/*
+Each output-section-command may be one of the following:
+
+a symbol assignment (see Assignments)
+an input section description (see Input Section)
+data values to include directly (see Output Section Data)
+a special output section keyword (see Output Section Keywords)
+*/
+output_sect_cmd : symbol_assignment
+                | input_sect_desc
+                | output_sect_data
+                | output_sect_keyword
+                | ';'
+                ;
+
+input_sect_desc : input_sect_spec
+                  { m_ScriptFile.addInputSectDesc(InputSectDesc::NoKeep, $1); }
+                | KEEP '(' input_sect_spec ')'
+                  { m_ScriptFile.addInputSectDesc(InputSectDesc::Keep, $3); }
+                ;
+
+input_sect_spec : string
+                  {
+                    $$.m_pWildcardFile =
+                      WildcardPattern::create(*$1, WildcardPattern::SORT_NONE);
+                    $$.m_pExcludeFiles = NULL;
+                    $$.m_pWildcardSections = NULL;
+                  }
+                | wildcard_file '(' opt_exclude_files input_sect_wildcard_patterns ')'
+                  {
+                    $$.m_pWildcardFile = $1;
+                    $$.m_pExcludeFiles = $3;
+                    $$.m_pWildcardSections = $4;
+                  }
+                ;
+
+wildcard_file : wildcard_pattern
+                { $$ = WildcardPattern::create(*$1, WildcardPattern::SORT_NONE); }
+              | SORT_BY_NAME '(' wildcard_pattern ')'
+                { $$ = WildcardPattern::create(*$3, WildcardPattern::SORT_BY_NAME); }
+              ;
+
+wildcard_pattern : string
+                   { $$ = $1; }
+                 | '*'
+                   { $$ = &m_ScriptFile.createParserStr("*", 1); }
+                 | '?'
+                   { $$ = &m_ScriptFile.createParserStr("?", 1); }
+                 ;
+
+opt_exclude_files : EXCLUDE_FILE '('
+                    { m_pStringList = StringList::create(); }
+                    exclude_files ')'
+                    { $$ = m_pStringList; }
+                  | /* Empty */
+                    { $$ = NULL; }
+                  ;
+
+exclude_files : exclude_files wildcard_pattern
+                {
+                  m_pStringList->push_back(
+                    WildcardPattern::create(*$2, WildcardPattern::SORT_NONE));
+                }
+              | wildcard_pattern
+                {
+                  m_pStringList->push_back(
+                    WildcardPattern::create(*$1, WildcardPattern::SORT_NONE));
+                }
+              ;
+
+input_sect_wildcard_patterns : { m_pStringList = StringList::create(); }
+                               wildcard_sections
+                               { $$ = m_pStringList; }
+                             ;
+
+wildcard_sections : wildcard_sections wildcard_section
+                    {
+                      m_pStringList->push_back($2);
+                    }
+                  | wildcard_section
+                    {
+                      m_pStringList->push_back($1);
+                    }
+                  ;
+
+wildcard_section : wildcard_pattern
+                   { $$ = WildcardPattern::create(*$1, WildcardPattern::SORT_NONE); }
+                 | SORT_NONE '(' wildcard_pattern ')'
+                   { $$ = WildcardPattern::create(*$3, WildcardPattern::SORT_NONE); }
+                 | SORT_BY_NAME '(' wildcard_pattern ')'
+                   { $$ = WildcardPattern::create(*$3, WildcardPattern::SORT_BY_NAME); }
+                 | SORT_BY_ALIGNMENT '(' wildcard_pattern ')'
+                   { $$ = WildcardPattern::create(*$3, WildcardPattern::SORT_BY_ALIGNMENT); }
+                 | SORT_BY_NAME '(' SORT_BY_ALIGNMENT '(' wildcard_pattern ')' ')'
+                   { $$ = WildcardPattern::create(*$5, WildcardPattern::SORT_BY_NAME_ALIGNMENT); }
+                 | SORT_BY_ALIGNMENT '('SORT_BY_NAME '(' wildcard_pattern ')' ')'
+                   { $$ = WildcardPattern::create(*$5, WildcardPattern::SORT_BY_ALIGNMENT_NAME); }
+                 | SORT_BY_NAME '(' SORT_BY_NAME '(' wildcard_pattern ')' ')'
+                   { $$ = WildcardPattern::create(*$5, WildcardPattern::SORT_BY_NAME); }
+                 | SORT_BY_ALIGNMENT '(' SORT_BY_ALIGNMENT '(' wildcard_pattern ')' ')'
+                   { $$ = WildcardPattern::create(*$5, WildcardPattern::SORT_BY_ALIGNMENT); }
+                 | SORT_BY_INIT_PRIORITY '(' wildcard_pattern ')'
+                   { $$ = WildcardPattern::create(*$3, WildcardPattern::SORT_BY_INIT_PRIORITY); }
+                 ;
+
+output_sect_data : BYTE  '(' script_exp ')'
+                 | SHORT '(' script_exp ')'
+                 | LONG  '(' script_exp ')'
+                 | QUAD  '(' script_exp ')'
+                 | SQUAD '(' script_exp ')'
+                 ;
+
+output_sect_keyword : CREATE_OBJECT_SYMBOLS
+                    | CONSTRUCTORS
+                    | SORT_BY_NAME '(' CONSTRUCTORS ')'
+                    ;
+
+symbol_assignment : symbol '=' script_exp ';'
+                    { m_ScriptFile.addAssignment(*$1, *$3); }
                   | symbol ADD_ASSIGN exp ';'
                   | symbol SUB_ASSIGN exp ';'
                   | symbol MUL_ASSIGN exp ';'
@@ -237,98 +586,284 @@ symbol_assignment : symbol
                   | symbol OR_ASSIGN exp ';'
                   | symbol LS_ASSIGN exp ';'
                   | symbol RS_ASSIGN exp ';'
-                  | HIDDEN '(' symbol
+                  | HIDDEN '(' symbol '=' script_exp ')' ';'
                     {
-                      pScriptFile.addAssignment(pLDScript, *$3,
-                                                Assignment::HIDDEN);
+                      m_ScriptFile.addAssignment(*$3, *$5,
+                                                 Assignment::HIDDEN);
                     }
-                    '=' exp ')' ';'
-                  | PROVIDE '(' symbol
+                  | PROVIDE '(' symbol '=' script_exp ')' ';'
                     {
-                      pScriptFile.addAssignment(pLDScript, *$3,
-                                                Assignment::PROVIDE);
+                      m_ScriptFile.addAssignment(*$3, *$5,
+                                                 Assignment::PROVIDE);
                     }
-                    '=' exp ')' ';'
-                  | PROVIDE_HIDDEN '(' symbol
+                  | PROVIDE_HIDDEN '(' symbol '=' script_exp ')' ';'
                     {
-                      pScriptFile.addAssignment(pLDScript, *$3,
-                                                Assignment::PROVIDE_HIDDEN);
+                      m_ScriptFile.addAssignment(*$3, *$5,
+                                                 Assignment::PROVIDE_HIDDEN);
                     }
-                    '=' exp ')' ';'
                   ;
 
+script_exp : {
+               m_ScriptScanner.setLexState(ScriptFile::Expression);
+               m_pRpnExpr = RpnExpr::create();
+             }
+             exp
+             {
+               m_ScriptScanner.popLexState();
+               $$ = m_pRpnExpr;
+             }
+           ;
+
 exp : '(' exp ')'
+      {
+        $$ = $2;
+      }
     | '+' exp %prec UNARY_PLUS
-      { pScriptFile.addExprToken(&Operator::create<Operator::UNARY_PLUS>()); }
+      {
+        m_pRpnExpr->push_back(&Operator::create<Operator::UNARY_PLUS>());
+        $$ = $2 + 1;
+      }
     | '-' exp %prec UNARY_MINUS
-      { pScriptFile.addExprToken(&Operator::create<Operator::UNARY_MINUS>()); }
+      {
+        m_pRpnExpr->push_back(&Operator::create<Operator::UNARY_MINUS>());
+        $$ = $2 + 1;
+      }
     | '!' exp
-      { pScriptFile.addExprToken(&Operator::create<Operator::LOGICAL_NOT>()); }
+      {
+        m_pRpnExpr->push_back(&Operator::create<Operator::LOGICAL_NOT>());
+        $$ = $2 + 1;
+      }
     | '~' exp
-      { pScriptFile.addExprToken(&Operator::create<Operator::BITWISE_NOT>()); }
+      {
+        m_pRpnExpr->push_back(&Operator::create<Operator::BITWISE_NOT>());
+        $$ = $2 + 1;
+      }
     | exp '*' exp
-      { pScriptFile.addExprToken(&Operator::create<Operator::MUL>()); }
+      {
+        m_pRpnExpr->push_back(&Operator::create<Operator::MUL>());
+        $$ = $1 + $3 + 1;
+      }
     | exp '/' exp
-      { pScriptFile.addExprToken(&Operator::create<Operator::DIV>()); }
+      {
+        m_pRpnExpr->push_back(&Operator::create<Operator::DIV>());
+        $$ = $1 + $3 + 1;
+      }
     | exp '%' exp
-      { pScriptFile.addExprToken(&Operator::create<Operator::MOD>()); }
+      {
+        m_pRpnExpr->push_back(&Operator::create<Operator::MOD>());
+        $$ = $1 + $3 + 1;
+      }
     | exp '+' exp
-      { pScriptFile.addExprToken(&Operator::create<Operator::ADD>()); }
+      {
+        m_pRpnExpr->push_back(&Operator::create<Operator::ADD>());
+        $$ = $1 + $3 + 1;
+      }
     | exp '-' exp
-      { pScriptFile.addExprToken(&Operator::create<Operator::SUB>()); }
+      {
+        m_pRpnExpr->push_back(&Operator::create<Operator::SUB>());
+        $$ = $1 + $3 + 1;
+      }
     | exp LSHIFT exp
-      { pScriptFile.addExprToken(&Operator::create<Operator::LSHIFT>()); }
+      {
+        m_pRpnExpr->push_back(&Operator::create<Operator::LSHIFT>());
+        $$ = $1 + $3 + 1;
+      }
     | exp RSHIFT exp
-      { pScriptFile.addExprToken(&Operator::create<Operator::RSHIFT>()); }
+      {
+        m_pRpnExpr->push_back(&Operator::create<Operator::RSHIFT>());
+        $$ = $1 + $3 + 1;
+      }
     | exp '<' exp
-      { pScriptFile.addExprToken(&Operator::create<Operator::LT>()); }
+      {
+        m_pRpnExpr->push_back(&Operator::create<Operator::LT>());
+        $$ = $1 + $3 + 1;
+      }
     | exp LE exp
-      { pScriptFile.addExprToken(&Operator::create<Operator::LE>()); }
+      {
+        m_pRpnExpr->push_back(&Operator::create<Operator::LE>());
+        $$ = $1 + $3 + 1;
+      }
     | exp '>' exp
-      { pScriptFile.addExprToken(&Operator::create<Operator::GT>()); }
+      {
+        m_pRpnExpr->push_back(&Operator::create<Operator::GT>());
+        $$ = $1 + $3 + 1;
+      }
     | exp GE exp
-      { pScriptFile.addExprToken(&Operator::create<Operator::GE>()); }
+      {
+        m_pRpnExpr->push_back(&Operator::create<Operator::GE>());
+        $$ = $1 + $3 + 1;
+      }
     | exp EQ exp
-      { pScriptFile.addExprToken(&Operator::create<Operator::EQ>()); }
+      {
+        m_pRpnExpr->push_back(&Operator::create<Operator::EQ>());
+        $$ = $1 + $3 + 1;
+      }
     | exp NE exp
-      { pScriptFile.addExprToken(&Operator::create<Operator::NE>()); }
+      {
+        m_pRpnExpr->push_back(&Operator::create<Operator::NE>());
+        $$ = $1 + $3 + 1;
+      }
     | exp '&' exp
-      { pScriptFile.addExprToken(&Operator::create<Operator::BITWISE_AND>()); }
+      {
+        m_pRpnExpr->push_back(&Operator::create<Operator::BITWISE_AND>());
+        $$ = $1 + $3 + 1;
+      }
     | exp '^' exp
-      { pScriptFile.addExprToken(&Operator::create<Operator::BITWISE_XOR>()); }
+      {
+        m_pRpnExpr->push_back(&Operator::create<Operator::BITWISE_XOR>());
+        $$ = $1 + $3 + 1;
+      }
     | exp '|' exp
-      { pScriptFile.addExprToken(&Operator::create<Operator::BITWISE_OR>()); }
+      {
+        m_pRpnExpr->push_back(&Operator::create<Operator::BITWISE_OR>());
+        $$ = $1 + $3 + 1;
+      }
     | exp LOGICAL_AND exp
-      { pScriptFile.addExprToken(&Operator::create<Operator::LOGICAL_AND>()); }
+      {
+        m_pRpnExpr->push_back(&Operator::create<Operator::LOGICAL_AND>());
+        $$ = $1 + $3 + 1;
+      }
     | exp LOGICAL_OR exp
-      { pScriptFile.addExprToken(&Operator::create<Operator::LOGICAL_OR>()); }
+      {
+        m_pRpnExpr->push_back(&Operator::create<Operator::LOGICAL_OR>());
+      }
     | exp '?' exp ':' exp
-      { pScriptFile.addExprToken(&Operator::create<Operator::TERNARY_IF>()); }
+      {
+        m_pRpnExpr->push_back(&Operator::create<Operator::TERNARY_IF>());
+        $$ = $1 + $3 + $5 + 1;
+      }
     | ABSOLUTE '(' exp ')'
+      {
+        m_pRpnExpr->push_back(&Operator::create<Operator::ABSOLUTE>());
+        $$ = $3 + 1;
+      }
     | ADDR '(' string ')'
+      {
+        m_pRpnExpr->push_back(SectOperand::create(*$3));
+        m_pRpnExpr->push_back(&Operator::create<Operator::ADDR>());
+        $$ = 2;
+      }
     | ALIGN '(' exp ')'
+      {
+        RpnExpr::iterator pos = m_pRpnExpr->begin() + m_pRpnExpr->size() - $3;
+        m_pRpnExpr->insert(pos, SymOperand::create("."));
+        m_pRpnExpr->push_back(&Operator::create<Operator::ALIGN>());
+        $$ = $3 + 2;
+      }
     | ALIGN '(' exp ',' exp ')'
+      {
+        m_pRpnExpr->push_back(&Operator::create<Operator::ALIGN>());
+        $$ = $3 + $5 + 1;
+      }
     | ALIGNOF '(' string ')'
+      {
+        m_pRpnExpr->push_back(SectOperand::create(*$3));
+        m_pRpnExpr->push_back(&Operator::create<Operator::ALIGNOF>());
+        $$ = 2;
+      }
     | BLOCK '(' exp ')'
-    | DATA_SEGMENT_ALIGN '(' exp ',' exp ')'
+      {
+        RpnExpr::iterator pos = m_pRpnExpr->begin() + m_pRpnExpr->size() - $3;
+        m_pRpnExpr->insert(pos, SymOperand::create("."));
+        m_pRpnExpr->push_back(&Operator::create<Operator::ALIGN>());
+        $$ = $3 + 2;
+      }
+    | DATA_SEGMENT_ALIGN
+      {
+        m_pRpnExpr->push_back(SymOperand::create("."));
+      }
+      '(' exp ',' exp ')'
+      {
+        m_pRpnExpr->push_back(
+          &Operator::create<Operator::DATA_SEGMENT_ALIGN>());
+        $$ = $4 + $6 + 2;
+      }
     | DATA_SEGMENT_END '(' exp ')'
+      {
+        m_pRpnExpr->push_back(&Operator::create<Operator::DATA_SEGMENT_END>());
+        $$ = $3 + 1;
+      }
     | DATA_SEGMENT_RELRO_END '(' exp ',' exp ')'
-    | DEFINED '(' string ')'
+      {
+        m_pRpnExpr->push_back(
+          &Operator::create<Operator::DATA_SEGMENT_RELRO_END>());
+        $$ = $3 + $5 + 1;
+      }
+    | DEFINED '(' symbol ')'
+      {
+        m_pRpnExpr->push_back(SymOperand::create(*$3));
+        m_pRpnExpr->push_back(&Operator::create<Operator::DEFINED>());
+        $$ = 2;
+      }
     | LENGTH '(' string ')'
+      {
+        /* TODO */
+      }
     | LOADADDR '(' string ')'
+      {
+        m_pRpnExpr->push_back(SectOperand::create(*$3));
+        m_pRpnExpr->push_back(&Operator::create<Operator::LOADADDR>());
+        $$ = 2;
+      }
     | MAX '(' exp ',' exp ')'
+      {
+        m_pRpnExpr->push_back(&Operator::create<Operator::MAX>());
+        $$ = $3 + $5 + 1;
+      }
     | MIN '(' exp ',' exp ')'
+      {
+        m_pRpnExpr->push_back(&Operator::create<Operator::MIN>());
+        $$ = $3 + $5 + 1;
+      }
     | NEXT '(' exp ')'
+      {
+        m_pRpnExpr->push_back(&Operator::create<Operator::NEXT>());
+        $$ = $3 + 1;
+      }
     | ORIGIN '(' string ')'
-    | SEGMENT_START '(' string ',' exp ')'
+      {
+        /* TODO */
+      }
+    | SEGMENT_START '(' string
+      {
+        m_pRpnExpr->push_back(SectOperand::create(*$3));
+      }
+      ',' exp ')'
+      {
+        m_pRpnExpr->push_back(&Operator::create<Operator::SEGMENT_START>());
+        $$ = $6 + 2;
+      }
     | SIZEOF '(' string ')'
+      {
+        m_pRpnExpr->push_back(SectOperand::create(*$3));
+        m_pRpnExpr->push_back(&Operator::create<Operator::SIZEOF>());
+        $$ = 2;
+      }
     | SIZEOF_HEADERS
+      {
+        m_pRpnExpr->push_back(&Operator::create<Operator::SIZEOF_HEADERS>());
+        $$ = 1;
+      }
     | CONSTANT '(' MAXPAGESIZE ')'
+      {
+        m_pRpnExpr->push_back(&Operator::create<Operator::MAXPAGESIZE>());
+        $$ = 1;
+      }
     | CONSTANT '(' COMMONPAGESIZE')'
+      {
+        m_pRpnExpr->push_back(&Operator::create<Operator::COMMONPAGESIZE>());
+        $$ = 1;
+      }
     | INTEGER
-      { pScriptFile.addExprToken(Operand::create($1)); }
+      {
+        m_pRpnExpr->push_back(IntOperand::create($1));
+        $$ = 1;
+      }
     | symbol
-      { pScriptFile.addExprToken(Operand::create(Operand::SYMBOL, *$1)); }
+      {
+        m_pRpnExpr->push_back(SymOperand::create(*$1));
+        $$ = 1;
+      }
     ;
 
 symbol : STRING
@@ -341,7 +876,7 @@ string : STRING
          { $$ = $2; }
        ;
 
-%% /* Additional Code */
+%%
 
 void mcld::ScriptParser::error(const mcld::ScriptParser::location_type& pLoc,
                                const std::string &pMsg)

@@ -58,11 +58,6 @@ public:
   GeneralOptions();
   ~GeneralOptions();
 
-  /// default link script
-  bool hasDefaultLDScript() const;
-  const char* defaultLDScript() const;
-  void setDefaultLDScript(const std::string& pFilename);
-
   /// trace
   void setTrace(bool pEnableTrace = true)
   { m_bTrace = pEnableTrace; }

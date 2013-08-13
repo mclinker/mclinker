@@ -13,96 +13,102 @@
 #include <mcld/Script/ExprToken.h>
 #include <mcld/Script/Operator.h>
 #include <mcld/Script/Operand.h>
+#include <mcld/Module.h>
 #include <llvm/Support/Casting.h>
 #include <llvm/Support/DataTypes.h>
+#include <stack>
 #include <cassert>
 
 using namespace mcld;
 
-RpnEvaluator::RpnEvaluator(const Module& pModule)
-  : m_Module(pModule)
+RpnEvaluator::RpnEvaluator(const Module& pModule,
+                           const TargetLDBackend& pBackend)
+  : m_Module(pModule),
+    m_Backend(pBackend)
 {
 }
 
-bool RpnEvaluator::eval(const RpnExpr& pExpr, uint64_t& pSymVal)
+bool RpnEvaluator::eval(const RpnExpr& pExpr, uint64_t& pResult)
 {
-  std::stack<uint64_t> operandStack;
+  std::stack<Operand*> operandStack;
   for (RpnExpr::const_iterator it = pExpr.begin(), ie = pExpr.end(); it != ie;
     ++it) {
     switch((*it)->kind()) {
-    case ExprToken::Op: {
+    case ExprToken::OPERATOR: {
       Operator* op = llvm::cast<Operator>(*it);
       switch (op->arity()) {
-      case Operator::Unary: {
-        uint64_t opd = operandStack.top();
-        operandStack.pop();
-        op->appendOperand(opd);
-        operandStack.push(op->eval());
+      case Operator::NULLARY: {
+        operandStack.push(op->eval(m_Module, m_Backend));
         break;
       }
-      case Operator::Binary: {
-        uint64_t opd2 = operandStack.top();
+      case Operator::UNARY: {
+        Operand* opd = operandStack.top();
         operandStack.pop();
-        uint64_t opd1 = operandStack.top();
+        op->appendOperand(opd);
+        operandStack.push(op->eval(m_Module, m_Backend));
+        break;
+      }
+      case Operator::BINARY: {
+        Operand* opd2 = operandStack.top();
+        operandStack.pop();
+        Operand* opd1 = operandStack.top();
         operandStack.pop();
         op->appendOperand(opd1);
         op->appendOperand(opd2);
-        operandStack.push(op->eval());
+        operandStack.push(op->eval(m_Module, m_Backend));
         break;
       }
-      case Operator::Ternary: {
-        uint64_t opd3 = operandStack.top();
+      case Operator::TERNARY: {
+        Operand* opd3 = operandStack.top();
         operandStack.pop();
-        uint64_t opd2 = operandStack.top();
+        Operand* opd2 = operandStack.top();
         operandStack.pop();
-        uint64_t opd1 = operandStack.top();
+        Operand* opd1 = operandStack.top();
         operandStack.pop();
         op->appendOperand(opd1);
         op->appendOperand(opd2);
         op->appendOperand(opd3);
-        operandStack.push(op->eval());
+        operandStack.push(op->eval(m_Module, m_Backend));
         break;
       }
-      default:
-        assert(0 && "Unsupport operator!");
-        break;
-      }
+      } // end of switch operator arity
       break;
     }
 
-    case ExprToken::Opd: {
+    case ExprToken::OPERAND: {
       Operand* opd = llvm::cast<Operand>(*it);
       switch (opd->type()) {
       case Operand::SYMBOL: {
-        const LDSymbol* symbol =
-          m_Module.getNamePool().findSymbol(opd->strVal());
-        if (symbol == NULL) {
-          fatal(diag::fail_sym_resolution) << __FILE__ << __LINE__
-                                           << "mclinker@googlegroups.com";
+        // It's possible that there are no operators in an expression, so
+        // we set up symbol operand here.
+        if (!opd->isDot()) {
+          SymOperand* sym_opd = llvm::cast<SymOperand>(opd);
+          const LDSymbol* symbol =
+            m_Module.getNamePool().findSymbol(sym_opd->name());
+          if (symbol == NULL) {
+            fatal(diag::fail_sym_resolution) << __FILE__ << __LINE__
+                                             << "mclinker@googlegroups.com";
+          }
+          sym_opd->setValue(symbol->value());
         }
-        operandStack.push(symbol->value());
+        operandStack.push(opd);
         break;
       }
-      case Operand::INTEGER:
-        operandStack.push(opd->intVal());
-        break;
-      case Operand::SECTION:
-      case Operand::DOT:
       default:
-        assert(0 && "Unsupport operand!");
+        operandStack.push(opd);
         break;
-      }
+      } // end of switch operand type
       break;
     }
 
-    case ExprToken::Func:
-    default:
-      assert(0 && "Unsupport expression token!");
-      break;
-    }
-  }
+    } // end of switch
+  } // end of for
+
   // stack top is result
-  pSymVal = operandStack.top();
+  assert(operandStack.top()->type() == Operand::SYMBOL ||
+         operandStack.top()->type() == Operand::INTEGER ||
+         operandStack.top()->type() == Operand::FRAGMENT);
+  pResult = operandStack.top()->value();
   return true;
 }
 

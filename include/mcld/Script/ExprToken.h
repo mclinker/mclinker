@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_EXPR_TOKEN_INTERFACE_H
-#define MCLD_EXPR_TOKEN_INTERFACE_H
+#ifndef MCLD_SCRIPT_EXPR_TOKEN_INTERFACE_H
+#define MCLD_SCRIPT_EXPR_TOKEN_INTERFACE_H
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif
@@ -23,9 +23,8 @@ class ExprToken
 {
 public:
   enum Kind {
-    Op,
-    Opd,
-    Func
+    OPERATOR,
+    OPERAND
   };
 
 protected:

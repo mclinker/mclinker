@@ -20,7 +20,6 @@ namespace mcld {
 
 class LinkerConfig;
 class GNUInfo;
-class SectionMap;
 
 //===----------------------------------------------------------------------===//
 /// ARMGNULDBackend - linker backend of ARM target of GNU ELF format
@@ -113,7 +112,7 @@ public:
   bool finalizeTargetSymbols();
 
   /// mergeSection - merge target dependent sections
-  bool mergeSection(Module& pModule, LDSection& pSection);
+  bool mergeSection(Module& pModule, const Input& pInput, LDSection& pSection);
 
   /// readSection - read target dependent sections
   bool readSection(Input& pInput, SectionData& pSD);

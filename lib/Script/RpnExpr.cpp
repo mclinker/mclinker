@@ -8,8 +8,11 @@
 //===----------------------------------------------------------------------===//
 #include <mcld/Script/RpnExpr.h>
 #include <mcld/Script/ExprToken.h>
+#include <mcld/Script/Operand.h>
 #include <mcld/Support/GCFactory.h>
+#include <mcld/Support/raw_ostream.h>
 #include <llvm/Support/ManagedStatic.h>
+#include <llvm/Support/Casting.h>
 
 using namespace mcld;
 
@@ -27,13 +30,25 @@ RpnExpr::~RpnExpr()
 {
 }
 
-void RpnExpr::dump() const
+bool RpnExpr::hasDot() const
 {
-  for (const_iterator it = begin(), ie = end(); it != ie; ++it)
-    (*it)->dump();
+  for (const_iterator it = begin(), ie = end(); it != ie; ++it) {
+    if ((*it)->kind() == ExprToken::OPERAND &&
+        llvm::cast<Operand>(*it)->isDot())
+      return true;
+  }
+  return false;
 }
 
-void RpnExpr::append(ExprToken* pToken)
+void RpnExpr::dump() const
+{
+  for (const_iterator it = begin(), ie = end(); it != ie; ++it) {
+    (*it)->dump();
+    mcld::outs() << " ";
+  }
+}
+
+void RpnExpr::push_back(ExprToken* pToken)
 {
   m_TokenQueue.push_back(pToken);
 }
@@ -57,3 +72,12 @@ void RpnExpr::clear()
   g_ExprFactory->clear();
 }
 
+RpnExpr::iterator RpnExpr::insert(iterator pPosition, ExprToken* pToken)
+{
+  return m_TokenQueue.insert(pPosition, pToken);
+}
+
+void RpnExpr::erase(iterator pPosition)
+{
+  m_TokenQueue.erase(pPosition);
+}

@@ -448,15 +448,26 @@ endif
 
 LINKERSCRIPT_HEADER = \
 	${INCDIR}/Script/ScriptCommand.h \
-	${INCDIR}/Script/ScriptInput.h \
+	${INCDIR}/Script/StrToken.h \
+	${INCDIR}/Script/InputToken.h \
+	${INCDIR}/Script/FileToken.h \
+	${INCDIR}/Script/NameSpec.h \
+	${INCDIR}/Script/WildcardPattern.h \
+	${INCDIR}/Script/StringList.h \
 	${INCDIR}/Script/EntryCmd.h \
 	${INCDIR}/Script/OutputFormatCmd.h \
 	${INCDIR}/Script/GroupCmd.h \
+	${INCDIR}/Script/OutputCmd.h \
 	${INCDIR}/Script/SearchDirCmd.h \
 	${INCDIR}/Script/OutputArchCmd.h \
+	${INCDIR}/Script/AssertCmd.h \
 	${INCDIR}/Script/Assignment.h \
+	${INCDIR}/Script/SectionsCmd.h \
+	${INCDIR}/Script/OutputSectDesc.h \
+	${INCDIR}/Script/InputSectDesc.h \
 	${INCDIR}/Script/ExprToken.h \
 	${INCDIR}/Script/Operator.h \
+	${INCDIR}/Script/NullaryOp.h \
 	${INCDIR}/Script/UnaryOp.h \
 	${INCDIR}/Script/BinaryOp.h \
 	${INCDIR}/Script/TernaryOp.h \
@@ -469,15 +480,26 @@ LINKERSCRIPT_HEADER = \
 	${INCDIR}/Script/ScriptReader.h
 
 LINKERSCRIPT_SOURCE = \
+	${LIBDIR}/Script/StrToken.cpp \
+	${LIBDIR}/Script/InputToken.cpp \
+	${LIBDIR}/Script/FileToken.cpp \
+	${LIBDIR}/Script/NameSpec.cpp \
+	${LIBDIR}/Script/WildcardPattern.cpp \
+	${LIBDIR}/Script/StringList.cpp \
 	${LIBDIR}/Script/ScriptCommand.cpp \
-	${LIBDIR}/Script/ScriptInput.cpp \
 	${LIBDIR}/Script/EntryCmd.cpp \
 	${LIBDIR}/Script/OutputFormatCmd.cpp \
 	${LIBDIR}/Script/GroupCmd.cpp \
+	${LIBDIR}/Script/OutputCmd.cpp \
 	${LIBDIR}/Script/SearchDirCmd.cpp \
 	${LIBDIR}/Script/OutputArchCmd.cpp \
+	${LIBDIR}/Script/AssertCmd.cpp \
 	${LIBDIR}/Script/Assignment.cpp \
+	${LIBDIR}/Script/SectionsCmd.cpp \
+	${LIBDIR}/Script/OutputSectDesc.cpp \
+	${LIBDIR}/Script/InputSectDesc.cpp \
 	${LIBDIR}/Script/Operator.cpp \
+	${LIBDIR}/Script/NullaryOp.cpp \
 	${LIBDIR}/Script/UnaryOp.cpp \
 	${LIBDIR}/Script/BinaryOp.cpp \
 	${LIBDIR}/Script/TernaryOp.cpp \

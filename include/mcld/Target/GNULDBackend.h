@@ -107,6 +107,9 @@ public:
   /// getSegmentStartAddr - this function returns the start address of the segment
   uint64_t getSegmentStartAddr(const LinkerScript& pScript) const;
 
+  /// sizeShstrtab - compute the size of .shstrtab
+  void sizeShstrtab(Module& pModule);
+
   /// sizeNamePools - compute the size of regular name pools
   /// In ELF executable files, regular name pools are .symtab, .strtab.,
   /// .dynsym, .dynstr, and .hash
@@ -165,11 +168,6 @@ public:
   /// will be the last section to be laid out.
   virtual unsigned int getTargetSectionOrder(const LDSection& pSectHdr) const
   { return (unsigned int)-1; }
-
-  /// numOfSegments - return the number of segments
-  /// if the target favors other ways to emit program header, please override
-  /// this function
-  size_t numOfSegments() const;
 
   /// elfSegmentTable - return the reference of the elf segment table
   ELFSegmentFactory&       elfSegmentTable();
@@ -370,33 +368,19 @@ private:
 
   /// getSegmentFlag - give a section flag and return the corresponding segment
   /// flag
-  inline uint32_t getSegmentFlag(const uint32_t pSectionFlag)
-  {
-    uint32_t flag = llvm::ELF::PF_R;
-    if (0 != (pSectionFlag & llvm::ELF::SHF_WRITE))
-      flag |= llvm::ELF::PF_W;
-    if (0 != (pSectionFlag & llvm::ELF::SHF_EXECINSTR))
-      flag |= llvm::ELF::PF_X;
-    return flag;
-  }
+  inline uint32_t getSegmentFlag(const uint32_t pSectionFlag);
 
   /// setupGNUStackInfo - setup the section flag of .note.GNU-stack in output
   void setupGNUStackInfo(Module& pModule);
 
-  /// setupRelro - setup the offset constraint of PT_RELRO
-  void setupRelro(Module& pModule);
+  /// setOutputSectionOffset - helper function to set output sections' offset.
+  void setOutputSectionOffset(Module& pModule);
 
-  /// setOutputSectionOffset - helper function to set a group of output sections'
-  /// offset, and set pSectBegin to pStartOffset if pStartOffset is not -1U.
-  void setOutputSectionOffset(Module& pModule,
-                              Module::iterator pSectBegin,
-                              Module::iterator pSectEnd,
-                              uint64_t pStartOffset = -1U);
+  /// setOutputSectionAddress - helper function to set output sections' address.
+  void setOutputSectionAddress(Module& pModule);
 
-  /// setOutputSectionOffset - helper function to set output sections' address.
-  void setOutputSectionAddress(Module& pModule,
-                               Module::iterator pSectBegin,
-                               Module::iterator pSectEnd);
+  /// placeOutputSections - place output sections based on SectionMap
+  void placeOutputSections(Module& pModule);
 
   /// layout - layout method
   void layout(Module& pModule);
@@ -439,40 +423,33 @@ protected:
   // Based on Kind in LDFileFormat to define basic section orders for ELF, and
   // refer gold linker to add more enumerations to handle Regular and BSS kind
   enum SectionOrder {
-    SHO_INTERP = 1,          // .interp
-    SHO_RO_NOTE,             // .note.ABI-tag, .note.gnu.build-id
-    SHO_NAMEPOOL,            // *.hash, .dynsym, .dynstr
-    SHO_RELOCATION,          // .rel.*, .rela.*
-    SHO_REL_PLT,             // .rel.plt should come after other .rel.*
-    SHO_INIT,                // .init
-    SHO_PLT,                 // .plt
-    SHO_TEXT,                // .text
-    SHO_FINI,                // .fini
-    SHO_RO,                  // .rodata
-    SHO_EXCEPTION,           // .eh_frame_hdr, .eh_frame, .gcc_except_table
-    SHO_TLS_DATA,            // .tdata
-    SHO_TLS_BSS,             // .tbss
-    SHO_RELRO_LOCAL,         // .data.rel.ro.local
-    SHO_RELRO,               // .data.rel.ro,
-    SHO_RELRO_LAST,          // for x86 to adjust .got if needed
-    SHO_NON_RELRO_FIRST,     // for x86 to adjust .got.plt if needed
-    SHO_DATA,                // .data
-    SHO_LARGE_DATA,          // .ldata
-    SHO_RW_NOTE,             //
-    SHO_SMALL_DATA,          // .sdata
-    SHO_SMALL_BSS,           // .sbss
-    SHO_BSS,                 // .bss
-    SHO_LARGE_BSS,           // .lbss
-    SHO_UNDEFINED,           // default order
-    SHO_STRTAB               // .strtab
-  };
-
-  typedef std::pair<LDSection*, unsigned int> SHOEntry;
-
-  struct SHOCompare
-  {
-    bool operator()(const SHOEntry& X, const SHOEntry& Y) const
-    { return X.second < Y.second; }
+    SHO_NULL = 0,        // NULL
+    SHO_INTERP,          // .interp
+    SHO_RO_NOTE,         // .note.ABI-tag, .note.gnu.build-id
+    SHO_NAMEPOOL,        // *.hash, .dynsym, .dynstr
+    SHO_RELOCATION,      // .rel.*, .rela.*
+    SHO_REL_PLT,         // .rel.plt should come after other .rel.*
+    SHO_INIT,            // .init
+    SHO_PLT,             // .plt
+    SHO_TEXT,            // .text
+    SHO_FINI,            // .fini
+    SHO_RO,              // .rodata
+    SHO_EXCEPTION,       // .eh_frame_hdr, .eh_frame, .gcc_except_table
+    SHO_TLS_DATA,        // .tdata
+    SHO_TLS_BSS,         // .tbss
+    SHO_RELRO_LOCAL,     // .data.rel.ro.local
+    SHO_RELRO,           // .data.rel.ro,
+    SHO_RELRO_LAST,      // for x86 to adjust .got if needed
+    SHO_NON_RELRO_FIRST, // for x86 to adjust .got.plt if needed
+    SHO_DATA,            // .data
+    SHO_LARGE_DATA,      // .ldata
+    SHO_RW_NOTE,         //
+    SHO_SMALL_DATA,      // .sdata
+    SHO_SMALL_BSS,       // .sbss
+    SHO_BSS,             // .bss
+    SHO_LARGE_BSS,       // .lbss
+    SHO_UNDEFINED,       // default order
+    SHO_STRTAB           // .strtab
   };
 
   struct SymCompare

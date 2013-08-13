@@ -29,6 +29,7 @@
 #include <mcld/LD/RelocationFactory.h>
 #include <mcld/LD/BranchIslandFactory.h>
 #include <mcld/LD/ELFSegmentFactory.h>
+#include <mcld/LD/ELFSegment.h>
 #include <mcld/LD/StubFactory.h>
 #include <mcld/LD/ELFFileFormat.h>
 #include <mcld/LD/ELFObjectFileFormat.h>
@@ -41,6 +42,10 @@
 #include <mcld/Support/MsgHandling.h>
 #include <mcld/Support/MemoryAreaFactory.h>
 #include <mcld/Object/ObjectBuilder.h>
+#include <mcld/Object/SectionMap.h>
+#include <mcld/Script/RpnEvaluator.h>
+#include <mcld/Script/Operand.h>
+#include <mcld/Script/OutputSectDesc.h>
 #include <mcld/Fragment/FillFragment.h>
 #include <mcld/MC/Attribute.h>
 
@@ -103,7 +108,7 @@ GNULDBackend::GNULDBackend(const LinkerConfig& pConfig, GNUInfo* pInfo)
     f_pBSSStart(NULL),
     f_pEnd(NULL),
     f_p_End(NULL) {
-  m_pELFSegmentTable = new ELFSegmentFactory(9); // magic number
+  m_pELFSegmentTable = new ELFSegmentFactory();
   m_pSymIndexMap = new HashTableType(1024);
 }
 
@@ -128,10 +133,10 @@ size_t GNULDBackend::sectionStartOffset() const
   switch (config().targets().bitclass()) {
     case 32u:
       return sizeof(llvm::ELF::Elf32_Ehdr) +
-             numOfSegments() * sizeof(llvm::ELF::Elf32_Phdr);
+             elfSegmentTable().size() * sizeof(llvm::ELF::Elf32_Phdr);
     case 64u:
       return sizeof(llvm::ELF::Elf64_Ehdr) +
-             numOfSegments() * sizeof(llvm::ELF::Elf64_Phdr);
+             elfSegmentTable().size() * sizeof(llvm::ELF::Elf64_Phdr);
     default:
       fatal(diag::unsupported_bitclass) << config().targets().triple().str()
                                         << config().targets().bitclass();
@@ -583,11 +588,12 @@ bool GNULDBackend::finalizeStandardSymbols()
 
   // -----  segment symbols  ----- //
   if (NULL != f_pExecutableStart) {
-    ELFSegment* exec_start = m_pELFSegmentTable->find(llvm::ELF::PT_LOAD, 0x0, 0x0);
-    if (NULL != exec_start) {
+    ELFSegmentFactory::const_iterator exec_start =
+      elfSegmentTable().find(llvm::ELF::PT_LOAD, 0x0, 0x0);
+    if (elfSegmentTable().end() != exec_start) {
       if (ResolveInfo::ThreadLocal != f_pExecutableStart->type()) {
         f_pExecutableStart->setValue(f_pExecutableStart->value() +
-                                     exec_start->vaddr());
+                                     (*exec_start)->vaddr());
       }
     }
     else
@@ -595,24 +601,25 @@ bool GNULDBackend::finalizeStandardSymbols()
   }
 
   if (NULL != f_pEText || NULL != f_p_EText || NULL !=f_p__EText) {
-    ELFSegment* etext = m_pELFSegmentTable->find(llvm::ELF::PT_LOAD,
-                                               llvm::ELF::PF_X,
-                                               llvm::ELF::PF_W);
-    if (NULL != etext) {
+    ELFSegmentFactory::const_iterator etext =
+      elfSegmentTable().find(llvm::ELF::PT_LOAD,
+                             llvm::ELF::PF_X,
+                             llvm::ELF::PF_W);
+    if (elfSegmentTable().end() != etext) {
       if (NULL != f_pEText && ResolveInfo::ThreadLocal != f_pEText->type()) {
         f_pEText->setValue(f_pEText->value() +
-                           etext->vaddr() +
-                           etext->memsz());
+                           (*etext)->vaddr() +
+                           (*etext)->memsz());
       }
       if (NULL != f_p_EText && ResolveInfo::ThreadLocal != f_p_EText->type()) {
         f_p_EText->setValue(f_p_EText->value() +
-                            etext->vaddr() +
-                            etext->memsz());
+                            (*etext)->vaddr() +
+                            (*etext)->memsz());
       }
       if (NULL != f_p__EText && ResolveInfo::ThreadLocal != f_p__EText->type()) {
         f_p__EText->setValue(f_p__EText->value() +
-                            etext->vaddr() +
-                            etext->memsz());
+                            (*etext)->vaddr() +
+                            (*etext)->memsz());
       }
     }
     else {
@@ -627,35 +634,34 @@ bool GNULDBackend::finalizeStandardSymbols()
 
   if (NULL != f_pEData || NULL != f_p_EData || NULL != f_pBSSStart ||
       NULL != f_pEnd || NULL != f_p_End) {
-    ELFSegment* edata = m_pELFSegmentTable->find(llvm::ELF::PT_LOAD,
-                                               llvm::ELF::PF_W,
-                                               0x0);
-    if (NULL != edata) {
+    ELFSegmentFactory::const_iterator edata =
+      elfSegmentTable().find(llvm::ELF::PT_LOAD, llvm::ELF::PF_W, 0x0);
+    if (elfSegmentTable().end() != edata) {
       if (NULL != f_pEData && ResolveInfo::ThreadLocal != f_pEData->type()) {
         f_pEData->setValue(f_pEData->value() +
-                            edata->vaddr() +
-                            edata->filesz());
+                           (*edata)->vaddr() +
+                           (*edata)->filesz());
       }
       if (NULL != f_p_EData && ResolveInfo::ThreadLocal != f_p_EData->type()) {
         f_p_EData->setValue(f_p_EData->value() +
-                            edata->vaddr() +
-                            edata->filesz());
+                            (*edata)->vaddr() +
+                            (*edata)->filesz());
       }
       if (NULL != f_pBSSStart && ResolveInfo::ThreadLocal != f_pBSSStart->type()) {
         f_pBSSStart->setValue(f_pBSSStart->value() +
-                              edata->vaddr() +
-                              edata->filesz());
+                              (*edata)->vaddr() +
+                              (*edata)->filesz());
       }
 
       if (NULL != f_pEnd && ResolveInfo::ThreadLocal != f_pEnd->type()) {
         f_pEnd->setValue(f_pEnd->value() +
-                         edata->vaddr() +
-                         edata->memsz());
+                         (*edata)->vaddr() +
+                         (*edata)->memsz());
       }
       if (NULL != f_p_End && ResolveInfo::ThreadLocal != f_p_End->type()) {
         f_p_End->setValue(f_p_End->value() +
-                          edata->vaddr() +
-                          edata->memsz());
+                          (*edata)->vaddr() +
+                          (*edata)->memsz());
       }
     }
     else {
@@ -683,11 +689,12 @@ bool GNULDBackend::finalizeTLSSymbol(LDSymbol& pSymbol)
     return true;
 
   // the value of a TLS symbol is the offset to the TLS segment
-  ELFSegment* tls_seg = m_pELFSegmentTable->find(llvm::ELF::PT_TLS,
-                                               llvm::ELF::PF_R, 0x0);
+  ELFSegmentFactory::iterator tls_seg =
+    elfSegmentTable().find(llvm::ELF::PT_TLS, llvm::ELF::PF_R, 0x0);
+  assert(tls_seg != elfSegmentTable().end());
   uint64_t value = pSymbol.fragRef()->getOutputOffset();
   uint64_t addr  = pSymbol.fragRef()->frag()->getParent()->getSection().addr();
-  pSymbol.setValue(value + addr - tls_seg->vaddr());
+  pSymbol.setValue(value + addr - (*tls_seg)->vaddr());
   return true;
 }
 
@@ -729,6 +736,18 @@ const ELFFileFormat* GNULDBackend::getOutputFormat() const
   }
 }
 
+/// sizeShstrtab - compute the size of .shstrtab
+void GNULDBackend::sizeShstrtab(Module& pModule)
+{
+  size_t shstrtab = 0;
+  // compute the size of .shstrtab section.
+  Module::const_iterator sect, sectEnd = pModule.end();
+  for (sect = pModule.begin(); sect != sectEnd; ++sect) {
+    shstrtab += (*sect)->name().size() + 1;
+  } // end of for
+  getOutputFormat()->getShStrTab().setSize(shstrtab);
+}
+
 /// sizeNamePools - compute the size of regular name pools
 /// In ELF executable files, regular name pools are .symtab, .strtab,
 /// .dynsym, .dynstr, .hash and .shstrtab.
@@ -745,7 +764,6 @@ void GNULDBackend::sizeNamePools(Module& pModule)
   // first byte
   size_t strtab   = 1;
   size_t dynstr   = config().isCodeStatic()? 0 : 1;
-  size_t shstrtab = 1;
   size_t hash     = 0;
   size_t gnuhash  = 0;
 
@@ -868,38 +886,9 @@ void GNULDBackend::sizeNamePools(Module& pModule)
       // index of the last local symbol
       file_format->getSymTab().setInfo(symtab_local_cnt);
 
-      // compute the size of .shstrtab section.
-      Module::const_iterator sect, sectEnd = pModule.end();
-      for (sect = pModule.begin(); sect != sectEnd; ++sect) {
-        switch ((*sect)->kind()) {
-        case LDFileFormat::Null:
-          break;
-        // take StackNote directly
-        case LDFileFormat::StackNote:
-          shstrtab += ((*sect)->name().size() + 1);
-          break;
-        case LDFileFormat::EhFrame:
-          if (((*sect)->size() != 0) ||
-              ((*sect)->hasEhFrame() &&
-               config().codeGenType() == LinkerConfig::Object))
-            shstrtab += ((*sect)->name().size() + 1);
-          break;
-        case LDFileFormat::Relocation:
-          if (((*sect)->size() != 0) ||
-              ((*sect)->hasRelocData() &&
-               config().codeGenType() == LinkerConfig::Object))
-            shstrtab += ((*sect)->name().size() + 1);
-          break;
-        default:
-          if (((*sect)->size() != 0) ||
-              ((*sect)->hasSectionData() &&
-               config().codeGenType() == LinkerConfig::Object))
-            shstrtab += ((*sect)->name().size() + 1);
-          break;
-        } // end of switch
-      } // end of for
-      shstrtab += (strlen(".shstrtab") + 1);
-      file_format->getShStrTab().setSize(shstrtab);
+      // The size of .shstrtab should be decided after output sections are all
+      // set, so we just set it to 1 here.
+      file_format->getShStrTab().setSize(0x1);
       break;
     }
     default:
@@ -1360,7 +1349,7 @@ unsigned int GNULDBackend::getSectionOrder(const LDSection& pSectHdr) const
 
   // NULL section should be the "1st" section
   if (LDFileFormat::Null == pSectHdr.kind())
-    return 0;
+    return SHO_NULL;
 
   if (&pSectHdr == &file_format->getStrTab())
     return SHO_STRTAB;
@@ -1820,30 +1809,33 @@ void GNULDBackend::createProgramHdrs(Module& pModule)
 {
   ELFFileFormat *file_format = getOutputFormat();
 
-  // make PT_PHDR
-  m_pELFSegmentTable->produce(llvm::ELF::PT_PHDR);
-
   // make PT_INTERP
   if (file_format->hasInterp()) {
-    ELFSegment* interp_seg = m_pELFSegmentTable->produce(llvm::ELF::PT_INTERP);
-    interp_seg->addSection(&file_format->getInterp());
+    // make PT_PHDR
+    elfSegmentTable().produce(llvm::ELF::PT_PHDR);
+
+    ELFSegment* interp_seg = elfSegmentTable().produce(llvm::ELF::PT_INTERP);
+    interp_seg->append(&file_format->getInterp());
   }
 
-  uint32_t cur_flag, prev_flag = getSegmentFlag(0);
+  uint32_t cur_flag, prev_flag = 0x0;
   ELFSegment* load_seg = NULL;
   // make possible PT_LOAD segments
-  LinkerScript::AddressMap::iterator addrEnd
-                                      = pModule.getScript().addressMap().end();
-  Module::iterator sect, sect_end = pModule.end();
-  for (sect = pModule.begin(); sect != sect_end; ++sect) {
+  LinkerScript& ldscript = pModule.getScript();
+  LinkerScript::AddressMap::iterator addrEnd= ldscript.addressMap().end();
+  SectionMap::iterator out, prev, outBegin, outEnd;
+  outBegin = ldscript.sectionMap().begin();
+  outEnd = ldscript.sectionMap().end();
+  for (out = outBegin, prev = outEnd; out != outEnd; prev = out, ++out) {
+    LDSection* sect = (*out)->getSection();
 
-    if (0 == ((*sect)->flag() & llvm::ELF::SHF_ALLOC) &&
-        LDFileFormat::Null != (*sect)->kind())
-      continue;
+    if (0 == (sect->flag() & llvm::ELF::SHF_ALLOC) &&
+        LDFileFormat::Null != sect->kind())
+      break;
 
-    cur_flag = getSegmentFlag((*sect)->flag());
+    cur_flag = getSegmentFlag(sect->flag());
     bool createPT_LOAD = false;
-    if (LDFileFormat::Null == (*sect)->kind()) {
+    if (LDFileFormat::Null == sect->kind()) {
       // 1. create text segment
       createPT_LOAD = true;
     }
@@ -1852,31 +1844,35 @@ void GNULDBackend::createProgramHdrs(Module& pModule)
       // 2. create data segment if w/o omagic set
       createPT_LOAD = true;
     }
-    else if ((*sect)->kind() == LDFileFormat::BSS &&
+    else if (sect->kind() == LDFileFormat::BSS &&
              load_seg->isDataSegment() &&
-             addrEnd != pModule.getScript().addressMap().find(".bss")) {
+             addrEnd != ldscript.addressMap().find(".bss")) {
       // 3. create bss segment if w/ -Tbss and there is a data segment
       createPT_LOAD = true;
     }
-    else {
-      if ((*sect != &(file_format->getText())) &&
-          (*sect != &(file_format->getData())) &&
-          (*sect != &(file_format->getBSS())) &&
-          (addrEnd != pModule.getScript().addressMap().find((*sect)->name())))
-        // 4. create PT_LOAD for sections in address map except for text, data,
-        // and bss
-        createPT_LOAD = true;
+    else if ((sect != &(file_format->getText())) &&
+             (sect != &(file_format->getData())) &&
+             (sect != &(file_format->getBSS())) &&
+             (addrEnd != ldscript.addressMap().find(sect->name()))) {
+      // 4. create PT_LOAD for sections in address map except for text, data,
+      // and bss
+      createPT_LOAD = true;
+    }
+    else if (LDFileFormat::Null == (*prev)->getSection()->kind() &&
+             !config().options().getScriptList().empty()) {
+      // 5. create PT_LOAD to hold NULL section if there is a default ldscript
+      createPT_LOAD = true;
     }
 
     if (createPT_LOAD) {
       // create new PT_LOAD segment
-      load_seg = m_pELFSegmentTable->produce(llvm::ELF::PT_LOAD, cur_flag);
+      load_seg = elfSegmentTable().produce(llvm::ELF::PT_LOAD, cur_flag);
       if (!config().options().nmagic() && !config().options().omagic())
         load_seg->setAlign(abiPageSize());
     }
 
     assert(NULL != load_seg);
-    load_seg->addSection((*sect));
+    load_seg->append(sect);
     if (cur_flag != prev_flag)
       load_seg->updateFlag(cur_flag);
 
@@ -1885,27 +1881,27 @@ void GNULDBackend::createProgramHdrs(Module& pModule)
 
   // make PT_DYNAMIC
   if (file_format->hasDynamic()) {
-    ELFSegment* dyn_seg = m_pELFSegmentTable->produce(llvm::ELF::PT_DYNAMIC,
+    ELFSegment* dyn_seg = elfSegmentTable().produce(llvm::ELF::PT_DYNAMIC,
                                                     llvm::ELF::PF_R |
                                                     llvm::ELF::PF_W);
-    dyn_seg->addSection(&file_format->getDynamic());
+    dyn_seg->append(&file_format->getDynamic());
   }
 
   if (config().options().hasRelro()) {
     // make PT_GNU_RELRO
-    ELFSegment* relro_seg = m_pELFSegmentTable->produce(llvm::ELF::PT_GNU_RELRO);
+    ELFSegment* relro_seg = elfSegmentTable().produce(llvm::ELF::PT_GNU_RELRO);
     for (ELFSegmentFactory::iterator seg = elfSegmentTable().begin(),
-         segEnd = elfSegmentTable().end(); seg != segEnd; ++seg) {
-      if (llvm::ELF::PT_LOAD != (*seg).type())
+      segEnd = elfSegmentTable().end(); seg != segEnd; ++seg) {
+      if (llvm::ELF::PT_LOAD != (*seg)->type())
         continue;
 
-      for (ELFSegment::sect_iterator sect = (*seg).begin(),
-             sectEnd = (*seg).end(); sect != sectEnd; ++sect) {
+      for (ELFSegment::iterator sect = (*seg)->begin(),
+        sectEnd = (*seg)->end(); sect != sectEnd; ++sect) {
         unsigned int order = getSectionOrder(**sect);
         if (SHO_RELRO_LOCAL == order ||
             SHO_RELRO == order ||
             SHO_RELRO_LAST == order) {
-          relro_seg->addSection(*sect);
+          relro_seg->append(*sect);
         }
       }
     }
@@ -1913,22 +1909,22 @@ void GNULDBackend::createProgramHdrs(Module& pModule)
 
   // make PT_GNU_EH_FRAME
   if (file_format->hasEhFrameHdr()) {
-    ELFSegment* eh_seg = m_pELFSegmentTable->produce(llvm::ELF::PT_GNU_EH_FRAME);
-    eh_seg->addSection(&file_format->getEhFrameHdr());
+    ELFSegment* eh_seg = elfSegmentTable().produce(llvm::ELF::PT_GNU_EH_FRAME);
+    eh_seg->append(&file_format->getEhFrameHdr());
   }
 
   // make PT_TLS
   if (file_format->hasTData() || file_format->hasTBSS()) {
-    ELFSegment* tls_seg = m_pELFSegmentTable->produce(llvm::ELF::PT_TLS);
+    ELFSegment* tls_seg = elfSegmentTable().produce(llvm::ELF::PT_TLS);
     if (file_format->hasTData())
-      tls_seg->addSection(&file_format->getTData());
+      tls_seg->append(&file_format->getTData());
     if (file_format->hasTBSS())
-      tls_seg->addSection(&file_format->getTBSS());
+      tls_seg->append(&file_format->getTBSS());
   }
 
   // make PT_GNU_STACK
   if (file_format->hasStackNote()) {
-    m_pELFSegmentTable->produce(llvm::ELF::PT_GNU_STACK,
+    elfSegmentTable().produce(llvm::ELF::PT_GNU_STACK,
                               llvm::ELF::PF_R |
                               llvm::ELF::PF_W |
                               getSegmentFlag(file_format->getStackNote().flag()));
@@ -1936,9 +1932,12 @@ void GNULDBackend::createProgramHdrs(Module& pModule)
 
   // make PT_NOTE
   ELFSegment *note_seg = NULL;
-  prev_flag = getSegmentFlag(0);
-  for (sect = pModule.begin(); sect != sect_end; ++sect) {
-    if ((*sect)->kind() != LDFileFormat::Note ||
+  prev_flag = 0x0;
+  Module::iterator sect, sectBegin, sectEnd;
+  sectBegin = pModule.begin();
+  sectEnd = pModule.end();
+  for (sect = sectBegin; sect != sectEnd; ++sect) {
+    if ((*sect)->type() != llvm::ELF::SHT_NOTE ||
         ((*sect)->flag() & llvm::ELF::SHF_ALLOC) == 0)
       continue;
 
@@ -1947,9 +1946,9 @@ void GNULDBackend::createProgramHdrs(Module& pModule)
     // create 2 segments if needed.
     if (note_seg == NULL ||
         (cur_flag & llvm::ELF::PF_W) != (prev_flag & llvm::ELF::PF_W))
-      note_seg = m_pELFSegmentTable->produce(llvm::ELF::PT_NOTE, cur_flag);
+      note_seg = elfSegmentTable().produce(llvm::ELF::PT_NOTE, cur_flag);
 
-    note_seg->addSection(*sect);
+    note_seg->append(*sect);
     prev_flag = cur_flag;
   }
 
@@ -1961,52 +1960,155 @@ void GNULDBackend::createProgramHdrs(Module& pModule)
 void GNULDBackend::setupProgramHdrs(const LinkerScript& pScript)
 {
   // update segment info
-  uint64_t seg_start_addr = getSegmentStartAddr(pScript);
-  ELFSegmentFactory::iterator seg, seg_end = m_pELFSegmentTable->end();
-  for (seg = m_pELFSegmentTable->begin(); seg != seg_end; ++seg) {
-    ELFSegment& segment = *seg;
+  for (ELFSegmentFactory::iterator seg = elfSegmentTable().begin(),
+    segEnd = elfSegmentTable().end(); seg != segEnd; ++seg) {
 
-    // update PT_PHDR
-    if (llvm::ELF::PT_PHDR == segment.type()) {
-      uint64_t offset = 0, phdr_size = 0;
+    // bypass if there is no section in this segment (e.g., PT_GNU_STACK)
+    if ((*seg)->size() == 0)
+      continue;
+
+    // bypass the PT_LOAD that only has NULL section now
+    if ((*seg)->type() == llvm::ELF::PT_LOAD &&
+        (*seg)->front()->kind() == LDFileFormat::Null &&
+        (*seg)->size() == 1)
+       continue;
+
+    (*seg)->setOffset((*seg)->front()->offset());
+    if ((*seg)->type() == llvm::ELF::PT_LOAD &&
+        (*seg)->front()->kind() == LDFileFormat::Null) {
+      const LDSection* second = *((*seg)->begin() + 1);
+      assert(second != NULL);
+      (*seg)->setVaddr(second->addr() - second->offset());
+    } else {
+      (*seg)->setVaddr((*seg)->front()->addr());
+    }
+    (*seg)->setPaddr((*seg)->vaddr());
+
+    ELFSegment::iterator sect, sectEnd = (*seg)->end();
+    for (sect = (*seg)->begin(); sect != sectEnd; ++sect) {
+      if ((*sect)->kind() == LDFileFormat::BSS) {
+        break;
+      }
+    }
+    if (sect == sectEnd) {
+      (*seg)->setFilesz((*seg)->back()->offset() +
+                        (*seg)->back()->size() -
+                        (*seg)->offset());
+    } else if (*sect != (*seg)->front()) {
+      --sect;
+      (*seg)->setFilesz((*sect)->offset() +
+                        (*sect)->size() -
+                        (*seg)->offset());
+    } else {
+      (*seg)->setFilesz(0x0);
+    }
+
+    (*seg)->setMemsz((*seg)->back()->addr() +
+                     (*seg)->back()->size() -
+                     (*seg)->vaddr());
+  } // end of for
+
+  // handle the case if text segment only has NULL section
+  LDSection* null_sect = &getOutputFormat()->getNULLSection();
+  ELFSegmentFactory::iterator null_seg =
+    elfSegmentTable().find(llvm::ELF::PT_LOAD, null_sect);
+
+  if ((*null_seg)->size() == 1) {
+    // find 2nd PT_LOAD
+    ELFSegmentFactory::iterator seg, segEnd = elfSegmentTable().end();
+    for (seg = null_seg + 1; seg != segEnd; ++seg) {
+      if ((*seg)->type() == llvm::ELF::PT_LOAD)
+        break;
+    }
+    if (seg != segEnd) {
+      uint64_t addr = (*seg)->front()->addr() - (*seg)->front()->offset();
+      uint64_t size = sectionStartOffset();
+      if (addr + size == (*seg)->front()->addr()) {
+        // if there is no space between the 2 segments, we can merge them.
+        (*seg)->setOffset(0x0);
+        (*seg)->setVaddr(addr);
+        (*seg)->setPaddr(addr);
+
+        ELFSegment::iterator sect, sectEnd = (*seg)->end();
+        for (sect = (*seg)->begin(); sect != sectEnd; ++sect) {
+          if ((*sect)->kind() == LDFileFormat::BSS) {
+            --sect;
+            break;
+          }
+        }
+        if (sect == sectEnd) {
+          (*seg)->setFilesz((*seg)->back()->offset() +
+                            (*seg)->back()->size() -
+                            (*seg)->offset());
+        } else if (*sect != (*seg)->front()) {
+          --sect;
+          (*seg)->setFilesz((*sect)->offset() +
+                            (*sect)->size() -
+                            (*seg)->offset());
+        } else {
+          (*seg)->setFilesz(0x0);
+        }
+
+        (*seg)->setMemsz((*seg)->back()->addr() +
+                         (*seg)->back()->size() -
+                         (*seg)->vaddr());
+
+        (*seg)->insert((*seg)->begin(), null_sect);
+        elfSegmentTable().erase(null_seg);
+
+      } else if (addr + size < (*seg)->vaddr()) {
+        (*null_seg)->setOffset(0x0);
+        (*null_seg)->setVaddr(addr);
+        (*null_seg)->setPaddr(addr);
+        (*null_seg)->setFilesz(size);
+        (*null_seg)->setMemsz(size);
+      } else {
+        // erase the non valid segment contains NULL.
+        elfSegmentTable().erase(null_seg);
+      }
+    }
+  }
+
+  // set up PT_PHDR
+  ELFSegmentFactory::iterator phdr =
+    elfSegmentTable().find(llvm::ELF::PT_PHDR, llvm::ELF::PF_R, 0x0);
+
+  if (phdr != elfSegmentTable().end()) {
+    ELFSegmentFactory::iterator null_seg =
+      elfSegmentTable().find(llvm::ELF::PT_LOAD, null_sect);
+    if (null_seg != elfSegmentTable().end()) {
+      uint64_t offset = 0x0, phdr_size = 0x0;
       if (config().targets().is32Bits()) {
         offset = sizeof(llvm::ELF::Elf32_Ehdr);
         phdr_size = sizeof(llvm::ELF::Elf32_Phdr);
-      }
-      else {
+      } else {
         offset = sizeof(llvm::ELF::Elf64_Ehdr);
         phdr_size = sizeof(llvm::ELF::Elf64_Phdr);
       }
-      segment.setOffset(offset);
-      segment.setVaddr(seg_start_addr + offset);
-      segment.setPaddr(segment.vaddr());
-      segment.setFilesz(numOfSegments() * phdr_size);
-      segment.setMemsz(numOfSegments() * phdr_size);
-      segment.setAlign(config().targets().bitclass() / 8);
-      continue;
+      (*phdr)->setOffset(offset);
+      (*phdr)->setVaddr((*null_seg)->vaddr() + offset);
+      (*phdr)->setPaddr((*phdr)->vaddr());
+      (*phdr)->setFilesz(elfSegmentTable().size() * phdr_size);
+      (*phdr)->setMemsz(elfSegmentTable().size() * phdr_size);
+      (*phdr)->setAlign(config().targets().bitclass() / 8);
+    } else {
+      elfSegmentTable().erase(phdr);
     }
-
-    // bypass if there is no section in this segment (e.g., PT_GNU_STACK)
-    if (segment.numOfSections() == 0)
-      continue;
-
-    segment.setOffset(segment.front()->offset());
-    if (llvm::ELF::PT_LOAD == segment.type() &&
-        LDFileFormat::Null == segment.front()->kind())
-      segment.setVaddr(seg_start_addr);
-    else
-      segment.setVaddr(segment.front()->addr());
-    segment.setPaddr(segment.vaddr());
-
-    const LDSection* last_sect = segment.back();
-    assert(NULL != last_sect);
-    uint64_t file_size = last_sect->offset() - segment.offset();
-    if (LDFileFormat::BSS != last_sect->kind())
-      file_size += last_sect->size();
-    segment.setFilesz(file_size);
-
-    segment.setMemsz(last_sect->addr() - segment.vaddr() + last_sect->size());
   }
+}
+
+/// getSegmentFlag - give a section flag and return the corresponding segment
+/// flag
+uint32_t GNULDBackend::getSegmentFlag(const uint32_t pSectionFlag)
+{
+  uint32_t flag = 0x0;
+  if ((pSectionFlag & llvm::ELF::SHF_ALLOC) != 0x0)
+    flag |= llvm::ELF::PF_R;
+  if ((pSectionFlag & llvm::ELF::SHF_WRITE) != 0x0)
+    flag |= llvm::ELF::PF_W;
+  if ((pSectionFlag & llvm::ELF::SHF_EXECINSTR) != 0x0)
+    flag |= llvm::ELF::PF_X;
+  return flag;
 }
 
 /// setupGNUStackInfo - setup the section flag of .note.GNU-stack in output
@@ -2055,203 +2157,240 @@ void GNULDBackend::setupGNUStackInfo(Module& pModule)
   }
 }
 
-/// setupRelro - setup the offset constraint of PT_RELRO
-void GNULDBackend::setupRelro(Module& pModule)
+/// setOutputSectionOffset - helper function to set output sections' offset.
+void GNULDBackend::setOutputSectionOffset(Module& pModule)
 {
-  assert(config().options().hasRelro());
-  // if -z relro is given, we need to adjust sections' offset again, and let
-  // PT_GNU_RELRO end on a common page boundary
-
-  Module::iterator sect = pModule.begin();
-  for (Module::iterator sect_end = pModule.end(); sect != sect_end; ++sect) {
-    // find the first non-relro section
-    if (getSectionOrder(**sect) > SHO_RELRO_LAST)
-      break;
-  }
-
-  // align the first non-relro section to page boundary
-  uint64_t offset = (*sect)->offset();
-  alignAddress(offset, commonPageSize());
-  (*sect)->setOffset(offset);
-
-  // It seems that compiler think .got and .got.plt are continuous (w/o any
-  // padding between). If .got is the last section in PT_RELRO and it's not
-  // continuous to its next section (i.e. .got.plt), we need to add padding
-  // in front of .got instead.
-  // FIXME: Maybe we can handle this in a more general way.
-  LDSection& got = getOutputFormat()->getGOT();
-  if ((getSectionOrder(got) == SHO_RELRO_LAST) &&
-      (got.offset() + got.size() != offset)) {
-    got.setOffset(offset - got.size());
-  }
-
-  // set up remaining section's offset
-  setOutputSectionOffset(pModule, ++sect, pModule.end());
-}
-
-/// setOutputSectionOffset - helper function to set a group of output sections'
-/// offset, and set pSectBegin to pStartOffset if pStartOffset is not -1U.
-void GNULDBackend::setOutputSectionOffset(Module& pModule,
-                                          Module::iterator pSectBegin,
-                                          Module::iterator pSectEnd,
-                                          uint64_t pStartOffset)
-{
-  if (pSectBegin == pModule.end())
-    return;
-
-  assert(pSectEnd == pModule.end() ||
-         (pSectEnd != pModule.end() &&
-          (*pSectBegin)->index() <= (*pSectEnd)->index()));
-
-  if (pStartOffset != -1U) {
-    (*pSectBegin)->setOffset(pStartOffset);
-    ++pSectBegin;
-  }
-
-  // set up the "cur" and "prev" iterator
-  Module::iterator cur = pSectBegin;
-  Module::iterator prev = pSectBegin;
-  if (cur != pModule.begin())
-    --prev;
-  else
-    ++cur;
-
-  for (; cur != pSectEnd; ++cur, ++prev) {
-    uint64_t offset = 0x0;
-    switch ((*prev)->kind()) {
-      case LDFileFormat::Null:
-        offset = sectionStartOffset();
-        break;
-      case LDFileFormat::BSS:
-        offset = (*prev)->offset();
-        break;
-      default:
-        offset = (*prev)->offset() + (*prev)->size();
-        break;
-    }
-
-    alignAddress(offset, (*cur)->align());
-    (*cur)->setOffset(offset);
-  }
-}
-
-/// setOutputSectionOffset - helper function to set output sections' address
-void GNULDBackend::setOutputSectionAddress(Module& pModule,
-                                           Module::iterator pSectBegin,
-                                           Module::iterator pSectEnd)
-{
-  if (pSectBegin == pModule.end())
-    return;
-
-  assert(pSectEnd == pModule.end() ||
-         (pSectEnd != pModule.end() &&
-          (*pSectBegin)->index() <= (*pSectEnd)->index()));
-
-  const LinkerScript& script = pModule.getScript();
-  uint64_t seg_start_addr = getSegmentStartAddr(script);
-  for (ELFSegmentFactory::iterator seg = elfSegmentTable().begin(),
-         segEnd = elfSegmentTable().end(), prev = elfSegmentTable().end();
-       seg != segEnd; prev = seg, ++seg) {
-    if (llvm::ELF::PT_LOAD != (*seg).type())
+  LinkerScript& script = pModule.getScript();
+  uint64_t offset = 0x0;
+  LDSection* cur = NULL;
+  LDSection* prev = NULL;
+  SectionMap::iterator out, outBegin, outEnd;
+  outBegin = script.sectionMap().begin();
+  outEnd = script.sectionMap().end();
+  for (out = outBegin; out != outEnd; ++out, prev = cur) {
+    cur = (*out)->getSection();
+    if (cur->kind() == LDFileFormat::Null) {
+      cur->setOffset(0x0);
       continue;
+    }
 
-    uint64_t start_addr = 0x0;
-    LinkerScript::AddressMap::const_iterator mapping;
-    if ((*seg).front()->kind() == LDFileFormat::Null)
-      mapping = script.addressMap().find(".text");
-    else if ((*seg).isDataSegment())
-      mapping = script.addressMap().find(".data");
-    else if ((*seg).isBssSegment())
-      mapping = script.addressMap().find(".bss");
-    else
-      mapping = script.addressMap().find((*seg).front()->name());
+    switch (prev->kind()) {
+    case LDFileFormat::Null:
+      offset = sectionStartOffset();
+      break;
+    case LDFileFormat::BSS:
+      offset = prev->offset();
+      break;
+    default:
+      offset = prev->offset() + prev->size();
+      break;
+    }
+    alignAddress(offset, cur->align());
+    cur->setOffset(offset);
+  }
+}
 
-    if (mapping != script.addressMap().end()) {
+/// setOutputSectionAddress - helper function to set output sections' address.
+void GNULDBackend::setOutputSectionAddress(Module& pModule)
+{
+  RpnEvaluator evaluator(pModule, *this);
+  LinkerScript& script = pModule.getScript();
+  uint64_t vma = 0x0, offset = 0x0;
+  LDSection* cur = NULL;
+  LDSection* prev = NULL;
+  LinkerScript::AddressMap::iterator addr, addrEnd = script.addressMap().end();
+  ELFSegmentFactory::iterator seg, segEnd = elfSegmentTable().end();
+  SectionMap::iterator out, outBegin, outEnd;
+  outBegin = script.sectionMap().begin();
+  outEnd = script.sectionMap().end();
+  for (out = outBegin; out != outEnd; prev = cur, ++out) {
+    cur = (*out)->getSection();
+
+    if (cur->kind() == LDFileFormat::Null) {
+      cur->setOffset(0x0);
+      continue;
+    }
+
+    // process dot assignments between 2 output sections
+    for (SectionMap::Output::dot_iterator it = (*out)->dot_begin(),
+      ie = (*out)->dot_end(); it != ie; ++it) {
+      (*it).assign(evaluator);
+    }
+
+    seg = elfSegmentTable().find(llvm::ELF::PT_LOAD, cur);
+    if (seg != segEnd && cur == (*seg)->front()) {
+      if ((*seg)->isBssSegment())
+        addr = script.addressMap().find(".bss");
+      else if ((*seg)->isDataSegment())
+        addr = script.addressMap().find(".data");
+      else
+        addr = script.addressMap().find(cur->name());
+    } else
+      addr = addrEnd;
+
+    if (addr != addrEnd) {
       // use address mapping in script options
-      start_addr = mapping.getEntry()->value();
-    }
-    else {
-      if ((*seg).front()->kind() == LDFileFormat::Null) {
-        // 1st PT_LOAD
-        start_addr = seg_start_addr;
+      vma = addr.getEntry()->value();
+    } else if ((*out)->prolog().hasVMA()) {
+      // use address from output section description
+      evaluator.eval((*out)->prolog().vma(), vma);
+    } else if (!(*out)->dotAssignments().empty()) {
+      // assign address based on `.' symbol in ldscript
+      vma = (*out)->dotAssignments().back().symbol().value();
+      alignAddress(vma, cur->align());
+    } else {
+      if ((cur->flag() & llvm::ELF::SHF_ALLOC) != 0) {
+        if (prev->kind() == LDFileFormat::Null) {
+          // Let SECTIONS starts at 0 if we have a default ldscript but don't
+          // have any initial value (VMA or `.').
+          if (!config().options().getScriptList().empty())
+            vma = 0x0;
+          else
+            vma = getSegmentStartAddr(script) + sectionStartOffset();
+        } else
+          vma = prev->addr() + prev->size();
+        alignAddress(vma, cur->align());
+        if (seg != segEnd && cur == (*seg)->front()) {
+          // Try to align p_vaddr at page boundary if not in script options.
+          // To do so will add more padding in file, but can save one page
+          // at runtime.
+          alignAddress(vma, (*seg)->align());
+        }
+      } else {
+        vma = 0x0;
       }
-      else if ((*prev).front()->kind() == LDFileFormat::Null) {
-        // prev segment is 1st PT_LOAD
-        start_addr = seg_start_addr + (*seg).front()->offset();
-      }
-      else {
-        // Others
-        start_addr = (*prev).front()->addr() + (*seg).front()->offset();
-      }
-      // Try to align p_vaddr at page boundary if not in script options.
-      // To do so will add more padding in file, but can save one page
-      // at runtime.
-      alignAddress(start_addr, (*seg).align());
     }
 
+    if (config().options().hasRelro()) {
+      // if -z relro is given, we need to adjust sections' offset again, and
+      // let PT_GNU_RELRO end on a abi page boundary
+
+      // check if current is the first non-relro section
+      SectionMap::iterator relro_last = out - 1;
+      if (relro_last != outEnd &&
+          (*relro_last)->order() <= SHO_RELRO_LAST &&
+          (*out)->order() > SHO_RELRO_LAST) {
+        // align the first non-relro section to page boundary
+        alignAddress(vma, abiPageSize());
+
+        // It seems that compiler think .got and .got.plt are continuous (w/o
+        // any padding between). If .got is the last section in PT_RELRO and
+        // it's not continuous to its next section (i.e. .got.plt), we need to
+        // add padding in front of .got instead.
+        // FIXME: Maybe we can handle this in a more general way.
+        LDSection& got = getOutputFormat()->getGOT();
+        if ((getSectionOrder(got) == SHO_RELRO_LAST) &&
+            (got.addr() + got.size() < vma)) {
+          uint64_t diff = vma - got.addr() - got.size();
+          got.setAddr(vma - got.size());
+          got.setOffset(got.offset() + diff);
+        }
+      }
+    } // end of if - for relro processing
+
+    cur->setAddr(vma);
+
+    switch (prev->kind()) {
+    case LDFileFormat::Null:
+      offset = sectionStartOffset();
+      break;
+    case LDFileFormat::BSS:
+      offset = prev->offset();
+      break;
+    default:
+      offset = prev->offset() + prev->size();
+      break;
+    }
+    alignAddress(offset, cur->align());
     // in p75, http://www.sco.com/developers/devspecs/gabi41.pdf
     // p_align: As "Program Loading" describes in this chapter of the
     // processor supplement, loadable process segments must have congruent
     // values for p_vaddr and p_offset, modulo the page size.
-    if ((start_addr & ((*seg).align() - 1)) !=
-        ((*seg).front()->offset() & ((*seg).align() - 1))) {
-      uint64_t padding = (*seg).align() +
-                         (start_addr & ((*seg).align() - 1)) -
-                         ((*seg).front()->offset() & ((*seg).align() - 1));
-      setOutputSectionOffset(pModule,
-                             pModule.begin() + (*seg).front()->index(),
-                             pModule.end(),
-                             (*seg).front()->offset() + padding);
-      if (config().options().hasRelro())
-        setupRelro(pModule);
+    // FIXME: Now make all sh_addr and sh_offset are congruent, modulo the page
+    // size. Otherwise, old objcopy (e.g., binutils 2.17) may fail with our
+    // output!
+    if ((cur->flag() & llvm::ELF::SHF_ALLOC) != 0 &&
+        (vma & (abiPageSize() - 1)) != (offset & (abiPageSize() - 1))) {
+      uint64_t padding = abiPageSize() +
+                         (vma & (abiPageSize() - 1)) -
+                         (offset & (abiPageSize() - 1));
+      offset += padding;
     }
 
-    for (ELFSegment::sect_iterator sect = (*seg).begin(),
-           sectEnd = (*seg).end(); sect != sectEnd; ++sect) {
-      if ((*sect)->index() < (*pSectBegin)->index())
-        continue;
+    cur->setOffset(offset);
 
-      if (LDFileFormat::Null == (*sect)->kind())
-        continue;
+    // process dot assignments in the output section
+    bool changed = false;
+    Fragment* invalid = NULL;
+    for (SectionMap::Output::iterator in = (*out)->begin(),
+      inEnd = (*out)->end(); in != inEnd; ++in) {
 
-      if (sect == pSectEnd)
-        return;
+      if (invalid != NULL && !(*in)->dotAssignments().empty()) {
+        while (invalid != (*in)->dotAssignments().front().first) {
+          Fragment* prev = invalid->getPrevNode();
+          invalid->setOffset(prev->getOffset() + prev->size());
+          invalid = invalid->getNextNode();
+        }
+        invalid = NULL;
+      }
 
-      if (sect != (*seg).begin())
-        (*sect)->setAddr(start_addr + (*sect)->offset() -
-                         (*seg).front()->offset());
-      else
-        (*sect)->setAddr(start_addr);
+      for (SectionMap::Input::dot_iterator it = (*in)->dot_begin(),
+        ie = (*in)->dot_end(); it != ie; ++it) {
+        (*it).second.assign(evaluator);
+        if ((*it).first != NULL) {
+          uint64_t new_offset = (*it).second.symbol().value() - vma;
+          if (new_offset != (*it).first->getOffset()) {
+            (*it).first->setOffset(new_offset);
+            invalid = (*it).first->getNextNode();
+            changed = true;
+          }
+        }
+      } // for each dot assignment
+    } // for each input description
+
+    if (changed) {
+      while (invalid != NULL) {
+        Fragment* prev = invalid->getPrevNode();
+        invalid->setOffset(prev->getOffset() + prev->size());
+        invalid = invalid->getNextNode();
+      }
+
+      cur->setSize(cur->getSectionData()->back().getOffset() +
+                   cur->getSectionData()->back().size());
     }
-  }
+
+  } // for each output section description
 }
 
-/// layout - layout method
-void GNULDBackend::layout(Module& pModule)
+/// placeOutputSections - place output sections based on SectionMap
+void GNULDBackend::placeOutputSections(Module& pModule)
 {
-  std::vector<SHOEntry> output_list;
-  // 1. determine what sections will go into final output, and push the needed
-  // sections into output_list for later processing
+  typedef std::vector<LDSection*> Orphans;
+  Orphans orphans;
+  SectionMap& sectionMap = pModule.getScript().sectionMap();
+
   for (Module::iterator it = pModule.begin(), ie = pModule.end(); it != ie;
-       ++it) {
+    ++it) {
+    bool wanted = false;
+
     switch ((*it)->kind()) {
     // take NULL and StackNote directly
     case LDFileFormat::Null:
     case LDFileFormat::StackNote:
-      output_list.push_back(std::make_pair(*it, getSectionOrder(**it)));
+      wanted = true;
       break;
     // ignore if section size is 0
     case LDFileFormat::EhFrame:
       if (((*it)->size() != 0) ||
           ((*it)->hasEhFrame() &&
            config().codeGenType() == LinkerConfig::Object))
-        output_list.push_back(std::make_pair(*it, getSectionOrder(**it)));
+        wanted = true;
       break;
     case LDFileFormat::Relocation:
       if (((*it)->size() != 0) ||
           ((*it)->hasRelocData() &&
            config().codeGenType() == LinkerConfig::Object))
-        output_list.push_back(std::make_pair(*it, getSectionOrder(**it)));
+        wanted = true;
       break;
     case LDFileFormat::Regular:
     case LDFileFormat::Target:
@@ -2265,7 +2404,7 @@ void GNULDBackend::layout(Module& pModule)
       if (((*it)->size() != 0) ||
           ((*it)->hasSectionData() &&
            config().codeGenType() == LinkerConfig::Object))
-        output_list.push_back(std::make_pair(*it, getSectionOrder(**it)));
+        wanted = true;
       break;
     case LDFileFormat::Group:
       if (LinkerConfig::Object == config().codeGenType()) {
@@ -2274,36 +2413,128 @@ void GNULDBackend::layout(Module& pModule)
       }
       break;
     case LDFileFormat::Version:
-      if (0 != (*it)->size()) {
-        output_list.push_back(std::make_pair(*it, getSectionOrder(**it)));
+      if ((*it)->size() != 0) {
+        wanted = true;
         warning(diag::warn_unsupported_symbolic_versioning) << (*it)->name();
       }
       break;
     default:
-      if (0 != (*it)->size()) {
+      if ((*it)->size() != 0) {
         error(diag::err_unsupported_section) << (*it)->name() << (*it)->kind();
       }
       break;
-    }
-  } // end of for
+    } // end of switch
 
-  // 2. sort output section orders
-  std::stable_sort(output_list.begin(), output_list.end(), SHOCompare());
+    if (wanted) {
+      SectionMap::iterator out, outBegin, outEnd;
+      outBegin = sectionMap.begin();
+      outEnd = sectionMap.end();
+      for (out = outBegin; out != outEnd; ++out) {
+        bool matched = false;
+        if ((*it)->name().compare((*out)->name()) == 0) {
+          switch ((*out)->prolog().constraint()) {
+          case OutputSectDesc::NO_CONSTRAINT:
+            matched = true;
+            break;
+          case OutputSectDesc::ONLY_IF_RO:
+            matched = ((*it)->flag() & llvm::ELF::SHF_WRITE) == 0;
+            break;
+          case OutputSectDesc::ONLY_IF_RW:
+            matched = ((*it)->flag() & llvm::ELF::SHF_WRITE) != 0;
+            break;
+          } // end of switch
+
+          if (matched)
+            break;
+        }
+      } // for each output section description
+
+      if (out != outEnd) {
+        // set up the section
+        (*out)->setSection(*it);
+        (*out)->setOrder(getSectionOrder(**it));
+      } else {
+        orphans.push_back(*it);
+      }
+    }
+  } // for each section in Module
+
+  // set up sections in SectionMap but do not exist at all.
+  uint32_t flag = 0x0;
+  unsigned int order = SHO_UNDEFINED;
+  for (SectionMap::reverse_iterator out = sectionMap.rbegin(),
+    outEnd = sectionMap.rend(); out != outEnd; ++out) {
+    if ((*out)->hasContent() ||
+        (*out)->getSection()->kind() == LDFileFormat::Null ||
+        (*out)->getSection()->kind() == LDFileFormat::StackNote) {
+      flag = (*out)->getSection()->flag();
+      order = (*out)->order();
+    } else {
+      (*out)->getSection()->setFlag(flag);
+      (*out)->setOrder(order);
+    }
+  } // for each output section description
+
+  // place orphan sections
+  for (Orphans::iterator it = orphans.begin(), ie = orphans.end(); it != ie;
+    ++it) {
+    size_t order = getSectionOrder(**it);
+    SectionMap::iterator out, outBegin, outEnd;
+    outBegin = sectionMap.begin();
+    outEnd = sectionMap.end();
+
+    if ((*it)->kind() == LDFileFormat::Null)
+      out = sectionMap.insert(outBegin, *it);
+    else {
+      for (out = outBegin; out != outEnd; ++out) {
+        if ((*out)->order() > order)
+          break;
+      }
+      out = sectionMap.insert(out, *it);
+    }
+    (*out)->setOrder(order);
+  } // for each orphan section
+}
+
+/// layout - layout method
+void GNULDBackend::layout(Module& pModule)
+{
+  // 1. place output sections based on SectionMap from SECTIONS command
+  placeOutputSections(pModule);
+
+  // 2. sort output section orders if there is no default ldscript
+  SectionMap& sectionMap = pModule.getScript().sectionMap();
+  if (config().options().getScriptList().empty()) {
+    std::stable_sort(sectionMap.begin(),
+                     sectionMap.end(),
+                     SectionMap::SHOCompare());
+  }
 
   // 3. update output sections in Module
   pModule.getSectionTable().clear();
-  for(size_t index = 0; index < output_list.size(); ++index) {
-    (output_list[index].first)->setIndex(index);
-    pModule.getSectionTable().push_back(output_list[index].first);
-  }
+  for (SectionMap::iterator out = sectionMap.begin(), outEnd = sectionMap.end();
+    out != outEnd; ++out) {
+    if ((*out)->hasContent() ||
+        (*out)->getSection()->kind() == LDFileFormat::Null ||
+        (*out)->getSection()->kind() == LDFileFormat::StackNote) {
+      (*out)->getSection()->setIndex(pModule.size());
+      pModule.getSectionTable().push_back((*out)->getSection());
+    }
+  } // for each output section description
 
-  // 4. create program headers
+  // 4. update the size of .shstrtab
+  sizeShstrtab(pModule);
+
+  // 5. create program headers
   if (LinkerConfig::Object != config().codeGenType()) {
     createProgramHdrs(pModule);
   }
 
-  // 5. set output section offset
-  setOutputSectionOffset(pModule, pModule.begin(), pModule.end(), 0x0);
+  // 6. set output section address/offset
+  if (LinkerConfig::Object != config().codeGenType())
+    setOutputSectionAddress(pModule);
+  else
+    setOutputSectionOffset(pModule);
 }
 
 /// preLayout - Backend can do any needed modification before layout
@@ -2393,24 +2624,13 @@ void GNULDBackend::preLayout(Module& pModule, IRBuilder& pBuilder)
 /// postLayout - Backend can do any needed modification after layout
 void GNULDBackend::postLayout(Module& pModule, IRBuilder& pBuilder)
 {
-  // 1. set up section address and segment attributes
   if (LinkerConfig::Object != config().codeGenType()) {
-    if (config().options().hasRelro()) {
-      // 1.1 set up the offset constraint of PT_RELRO
-      setupRelro(pModule);
-    }
-
-    // 1.2 set up the output sections' address
-    setOutputSectionAddress(pModule, pModule.begin(), pModule.end());
-
-    // 1.3 do relaxation
+    // do relaxation
     relax(pModule, pBuilder);
-
-    // 1.4 set up the attributes of program headers
+    // set up the attributes of program headers
     setupProgramHdrs(pModule.getScript());
   }
 
-  // 2. target specific post layout
   doPostLayout(pModule, pBuilder);
 }
 
@@ -2510,15 +2730,6 @@ bool GNULDBackend::isDynamicSymbol(const ResolveInfo& pResolveInfo) const
       return true;
   }
   return false;
-}
-
-/// numOfSegments - return the number of segments
-/// if the target favors other ways to emit program header, please override
-/// this function
-size_t GNULDBackend::numOfSegments() const
-{
-  assert(m_pELFSegmentTable != NULL && "Do not create ELFSegmentTable!");
-  return m_pELFSegmentTable->size();
 }
 
 /// elfSegmentTable - return the reference of the elf segment table
@@ -2758,21 +2969,12 @@ bool GNULDBackend::relax(Module& pModule, IRBuilder& pBuilder)
   if (!mayRelax())
     return true;
 
+  getBRIslandFactory()->group(pModule);
+
   bool finished = true;
   do {
     if (doRelax(pModule, pBuilder, finished)) {
-      // If the sections (e.g., .text) are relaxed, the layout is also changed
-      // We need to do the following:
-
-      // 1. set up the offset
-      setOutputSectionOffset(pModule, pModule.begin(), pModule.end());
-
-      // 2. set up the offset constraint of PT_RELRO
-      if (config().options().hasRelro())
-        setupRelro(pModule);
-
-      // 3. set up the output sections' address
-      setOutputSectionAddress(pModule, pModule.begin(), pModule.end());
+      setOutputSectionAddress(pModule);
     }
   } while (!finished);
 

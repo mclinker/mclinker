@@ -695,6 +695,15 @@ ArgY("Y",
      cl::desc("Add path to the default library search path"),
      cl::value_desc("default-search-path"));
 
+static cl::opt<bool>
+ArgARMCompatibility("p",
+                    cl::desc("Ignore for ARM backward compatibility"),
+                    cl::init(false));
+
+static cl::opt<bool>
+ArgNoWarnMismatch("no-warn-mismatch",
+                  cl::desc("Allow linking together mismatched input files."),
+                  cl::init(false));
 /// @{
 /// @name FIXME: end of unsupported options
 /// @}
@@ -822,12 +831,6 @@ ArgAddressMapList("section-start",
                   cl::desc("Locate a output section at the given absolute address"),
                   cl::value_desc("Set address of section"),
                   cl::Prefix);
-
-static cl::list<std::string>
-ArgDefSymList("defsym",
-              cl::ZeroOrMore,
-              cl::desc("Define a symbol"),
-              cl::value_desc("symbol=expression"));
 
 static cl::opt<unsigned long long>
 ArgBssSegAddr("Tbss",
@@ -1259,13 +1262,6 @@ static bool ProcessLinkerOptionsFromCommand(mcld::LinkerScript& pScript,
     mcld::StringEntry<uint64_t>* addr_mapping =
                      pScript.addressMap().insert(script.substr(0, pos), exist);
     addr_mapping->setValue(address);
-  }
-
-  // --defsym symbols
-  for (cl::list<std::string>::iterator
-       it = ArgDefSymList.begin(), ie = ArgDefSymList.end();
-       it != ie ; ++it) {
-    pScript.defSyms().append(*it);
   }
 
   // set up filter/aux filter for shared object

@@ -7,15 +7,19 @@
 //
 //===----------------------------------------------------------------------===//
 #include <mcld/Script/ScriptFile.h>
-#include <mcld/Script/ScriptInput.h>
+#include <mcld/Script/StringList.h>
 #include <mcld/Script/ScriptCommand.h>
 #include <mcld/Script/EntryCmd.h>
 #include <mcld/Script/OutputFormatCmd.h>
 #include <mcld/Script/GroupCmd.h>
+#include <mcld/Script/OutputCmd.h>
 #include <mcld/Script/SearchDirCmd.h>
 #include <mcld/Script/OutputArchCmd.h>
+#include <mcld/Script/AssertCmd.h>
+#include <mcld/Script/SectionsCmd.h>
 #include <mcld/Script/RpnExpr.h>
 #include <mcld/Script/Operand.h>
+#include <mcld/Script/StrToken.h>
 #include <mcld/MC/Input.h>
 #include <mcld/MC/InputBuilder.h>
 #include <mcld/Support/MemoryArea.h>
@@ -41,36 +45,25 @@ static llvm::ManagedStatic<ParserStrPool> g_ParserStrPool;
 // ScriptFile
 //===----------------------------------------------------------------------===//
 ScriptFile::ScriptFile(Kind pKind, Input& pInput, InputBuilder& pBuilder)
-  : m_Type(InputData),
-    m_Kind(pKind),
-    m_Name(pInput.name()),
+  : m_Kind(pKind),
+    m_Input(pInput),
+    m_Name(pInput.path().native()),
     m_pInputTree(NULL),
-    m_Builder(pBuilder)
+    m_Builder(pBuilder),
+    m_bHasSectionsCmd(false),
+    m_bInSectionsCmd(false),
+    m_bInOutputSectDesc(false)
 {
-  m_Data.input = &pInput;
-  if (pInput.hasMemArea() && pInput.memArea()->hasHandler())
-    m_Name.assign(pInput.path().native());
   // FIXME: move creation of input tree out of ScriptFile.
   m_pInputTree = new InputTree();
 }
 
-ScriptFile::ScriptFile(Kind pKind,
-                       const std::string& pName,
-                       std::string& pData,
-                       InputBuilder& pBuilder)
-  : m_Type(StringData),
-    m_Kind(pKind),
-    m_Name(pName),
-    m_pInputTree(NULL),
-    m_Builder(pBuilder)
-{
-  m_Data.str = &pData;
-}
-
 ScriptFile::~ScriptFile()
 {
-  for (iterator it = begin(), ie = end(); it != ie; ++it)
-    delete *it;
+  for (iterator it = begin(), ie = end(); it != ie; ++it) {
+    if (*it != NULL)
+      delete *it;
+  }
   if (NULL != m_pInputTree)
     delete m_pInputTree;
 }
@@ -81,15 +74,23 @@ void ScriptFile::dump() const
     (*it)->dump();
 }
 
-void ScriptFile::activate()
+void ScriptFile::activate(Module& pModule)
 {
   for (const_iterator it = begin(), ie = end(); it != ie; ++it)
-    (*it)->activate();
+    (*it)->activate(pModule);
 }
 
-void ScriptFile::addEntryPoint(const std::string& pSymbol, LinkerScript& pScript)
+void ScriptFile::addEntryPoint(const std::string& pSymbol)
 {
-  m_CommandQueue.push_back(new EntryCmd(pSymbol, pScript));
+  EntryCmd* entry = new EntryCmd(pSymbol);
+
+  if (m_bInSectionsCmd) {
+    assert(!m_CommandQueue.empty());
+    SectionsCmd* sections = llvm::cast<SectionsCmd>(back());
+    sections->push_back(entry);
+  } else {
+    m_CommandQueue.push_back(entry);
+  }
 }
 
 void ScriptFile::addOutputFormatCmd(const std::string& pName)
@@ -104,45 +105,22 @@ void ScriptFile::addOutputFormatCmd(const std::string& pDefault,
   m_CommandQueue.push_back(new OutputFormatCmd(pDefault, pBig, pLittle));
 }
 
-void ScriptFile::addScriptInput(const std::string& pPath)
-{
-  assert(!m_CommandQueue.empty());
-  ScriptCommand* cmd = back();
-  switch (cmd->getKind()) {
-  case ScriptCommand::Group:
-    llvm::cast<GroupCmd>(cmd)->scriptInput().append(pPath);
-    break;
-  default:
-    assert(0 && "Invalid command to add script input!");
-    break;
-  }
-}
-
-void ScriptFile::setAsNeeded(bool pEnable)
-{
-  assert(!m_CommandQueue.empty());
-  ScriptCommand* cmd = back();
-  switch (cmd->getKind()) {
-  case ScriptCommand::Group:
-    llvm::cast<GroupCmd>(cmd)->scriptInput().setAsNeeded(pEnable);
-    break;
-  default:
-    assert(0 && "Invalid command to use AS_NEEDED!");
-    break;
-  }
-}
-
-void ScriptFile::addGroupCmd(GroupReader& pGroupReader,
+void ScriptFile::addGroupCmd(StringList& pStringList,
+                             GroupReader& pGroupReader,
                              const LinkerConfig& pConfig)
 {
   m_CommandQueue.push_back(
-    new GroupCmd(*m_pInputTree, m_Builder, pGroupReader, pConfig));
+    new GroupCmd(pStringList, *m_pInputTree, m_Builder, pGroupReader, pConfig));
 }
 
-void ScriptFile::addSearchDirCmd(const std::string& pPath,
-                                 LinkerScript& pScript)
+void ScriptFile::addOutputCmd(const std::string& pFileName)
 {
-  m_CommandQueue.push_back(new SearchDirCmd(pPath, pScript));
+  m_CommandQueue.push_back(new OutputCmd(pFileName));
+}
+
+void ScriptFile::addSearchDirCmd(const std::string& pPath)
+{
+  m_CommandQueue.push_back(new SearchDirCmd(pPath));
 }
 
 void ScriptFile::addOutputArchCmd(const std::string& pArch)
@@ -150,29 +128,92 @@ void ScriptFile::addOutputArchCmd(const std::string& pArch)
   m_CommandQueue.push_back(new OutputArchCmd(pArch));
 }
 
-void ScriptFile::addAssignment(LinkerScript& pLDScript,
-                               const std::string& pSymbolName,
-                               Assignment::Type pType)
+void ScriptFile::addAssertCmd(RpnExpr& pRpnExpr, const std::string& pMessage)
 {
-  m_CommandQueue.push_back(
-    new Assignment(pLDScript, pType,
-                   *(Operand::create(Operand::SYMBOL, pSymbolName)),
-                   *(RpnExpr::create())));
+  m_CommandQueue.push_back(new AssertCmd(pRpnExpr, pMessage));
 }
 
-void ScriptFile::addExprToken(ExprToken* pToken)
+void ScriptFile::addAssignment(const std::string& pSymbolName,
+                               RpnExpr& pRpnExpr,
+                               Assignment::Type pType)
 {
-  ScriptCommand* cmd = back();
-  switch (cmd->getKind()) {
-  case ScriptCommand::Assignment: {
-    Assignment* assignment = llvm::cast<Assignment>(cmd);
-    assignment->getRpnExpr().append(pToken);
-    break;
+  if (m_bInSectionsCmd) {
+    assert(!m_CommandQueue.empty());
+    SectionsCmd* sections = llvm::cast<SectionsCmd>(back());
+    if (m_bInOutputSectDesc) {
+      assert(!sections->empty());
+      OutputSectDesc* output_desc =
+        llvm::cast<OutputSectDesc>(sections->back());
+      output_desc->push_back(new Assignment(Assignment::INPUT_SECTION,
+                                            pType,
+                                            *(SymOperand::create(pSymbolName)),
+                                            pRpnExpr));
+    } else {
+      sections->push_back(new Assignment(Assignment::OUTPUT_SECTION,
+                                         pType,
+                                         *(SymOperand::create(pSymbolName)),
+                                         pRpnExpr));
+    }
+  } else {
+    m_CommandQueue.push_back(new Assignment(Assignment::OUTSIDE_SECTIONS,
+                                            pType,
+                                            *(SymOperand::create(pSymbolName)),
+                                            pRpnExpr));
   }
-  default:
-    assert(0 && "Invalid command to add expression token.\n");
-    break;
-  }
+}
+
+bool ScriptFile::hasSectionsCmd() const
+{
+  return m_bHasSectionsCmd;
+}
+
+void ScriptFile::enterSectionsCmd()
+{
+  m_bHasSectionsCmd = true;
+  m_bInSectionsCmd = true;
+  m_CommandQueue.push_back(new SectionsCmd());
+}
+
+void ScriptFile::leaveSectionsCmd()
+{
+  m_bInSectionsCmd = false;
+}
+
+void ScriptFile::enterOutputSectDesc(const std::string& pName,
+                                     const OutputSectDesc::Prolog& pProlog)
+{
+  assert(!m_CommandQueue.empty());
+  assert(m_bInSectionsCmd);
+  SectionsCmd* sections = llvm::cast<SectionsCmd>(back());
+  sections->push_back(new OutputSectDesc(pName, pProlog));
+
+  m_bInOutputSectDesc = true;
+}
+
+void ScriptFile::leaveOutputSectDesc(const OutputSectDesc::Epilog& pEpilog)
+{
+  assert(!m_CommandQueue.empty());
+  assert(m_bInSectionsCmd);
+  SectionsCmd* sections = llvm::cast<SectionsCmd>(back());
+
+  assert(!sections->empty() && m_bInOutputSectDesc);
+  OutputSectDesc* output_desc = llvm::cast<OutputSectDesc>(sections->back());
+  output_desc->setEpilog(pEpilog);
+
+  m_bInOutputSectDesc = false;
+}
+
+void ScriptFile::addInputSectDesc(InputSectDesc::KeepPolicy pPolicy,
+                                  const InputSectDesc::Spec& pSpec)
+{
+  assert(!m_CommandQueue.empty());
+  assert(m_bInSectionsCmd);
+  SectionsCmd* sections = llvm::cast<SectionsCmd>(back());
+
+  assert(!sections->empty() && m_bInOutputSectDesc);
+  OutputSectDesc* output_sect = llvm::cast<OutputSectDesc>(sections->back());
+
+  output_sect->push_back(new InputSectDesc(pPolicy, pSpec, *output_sect));
 }
 
 const std::string& ScriptFile::createParserStr(const char* pText,

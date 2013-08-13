@@ -20,6 +20,7 @@
 #include <mcld/Object/SectionMap.h>
 #include <mcld/MC/SearchDirs.h>
 #include <mcld/Script/Assignment.h>
+#include <mcld/Script/AssertCmd.h>
 
 namespace mcld {
 
@@ -41,18 +42,7 @@ public:
 
   typedef std::vector<std::pair<LDSymbol*, Assignment> > Assignments;
 
-  class DefSyms {
-  public:
-    void append(const std::string& pDefSym)
-    {
-      m_DefSymList.append(pDefSym).append(";");
-    }
-    const std::string& data() const { return m_DefSymList; }
-    std::string&       data()       { return m_DefSymList; }
-
-  private:
-    std::string m_DefSymList;
-  };
+  typedef std::vector<AssertCmd> Assertions;
 
 public:
   LinkerScript();
@@ -71,9 +61,8 @@ public:
   const Assignments& assignments() const { return m_Assignments; }
   Assignments&       assignments()       { return m_Assignments; }
 
-  // --defsym
-  const DefSyms& defSyms() const { return m_DefSyms; }
-  DefSyms&       defSyms()       { return m_DefSyms; }
+  const Assertions& assertions() const { return m_Assertions; }
+  Assertions&       assertions()       { return m_Assertions; }
 
   /// search directory
   const SearchDirs& directories() const { return m_SearchDirs; }
@@ -93,14 +82,22 @@ public:
 
   bool hasEntry() const;
 
+  /// output filename
+  const std::string& outputFile() const;
+
+  void setOutputFile(const std::string& pOutputFile);
+
+  bool hasOutputFile() const;
+
 private:
   SymbolRenameMap m_SymbolRenames;
   AddressMap m_AddressMap;
   SectionMap m_SectionMap;
   Assignments m_Assignments;
-  DefSyms m_DefSyms;
+  Assertions m_Assertions;
   SearchDirs m_SearchDirs;
   std::string m_Entry;
+  std::string m_OutputFile;
 };
 
 } // namespace of mcld

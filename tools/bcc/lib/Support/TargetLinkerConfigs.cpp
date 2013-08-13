@@ -53,11 +53,11 @@ ARMLinkerConfig::ARMLinkerConfig() : LinkerConfig(DEFAULT_ARM_TRIPLE_STRING) {
   }
 
   // set up section map
-  if (getLDConfig()->codeGenType() != mcld::LinkerConfig::Object) {
-    bool exist = false;
-    getLDScript()->sectionMap().append(".ARM.exidx", ".ARM.exidx", exist);
-    getLDScript()->sectionMap().append(".ARM.extab", ".ARM.extab", exist);
-    getLDScript()->sectionMap().append(".ARM.attributes", ".ARM.attributes", exist);
+  if (getLDConfig()->options().getScriptList().empty() &&
+      getLDConfig()->codeGenType() != mcld::LinkerConfig::Object) {
+    getLDScript()->sectionMap().insert(".ARM.exidx*", ".ARM.exidx");
+    getLDScript()->sectionMap().insert(".ARM.extab*", ".ARM.extab");
+    getLDScript()->sectionMap().insert(".ARM.attributes*", ".ARM.attributes");
   }
 
   // set up relocation factory
@@ -162,11 +162,11 @@ GeneralLinkerConfig::GeneralLinkerConfig(const std::string& pTriple)
 
   // set up section map
   if (llvm::Triple::arm == getLDConfig()->targets().triple().getArch() &&
+      getLDConfig()->options().getScriptList().empty() &&
       getLDConfig()->codeGenType() != mcld::LinkerConfig::Object) {
-    bool exist = false;
-    getLDScript()->sectionMap().append(".ARM.exidx", ".ARM.exidx", exist);
-    getLDScript()->sectionMap().append(".ARM.extab", ".ARM.extab", exist);
-    getLDScript()->sectionMap().append(".ARM.attributes", ".ARM.attributes", exist);
+    getLDScript()->sectionMap().insert(".ARM.exidx*", ".ARM.exidx");
+    getLDScript()->sectionMap().insert(".ARM.extab*", ".ARM.extab");
+    getLDScript()->sectionMap().insert(".ARM.attributes*", ".ARM.attributes");
   }
 
   // set up relocation factory

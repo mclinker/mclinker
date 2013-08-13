@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_ENTRY_COMMAND_INTERFACE_H
-#define MCLD_ENTRY_COMMAND_INTERFACE_H
+#ifndef MCLD_SCRIPT_ENTRY_COMMAND_INTERFACE_H
+#define MCLD_SCRIPT_ENTRY_COMMAND_INTERFACE_H
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif
@@ -18,8 +18,7 @@
 namespace mcld
 {
 
-class LinkerScript;
-class StringRef;
+class Module;
 
 /** \class EntryCmd
  *  \brief This class defines the interfaces to Entry command.
@@ -28,21 +27,20 @@ class StringRef;
 class EntryCmd : public ScriptCommand
 {
 public:
-  EntryCmd(const std::string& pEntry, LinkerScript& pScript);
+  EntryCmd(const std::string& pEntry);
   ~EntryCmd();
 
   void dump() const;
 
   static bool classof(const ScriptCommand* pCmd)
   {
-    return pCmd->getKind() == ScriptCommand::Entry;
+    return pCmd->getKind() == ScriptCommand::ENTRY;
   }
 
-  void activate();
+  void activate(Module& pModule);
 
 private:
   std::string m_Entry;
-  LinkerScript& m_Script;
 };
 
 } // namespace of mcld

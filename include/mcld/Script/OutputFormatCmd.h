@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_OUTPUTFORMAT_COMMAND_INTERFACE_H
-#define MCLD_OUTPUTFORMAT_COMMAND_INTERFACE_H
+#ifndef MCLD_SCRIPT_OUTPUTFORMAT_COMMAND_INTERFACE_H
+#define MCLD_SCRIPT_OUTPUTFORMAT_COMMAND_INTERFACE_H
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif
@@ -18,6 +18,8 @@
 
 namespace mcld
 {
+
+class Module;
 
 /** \class OutputFormatCmd
  *  \brief This class defines the interfaces to OutputFormat command.
@@ -46,10 +48,10 @@ public:
 
   static bool classof(const ScriptCommand* pCmd)
   {
-    return pCmd->getKind() == ScriptCommand::OutputFormat;
+    return pCmd->getKind() == ScriptCommand::OUTPUT_FORMAT;
   }
 
-  void activate();
+  void activate(Module& pModule);
 
 private:
   FormatList m_FormatList;

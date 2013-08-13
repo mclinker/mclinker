@@ -39,6 +39,7 @@ class MemoryAreaFactory;
 class BranchIslandFactory;
 class StubFactory;
 class ObjectBuilder;
+class Input;
 
 //===----------------------------------------------------------------------===//
 /// TargetLDBackend - Generic interface to target specific assembler backends.
@@ -112,7 +113,9 @@ public:
   virtual bool allocateCommonSymbols(Module& pModule) = 0;
 
   /// mergeSection - merge target dependent sections.
-  virtual bool mergeSection(Module& pModule, LDSection& pInputSection)
+  virtual bool mergeSection(Module& pModule,
+                            const Input& pInputFile,
+                            LDSection& pInputSection)
   { return true; }
 
   /// updateSectionFlags - update pTo's flags when merging pFrom
@@ -143,6 +146,12 @@ public:
 
   /// mayRelax - return true if the backend needs to do relaxation
   virtual bool mayRelax() = 0;
+
+  /// commonPageSize - the common page size of the target machine
+  virtual uint64_t commonPageSize() const = 0;
+
+  /// abiPageSize - the abi page size of the target machine
+  virtual uint64_t abiPageSize() const = 0;
 
 protected:
   const LinkerConfig& config() const { return m_Config; }

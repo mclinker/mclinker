@@ -32,6 +32,7 @@
 #include <mcld/LD/LDContext.h>
 #include <mcld/LD/ELFFileFormat.h>
 #include <mcld/LD/ELFSegmentFactory.h>
+#include <mcld/LD/ELFSegment.h>
 
 #include <cstring>
 
@@ -659,33 +660,37 @@ bool HexagonLDBackend::finalizeTargetSymbols()
   if (m_psdabase)
     m_psdabase->setValue(m_psdata->addr());
 
-  ELFSegment *edata = m_pELFSegmentTable->find(llvm::ELF::PT_LOAD,
-                                             llvm::ELF::PF_W, llvm::ELF::PF_X);
-  if (NULL != edata) {
+  ELFSegmentFactory::const_iterator edata =
+    elfSegmentTable().find(llvm::ELF::PT_LOAD,
+                           llvm::ELF::PF_W,
+                           llvm::ELF::PF_X);
+  if (elfSegmentTable().end() != edata) {
     if (NULL != f_pEData && ResolveInfo::ThreadLocal != f_pEData->type()) {
-      f_pEData->setValue(edata->vaddr() + edata->filesz());
+      f_pEData->setValue((*edata)->vaddr() + (*edata)->filesz());
     }
     if (NULL != f_p_EData && ResolveInfo::ThreadLocal != f_p_EData->type()) {
-      f_p_EData->setValue(edata->vaddr() + edata->filesz());
+      f_p_EData->setValue((*edata)->vaddr() + (*edata)->filesz());
     }
     if (NULL != f_pBSSStart &&
         ResolveInfo::ThreadLocal != f_pBSSStart->type()) {
-      f_pBSSStart->setValue(edata->vaddr() + edata->filesz());
+      f_pBSSStart->setValue((*edata)->vaddr() + (*edata)->filesz());
     }
     if (NULL != f_pEnd && ResolveInfo::ThreadLocal != f_pEnd->type()) {
-      f_pEnd->setValue(((edata->vaddr() +
-                       edata->memsz()) + 7) & ~7);
+      f_pEnd->setValue((((*edata)->vaddr() +
+                       (*edata)->memsz()) + 7) & ~7);
     }
     if (NULL != f_p_End && ResolveInfo::ThreadLocal != f_p_End->type()) {
-      f_p_End->setValue(((edata->vaddr() +
-                       edata->memsz()) + 7) & ~7);
+      f_p_End->setValue((((*edata)->vaddr() +
+                        (*edata)->memsz()) + 7) & ~7);
     }
   }
   return true;
 }
 
 /// merge Input Sections
-bool HexagonLDBackend::mergeSection(Module& pModule, LDSection& pInputSection)
+bool HexagonLDBackend::mergeSection(Module& pModule,
+                                    const Input& pInputFile,
+                                    LDSection& pInputSection)
 {
   if ((pInputSection.flag() & llvm::ELF::SHF_HEX_GPREL) ||
       (pInputSection.kind() == LDFileFormat::LinkOnce) ||
@@ -700,7 +705,7 @@ bool HexagonLDBackend::mergeSection(Module& pModule, LDSection& pInputSection)
   }
   else {
     ObjectBuilder builder(config(), pModule);
-    return builder.MergeSection(pInputSection);
+    builder.MergeSection(pInputFile, pInputSection);
   }
   return true;
 }

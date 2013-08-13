@@ -50,3 +50,18 @@ bool LinkerScript::hasEntry() const
 {
   return !m_Entry.empty();
 }
+
+const std::string& LinkerScript::outputFile() const
+{
+  return m_OutputFile;
+}
+
+void LinkerScript::setOutputFile(const std::string& pOutputFile)
+{
+  m_OutputFile = pOutputFile;
+}
+
+bool LinkerScript::hasOutputFile() const
+{
+  return !m_OutputFile.empty();
+}

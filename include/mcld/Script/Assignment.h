@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_ASSIGNMENT_COMMAND_INTERFACE_H
-#define MCLD_ASSIGNMENT_COMMAND_INTERFACE_H
+#ifndef MCLD_SCRIPT_ASSIGNMENT_COMMAND_INTERFACE_H
+#define MCLD_SCRIPT_ASSIGNMENT_COMMAND_INTERFACE_H
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif
@@ -17,9 +17,10 @@
 namespace mcld
 {
 
-class LinkerScript;
+class Module;
 class RpnExpr;
-class Operand;
+class SymOperand;
+class RpnEvaluator;
 
 /** \class Assignment
  *  \brief This class defines the interfaces to assignment command.
@@ -28,6 +29,12 @@ class Operand;
 class Assignment : public ScriptCommand
 {
 public:
+  enum Level {
+    OUTSIDE_SECTIONS, // outside SECTIONS command
+    OUTPUT_SECTION,   // related to an output section
+    INPUT_SECTION     // related to an input section
+  };
+
   enum Type {
     DEFAULT,
     HIDDEN,
@@ -36,18 +43,21 @@ public:
   };
 
 public:
-  Assignment(LinkerScript& pScript,
+  Assignment(Level pLevel,
              Type pType,
-             Operand& pSymbol,
+             SymOperand& pSymbol,
              RpnExpr& pRpnExpr);
 
   ~Assignment();
 
   Assignment& operator=(const Assignment& pAssignment);
 
+  Level level() const { return m_Level; }
+
   Type type() const { return m_Type; }
 
-  const Operand& symbol() const { return m_Symbol; }
+  const SymOperand& symbol() const { return m_Symbol; }
+  SymOperand&       symbol()       { return m_Symbol; }
 
   const RpnExpr& getRpnExpr() const { return m_RpnExpr; }
   RpnExpr&       getRpnExpr()       { return m_RpnExpr; }
@@ -56,15 +66,18 @@ public:
 
   static bool classof(const ScriptCommand* pCmd)
   {
-    return pCmd->getKind() == ScriptCommand::Assignment;
+    return pCmd->getKind() == ScriptCommand::ASSIGNMENT;
   }
 
-  void activate();
+  void activate(Module& pModule);
+
+  /// assign - evaluate the rhs and assign the result to lhs.
+  bool assign(RpnEvaluator& pEvaluator);
 
 private:
-  LinkerScript& m_Script;
+  Level m_Level;
   Type m_Type;
-  Operand& m_Symbol;
+  SymOperand& m_Symbol;
   RpnExpr& m_RpnExpr;
 };
 

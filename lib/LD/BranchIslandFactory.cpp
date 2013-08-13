@@ -8,6 +8,9 @@
 //===----------------------------------------------------------------------===//
 #include <mcld/LD/BranchIslandFactory.h>
 #include <mcld/Fragment/Fragment.h>
+#include <mcld/LD/LDSection.h>
+#include <mcld/LD/SectionData.h>
+#include <mcld/Module.h>
 
 using namespace mcld;
 
@@ -31,43 +34,40 @@ BranchIslandFactory::~BranchIslandFactory()
 {
 }
 
+/// group - group fragments and create islands when needed
+/// @param pSectionData - the SectionData holds fragments need to be grouped
+void BranchIslandFactory::group(Module& pModule)
+{
+  /* Currently only support relaxing .text section! */
+  LDSection* text = pModule.getSection(".text");
+  if (text != NULL && text->hasSectionData()) {
+    SectionData& sd = *text->getSectionData();
+    uint64_t group_end = m_MaxBranchRange - m_MaxIslandSize;
+    for (SectionData::iterator it = sd.begin(), ie = sd.end(); it != ie; ++it) {
+      if ((*it).getOffset() + (*it).size() > group_end) {
+        Fragment* frag = (*it).getPrevNode();
+        while (frag != NULL && frag->getKind() == Fragment::Alignment) {
+          frag = frag->getPrevNode();
+        }
+        if (frag != NULL) {
+          produce(*frag);
+          group_end = (*it).getOffset() + m_MaxBranchRange - m_MaxIslandSize;
+        }
+      }
+    }
+    if (find(sd.back()) == NULL)
+      produce(sd.back());
+  }
+}
+
 /// produce - produce a island for the given fragment
 /// @param pFragment - the fragment needs a branch island
 BranchIsland* BranchIslandFactory::produce(Fragment& pFragment)
 {
-  assert(NULL == find(pFragment));
-  uint64_t island_offset = pFragment.getOffset() + m_MaxBranchRange -
-                           (pFragment.getOffset() % m_MaxBranchRange);
-
-  // find out the last fragment whose offset is smaller than the calculated
-  // offset of the island
-  Fragment* frag = &pFragment;
-  while (NULL != frag->getNextNode()) {
-    if (frag->getNextNode()->getOffset() > island_offset)
-      break;
-    frag = frag->getNextNode();
-  }
-
-  // fall back one step if needed
-  if (NULL != frag &&
-      (frag->getOffset() + frag->size()) > island_offset)
-    frag = frag->getPrevNode();
-
-  // check not to break the alignment constraint in the target section
-  // (i.e., do not insert the island after a Alignment fragment)
-  while (NULL != frag &&
-         Fragment::Alignment == frag->getKind()) {
-    frag = frag->getPrevNode();
-  }
-
-  // can not find an entry fragment to bridge the island
-  if (NULL == frag)
-    return NULL;
-
   BranchIsland *island = allocate();
-  new (island) BranchIsland(*frag,           // entry fragment to the island
+  new (island) BranchIsland(pFragment,       // entry fragment to the island
                             m_MaxIslandSize, // the max size of the island
-                            size() - 1u);     // index in the island factory
+                            size() - 1u);    // index in the island factory
   return island;
 }
 
@@ -76,7 +76,7 @@ BranchIsland* BranchIslandFactory::produce(Fragment& pFragment)
 BranchIsland* BranchIslandFactory::find(const Fragment& pFragment)
 {
   // Currently we always find the island in a forward direction.
-  // TODO: If we can search backward, then we may reduce the number of islands.
+  // TODO: If we can search backward, then we may reduce the number of stubs.
   for (iterator it = begin(), ie = end(); it != ie; ++it) {
     if ((pFragment.getOffset() < (*it).offset()) &&
         ((pFragment.getOffset() + m_MaxBranchRange) >= (*it).offset()))

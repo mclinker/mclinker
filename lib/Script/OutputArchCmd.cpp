@@ -15,7 +15,7 @@ using namespace mcld;
 // OutputArchCmd
 //===----------------------------------------------------------------------===//
 OutputArchCmd::OutputArchCmd(const std::string& pArch)
-  : ScriptCommand(ScriptCommand::OutputArch),
+  : ScriptCommand(ScriptCommand::OUTPUT_ARCH),
     m_Arch(pArch)
 {
 }
@@ -29,7 +29,7 @@ void OutputArchCmd::dump() const
   mcld::outs() << "OUTPUT_ARCH ( " << m_Arch << " )\n";
 }
 
-void OutputArchCmd::activate()
+void OutputArchCmd::activate(Module& pModule)
 {
   // TODO
 }

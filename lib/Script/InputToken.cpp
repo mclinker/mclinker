@@ -1,4 +1,4 @@
-//===- ScriptInput.cpp ----------------------------------------------------===//
+//===- InputToken.cpp -----------------------------------------------------===//
 //
 //                     The MCLinker Project
 //
@@ -6,26 +6,23 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include <mcld/Script/ScriptInput.h>
-#include <mcld/Support/raw_ostream.h>
+#include <mcld/Script/InputToken.h>
 
 using namespace mcld;
 
 //===----------------------------------------------------------------------===//
-// ScriptInput
+// InputToken
 //===----------------------------------------------------------------------===//
-ScriptInput::ScriptInput()
-  : m_bAsNeeded(false)
+InputToken::InputToken()
+  : m_Type(Unknown), m_bAsNeeded(false)
 {
 }
 
-void ScriptInput::append(const std::string& pPath)
+InputToken::InputToken(Type pType, const std::string& pName, bool pAsNeeded)
+  : StrToken(StrToken::Input, pName), m_Type(pType), m_bAsNeeded(pAsNeeded)
 {
-  m_InputList.push_back(Node(pPath, m_bAsNeeded));
 }
 
-void ScriptInput::setAsNeeded(bool pEnable)
+InputToken::~InputToken()
 {
-  m_bAsNeeded = pEnable;
 }
-

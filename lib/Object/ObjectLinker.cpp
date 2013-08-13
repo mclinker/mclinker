@@ -43,6 +43,8 @@
 #include <llvm/Support/Host.h>
 
 
+#include <mcld/Script/StringList.h>
+#include <mcld/Script/WildcardPattern.h>
 using namespace llvm;
 using namespace mcld;
 ObjectLinker::ObjectLinker(const LinkerConfig& pConfig,
@@ -94,14 +96,6 @@ bool ObjectLinker::initialize(Module& pModule, IRBuilder& pBuilder)
   // initialize Relocator
   m_LDBackend.initRelocator();
 
-  // TODO: process the default linker script from -T option.
-  // process --defsym option
-  ScriptFile defsym(ScriptFile::Expression, "--defsym",
-                    m_pModule->getScript().defSyms().data(),
-                    m_pBuilder->getInputBuilder());
-  if (getScriptReader()->readScript(m_Config, m_pModule->getScript(), defsym)) {
-    defsym.activate();
-  }
   return true;
 }
 
@@ -184,15 +178,12 @@ void ObjectLinker::normalize()
     else if (getScriptReader()->isMyFormat(**input)) {
       ScriptFile script(ScriptFile::LDScript, **input,
                         m_pBuilder->getInputBuilder());
-
-      if (getScriptReader()->readScript(m_Config,
-                                        m_pModule->getScript(),
-                                        script)) {
+      if (getScriptReader()->readScript(m_Config, script)) {
         (*input)->setType(Input::Script);
-        script.activate();
+        script.activate(*m_pModule);
         if (script.inputs().size() > 0) {
           m_pModule->getInputTree().merge<InputTree::Inclusive>(input,
-              script.inputs());
+            script.inputs());
         }
       }
     }
@@ -269,14 +260,21 @@ bool ObjectLinker::mergeSections()
         // Some *INPUT sections should not be merged.
         case LDFileFormat::Ignore:
         case LDFileFormat::Null:
-        case LDFileFormat::Relocation:
         case LDFileFormat::NamePool:
         case LDFileFormat::Group:
         case LDFileFormat::StackNote:
           // skip
           continue;
+        case LDFileFormat::Relocation: {
+          if (!(*sect)->hasRelocData())
+            continue; // skip
+
+          if ((*sect)->getLink()->kind() == LDFileFormat::Ignore)
+            (*sect)->setKind(LDFileFormat::Ignore);
+          break;
+        }
         case LDFileFormat::Target:
-          if (!m_LDBackend.mergeSection(*m_pModule, **sect)) {
+          if (!m_LDBackend.mergeSection(*m_pModule, **obj, **sect)) {
             error(diag::err_cannot_merge_section) << (*sect)->name()
                                                   << (*obj)->name();
             return false;
@@ -287,16 +285,12 @@ bool ObjectLinker::mergeSections()
             continue; // skip
 
           LDSection* out_sect = NULL;
-          if (NULL == (out_sect = builder.MergeSection(**sect))) {
-            error(diag::err_cannot_merge_section) << (*sect)->name()
-                                                  << (*obj)->name();
-            return false;
-          }
-
-          if (!m_LDBackend.updateSectionFlags(*out_sect, **sect)) {
-            error(diag::err_cannot_merge_section) << (*sect)->name()
-                                                  << (*obj)->name();
-            return false;
+          if (NULL != (out_sect = builder.MergeSection(**obj, **sect))) {
+            if (!m_LDBackend.updateSectionFlags(*out_sect, **sect)) {
+              error(diag::err_cannot_merge_section) << (*sect)->name()
+                                                    << (*obj)->name();
+              return false;
+            }
           }
           break;
         }
@@ -305,22 +299,47 @@ bool ObjectLinker::mergeSections()
             continue; // skip
 
           LDSection* out_sect = NULL;
-          if (NULL == (out_sect = builder.MergeSection(**sect))) {
-            error(diag::err_cannot_merge_section) << (*sect)->name()
-                                                  << (*obj)->name();
-            return false;
-          }
-
-          if (!m_LDBackend.updateSectionFlags(*out_sect, **sect)) {
-            error(diag::err_cannot_merge_section) << (*sect)->name()
-                                                  << (*obj)->name();
-            return false;
+          if (NULL != (out_sect = builder.MergeSection(**obj, **sect))) {
+            if (!m_LDBackend.updateSectionFlags(*out_sect, **sect)) {
+              error(diag::err_cannot_merge_section) << (*sect)->name()
+                                                    << (*obj)->name();
+              return false;
+            }
           }
           break;
         }
       } // end of switch
     } // for each section
   } // for each obj
+
+  SectionMap::iterator out, outBegin, outEnd;
+  outBegin = m_pModule->getScript().sectionMap().begin();
+  outEnd = m_pModule->getScript().sectionMap().end();
+  for (out = outBegin; out != outEnd; ++out) {
+    LDSection* out_sect = (*out)->getSection();
+    SectionMap::Output::iterator in, inBegin, inEnd;
+    inBegin = (*out)->begin();
+    inEnd = (*out)->end();
+    for (in = inBegin; in != inEnd; ++in) {
+      LDSection* in_sect = (*in)->getSection();
+      if (builder.MoveSectionData(*in_sect->getSectionData(),
+                                  *out_sect->getSectionData())) {
+        builder.UpdateSectionAlign(*out_sect, *in_sect);
+        m_LDBackend.updateSectionFlags(*out_sect, *in_sect);
+      }
+    } // for each input section description
+
+    if ((*out)->hasContent()) {
+      LDSection* target = m_pModule->getSection((*out)->name());
+      assert(target != NULL && target->hasSectionData());
+      if (builder.MoveSectionData(*out_sect->getSectionData(),
+                                  *target->getSectionData())) {
+        builder.UpdateSectionAlign(*target, *out_sect);
+        m_LDBackend.updateSectionFlags(*target, *out_sect);
+      }
+    }
+  } // for each output section description
+
   return true;
 }
 
@@ -358,7 +377,8 @@ bool ObjectLinker::addScriptSymbols()
   // go through the entire symbol assignments
   for (it = script.assignments().begin(); it != ie; ++it) {
     LDSymbol* symbol = NULL;
-    const llvm::StringRef symName =  (*it).second.symbol().strVal();
+    assert((*it).second.symbol().type() == Operand::SYMBOL);
+    const llvm::StringRef symName =  (*it).second.symbol().name();
     ResolveInfo::Type       type = ResolveInfo::NoType;
     ResolveInfo::Visibility vis  = ResolveInfo::Default;
     size_t size = 0;
@@ -526,15 +546,13 @@ bool ObjectLinker::postlayout()
 ///   symbol.
 bool ObjectLinker::finalizeSymbolValue()
 {
-
   Module::sym_iterator symbol, symEnd = m_pModule->sym_end();
   for (symbol = m_pModule->sym_begin(); symbol != symEnd; ++symbol) {
 
     if ((*symbol)->resolveInfo()->isAbsolute() ||
         (*symbol)->resolveInfo()->type() == ResolveInfo::File) {
-      // absolute symbols or symbols with function type should have
-      // zero value
-      (*symbol)->setValue(0x0);
+      // absolute symbols should just use its value directly (i.e., the result
+      // of symbol resolution)
       continue;
     }
 
@@ -549,31 +567,44 @@ bool ObjectLinker::finalizeSymbolValue()
       // And the symbol's value become section relative offset.
       uint64_t value = (*symbol)->fragRef()->getOutputOffset();
       assert(NULL != (*symbol)->fragRef()->frag());
-      uint64_t addr = (*symbol)->fragRef()->frag()->getParent()->getSection().addr();
+      uint64_t addr =
+        (*symbol)->fragRef()->frag()->getParent()->getSection().addr();
       (*symbol)->setValue(value + addr);
       continue;
     }
   }
 
+  RpnEvaluator evaluator(*m_pModule, m_LDBackend);
   bool finalized = m_LDBackend.finalizeSymbols();
-  bool scriptSymsAdded = true;
-  uint64_t symVal;
-  const LinkerScript& script = m_pModule->getScript();
-  LinkerScript::Assignments::const_iterator it;
-  LinkerScript::Assignments::const_iterator ie = script.assignments().end();
-  // go through the entire symbol assignments
+  bool scriptSymsFinalized = true;
+  LinkerScript& script = m_pModule->getScript();
+  LinkerScript::Assignments::iterator assign, assignEnd;
+  assignEnd = script.assignments().end();
+  for (assign = script.assignments().begin(); assign != assignEnd; ++assign) {
+    LDSymbol* symbol = (*assign).first;
+    Assignment& assignment = (*assign).second;
 
-  RpnEvaluator evaluator(*m_pModule);
-  for (it = script.assignments().begin(); it != ie; ++it) {
-    if ((*it).first == NULL)
+    if (symbol == NULL)
       continue;
 
-    scriptSymsAdded &= evaluator.eval((*it).second.getRpnExpr(), symVal);
-    if (!scriptSymsAdded)
+    scriptSymsFinalized &= assignment.assign(evaluator);
+    if (!scriptSymsFinalized)
       break;
-    (*it).first->setValue(symVal);
-  }
-  return finalized && scriptSymsAdded ;
+
+    symbol->setValue(assignment.symbol().value());
+  } // for each script symbol assignment
+
+  bool assertionsPassed = true;
+  LinkerScript::Assertions::iterator assert, assertEnd;
+  assertEnd = script.assertions().end();
+  for (assert = script.assertions().begin(); assert != assertEnd; ++assert) {
+    uint64_t res = 0x0;
+    evaluator.eval((*assert).getRpnExpr(), res);
+    if (res == 0x0)
+      fatal(diag::err_assert_failed) << (*assert).message();
+  } // for each assertion in ldscript
+
+  return finalized && scriptSymsFinalized && assertionsPassed;
 }
 
 /// relocate - applying relocation entries and create relocation

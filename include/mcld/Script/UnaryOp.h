@@ -6,16 +6,22 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_UNARY_OPERATOR_INTERFACE_H
-#define MCLD_UNARY_OPERATOR_INTERFACE_H
+#ifndef MCLD_SCRIPT_UNARY_OPERATOR_INTERFACE_H
+#define MCLD_SCRIPT_UNARY_OPERATOR_INTERFACE_H
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif
 
 #include <mcld/Script/Operator.h>
+#include <cstddef>
 
 namespace mcld
 {
+
+class Operand;
+class IntOperand;
+class Module;
+class TargetLDBackend;
 
 /** \class UnaryOp
  *  \brief This class defines the interfaces to an unary operator token.
@@ -28,36 +34,67 @@ private:
   friend class Operator;
 
   UnaryOp()
-    : Operator(Operator::Unary, TYPE), m_Operand(0)
-  {
-  }
+    : Operator(Operator::UNARY, TYPE), m_pOperand(NULL)
+  {}
 
 public:
   ~UnaryOp()
   {}
 
-  Operator::ValueType eval();
+  IntOperand* eval(const Module& pModule, const TargetLDBackend& pBackend);
 
-  void appendOperand(Operator::ValueType pValue)
+  void appendOperand(Operand* pOperand)
   {
-    m_Operand = pValue;
+    m_pOperand = pOperand;
   }
 
 private:
-  ValueType m_Operand;
+  Operand* m_pOperand;
 };
 
 template<>
-Operator::ValueType UnaryOp<Operator::UNARY_PLUS>::eval();
+IntOperand* UnaryOp<Operator::UNARY_PLUS>::eval(const Module&,
+                                                const TargetLDBackend&);
+template<>
+IntOperand* UnaryOp<Operator::UNARY_MINUS>::eval(const Module&,
+                                                 const TargetLDBackend&);
+template<>
+IntOperand* UnaryOp<Operator::LOGICAL_NOT>::eval(const Module&,
+                                                 const TargetLDBackend&);
+template<>
+IntOperand* UnaryOp<Operator::BITWISE_NOT>::eval(const Module&,
+                                                 const TargetLDBackend&);
 
 template<>
-Operator::ValueType  UnaryOp<Operator::UNARY_MINUS>::eval();
-
+IntOperand* UnaryOp<Operator::ABSOLUTE>::eval(const Module&,
+                                              const TargetLDBackend&);
 template<>
-Operator::ValueType UnaryOp<Operator::LOGICAL_NOT>::eval();
-
+IntOperand* UnaryOp<Operator::ADDR>::eval(const Module&,
+                                          const TargetLDBackend&);
 template<>
-Operator::ValueType UnaryOp<Operator::BITWISE_NOT>::eval();
+IntOperand* UnaryOp<Operator::ALIGNOF>::eval(const Module&,
+                                             const TargetLDBackend&);
+template<>
+IntOperand* UnaryOp<Operator::DATA_SEGMENT_END>::eval(const Module&,
+                                                      const TargetLDBackend&);
+template<>
+IntOperand* UnaryOp<Operator::DEFINED>::eval(const Module&,
+                                             const TargetLDBackend&);
+template<>
+IntOperand* UnaryOp<Operator::LENGTH>::eval(const Module&,
+                                            const TargetLDBackend&);
+template<>
+IntOperand* UnaryOp<Operator::LOADADDR>::eval(const Module&,
+                                              const TargetLDBackend&);
+template<>
+IntOperand* UnaryOp<Operator::NEXT>::eval(const Module&,
+                                          const TargetLDBackend&);
+template<>
+IntOperand* UnaryOp<Operator::ORIGIN>::eval(const Module&,
+                                            const TargetLDBackend&);
+template<>
+IntOperand* UnaryOp<Operator::SIZEOF>::eval(const Module&,
+                                            const TargetLDBackend&);
 
 } // namespace of mcld
 

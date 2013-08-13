@@ -105,8 +105,8 @@ uint64_t MipsELFDynamic::getBaseAddress()
   if (LinkerConfig::Exec != m_pConfig.codeGenType())
     return 0;
 
-  const ELFSegment* baseSeg =
+  ELFSegmentFactory::const_iterator baseSeg =
     m_pParent.elfSegmentTable().find(llvm::ELF::PT_LOAD, 0x0, 0x0);
 
-  return NULL == baseSeg ? 0 : baseSeg->vaddr();
+  return m_pParent.elfSegmentTable().end() == baseSeg ? 0 : (*baseSeg)->vaddr();
 }

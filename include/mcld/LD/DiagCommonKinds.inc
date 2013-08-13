@@ -48,4 +48,5 @@ DIAG(fatal_illegal_codegen_type, DiagnosticEngine::Fatal, "illegal output format
 DIAG(err_nmagic_not_static, DiagnosticEngine::Error, "cannot mix -nmagic option with -shared", "cannot mix -nmagic option with -shared")
 DIAG(err_omagic_not_static, DiagnosticEngine::Error, "cannot mix -omagic option with -shared", "cannot mix -omagic option with -shared")
 DIAG(err_invalid_emulation, DiagnosticEngine::Error, "Invalid target emulation: `%0'.", "Invalid target emulation: `%0'.")
+DIAG(err_cannot_find_scriptfile, DiagnosticEngine::Fatal, "cannot open %0 file %1", "cannot open %0 file %1")
 DIAG(err_unsupported_archive, DiagnosticEngine::Error, "Unsupported archive type.", "Unsupported archive type.")
