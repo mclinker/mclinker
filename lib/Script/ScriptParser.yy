@@ -217,6 +217,7 @@ script_command : entry_command
                | assert_command
                | symbol_assignment
                | sections_command
+               | ';'
                ;
 
 entry_command : ENTRY '(' STRING ')'
@@ -233,7 +234,7 @@ group_command : GROUP '(' input_list ')'
                 { m_ScriptFile.addGroupCmd(*$3, m_GroupReader, m_LDConfig); }
               ;
 
-search_dir_command : SEARCH_DIR '(' STRING ')' opt_comma
+search_dir_command : SEARCH_DIR '(' STRING ')'
                      { m_ScriptFile.addSearchDirCmd(*$3); }
                    ;
 
@@ -470,6 +471,7 @@ output_sect_cmd : symbol_assignment
                 | input_sect_desc
                 | output_sect_data
                 | output_sect_keyword
+                | ';'
                 ;
 
 input_sect_desc : input_sect_spec
@@ -873,10 +875,6 @@ string : STRING
        | '"' STRING '"'
          { $$ = $2; }
        ;
-
-opt_comma : ';'
-          | /* Empty */
-          ;
 
 %%
 
