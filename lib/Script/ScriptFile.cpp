@@ -37,7 +37,7 @@ typedef HashEntry<std::string,
                   void*,
                   hash::StringCompare<std::string> > ParserStrEntry;
 typedef HashTable<ParserStrEntry,
-                  hash::StringHash<hash::ELF>,
+                  hash::StringHash<hash::DJB>,
                   EntryFactory<ParserStrEntry> > ParserStrPool;
 static llvm::ManagedStatic<ParserStrPool> g_ParserStrPool;
 
