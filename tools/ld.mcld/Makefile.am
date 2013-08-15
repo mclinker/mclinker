@@ -66,8 +66,12 @@ endif
 
 AM_CPPFLAGS = ${MCLD_CPPFLAGS}
 
+if ENABLE_UNITTEST
 ld_mcld_LDFLAGS = -L${top_builddir}/utils/gtest/lib -lgtest ${LLVM_LDFLAGS}
-
 ld_mcld_LDADD = ${top_builddir}/debug/libmcld.a
+else
+ld_mcld_LDFLAGS = ${LLVM_LDFLAGS}
+ld_mcld_LDADD = ${top_builddir}/optimized/libmcld.a
+endif
 
 dist_ld_mcld_SOURCES = ${MCLD_SOURCES}
