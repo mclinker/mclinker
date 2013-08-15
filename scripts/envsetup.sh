@@ -28,7 +28,7 @@ function gettop()
 	
 }
 
-function wc_pndk()
+function wc_mcld()
 {
 	local H=`find ${MCLINKERTOP} | grep '\.h'`
 	local T=`find ${MCLINKERTOP} | grep '\.tcc'`
@@ -40,8 +40,8 @@ function wc_pndk()
 #  Variable Dictionary
 export MCLINKERTOP=$(gettop)
 export PATH="${MCLINKERTOP}/scripts/bin:$PATH"
-if [ -x "${MCLINKERTOP}/debug/llvm-mcld" ]; then
-	ln -sf ${MCLINKERTOP}/debug/llvm-mcld ${MCLINKERTOP}/scripts/bin/MCLinker
+if [ -x "${MCLINKERTOP}/debug/ld.mcld" ]; then
+	ln -sf ${MCLINKERTOP}/debug/ld.mcld ${MCLINKERTOP}/scripts/bin/MCLinker
 fi
 
 alias mk="make -C ${MCLINKERTOP}"
