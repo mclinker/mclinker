@@ -17,7 +17,11 @@ AM_CPPFLAGS = ${MCLD_INCLUDES} ${MCLD_CPPFLAGS}
 
 ld_bcc_LDFLAGS = ${LLVM_LDFLAGS}
 
+if ENABLE_UNITTEST
 ld_bcc_LDADD = ${top_builddir}/debug/libmcld.a
+else
+ld_bcc_LDADD = ${top_builddir}/optimized/libmcld.a
+endif
 
 dist_ld_bcc_SOURCES = ${srcdir}/main.cpp \
     ${srcdir}/include/bcc/Linker.h \
