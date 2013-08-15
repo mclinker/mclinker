@@ -473,24 +473,3 @@ libmcld_a_SOURCES = ${SOURCE} ${LINKERSCRIPT_SOURCE}
 
 nobase_include_HEADERS = ${HEADER} ${LINKERSCRIPT_HEADER}
 
-bin_PROGRAMS = ld.mcld ld.bcc
-
-###################
-# ld.bcc
-ld_bcc_CPPFLAGS = -g -I$(TOPLEVEL)/include -I$(BUILDTOP)/include ${LLVM_CPPFLAGS} ${ANDROID_CPPFLAGS} -I$(TOPLEVEL)/tools/bcc/include -I$(BUILDTOP)/tools/bcc/include
-
-ld_bcc_LDFLAGS = ${LLVM_LDFLAGS}
-
-ld_bcc_LDADD = libmcld.a
-
-dist_ld_bcc_SOURCES = ${TOOLDIR}/bcc/main.cpp \
-	${TOOLDIR}/bcc/include/bcc/Linker.h \
-	${TOOLDIR}/bcc/lib/Core/Linker.cpp \
-	${TOOLDIR}/bcc/include/bcc/Support/LinkerConfig.h \
-	${TOOLDIR}/bcc/lib/Support/LinkerConfig.cpp \
-	${TOOLDIR}/bcc/include/bcc/Support/TargetLinkerConfigs.h \
-	${TOOLDIR}/bcc/lib/Support/TargetLinkerConfigs.cpp \
-	${TOOLDIR}/bcc/include/bcc/Support/Initialization.h \
-	${TOOLDIR}/bcc/lib/Support/Initialization.cpp \
-	${TOOLDIR}/bcc/include/bcc/Support/Log.h
-
