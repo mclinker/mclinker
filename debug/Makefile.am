@@ -395,57 +395,6 @@ SOURCE = ${LIBDIR}/ADT/StringEntry.cpp \
 	${LIBDIR}/Target/Hexagon/HexagonLDBackend.cpp \
 	${LIBDIR}/Target/Hexagon/TargetInfo/HexagonTargetInfo.cpp
 
-if ENABLE_UNITTEST
-UNITTEST_SOURCE = \
-	${UNITTEST}/PathTest.h \
-	${UNITTEST}/PathTest.cpp \
-	${UNITTEST}/BinTreeTest.h \
-	${UNITTEST}/BinTreeTest.cpp \
-	${UNITTEST}/LinearAllocatorTest.h \
-	${UNITTEST}/LinearAllocatorTest.cpp \
-	${UNITTEST}/InputTreeTest.h \
-	${UNITTEST}/InputTreeTest.cpp \
-	${UNITTEST}/RTLinearAllocatorTest.h \
-	${UNITTEST}/RTLinearAllocatorTest.cpp \
-	${UNITTEST}/DirIteratorTest.h \
-	${UNITTEST}/DirIteratorTest.cpp \
-	${UNITTEST}/UniqueGCFactoryBaseTest.h \
-	${UNITTEST}/UniqueGCFactoryBaseTest.cpp \
-	${UNITTEST}/MemoryAreaTest.h \
-	${UNITTEST}/MemoryAreaTest.cpp \
-	${UNITTEST}/HashTableTest.h \
-	${UNITTEST}/HashTableTest.cpp \
-	${UNITTEST}/LDSymbolTest.h \
-	${UNITTEST}/LDSymbolTest.cpp \
-	${UNITTEST}/FragmentRefTest.h \
-	${UNITTEST}/FragmentRefTest.cpp \
-	${UNITTEST}/StaticResolverTest.h \
-	${UNITTEST}/StaticResolverTest.cpp \
-	${UNITTEST}/GCFactoryListTraitsTest.h \
-	${UNITTEST}/GCFactoryListTraitsTest.cpp \
-	${UNITTEST}/LEB128Test.h \
-	${UNITTEST}/LEB128Test.cpp \
-	${UNITTEST}/SymbolCategoryTest.h \
-	${UNITTEST}/SymbolCategoryTest.cpp \
-	${UNITTEST}/FileHandleTest.h \
-	${UNITTEST}/FileHandleTest.cpp \
-	${UNITTEST}/FragmentTest.h \
-	${UNITTEST}/FragmentTest.cpp \
-	${UNITTEST}/SectionDataTest.h \
-	${UNITTEST}/SectionDataTest.cpp \
-	${UNITTEST}/SystemUtilsTest.h \
-	${UNITTEST}/SystemUtilsTest.cpp \
-	${UNITTEST}/LinkerTest.h \
-	${UNITTEST}/LinkerTest.cpp \
-	${UNITTEST}/ELFReaderTest.h \
-	${UNITTEST}/ELFReaderTest.cpp \
-	${UNITTEST}/ELFBinaryReaderTest.h \
-	${UNITTEST}/ELFBinaryReaderTest.cpp
-
-else
-UNITTEST_SOURCE =
-endif
-
 LINKERSCRIPT_HEADER = \
 	${INCDIR}/Script/ScriptCommand.h \
 	${INCDIR}/Script/StrToken.h \
@@ -523,17 +472,10 @@ libmcld_a_SOURCES = ${SOURCE} ${LINKERSCRIPT_SOURCE}
 
 nobase_include_HEADERS = ${HEADER} ${LINKERSCRIPT_HEADER}
 
-bin_PROGRAMS = ld.mcld ld.bcc
+bin_PROGRAMS = ld.bcc
 
 if ENABLE_UNITTEST
 AM_CPPFLAGS = -g -DTOPDIR=\"${abs_top_srcdir}\" -DENABLE_UNITTEST -DMCLD_DEBUG -I$(TOPLEVEL)/utils/gtest/include -I$(TOPLEVEL)/include -I$(TOPLEVEL)/unittests -I$(BUILDTOP)/include ${LLVM_CPPFLAGS} -DGTEST_HAS_RTTI=0 ${ANDROID_CPPFLAGS} -I$(TOOLDIR)/mcld/include -I$(BUILDTOP)/tools/bcc/include -I$(INCDIR)/Script
-
-###################
-# ld.mcld
-ld_mcld_CPPFLAGS = -g -DTOPDIR=\"${abs_top_srcdir}\" -DENABLE_UNITTEST -DMCLD_DEBUG -I$(TOPLEVEL)/utils/gtest/include -I$(TOPLEVEL)/include -I$(TOPLEVEL)/unittests -I$(BUILDTOP)/include ${LLVM_CPPFLAGS} -DGTEST_HAS_RTTI=0 ${ANDROID_CPPFLAGS}
-
-ld_mcld_LDFLAGS = -L$(BUILDTOP)/utils/gtest/lib -lgtest ${LLVM_LDFLAGS}
-ld_mcld_LDADD = libmcld.a
 
 ###################
 # ld.bcc
@@ -545,24 +487,12 @@ else
 AM_CPPFLAGS = -g -I$(TOPLEVEL)/include -I$(TOPLEVEL)/include -I$(BUILDTOP)/include ${LLVM_CPPFLAGS} ${ANDROID_CPPFLAGS} -I$(INCDIR)/Script
 
 ###################
-# ld.mcld
-ld_mcld_CPPFLAGS = -g -I$(TOPLEVEL)/include -I$(BUILDTOP)/include ${LLVM_CPPFLAGS} ${ANDROID_CPPFLAGS}
-
-ld_mcld_LDFLAGS = ${LLVM_LDFLAGS}
-ld_mcld_LDADD = libmcld.a
-
-###################
 # ld.bcc
 ld_bcc_CPPFLAGS = -g -I$(TOPLEVEL)/include -I$(BUILDTOP)/include ${LLVM_CPPFLAGS} ${ANDROID_CPPFLAGS} -I$(TOPLEVEL)/tools/bcc/include -I$(BUILDTOP)/tools/bcc/include
 
 ld_bcc_LDFLAGS = ${LLVM_LDFLAGS}
 ld_bcc_LDADD = libmcld.a
 endif
-
-###################
-# ld.mcld
-dist_ld_mcld_SOURCES = ${TOOLDIR}/ld.mcld/main.cpp \
-    ${UNITTEST_SOURCE}
 
 ###################
 # ld.bcc
