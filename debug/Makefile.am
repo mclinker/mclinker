@@ -1,10 +1,6 @@
-BUILDTOP=..
-TOPLEVEL=${srcdir}/..
-TOOLDIR=${TOPLEVEL}/tools
-INCDIR=${TOPLEVEL}/include/mcld
-LIBDIR=${TOPLEVEL}/lib
-GENDIR=${BUILDTOP}/include/mcld
-UNITTEST=${TOPLEVEL}/unittests
+INCDIR=${top_srcdir}/include/mcld
+LIBDIR=${top_srcdir}/lib
+GENDIR=${top_builddir}/include/mcld
 
 AM_CXXFLAGS = \
 	@NO_VARIADIC_MACROS@ \
@@ -142,6 +138,37 @@ HEADER = ${INCDIR}/ADT/Uncopyable.h \
 	${INCDIR}/LD/BranchIslandFactory.h \
 	${INCDIR}/LD/StubFactory.h \
 	${INCDIR}/LD/SectionSymbolSet.h \
+	${INCDIR}/Script/ScriptCommand.h \
+	${INCDIR}/Script/StrToken.h \
+	${INCDIR}/Script/InputToken.h \
+	${INCDIR}/Script/FileToken.h \
+	${INCDIR}/Script/NameSpec.h \
+	${INCDIR}/Script/WildcardPattern.h \
+	${INCDIR}/Script/StringList.h \
+	${INCDIR}/Script/EntryCmd.h \
+	${INCDIR}/Script/OutputFormatCmd.h \
+	${INCDIR}/Script/GroupCmd.h \
+	${INCDIR}/Script/OutputCmd.h \
+	${INCDIR}/Script/SearchDirCmd.h \
+	${INCDIR}/Script/OutputArchCmd.h \
+	${INCDIR}/Script/AssertCmd.h \
+	${INCDIR}/Script/Assignment.h \
+	${INCDIR}/Script/SectionsCmd.h \
+	${INCDIR}/Script/OutputSectDesc.h \
+	${INCDIR}/Script/InputSectDesc.h \
+	${INCDIR}/Script/ExprToken.h \
+	${INCDIR}/Script/Operator.h \
+	${INCDIR}/Script/NullaryOp.h \
+	${INCDIR}/Script/UnaryOp.h \
+	${INCDIR}/Script/BinaryOp.h \
+	${INCDIR}/Script/TernaryOp.h \
+	${INCDIR}/Script/Operand.h \
+	${INCDIR}/Script/RpnExpr.h \
+	${INCDIR}/Script/RpnEvaluator.h \
+	${INCDIR}/Script/ScriptFile.h \
+	${INCDIR}/Script/FlexLexer.h \
+	${INCDIR}/Script/ScriptScanner.h \
+	${INCDIR}/Script/ScriptReader.h \
 	${INCDIR}/LinkerScript.h \
 	${INCDIR}/Module.h \
 	${INCDIR}/LinkerConfig.h \
@@ -268,6 +295,36 @@ SOURCE = ${LIBDIR}/ADT/StringEntry.cpp \
 	${LIBDIR}/LD/BranchIslandFactory.cpp \
 	${LIBDIR}/LD/StubFactory.cpp \
 	${LIBDIR}/LD/SectionSymbolSet.cpp \
+	${LIBDIR}/Script/StrToken.cpp \
+	${LIBDIR}/Script/InputToken.cpp \
+	${LIBDIR}/Script/FileToken.cpp \
+	${LIBDIR}/Script/NameSpec.cpp \
+	${LIBDIR}/Script/WildcardPattern.cpp \
+	${LIBDIR}/Script/StringList.cpp \
+	${LIBDIR}/Script/ScriptCommand.cpp \
+	${LIBDIR}/Script/EntryCmd.cpp \
+	${LIBDIR}/Script/OutputFormatCmd.cpp \
+	${LIBDIR}/Script/GroupCmd.cpp \
+	${LIBDIR}/Script/OutputCmd.cpp \
+	${LIBDIR}/Script/SearchDirCmd.cpp \
+	${LIBDIR}/Script/OutputArchCmd.cpp \
+	${LIBDIR}/Script/AssertCmd.cpp \
+	${LIBDIR}/Script/Assignment.cpp \
+	${LIBDIR}/Script/SectionsCmd.cpp \
+	${LIBDIR}/Script/OutputSectDesc.cpp \
+	${LIBDIR}/Script/InputSectDesc.cpp \
+	${LIBDIR}/Script/Operator.cpp \
+	${LIBDIR}/Script/NullaryOp.cpp \
+	${LIBDIR}/Script/UnaryOp.cpp \
+	${LIBDIR}/Script/BinaryOp.cpp \
+	${LIBDIR}/Script/TernaryOp.cpp \
+	${LIBDIR}/Script/Operand.cpp \
+	${LIBDIR}/Script/RpnExpr.cpp \
+	${LIBDIR}/Script/RpnEvaluator.cpp \
+	${LIBDIR}/Script/ScriptFile.cpp \
+	${LIBDIR}/Script/ScriptParser.yy \
+	${LIBDIR}/Script/ScriptScanner.ll \
+	${LIBDIR}/Script/ScriptReader.cpp \
 	${INCDIR}/Target/ELFEmulation.h \
 	${LIBDIR}/Target/ELFEmulation.cpp \
 	${INCDIR}/Target/SymbolEntryMap.h \
@@ -395,87 +452,25 @@ SOURCE = ${LIBDIR}/ADT/StringEntry.cpp \
 	${LIBDIR}/Target/Hexagon/HexagonLDBackend.cpp \
 	${LIBDIR}/Target/Hexagon/TargetInfo/HexagonTargetInfo.cpp
 
-LINKERSCRIPT_HEADER = \
-	${INCDIR}/Script/ScriptCommand.h \
-	${INCDIR}/Script/StrToken.h \
-	${INCDIR}/Script/InputToken.h \
-	${INCDIR}/Script/FileToken.h \
-	${INCDIR}/Script/NameSpec.h \
-	${INCDIR}/Script/WildcardPattern.h \
-	${INCDIR}/Script/StringList.h \
-	${INCDIR}/Script/EntryCmd.h \
-	${INCDIR}/Script/OutputFormatCmd.h \
-	${INCDIR}/Script/GroupCmd.h \
-	${INCDIR}/Script/OutputCmd.h \
-	${INCDIR}/Script/SearchDirCmd.h \
-	${INCDIR}/Script/OutputArchCmd.h \
-	${INCDIR}/Script/AssertCmd.h \
-	${INCDIR}/Script/Assignment.h \
-	${INCDIR}/Script/SectionsCmd.h \
-	${INCDIR}/Script/OutputSectDesc.h \
-	${INCDIR}/Script/InputSectDesc.h \
-	${INCDIR}/Script/ExprToken.h \
-	${INCDIR}/Script/Operator.h \
-	${INCDIR}/Script/NullaryOp.h \
-	${INCDIR}/Script/UnaryOp.h \
-	${INCDIR}/Script/BinaryOp.h \
-	${INCDIR}/Script/TernaryOp.h \
-	${INCDIR}/Script/Operand.h \
-	${INCDIR}/Script/RpnExpr.h \
-	${INCDIR}/Script/RpnEvaluator.h \
-	${INCDIR}/Script/ScriptFile.h \
-	${INCDIR}/Script/FlexLexer.h \
-	${INCDIR}/Script/ScriptScanner.h \
-	${INCDIR}/Script/ScriptReader.h
-
-LINKERSCRIPT_SOURCE = \
-	${LIBDIR}/Script/StrToken.cpp \
-	${LIBDIR}/Script/InputToken.cpp \
-	${LIBDIR}/Script/FileToken.cpp \
-	${LIBDIR}/Script/NameSpec.cpp \
-	${LIBDIR}/Script/WildcardPattern.cpp \
-	${LIBDIR}/Script/StringList.cpp \
-	${LIBDIR}/Script/ScriptCommand.cpp \
-	${LIBDIR}/Script/EntryCmd.cpp \
-	${LIBDIR}/Script/OutputFormatCmd.cpp \
-	${LIBDIR}/Script/GroupCmd.cpp \
-	${LIBDIR}/Script/OutputCmd.cpp \
-	${LIBDIR}/Script/SearchDirCmd.cpp \
-	${LIBDIR}/Script/OutputArchCmd.cpp \
-	${LIBDIR}/Script/AssertCmd.cpp \
-	${LIBDIR}/Script/Assignment.cpp \
-	${LIBDIR}/Script/SectionsCmd.cpp \
-	${LIBDIR}/Script/OutputSectDesc.cpp \
-	${LIBDIR}/Script/InputSectDesc.cpp \
-	${LIBDIR}/Script/Operator.cpp \
-	${LIBDIR}/Script/NullaryOp.cpp \
-	${LIBDIR}/Script/UnaryOp.cpp \
-	${LIBDIR}/Script/BinaryOp.cpp \
-	${LIBDIR}/Script/TernaryOp.cpp \
-	${LIBDIR}/Script/Operand.cpp \
-	${LIBDIR}/Script/RpnExpr.cpp \
-	${LIBDIR}/Script/RpnEvaluator.cpp \
-	${LIBDIR}/Script/ScriptFile.cpp \
-	${LIBDIR}/Script/ScriptParser.yy \
-	${LIBDIR}/Script/ScriptScanner.ll \
-	${LIBDIR}/Script/ScriptReader.cpp
-
 ANDROID_CPPFLAGS=-fno-rtti -fno-exceptions -Waddress -Wchar-subscripts -Wcomment -Wformat -Wparentheses -Wreorder -Wreturn-type -Wsequence-point -Wstrict-aliasing -Wstrict-overflow=1 -Wswitch -Wtrigraphs -Wuninitialized -Wunknown-pragmas -Wunused-function -Wunused-label -Wunused-value -Wunused-variable -Wvolatile-register-var
 
 if ENABLE_WERROR
 ANDROID_CPPFLAGS+=-Werror
 endif
 
-if ENABLE_UNITTEST
-AM_CPPFLAGS = -g -DTOPDIR=\"${abs_top_srcdir}\" -DENABLE_UNITTEST -DMCLD_DEBUG -I$(TOPLEVEL)/utils/gtest/include -I$(TOPLEVEL)/include -I$(TOPLEVEL)/unittests -I$(BUILDTOP)/include ${LLVM_CPPFLAGS} -DGTEST_HAS_RTTI=0 ${ANDROID_CPPFLAGS} -I$(TOOLDIR)/mcld/include -I$(INCDIR)/Script
-else
-AM_CPPFLAGS = -g -I$(TOPLEVEL)/include -I$(TOPLEVEL)/include -I$(BUILDTOP)/include ${LLVM_CPPFLAGS} ${ANDROID_CPPFLAGS} -I$(INCDIR)/Script
+MCLD_INCLUDES = -I${top_srcdir}/utils/gtest/include \
+	-I${top_srcdir}/include \
+	-I${top_srcdir}/unittests \
+	-I${top_builddir}/include \
+	-I$(INCDIR)/Script
 
-endif
+MCLD_CPPFLAGS =  -g -DTOPDIR=\"${abs_top_srcdir}\" -DENABLE_UNITTEST -DMCLD_DEBUG ${LLVM_CPPFLAGS} -DGTEST_HAS_RTTI=0 ${ANDROID_CPPFLAGS}
+
+AM_CPPFLAGS = ${MCLD_CPPFLAGS} ${MCLD_INCLUDES}
 
 lib_LIBRARIES= libmcld.a
 
-libmcld_a_SOURCES = ${SOURCE} ${LINKERSCRIPT_SOURCE}
+libmcld_a_SOURCES = ${SOURCE}
 
-nobase_include_HEADERS = ${HEADER} ${LINKERSCRIPT_HEADER}
+nobase_include_HEADERS = ${HEADER}
 
