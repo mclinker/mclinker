@@ -44,13 +44,11 @@ public:
                                        ScriptParser::location_type* yylloc,
                                        const ScriptFile& pScriptFile);
 
-private:
-  friend class ScriptParser;
-
   void setLexState(ScriptFile::Kind pKind);
 
   void popLexState();
 
+private:
   void enterComments(ScriptParser::location_type& pLocation);
 
 private:
