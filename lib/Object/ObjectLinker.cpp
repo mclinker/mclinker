@@ -9,6 +9,7 @@
 #include <mcld/Object/ObjectLinker.h>
 
 #include <mcld/LinkerConfig.h>
+#include <mcld/LinkerScript.h>
 #include <mcld/Module.h>
 #include <mcld/InputTree.h>
 #include <mcld/IRBuilder.h>

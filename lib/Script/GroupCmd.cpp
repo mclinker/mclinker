@@ -15,6 +15,7 @@
 #include <mcld/Support/raw_ostream.h>
 #include <mcld/Support/MsgHandling.h>
 #include <mcld/InputTree.h>
+#include <mcld/LinkerScript.h>
 #include <mcld/LD/GroupReader.h>
 #include <llvm/Support/Casting.h>
 #include <cassert>

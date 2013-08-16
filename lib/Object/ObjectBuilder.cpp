@@ -10,6 +10,7 @@
 
 #include <mcld/Module.h>
 #include <mcld/LinkerConfig.h>
+#include <mcld/LinkerScript.h>
 #include <mcld/IRBuilder.h>
 #include <mcld/Object/SectionMap.h>
 #include <mcld/LD/LDSection.h>

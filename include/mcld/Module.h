@@ -20,7 +20,6 @@
 #include <string>
 #include <map>
 
-#include <mcld/LinkerScript.h>
 #include <mcld/InputTree.h>
 #include <mcld/ADT/HashTable.h>
 #include <mcld/ADT/HashEntry.h>
@@ -35,6 +34,7 @@
 
 namespace mcld {
 
+class LinkerScript;
 class LDSection;
 class LDSymbol;
 

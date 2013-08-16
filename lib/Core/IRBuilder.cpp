@@ -7,6 +7,7 @@
 //
 //===----------------------------------------------------------------------===//
 #include <mcld/IRBuilder.h>
+#include <mcld/LinkerScript.h>
 #include <mcld/LD/ELFReader.h>
 #include <mcld/Object/ObjectBuilder.h>
 #include <mcld/LD/SectionData.h>

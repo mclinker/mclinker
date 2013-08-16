@@ -14,6 +14,7 @@
 #include <mcld/IRBuilder.h>
 #include <mcld/Linker.h>
 #include <mcld/LinkerConfig.h>
+#include <mcld/LinkerScript.h>
 
 #include <mcld/Support/Path.h>
 

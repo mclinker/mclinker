@@ -14,6 +14,7 @@
 
 #include <mcld/Module.h>
 #include <mcld/LinkerConfig.h>
+#include <mcld/LinkerScript.h>
 #include <mcld/InputTree.h>
 #include <mcld/Linker.h>
 #include <mcld/IRBuilder.h>
