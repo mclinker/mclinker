@@ -30,11 +30,14 @@
 #include <mcld/Script/OutputSectDesc.h>
 #include <mcld/Script/InputSectDesc.h>
 #include <llvm/Support/DataTypes.h>
+
+using namespace mcld;
+
 }
 
 %pure-parser
 %require "2.4"
-%skeleton "lalr1.cc"
+%skeleton "glr.cc"
 %defines "ScriptParser.h"
 %debug
 %error-verbose
