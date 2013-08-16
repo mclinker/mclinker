@@ -129,6 +129,17 @@ public:
   void addInputSectDesc(InputSectDesc::KeepPolicy pPolicy,
                         const InputSectDesc::Spec& pSpec);
 
+  RpnExpr* createRpnExpr();
+  const RpnExpr* getCurrentRpnExpr() const { return m_pRpnExpr; }
+  RpnExpr*       getCurrentRpnExpr()       { return m_pRpnExpr; }
+
+  StringList* createStringList();
+  const StringList* getCurrentStringList() const { return m_pStringList; }
+  StringList*       getCurrentStringList()       { return m_pStringList; }
+
+  void setAsNeeded(bool pEnable = true);
+  bool asNeeded() const { return m_bAsNeeded; }
+
   static const std::string& createParserStr(const char* pText, size_t pLength);
 
   static void clearParserStrPool();
@@ -143,6 +154,9 @@ private:
   bool m_bHasSectionsCmd;
   bool m_bInSectionsCmd;
   bool m_bInOutputSectDesc;
+  RpnExpr* m_pRpnExpr;
+  StringList* m_pStringList;
+  bool m_bAsNeeded;
 };
 
 } // namespace of mcld

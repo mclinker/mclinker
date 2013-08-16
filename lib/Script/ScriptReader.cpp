@@ -57,10 +57,7 @@ bool ScriptReader::readScript(const LinkerConfig& pConfig,
   ScriptParser parser(pConfig,
                       pScriptFile,
                       scanner,
-                      m_GroupReader,
-                      NULL, /* for local rpn exp processing */
-                      NULL, /* fol local str tokens processing */
-                      false /* for AS_NEEDED */);
+                      m_GroupReader);
   result = (0 == parser.parse());;
 
   input.memArea()->release(region);
