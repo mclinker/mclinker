@@ -2516,7 +2516,8 @@ void GNULDBackend::layout(Module& pModule)
     out != outEnd; ++out) {
     if ((*out)->hasContent() ||
         (*out)->getSection()->kind() == LDFileFormat::Null ||
-        (*out)->getSection()->kind() == LDFileFormat::StackNote) {
+        (*out)->getSection()->kind() == LDFileFormat::StackNote ||
+        config().codeGenType() == LinkerConfig::Object) {
       (*out)->getSection()->setIndex(pModule.size());
       pModule.getSectionTable().push_back((*out)->getSection());
     }

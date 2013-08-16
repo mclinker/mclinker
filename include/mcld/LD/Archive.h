@@ -96,7 +96,7 @@ private:
 
 public:
   typedef HashTable<ArchiveMemberEntryType,
-                    hash::StringHash<hash::ELF>,
+                    hash::StringHash<hash::DJB>,
                     EntryFactory<ArchiveMemberEntryType> > ArchiveMemberMapType;
 
   struct Symbol

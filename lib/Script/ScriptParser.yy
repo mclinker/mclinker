@@ -19,6 +19,7 @@
 #include <mcld/Script/NameSpec.h>
 #include <mcld/Script/WildcardPattern.h>
 #include <mcld/Support/MsgHandling.h>
+using namespace mcld;
 
 #undef yylex
 #define yylex m_ScriptScanner.lex
@@ -47,9 +48,6 @@ using namespace mcld;
 %parse-param { class ScriptFile& m_ScriptFile }
 %parse-param { class ScriptScanner& m_ScriptScanner }
 %parse-param { class GroupReader& m_GroupReader}
-%parse-param { class RpnExpr* m_pRpnExpr }
-%parse-param { class StringList* m_pStringList }
-%parse-param { bool m_bAsNeeded }
 %lex-param { const class ScriptFile& m_ScriptFile }
 
 %locations
@@ -253,35 +251,35 @@ assert_command : ASSERT '(' script_exp ',' string ')'
                  { m_ScriptFile.addAssertCmd(*$3, *$5); }
                ;
 
-input_list : { m_pStringList = StringList::create(); }
+input_list : { m_ScriptFile.createStringList(); }
              inputs
-             { $$ = m_pStringList; }
+             { $$ = m_ScriptFile.getCurrentStringList(); }
            ;
 
 inputs : input
-         { m_pStringList->push_back($1); }
+         { m_ScriptFile.getCurrentStringList()->push_back($1); }
        | inputs input
-         { m_pStringList->push_back($2); }
+         { m_ScriptFile.getCurrentStringList()->push_back($2); }
        | inputs ',' input
-         { m_pStringList->push_back($3); }
+         { m_ScriptFile.getCurrentStringList()->push_back($3); }
        | AS_NEEDED '('
-         { m_bAsNeeded = true; }
+         { m_ScriptFile.setAsNeeded(true); }
          inputs ')'
-         { m_bAsNeeded = false; }
+         { m_ScriptFile.setAsNeeded(false); }
        | inputs AS_NEEDED '('
-         { m_bAsNeeded = true; }
+         { m_ScriptFile.setAsNeeded(true); }
          inputs ')'
-         { m_bAsNeeded = false; }
+         { m_ScriptFile.setAsNeeded(false); }
        | inputs ',' AS_NEEDED '('
-         { m_bAsNeeded = true; }
+         { m_ScriptFile.setAsNeeded(true); }
          inputs ')'
-         { m_bAsNeeded = false; }
+         { m_ScriptFile.setAsNeeded(false); }
        ;
 
 input : string
-        { $$ = FileToken::create(*$1, m_bAsNeeded); }
+        { $$ = FileToken::create(*$1, m_ScriptFile.asNeeded()); }
       | LNAMESPEC
-        { $$ = NameSpec::create(*$1, m_bAsNeeded); }
+        { $$ = NameSpec::create(*$1, m_ScriptFile.asNeeded()); }
       ;
 
 /*
@@ -340,7 +338,7 @@ output_sect_desc : string output_desc_prolog
 output_desc_prolog : {
                        m_ScriptScanner.setLexState(ScriptFile::Expression);
                        /* create exp for vma */
-                       m_pRpnExpr = RpnExpr::create();
+                       m_ScriptFile.createRpnExpr();
                      }
                      opt_vma_and_type
                      { m_ScriptScanner.popLexState(); }
@@ -372,7 +370,7 @@ output_desc_epilog : opt_region opt_lma_region opt_phdr opt_fill
 /* Output Section Attributes */
 opt_vma_and_type : exp opt_type
                    {
-                     $$.m_pVMA = m_pRpnExpr;
+                     $$.m_pVMA = m_ScriptFile.getCurrentRpnExpr();
                      $$.m_Type = $2;
                    }
                  | opt_type
@@ -442,13 +440,13 @@ opt_lma_region : AT '>' string
                  { $$ = NULL; }
                ;
 
-opt_phdr : { m_pStringList = StringList::create(); }
+opt_phdr : { m_ScriptFile.createStringList(); }
            phdrs
-           { $$ = m_pStringList; }
+           { $$ = m_ScriptFile.getCurrentStringList(); }
          ;
 
 phdrs : phdrs ':' phdr
-        { m_pStringList->push_back($3); }
+        { m_ScriptFile.getCurrentStringList()->push_back($3); }
       | /* Empty */
       ;
 
@@ -513,37 +511,37 @@ wildcard_pattern : string
                  ;
 
 opt_exclude_files : EXCLUDE_FILE '('
-                    { m_pStringList = StringList::create(); }
+                    { m_ScriptFile.createStringList(); }
                     exclude_files ')'
-                    { $$ = m_pStringList; }
+                    { $$ = m_ScriptFile.getCurrentStringList(); }
                   | /* Empty */
                     { $$ = NULL; }
                   ;
 
 exclude_files : exclude_files wildcard_pattern
                 {
-                  m_pStringList->push_back(
+                  m_ScriptFile.getCurrentStringList()->push_back(
                     WildcardPattern::create(*$2, WildcardPattern::SORT_NONE));
                 }
               | wildcard_pattern
                 {
-                  m_pStringList->push_back(
+                  m_ScriptFile.getCurrentStringList()->push_back(
                     WildcardPattern::create(*$1, WildcardPattern::SORT_NONE));
                 }
               ;
 
-input_sect_wildcard_patterns : { m_pStringList = StringList::create(); }
+input_sect_wildcard_patterns : { m_ScriptFile.createStringList(); }
                                wildcard_sections
-                               { $$ = m_pStringList; }
+                               { $$ = m_ScriptFile.getCurrentStringList(); }
                              ;
 
 wildcard_sections : wildcard_sections wildcard_section
                     {
-                      m_pStringList->push_back($2);
+                      m_ScriptFile.getCurrentStringList()->push_back($2);
                     }
                   | wildcard_section
                     {
-                      m_pStringList->push_back($1);
+                      m_ScriptFile.getCurrentStringList()->push_back($1);
                     }
                   ;
 
@@ -608,12 +606,12 @@ symbol_assignment : symbol '=' script_exp ';'
 
 script_exp : {
                m_ScriptScanner.setLexState(ScriptFile::Expression);
-               m_pRpnExpr = RpnExpr::create();
+               m_ScriptFile.createRpnExpr();
              }
              exp
              {
                m_ScriptScanner.popLexState();
-               $$ = m_pRpnExpr;
+               $$ = m_ScriptFile.getCurrentRpnExpr();
              }
            ;
 
@@ -623,179 +621,213 @@ exp : '(' exp ')'
       }
     | '+' exp %prec UNARY_PLUS
       {
-        m_pRpnExpr->push_back(&Operator::create<Operator::UNARY_PLUS>());
+        m_ScriptFile.getCurrentRpnExpr()->push_back(
+          &Operator::create<Operator::UNARY_PLUS>());
         $$ = $2 + 1;
       }
     | '-' exp %prec UNARY_MINUS
       {
-        m_pRpnExpr->push_back(&Operator::create<Operator::UNARY_MINUS>());
+        m_ScriptFile.getCurrentRpnExpr()->push_back(
+          &Operator::create<Operator::UNARY_MINUS>());
         $$ = $2 + 1;
       }
     | '!' exp
       {
-        m_pRpnExpr->push_back(&Operator::create<Operator::LOGICAL_NOT>());
+        m_ScriptFile.getCurrentRpnExpr()->push_back(
+          &Operator::create<Operator::LOGICAL_NOT>());
         $$ = $2 + 1;
       }
     | '~' exp
       {
-        m_pRpnExpr->push_back(&Operator::create<Operator::BITWISE_NOT>());
+        m_ScriptFile.getCurrentRpnExpr()->push_back(
+          &Operator::create<Operator::BITWISE_NOT>());
         $$ = $2 + 1;
       }
     | exp '*' exp
       {
-        m_pRpnExpr->push_back(&Operator::create<Operator::MUL>());
+        m_ScriptFile.getCurrentRpnExpr()->push_back(
+          &Operator::create<Operator::MUL>());
         $$ = $1 + $3 + 1;
       }
     | exp '/' exp
       {
-        m_pRpnExpr->push_back(&Operator::create<Operator::DIV>());
+        m_ScriptFile.getCurrentRpnExpr()->push_back(
+          &Operator::create<Operator::DIV>());
         $$ = $1 + $3 + 1;
       }
     | exp '%' exp
       {
-        m_pRpnExpr->push_back(&Operator::create<Operator::MOD>());
+        m_ScriptFile.getCurrentRpnExpr()->push_back(
+          &Operator::create<Operator::MOD>());
         $$ = $1 + $3 + 1;
       }
     | exp '+' exp
       {
-        m_pRpnExpr->push_back(&Operator::create<Operator::ADD>());
+        m_ScriptFile.getCurrentRpnExpr()->push_back(
+          &Operator::create<Operator::ADD>());
         $$ = $1 + $3 + 1;
       }
     | exp '-' exp
       {
-        m_pRpnExpr->push_back(&Operator::create<Operator::SUB>());
+        m_ScriptFile.getCurrentRpnExpr()->push_back(
+          &Operator::create<Operator::SUB>());
         $$ = $1 + $3 + 1;
       }
     | exp LSHIFT exp
       {
-        m_pRpnExpr->push_back(&Operator::create<Operator::LSHIFT>());
+        m_ScriptFile.getCurrentRpnExpr()->push_back(
+          &Operator::create<Operator::LSHIFT>());
         $$ = $1 + $3 + 1;
       }
     | exp RSHIFT exp
       {
-        m_pRpnExpr->push_back(&Operator::create<Operator::RSHIFT>());
+        m_ScriptFile.getCurrentRpnExpr()->push_back(
+          &Operator::create<Operator::RSHIFT>());
         $$ = $1 + $3 + 1;
       }
     | exp '<' exp
       {
-        m_pRpnExpr->push_back(&Operator::create<Operator::LT>());
+        m_ScriptFile.getCurrentRpnExpr()->push_back(
+          &Operator::create<Operator::LT>());
         $$ = $1 + $3 + 1;
       }
     | exp LE exp
       {
-        m_pRpnExpr->push_back(&Operator::create<Operator::LE>());
+        m_ScriptFile.getCurrentRpnExpr()->push_back(
+          &Operator::create<Operator::LE>());
         $$ = $1 + $3 + 1;
       }
     | exp '>' exp
       {
-        m_pRpnExpr->push_back(&Operator::create<Operator::GT>());
+        m_ScriptFile.getCurrentRpnExpr()->push_back(
+          &Operator::create<Operator::GT>());
         $$ = $1 + $3 + 1;
       }
     | exp GE exp
       {
-        m_pRpnExpr->push_back(&Operator::create<Operator::GE>());
+        m_ScriptFile.getCurrentRpnExpr()->push_back(
+          &Operator::create<Operator::GE>());
         $$ = $1 + $3 + 1;
       }
     | exp EQ exp
       {
-        m_pRpnExpr->push_back(&Operator::create<Operator::EQ>());
+        m_ScriptFile.getCurrentRpnExpr()->push_back(
+          &Operator::create<Operator::EQ>());
         $$ = $1 + $3 + 1;
       }
     | exp NE exp
       {
-        m_pRpnExpr->push_back(&Operator::create<Operator::NE>());
+        m_ScriptFile.getCurrentRpnExpr()->push_back(
+          &Operator::create<Operator::NE>());
         $$ = $1 + $3 + 1;
       }
     | exp '&' exp
       {
-        m_pRpnExpr->push_back(&Operator::create<Operator::BITWISE_AND>());
+        m_ScriptFile.getCurrentRpnExpr()->push_back(
+          &Operator::create<Operator::BITWISE_AND>());
         $$ = $1 + $3 + 1;
       }
     | exp '^' exp
       {
-        m_pRpnExpr->push_back(&Operator::create<Operator::BITWISE_XOR>());
+        m_ScriptFile.getCurrentRpnExpr()->push_back(
+          &Operator::create<Operator::BITWISE_XOR>());
         $$ = $1 + $3 + 1;
       }
     | exp '|' exp
       {
-        m_pRpnExpr->push_back(&Operator::create<Operator::BITWISE_OR>());
+        m_ScriptFile.getCurrentRpnExpr()->push_back(
+          &Operator::create<Operator::BITWISE_OR>());
         $$ = $1 + $3 + 1;
       }
     | exp LOGICAL_AND exp
       {
-        m_pRpnExpr->push_back(&Operator::create<Operator::LOGICAL_AND>());
+        m_ScriptFile.getCurrentRpnExpr()->push_back(
+          &Operator::create<Operator::LOGICAL_AND>());
         $$ = $1 + $3 + 1;
       }
     | exp LOGICAL_OR exp
       {
-        m_pRpnExpr->push_back(&Operator::create<Operator::LOGICAL_OR>());
+        m_ScriptFile.getCurrentRpnExpr()->push_back(
+          &Operator::create<Operator::LOGICAL_OR>());
+        $$ = $1 + $3 + 1;
       }
     | exp '?' exp ':' exp
       {
-        m_pRpnExpr->push_back(&Operator::create<Operator::TERNARY_IF>());
+        m_ScriptFile.getCurrentRpnExpr()->push_back(
+          &Operator::create<Operator::TERNARY_IF>());
         $$ = $1 + $3 + $5 + 1;
       }
     | ABSOLUTE '(' exp ')'
       {
-        m_pRpnExpr->push_back(&Operator::create<Operator::ABSOLUTE>());
+        m_ScriptFile.getCurrentRpnExpr()->push_back(
+          &Operator::create<Operator::ABSOLUTE>());
         $$ = $3 + 1;
       }
     | ADDR '(' string ')'
       {
-        m_pRpnExpr->push_back(SectOperand::create(*$3));
-        m_pRpnExpr->push_back(&Operator::create<Operator::ADDR>());
+        m_ScriptFile.getCurrentRpnExpr()->push_back(SectOperand::create(*$3));
+        m_ScriptFile.getCurrentRpnExpr()->push_back(
+          &Operator::create<Operator::ADDR>());
         $$ = 2;
       }
     | ALIGN '(' exp ')'
       {
-        RpnExpr::iterator pos = m_pRpnExpr->begin() + m_pRpnExpr->size() - $3;
-        m_pRpnExpr->insert(pos, SymOperand::create("."));
-        m_pRpnExpr->push_back(&Operator::create<Operator::ALIGN>());
+        RpnExpr::iterator pos = m_ScriptFile.getCurrentRpnExpr()->begin() +
+                                m_ScriptFile.getCurrentRpnExpr()->size() - $3;
+        m_ScriptFile.getCurrentRpnExpr()->insert(pos, SymOperand::create("."));
+        m_ScriptFile.getCurrentRpnExpr()->push_back(
+          &Operator::create<Operator::ALIGN>());
         $$ = $3 + 2;
       }
     | ALIGN '(' exp ',' exp ')'
       {
-        m_pRpnExpr->push_back(&Operator::create<Operator::ALIGN>());
+        m_ScriptFile.getCurrentRpnExpr()->push_back(
+          &Operator::create<Operator::ALIGN>());
         $$ = $3 + $5 + 1;
       }
     | ALIGNOF '(' string ')'
       {
-        m_pRpnExpr->push_back(SectOperand::create(*$3));
-        m_pRpnExpr->push_back(&Operator::create<Operator::ALIGNOF>());
+        m_ScriptFile.getCurrentRpnExpr()->push_back(SectOperand::create(*$3));
+        m_ScriptFile.getCurrentRpnExpr()->push_back(
+          &Operator::create<Operator::ALIGNOF>());
         $$ = 2;
       }
     | BLOCK '(' exp ')'
       {
-        RpnExpr::iterator pos = m_pRpnExpr->begin() + m_pRpnExpr->size() - $3;
-        m_pRpnExpr->insert(pos, SymOperand::create("."));
-        m_pRpnExpr->push_back(&Operator::create<Operator::ALIGN>());
+        RpnExpr::iterator pos = m_ScriptFile.getCurrentRpnExpr()->begin() +
+                                m_ScriptFile.getCurrentRpnExpr()->size() - $3;
+        m_ScriptFile.getCurrentRpnExpr()->insert(pos, SymOperand::create("."));
+        m_ScriptFile.getCurrentRpnExpr()->push_back(
+          &Operator::create<Operator::ALIGN>());
         $$ = $3 + 2;
       }
     | DATA_SEGMENT_ALIGN
       {
-        m_pRpnExpr->push_back(SymOperand::create("."));
+        m_ScriptFile.getCurrentRpnExpr()->push_back(SymOperand::create("."));
       }
       '(' exp ',' exp ')'
       {
-        m_pRpnExpr->push_back(
+        m_ScriptFile.getCurrentRpnExpr()->push_back(
           &Operator::create<Operator::DATA_SEGMENT_ALIGN>());
         $$ = $4 + $6 + 2;
       }
     | DATA_SEGMENT_END '(' exp ')'
       {
-        m_pRpnExpr->push_back(&Operator::create<Operator::DATA_SEGMENT_END>());
+        m_ScriptFile.getCurrentRpnExpr()->push_back(
+          &Operator::create<Operator::DATA_SEGMENT_END>());
         $$ = $3 + 1;
       }
     | DATA_SEGMENT_RELRO_END '(' exp ',' exp ')'
       {
-        m_pRpnExpr->push_back(
+        m_ScriptFile.getCurrentRpnExpr()->push_back(
           &Operator::create<Operator::DATA_SEGMENT_RELRO_END>());
         $$ = $3 + $5 + 1;
       }
     | DEFINED '(' symbol ')'
       {
-        m_pRpnExpr->push_back(SymOperand::create(*$3));
-        m_pRpnExpr->push_back(&Operator::create<Operator::DEFINED>());
+        m_ScriptFile.getCurrentRpnExpr()->push_back(SymOperand::create(*$3));
+        m_ScriptFile.getCurrentRpnExpr()->push_back(
+          &Operator::create<Operator::DEFINED>());
         $$ = 2;
       }
     | LENGTH '(' string ')'
@@ -804,23 +836,27 @@ exp : '(' exp ')'
       }
     | LOADADDR '(' string ')'
       {
-        m_pRpnExpr->push_back(SectOperand::create(*$3));
-        m_pRpnExpr->push_back(&Operator::create<Operator::LOADADDR>());
+        m_ScriptFile.getCurrentRpnExpr()->push_back(SectOperand::create(*$3));
+        m_ScriptFile.getCurrentRpnExpr()->push_back(
+          &Operator::create<Operator::LOADADDR>());
         $$ = 2;
       }
     | MAX '(' exp ',' exp ')'
       {
-        m_pRpnExpr->push_back(&Operator::create<Operator::MAX>());
+        m_ScriptFile.getCurrentRpnExpr()->push_back(
+          &Operator::create<Operator::MAX>());
         $$ = $3 + $5 + 1;
       }
     | MIN '(' exp ',' exp ')'
       {
-        m_pRpnExpr->push_back(&Operator::create<Operator::MIN>());
+        m_ScriptFile.getCurrentRpnExpr()->push_back(
+          &Operator::create<Operator::MIN>());
         $$ = $3 + $5 + 1;
       }
     | NEXT '(' exp ')'
       {
-        m_pRpnExpr->push_back(&Operator::create<Operator::NEXT>());
+        m_ScriptFile.getCurrentRpnExpr()->push_back(
+          &Operator::create<Operator::NEXT>());
         $$ = $3 + 1;
       }
     | ORIGIN '(' string ')'
@@ -829,42 +865,47 @@ exp : '(' exp ')'
       }
     | SEGMENT_START '(' string
       {
-        m_pRpnExpr->push_back(SectOperand::create(*$3));
+        m_ScriptFile.getCurrentRpnExpr()->push_back(SectOperand::create(*$3));
       }
       ',' exp ')'
       {
-        m_pRpnExpr->push_back(&Operator::create<Operator::SEGMENT_START>());
+        m_ScriptFile.getCurrentRpnExpr()->push_back(
+          &Operator::create<Operator::SEGMENT_START>());
         $$ = $6 + 2;
       }
     | SIZEOF '(' string ')'
       {
-        m_pRpnExpr->push_back(SectOperand::create(*$3));
-        m_pRpnExpr->push_back(&Operator::create<Operator::SIZEOF>());
+        m_ScriptFile.getCurrentRpnExpr()->push_back(SectOperand::create(*$3));
+        m_ScriptFile.getCurrentRpnExpr()->push_back(
+          &Operator::create<Operator::SIZEOF>());
         $$ = 2;
       }
     | SIZEOF_HEADERS
       {
-        m_pRpnExpr->push_back(&Operator::create<Operator::SIZEOF_HEADERS>());
+        m_ScriptFile.getCurrentRpnExpr()->push_back(
+          &Operator::create<Operator::SIZEOF_HEADERS>());
         $$ = 1;
       }
     | CONSTANT '(' MAXPAGESIZE ')'
       {
-        m_pRpnExpr->push_back(&Operator::create<Operator::MAXPAGESIZE>());
+        m_ScriptFile.getCurrentRpnExpr()->push_back(
+          &Operator::create<Operator::MAXPAGESIZE>());
         $$ = 1;
       }
     | CONSTANT '(' COMMONPAGESIZE')'
       {
-        m_pRpnExpr->push_back(&Operator::create<Operator::COMMONPAGESIZE>());
+        m_ScriptFile.getCurrentRpnExpr()->push_back(
+          &Operator::create<Operator::COMMONPAGESIZE>());
         $$ = 1;
       }
     | INTEGER
       {
-        m_pRpnExpr->push_back(IntOperand::create($1));
+        m_ScriptFile.getCurrentRpnExpr()->push_back(IntOperand::create($1));
         $$ = 1;
       }
     | symbol
       {
-        m_pRpnExpr->push_back(SymOperand::create(*$1));
+        m_ScriptFile.getCurrentRpnExpr()->push_back(SymOperand::create(*$1));
         $$ = 1;
       }
     ;

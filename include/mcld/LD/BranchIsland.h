@@ -125,7 +125,7 @@ private:
       size_t operator() (const Key& KEY) const
       {
         llvm::StringRef sym_name(KEY.symbol()->name());
-        hash::StringHash<hash::ELF> str_hasher;
+        hash::StringHash<hash::DJB> str_hasher;
         return (size_t((uintptr_t)KEY.prototype())) ^
                str_hasher(sym_name) ^
                KEY.addend();

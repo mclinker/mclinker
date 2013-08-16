@@ -37,7 +37,7 @@ typedef HashEntry<std::string,
                   void*,
                   hash::StringCompare<std::string> > ParserStrEntry;
 typedef HashTable<ParserStrEntry,
-                  hash::StringHash<hash::ELF>,
+                  hash::StringHash<hash::DJB>,
                   EntryFactory<ParserStrEntry> > ParserStrPool;
 static llvm::ManagedStatic<ParserStrPool> g_ParserStrPool;
 
@@ -52,7 +52,10 @@ ScriptFile::ScriptFile(Kind pKind, Input& pInput, InputBuilder& pBuilder)
     m_Builder(pBuilder),
     m_bHasSectionsCmd(false),
     m_bInSectionsCmd(false),
-    m_bInOutputSectDesc(false)
+    m_bInOutputSectDesc(false),
+    m_pRpnExpr(NULL),
+    m_pStringList(NULL),
+    m_bAsNeeded(false)
 {
   // FIXME: move creation of input tree out of ScriptFile.
   m_pInputTree = new InputTree();
@@ -214,6 +217,23 @@ void ScriptFile::addInputSectDesc(InputSectDesc::KeepPolicy pPolicy,
   OutputSectDesc* output_sect = llvm::cast<OutputSectDesc>(sections->back());
 
   output_sect->push_back(new InputSectDesc(pPolicy, pSpec, *output_sect));
+}
+
+RpnExpr* ScriptFile::createRpnExpr()
+{
+  m_pRpnExpr = RpnExpr::create();
+  return m_pRpnExpr;
+}
+
+StringList* ScriptFile::createStringList()
+{
+  m_pStringList = StringList::create();
+  return m_pStringList;
+}
+
+void ScriptFile::setAsNeeded(bool pEnable)
+{
+  m_bAsNeeded = pEnable;
 }
 
 const std::string& ScriptFile::createParserStr(const char* pText,

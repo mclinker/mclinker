@@ -33,11 +33,11 @@ class LinkerScript
 {
 public:
   typedef HashTable<StringEntry<llvm::StringRef>,
-                    hash::StringHash<hash::ELF>,
+                    hash::StringHash<hash::DJB>,
                     StringEntryFactory<llvm::StringRef> > SymbolRenameMap;
 
   typedef HashTable<StringEntry<uint64_t>,
-                    hash::StringHash<hash::ELF>,
+                    hash::StringHash<hash::DJB>,
                     StringEntryFactory<uint64_t> > AddressMap;
 
   typedef std::vector<std::pair<LDSymbol*, Assignment> > Assignments;
