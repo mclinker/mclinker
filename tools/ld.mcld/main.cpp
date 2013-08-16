@@ -40,7 +40,6 @@
 #include <llvm/Support/ManagedStatic.h>
 #include <llvm/Support/Signals.h>
 #include <llvm/Support/SourceMgr.h>
-#include <llvm/Support/TargetRegistry.h>
 #include <llvm/Support/TargetSelect.h>
 #include <llvm/Support/Process.h>
 #include <llvm/Target/TargetMachine.h>
@@ -1000,7 +999,7 @@ static std::string ParseProgName(const char *progname)
       continue;
     StringRef Prefix = ProgNameRef.slice(0, LastComponent);
     std::string IgnoredError;
-    if (!llvm::TargetRegistry::lookupTarget(Prefix, IgnoredError))
+    if (!mcld::TargetRegistry::lookupTarget(Prefix, IgnoredError))
       continue;
     return Prefix.str();
   }
