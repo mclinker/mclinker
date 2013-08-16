@@ -1,12 +1,6 @@
 
-if ENABLE_UNITTEST
-MCLD=$(abs_top_builddir)/debug/ld.mcld
-ALONELD=$(abs_top_builddir)/debug/ld.bcc
-else
-MCLD=$(abs_top_builddir)/optimized/ld.mcld
-ALONELD=$(abs_top_builddir)/optimized/ld.bcc
-endif
-
+MCLD=$(abs_top_builddir)/tools/ld.mcld/ld.mcld
+ALONELD=$(abs_top_builddir)/tools/bcc/ld.bcc
 FAKELD=$(abs_top_srcdir)/scripts/bin/ld.fake
 
 LLVM_SRC_ROOT="`$(LLVM_CONFIG_BIN) --src-root`"
