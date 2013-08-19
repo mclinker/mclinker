@@ -8,9 +8,11 @@
 //===----------------------------------------------------------------------===//
 #include <mcld/Support/TargetRegistry.h>
 
-
 mcld::TargetRegistry::TargetListTy mcld::TargetRegistry::s_TargetList;
 
+//===----------------------------------------------------------------------===//
+// TargetRegistry
+//===----------------------------------------------------------------------===//
 void mcld::TargetRegistry::RegisterTarget(mcld::Target &T)
 {
   s_TargetList.push_back(&T);

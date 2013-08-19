@@ -109,7 +109,7 @@ public:
       T.DiagnosticLineInfoCtorFn = Fn;
   }
 
-  /// lookupTarget - function wrapper of llvm::TargetRegistry::lookupTarget
+  /// lookupTarget - Look up MCLinker target
   ///
   /// @param Triple - The Triple string
   /// @param Error  - The returned error message
