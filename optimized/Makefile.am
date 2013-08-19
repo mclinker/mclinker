@@ -1,6 +1,6 @@
-INCDIR=${top_srcdir}/include/mcld
-LIBDIR=${top_srcdir}/lib
-GENDIR=${top_builddir}/include/mcld
+INCDIR=${abs_top_srcdir}/include/mcld
+LIBDIR=${abs_top_srcdir}/lib
+GENDIR=${abs_top_builddir}/include/mcld
 
 AM_CXXFLAGS = \
 	@NO_VARIADIC_MACROS@ \
