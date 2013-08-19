@@ -17,20 +17,6 @@ void mcld::TargetRegistry::RegisterTarget(mcld::Target &T)
 }
 
 const mcld::Target*
-mcld::TargetRegistry::lookupTarget(const llvm::Target &pTarget)
-{
-  mcld::Target *result = 0;
-  TargetListTy::const_iterator TIter, TEnd = s_TargetList.end();
-  for (TIter=s_TargetList.begin(); TIter!=TEnd; ++TIter) {
-    if ((*TIter)->get()==&pTarget) {
-      result = (*TIter);
-      break;
-    }
-  }
-  return result;
-}
-
-const mcld::Target*
 mcld::TargetRegistry::lookupTarget(const std::string &pTriple,
                                    std::string &pError)
 {
@@ -38,6 +24,14 @@ mcld::TargetRegistry::lookupTarget(const std::string &pTriple,
   if (!target)
     return NULL;
 
-  return lookupTarget( *target );
+  mcld::Target *result = 0;
+  TargetListTy::const_iterator TIter, TEnd = s_TargetList.end();
+  for (TIter=s_TargetList.begin(); TIter!=TEnd; ++TIter) {
+    if ((*TIter)->get() == target) {
+      result = (*TIter);
+      break;
+    }
+  }
+  return result;
 }
 

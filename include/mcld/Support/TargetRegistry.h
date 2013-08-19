@@ -109,11 +109,6 @@ public:
       T.DiagnosticLineInfoCtorFn = Fn;
   }
 
-  /// lookupTarget - Lookup a target based on a llvm::Target.
-  ///
-  /// @param T - The llvm::Target to find
-  static const mcld::Target *lookupTarget(const llvm::Target& T);
-
   /// lookupTarget - function wrapper of llvm::TargetRegistry::lookupTarget
   ///
   /// @param Triple - The Triple string
