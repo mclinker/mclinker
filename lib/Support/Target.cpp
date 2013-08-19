@@ -63,7 +63,7 @@ TargetLDBackend* Target::createLDBackend(const LinkerConfig& pConfig) const
 {
     if (!TargetLDBackendCtorFn)
       return NULL;
-    return TargetLDBackendCtorFn(*get(), pConfig);
+    return TargetLDBackendCtorFn(pConfig);
 }
 
 /// createDiagnosticLineInfo - create target-specific DiagnosticLineInfo

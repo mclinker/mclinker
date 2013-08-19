@@ -976,8 +976,7 @@ size_t Mips64GNULDBackend::getRelaEntrySize()
 //===----------------------------------------------------------------------===//
 /// createMipsLDBackend - the help funtion to create corresponding MipsLDBackend
 ///
-static TargetLDBackend* createMipsLDBackend(const llvm::Target& pTarget,
-                                            const LinkerConfig& pConfig)
+static TargetLDBackend* createMipsLDBackend(const LinkerConfig& pConfig)
 {
   const llvm::Triple& triple = pConfig.targets().triple();
 

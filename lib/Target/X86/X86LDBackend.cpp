@@ -600,8 +600,7 @@ namespace mcld {
 //===----------------------------------------------------------------------===//
 /// createX86LDBackend - the help funtion to create corresponding X86LDBackend
 ///
-TargetLDBackend* createX86LDBackend(const llvm::Target& pTarget,
-                                    const LinkerConfig& pConfig)
+TargetLDBackend* createX86LDBackend(const LinkerConfig& pConfig)
 {
   if (pConfig.targets().triple().isOSDarwin()) {
     assert(0 && "MachO linker is not supported yet");

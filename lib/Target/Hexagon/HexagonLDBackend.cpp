@@ -1046,8 +1046,7 @@ namespace mcld {
 //===----------------------------------------------------------------------===//
 /// createHexagonLDBackend - the help funtion to create corresponding
 /// HexagonLDBackend
-TargetLDBackend* createHexagonLDBackend(const llvm::Target& pTarget,
-                                    const LinkerConfig& pConfig)
+TargetLDBackend* createHexagonLDBackend(const LinkerConfig& pConfig)
 {
   if (pConfig.targets().triple().isOSDarwin()) {
     assert(0 && "MachO linker is not supported yet");

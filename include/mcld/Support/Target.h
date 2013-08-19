@@ -43,8 +43,7 @@ public:
 
   typedef bool (*EmulationFnTy)(LinkerScript&, LinkerConfig&);
 
-  typedef TargetLDBackend  *(*TargetLDBackendCtorTy)(const llvm::Target&,
-                                                     const LinkerConfig&);
+  typedef TargetLDBackend  *(*TargetLDBackendCtorTy)(const LinkerConfig&);
 
   typedef DiagnosticLineInfo *(*DiagnosticLineInfoCtorTy)(const mcld::Target&,
                                                           const std::string&);

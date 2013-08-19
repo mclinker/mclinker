@@ -646,8 +646,7 @@ namespace mcld {
 //===----------------------------------------------------------------------===//
 /// createARMLDBackend - the help funtion to create corresponding ARMLDBackend
 ///
-TargetLDBackend* createARMLDBackend(const llvm::Target& pTarget,
-                                    const LinkerConfig& pConfig)
+TargetLDBackend* createARMLDBackend(const LinkerConfig& pConfig)
 {
   if (pConfig.targets().triple().isOSDarwin()) {
     assert(0 && "MachO linker is not supported yet");
