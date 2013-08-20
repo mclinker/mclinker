@@ -249,6 +249,7 @@ public:
   struct Mover {
     virtual void connect(TreeIteratorBase& pFrom, NodeBase* pTo) const = 0;
     virtual void move(TreeIteratorBase& pNode) const = 0;
+    virtual ~Mover() { }
   };
 
   /** \class Succeeder

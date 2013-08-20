@@ -13,6 +13,7 @@
 #endif
 #include <mcld/ADT/Uncopyable.h>
 #include <mcld/ADT/GraphLite/GraphBasicTypes.h>
+#include <stdint.h>
 
 namespace mcld {
 namespace graph {
