@@ -9,7 +9,7 @@
 #include <mcld/Module.h>
 #include <mcld/LinkerConfig.h>
 #include <mcld/LinkerScript.h>
-#include <mcld/Target/TargetMachine.h>
+#include <mcld/CodeGen/TargetMachine.h>
 #include <mcld/Support/TargetSelect.h>
 #include <mcld/Support/TargetRegistry.h>
 #include <mcld/Support/CommandLine.h>

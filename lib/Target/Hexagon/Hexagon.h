@@ -6,19 +6,17 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_HEXAGON_H
-#define MCLD_HEXAGON_H
+#ifndef MCLD_TARGET_HEXAGON_H
+#define MCLD_TARGET_HEXAGON_H
 #include <string>
-#include <mcld/Target/TargetMachine.h>
 
 namespace llvm {
-
 class Target;
-
 } // namespace of llvm
 
 namespace mcld {
 
+class Target;
 class TargetLDBackend;
 
 extern mcld::Target TheHexagonTarget;

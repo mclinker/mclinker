@@ -6,7 +6,7 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include <mcld/Target/TargetMachine.h>
+#include <mcld/CodeGen/TargetMachine.h>
 
 #include <mcld/Module.h>
 #include <mcld/LinkerConfig.h>

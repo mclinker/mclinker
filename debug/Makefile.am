@@ -56,6 +56,7 @@ HEADER = ${INCDIR}/ADT/Uncopyable.h \
 	${INCDIR}/Support/TargetSelect.h \
 	${INCDIR}/Support/raw_ostream.h \
 	${INCDIR}/Support/MsgHandling.h \
+	${INCDIR}/CodeGen/TargetMachine.h \
 	${INCDIR}/CodeGen/MCLinker.h \
 	${INCDIR}/Object/ObjectLinker.h \
 	${INCDIR}/Object/ObjectBuilder.h \
@@ -332,7 +333,6 @@ SOURCE = ${LIBDIR}/ADT/StringEntry.cpp \
 	${LIBDIR}/Target/PLT.cpp \
 	${INCDIR}/Target/GOT.h \
 	${LIBDIR}/Target/GOT.cpp \
-	${INCDIR}/Target/TargetMachine.h \
 	${INCDIR}/Target/TargetLDBackend.h \
 	${LIBDIR}/Target/TargetLDBackend.cpp \
 	${INCDIR}/Target/GNULDBackend.h \

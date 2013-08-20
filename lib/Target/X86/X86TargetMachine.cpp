@@ -9,7 +9,6 @@
 #include "X86TargetMachine.h"
 
 #include "X86.h"
-#include <mcld/Target/TargetMachine.h>
 #include <mcld/Support/TargetRegistry.h>
 
 extern "C" void MCLDInitializeX86LDTarget() {

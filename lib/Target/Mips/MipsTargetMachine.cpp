@@ -7,9 +7,7 @@
 //
 //===----------------------------------------------------------------------===//
 #include "MipsTargetMachine.h"
-
 #include "Mips.h"
-#include <mcld/Target/TargetMachine.h>
 #include <mcld/Support/TargetRegistry.h>
 
 typedef mcld::RegisterTargetMachine<mcld::MipsBaseTargetMachine> RegMipsTarget;

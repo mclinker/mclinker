@@ -8,7 +8,6 @@
 //===----------------------------------------------------------------------===//
 #include "HexagonTargetMachine.h"
 #include "Hexagon.h"
-#include <mcld/Target/TargetMachine.h>
 #include <mcld/Support/TargetRegistry.h>
 
 extern "C" void MCLDInitializeHexagonLDTarget() {

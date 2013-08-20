@@ -9,12 +9,12 @@
 #ifndef MCLD_MIPS_H
 #define MCLD_MIPS_H
 
-#include "mcld/Support/TargetRegistry.h"
-
 namespace mcld {
 
-extern mcld::Target TheMipselTarget;
-extern mcld::Target TheMips64elTarget;
+class Target;
+
+extern Target TheMipselTarget;
+extern Target TheMips64elTarget;
 
 } // namespace of mcld
 

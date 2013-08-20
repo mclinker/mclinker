@@ -10,7 +10,7 @@
 #define MCLD_ARM_TARGET_MACHINE_H
 
 #include "ARM.h"
-#include <mcld/Target/TargetMachine.h>
+#include <mcld/CodeGen/TargetMachine.h>
 
 namespace mcld {
 

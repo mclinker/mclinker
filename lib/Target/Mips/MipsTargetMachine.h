@@ -9,7 +9,7 @@
 #ifndef MIPS_TARGET_MACHINE_H
 #define MIPS_TARGET_MACHINE_H
 
-#include <mcld/Target/TargetMachine.h>
+#include <mcld/CodeGen/TargetMachine.h>
 
 namespace mcld {
 

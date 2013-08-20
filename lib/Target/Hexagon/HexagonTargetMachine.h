@@ -9,7 +9,7 @@
 #ifndef MCLD_HEXAGON_TARGET_MACHINE_H
 #define MCLD_HEXAGON_TARGET_MACHINE_H
 #include "Hexagon.h"
-#include <mcld/Target/TargetMachine.h>
+#include <mcld/CodeGen/TargetMachine.h>
 
 namespace mcld {
 
