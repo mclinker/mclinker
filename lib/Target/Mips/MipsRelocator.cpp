@@ -21,12 +21,17 @@
 
 namespace llvm {
 namespace ELF {
-  const int R_MIPS_LA25_LUI = 200;
-  const int R_MIPS_LA25_J   = 201;
-  const int R_MIPS_LA25_ADD = 202;
-  const int R_MIPS_PC32     = 248;
-}
-}
+
+// FIXME: Consider upstream these relocation types to LLVM.
+enum {
+  R_MIPS_LA25_LUI = 200,
+  R_MIPS_LA25_J   = 201,
+  R_MIPS_LA25_ADD = 202,
+  R_MIPS_PC32     = 248,
+};
+
+} // end namespace ELF
+} // end namespace llvm
 
 using namespace mcld;
 
@@ -157,7 +162,7 @@ DECL_MIPS_APPLY_RELOC_FUNCS
 /// the prototype of applying function
 typedef Relocator::Result (*ApplyFunctionType)(MipsRelocationInfo&,
                                                MipsRelocator& pParent);
-                                               
+
 
 // the table entry of applying functions
 struct ApplyFunctionTriple
@@ -1009,7 +1014,7 @@ MipsRelocator::Result abs64(MipsRelocationInfo& pReloc, MipsRelocator& pParent)
   }
 
   pReloc.result() = S + A;
-  
+
   return MipsRelocator::OK;
 }
 
