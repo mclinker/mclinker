@@ -7,6 +7,7 @@
 //
 //===----------------------------------------------------------------------===//
 #include <mcld/Support/Target.h>
+#include <llvm/ADT/Triple.h>
 
 using namespace mcld;
 
@@ -27,27 +28,13 @@ unsigned int Target::getTripleQuality(const llvm::Triple& pTriple) const
   return TripleMatchQualityFn(pTriple);
 }
 
-MCLDTargetMachine* Target::createTargetMachine(const llvm::Target& pTarget,
-                                               const std::string& pTriple,
-                                               const std::string& pCPU,
-                                               const std::string& pFeatures,
-                                               const llvm::TargetOptions& pOptions,
-                                               llvm::Reloc::Model pRM,
-                                               llvm::CodeModel::Model pCM,
-                                               llvm::CodeGenOpt::Level pOL) const
+MCLDTargetMachine*
+Target::createTargetMachine(const std::string& pTriple,
+                            const llvm::Target& pTarget,
+                            llvm::TargetMachine& pTM) const
 {
-  if (TargetMachineCtorFn) {
-    llvm::TargetMachine *tm = pTarget.createTargetMachine(pTriple,
-                                                          pCPU,
-                                                          pFeatures,
-                                                          pOptions,
-                                                          pRM,
-                                                          pCM,
-                                                          pOL);
-
-    if (tm)
-      return TargetMachineCtorFn(pTarget, *this, *tm, pTriple);
-  }
+  if (TargetMachineCtorFn)
+      return TargetMachineCtorFn(pTarget, *this, pTM, pTriple);
   return NULL;
 }
 

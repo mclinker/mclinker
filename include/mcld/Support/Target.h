@@ -8,12 +8,13 @@
 //===----------------------------------------------------------------------===//
 #ifndef MCLD_SUPPORT_TARGET_H
 #define MCLD_SUPPORT_TARGET_H
-#include <llvm/Support/TargetRegistry.h>
 #include <string>
 #include <list>
 
 namespace llvm {
 class Target;
+class Triple;
+class TargetMachine;
 } // namespace of llvm
 
 namespace mcld {
@@ -64,15 +65,9 @@ public:
   unsigned int getTripleQuality(const llvm::Triple& pTriple) const;
 
   /// createTargetMachine - create target-specific TargetMachine
-  MCLDTargetMachine*
-  createTargetMachine(const llvm::Target& pTarget,
-                      const std::string& pTriple,
-                      const std::string& pCPU,
-                      const std::string& pFeatures,
-                      const llvm::TargetOptions& Options,
-                      llvm::Reloc::Model RM = llvm::Reloc::Default,
-                      llvm::CodeModel::Model CM = llvm::CodeModel::Default,
-                      llvm::CodeGenOpt::Level OL = llvm::CodeGenOpt::Default) const;
+  MCLDTargetMachine* createTargetMachine(const std::string& pTriple,
+                                         const llvm::Target& pTarget,
+                                         llvm::TargetMachine& pTM) const;
 
   /// createMCLinker - create target-specific MCLinker
   MCLinker *createMCLinker(const std::string &pTriple,

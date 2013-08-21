@@ -41,6 +41,7 @@
 #include <llvm/Support/Signals.h>
 #include <llvm/Support/SourceMgr.h>
 #include <llvm/Support/TargetSelect.h>
+#include <llvm/Support/TargetRegistry.h>
 #include <llvm/Support/Process.h>
 #include <llvm/Target/TargetMachine.h>
 
@@ -1380,9 +1381,9 @@ int main(int argc, char* argv[])
 
   // Get the target specific parser.
   std::string error;
-  const llvm::Target *LLVMTarget = TargetRegistry::lookupTarget(MArch,
-                                                                TheTriple,
-                                                                error);
+  const llvm::Target *LLVMTarget = llvm::TargetRegistry::lookupTarget(MArch,
+                                                                      TheTriple,
+                                                                      error);
   if (NULL == LLVMTarget) {
     errs() << argv[0] << ": " << error;
     return 1;
@@ -1471,11 +1472,16 @@ int main(int argc, char* argv[])
   Options.TrapFuncName = TrapFuncName;
   Options.EnableSegmentedStacks = SegmentedStacks;
 
+  OwningPtr<llvm::TargetMachine>
+    TM(LLVMTarget->createTargetMachine(TheTriple.getTriple(),
+                                       MCPU, FeaturesStr, Options,
+                                       ArgRelocModel, CMModel, OLvl));
+
   std::auto_ptr<mcld::MCLDTargetMachine> target_machine(
-          TheTarget->createTargetMachine(*LLVMTarget,
-                                         TheTriple.getTriple(),
-                                         MCPU, FeaturesStr, Options,
-                                         ArgRelocModel, CMModel, OLvl));
+          TheTarget->createTargetMachine(TheTriple.getTriple(),
+                                        *LLVMTarget,
+                                        *TM.get()));
+
   assert(target_machine.get() && "Could not allocate target machine!");
   mcld::MCLDTargetMachine &TheTargetMachine = *target_machine.get();
 
