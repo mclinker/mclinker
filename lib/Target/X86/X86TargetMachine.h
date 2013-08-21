@@ -16,11 +16,10 @@ namespace mcld {
 class X86TargetMachine : public MCLDTargetMachine
 {
 public:
-  X86TargetMachine(llvm::TargetMachine &pTM,
-                   const mcld::Target &pTarget,
-                   const std::string &pTriple);
-
-  virtual ~X86TargetMachine();
+  X86TargetMachine(llvm::TargetMachine& pTM,
+                   const llvm::Target& pLLVMTarget,
+                   const mcld::Target& pMCLDTarget,
+                   const std::string& pTriple);
 };
 
 } // namespace of mcld

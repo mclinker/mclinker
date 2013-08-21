@@ -51,6 +51,7 @@ public:
   ///
   /// @param T - The target being registered.
   static void RegisterTarget(Target& pTarget,
+                             const char* pName,
                              Target::TripleMatchQualityFnTy pQualityFn);
 
   /// RegisterTargetMachine - Register a TargetMachine implementation for the
@@ -131,18 +132,8 @@ template<llvm::Triple::ArchType TargetArchType = llvm::Triple::UnknownArch>
 struct RegisterTarget
 {
 public:
-  RegisterTarget(mcld::Target &T, const char *Name) {
-    llvm::TargetRegistry::iterator TIter, TEnd = llvm::TargetRegistry::end();
-    // lookup llvm::Target
-    for( TIter=llvm::TargetRegistry::begin(); TIter!=TEnd; ++TIter ) {
-      if( 0==strcmp(TIter->getName(), Name) )
-        break;
-    }
-
-    if (TIter != TEnd)
-      T.setTarget(*TIter);
-
-    TargetRegistry::RegisterTarget(T, &getTripleMatchQuality);
+  RegisterTarget(mcld::Target &pTarget, const char* pName) {
+    TargetRegistry::RegisterTarget(pTarget, pName, &getTripleMatchQuality);
   }
 
   static unsigned int getTripleMatchQuality(const llvm::Triple& pTriple) {
@@ -168,10 +159,11 @@ struct RegisterTargetMachine
   }
 
 private:
-  static mcld::MCLDTargetMachine *Allocator(const mcld::Target &T,
-                                            llvm::TargetMachine& TM,
-                                            const std::string &Triple) {
-    return new TargetMachineImpl(TM, T, Triple);
+  static MCLDTargetMachine *Allocator(const llvm::Target& pLLVMTarget,
+                                      const mcld::Target& pMCLDTarget,
+                                      llvm::TargetMachine& pTM,
+                                      const std::string& pTriple) {
+    return new TargetMachineImpl(pTM, pLLVMTarget, pMCLDTarget, pTriple);
   }
 };
 

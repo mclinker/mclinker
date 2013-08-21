@@ -17,10 +17,9 @@ class HexagonTargetMachine : public MCLDTargetMachine
 {
 public:
   HexagonTargetMachine(llvm::TargetMachine &pTM,
-                       const mcld::Target &pTarget,
+                       const llvm::Target &pLLVMTarget,
+                       const mcld::Target &pMCLDTarget,
                        const std::string &pTriple);
-
-  virtual ~HexagonTargetMachine();
 };
 
 } // namespace of mcld

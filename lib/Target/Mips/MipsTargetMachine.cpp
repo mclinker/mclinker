@@ -17,8 +17,14 @@ extern "C" void MCLDInitializeMipsLDTarget() {
   RegMipsTarget X2(mcld::TheMips64elTarget);
 }
 
-mcld::MipsBaseTargetMachine::MipsBaseTargetMachine(llvm::TargetMachine& pPM,
-                                                   const mcld::Target &pTarget,
-                                                   const std::string& pTriple)
-  : mcld::MCLDTargetMachine(pPM, pTarget, pTriple) {
+using namespace mcld;
+
+//===----------------------------------------------------------------------===//
+// MipsBaseTargetMachine
+//===----------------------------------------------------------------------===//
+MipsBaseTargetMachine::MipsBaseTargetMachine(llvm::TargetMachine& pPM,
+                                             const llvm::Target &pLLVMTarget,
+                                             const mcld::Target &pMCLDTarget,
+                                             const std::string& pTriple)
+  : MCLDTargetMachine(pPM, pLLVMTarget, pMCLDTarget, pTriple) {
 }

@@ -12,6 +12,10 @@
 #include <string>
 #include <list>
 
+namespace llvm {
+class Target;
+} // namespace of llvm
+
 namespace mcld {
 
 class MCLDTargetMachine;
@@ -34,9 +38,10 @@ class Target
 public:
   typedef unsigned int (*TripleMatchQualityFnTy)(const llvm::Triple& pTriple);
 
-  typedef mcld::MCLDTargetMachine *(*TargetMachineCtorTy)(const mcld::Target &,
-                                                          llvm::TargetMachine &,
-                                                          const std::string&);
+  typedef MCLDTargetMachine *(*TargetMachineCtorTy)(const llvm::Target &,
+                                                    const mcld::Target &,
+                                                    llvm::TargetMachine &,
+                                                    const std::string&);
 
   typedef MCLinker *(*MCLinkerCtorTy)(const std::string& pTriple,
                                       LinkerConfig&,
@@ -54,21 +59,20 @@ public:
   Target();
 
   /// getName - get the target name
-  const char* getName() const { return m_Name; }
-
-  void setTarget(const llvm::Target& pTarget)
-  { m_pT = &pTarget; }
+  const char* name() const { return Name; }
 
   unsigned int getTripleQuality(const llvm::Triple& pTriple) const;
 
   /// createTargetMachine - create target-specific TargetMachine
-  MCLDTargetMachine* createTargetMachine(const std::string &pTriple,
-                                         const std::string &pCPU,
-                                         const std::string &pFeatures,
-                                         const llvm::TargetOptions &Options,
-                                         llvm::Reloc::Model RM = llvm::Reloc::Default,
-                                         llvm::CodeModel::Model CM = llvm::CodeModel::Default,
-                                         llvm::CodeGenOpt::Level OL = llvm::CodeGenOpt::Default) const;
+  MCLDTargetMachine*
+  createTargetMachine(const llvm::Target& pTarget,
+                      const std::string& pTriple,
+                      const std::string& pCPU,
+                      const std::string& pFeatures,
+                      const llvm::TargetOptions& Options,
+                      llvm::Reloc::Model RM = llvm::Reloc::Default,
+                      llvm::CodeModel::Model CM = llvm::CodeModel::Default,
+                      llvm::CodeGenOpt::Level OL = llvm::CodeGenOpt::Default) const;
 
   /// createMCLinker - create target-specific MCLinker
   MCLinker *createMCLinker(const std::string &pTriple,
@@ -87,11 +91,9 @@ public:
   DiagnosticLineInfo* createDiagnosticLineInfo(const mcld::Target& pTarget,
                                                const std::string& pTriple) const;
 
-  const llvm::Target* get() const { return m_pT; }
-
 private:
-  /// m_Name - The target name
-  const char* m_Name;
+  /// Name - The target name
+  const char* Name;
 
   TripleMatchQualityFnTy TripleMatchQualityFn;
   TargetMachineCtorTy TargetMachineCtorFn;
@@ -99,9 +101,6 @@ private:
   EmulationFnTy EmulationFn;
   TargetLDBackendCtorTy TargetLDBackendCtorFn;
   DiagnosticLineInfoCtorTy DiagnosticLineInfoCtorFn;
-
-  // -----  adapted llvm::Target  ----- //
-  const llvm::Target* m_pT;
 };
 
 } //end namespace mcld

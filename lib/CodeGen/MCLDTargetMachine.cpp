@@ -89,22 +89,28 @@ static bool getVerboseAsm() {
 }
 
 
-//===---------------------------------------------------------------------===//
-/// MCLDTargetMachine
+//===----------------------------------------------------------------------===//
+// MCLDTargetMachine
 //===----------------------------------------------------------------------===//
 mcld::MCLDTargetMachine::MCLDTargetMachine(llvm::TargetMachine &pTM,
-                                           const mcld::Target& pTarget,
+                                           const llvm::Target& pLLVMTarget,
+                                           const mcld::Target& pMCLDTarget,
                                            const std::string& pTriple)
-  : m_TM(pTM), m_pTarget(&pTarget), m_Triple(pTriple) {
+  : m_TM(pTM),
+    m_pLLVMTarget(&pLLVMTarget),
+    m_pMCLDTarget(&pMCLDTarget),
+    m_Triple(pTriple) {
 }
 
-mcld::MCLDTargetMachine::~MCLDTargetMachine() {
-  m_pTarget = 0;
+mcld::MCLDTargetMachine::~MCLDTargetMachine()
+{
+  m_pLLVMTarget = NULL;
+  m_pMCLDTarget = NULL;
 }
 
 const mcld::Target& mcld::MCLDTargetMachine::getTarget() const
 {
-  return *m_pTarget;
+  return *m_pMCLDTarget;
 }
 
 /// Turn exception handling constructs into something the code generators can
@@ -280,22 +286,22 @@ bool mcld::MCLDTargetMachine::addCompilerPasses(PassManagerBase &pPM,
   const MCSubtargetInfo &STI = getTM().getSubtarget<MCSubtargetInfo>();
 
   MCInstPrinter *InstPrinter =
-    getTarget().get()->createMCInstPrinter(MAI.getAssemblerDialect(), MAI,
+    m_pLLVMTarget->createMCInstPrinter(MAI.getAssemblerDialect(), MAI,
                                            MII,
                                            *Context->getRegisterInfo(), STI);
 
   MCCodeEmitter* MCE = 0;
   MCAsmBackend *MAB = 0;
   if (ArgShowMCEncoding) {
-    MCE = getTarget().get()->createMCCodeEmitter(MII, MRI, STI, *Context);
-    MAB = getTarget().get()->createMCAsmBackend(m_Triple,
+    MCE = m_pLLVMTarget->createMCCodeEmitter(MII, MRI, STI, *Context);
+    MAB = m_pLLVMTarget->createMCAsmBackend(m_Triple,
                                                 getTM().getTargetCPU());
   }
 
 
   // now, we have MCCodeEmitter and MCAsmBackend, we can create AsmStreamer.
   OwningPtr<MCStreamer> AsmStreamer(
-    getTarget().get()->createAsmStreamer(*Context, pOutput,
+    m_pLLVMTarget->createAsmStreamer(*Context, pOutput,
                                          getVerboseAsm(),
                                          getTM().hasMCUseLoc(),
                                          getTM().hasMCUseCFI(),
@@ -305,7 +311,7 @@ bool mcld::MCLDTargetMachine::addCompilerPasses(PassManagerBase &pPM,
                                          ArgShowMCInst));
 
   llvm::MachineFunctionPass* funcPass =
-    getTarget().get()->createAsmPrinter(getTM(), *AsmStreamer.get());
+    m_pLLVMTarget->createAsmPrinter(getTM(), *AsmStreamer.get());
 
   if (funcPass == 0)
     return true;
@@ -324,16 +330,16 @@ bool mcld::MCLDTargetMachine::addAssemblerPasses(PassManagerBase &pPM,
   const MCRegisterInfo &MRI = *getTM().getRegisterInfo();
   const MCSubtargetInfo &STI = getTM().getSubtarget<MCSubtargetInfo>();
   MCCodeEmitter* MCE =
-    getTarget().get()->createMCCodeEmitter(MII, MRI, STI, *Context);
+    m_pLLVMTarget->createMCCodeEmitter(MII, MRI, STI, *Context);
 
   // MCAsmBackend
   MCAsmBackend* MAB =
-    getTarget().get()->createMCAsmBackend(m_Triple,getTM().getTargetCPU());
+    m_pLLVMTarget->createMCAsmBackend(m_Triple,getTM().getTargetCPU());
   if (MCE == 0 || MAB == 0)
     return true;
 
   // now, we have MCCodeEmitter and MCAsmBackend, we can create AsmStreamer.
-  OwningPtr<MCStreamer> AsmStreamer(getTarget().get()->createMCObjectStreamer(
+  OwningPtr<MCStreamer> AsmStreamer(m_pLLVMTarget->createMCObjectStreamer(
                                                               m_Triple,
                                                               *Context,
                                                               *MAB,
@@ -342,7 +348,7 @@ bool mcld::MCLDTargetMachine::addAssemblerPasses(PassManagerBase &pPM,
                                                               getTM().hasMCRelaxAll(),
                                                               getTM().hasMCNoExecStack()));
   AsmStreamer.get()->InitSections();
-  MachineFunctionPass *funcPass = getTarget().get()->createAsmPrinter(getTM(),
+  MachineFunctionPass *funcPass = m_pLLVMTarget->createAsmPrinter(getTM(),
                                                                       *AsmStreamer.get());
   if (funcPass == 0)
     return true;
@@ -371,10 +377,10 @@ bool mcld::MCLDTargetMachine::addLinkerPasses(PassManagerBase &pPM,
     pModule.setName(pConfig.options().soname());
   }
 
-  MachineFunctionPass* funcPass = getTarget().createMCLinker(m_Triple,
-                                                             pConfig,
-                                                             pModule,
-                                                             pOutput);
+  MachineFunctionPass* funcPass = m_pMCLDTarget->createMCLinker(m_Triple,
+                                                                pConfig,
+                                                                pModule,
+                                                                pOutput);
   if (NULL == funcPass)
     return true;
 

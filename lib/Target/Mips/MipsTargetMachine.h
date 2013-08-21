@@ -17,7 +17,8 @@ class MipsBaseTargetMachine : public MCLDTargetMachine
 {
 public:
   MipsBaseTargetMachine(llvm::TargetMachine &pTM,
-                        const mcld::Target &pTarget,
+                        const llvm::Target &pLLVMTarget,
+                        const mcld::Target &pMCLDTarget,
                         const std::string &pTriple);
 };
 

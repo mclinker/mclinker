@@ -17,8 +17,7 @@ Target::Target()
   : TargetMachineCtorFn(NULL),
     MCLinkerCtorFn(NULL),
     TargetLDBackendCtorFn(NULL),
-    DiagnosticLineInfoCtorFn(NULL),
-    m_pT(NULL) {
+    DiagnosticLineInfoCtorFn(NULL) {
 }
 
 unsigned int Target::getTripleQuality(const llvm::Triple& pTriple) const
@@ -28,7 +27,8 @@ unsigned int Target::getTripleQuality(const llvm::Triple& pTriple) const
   return TripleMatchQualityFn(pTriple);
 }
 
-MCLDTargetMachine* Target::createTargetMachine(const std::string& pTriple,
+MCLDTargetMachine* Target::createTargetMachine(const llvm::Target& pTarget,
+                                               const std::string& pTriple,
                                                const std::string& pCPU,
                                                const std::string& pFeatures,
                                                const llvm::TargetOptions& pOptions,
@@ -36,10 +36,17 @@ MCLDTargetMachine* Target::createTargetMachine(const std::string& pTriple,
                                                llvm::CodeModel::Model pCM,
                                                llvm::CodeGenOpt::Level pOL) const
 {
-  if (TargetMachineCtorFn && m_pT) {
-    llvm::TargetMachine *tm = m_pT->createTargetMachine(pTriple, pCPU, pFeatures, pOptions, pRM, pCM, pOL);
+  if (TargetMachineCtorFn) {
+    llvm::TargetMachine *tm = pTarget.createTargetMachine(pTriple,
+                                                          pCPU,
+                                                          pFeatures,
+                                                          pOptions,
+                                                          pRM,
+                                                          pCM,
+                                                          pOL);
+
     if (tm)
-      return TargetMachineCtorFn(*this, *tm, pTriple);
+      return TargetMachineCtorFn(pTarget, *this, *tm, pTriple);
   }
   return NULL;
 }

@@ -50,9 +50,10 @@ class MCLDTargetMachine
 public:
   /// Adapter of llvm::TargetMachine
   ///
-  MCLDTargetMachine(llvm::TargetMachine &pTM,
-                    const mcld::Target &pTarget,
-                    const std::string &pTriple);
+  MCLDTargetMachine(llvm::TargetMachine& pTM,
+                    const llvm::Target& pLLMVTarget,
+                    const mcld::Target& pMCLDTarget,
+                    const std::string& pTriple);
 
   virtual ~MCLDTargetMachine();
 
@@ -106,7 +107,8 @@ private:
 
 private:
   llvm::TargetMachine &m_TM;
-  const mcld::Target *m_pTarget;
+  const llvm::Target *m_pLLVMTarget;
+  const mcld::Target *m_pMCLDTarget;
   const std::string& m_Triple;
 };
 

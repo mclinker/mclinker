@@ -16,8 +16,10 @@ TargetRegistry::TargetListTy mcld::TargetRegistry::s_TargetList;
 // TargetRegistry
 //===----------------------------------------------------------------------===//
 void TargetRegistry::RegisterTarget(Target& pTarget,
+                                    const char* pName,
                                     Target::TripleMatchQualityFnTy pQualityFn)
 {
+  pTarget.Name = pName;
   pTarget.TripleMatchQualityFn = pQualityFn;
 
   s_TargetList.push_back(&pTarget);
@@ -27,18 +29,40 @@ const mcld::Target*
 mcld::TargetRegistry::lookupTarget(const std::string &pTriple,
                                    std::string &pError)
 {
-  const llvm::Target* target = llvm::TargetRegistry::lookupTarget(pTriple, pError);
-  if (!target)
+  if (empty()) {
+    pError = "Unable to find target for this triple (no target are registered)";
     return NULL;
+  }
 
-  mcld::Target *result = 0;
-  TargetListTy::const_iterator TIter, TEnd = s_TargetList.end();
-  for (TIter=s_TargetList.begin(); TIter!=TEnd; ++TIter) {
-    if ((*TIter)->get() == target) {
-      result = (*TIter);
-      break;
+  llvm::Triple triple(pTriple);
+  Target* best = NULL, *ambiguity = NULL;
+  unsigned int highest = 0;
+
+  for (iterator target = begin(), ie = end(); target != ie; ++target) {
+    unsigned int quality = (*target)->getTripleQuality(triple);
+    if (quality > 0) {
+      if (NULL == best || highest < quality) {
+        highest = quality;
+        best = *target;
+        ambiguity = NULL;
+      }
+      else if (highest == quality) {
+        ambiguity = *target;
+      }
     }
   }
-  return result;
+
+  if (NULL == best) {
+    pError = "No availaible targets are compatible with this triple.";
+    return NULL;
+  }
+
+  if (NULL != ambiguity) {
+    pError = std::string("Ambiguous targets: \"") +
+             best->name() + "\" and \"" + ambiguity->name() + "\"";
+    return NULL;
+  }
+
+  return best;
 }
 

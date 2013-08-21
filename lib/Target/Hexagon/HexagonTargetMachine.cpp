@@ -16,13 +16,14 @@ extern "C" void MCLDInitializeHexagonLDTarget() {
      X(mcld::TheHexagonTarget);
 }
 
-mcld::HexagonTargetMachine::HexagonTargetMachine(llvm::TargetMachine& pPM,
-                                                 const mcld::Target &pTarget,
-                                                 const std::string& pTriple)
-  : mcld::MCLDTargetMachine(pPM, pTarget, pTriple) {
-}
+using namespace mcld;
 
-mcld::HexagonTargetMachine::~HexagonTargetMachine()
-{
+//===----------------------------------------------------------------------===//
+// HexagonTargetMachine
+//===----------------------------------------------------------------------===//
+HexagonTargetMachine::HexagonTargetMachine(llvm::TargetMachine& pPM,
+                                           const llvm::Target& pLLVMTarget,
+                                           const mcld::Target& pMCLDTarget,
+                                           const std::string& pTriple)
+  : MCLDTargetMachine(pPM, pLLVMTarget, pMCLDTarget, pTriple) {
 }
-

@@ -1378,14 +1378,24 @@ int main(int argc, char* argv[])
       TheTriple.setEnvironment(EmulationTriple.getEnvironment());
   }
 
+  // Get the target specific parser.
+  std::string error;
+  const llvm::Target *LLVMTarget = TargetRegistry::lookupTarget(MArch,
+                                                                TheTriple,
+                                                                error);
+  if (NULL == LLVMTarget) {
+    errs() << argv[0] << ": " << error;
+    return 1;
+  }
+
   // Allocate target machine.  First, check whether the user has explicitly
   // specified an architecture to compile for. If so we have to look it up by
   // name, because it might be a backend that has no mapping to a target triple.
-  const mcld::Target *TheTarget = 0;
+  const mcld::Target *TheTarget = NULL;
   if (!MArch.empty()) {
     for (mcld::TargetRegistry::iterator it = mcld::TargetRegistry::begin(),
            ie = mcld::TargetRegistry::end(); it != ie; ++it) {
-      if (MArch == (*it)->get()->getName()) {
+      if (MArch == (*it)->name()) {
         TheTarget = *it;
         break;
       }
@@ -1403,8 +1413,7 @@ int main(int argc, char* argv[])
       TheTriple.setArch(Type);
   }
   else {
-    std::string Err;
-    TheTarget = mcld::TargetRegistry::lookupTarget(TheTriple.getTriple(), Err);
+    TheTarget = mcld::TargetRegistry::lookupTarget(TheTriple.getTriple(), error);
     if (TheTarget == 0) {
       errs() << "error: auto-selecting target `" << TheTriple.getTriple()
              << "'\n"
@@ -1463,7 +1472,8 @@ int main(int argc, char* argv[])
   Options.EnableSegmentedStacks = SegmentedStacks;
 
   std::auto_ptr<mcld::MCLDTargetMachine> target_machine(
-          TheTarget->createTargetMachine(TheTriple.getTriple(),
+          TheTarget->createTargetMachine(*LLVMTarget,
+                                         TheTriple.getTriple(),
                                          MCPU, FeaturesStr, Options,
                                          ArgRelocModel, CMModel, OLvl));
   assert(target_machine.get() && "Could not allocate target machine!");
@@ -1485,7 +1495,7 @@ int main(int argc, char* argv[])
 
   // Figure out where we are going to send the output...
   OwningPtr<mcld::ToolOutputFile>
-  Out(GetOutputStream(TheTarget->get()->getName(),
+  Out(GetOutputStream(TheTarget->name(),
                       TheTriple.getOS(),
                       ArgFileType,
                       ArgBitcodeFilename,
