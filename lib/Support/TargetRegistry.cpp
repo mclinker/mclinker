@@ -25,9 +25,8 @@ void TargetRegistry::RegisterTarget(Target& pTarget,
   s_TargetList.push_back(&pTarget);
 }
 
-const mcld::Target*
-mcld::TargetRegistry::lookupTarget(const std::string &pTriple,
-                                   std::string &pError)
+const Target* TargetRegistry::lookupTarget(const std::string &pTriple,
+                                           std::string &pError)
 {
   if (empty()) {
     pError = "Unable to find target for this triple (no target are registered)";
