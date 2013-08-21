@@ -133,6 +133,13 @@ struct RegisterTarget
 {
 public:
   RegisterTarget(mcld::Target &pTarget, const char* pName) {
+    // if we've registered one, then return immediately.
+    TargetRegistry::iterator target, ie = TargetRegistry::end();
+    for (target = TargetRegistry::begin(); target != ie; ++target) {
+      if (0 == strcmp((*target)->name(), pName))
+        return;
+    }
+
     TargetRegistry::RegisterTarget(pTarget, pName, &getTripleMatchQuality);
   }
 
