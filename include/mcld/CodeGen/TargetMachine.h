@@ -8,10 +8,7 @@
 //===----------------------------------------------------------------------===//
 #ifndef MCLD_TARGET_TARGET_MACHINE_H
 #define MCLD_TARGET_TARGET_MACHINE_H
-#ifdef ENABLE_UNITTEST
-#include <gtest.h>
-#endif
-#include <llvm/Target/TargetMachine.h>
+#include <llvm/Support/CodeGen.h>
 #include <string>
 
 namespace llvm {
@@ -19,6 +16,9 @@ namespace llvm {
 class Target;
 class TargetData;
 class TargetMachine;
+class MCContext;
+class raw_ostream;
+class formatted_raw_ostream;
 class PassManagerBase;
 
 } // namespace of llvm
@@ -73,14 +73,6 @@ public:
                            mcld::Module& pModule,
                            mcld::LinkerConfig& pConfig,
                            bool DisableVerify = true);
-
-  /// getDataLayout
-  const llvm::DataLayout *getDataLayout() const { return m_TM.getDataLayout(); }
-
-  /// setAsmVerbosityDefault
-  static void setAsmVerbosityDefault(bool pAsmVerbose) {
-    llvm::TargetMachine::setAsmVerbosityDefault(pAsmVerbose);
-  }
 
 private:
   /// addCommonCodeGenPasses - Add standard LLVM codegen passes used for
