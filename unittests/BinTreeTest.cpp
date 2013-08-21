@@ -124,47 +124,46 @@ TEST_F( BinTreeTest, Two_null_tree_merge)
 
 TEST_F( BinTreeTest, DFSIterator_BasicTraversal)
 {
-  int a = 111;
+  int a = 111, b = 10, c = 9, d = 8, e = 7;
   BinaryTree<int>::iterator pos = m_pTestee->root();
 
   m_pTestee->join<InputTree::Inclusive>(pos,a);
   pos.move<InputTree::Inclusive>();
-  m_pTestee->join<InputTree::Positional>(pos,10);
-  m_pTestee->join<InputTree::Inclusive>(pos,9);
+  m_pTestee->join<InputTree::Positional>(pos,b);
+  m_pTestee->join<InputTree::Inclusive>(pos,c);
   pos.move<InputTree::Inclusive>();
-  m_pTestee->join<InputTree::Positional>(pos,8);
-  m_pTestee->join<InputTree::Inclusive>(pos,7);
+  m_pTestee->join<InputTree::Positional>(pos,d);
+  m_pTestee->join<InputTree::Inclusive>(pos,e);
 
   BinaryTree<int>::dfs_iterator dfs_it = m_pTestee->dfs_begin();
   BinaryTree<int>::dfs_iterator dfs_end = m_pTestee->dfs_end();
 
   ASSERT_EQ(111, **dfs_it);
   ++dfs_it;
-  ASSERT_EQ(9, **dfs_it);
+  EXPECT_EQ(9, **dfs_it);
   ++dfs_it;
-  ASSERT_EQ(7, **dfs_it);
+  EXPECT_EQ(7, **dfs_it);
   ++dfs_it;
-  ASSERT_EQ(8, **dfs_it);
+  EXPECT_EQ(8, **dfs_it);
   ++dfs_it;
-  ASSERT_EQ(10, **dfs_it);
+  EXPECT_EQ(10, **dfs_it);
   ++dfs_it;
-  ASSERT_TRUE( dfs_it ==  dfs_end);
-  BinaryTree<int>::bfs_iterator bfs_it = m_pTestee->bfs_begin();
-  BinaryTree<int>::bfs_iterator bfs_end = m_pTestee->bfs_end();
+  EXPECT_TRUE( dfs_it ==  dfs_end);
 }
 
 TEST_F( BinTreeTest, DFSIterator_RightMostTree)
 {
+  int a = 0, b = 1, c = 2, d = 3, e = 4;
   BinaryTree<int>::iterator pos = m_pTestee->root();
-  m_pTestee->join<InputTree::Inclusive>(pos,0);
+  m_pTestee->join<InputTree::Inclusive>(pos,a);
   pos.move<InputTree::Inclusive>();
-  m_pTestee->join<InputTree::Positional>(pos,1);
+  m_pTestee->join<InputTree::Positional>(pos,b);
   pos.move<InputTree::Positional>();
-  m_pTestee->join<InputTree::Positional>(pos,2);
+  m_pTestee->join<InputTree::Positional>(pos,c);
   pos.move<InputTree::Positional>();
-  m_pTestee->join<InputTree::Positional>(pos,3);
+  m_pTestee->join<InputTree::Positional>(pos,d);
   pos.move<InputTree::Positional>();
-  m_pTestee->join<InputTree::Positional>(pos,4);
+  m_pTestee->join<InputTree::Positional>(pos,e);
 
   BinaryTree<int>::dfs_iterator dfs_it = m_pTestee->dfs_begin();
   BinaryTree<int>::dfs_iterator dfs_end = m_pTestee->dfs_end();
@@ -199,16 +198,16 @@ TEST_F( BinTreeTest, DFSIterator_SingleNode)
 
 TEST_F( BinTreeTest, BFSIterator_BasicTraversal)
 {
-  int a = 111;
+  int a = 111, b = 10, c = 9, d = 8, e = 7;
   BinaryTree<int>::iterator pos = m_pTestee->root();
 
   m_pTestee->join<InputTree::Inclusive>(pos,a);
   pos.move<InputTree::Inclusive>();
-  m_pTestee->join<InputTree::Positional>(pos,10);
-  m_pTestee->join<InputTree::Inclusive>(pos,9);
+  m_pTestee->join<InputTree::Positional>(pos,b);
+  m_pTestee->join<InputTree::Inclusive>(pos,c);
   pos.move<InputTree::Inclusive>();
-  m_pTestee->join<InputTree::Positional>(pos,8);
-  m_pTestee->join<InputTree::Inclusive>(pos,7);
+  m_pTestee->join<InputTree::Positional>(pos,d);
+  m_pTestee->join<InputTree::Inclusive>(pos,e);
 
   BinaryTree<int>::bfs_iterator bfs_it = m_pTestee->bfs_begin();
   BinaryTree<int>::bfs_iterator bfs_end = m_pTestee->bfs_end();
@@ -230,16 +229,17 @@ TEST_F( BinTreeTest, BFSIterator_BasicTraversal)
 
 TEST_F( BinTreeTest, BFSIterator_RightMostTree)
 {
+  int a = 0, b = 1, c = 2, d = 3, e = 4;
   BinaryTree<int>::iterator pos = m_pTestee->root();
-  m_pTestee->join<InputTree::Inclusive>(pos,0);
+  m_pTestee->join<InputTree::Inclusive>(pos,a);
   pos.move<InputTree::Inclusive>();
-  m_pTestee->join<InputTree::Positional>(pos,1);
+  m_pTestee->join<InputTree::Positional>(pos,b);
   pos.move<InputTree::Positional>();
-  m_pTestee->join<InputTree::Positional>(pos,2);
+  m_pTestee->join<InputTree::Positional>(pos,c);
   pos.move<InputTree::Positional>();
-  m_pTestee->join<InputTree::Positional>(pos,3);
+  m_pTestee->join<InputTree::Positional>(pos,d);
   pos.move<InputTree::Positional>();
-  m_pTestee->join<InputTree::Positional>(pos,4);
+  m_pTestee->join<InputTree::Positional>(pos,e);
 
   BinaryTree<int>::bfs_iterator bfs_it = m_pTestee->bfs_begin();
   BinaryTree<int>::bfs_iterator bfs_end = m_pTestee->bfs_end();
@@ -274,17 +274,18 @@ TEST_F( BinTreeTest, BFSIterator_SingleNode)
 
 TEST_F( BinTreeTest, TreeIterator)
 {
+  int a = 0, b = 1, c = 2, d = 3, e = 4, f = 5;
   BinaryTree<int>::iterator pos = m_pTestee->root();
-  m_pTestee->join<InputTree::Inclusive>(pos,0);
+  m_pTestee->join<InputTree::Inclusive>(pos,a);
   pos.move<InputTree::Inclusive>();
-  m_pTestee->join<InputTree::Positional>(pos,1);
+  m_pTestee->join<InputTree::Positional>(pos,b);
   pos.move<InputTree::Positional>();
-  m_pTestee->join<InputTree::Inclusive>(pos,2);
-  m_pTestee->join<InputTree::Positional>(pos,5);
+  m_pTestee->join<InputTree::Inclusive>(pos,c);
+  m_pTestee->join<InputTree::Positional>(pos,f);
   pos.move<InputTree::Inclusive>();
-  m_pTestee->join<InputTree::Positional>(pos,3);
+  m_pTestee->join<InputTree::Positional>(pos,d);
   pos.move<InputTree::Positional>();
-  m_pTestee->join<InputTree::Positional>(pos,4);
+  m_pTestee->join<InputTree::Positional>(pos,e);
 
   BinaryTree<int>::iterator it = m_pTestee->begin();
   BinaryTree<int>::iterator end = m_pTestee->end();
