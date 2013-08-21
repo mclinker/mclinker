@@ -16,8 +16,8 @@ mcld::Target TheThumbTarget;
 
 extern "C" void MCLDInitializeARMLDTargetInfo() {
   // register into mcld::TargetRegistry
-  mcld::RegisterTarget X(TheARMTarget, "arm" );
-  mcld::RegisterTarget Y(TheThumbTarget, "thumb" );
+  mcld::RegisterTarget<llvm::Triple::arm> X(TheARMTarget, "arm");
+  mcld::RegisterTarget<llvm::Triple::thumb> Y(TheThumbTarget, "thumb");
 }
 
 } // namespace of mcld

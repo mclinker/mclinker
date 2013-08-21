@@ -15,7 +15,7 @@ mcld::Target TheHexagonTarget;
 
 extern "C" void MCLDInitializeHexagonLDTargetInfo() {
   // register into mcld::TargetRegistry
-  mcld::RegisterTarget X(TheHexagonTarget, "hexagon");
+  mcld::RegisterTarget<llvm::Triple::hexagon> X(TheHexagonTarget, "hexagon");
 }
 
 } // namespace of mcld

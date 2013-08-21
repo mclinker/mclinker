@@ -6,9 +6,10 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_TARGET_REGISTRY_H
-#define MCLD_TARGET_REGISTRY_H
+#ifndef MCLD_SUPPORT_TARGET_REGISTRY_H
+#define MCLD_SUPPORT_TARGET_REGISTRY_H
 #include <mcld/Support/Target.h>
+#include <llvm/ADT/Triple.h>
 
 #include <string>
 #include <list>
@@ -49,7 +50,8 @@ public:
   /// this is done by initializing all targets at program startup.
   ///
   /// @param T - The target being registered.
-  static void RegisterTarget(mcld::Target &T);
+  static void RegisterTarget(Target& pTarget,
+                             Target::TripleMatchQualityFnTy pQualityFn);
 
   /// RegisterTargetMachine - Register a TargetMachine implementation for the
   /// given target.
@@ -123,10 +125,12 @@ public:
 /// Target TheFooTarget; // The global target instance.
 ///
 /// extern "C" void MCLDInitializeFooTargetInfo() {
-///   RegisterTarget X(TheFooTarget, "foo", "Foo description");
+///   RegisterTarget<llvm::Foo> X(TheFooTarget, "foo", "Foo description");
 /// }
+template<llvm::Triple::ArchType TargetArchType = llvm::Triple::UnknownArch>
 struct RegisterTarget
 {
+public:
   RegisterTarget(mcld::Target &T, const char *Name) {
     llvm::TargetRegistry::iterator TIter, TEnd = llvm::TargetRegistry::end();
     // lookup llvm::Target
@@ -138,7 +142,13 @@ struct RegisterTarget
     if (TIter != TEnd)
       T.setTarget(*TIter);
 
-    TargetRegistry::RegisterTarget(T);
+    TargetRegistry::RegisterTarget(T, &getTripleMatchQuality);
+  }
+
+  static unsigned int getTripleMatchQuality(const llvm::Triple& pTriple) {
+    if (pTriple.getArch() == TargetArchType)
+      return 20;
+    return 0;
   }
 };
 

@@ -8,14 +8,19 @@
 //===----------------------------------------------------------------------===//
 #include <mcld/Support/TargetRegistry.h>
 
-mcld::TargetRegistry::TargetListTy mcld::TargetRegistry::s_TargetList;
+using namespace mcld;
+
+TargetRegistry::TargetListTy mcld::TargetRegistry::s_TargetList;
 
 //===----------------------------------------------------------------------===//
 // TargetRegistry
 //===----------------------------------------------------------------------===//
-void mcld::TargetRegistry::RegisterTarget(mcld::Target &T)
+void TargetRegistry::RegisterTarget(Target& pTarget,
+                                    Target::TripleMatchQualityFnTy pQualityFn)
 {
-  s_TargetList.push_back(&T);
+  pTarget.TripleMatchQualityFn = pQualityFn;
+
+  s_TargetList.push_back(&pTarget);
 }
 
 const mcld::Target*
