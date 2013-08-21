@@ -21,6 +21,13 @@ Target::Target()
     m_pT(NULL) {
 }
 
+unsigned int Target::getTripleQuality(const llvm::Triple& pTriple) const
+{
+  if (!TripleMatchQualityFn)
+    return 0;
+  return TripleMatchQualityFn(pTriple);
+}
+
 MCLDTargetMachine* Target::createTargetMachine(const std::string& pTriple,
                                                const std::string& pCPU,
                                                const std::string& pFeatures,

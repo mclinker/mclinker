@@ -32,6 +32,8 @@ class Target
   friend class mcld::MCLDTargetMachine;
   friend class mcld::TargetRegistry;
 public:
+  typedef unsigned int (*TripleMatchQualityFnTy)(const llvm::Triple& pTriple);
+
   typedef mcld::MCLDTargetMachine *(*TargetMachineCtorTy)(const mcld::Target &,
                                                           llvm::TargetMachine &,
                                                           const std::string&);
@@ -56,6 +58,8 @@ public:
 
   void setTarget(const llvm::Target& pTarget)
   { m_pT = &pTarget; }
+
+  unsigned int getTripleQuality(const llvm::Triple& pTriple) const;
 
   /// createTargetMachine - create target-specific TargetMachine
   MCLDTargetMachine* createTargetMachine(const std::string &pTriple,
@@ -89,6 +93,7 @@ private:
   /// m_Name - The target name
   const char* m_Name;
 
+  TripleMatchQualityFnTy TripleMatchQualityFn;
   TargetMachineCtorTy TargetMachineCtorFn;
   MCLinkerCtorTy MCLinkerCtorFn;
   EmulationFnTy EmulationFn;
