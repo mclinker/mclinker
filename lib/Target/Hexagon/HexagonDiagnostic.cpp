@@ -6,18 +6,16 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include <llvm/ADT/Triple.h>
 #include <mcld/Support/TargetRegistry.h>
 #include <mcld/LD/DWARFLineInfo.h>
 #include "Hexagon.h"
 
-using namespace mcld;
-
 namespace mcld {
 
+//===----------------------------------------------------------------------===//
 // createHexagonDiagnostic - the help function to create corresponding
 // HexagonDiagnostic
-//
+//===----------------------------------------------------------------------===//
 DiagnosticLineInfo*
 createHexagonDiagLineInfo(const Target& pTarget, const std::string &pTriple)
 {
@@ -25,6 +23,8 @@ createHexagonDiagLineInfo(const Target& pTarget, const std::string &pTriple)
 }
 
 } // namespace of mcld
+
+using namespace mcld;
 
 //===----------------------------------------------------------------------===//
 // InitializeHexagonDiagnostic

@@ -6,7 +6,6 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include <llvm/ADT/Triple.h>
 #include <mcld/Support/TargetRegistry.h>
 #include <mcld/LD/DWARFLineInfo.h>
 #include "Mips.h"
@@ -16,6 +15,7 @@ namespace {
 //===----------------------------------------------------------------------===//
 // createMipsDiagnostic - the help function to create corresponding
 // MipsDiagnostic
+//===----------------------------------------------------------------------===//
 mcld::DiagnosticLineInfo* createMipsDiagLineInfo(const mcld::Target& pTarget,
                                                  const std::string &pTriple)
 {
@@ -24,8 +24,9 @@ mcld::DiagnosticLineInfo* createMipsDiagLineInfo(const mcld::Target& pTarget,
 
 } // namespace of mcld
 
-//==========================
+//===----------------------------------------------------------------------===//
 // InitializeMipsDiagnostic
+//===----------------------------------------------------------------------===//
 extern "C" void MCLDInitializeMipsDiagnosticLineInfo() {
   mcld::TargetRegistry::RegisterDiagnosticLineInfo(mcld::TheMipselTarget,
                                                    createMipsDiagLineInfo);
