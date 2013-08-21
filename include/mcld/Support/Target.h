@@ -51,6 +51,9 @@ public:
 public:
   Target();
 
+  /// getName - get the target name
+  const char* getName() const { return m_Name; }
+
   void setTarget(const llvm::Target& pTarget)
   { m_pT = &pTarget; }
 
@@ -83,7 +86,9 @@ public:
   const llvm::Target* get() const { return m_pT; }
 
 private:
-  // -----  function pointers  ----- //
+  /// m_Name - The target name
+  const char* m_Name;
+
   TargetMachineCtorTy TargetMachineCtorFn;
   MCLinkerCtorTy MCLinkerCtorFn;
   EmulationFnTy EmulationFn;
