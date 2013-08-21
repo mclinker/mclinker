@@ -36,6 +36,7 @@ class Target
 {
   friend class mcld::MCLDTargetMachine;
   friend class mcld::TargetRegistry;
+
 public:
   typedef unsigned int (*TripleMatchQualityFnTy)(const llvm::Triple& pTriple);
 

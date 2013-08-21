@@ -15,7 +15,9 @@ using namespace mcld;
 // Target
 //===----------------------------------------------------------------------===//
 Target::Target()
-  : TargetMachineCtorFn(NULL),
+  : Name(NULL),
+    TripleMatchQualityFn(NULL),
+    TargetMachineCtorFn(NULL),
     MCLinkerCtorFn(NULL),
     TargetLDBackendCtorFn(NULL),
     DiagnosticLineInfoCtorFn(NULL) {
@@ -23,7 +25,7 @@ Target::Target()
 
 unsigned int Target::getTripleQuality(const llvm::Triple& pTriple) const
 {
-  if (!TripleMatchQualityFn)
+  if (NULL == TripleMatchQualityFn)
     return 0;
   return TripleMatchQualityFn(pTriple);
 }
@@ -33,9 +35,9 @@ Target::createTargetMachine(const std::string& pTriple,
                             const llvm::Target& pTarget,
                             llvm::TargetMachine& pTM) const
 {
-  if (TargetMachineCtorFn)
-      return TargetMachineCtorFn(pTarget, *this, pTM, pTriple);
-  return NULL;
+  if (NULL == TargetMachineCtorFn)
+    return NULL;
+  return TargetMachineCtorFn(pTarget, *this, pTM, pTriple);
 }
 
 /// createMCLinker - create target-specific MCLinker
@@ -45,7 +47,7 @@ Target::createMCLinker(const std::string &pTriple,
                        Module& pModule,
                        MemoryArea& pOutput) const
 {
-  if (!MCLinkerCtorFn)
+  if (NULL == MCLinkerCtorFn)
     return NULL;
   return MCLinkerCtorFn(pTriple, pConfig, pModule, pOutput);
 }
@@ -54,7 +56,7 @@ Target::createMCLinker(const std::string &pTriple,
 /// target system.
 bool Target::emulate(LinkerScript& pScript, LinkerConfig& pConfig) const
 {
-  if (!EmulationFn)
+  if (NULL == EmulationFn)
     return false;
   return EmulationFn(pScript, pConfig);
 }
@@ -62,7 +64,7 @@ bool Target::emulate(LinkerScript& pScript, LinkerConfig& pConfig) const
 /// createLDBackend - create target-specific LDBackend
 TargetLDBackend* Target::createLDBackend(const LinkerConfig& pConfig) const
 {
-    if (!TargetLDBackendCtorFn)
+    if (NULL == TargetLDBackendCtorFn)
       return NULL;
     return TargetLDBackendCtorFn(pConfig);
 }
@@ -72,7 +74,7 @@ DiagnosticLineInfo*
 Target::createDiagnosticLineInfo(const mcld::Target& pTarget,
                                  const std::string& pTriple) const
 {
-  if (!DiagnosticLineInfoCtorFn)
+  if (NULL == DiagnosticLineInfoCtorFn)
     return NULL;
   return DiagnosticLineInfoCtorFn(pTarget, pTriple);
 }
