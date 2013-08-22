@@ -82,20 +82,13 @@ ArgFileType("filetype", llvm::cl::init(mcld::LinkerConfig::Exec),
                   "Emit a binary file"),
        clEnumValEnd));
 
-namespace format {
-enum Format {
-  Binary,
-  Unknown // decided by triple
-};
-} // namespace of format
-
-static llvm::cl::opt<format::Format>
+static llvm::cl::opt<mcld::Input::Type>
 ArgFormat("b",
   llvm::cl::value_desc("Format"),
   llvm::cl::desc("set input format"),
-  llvm::cl::init(format::Unknown),
+  llvm::cl::init(mcld::Input::Unknown),
   llvm::cl::values(
-    clEnumValN(format::Binary, "binary",
+    clEnumValN(mcld::Input::Binary, "binary",
       "read in binary machine code."),
     clEnumValEnd));
 
@@ -104,13 +97,13 @@ ArgFormatAlias("format",
                llvm::cl::desc("alias for -b"),
                llvm::cl::aliasopt(ArgFormat));
 
-static llvm::cl::opt<format::Format>
+static llvm::cl::opt<mcld::LinkerConfig::CodeGenType>
 ArgOFormat("oformat",
   llvm::cl::value_desc("Format"),
   llvm::cl::desc("set output format"),
-  llvm::cl::init(format::Unknown),
+  llvm::cl::init(mcld::LinkerConfig::Unknown),
   llvm::cl::values(
-    clEnumValN(format::Binary, "binary",
+    clEnumValN(mcld::LinkerConfig::Binary, "binary",
       "generate binary machine code."),
     clEnumValEnd));
 
