@@ -35,6 +35,7 @@ friend class InputFactory;
 public:
   enum Type {
     Unknown,
+    Binary,
     Object,
     Exec,
     DynObj,
