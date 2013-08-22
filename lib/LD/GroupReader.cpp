@@ -84,7 +84,7 @@ bool GroupReader::readGroup(Module::input_iterator pRoot,
       cur_obj_cnt += ar->numOfObjectMember();
     }
     // read input as a binary file
-    else if (pConfig.options().isBinaryInput()) {
+    else if (m_BinaryReader.isMyFormat(**input)) {
       (*input)->setType(Input::Object);
       m_BinaryReader.readBinary(**input);
       m_Module.getObjectList().push_back(*input);
