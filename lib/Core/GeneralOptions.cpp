@@ -8,6 +8,7 @@
 //===----------------------------------------------------------------------===//
 #include <mcld/GeneralOptions.h>
 #include <mcld/MC/Input.h>
+#include <mcld/MC/ZOption.h>
 
 using namespace mcld;
 

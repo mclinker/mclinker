@@ -15,11 +15,11 @@
 #include <vector>
 #include <mcld/Support/RealPath.h>
 #include <mcld/Support/FileSystem.h>
-#include <mcld/MC/ZOption.h>
 
 namespace mcld {
 
 class Input;
+class ZOption;
 
 /** \class GeneralOptions
  *  \brief GeneralOptions collects the options that not be one of the
