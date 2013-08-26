@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_LDLITE_TARGET_OPTIONS_H
-#define MCLD_LDLITE_TARGET_OPTIONS_H
+#ifndef MCLD_LDLITE_TARGET_CONTROL_OPTIONS_H
+#define MCLD_LDLITE_TARGET_CONTROL_OPTIONS_H
 #include <llvm/Support/CommandLine.h>
 
 namespace mcld {
