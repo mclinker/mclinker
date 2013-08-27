@@ -244,14 +244,11 @@ bool DefSymAction::activate(InputBuilder& pBuilder) const
 ScriptAction::ScriptAction(unsigned int pPosition,
                            const std::string& pFileName,
                            ScriptFile::Kind pKind,
-                           SearchDirs& pSearchDirs,
-                           LinkerConfig& pLDConfig)
+                           const SearchDirs& pSearchDirs)
   : InputAction(pPosition),
     m_FileName(pFileName),
     m_Kind(pKind),
-    m_SearchDirs(pSearchDirs),
-    m_LDConfig(pLDConfig)
-{
+    m_SearchDirs(pSearchDirs) {
 }
 
 bool ScriptAction::activate(InputBuilder& pBuilder) const
@@ -259,7 +256,7 @@ bool ScriptAction::activate(InputBuilder& pBuilder) const
   sys::fs::Path path(m_FileName);
 
   if (!exists(path)) {
-    sys::fs::Path* res = m_SearchDirs.find(m_FileName, Input::Script);
+    const sys::fs::Path* res = m_SearchDirs.find(m_FileName, Input::Script);
     if (res == NULL) {
       switch (m_Kind) {
       case ScriptFile::LDScript:

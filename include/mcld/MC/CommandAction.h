@@ -179,11 +179,10 @@ private:
 class ScriptAction : public InputAction
 {
 public:
-  explicit ScriptAction(unsigned int pPosition,
-                        const std::string& pFileName,
-                        ScriptFile::Kind pKind,
-                        SearchDirs& pSearchDirs,
-                        LinkerConfig& pLDConfig);
+  ScriptAction(unsigned int pPosition,
+               const std::string& pFileName,
+               ScriptFile::Kind pKind,
+               const SearchDirs& pSearchDirs);
 
   bool activate(InputBuilder&) const;
 
@@ -194,8 +193,7 @@ public:
 private:
   std::string m_FileName;
   ScriptFile::Kind m_Kind;
-  SearchDirs& m_SearchDirs;
-  LinkerConfig& m_LDConfig;
+  const SearchDirs& m_SearchDirs;
 };
 
 } // end of namespace mcld
