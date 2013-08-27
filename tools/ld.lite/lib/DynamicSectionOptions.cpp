@@ -14,7 +14,7 @@
 namespace {
 
 llvm::cl::opt<std::string> ArgEntry("e",
-  llvm::cl::desc("Use entry as the explicit symbol for beginning execution of your program."),
+  llvm::cl::desc("Use the explicit symbol as the entrance of your program."),
   llvm::cl::value_desc("entry"),
   llvm::cl::ValueRequired);
 
@@ -27,7 +27,7 @@ llvm::cl::opt<bool> ArgBsymbolic("Bsymbolic",
   llvm::cl::init(false));
 
 llvm::cl::opt<bool> ArgBgroup("Bgroup",
-  llvm::cl::desc("Info the dynamic linker to perform lookups only inside the group."),
+  llvm::cl::desc("Info the dynamic linker to lookups only inside the group."),
   llvm::cl::init(false));
 
 llvm::cl::opt<std::string> ArgSOName("soname",

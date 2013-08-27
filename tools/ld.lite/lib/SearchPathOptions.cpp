@@ -16,7 +16,7 @@ namespace {
 llvm::cl::opt<mcld::sys::fs::Path,
               false,
               llvm::cl::parser<mcld::sys::fs::Path> > ArgSysRoot("sysroot",
-  llvm::cl::desc("Use directory as the location of the sysroot, overriding the configure-time default."),
+  llvm::cl::desc("Use directory as the location of the sysroot"),
   llvm::cl::value_desc("directory"),
   llvm::cl::ValueRequired);
 
@@ -24,7 +24,7 @@ llvm::cl::list<std::string,
                bool,
                llvm::cl::SearchDirParser> ArgSearchDirList("L",
   llvm::cl::ZeroOrMore,
-  llvm::cl::desc("Add path searchdir to the list of paths that ld will search for archive libraries and ld control scripts."),
+  llvm::cl::desc("Add [searchdir] to the list of search paths"),
   llvm::cl::value_desc("searchdir"),
   llvm::cl::Prefix);
 

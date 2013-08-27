@@ -36,7 +36,7 @@ llvm::cl::opt<mcld::OptimizationOptions::ICF> ArgICF("icf",
     clEnumValN(mcld::OptimizationOptions::ICF_All, "all",
       "always preform cold folding"),
     clEnumValN(mcld::OptimizationOptions::ICF_Safe, "safe",
-      "Folds ctors, dtors and functions whose pointers are definitely not taken."),
+      "Folds those whose pointers are definitely not taken."),
     clEnumValEnd));
 
 llvm::cl::list<std::string> ArgPlugin("plugin",

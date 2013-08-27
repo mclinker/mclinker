@@ -22,7 +22,8 @@ llvm::cl::alias AliasOutputFilename("output",
 
 llvm::cl::opt<mcld::LinkerConfig::CodeGenType> ArgFileType("filetype",
   llvm::cl::init(mcld::LinkerConfig::Exec),
-  llvm::cl::desc("Choose a file type (not all types are supported by all targets):"),
+  llvm::cl::desc("Choose a file type\n"
+                 "(not all types are supported by all targets):"),
   llvm::cl::values(
        clEnumValN(mcld::LinkerConfig::Object, "obj",
                   "Emit a relocatable object ('.o') file"),
@@ -111,7 +112,8 @@ llvm::cl::alias ArgDiscardLocalsAlias("X",
   llvm::cl::aliasopt(ArgDiscardLocals));
 
 llvm::cl::opt<bool> ArgEhFrameHdr("eh-frame-hdr",
-  llvm::cl::desc("Request creation of \".eh_frame_hdr\" section and ELF \"PT_GNU_EH_FRAME\" segment header."),
+  llvm::cl::desc("Request creation of \".eh_frame_hdr\" section and\n"
+                 "ELF \"PT_GNU_EH_FRAME\" segment header."),
   llvm::cl::init(false));
 
 llvm::cl::opt<bool> ArgNMagic("nmagic",

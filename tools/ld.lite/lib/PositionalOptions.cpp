@@ -34,7 +34,7 @@ llvm::cl::list<std::string> ArgLinkerScript("T",
 //===----------------------------------------------------------------------===//
 llvm::cl::list<std::string> ArgNameSpecList("l",
   llvm::cl::ZeroOrMore,
-  llvm::cl::desc("Add the archive or object file specified by namespec to "
+  llvm::cl::desc("Add the archive or object file specified by namespec to\n"
                  "the list of files to link."),
   llvm::cl::value_desc("namespec"),
   llvm::cl::Prefix);
@@ -48,35 +48,35 @@ llvm::cl::alias ArgNameSpecListAlias("library",
 //===----------------------------------------------------------------------===//
 llvm::cl::list<bool> ArgWholeArchiveList("whole-archive",
   llvm::cl::ValueDisallowed,
-  llvm::cl::desc("For each archive mentioned on the command line after "
-                 "the --whole-archive option, include all object files "
+  llvm::cl::desc("For each archive mentioned on the command line after\n"
+                 "the --whole-archive option, include all object files\n"
                  "in the archive."));
 
 llvm::cl::list<bool> ArgNoWholeArchiveList("no-whole-archive",
   llvm::cl::ValueDisallowed,
-  llvm::cl::desc("Turn off the effect of the --whole-archive option for "
+  llvm::cl::desc("Turn off the effect of the --whole-archive option for\n"
                  "subsequent archive files."));
 
 llvm::cl::list<bool> ArgAsNeededList("as-needed",
   llvm::cl::ValueDisallowed,
-  llvm::cl::desc("This option affects ELF DT_NEEDED tags for dynamic "
-                 "libraries mentioned on the command line after the "
+  llvm::cl::desc("This option affects ELF DT_NEEDED tags for dynamic\n"
+                 "libraries mentioned on the command line after the\n"
                  "--as-needed option."));
 
 llvm::cl::list<bool> ArgNoAsNeededList("no-as-needed",
   llvm::cl::ValueDisallowed,
-  llvm::cl::desc("Turn off the effect of the --as-needed option for "
+  llvm::cl::desc("Turn off the effect of the --as-needed option for\n"
                  "subsequent dynamic libraries"));
 
 llvm::cl::list<bool> ArgAddNeededList("add-needed",
   llvm::cl::ValueDisallowed,
-  llvm::cl::desc("--add-needed causes DT_NEEDED tags are always "
-                 "emitted for those libraries from DT_NEEDED tags. "
+  llvm::cl::desc("--add-needed causes DT_NEEDED tags are always\n"
+                 "emitted for those libraries from DT_NEEDED tags.\n"
                  "This is the default behavior."));
 
 llvm::cl::list<bool> ArgNoAddNeededList("no-add-needed",
   llvm::cl::ValueDisallowed,
-  llvm::cl::desc("--no-add-needed causes DT_NEEDED tags will never be "
+  llvm::cl::desc("--no-add-needed causes DT_NEEDED tags will never be\n"
                  "emitted for those libraries from DT_NEEDED tags"));
 
 llvm::cl::list<bool> ArgBDynamicList("Bdynamic",

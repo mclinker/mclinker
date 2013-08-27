@@ -40,7 +40,8 @@ llvm::cl::alias ArgTraceAlias("trace",
 
 llvm::cl::opt<int> ArgVerbose("verbose",
   llvm::cl::init(-1),
-  llvm::cl::desc("Display the version number for ld and list the linker emulations supported."));
+  llvm::cl::desc("Display the version number for ld and list the\n"
+                 "linker emulations supported."));
 
 llvm::cl::opt<bool> ArgVersion("V",
   llvm::cl::init(false),
@@ -60,9 +61,9 @@ llvm::cl::opt<mcld::PreferenceOptions::Color> ArgColor("color",
   llvm::cl::init(mcld::PreferenceOptions::COLOR_Auto),
   llvm::cl::values(
     clEnumValN(mcld::PreferenceOptions::COLOR_Never, "never",
-      "do not surround result strings"),
+      "do not surround result"),
     clEnumValN(mcld::PreferenceOptions::COLOR_Always, "always",
-      "always surround result strings, even the output is a plain file"),
+      "always surround results, even the output is a plain file"),
     clEnumValN(mcld::PreferenceOptions::COLOR_Auto, "auto",
       "surround result strings only if the output is a tty"),
     clEnumValEnd));

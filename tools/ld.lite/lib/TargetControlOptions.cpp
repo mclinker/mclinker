@@ -26,11 +26,11 @@ llvm::cl::opt<bool> ArgFIXCA8("fix-cortex-a8",
   llvm::cl::init(false));
 
 llvm::cl::opt<bool> ArgEB("EB",
-  llvm::cl::desc("Link big-endian objects. This affects the default output format."),
+  llvm::cl::desc("Link big-endian objects. This affects the output format."),
   llvm::cl::init(false));
 
 llvm::cl::opt<bool> ArgEL("EL",
-  llvm::cl::desc("Link little-endian objects. This affects the default output format."),
+  llvm::cl::desc("Link little-endian objects. This affects the output format."),
   llvm::cl::init(false));
 
 llvm::cl::opt<bool> ArgSVR4Compatibility("Qy",
