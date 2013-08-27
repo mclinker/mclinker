@@ -8,152 +8,63 @@
 //===----------------------------------------------------------------------===//
 #ifndef MCLD_LDLITE_POSITIONAL_OPTIONS_H
 #define MCLD_LDLITE_POSITIONAL_OPTIONS_H
+#include <llvm/Support/CommandLine.h>
+#include <mcld/Support/Path.h>
+#include <string>
 
-//===----------------------------------------------------------------------===//
-// Positional Options
-// The meaning of a positional option depends on its position and its related
-// positions with the other positional options. There are four kinds of
-// positional options:
-//   1. Inputs, object files, such as /tmp/XXXX.o
-//   2. Namespecs, short names of libraries. A namespec may refer to an archive
-//      or a shared library. For example, -lm.
-//   3. Attributes of inputs. Attributes describe inputs appears after them.
-//      For example, --as-needed and --whole-archive.
-//   4. Groups. A Group is a set of archives. Linkers repeatedly read archives
-//      in groups until there is no new undefined symbols.
-//   5. Definitions of symbols. --defsym option depends on
-//===----------------------------------------------------------------------===//
-// Inputs
-//===----------------------------------------------------------------------===//
-static llvm::cl::list<mcld::sys::fs::Path>
-ArgInputObjectFiles(llvm::cl::Positional,
-                    llvm::cl::desc("[input object files]"),
-                    llvm::cl::ZeroOrMore);
+namespace mcld {
 
-//===----------------------------------------------------------------------===//
-// Namespecs
-//===----------------------------------------------------------------------===//
-static llvm::cl::list<std::string>
-ArgNameSpecList("l",
-       llvm::cl::ZeroOrMore,
-       llvm::cl::desc("Add the archive or object file specified by namespec to "
-                      "the list of files to link."),
-       llvm::cl::value_desc("namespec"),
-       llvm::cl::Prefix);
+class InputAction;
+class LinkerConfig;
+class LinkerScript;
 
-static llvm::cl::alias
-ArgNameSpecListAlias("library",
-                     llvm::cl::desc("alias for -l"),
-                     llvm::cl::aliasopt(ArgNameSpecList));
+/** \class PositionalOptions
+ *
+ *  The meaning of a positional option depends on its position and its related
+ *  positions with the other positional options. There are four kinds of
+ *  positional options:
+ *   1. Inputs, object files, such as /tmp/XXXX.o
+ *   2. Namespecs, short names of libraries. A namespec may refer to an archive
+ *      or a shared library. For example, -lm.
+ *   3. Attributes of inputs. Attributes describe inputs appears after them.
+ *      For example, --as-needed and --whole-archive.
+ *   4. Groups. A Group is a set of archives. Linkers repeatedly read archives
+ *      in groups until there is no new undefined symbols.
+ *   5. Definitions of symbols. --defsym option depends on
+ */
+class PositionalOptions
+{
+public:
+  PositionalOptions();
 
-//===----------------------------------------------------------------------===//
-// Attributes
-//===----------------------------------------------------------------------===//
-static llvm::cl::list<bool>
-ArgWholeArchiveList("whole-archive",
-          llvm::cl::ValueDisallowed,
-          llvm::cl::desc("For each archive mentioned on the command line after "
-                         "the --whole-archive option, include all object files "
-                         "in the archive."));
+  size_t numOfInputs() const;
 
-static llvm::cl::list<bool>
-ArgNoWholeArchiveList("no-whole-archive",
-         llvm::cl::ValueDisallowed,
-         llvm::cl::desc("Turn off the effect of the --whole-archive option for "
-                        "subsequent archive files."));
+  bool parse(std::vector<InputAction*>& pActions,
+             const LinkerConfig& pConfig,
+             const LinkerScript& pScript);
 
-static llvm::cl::list<bool>
-ArgAsNeededList("as-needed",
-            llvm::cl::ValueDisallowed,
-            llvm::cl::desc("This option affects ELF DT_NEEDED tags for dynamic "
-                           "libraries mentioned on the command line after the "
-                           "--as-needed option."));
+private:
+  size_t numOfActions() const;
 
-static llvm::cl::list<bool>
-ArgNoAsNeededList("no-as-needed",
-             llvm::cl::ValueDisallowed,
-             llvm::cl::desc("Turn off the effect of the --as-needed option for "
-                            "subsequent dynamic libraries"));
+private:
+  llvm::cl::list<mcld::sys::fs::Path>& m_InputObjectFiles;
+  llvm::cl::list<std::string>& m_LinkerScript;
+  llvm::cl::list<std::string>& m_NameSpecList;
+  llvm::cl::list<bool>& m_WholeArchiveList;
+  llvm::cl::list<bool>& m_NoWholeArchiveList;
+  llvm::cl::list<bool>& m_AsNeededList;
+  llvm::cl::list<bool>& m_NoAsNeededList;
+  llvm::cl::list<bool>& m_AddNeededList;
+  llvm::cl::list<bool>& m_NoAddNeededList;
+  llvm::cl::list<bool>& m_BDynamicList;
+  llvm::cl::list<bool>& m_BStaticList;
+  llvm::cl::list<bool>& m_StartGroupList;
+  llvm::cl::list<bool>& m_EndGroupList;
+  llvm::cl::list<std::string>& m_DefSymList;
 
-static llvm::cl::list<bool>
-ArgAddNeededList("add-needed",
-                 llvm::cl::ValueDisallowed,
-                 llvm::cl::desc("--add-needed causes DT_NEEDED tags are always "
-                             "emitted for those libraries from DT_NEEDED tags. "
-                             "This is the default behavior."));
+};
 
-static llvm::cl::list<bool>
-ArgNoAddNeededList("no-add-needed",
-            llvm::cl::ValueDisallowed,
-            llvm::cl::desc("--no-add-needed causes DT_NEEDED tags will never be "
-                           "emitted for those libraries from DT_NEEDED tags"));
-
-static llvm::cl::list<bool>
-ArgBDynamicList("Bdynamic",
-                llvm::cl::ValueDisallowed,
-                llvm::cl::desc("Link against dynamic library"));
-
-static llvm::cl::alias
-ArgBDynamicListAlias1("dy",
-                      llvm::cl::desc("alias for --Bdynamic"),
-                      llvm::cl::aliasopt(ArgBDynamicList));
-
-static llvm::cl::alias
-ArgBDynamicListAlias2("call_shared",
-                      llvm::cl::desc("alias for --Bdynamic"),
-                      llvm::cl::aliasopt(ArgBDynamicList));
-
-static llvm::cl::list<bool>
-ArgBStaticList("Bstatic",
-               llvm::cl::ValueDisallowed,
-               llvm::cl::desc("Link against static library"));
-
-static llvm::cl::alias
-ArgBStaticListAlias1("dn",
-                     llvm::cl::desc("alias for --Bstatic"),
-                     llvm::cl::aliasopt(ArgBStaticList));
-
-static llvm::cl::alias
-ArgBStaticListAlias2("static",
-                     llvm::cl::desc("alias for --Bstatic"),
-                     llvm::cl::aliasopt(ArgBStaticList));
-
-static llvm::cl::alias
-ArgBStaticListAlias3("non_shared",
-                     llvm::cl::desc("alias for --Bstatic"),
-                     llvm::cl::aliasopt(ArgBStaticList));
-
-//===----------------------------------------------------------------------===//
-// Groups
-//===----------------------------------------------------------------------===//
-static llvm::cl::list<bool>
-ArgStartGroupList("start-group",
-                  llvm::cl::ValueDisallowed,
-                  llvm::cl::desc("start to record a group of archives"));
-
-static llvm::cl::alias
-ArgStartGroupListAlias("(",
-                       llvm::cl::desc("alias for --start-group"),
-                       llvm::cl::aliasopt(ArgStartGroupList));
-
-static llvm::cl::list<bool>
-ArgEndGroupList("end-group",
-                llvm::cl::ValueDisallowed,
-                llvm::cl::desc("stop recording a group of archives"));
-
-static llvm::cl::alias
-ArgEndGroupListAlias(")",
-                     llvm::cl::desc("alias for --end-group"),
-                     llvm::cl::aliasopt(ArgEndGroupList));
-
-//===----------------------------------------------------------------------===//
-// --defsym
-//===----------------------------------------------------------------------===//
-static llvm::cl::list<std::string>
-ArgDefSymList("defsym",
-              llvm::cl::ZeroOrMore,
-              llvm::cl::desc("Define a symbol"),
-              llvm::cl::value_desc("symbol=expression"));
+} // namespace of mcld
 
 #endif
 
