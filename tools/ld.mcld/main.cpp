@@ -225,7 +225,7 @@ OverrideStackAlignment("stack-alignment",
 
 // --script is an alias, but cl::alias doesn't work correctly with cl::list.
 static cl::list<std::string>
-LinkerScript("T",
+ArgLinkerScript("T",
              cl::ZeroOrMore,
              cl::desc("Linker script"),
              cl::value_desc("file"));
@@ -1067,8 +1067,8 @@ static bool ProcessLinkerOptionsFromCommand(mcld::LinkerScript& pScript,
 
   // add all linker scripts
   cl::list<std::string>::iterator sp;
-  cl::list<std::string>::iterator spEnd = LinkerScript.end();
-  for (sp = LinkerScript.begin(); sp != spEnd; ++sp) {
+  cl::list<std::string>::iterator spEnd = ArgLinkerScript.end();
+  for (sp = ArgLinkerScript.begin(); sp != spEnd; ++sp) {
     pConfig.options().getScriptList().push_back(*sp);
   }
 
