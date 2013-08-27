@@ -6,8 +6,16 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
+#include <lite/PreferenceOptions.h>
 #include <lite/TripleOptions.h>
+#include <lite/DynamicSectionOptions.h>
 #include <lite/OutputFormatOptions.h>
+#include <lite/SearchPathOptions.h>
+#include <lite/OptimizationOptions.h>
+#include <lite/SymbolOptions.h>
+#include <lite/TargetControlOptions.h>
+#include <lite/ScriptOptions.h>
+#include <lite/PositionalOptions.h>
 
 #include <mcld/Module.h>
 #include <mcld/Environment.h>
@@ -15,31 +23,8 @@
 #include <mcld/LinkerScript.h>
 #include <mcld/Linker.h>
 #include <mcld/IRBuilder.h>
-#include <mcld/Support/Path.h>
-#include <mcld/Support/CommandLine.h>
-#include <mcld/Support/TargetRegistry.h>
-#include <mcld/Support/MsgHandling.h>
 #include <mcld/Support/raw_ostream.h>
-#include <llvm/ADT/StringRef.h>
-#include <llvm/ADT/StringSwitch.h>
-#include <llvm/ADT/Triple.h>
-#include <llvm/Support/CommandLine.h>
-#include <llvm/Support/Process.h>
-#include <llvm/MC/SubtargetFeature.h>
 #include <string>
-#include <cstring>
-
-//===----------------------------------------------------------------------===//
-// Command Line Options
-// There are four kinds of command line options:
-//   1. Attribute options. Attributes describes the input file after them. For
-//      example, --as-needed affects the input file after this option. Attribute
-//      options are not attributes. Attribute options are the options that is
-//      used to define a legal attribute.
-//   2. Scripting options, Used to represent a subset of link scripting
-//      language, such as --defsym.
-//   3. General options. (the rest of options)
-//===----------------------------------------------------------------------===//
 
 /// configure linker
 static inline bool ConfigLinker(int pArgc,
