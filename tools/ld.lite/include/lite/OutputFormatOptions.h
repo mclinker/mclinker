@@ -9,6 +9,7 @@
 #ifndef MCLD_LDLITE_OUTPUT_FORMAT_OPTIONS_H
 #define MCLD_LDLITE_OUTPUT_FORMAT_OPTIONS_H
 #include <llvm/Support/CommandLine.h>
+#include <mcld/Support/CommandLine.h>
 #include <mcld/LinkerConfig.h>
 #include <mcld/GeneralOptions.h>
 #include <mcld/Support/Path.h>

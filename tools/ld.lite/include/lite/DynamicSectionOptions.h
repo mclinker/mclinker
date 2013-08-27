@@ -9,6 +9,7 @@
 #ifndef MCLD_LDLITE_DYNAMIC_SECTION_OPTIONS_H
 #define MCLD_LDLITE_DYNAMIC_SECTION_OPTIONS_H
 #include <llvm/Support/CommandLine.h>
+#include <mcld/Support/CommandLine.h>
 #include <string>
 
 namespace mcld {
