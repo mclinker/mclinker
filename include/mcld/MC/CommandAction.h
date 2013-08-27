@@ -46,7 +46,7 @@ class NamespecAction : public InputAction
 public:
   NamespecAction(unsigned int pPosition,
                  const std::string &pNamespec,
-                 SearchDirs& pSearchDirs);
+                 const SearchDirs& pSearchDirs);
 
   const std::string &namespec() const { return m_Namespec; }
 
@@ -54,7 +54,7 @@ public:
 
 private:
   std::string m_Namespec;
-  SearchDirs& m_SearchDirs;
+  const SearchDirs& m_SearchDirs;
 };
 
 /// BitcodeAction

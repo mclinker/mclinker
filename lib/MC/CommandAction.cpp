@@ -37,13 +37,13 @@ bool InputFileAction::activate(InputBuilder& pBuilder) const
 //===----------------------------------------------------------------------===//
 NamespecAction::NamespecAction(unsigned int pPosition,
                                const std::string &pNamespec,
-                               SearchDirs& pSearchDirs)
+                               const SearchDirs& pSearchDirs)
   : InputAction(pPosition), m_Namespec(pNamespec), m_SearchDirs(pSearchDirs) {
 }
 
 bool NamespecAction::activate(InputBuilder& pBuilder) const
 {
-  sys::fs::Path* path = NULL;
+  const sys::fs::Path* path = NULL;
   // find out the real path of the namespec.
   if (pBuilder.getConstraint().isSharedSystem()) {
     // In the system with shared object support, we can find both archive
