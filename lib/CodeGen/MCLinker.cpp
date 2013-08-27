@@ -281,8 +281,7 @@ void MCLinker::initializeInputTree(IRBuilder& pBuilder)
       actions.push_back(new ScriptAction(0x0,
                                          *ii,
                                          ScriptFile::LDScript,
-                                         m_Module.getScript().directories(),
-                                         m_Config));
+                                         m_Module.getScript().directories()));
       actions.push_back(new ContextAction(0x0));
       actions.push_back(new MemoryAreaAction(0x0, FileHandle::ReadOnly));
     }
