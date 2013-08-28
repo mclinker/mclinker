@@ -280,7 +280,7 @@ bool OutputFormatOptions::parseOutput(Module& pModule, LinkerConfig& pConfig)
         output_filename.assign("a.out");
       }
       else {
-          return false;
+        return false;
       }
     }
   } // end of if empty m_OutputFilename
