@@ -145,6 +145,8 @@ bool TripleOptions::parse(int pArgc, char* pArgv[], LinkerConfig& pConfig)
   // If a specific emulation was requested, apply it now.
   if (!m_Emulation.empty())
     ParseEmulation(triple, m_Emulation);
+  else
+    pConfig.targets().setArch(m_MArch);
 
   pConfig.targets().setTriple(triple);
   pConfig.targets().setTargetCPU(m_MCPU);
