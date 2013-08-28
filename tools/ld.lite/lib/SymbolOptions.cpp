@@ -11,14 +11,6 @@
 
 namespace {
 
-llvm::cl::opt<bool> ArgNoUndefined("no-undefined",
-  llvm::cl::desc("Do not allow unresolved references"),
-  llvm::cl::init(false));
-
-llvm::cl::opt<bool> ArgAllowMulDefs("allow-multiple-definition",
-  llvm::cl::desc("Allow multiple definition"),
-  llvm::cl::init(false));
-
 // Not supprted yet {
 llvm::cl::opt<std::string> ArgForceUndefined("u",
   llvm::cl::desc("Force symbol to be undefined in the output file"),
@@ -61,9 +53,7 @@ using namespace mcld;
 // SymbolOptions
 //===----------------------------------------------------------------------===//
 SymbolOptions::SymbolOptions()
-  : m_NoUndefined(ArgNoUndefined),
-    m_AllowMulDefs(ArgAllowMulDefs),
-    m_ForceUndefined(ArgForceUndefined),
+  : m_ForceUndefined(ArgForceUndefined),
     m_VersionScript(ArgVersionScript),
     m_WarnCommon(ArgWarnCommon),
     m_DefineCommon(ArgDefineCommon) {
@@ -71,12 +61,6 @@ SymbolOptions::SymbolOptions()
 
 bool SymbolOptions::parse(LinkerConfig& pConfig)
 {
-  // set --no-undefined
-  pConfig.options().setNoUndefined(m_NoUndefined);
-
-  // set --allow-multiple-definition
-  pConfig.options().setMulDefs(m_AllowMulDefs);
-
   // set -d
   pConfig.options().setDefineCommon(m_DefineCommon);
 

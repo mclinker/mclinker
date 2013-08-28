@@ -30,6 +30,8 @@ private:
   llvm::cl::opt<bool>& m_Bsymbolic;
   llvm::cl::opt<bool>& m_Bgroup;
   llvm::cl::opt<std::string>& m_SOName;
+  llvm::cl::opt<llvm::cl::boolOrDefault>& m_NoUndefined;
+  llvm::cl::opt<llvm::cl::boolOrDefault>& m_AllowMulDefs;
   llvm::cl::list<ZOption,
                  bool,
                  llvm::cl::parser<ZOption> >& m_ZOptionList;

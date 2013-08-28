@@ -34,6 +34,12 @@ llvm::cl::opt<std::string> ArgSOName("soname",
   llvm::cl::desc("Set internal name of shared library"),
   llvm::cl::value_desc("name"));
 
+llvm::cl::opt<llvm::cl::boolOrDefault> ArgNoUndefined("no-undefined",
+  llvm::cl::desc("Do not allow unresolved references"));
+
+llvm::cl::opt<llvm::cl::boolOrDefault> ArgAllowMulDefs("allow-multiple-definition",
+  llvm::cl::desc("Allow multiple definition"));
+
 llvm::cl::list<mcld::ZOption,
                bool,
                llvm::cl::parser<mcld::ZOption> > ArgZOptionList("z",
@@ -83,6 +89,8 @@ DynamicSectionOptions::DynamicSectionOptions()
     m_Bsymbolic(ArgBsymbolic),
     m_Bgroup(ArgBgroup),
     m_SOName(ArgSOName),
+    m_NoUndefined(ArgNoUndefined),
+    m_AllowMulDefs(ArgAllowMulDefs),
     m_ZOptionList(ArgZOptionList),
     m_Dyld(ArgDyld),
     m_EnableNewDTags(ArgEnableNewDTags),
@@ -110,6 +118,14 @@ bool DynamicSectionOptions::parse(LinkerConfig& pConfig, LinkerScript& pScript)
   for (zOpt = m_ZOptionList.begin(); zOpt != zOptEnd; ++zOpt) {
     pConfig.options().addZOption(*zOpt);
   }
+
+  // set --no-undefined
+  if (llvm::cl::BOU_UNSET != m_NoUndefined)
+    pConfig.options().setNoUndefined(llvm::cl::BOU_TRUE == m_NoUndefined);
+
+  // set --allow-multiple-definition
+  if (llvm::cl::BOU_UNSET != m_AllowMulDefs)
+    pConfig.options().setMulDefs(llvm::cl::BOU_TRUE == m_AllowMulDefs);
 
   // set --dynamic-linker [dyld]
   pConfig.options().setDyld(m_Dyld);

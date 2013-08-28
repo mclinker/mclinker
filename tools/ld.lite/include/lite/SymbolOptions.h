@@ -23,9 +23,6 @@ public:
   bool parse(LinkerConfig& pConfig);
 
 private:
-  llvm::cl::opt<bool>& m_NoUndefined;
-  llvm::cl::opt<bool>& m_AllowMulDefs;
-
   // not supported yet
   llvm::cl::opt<std::string>& m_ForceUndefined;
   llvm::cl::opt<std::string>& m_VersionScript;
