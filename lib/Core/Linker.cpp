@@ -246,7 +246,20 @@ bool Linker::emit(MemoryArea& pOutput)
 bool Linker::emit(const std::string& pPath)
 {
   FileHandle file;
-  FileHandle::Permission perm = FileHandle::Permission(0x755);
+  FileHandle::Permission perm;
+  switch (m_pConfig->codeGenType()) {
+    case mcld::LinkerConfig::Unknown:
+    case mcld::LinkerConfig::Object:
+      perm = mcld::FileHandle::Permission(0x644);
+      break;
+    case mcld::LinkerConfig::DynObj:
+    case mcld::LinkerConfig::Exec:
+    case mcld::LinkerConfig::Binary:
+      perm = mcld::FileHandle::Permission(0x755);
+      break;
+    default: assert(0 && "Unknown file type");
+  }
+
   if (!file.open(pPath,
             FileHandle::ReadWrite | FileHandle::Truncate | FileHandle::Create,
             perm)) {
