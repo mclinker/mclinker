@@ -116,7 +116,19 @@ public:
   ///
   /// @param Triple - The Triple string
   /// @param Error  - The returned error message
-  static const mcld::Target *lookupTarget(const std::string &Triple,
+  static const mcld::Target *lookupTarget(const std::string& pTriple,
+                                          std::string& pError);
+
+  /// lookupTarget - Look up MCLinker target by an architecture name
+  /// and a triple. If the architecture name is not empty, then the
+  /// the lookup is done mainly by architecture. Otherwise, the target
+  /// triple is used.
+  ///
+  /// @param pArch   - The architecture name
+  /// @param pTriple - The target triple
+  /// @param pError  - The returned error message
+  static const mcld::Target *lookupTarget(const std::string& pArchName,
+                                          llvm::Triple& pTriple,
                                           std::string &Error);
 };
 

@@ -65,3 +65,41 @@ const Target* TargetRegistry::lookupTarget(const std::string &pTriple,
   return best;
 }
 
+const Target* TargetRegistry::lookupTarget(const std::string& pArchName,
+                                           llvm::Triple& pTriple,
+                                           std::string& pError)
+{
+  const Target* result = NULL;
+  if (!pArchName.empty()) {
+    for (mcld::TargetRegistry::iterator it = mcld::TargetRegistry::begin(),
+           ie = mcld::TargetRegistry::end(); it != ie; ++it) {
+      if (pArchName == (*it)->name()) {
+        result = *it;
+        break;
+      }
+    }
+
+    if (NULL == result) {
+      pError = std::string("invalid target '") + pArchName + "'.\n";
+      return NULL;
+    }
+
+    // Adjust the triple to match (if known), otherwise stick with the
+    // module/host triple.
+    llvm::Triple::ArchType type =
+                               llvm::Triple::getArchTypeForLLVMName(pArchName);
+    if (llvm::Triple::UnknownArch != type)
+      pTriple.setArch(type);
+  }
+  else {
+    std::string error;
+    result = lookupTarget(pTriple.getTriple(), error);
+    if (NULL == result) {
+      pError = std::string("unable to get target for `") +
+               pTriple.getTriple() + "'\n" +
+               "(Detail: " + error + ")\n";
+      return NULL;
+    }
+  }
+  return result;
+}

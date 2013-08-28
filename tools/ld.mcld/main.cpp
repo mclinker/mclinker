@@ -45,6 +45,10 @@
 #include <llvm/Support/Process.h>
 #include <llvm/Target/TargetMachine.h>
 
+#include <iostream>
+
+using namespace std;
+
 #if defined(HAVE_UNISTD_H)
 # include <unistd.h>
 #endif
@@ -1392,39 +1396,15 @@ int main(int argc, char* argv[])
   // Allocate target machine.  First, check whether the user has explicitly
   // specified an architecture to compile for. If so we have to look it up by
   // name, because it might be a backend that has no mapping to a target triple.
-  const mcld::Target *TheTarget = NULL;
-  if (!MArch.empty()) {
-    for (mcld::TargetRegistry::iterator it = mcld::TargetRegistry::begin(),
-           ie = mcld::TargetRegistry::end(); it != ie; ++it) {
-      if (MArch == (*it)->name()) {
-        TheTarget = *it;
-        break;
-      }
-    }
-
-    if (!TheTarget) {
-      errs() << argv[0] << ": error: invalid target '" << MArch << "'.\n";
-      return 1;
-    }
-
-    // Adjust the triple to match (if known), otherwise stick with the
-    // module/host triple.
-    Triple::ArchType Type = Triple::getArchTypeForLLVMName(MArch);
-    if (Type != Triple::UnknownArch)
-      TheTriple.setArch(Type);
+  const mcld::Target *MCLDTarget = mcld::TargetRegistry::lookupTarget(MArch,
+                                                                     TheTriple,
+                                                                     error);
+  if (NULL == MCLDTarget) {
+    errs() << argv[0] << ": " << error;
+    return 1;
   }
-  else {
-    TheTarget = mcld::TargetRegistry::lookupTarget(TheTriple.getTriple(), error);
-    if (TheTarget == 0) {
-      errs() << "error: auto-selecting target `" << TheTriple.getTriple()
-             << "'\n"
-             << "Please use the -march option to explicitly select a target.\n"
-             << "Example:\n"
-             << "  $ " << argv[0] << " -march=arm\n";
-      return 1;
-    }
-  }
-  // Set up mcld::LinkerConfig
+
+
   LDConfig.targets().setTriple(TheTriple);
 
   // Package up features to be passed to target/subtarget
@@ -1478,7 +1458,7 @@ int main(int argc, char* argv[])
                                        ArgRelocModel, CMModel, OLvl));
 
   std::auto_ptr<mcld::MCLDTargetMachine> target_machine(
-          TheTarget->createTargetMachine(TheTriple.getTriple(),
+          MCLDTarget->createTargetMachine(TheTriple.getTriple(),
                                         *LLVMTarget,
                                         *TM.get()));
 
@@ -1494,14 +1474,14 @@ int main(int argc, char* argv[])
   // FIXME: Move the initialization of LineInfo to mcld::Linker when we
   // finish LineInfo's implementation.
   OwningPtr<mcld::DiagnosticLineInfo>
-    diag_line_info(TheTarget->createDiagnosticLineInfo(*TheTarget,
+    diag_line_info(MCLDTarget->createDiagnosticLineInfo(*MCLDTarget,
                                                        TheTriple.getTriple()));
 
   mcld::getDiagnosticEngine().setLineInfo(*diag_line_info.take());
 
   // Figure out where we are going to send the output...
   OwningPtr<mcld::ToolOutputFile>
-  Out(GetOutputStream(TheTarget->name(),
+  Out(GetOutputStream(MCLDTarget->name(),
                       TheTriple.getOS(),
                       ArgFileType,
                       ArgBitcodeFilename,
