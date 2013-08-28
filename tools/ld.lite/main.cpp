@@ -117,6 +117,11 @@ int main(int argc, char* argv[])
   }
 
   mcld::Linker linker;
+  if (!linker.emulate(script, config)) {
+    mcld::errs() << argv[0]
+                 << ": failed to emulate target!\n";
+  }
+
   if (!linker.link(module, builder)) {
     mcld::errs() << argv[0]
                  << ": failed to link objects!\n";
