@@ -319,9 +319,14 @@ bool Linker::initTarget()
   assert(NULL != m_pConfig);
 
   std::string error;
-  m_pTarget = mcld::TargetRegistry::lookupTarget(m_pConfig->targets().triple().str(), error);
+  llvm::Triple triple(m_pConfig->targets().triple());
+
+  m_pTarget = mcld::TargetRegistry::lookupTarget(m_pConfig->targets().getArch(),
+                                                 triple, error);
+  m_pConfig->targets().setTriple(triple);
+
   if (NULL == m_pTarget) {
-    fatal(diag::fatal_cannot_init_target) << m_pConfig->targets().triple().str() << error;
+    fatal(diag::fatal_cannot_init_target) << triple.str() << error;
     return false;
   }
   return true;
