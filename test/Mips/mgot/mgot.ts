@@ -1,5 +1,5 @@
 ; RUN: %MCLinker -march mipsel -mtriple=mipsel-none-linux-gnueabi \
-; RUN:           -filetype=dso -shared -relocation-model=pic \
+; RUN:           -filetype=dso -shared \
 ; RUN:           -o %t.so %p/mgot0.o %p/mgot1.o
 ;
 ; RUN: readelf -a %t.so | FileCheck %s -check-prefix=MGOT

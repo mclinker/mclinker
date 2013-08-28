@@ -1,5 +1,5 @@
-; RUN: %MCLinker -mtriple="arm-none-linux-gnueabi" -march=arm \
-; RUN: -filetype=obj -dB %s -o %t.o
+; RUN: %LLC -mtriple="arm-none-linux-gnueabi" -march=arm \
+; RUN: -filetype=obj %s -o %t.o
 ; RUN: %MCLinker -mtriple="arm-none-linux-gnueabi" -march=arm -z now\
 ; RUN: -filetype=dso %t.o -o %t.so
 ; RUN: readelf -a %t.so | grep FLAGS_1 | FileCheck %s
