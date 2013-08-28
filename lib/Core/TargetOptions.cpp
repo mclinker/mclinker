@@ -38,6 +38,11 @@ void TargetOptions::setTriple(const std::string& pTriple)
   m_Triple.setTriple(pTriple);
 }
 
+void TargetOptions::setArch(const std::string& pArchName)
+{
+  m_ArchName = pArchName;
+}
+
 void TargetOptions::setTargetCPU(const std::string& pCPU)
 {
   m_TargetCPU = pCPU;
