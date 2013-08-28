@@ -102,7 +102,7 @@ enum Linker::ErrorCode Linker::config(const LinkerConfig& pConfig) {
 
   extractFiles(pConfig);
 
-  mModule = new mcld::Module(mLDConfig->options().soname(),
+  mModule = new mcld::Module(
                    const_cast<mcld::LinkerScript&>(*pConfig.getLDScript()));
 
   mBuilder = new mcld::IRBuilder(*mModule, *mLDConfig);
@@ -151,6 +151,7 @@ enum Linker::ErrorCode Linker::addCode(void* pMemory, size_t pSize) {
 }
 
 enum Linker::ErrorCode Linker::setOutput(const std::string &pPath) {
+  mModule->setName(pPath);
   mOutputPath = pPath;
   return kSuccess;
 }

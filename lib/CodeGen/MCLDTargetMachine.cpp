@@ -371,11 +371,11 @@ bool mcld::MCLDTargetMachine::addLinkerPasses(PassManagerBase &pPM,
   if (pConfig.options().soname().empty()) {
     // if the output is a shared object, and the option -soname was not
     // enable, set soname as the output file name. soname must be UTF-8 string.
-    pModule.setName(pOutput.handler()->path().filename().native());
+    pConfig.options().setSOName(pOutput.handler()->path().filename().native());
   }
-  else {
-    pModule.setName(pConfig.options().soname());
-  }
+
+  // set up output module name
+  pModule.setName(pOutput.handler()->path().filename().native());
 
   MachineFunctionPass* funcPass = m_pMCLDTarget->createMCLinker(m_Triple,
                                                                 pConfig,

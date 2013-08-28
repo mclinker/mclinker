@@ -95,6 +95,10 @@ static inline bool ConfigLinker(int pArgc,
     mcld::fatal(mcld::diag::fatal_forbid_nest_group);
     return false;
   }
+
+  if (pConfig.options().soname().empty())
+    pConfig.options().setSOName(pModule.name());
+
   return true;
 }
 

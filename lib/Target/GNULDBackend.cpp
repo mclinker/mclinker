@@ -790,7 +790,7 @@ void GNULDBackend::sizeNamePools(Module& pModule)
   switch(config().codeGenType()) {
     case LinkerConfig::DynObj: {
       // soname
-      dynstr += pModule.name().size() + 1;
+      dynstr += config().options().soname().size() + 1;
     }
     /** fall through **/
     case LinkerConfig::Exec:
@@ -1126,8 +1126,8 @@ void GNULDBackend::emitDynNamePools(Module& pModule, MemoryArea& pOutput)
 
   // emit soname
   if (LinkerConfig::DynObj == config().codeGenType()) {
-    strcpy((strtab + strtabsize), pModule.name().c_str());
-    strtabsize += pModule.name().size() + 1;
+    strcpy((strtab + strtabsize), config().options().soname().c_str());
+    strtabsize += config().options().soname().size() + 1;
   }
 }
 

@@ -79,11 +79,6 @@ bool ObjectLinker::initialize(Module& pModule, IRBuilder& pBuilder)
   m_pModule = &pModule;
   m_pBuilder = &pBuilder;
 
-  // set up soname
-  if (!m_Config.options().soname().empty()) {
-    m_pModule->setName(m_Config.options().soname());
-  }
-
   // initialize the readers and writers
   m_pObjectReader  = m_LDBackend.createObjectReader(*m_pBuilder);
   m_pArchiveReader = m_LDBackend.createArchiveReader(*m_pModule);
