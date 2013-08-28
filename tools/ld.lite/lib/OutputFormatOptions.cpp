@@ -7,6 +7,8 @@
 //
 //===----------------------------------------------------------------------===//
 #include <lite/OutputFormatOptions.h>
+#include <mcld/Module.h>
+#include <mcld/Support/MsgHandling.h>
 
 namespace {
 
@@ -193,11 +195,12 @@ OutputFormatOptions::OutputFormatOptions()
     m_ExcludeLIBS(ArgExcludeLIBS) {
 }
 
-bool OutputFormatOptions::parse(int pArgc, char* pArgv[], LinkerConfig& pConfig)
+bool OutputFormatOptions::parse(mcld::Module& pModule, LinkerConfig& pConfig)
 {
-  std::string error;
-  if (!parseOutput(pConfig, error))
+  if (!parseOutput(pModule, pConfig)) {
+    mcld::unreachable(mcld::diag::unrecognized_output_file) << pModule.name();
     return false;
+  }
 
   if (mcld::Input::Binary == m_Format)
     pConfig.options().setBinaryInput();
@@ -225,8 +228,7 @@ bool OutputFormatOptions::parse(int pArgc, char* pArgv[], LinkerConfig& pConfig)
 }
 
 /// configure the output filename
-bool OutputFormatOptions::parseOutput(LinkerConfig& pConfig,
-                                      std::string& pError)
+bool OutputFormatOptions::parseOutput(Module& pModule, LinkerConfig& pConfig)
 {
   if (true == m_Shared || true == m_PIE) {
     // -shared or -pie
@@ -243,7 +245,7 @@ bool OutputFormatOptions::parseOutput(LinkerConfig& pConfig,
 
   pConfig.setCodeGenType(m_FileType);
 
-  mcld::sys::fs::Path output_filename(m_OutputFilename);
+  std::string output_filename(m_OutputFilename.native());
   
   if (m_OutputFilename.empty()) {
     
@@ -251,21 +253,20 @@ bool OutputFormatOptions::parseOutput(LinkerConfig& pConfig,
       output_filename.assign("_out");
       switch (m_FileType) {
         case mcld::LinkerConfig::Object: {
-          output_filename.native() += ".obj";
+          output_filename += ".obj";
         break;
         }
         case mcld::LinkerConfig::DynObj: {
-          output_filename.native() += ".dll";
+          output_filename += ".dll";
           break;
         }
         case mcld::LinkerConfig::Exec: {
-          output_filename.native() += ".exe";
+          output_filename += ".exe";
           break;
         }
         case mcld::LinkerConfig::External:
           break;
         default: {
-          pError = "Unknown output file type.\n";
           return false;
           break;
         }
@@ -279,11 +280,12 @@ bool OutputFormatOptions::parseOutput(LinkerConfig& pConfig,
         output_filename.assign("a.out");
       }
       else {
-          pError = "Unknown output file type.\n";
           return false;
       }
     }
   } // end of if empty m_OutputFilename
+
+  pModule.setName(output_filename);
   return true;
 }
 

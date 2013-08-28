@@ -18,14 +18,16 @@
 
 namespace mcld {
 
+class Module;
+
 class OutputFormatOptions
 {
 public:
   OutputFormatOptions();
 
-  bool parse(int pArgc, char* pArgv[], LinkerConfig& pConfig);  
+  bool parse(Module& pModule, LinkerConfig& pConfig);
 
-  bool parseOutput(LinkerConfig& pConfig, std::string& pError);
+  bool parseOutput(Module& pModule, LinkerConfig& pConfig);
 
 private:
   llvm::cl::opt<mcld::sys::fs::Path,
