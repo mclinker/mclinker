@@ -6,15 +6,15 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_ZOPTION_H
-#define MCLD_ZOPTION_H
+#ifndef MCLD_LD_ZOPTION_H
+#define MCLD_LD_ZOPTION_H
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif
+
 #include <llvm/Support/DataTypes.h>
 
-namespace mcld
-{
+namespace mcld {
 
 /** \class ZOption
  *  \brief The -z options for GNU ld compatibility.
@@ -50,19 +50,13 @@ public:
 public:
   ZOption();
 
-  ~ZOption();
+  Kind kind() const { return m_Kind; }
 
-  Kind kind() const
-  { return m_Kind; }
+  void setKind(Kind pKind) { m_Kind = pKind; }
 
-  uint64_t pageSize() const
-  { return m_PageSize; }
+  uint64_t pageSize() const { return m_PageSize; }
 
-  void setKind(Kind pKind)
-  { m_Kind = pKind; }
-
-  void setPageSize(uint64_t pPageSize)
-  { m_PageSize = pPageSize; }
+  void setPageSize(uint64_t pPageSize) { m_PageSize = pPageSize; }
 
 private:
   Kind m_Kind;
