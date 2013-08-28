@@ -1,7 +1,7 @@
 ;;; ARM
 ; .o
-; RUN: %MCLinker -mtriple="arm-none-linux-gnueabi" -march=arm \
-; RUN: -filetype=obj -relocation-model=pic -dB %s -o %t.o
+; RUN: %LLC -mtriple="arm-none-linux-gnueabi" -march=arm \
+; RUN: -filetype=obj -relocation-model=pic %s -o %t.o
 ; RUN: llvm-nm %t.o | FileCheck %s -check-prefix=ARM_O_NM
 ; ARM_O_NM: {{[0-9a-fA-F]+}} T main
 ; ARM_O_NM:          U puts

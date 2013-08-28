@@ -1,5 +1,5 @@
-; RUN: %MCLinker -mtriple="arm-none-linux-gnueabi" -march=arm \
-; RUN: -filetype=obj -relocation-model=pic -dB %s -o %t.o
+; RUN: %LLC -mtriple="arm-none-linux-gnueabi" -march=arm \
+; RUN: -filetype=obj -relocation-model=pic %s -o %t.o
 ; RUN: %MCLinker -mtriple="arm-none-linux-gnueabi" -march=arm \
 ; RUN: -filetype=exe %t.o -o %t.so --color=always 2> %t.txt || exit 0
 ; RUN: cat %t.txt | grep '\[0;1;31m'

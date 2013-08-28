@@ -1,5 +1,5 @@
-; RUN: %MCLinker -mtriple="arm-none-linux-gnueabi" -march=arm \
-; RUN: -filetype=obj -relocation-model=pic -dB %s -o %t.o
+; RUN: %LLC -mtriple="arm-none-linux-gnueabi" -march=arm \
+; RUN: -filetype=obj -relocation-model=pic %s -o %t.o
 ; RUN: %MCLinker -mtriple="arm-none-linux-gnueabi" \
 ; RUN: --build-id -o %t.arm.exe %t.o
 ; RUN: test -f %t.arm.exe

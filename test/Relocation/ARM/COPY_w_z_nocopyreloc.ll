@@ -1,5 +1,5 @@
-; RUN: %MCLinker -mtriple="arm-none-linux-gnueabi" -march=arm \
-; RUN: -filetype=obj -dB %s -o %t.o
+; RUN: %LLC -mtriple="arm-none-linux-gnueabi" -march=arm \
+; RUN: -filetype=obj %s -o %t.o
 ; RUN: %MCLinker -mtriple="arm-none-linux-gnueabi" -march=arm -z nocopyreloc\
 ; RUN: -filetype=exe %t.o %p/copy.so -o %t.exe
 ; RUN: readelf -r %t.exe | FileCheck %s
