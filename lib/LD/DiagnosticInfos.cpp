@@ -116,7 +116,7 @@ bool DiagnosticInfos::process(DiagnosticEngine& pEngine) const
 
   switch (ID) {
     case diag::multiple_definitions: {
-      if (m_Config.options().hasMulDefs()) {
+      if (m_Config.options().isMulDefs()) {
         severity = DiagnosticEngine::Ignore;
       }
       break;

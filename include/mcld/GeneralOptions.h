@@ -122,10 +122,10 @@ public:
   { return m_bColor; }
 
   void setNoUndefined(bool pEnable = true)
-  { m_bNoUndefined = pEnable; }
+  { m_NoUndefined = (pEnable?YES:NO); }
 
   void setMulDefs(bool pEnable = true)
-  { m_bMulDefs = pEnable; }
+  { m_MulDefs = (pEnable?YES:NO); }
 
   void setEhFrameHdr(bool pEnable = true)
   { m_bCreateEhFrameHdr = pEnable; }
@@ -136,8 +136,11 @@ public:
   bool hasCombReloc() const
   { return m_bCombReloc; }
 
+  bool hasNoUndefined() const
+  { return (Unknown != m_NoUndefined); }
+
   bool isNoUndefined() const
-  { return m_bNoUndefined; }
+  { return (YES == m_NoUndefined); }
 
   bool hasStackSet() const
   { return (Unknown != m_ExecStack); }
@@ -155,7 +158,10 @@ public:
   { return m_bLoadFltr; }
 
   bool hasMulDefs() const
-  { return m_bMulDefs; }
+  { return (Unknown != m_MulDefs); }
+
+  bool isMulDefs() const
+  { return (YES == m_MulDefs); }
 
   bool hasNoCopyReloc() const
   { return m_bNoCopyReloc; }
@@ -332,14 +338,14 @@ private:
   uint16_t m_MaxErrorNum;      // --error-limit=N
   uint16_t m_MaxWarnNum;       // --warning-limit=N
   status m_ExecStack;          // execstack, noexecstack
+  status m_NoUndefined;        // defs, --no-undefined
+  status m_MulDefs;            // muldefs, --allow-multiple-definition
   uint64_t m_CommPageSize;     // common-page-size=value
   uint64_t m_MaxPageSize;      // max-page-size=value
   bool m_bCombReloc     : 1;   // combreloc, nocombreloc
-  bool m_bNoUndefined   : 1;   // defs, --no-undefined
   bool m_bInitFirst     : 1;   // initfirst
   bool m_bInterPose     : 1;   // interpose
   bool m_bLoadFltr      : 1;   // loadfltr
-  bool m_bMulDefs       : 1;   // muldefs
   bool m_bNoCopyReloc   : 1;   // nocopyreloc
   bool m_bNoDefaultLib  : 1;   // nodefaultlib
   bool m_bNoDelete      : 1;   // nodelete

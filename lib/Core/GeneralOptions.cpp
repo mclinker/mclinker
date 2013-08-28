@@ -21,14 +21,14 @@ GeneralOptions::GeneralOptions()
     m_MaxErrorNum(-1),
     m_MaxWarnNum(-1),
     m_ExecStack(Unknown),
+    m_NoUndefined(Unknown),
+    m_MulDefs(Unknown),
     m_CommPageSize(0x0),
     m_MaxPageSize(0x0),
     m_bCombReloc(true),
-    m_bNoUndefined(false),
     m_bInitFirst(false),
     m_bInterPose(false),
     m_bLoadFltr(false),
-    m_bMulDefs(false),
     m_bNoCopyReloc(false),
     m_bNoDefaultLib(false),
     m_bNoDelete(false),
@@ -81,7 +81,7 @@ void GeneralOptions::addZOption(const ZOption& pOption)
       m_bCombReloc = false;
       break;
     case ZOption::Defs:
-      m_bNoUndefined = true;
+      m_NoUndefined = YES;
       break;
     case ZOption::ExecStack:
       m_ExecStack = YES;
@@ -99,7 +99,7 @@ void GeneralOptions::addZOption(const ZOption& pOption)
       m_bLoadFltr = true;
       break;
     case ZOption::MulDefs:
-      m_bMulDefs = true;
+      m_MulDefs = YES;
       break;
     case ZOption::NoCopyReloc:
       m_bNoCopyReloc = true;
