@@ -142,7 +142,8 @@ bool parser<mcld::ZOption>::parse(llvm::cl::Option &O,
     long long unsigned size = 0;
     Arg.drop_front(17).getAsInteger(0, size);
     Val.setPageSize(static_cast<uint64_t>(size));
-  } else if (Arg.startswith("max-page-size=")) {
+  }
+  else if (Arg.startswith("max-page-size=")) {
     Val.setKind(ZOption::MaxPageSize);
     long long unsigned size = 0;
     Arg.drop_front(14).getAsInteger(0, size);
