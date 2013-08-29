@@ -13,7 +13,7 @@ m4_include(m4/acx_pthread.m4)
 #  Autoconf/Automake Initialization
 
 dnl AC_INIT(PKG_NAME, BUILD_VERSION, BUG_REPORTER)
-AC_INIT([MCLinker],[Cilai],[mclinker@googlegroups.com])
+AC_INIT([MCLinker],[Momo],[mclinker@googlegroups.com])
 AC_PREREQ(2.59)
 
 AC_CONFIG_SRCDIR([./COPYING])
@@ -31,10 +31,10 @@ AM_INIT_AUTOMAKE([1.9 dist-bzip2 foreign])
 ####################
 #  Versioning, see VERSION
 MAJOR=2
-MINOR=4
+MINOR=5
 MICRO=0
-AGE=0
-BUILD=Cilai
+AGE=rc
+BUILD=Momo
 
 DEV_VERSION=$MAJOR.$MINOR.$MICRO.$AGE-$BUILD
 PKG_VERSION=$MAJOR.$MINOR.$MICRO-$BUILD
