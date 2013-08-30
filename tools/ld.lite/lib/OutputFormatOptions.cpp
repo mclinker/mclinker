@@ -216,7 +216,7 @@ bool OutputFormatOptions::parse(mcld::Module& pModule, LinkerConfig& pConfig)
     pConfig.options().setStripSymbols(mcld::GeneralOptions::KeepAllSymbols);
 
   pConfig.options().setEhFrameHdr(m_EhFrameHdr);
-
+  pConfig.options().setPIE(m_PIE);
   pConfig.options().setNMagic(m_NMagic);
   pConfig.options().setOMagic(m_OMagic);
   pConfig.options().setHashStyle(m_HashStyle);
