@@ -15,7 +15,14 @@
 #include <cassert>
 #include <cstring>
 #include <climits>
+#if !defined(MCLD_ON_WIN32)
 #include <fnmatch.h>
+#define fnmatch0(pattern,string) (fnmatch(pattern,string,0) == 0)
+#else
+#include <windows.h>
+#include <shlwapi.h>
+#define fnmatch0(pattern,string) (PathMatchSpec(string, pattern) == true)
+#endif
 
 using namespace mcld;
 //===----------------------------------------------------------------------===//
@@ -249,15 +256,14 @@ bool SectionMap::matched(const SectionMap::Input& pInput,
 {
   bool result = false;
   if (pInput.spec().hasFile() &&
-      fnmatch(pInput.spec().file().name().c_str(),
-              pInputFile.c_str(), 0) == 0)
+      fnmatch0(pInput.spec().file().name().c_str(), pInputFile.c_str()))
     result = true;
 
   if (pInput.spec().hasExcludeFiles()) {
     StringList::const_iterator file, fileEnd;
     fileEnd = pInput.spec().excludeFiles().end();
     for (file = pInput.spec().excludeFiles().begin(); file != fileEnd; ++file) {
-      if (fnmatch((*file)->name().c_str(), pInputFile.c_str(), 0) == 0) {
+      if (fnmatch0((*file)->name().c_str(), pInputFile.c_str())) {
         return false;
       }
     }
@@ -266,7 +272,7 @@ bool SectionMap::matched(const SectionMap::Input& pInput,
   if (pInput.spec().hasSections()) {
     StringList::const_iterator sect, sectEnd = pInput.spec().sections().end();
     for (sect = pInput.spec().sections().begin(); sect != sectEnd; ++sect) {
-      if (fnmatch((*sect)->name().c_str(), pInputSection.c_str(), 0) == 0) {
+      if (fnmatch0((*sect)->name().c_str(), pInputSection.c_str())) {
         result = true;
         break;
       }
