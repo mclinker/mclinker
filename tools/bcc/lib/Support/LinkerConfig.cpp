@@ -18,6 +18,7 @@
 #include <mcld/Support/Path.h>
 #include <mcld/Support/MsgHandling.h>
 #include <mcld/Support/raw_ostream.h>
+#include <mcld/Script/InputSectDesc.h>
 
 using namespace bcc;
 
@@ -72,56 +73,63 @@ bool LinkerConfig::initializeLDInfo() {
   struct NameMap {
     const char* from;
     const char* to;
+    mcld::InputSectDesc::KeepPolicy policy;
   };
 
   static const NameMap map[] =
   {
-    {".text*", ".text"},
-    {".rodata*", ".rodata"},
-    {".data.rel.ro.local*", ".data.rel.ro.local"},
-    {".data.rel.ro*", ".data.rel.ro"},
-    {".data*", ".data"},
-    {".bss*", ".bss"},
-    {".tdata*", ".tdata"},
-    {".tbss*", ".tbss"},
-    {".init_array*", ".init_array"},
-    {".fini_array*", ".fini_array"},
+    {".text*", ".text", mcld::InputSectDesc::NoKeep},
+    {".rodata*", ".rodata", mcld::InputSectDesc::NoKeep},
+    {".data.rel.ro.local*", ".data.rel.ro.local", mcld::InputSectDesc::NoKeep},
+    {".data.rel.ro*", ".data.rel.ro", mcld::InputSectDesc::NoKeep},
+    {".data*", ".data", mcld::InputSectDesc::NoKeep},
+    {".bss*", ".bss", mcld::InputSectDesc::NoKeep},
+    {".tdata*", ".tdata", mcld::InputSectDesc::NoKeep},
+    {".tbss*", ".tbss", mcld::InputSectDesc::NoKeep},
+    {".eh_frame", ".eh_frame", mcld::InputSectDesc::Keep},
+    {".init", ".init", mcld::InputSectDesc::Keep},
+    {".fini", ".fini", mcld::InputSectDesc::Keep},
+    {".preinit_array*", ".preinit_array", mcld::InputSectDesc::Keep},
+    {".init_array*", ".init_array", mcld::InputSectDesc::Keep},
+    {".fini_array*", ".fini_array", mcld::InputSectDesc::Keep},
     // TODO: Support DT_INIT_ARRAY for all constructors?
-    {".ctors*", ".ctors"},
-    {".dtors*", ".dtors"},
+    {".ctors*", ".ctors", mcld::InputSectDesc::Keep},
+    {".dtors*", ".dtors", mcld::InputSectDesc::Keep},
+    {".jcr", ".jcr", mcld::InputSectDesc::Keep},
     // FIXME: in GNU ld, if we are creating a shared object .sdata2 and .sbss2
     // sections would be handled differently.
-    {".sdata2*", ".sdata"},
-    {".sbss2*", ".sbss"},
-    {".sdata*", ".sdata"},
-    {".sbss*", ".sbss"},
-    {".lrodata*", ".lrodata"},
-    {".ldata*", ".ldata"},
-    {".lbss*", ".lbss"},
-    {".gcc_except_table*", ".gcc_except_table"},
-    {".gnu.linkonce.d.rel.ro.local*", ".data.rel.ro.local"},
-    {".gnu.linkonce.d.rel.ro*", ".data.rel.ro"},
-    {".gnu.linkonce.r*", ".rodata"},
-    {".gnu.linkonce.d*", ".data"},
-    {".gnu.linkonce.b*", ".bss"},
-    {".gnu.linkonce.sb2*", ".sbss"},
-    {".gnu.linkonce.sb*", ".sbss"},
-    {".gnu.linkonce.s2*", ".sdata"},
-    {".gnu.linkonce.s*", ".sdata"},
-    {".gnu.linkonce.wi*", ".debug_info"},
-    {".gnu.linkonce.td*", ".tdata"},
-    {".gnu.linkonce.tb*", ".tbss"},
-    {".gnu.linkonce.t*", ".text"},
-    {".gnu.linkonce.lr*", ".lrodata"},
-    {".gnu.linkonce.lb*", ".lbss"},
-    {".gnu.linkonce.l*", ".ldata"},
+    {".sdata2*", ".sdata", mcld::InputSectDesc::NoKeep},
+    {".sbss2*", ".sbss", mcld::InputSectDesc::NoKeep},
+    {".sdata*", ".sdata", mcld::InputSectDesc::NoKeep},
+    {".sbss*", ".sbss", mcld::InputSectDesc::NoKeep},
+    {".lrodata*", ".lrodata", mcld::InputSectDesc::NoKeep},
+    {".ldata*", ".ldata", mcld::InputSectDesc::NoKeep},
+    {".lbss*", ".lbss", mcld::InputSectDesc::NoKeep},
+    {".gcc_except_table*", ".gcc_except_table", mcld::InputSectDesc::NoKeep},
+    {".gnu.linkonce.d.rel.ro.local*", ".data.rel.ro.local", mcld::InputSectDesc::NoKeep},
+    {".gnu.linkonce.d.rel.ro*", ".data.rel.ro", mcld::InputSectDesc::NoKeep},
+    {".gnu.linkonce.r*", ".rodata", mcld::InputSectDesc::NoKeep},
+    {".gnu.linkonce.d*", ".data", mcld::InputSectDesc::NoKeep},
+    {".gnu.linkonce.b*", ".bss", mcld::InputSectDesc::NoKeep},
+    {".gnu.linkonce.sb2*", ".sbss", mcld::InputSectDesc::NoKeep},
+    {".gnu.linkonce.sb*", ".sbss", mcld::InputSectDesc::NoKeep},
+    {".gnu.linkonce.s2*", ".sdata", mcld::InputSectDesc::NoKeep},
+    {".gnu.linkonce.s*", ".sdata", mcld::InputSectDesc::NoKeep},
+    {".gnu.linkonce.wi*", ".debug_info", mcld::InputSectDesc::NoKeep},
+    {".gnu.linkonce.td*", ".tdata", mcld::InputSectDesc::NoKeep},
+    {".gnu.linkonce.tb*", ".tbss", mcld::InputSectDesc::NoKeep},
+    {".gnu.linkonce.t*", ".text", mcld::InputSectDesc::NoKeep},
+    {".gnu.linkonce.lr*", ".lrodata", mcld::InputSectDesc::NoKeep},
+    {".gnu.linkonce.lb*", ".lbss", mcld::InputSectDesc::NoKeep},
+    {".gnu.linkonce.l*", ".ldata", mcld::InputSectDesc::NoKeep},
+    {".gnu.attributes", ".gnu.attributes", mcld::InputSectDesc::Keep},
   };
 
   if (mLDConfig->options().getScriptList().empty() &&
       mLDConfig->codeGenType() != mcld::LinkerConfig::Object) {
     const unsigned int map_size =  (sizeof(map) / sizeof(map[0]) );
     for (unsigned int i = 0; i < map_size; ++i) {
-      mLDScript->sectionMap().insert(map[i].from, map[i].to);
+      mLDScript->sectionMap().insert(map[i].from, map[i].to, map[i].policy);
     }
   }
   return true;

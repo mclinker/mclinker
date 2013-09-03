@@ -33,8 +33,9 @@ using namespace mcld;
 //===----------------------------------------------------------------------===//
 // SectionMap::Input
 //===----------------------------------------------------------------------===//
-SectionMap::Input::Input(const std::string& pName)
-  : m_Policy(InputSectDesc::NoKeep)
+SectionMap::Input::Input(const std::string& pName,
+                         InputSectDesc::KeepPolicy pPolicy)
+  : m_Policy(pPolicy)
 {
   m_Spec.m_pWildcardFile =
     WildcardPattern::create("*", WildcardPattern::SORT_NONE);
@@ -226,7 +227,8 @@ SectionMap::find(const std::string& pOutputSection)
 
 std::pair<SectionMap::mapping, bool>
 SectionMap::insert(const std::string& pInputSection,
-                   const std::string& pOutputSection)
+                   const std::string& pOutputSection,
+                   InputSectDesc::KeepPolicy pPolicy)
 {
   iterator out, outBegin = begin(), outEnd = end();
   for (out = outBegin; out != outEnd; ++out) {
@@ -243,7 +245,7 @@ SectionMap::insert(const std::string& pInputSection,
     if (in != (*out)->end()) {
       return std::make_pair(std::make_pair(*out, *in), false);
     } else {
-      Input* input = new Input(pInputSection);
+      Input* input = new Input(pInputSection, pPolicy);
       (*out)->append(input);
       return std::make_pair(std::make_pair(*out, input), true);
     }
@@ -251,7 +253,7 @@ SectionMap::insert(const std::string& pInputSection,
 
   Output* output = new Output(pOutputSection);
   m_OutputDescList.push_back(output);
-  Input* input = new Input(pInputSection);
+  Input* input = new Input(pInputSection, pPolicy);
   output->append(input);
 
   return std::make_pair(std::make_pair(output, input), true);
@@ -298,7 +300,7 @@ SectionMap::iterator
 SectionMap::insert(iterator pPosition, LDSection* pSection)
 {
   Output* output = new Output(pSection->name());
-  output->append(new Input(pSection->name()));
+  output->append(new Input(pSection->name(), InputSectDesc::NoKeep));
   output->setSection(pSection);
   return m_OutputDescList.insert(pPosition, output);
 }

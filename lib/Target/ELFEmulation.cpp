@@ -9,6 +9,7 @@
 #include <mcld/Target/ELFEmulation.h>
 #include <mcld/LinkerScript.h>
 #include <mcld/LinkerConfig.h>
+#include <mcld/Script/InputSectDesc.h>
 
 #include <llvm/Support/Host.h>
 
@@ -17,49 +18,56 @@ using namespace mcld;
 struct NameMap {
   const char* from; ///< the prefix of the input string. (match FROM*)
   const char* to;   ///< the output string.
+  InputSectDesc::KeepPolicy policy; /// mark whether the input is kept in GC
 };
 
 static const NameMap map[] =
 {
-  {".text*", ".text"},
-  {".rodata*", ".rodata"},
-  {".data.rel.ro.local*", ".data.rel.ro.local"},
-  {".data.rel.ro*", ".data.rel.ro"},
-  {".data*", ".data"},
-  {".bss*", ".bss"},
-  {".tdata*", ".tdata"},
-  {".tbss*", ".tbss"},
-  {".init_array*", ".init_array"},
-  {".fini_array*", ".fini_array"},
+  {".text*", ".text", InputSectDesc::NoKeep},
+  {".rodata*", ".rodata", InputSectDesc::NoKeep},
+  {".data.rel.ro.local*", ".data.rel.ro.local", InputSectDesc::NoKeep},
+  {".data.rel.ro*", ".data.rel.ro", InputSectDesc::NoKeep},
+  {".data*", ".data", InputSectDesc::NoKeep},
+  {".bss*", ".bss", InputSectDesc::NoKeep},
+  {".tdata*", ".tdata", InputSectDesc::NoKeep},
+  {".tbss*", ".tbss", InputSectDesc::NoKeep},
+  {".eh_frame", ".eh_frame", InputSectDesc::Keep},
+  {".init", ".init", InputSectDesc::Keep},
+  {".fini", ".fini", InputSectDesc::Keep},
+  {".preinit_array*", ".preinit_array", InputSectDesc::Keep},
+  {".init_array*", ".init_array", InputSectDesc::Keep},
+  {".fini_array*", ".fini_array", InputSectDesc::Keep},
   // TODO: Support DT_INIT_ARRAY for all constructors?
-  {".ctors*", ".ctors"},
-  {".dtors*", ".dtors"},
+  {".ctors*", ".ctors", InputSectDesc::Keep},
+  {".dtors*", ".dtors", InputSectDesc::Keep},
+  {".jcr", ".jcr", InputSectDesc::Keep},
   // FIXME: in GNU ld, if we are creating a shared object .sdata2 and .sbss2
   // sections would be handled differently.
-  {".sdata2*", ".sdata"},
-  {".sbss2*", ".sbss"},
-  {".sdata*", ".sdata"},
-  {".sbss*", ".sbss"},
-  {".lrodata*", ".lrodata"},
-  {".ldata*", ".ldata"},
-  {".lbss*", ".lbss"},
-  {".gcc_except_table*", ".gcc_except_table"},
-  {".gnu.linkonce.d.rel.ro.local*", ".data.rel.ro.local"},
-  {".gnu.linkonce.d.rel.ro*", ".data.rel.ro"},
-  {".gnu.linkonce.r*", ".rodata"},
-  {".gnu.linkonce.d*", ".data"},
-  {".gnu.linkonce.b*", ".bss"},
-  {".gnu.linkonce.sb2*", ".sbss"},
-  {".gnu.linkonce.sb*", ".sbss"},
-  {".gnu.linkonce.s2*", ".sdata"},
-  {".gnu.linkonce.s*", ".sdata"},
-  {".gnu.linkonce.wi*", ".debug_info"},
-  {".gnu.linkonce.td*", ".tdata"},
-  {".gnu.linkonce.tb*", ".tbss"},
-  {".gnu.linkonce.t*", ".text"},
-  {".gnu.linkonce.lr*", ".lrodata"},
-  {".gnu.linkonce.lb*", ".lbss"},
-  {".gnu.linkonce.l*", ".ldata"},
+  {".sdata2*", ".sdata", InputSectDesc::NoKeep},
+  {".sbss2*", ".sbss", InputSectDesc::NoKeep},
+  {".sdata*", ".sdata", InputSectDesc::NoKeep},
+  {".sbss*", ".sbss", InputSectDesc::NoKeep},
+  {".lrodata*", ".lrodata", InputSectDesc::NoKeep},
+  {".ldata*", ".ldata", InputSectDesc::NoKeep},
+  {".lbss*", ".lbss", InputSectDesc::NoKeep},
+  {".gcc_except_table*", ".gcc_except_table", InputSectDesc::NoKeep},
+  {".gnu.linkonce.d.rel.ro.local*", ".data.rel.ro.local", InputSectDesc::NoKeep},
+  {".gnu.linkonce.d.rel.ro*", ".data.rel.ro", InputSectDesc::NoKeep},
+  {".gnu.linkonce.r*", ".rodata", InputSectDesc::NoKeep},
+  {".gnu.linkonce.d*", ".data", InputSectDesc::NoKeep},
+  {".gnu.linkonce.b*", ".bss", InputSectDesc::NoKeep},
+  {".gnu.linkonce.sb2*", ".sbss", InputSectDesc::NoKeep},
+  {".gnu.linkonce.sb*", ".sbss", InputSectDesc::NoKeep},
+  {".gnu.linkonce.s2*", ".sdata", InputSectDesc::NoKeep},
+  {".gnu.linkonce.s*", ".sdata", InputSectDesc::NoKeep},
+  {".gnu.linkonce.wi*", ".debug_info", InputSectDesc::NoKeep},
+  {".gnu.linkonce.td*", ".tdata", InputSectDesc::NoKeep},
+  {".gnu.linkonce.tb*", ".tbss", InputSectDesc::NoKeep},
+  {".gnu.linkonce.t*", ".text", InputSectDesc::NoKeep},
+  {".gnu.linkonce.lr*", ".lrodata", InputSectDesc::NoKeep},
+  {".gnu.linkonce.lb*", ".lbss", InputSectDesc::NoKeep},
+  {".gnu.linkonce.l*", ".ldata", InputSectDesc::NoKeep},
+  {".gnu.attributes", ".gnu.attributes", InputSectDesc::Keep},
 };
 
 bool mcld::MCLDEmulateELF(LinkerScript& pScript, LinkerConfig& pConfig)
@@ -71,7 +79,7 @@ bool mcld::MCLDEmulateELF(LinkerScript& pScript, LinkerConfig& pConfig)
     const unsigned int map_size =  (sizeof(map) / sizeof(map[0]) );
     for (unsigned int i = 0; i < map_size; ++i) {
       std::pair<SectionMap::mapping, bool> res =
-        pScript.sectionMap().insert(map[i].from, map[i].to);
+        pScript.sectionMap().insert(map[i].from, map[i].to, map[i].policy);
       if (!res.second)
         return false;
     }

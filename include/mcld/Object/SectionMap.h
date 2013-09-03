@@ -36,7 +36,7 @@ public:
     typedef DotAssignments::const_iterator const_dot_iterator;
     typedef DotAssignments::iterator dot_iterator;
 
-    Input(const std::string& pName);
+    Input(const std::string& pName, InputSectDesc::KeepPolicy pPolicy);
     Input(const InputSectDesc& pInputDesc);
 
     InputSectDesc::KeepPolicy policy() const { return m_Policy; }
@@ -168,7 +168,9 @@ public:
   iterator       find(const std::string& pOutputSection);
 
   std::pair<mapping, bool>
-  insert(const std::string& pInputSection, const std::string& pOutputSection);
+  insert(const std::string& pInputSection,
+         const std::string& pOutputSection,
+         InputSectDesc::KeepPolicy pPolicy = InputSectDesc::NoKeep);
   std::pair<mapping, bool>
   insert(const InputSectDesc& pInputDesc, const OutputSectDesc& pOutputDesc);
 
