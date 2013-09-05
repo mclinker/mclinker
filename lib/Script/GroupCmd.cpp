@@ -91,7 +91,29 @@ void GroupCmd::activate(Module& pModule)
 
     switch (token->type()) {
     case InputToken::File: {
-      sys::fs::Path path(token->name());
+      sys::fs::Path path;
+
+      // 1. Looking for file in the sysroot prefix, if a sysroot prefix is
+      // configured and the filename starts with '/'
+      if (script.hasSysroot() &&
+          (token->name().size() > 0 && token->name()[0] == '/')) {
+          path = script.sysroot();
+          path.append(token->name());
+      } else {
+        // 2. Try to open the file in CWD
+        path.assign(token->name());
+        if (!sys::fs::exists(path)) {
+          // 3. Search through the library search path
+          sys::fs::Path* p =
+            script.directories().find(token->name(), Input::Script);
+          if (p != NULL)
+            path = *p;
+        }
+      }
+
+      if (!sys::fs::exists(path))
+        fatal(diag::err_cannot_open_input) << path.filename() << path;
+
       m_Builder.createNode<InputTree::Positional>(
         path.filename().native(), path, Input::Unknown);
       break;
