@@ -361,6 +361,7 @@ ArgAllowMulDefs("allow-multiple-definition",
 
 static cl::opt<bool>
 ArgEhFrameHdr("eh-frame-hdr",
+              cl::ZeroOrMore,
               cl::desc("Request creation of \".eh_frame_hdr\" section and ELF \"PT_GNU_EH_FRAME\" segment header."),
               cl::init(false));
 
@@ -531,13 +532,15 @@ ArgGPSize("G",
 /// @}
 static cl::opt<bool>
 ArgGCSections("gc-sections",
+              cl::ZeroOrMore,
               cl::desc("Enable garbage collection of unused input sections."),
               cl::init(false));
 
 static cl::opt<bool>
 ArgNoGCSections("no-gc-sections",
-              cl::desc("disable garbage collection of unused input sections."),
-              cl::init(false));
+                cl::ZeroOrMore,
+                cl::desc("disable garbage collection of unused input sections."),
+                cl::init(false));
 
 namespace icf {
 enum Mode {

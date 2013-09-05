@@ -17,11 +17,13 @@ namespace {
 bool ArgGCSections;
 
 llvm::cl::opt<bool, true> ArgGCSectionsFlag("gc-sections",
+  llvm::cl::ZeroOrMore,
   llvm::cl::location(ArgGCSections),
   llvm::cl::desc("Enable garbage collection of unused input sections."),
   llvm::cl::init(false));
 
 llvm::cl::opt<bool, true, llvm::cl::FalseParser> ArgNoGCSectionsFlag("no-gc-sections",
+  llvm::cl::ZeroOrMore,
   llvm::cl::location(ArgGCSections),
   llvm::cl::desc("disable garbage collection of unused input sections."),
   llvm::cl::init(false));

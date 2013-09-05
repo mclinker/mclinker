@@ -114,6 +114,7 @@ llvm::cl::alias ArgDiscardLocalsAlias("X",
   llvm::cl::aliasopt(ArgDiscardLocals));
 
 llvm::cl::opt<bool> ArgEhFrameHdr("eh-frame-hdr",
+  llvm::cl::ZeroOrMore,
   llvm::cl::desc("Request creation of \".eh_frame_hdr\" section and\n"
                  "ELF \"PT_GNU_EH_FRAME\" segment header."),
   llvm::cl::init(false));
