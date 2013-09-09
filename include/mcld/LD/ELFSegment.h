@@ -28,8 +28,11 @@ class LDSection;
 class ELFSegment
 {
 public:
-  typedef std::vector<LDSection*>::iterator iterator;
-  typedef std::vector<LDSection*>::const_iterator const_iterator;
+  typedef std::vector<LDSection*> SectionList;
+  typedef SectionList::iterator iterator;
+  typedef SectionList::const_iterator const_iterator;
+  typedef SectionList::reverse_iterator reverse_iterator;
+  typedef SectionList::const_reverse_iterator const_reverse_iterator;
 
 private:
   friend class Chunk<ELFSegment, MCLD_SEGMENTS_PER_OUTPUT>;
@@ -44,6 +47,11 @@ public:
   const_iterator begin() const { return m_SectionList.begin(); }
   iterator       end()         { return m_SectionList.end(); }
   const_iterator end()   const { return m_SectionList.end(); }
+
+  reverse_iterator       rbegin()       { return m_SectionList.rbegin(); }
+  const_reverse_iterator rbegin() const { return m_SectionList.rbegin(); }
+  reverse_iterator       rend()         { return m_SectionList.rend(); }
+  const_reverse_iterator rend()   const { return m_SectionList.rend(); }
 
   LDSection*       front()       { return m_SectionList.front(); }
   const LDSection* front() const { return m_SectionList.front(); }
@@ -115,7 +123,7 @@ private:
   uint64_t m_Memsz;           // # of bytes in mem image of segment (may be 0)
   uint64_t m_Align;           // alignment constraint
   uint64_t m_MaxSectionAlign; // max alignment of the sections in this segment
-  std::vector<LDSection*> m_SectionList;
+  SectionList m_SectionList;
 };
 
 } // namespace of mcld
