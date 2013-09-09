@@ -43,11 +43,11 @@ DECL_X86_32_APPLY_RELOC_FUNC(unsupport)
   { &unsupport,         12, "",                       0  },  \
   { &unsupport,         13, "",                       0  },  \
   { &unsupport,         14, "R_386_TLS_TPOFF",        0  },  \
-  { &tls_ie,            15, "R_386_TLS_IE",           0  },  \
-  { &tls_gotie,         16, "R_386_TLS_GOTIE",        0  },  \
-  { &tls_le,            17, "R_386_TLS_LE",           0  },  \
-  { &tls_gd,            18, "R_386_TLS_GD",           0  },  \
-  { &tls_ldm,           19, "R_386_TLS_LDM",          0  },  \
+  { &tls_ie,            15, "R_386_TLS_IE",           32 },  \
+  { &tls_gotie,         16, "R_386_TLS_GOTIE",        32 },  \
+  { &tls_le,            17, "R_386_TLS_LE",           32 },  \
+  { &tls_gd,            18, "R_386_TLS_GD",           32 },  \
+  { &tls_ldm,           19, "R_386_TLS_LDM",          32 },  \
   { &abs,               20, "R_386_16",               16 },  \
   { &rel,               21, "R_386_PC16",             16 },  \
   { &abs,               22, "R_386_8",                8  },  \
@@ -60,7 +60,7 @@ DECL_X86_32_APPLY_RELOC_FUNC(unsupport)
   { &unsupport,         29, "R_386_TLS_LDM_PUSH",     0  },  \
   { &unsupport,         30, "R_386_TLS_LDM_CALL",     0  },  \
   { &unsupport,         31, "R_386_TLS_LDM_POP",      0  },  \
-  { &tls_ldo_32,        32, "R_386_TLS_LDO_32",       0  },  \
+  { &tls_ldo_32,        32, "R_386_TLS_LDO_32",       32 },  \
   { &unsupport,         33, "R_386_TLS_IE_32",        0  },  \
   { &unsupport,         34, "R_386_TLS_LE_32",        0  },  \
   { &unsupport,         35, "R_386_TLS_DTPMOD32",     0  },  \
@@ -72,7 +72,7 @@ DECL_X86_32_APPLY_RELOC_FUNC(unsupport)
   { &unsupport,         41, "R_386_TLS_DESC",         0  },  \
   { &unsupport,         42, "R_386_IRELATIVE",        0  },  \
   { &unsupport,         43, "R_386_NUM",              0  },  \
-  { &none,              44, "R_386_TLS_OPT",          0  }
+  { &none,              44, "R_386_TLS_OPT",          32 }
 
 #define DECL_X86_64_APPLY_RELOC_FUNC(Name) \
 static X86Relocator::Result Name(Relocation& pEntry, X86_64Relocator& pParent);
