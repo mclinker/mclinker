@@ -1985,18 +1985,12 @@ void GNULDBackend::setupProgramHdrs(const LinkerScript& pScript)
     }
     (*seg)->setPaddr((*seg)->vaddr());
 
-    ELFSegment::iterator sect, sectEnd = (*seg)->end();
-    for (sect = (*seg)->begin(); sect != sectEnd; ++sect) {
-      if ((*sect)->kind() == LDFileFormat::BSS) {
+    ELFSegment::reverse_iterator sect, sectREnd = (*seg)->rend();
+    for (sect = (*seg)->rbegin(); sect != sectREnd; ++sect) {
+      if ((*sect)->kind() != LDFileFormat::BSS)
         break;
-      }
     }
-    if (sect == sectEnd) {
-      (*seg)->setFilesz((*seg)->back()->offset() +
-                        (*seg)->back()->size() -
-                        (*seg)->offset());
-    } else if (*sect != (*seg)->front()) {
-      --sect;
+    if (sect != sectREnd) {
       (*seg)->setFilesz((*sect)->offset() +
                         (*sect)->size() -
                         (*seg)->offset());
@@ -2248,8 +2242,12 @@ void GNULDBackend::setOutputSectionAddress(Module& pModule)
             vma = 0x0;
           else
             vma = getSegmentStartAddr(script) + sectionStartOffset();
-        } else
-          vma = prev->addr() + prev->size();
+        } else {
+          if ((prev->kind() == LDFileFormat::BSS))
+            vma = prev->addr();
+          else
+            vma = prev->addr() + prev->size();
+        }
         alignAddress(vma, cur->align());
         if (seg != segEnd && cur == (*seg)->front()) {
           // Try to align p_vaddr at page boundary if not in script options.
