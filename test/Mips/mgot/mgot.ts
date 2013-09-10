@@ -16,10 +16,10 @@
 ;
 ; Check .rel.dyn content
 ; MGOT: {{[0-9a-fA-F]+}} {{[0-9a-fA-F]+}} R_MIPS_REL32
+; MGOT: {{[0-9a-fA-F]+}} {{[0-9a-fA-F]+}} R_MIPS_REL32
 ; MGOT: {{[0-9a-fA-F]+}} {{[0-9a-fA-F]+}} R_MIPS_REL32 00000000 printf
 ; MGOT: {{[0-9a-fA-F]+}} {{[0-9a-fA-F]+}} R_MIPS_REL32 00000000 foo16300
 ; MGOT: {{[0-9a-fA-F]+}} {{[0-9a-fA-F]+}} R_MIPS_REL32 00000000 foo16383
-; MGOT: {{[0-9a-fA-F]+}} {{[0-9a-fA-F]+}} R_MIPS_REL32
 ;
 ; Check .dynsym size
 ; MGOT: Symbol table '.dynsym' contains 16392 entries

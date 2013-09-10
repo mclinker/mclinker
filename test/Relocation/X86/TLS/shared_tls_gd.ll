@@ -21,12 +21,12 @@
 
 ; check relocation type
 ; RUN: readelf -r %t.so | FileCheck %s -check-prefix=REL
-; REL: R_386_TLS_DTPMOD3 {{[0-9a-fA-F]+}} tls_nodef
-; REL-NEXT: R_386_TLS_DTPOFF3 {{[0-9a-fA-F]+}} tls_nodef
-; REL-NEXT: R_386_TLS_DTPMOD3 {{[0-9a-fA-F]+}} .tbss
+; REL: R_386_TLS_DTPMOD3 {{[0-9a-fA-F]+}} .tbss
 ; REL-NEXT: R_386_TLS_DTPMOD3 {{[0-9a-fA-F]+}} .tdata
 ; REL-NEXT: R_386_TLS_DTPMOD3 {{[0-9a-fA-F]+}} tls1
 ; REL-NEXT: R_386_TLS_DTPOFF3 {{[0-9a-fA-F]+}} tls1
 ; REL-NEXT: R_386_TLS_DTPMOD3 {{[0-9a-fA-F]+}} tls2
 ; REL-NEXT: R_386_TLS_DTPOFF3 {{[0-9a-fA-F]+}} tls2
+; REL-NEXT: R_386_TLS_DTPMOD3 {{[0-9a-fA-F]+}} tls_nodef
+; REL-NEXT: R_386_TLS_DTPOFF3 {{[0-9a-fA-F]+}} tls_nodef
 

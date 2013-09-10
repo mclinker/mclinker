@@ -22,9 +22,9 @@
 ; check relocation type
 ; RUN: readelf -r %t.so | FileCheck %s -check-prefix=REL
 ; REL: R_386_RELATIVE
+; REL-NEXT: R_386_RELATIVE
+; REL-NEXT: R_386_RELATIVE
 ; REL-NEXT: R_386_TLS_TPOFF {{[0-9a-fA-F]+}} tls_nodef
-; REL-NEXT: R_386_RELATIVE
-; REL-NEXT: R_386_RELATIVE
 ; REL-NEXT: R_386_TLS_TPOFF {{[0-9a-fA-F]+}} tls_def
 
 

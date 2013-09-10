@@ -4,8 +4,8 @@
 ; RUN: readelf -r %t.so | FileCheck %s -check-prefix=REL
 ; REL: R_ARM_RELATIVE
 ; REL: R_ARM_RELATIVE
-; REL: R_ARM_ABS32 {{[0-9a-fA-F]+}} foo
 ; REL: R_ARM_ABS32 {{[0-9a-fA-F]+}} globalv
+; REL: R_ARM_ABS32 {{[0-9a-fA-F]+}} foo
 ; RUN: llvm-objdump -t %t.so > %t.txt
 ; RUN: llvm-objdump -s %t.so >> %t.txt
 ; RUN: cat %t.txt | FileCheck %s -check-prefix=REL_VAL
