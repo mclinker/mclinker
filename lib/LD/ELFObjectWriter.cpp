@@ -106,6 +106,9 @@ void ELFObjectWriter::writeSection(MemoryArea& pOutput, LDSection *section)
     emitSectionData(*section, *region);
     break;
   case LDFileFormat::Relocation:
+    // sort relocation for the benefit of the dynamic linker.
+    target().sortRelocation(*section);
+
     emitRelocation(m_Config, *section, *region);
     break;
   case LDFileFormat::Target:

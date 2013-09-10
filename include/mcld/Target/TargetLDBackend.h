@@ -153,6 +153,10 @@ public:
   /// abiPageSize - the abi page size of the target machine
   virtual uint64_t abiPageSize() const = 0;
 
+  /// sortRelocation - sort the dynamic relocations to let dynamic linker
+  /// process relocations more efficiently
+  virtual void sortRelocation(LDSection& pSection) = 0;
+
 protected:
   const LinkerConfig& config() const { return m_Config; }
 

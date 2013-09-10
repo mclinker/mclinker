@@ -2946,6 +2946,28 @@ void GNULDBackend::checkAndSetHasTextRel(const LDSection& pSection)
   return;
 }
 
+/// sortRelocation - sort the dynamic relocations to let dynamic linker
+/// process relocations more efficiently
+void GNULDBackend::sortRelocation(LDSection& pSection)
+{
+  if (!config().options().hasCombReloc())
+    return;
+
+  assert(pSection.kind() == LDFileFormat::Relocation);
+
+  switch (config().codeGenType()) {
+  case LinkerConfig::DynObj:
+  case LinkerConfig::Exec:
+    if (&pSection == &getOutputFormat()->getRelDyn() ||
+        &pSection == &getOutputFormat()->getRelaDyn()) {
+      if (pSection.hasRelocData())
+        pSection.getRelocData()->sort(RelocCompare(*this));
+    }
+  default:
+    return;
+  }
+}
+
 /// initBRIslandFactory - initialize the branch island factory for relaxation
 bool GNULDBackend::initBRIslandFactory()
 {
@@ -2995,3 +3017,42 @@ bool GNULDBackend::DynsymCompare::operator()(const LDSymbol* X,
   return !needGNUHash(*X) && needGNUHash(*Y);
 }
 
+bool GNULDBackend::RelocCompare::operator()(const Relocation* X,
+                                            const Relocation* Y) const
+{
+  // 1. compare if relocation is relative
+  if (X->symInfo() == NULL) {
+    if (Y->symInfo() != NULL)
+      return true;
+  } else if (Y->symInfo() == NULL) {
+    return false;
+  } else {
+    // 2. compare the symbol index
+    size_t symIdxX = m_Backend.getSymbolIdx(X->symInfo()->outSymbol());
+    size_t symIdxY = m_Backend.getSymbolIdx(Y->symInfo()->outSymbol());
+    if (symIdxX < symIdxY)
+      return true;
+    if (symIdxX > symIdxY)
+      return false;
+  }
+
+  // 3. compare the relocation address
+  if (X->place() < Y->place())
+    return true;
+  if (X->place() > Y->place())
+    return false;
+
+  // 4. compare the relocation type
+  if (X->type() < Y->type())
+    return true;
+  if (X->type() > Y->type())
+    return false;
+
+  // 5. compare the addend
+  if (X->addend() < Y->addend())
+    return true;
+  if (X->addend() > Y->addend())
+    return false;
+
+  return false;
+}

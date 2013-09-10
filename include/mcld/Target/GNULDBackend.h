@@ -39,6 +39,7 @@ class ELFDynObjFileFormat;
 class ELFExecFileFormat;
 class ELFObjectFileFormat;
 class LinkerScript;
+class Relocation;
 
 /** \class GNULDBackend
  *  \brief GNULDBackend provides a common interface for all GNU Unix-OS
@@ -314,6 +315,10 @@ public:
   /// checkAndSetHasTextRel - check pSection flag to set HasTextRel
   void checkAndSetHasTextRel(const LDSection& pSection);
 
+  /// sortRelocation - sort the dynamic relocations to let dynamic linker
+  /// process relocations more efficiently
+  void sortRelocation(LDSection& pSection);
+
 protected:
   /// getRelEntrySize - the size in BYTE of rel type relocation
   virtual size_t getRelEntrySize() = 0;
@@ -452,10 +457,15 @@ protected:
     SHO_STRTAB           // .strtab
   };
 
-  struct SymCompare
+  // for -z combreloc
+  struct RelocCompare
   {
-    bool operator()(const LDSymbol* X, const LDSymbol* Y) const
-    { return (X==Y); }
+    RelocCompare(const GNULDBackend& pBackend)
+      : m_Backend(pBackend) {
+    }
+    bool operator()(const Relocation* X, const Relocation* Y) const;
+  private:
+    const GNULDBackend& m_Backend;
   };
 
   // for gnu style hash table
@@ -464,6 +474,12 @@ protected:
     bool needGNUHash(const LDSymbol& X) const;
 
     bool operator()(const LDSymbol* X, const LDSymbol* Y) const;
+  };
+
+  struct SymCompare
+  {
+    bool operator()(const LDSymbol* X, const LDSymbol* Y) const
+    { return (X==Y); }
   };
 
   struct SymPtrHash
