@@ -90,8 +90,14 @@ public:
   /// in the processing input.
   Address getGP0();
 
-  /// getGOTEntry - initialize and return GOT entry related to the relocation.
-  Fragment& getGOTEntry(MipsRelocationInfo& pReloc);
+  /// getLocalGOTEntry - initialize and return a local GOT entry
+  /// for this relocation.
+  Fragment& getLocalGOTEntry(MipsRelocationInfo& pReloc,
+                             Relocation::DWord entryValue);
+
+  /// getGlobalGOTEntry - initialize and return a global GOT entry
+  /// for this relocation.
+  Fragment& getGlobalGOTEntry(MipsRelocationInfo& pReloc);
 
   /// getGOTOffset - return offset of corresponded GOT entry.
   Address getGOTOffset(MipsRelocationInfo& pReloc);

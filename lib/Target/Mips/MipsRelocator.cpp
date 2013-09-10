@@ -350,7 +350,8 @@ void MipsRelocator::scanLocalReloc(MipsRelocationInfo& pReloc,
     case llvm::ELF::R_MIPS_GOT_DISP:
     case llvm::ELF::R_MIPS_GOT_PAGE:
     case llvm::ELF::R_MIPS_GOT_OFST:
-      if (getTarget().getGOT().reserveLocalEntry(*rsym, pReloc.A())) {
+      if (getTarget().getGOT().reserveLocalEntry(*rsym,
+                                                 pReloc.type(), pReloc.A())) {
         if (getTarget().getGOT().hasMultipleGOT())
           getTarget().checkAndSetHasTextRel(*pSection.getLink());
       }
@@ -617,54 +618,80 @@ Relocator::Address MipsRelocator::getGP0()
   return getTarget().getGP0(getApplyingInput());
 }
 
-Fragment& MipsRelocator::getGOTEntry(MipsRelocationInfo& pReloc)
+Fragment& MipsRelocator::getLocalGOTEntry(MipsRelocationInfo& pReloc,
+                                          Relocation::DWord entryValue)
 {
   // rsym - The relocation target symbol
   ResolveInfo* rsym = pReloc.parent().symInfo();
   MipsGOT& got = getTarget().getGOT();
-  Fragment* got_entry;
 
-  if (isLocalReloc(*rsym))
-    got_entry = got.lookupLocalEntry(rsym, pReloc.A());
-  else
-    got_entry = got.lookupGlobalEntry(rsym);
+  assert(isLocalReloc(*rsym) &&
+         "Attempt to get a global GOT entry for the local relocation");
+
+  Fragment* got_entry = got.lookupLocalEntry(rsym, entryValue);
 
   // Found a mapping, then return the mapped entry immediately.
   if (NULL != got_entry)
     return *got_entry;
 
   // Not found.
-  if (isLocalReloc(*rsym)) {
-    got_entry = got.consumeLocal();
+  got_entry = got.consumeLocal();
 
-    uint64_t entryValue = pReloc.S() + pReloc.parent().addend() +
-                          pReloc.secOff();
+  if (got.isPrimaryGOTConsumed())
+    setupRelDynEntry(*FragmentRef::Create(*got_entry, 0), NULL);
+  else
+    got.setEntryValue(got_entry, entryValue);
 
-    if (got.isPrimaryGOTConsumed())
-      setupRelDynEntry(*FragmentRef::Create(*got_entry, 0), NULL);
-    else
-      got.setEntryValue(got_entry, entryValue);
+  got.recordLocalEntry(rsym, entryValue, got_entry);
 
-    got.recordLocalEntry(rsym, pReloc.A(), got_entry);
-  }
-  else {
-    got_entry = got.consumeGlobal();
+  return *got_entry;
+}
 
-    if (got.isPrimaryGOTConsumed())
-      setupRelDynEntry(*FragmentRef::Create(*got_entry, 0), rsym);
-    else
-      got.setEntryValue(got_entry, pReloc.parent().symValue());
+Fragment& MipsRelocator::getGlobalGOTEntry(MipsRelocationInfo& pReloc)
+{
+  // rsym - The relocation target symbol
+  ResolveInfo* rsym = pReloc.parent().symInfo();
+  MipsGOT& got = getTarget().getGOT();
 
-    got.recordGlobalEntry(rsym, got_entry);
-  }
+  assert(!isLocalReloc(*rsym) &&
+         "Attempt to get a local GOT entry for the global relocation");
+
+  Fragment* got_entry = got.lookupGlobalEntry(rsym);
+
+  // Found a mapping, then return the mapped entry immediately.
+  if (NULL != got_entry)
+    return *got_entry;
+
+  // Not found.
+  got_entry = got.consumeGlobal();
+
+  if (got.isPrimaryGOTConsumed())
+    setupRelDynEntry(*FragmentRef::Create(*got_entry, 0), rsym);
+  else
+    got.setEntryValue(got_entry, pReloc.parent().symValue());
+
+  got.recordGlobalEntry(rsym, got_entry);
 
   return *got_entry;
 }
 
 Relocator::Address MipsRelocator::getGOTOffset(MipsRelocationInfo& pReloc)
 {
-  return getTarget().getGOT().getGPRelOffset(getApplyingInput(),
-                                             getGOTEntry(pReloc));
+  ResolveInfo* rsym = pReloc.parent().symInfo();
+  MipsGOT& got = getTarget().getGOT();
+
+  if (isLocalReloc(*rsym)) {
+    uint64_t value = pReloc.S();
+
+    if (ResolveInfo::Section == rsym->type())
+      value += pReloc.A() + pReloc.secOff();
+
+    return got.getGPRelOffset(getApplyingInput(),
+                              getLocalGOTEntry(pReloc, value));
+  }
+  else {
+    return got.getGPRelOffset(getApplyingInput(), getGlobalGOTEntry(pReloc));
+  }
 }
 
 void MipsRelocator::createDynRel(MipsRelocationInfo& pReloc)
@@ -915,8 +942,7 @@ MipsRelocator::Result got16(MipsRelocationInfo& pReloc, MipsRelocator& pParent)
 
     MipsGOT& got = pParent.getTarget().getGOT();
 
-    Fragment& got_entry = pParent.getGOTEntry(pReloc);
-    got.setEntryValue(&got_entry, res);
+    Fragment& got_entry = pParent.getLocalGOTEntry(pReloc, res);
 
     pReloc.result() = got.getGPRelOffset(pParent.getApplyingInput(), got_entry);
   }

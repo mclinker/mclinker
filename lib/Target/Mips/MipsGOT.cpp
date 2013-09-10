@@ -64,6 +64,28 @@ void MipsGOT::GOTMultipart::consumeGlobal()
 }
 
 //===----------------------------------------------------------------------===//
+// MipsGOT::LocalEntry
+//===----------------------------------------------------------------------===//
+MipsGOT::LocalEntry::LocalEntry(const ResolveInfo* pInfo,
+                                Relocation::DWord addend, bool isGot16)
+  : m_pInfo(pInfo),
+    m_Addend(addend),
+    m_IsGot16(isGot16)
+{
+}
+
+bool MipsGOT::LocalEntry::operator<(const LocalEntry &O) const
+{
+  if (m_pInfo != O.m_pInfo)
+    return m_pInfo < O.m_pInfo;
+
+  if (m_Addend != O.m_Addend)
+    return m_Addend < O.m_Addend;
+
+  return m_IsGot16 < O.m_IsGot16;
+}
+
+//===----------------------------------------------------------------------===//
 // MipsGOT
 //===----------------------------------------------------------------------===//
 MipsGOT::MipsGOT(LDSection& pSection)
@@ -214,26 +236,27 @@ void MipsGOT::finalizeScan(const Input& pInput)
 {
 }
 
-bool MipsGOT::reserveLocalEntry(ResolveInfo& pInfo, Relocation::DWord pAddend)
+bool MipsGOT::reserveLocalEntry(ResolveInfo& pInfo, int reloc,
+                                Relocation::DWord pAddend)
 {
-  LocalPairType localPair(&pInfo, pAddend);
+  LocalEntry entry(&pInfo, pAddend, reloc == llvm::ELF::R_MIPS_GOT16);
 
-  if (m_InputLocalSymbols.count(localPair))
+  if (m_InputLocalSymbols.count(entry))
     // Do nothing, if we have seen this symbol
     // in the current input already.
     return false;
 
-  if (m_MergedLocalSymbols.count(localPair)) {
+  if (m_MergedLocalSymbols.count(entry)) {
     // We have seen this symbol in previous inputs.
     // Remember that it exists in the current input too.
-    m_InputLocalSymbols.insert(localPair);
+    m_InputLocalSymbols.insert(entry);
     return false;
   }
 
   if (isGOTFull())
     split();
 
-  m_InputLocalSymbols.insert(localPair);
+  m_InputLocalSymbols.insert(entry);
 
   ++m_MultipartList.back().m_LocalNum;
   return true;
@@ -320,7 +343,7 @@ void MipsGOT::recordGlobalEntry(const ResolveInfo* pInfo, Fragment* pEntry)
   key.m_GOTPage = m_CurrentGOTPart;
   key.m_pInfo = pInfo;
   key.m_Addend = 0;
-  m_GotEntriesMap[key] = pEntry;
+  m_GotGlobalEntriesMap[key] = pEntry;
 }
 
 Fragment* MipsGOT::lookupGlobalEntry(const ResolveInfo* pInfo)
@@ -329,9 +352,9 @@ Fragment* MipsGOT::lookupGlobalEntry(const ResolveInfo* pInfo)
   key.m_GOTPage= m_CurrentGOTPart;
   key.m_pInfo = pInfo;
   key.m_Addend = 0;
-  GotEntryMapType::iterator it = m_GotEntriesMap.find(key);
+  GotEntryMapType::iterator it = m_GotGlobalEntriesMap.find(key);
 
-  if (it == m_GotEntriesMap.end())
+  if (it == m_GotGlobalEntriesMap.end())
     return NULL;
 
   return it->second;
@@ -345,7 +368,7 @@ void MipsGOT::recordLocalEntry(const ResolveInfo* pInfo,
   key.m_GOTPage = m_CurrentGOTPart;
   key.m_pInfo = pInfo;
   key.m_Addend = pAddend;
-  m_GotEntriesMap[key] = pEntry;
+  m_GotLocalEntriesMap[key] = pEntry;
 }
 
 Fragment* MipsGOT::lookupLocalEntry(const ResolveInfo* pInfo,
@@ -355,9 +378,9 @@ Fragment* MipsGOT::lookupLocalEntry(const ResolveInfo* pInfo,
   key.m_GOTPage= m_CurrentGOTPart;
   key.m_pInfo = pInfo;
   key.m_Addend = pAddend;
-  GotEntryMapType::iterator it = m_GotEntriesMap.find(key);
+  GotEntryMapType::iterator it = m_GotLocalEntriesMap.find(key);
 
-  if (it == m_GotEntriesMap.end())
+  if (it == m_GotLocalEntriesMap.end())
     return NULL;
 
   return it->second;

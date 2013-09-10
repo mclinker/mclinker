@@ -50,7 +50,8 @@ public:
   void initializeScan(const Input& pInput);
   void finalizeScan(const Input& pInput);
 
-  bool reserveLocalEntry(ResolveInfo& pInfo, Relocation::DWord pAddend);
+  bool reserveLocalEntry(ResolveInfo& pInfo, int reloc,
+                         Relocation::DWord pAddend);
   bool reserveGlobalEntry(ResolveInfo& pInfo);
 
   size_t getLocalNum() const;   ///< number of local symbols in primary GOT
@@ -121,9 +122,22 @@ private:
     void consumeGlobal();
   };
 
-  typedef std::vector<GOTMultipart> MultipartListType;
+  /** \class LocalEntry
+   *  \brief LocalEntry local GOT entry descriptor.
+   */
+  struct LocalEntry
+  {
+    const ResolveInfo* m_pInfo;
+    Relocation::DWord  m_Addend;
+    bool               m_IsGot16;
 
-  typedef std::pair<const ResolveInfo*, Relocation::DWord> LocalPairType;
+    LocalEntry(const ResolveInfo* pInfo,
+               Relocation::DWord addend, bool isGot16);
+
+    bool operator<(const LocalEntry &O) const;
+  };
+
+  typedef std::vector<GOTMultipart> MultipartListType;
 
   // Set of global symbols.
   typedef llvm::DenseSet<const ResolveInfo*> SymbolSetType;
@@ -133,7 +147,7 @@ private:
   typedef llvm::DenseMap<const ResolveInfo*, bool> SymbolUniqueMapType;
 
   // Set of local symbols.
-  typedef llvm::DenseSet<LocalPairType> LocalSymbolSetType;
+  typedef std::set<LocalEntry> LocalSymbolSetType;
 
   MultipartListType m_MultipartList;  ///< list of GOT's descriptors
   const Input* m_pInput;              ///< current input
@@ -181,7 +195,8 @@ private:
   };
 
   typedef std::map<GotEntryKey, Fragment*> GotEntryMapType;
-  GotEntryMapType m_GotEntriesMap;
+  GotEntryMapType m_GotLocalEntriesMap;
+  GotEntryMapType m_GotGlobalEntriesMap;
 };
 
 /** \class Mips32GOT
