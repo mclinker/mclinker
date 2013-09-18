@@ -1,4 +1,4 @@
-INCDIR=${srcdir}/include/lite
+INCDIR=${srcdir}/include
 LIBDIR=${srcdir}/lib
 
 MCLD_SOURCES = ${srcdir}/main.cpp \

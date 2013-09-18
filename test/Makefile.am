@@ -1,6 +1,6 @@
 
 LLC="`$(LLVM_CONFIG_BIN) --bindir`/llc"
-MCLD=$(abs_top_builddir)/tools/ld.mcld/ld.mcld
+MCLD=$(abs_top_builddir)/tools/mcld/ld.mcld
 ALONELD=$(abs_top_builddir)/tools/bcc/ld.bcc
 FAKELD=$(abs_top_srcdir)/scripts/bin/ld.fake
 

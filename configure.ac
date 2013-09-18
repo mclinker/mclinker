@@ -152,9 +152,9 @@ AC_CONFIG_FILES([include/mcld/Config/Targets.def])
 AC_CONFIG_FILES([include/mcld/Config/Linkers.def])
 AC_CONFIG_FILES([tools/bcc/include/bcc/Config/Config.h])
 AC_CONFIG_FILES([tools/Makefile])
-AC_CONFIG_FILES([tools/ld.mcld/Makefile])
 AC_CONFIG_FILES([tools/bcc/Makefile])
-AC_CONFIG_FILES([tools/ld.lite/Makefile])
+AC_CONFIG_FILES([tools/lite/Makefile])
+AC_CONFIG_FILES([tools/mcld/Makefile])
 AC_CONFIG_FILES([test/Makefile])
 
 AC_OUTPUT
