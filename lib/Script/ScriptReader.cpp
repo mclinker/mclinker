@@ -35,8 +35,9 @@ ScriptReader::~ScriptReader()
 }
 
 /// isMyFormat
-bool ScriptReader::isMyFormat(Input& input) const
+bool ScriptReader::isMyFormat(Input& input, bool &doContinue) const
 {
+  doContinue = true;
   // always return true now
   return true;
 }

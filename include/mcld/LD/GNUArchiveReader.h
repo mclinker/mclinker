@@ -38,7 +38,7 @@ public:
   bool readArchive(Archive& pArchive);
 
   /// isMyFormat
-  bool isMyFormat(Input& input) const;
+  bool isMyFormat(Input& input, bool &pContinue) const;
 
 private:
   /// isArchive

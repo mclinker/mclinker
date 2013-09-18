@@ -57,7 +57,7 @@ ELFObjectReader::~ELFObjectReader()
 }
 
 /// isMyFormat
-bool ELFObjectReader::isMyFormat(Input &pInput) const
+bool ELFObjectReader::isMyFormat(Input &pInput, bool &pContinue) const
 {
   assert(pInput.hasMemArea());
 
@@ -72,14 +72,19 @@ bool ELFObjectReader::isMyFormat(Input &pInput) const
 
   uint8_t* ELF_hdr = region->start();
   bool result = true;
-  if (!m_pELFReader->isELF(ELF_hdr))
+  if (!m_pELFReader->isELF(ELF_hdr)) {
+    pContinue = true;
     result = false;
-  else if (!m_pELFReader->isMyEndian(ELF_hdr))
+  } else if (Input::Object != m_pELFReader->fileType(ELF_hdr)) {
+    pContinue = true;
     result = false;
-  else if (!m_pELFReader->isMyMachine(ELF_hdr))
+  } else if (!m_pELFReader->isMyEndian(ELF_hdr)) {
+    pContinue = false;
     result = false;
-  else if (Input::Object != m_pELFReader->fileType(ELF_hdr))
+  } else if (!m_pELFReader->isMyMachine(ELF_hdr)) {
+    pContinue = false;
     result = false;
+  }
   pInput.memArea()->release(region);
   return result;
 }

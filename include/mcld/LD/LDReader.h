@@ -37,7 +37,7 @@ protected:
 public:
   virtual ~LDReader() { }
 
-  virtual bool isMyFormat(Input& pInput) const = 0;
+  virtual bool isMyFormat(Input& pInput, bool &pContinue) const = 0;
 
 };
 

@@ -72,8 +72,9 @@ bool GroupReader::readGroup(Module::input_iterator pRoot,
       continue;
     }
 
+    bool doContinue = false;
     // is an archive
-    if (m_ArchiveReader.isMyFormat(**input)) {
+    if (m_ArchiveReader.isMyFormat(**input, doContinue)) {
       (*input)->setType(Input::Archive);
       // record the Archive used by each archive node
       Archive* ar = new Archive(**input, pBuilder);
@@ -84,13 +85,13 @@ bool GroupReader::readGroup(Module::input_iterator pRoot,
       cur_obj_cnt += ar->numOfObjectMember();
     }
     // read input as a binary file
-    else if (m_BinaryReader.isMyFormat(**input)) {
+    else if (doContinue && m_BinaryReader.isMyFormat(**input, doContinue)) {
       (*input)->setType(Input::Object);
       m_BinaryReader.readBinary(**input);
       m_Module.getObjectList().push_back(*input);
     }
     // is a relocatable object file
-    else if (m_ObjectReader.isMyFormat(**input)) {
+    else if (doContinue && m_ObjectReader.isMyFormat(**input, doContinue)) {
       (*input)->setType(Input::Object);
       m_ObjectReader.readHeader(**input);
       m_ObjectReader.readSections(**input);
@@ -100,7 +101,7 @@ bool GroupReader::readGroup(Module::input_iterator pRoot,
       ++non_ar_obj_cnt;
     }
     // is a shared object file
-    else if (m_DynObjReader.isMyFormat(**input)) {
+    else if (doContinue && m_DynObjReader.isMyFormat(**input, doContinue)) {
       (*input)->setType(Input::DynObj);
       m_DynObjReader.readHeader(**input);
       m_DynObjReader.readSymbols(**input);

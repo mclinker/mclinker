@@ -158,7 +158,8 @@ TEST_F( ELFReaderTest, read_regular_sections ) {
 }
 
 TEST_F( ELFReaderTest, is_my_format ) {
-  ASSERT_TRUE( m_pELFObjReader->isMyFormat(*m_pInput) );
+  bool doContinue;
+  ASSERT_TRUE( m_pELFObjReader->isMyFormat(*m_pInput, doContinue) );
 }
 
 

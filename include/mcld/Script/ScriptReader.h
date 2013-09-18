@@ -36,7 +36,7 @@ public:
   bool readScript(const LinkerConfig& pConfig, ScriptFile& pScriptFile);
 
   /// isMyFormat
-  bool isMyFormat(Input& pInput) const;
+  bool isMyFormat(Input& pInput, bool &pContinue) const;
 
   GroupReader& getGroupReader() { return m_GroupReader; }
 

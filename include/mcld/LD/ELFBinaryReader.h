@@ -31,7 +31,7 @@ public:
 
   ~ELFBinaryReader();
 
-  bool isMyFormat(Input& pInput) const;
+  bool isMyFormat(Input& pInput, bool &pContinue) const;
 
   bool readBinary(Input& pInput);
 

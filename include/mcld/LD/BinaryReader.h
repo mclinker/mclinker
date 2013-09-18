@@ -28,8 +28,8 @@ class BinaryReader : public LDReader
 public:
   virtual ~BinaryReader() = 0;
 
-  virtual bool isMyFormat(Input& pInput) const
-  { return false; }
+  virtual bool isMyFormat(Input& pInput, bool &pContinue) const
+  { pContinue = true; return false; }
 
   virtual bool readBinary(Input& pFile) = 0;
 };

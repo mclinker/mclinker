@@ -26,8 +26,9 @@ bool BSDArchiveReader::readArchive(Archive& pArchive)
   return true;
 }
 
-bool BSDArchiveReader::isMyFormat(Input& pInput) const
+bool BSDArchiveReader::isMyFormat(Input& pInput, bool &pContinue) const
 {
+  pContinue = true;
   // TODO
   return false;
 }

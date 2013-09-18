@@ -42,7 +42,7 @@ GNUArchiveReader::~GNUArchiveReader()
 }
 
 /// isMyFormat
-bool GNUArchiveReader::isMyFormat(Input& pInput) const
+bool GNUArchiveReader::isMyFormat(Input& pInput, bool &pContinue) const
 {
   assert(pInput.hasMemArea());
   if (pInput.memArea()->size() < Archive::MAGIC_LEN)
@@ -54,6 +54,7 @@ bool GNUArchiveReader::isMyFormat(Input& pInput) const
 
   bool result = false;
   assert(NULL != str);
+  pContinue = true;
   if (isArchive(str) || isThinArchive(str))
     result = true;
 
@@ -401,8 +402,9 @@ size_t GNUArchiveReader::includeMember(Archive& pArchive, uint32_t pFileOffset)
     // direction to Afterward for next insertion in this subtree
     parent->move->move(parent->lastPos);
     parent->move = &InputTree::Afterward;
+    bool doContinue = false;
 
-    if (m_ELFObjectReader.isMyFormat(*member)) {
+    if (m_ELFObjectReader.isMyFormat(*member, doContinue)) {
       member->setType(Input::Object);
       pArchive.addObjectMember(pFileOffset, parent->lastPos);
       m_ELFObjectReader.readHeader(*member);
@@ -410,7 +412,7 @@ size_t GNUArchiveReader::includeMember(Archive& pArchive, uint32_t pFileOffset)
       m_ELFObjectReader.readSymbols(*member);
       m_Module.getObjectList().push_back(member);
     }
-    else if (isMyFormat(*member)) {
+    else if (doContinue && isMyFormat(*member, doContinue)) {
       member->setType(Input::Archive);
       // when adding a new archive node, set the iterator to archive
       // itself, and set the direction to Downward

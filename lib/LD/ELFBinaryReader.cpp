@@ -33,8 +33,9 @@ ELFBinaryReader::~ELFBinaryReader()
 {
 }
 
-bool ELFBinaryReader::isMyFormat(Input& pInput) const
+bool ELFBinaryReader::isMyFormat(Input& pInput, bool &pContinue) const
 {
+  pContinue = true;
   return m_Config.options().isBinaryInput();
 }
 

@@ -46,7 +46,7 @@ public:
   ~ELFObjectReader();
 
   // -----  observers  ----- //
-  bool isMyFormat(Input &pFile) const;
+  bool isMyFormat(Input &pFile, bool &pContinue) const;
 
   // -----  readers  ----- //
   bool readHeader(Input& pFile);

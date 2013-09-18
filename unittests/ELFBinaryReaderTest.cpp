@@ -52,11 +52,12 @@ TEST_F( ELFBinaryReaderTest, is_myformat) {
 
   Input input("test.bin");
 
+  bool doContinue = false;
   config.options().setBinaryInput();
-  ASSERT_TRUE(reader->isMyFormat(input));
+  ASSERT_TRUE(reader->isMyFormat(input, doContinue));
 
   config.options().setBinaryInput(false);
-  ASSERT_FALSE(reader->isMyFormat(input));
+  ASSERT_FALSE(reader->isMyFormat(input, doContinue));
 
   delete reader;
 }

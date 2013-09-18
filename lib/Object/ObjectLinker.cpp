@@ -139,14 +139,15 @@ void ObjectLinker::normalize()
       continue;
     }
 
+    bool doContinue = false;
     // read input as a binary file
-    if (getBinaryReader()->isMyFormat(**input)) {
+    if (getBinaryReader()->isMyFormat(**input, doContinue)) {
       (*input)->setType(Input::Object);
       getBinaryReader()->readBinary(**input);
       m_pModule->getObjectList().push_back(*input);
     }
     // is a relocatable object file
-    else if (getObjectReader()->isMyFormat(**input)) {
+    else if (doContinue && getObjectReader()->isMyFormat(**input, doContinue)) {
       (*input)->setType(Input::Object);
       getObjectReader()->readHeader(**input);
       getObjectReader()->readSections(**input);
@@ -154,14 +155,14 @@ void ObjectLinker::normalize()
       m_pModule->getObjectList().push_back(*input);
     }
     // is a shared object file
-    else if (getDynObjReader()->isMyFormat(**input)) {
+    else if (doContinue && getDynObjReader()->isMyFormat(**input, doContinue)) {
       (*input)->setType(Input::DynObj);
       getDynObjReader()->readHeader(**input);
       getDynObjReader()->readSymbols(**input);
       m_pModule->getLibraryList().push_back(*input);
     }
     // is an archive
-    else if (getArchiveReader()->isMyFormat(**input)) {
+    else if (doContinue && getArchiveReader()->isMyFormat(**input, doContinue)) {
       (*input)->setType(Input::Archive);
       Archive archive(**input, m_pBuilder->getInputBuilder());
       getArchiveReader()->readArchive(archive);
@@ -171,7 +172,7 @@ void ObjectLinker::normalize()
       }
     }
     // try to parse input as a linker script
-    else if (getScriptReader()->isMyFormat(**input)) {
+    else if (doContinue && getScriptReader()->isMyFormat(**input, doContinue)) {
       ScriptFile script(ScriptFile::LDScript, **input,
                         m_pBuilder->getInputBuilder());
       if (getScriptReader()->readScript(m_Config, script)) {
