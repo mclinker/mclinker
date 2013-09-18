@@ -27,7 +27,7 @@ public:
   enum Type {
     Unknown,
     File,
-    NameSpec,
+    NameSpec
   };
 
 protected:
