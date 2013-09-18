@@ -43,9 +43,11 @@ HEADER = ${INCDIR}/AttributeOption.h \
 	${INCDIR}/CodeGen/MCLinker.h \
 	${INCDIR}/CodeGen/TargetMachine.h \
 	${INCDIR}/Fragment/AlignFragment.h \
+	${INCDIR}/Fragment/FGEdge.h \
 	${INCDIR}/Fragment/FGNode.h \
 	${INCDIR}/Fragment/FillFragment.h \
 	${INCDIR}/Fragment/Fragment.h \
+	${INCDIR}/Fragment/FragmentGraph.h \
 	${INCDIR}/Fragment/FragmentRef.h \
 	${INCDIR}/Fragment/NullFragment.h \
 	${INCDIR}/Fragment/RegionFragment.h \
@@ -218,6 +220,7 @@ SOURCE = ${LIBDIR}/ADT/StringEntry.cpp \
 	${LIBDIR}/Fragment/FGNode.cpp \
 	${LIBDIR}/Fragment/FillFragment.cpp \
 	${LIBDIR}/Fragment/Fragment.cpp \
+        ${LIBDIR}/Fragment/FragmentGraph.cpp \
 	${LIBDIR}/Fragment/FragmentRef.cpp \
 	${LIBDIR}/Fragment/NullFragment.cpp \
 	${LIBDIR}/Fragment/RegionFragment.cpp \
