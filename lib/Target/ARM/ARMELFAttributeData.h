@@ -16,6 +16,7 @@
 #include <mcld/Target/ELFAttributeValue.h>
 
 #include <map>
+#include <string>
 
 namespace mcld {
 
@@ -85,9 +86,72 @@ public:
     Tag_VFP_HP_extension            = Tag_FP_HP_extension
   };
 
+  // For Tag_CPU_arch
+  enum {
+    CPU_Arch_ARM_Pre_V4,
+    CPU_Arch_ARM_V4,    // e.g., SA110
+    CPU_Arch_ARM_V4T,   // e.g., ARM7TDMI
+    CPU_Arch_ARM_V5T,   // e.g., ARM9TDMI
+    CPU_Arch_ARM_V5TE,  // e.g., ARM946E-S
+    CPU_Arch_ARM_V5TEJ, // e.g., ARM926EJ-S
+    CPU_Arch_ARM_V6,    // e.g., ARM1136J-S
+    CPU_Arch_ARM_V6KZ,  // e.g., ARM1176JZ-S
+    CPU_Arch_ARM_V6T2,  // e.g., ARM1156T2F-S
+    CPU_Arch_ARM_V6K,   // e.g., ARM1136J-S
+    CPU_Arch_ARM_V7,    // e.g., Cortex A8, Cortex M3
+    CPU_Arch_ARM_V6_M,  // e.g., Cortex M1
+    CPU_Arch_ARM_V6S_M, // e.g., v6-M with the value of System extensions
+    CPU_Arch_ARM_V7E_M, // e.g., v7-M with DSP extensions
+    CPU_Arch_ARM_V8,
+
+    CPU_Arch_Max = CPU_Arch_ARM_V8,
+
+    // This is a pseudo-architecture to describe an architecture mixed with
+    // the subset of armv4t and armv6-m. This never appears in the value of
+    // Tag_CPU_arch.
+    CPU_Arch_ARM_V4T_Plus_V6_M = (CPU_Arch_Max + 1),
+
+    CPU_Arch_Plus_Pseudo_Max = CPU_Arch_ARM_V4T_Plus_V6_M,
+  };
+
+  // For Tag_CPU_arch_profile
+  enum {
+    Arch_Profile_None             = 0,
+    Arch_Profile_Application      = 'A',
+    Arch_Profile_Realtime         = 'R',
+    Arch_Profile_Microcontroller  = 'M',
+    Arch_Profile_RealOrApp        = 'S'
+  };
+
+  // For Tag_ABI_enum_size
+  enum {
+    Enum_Unused,
+    Enum_Smallest_Container,
+    Enum_32bit_Container,
+    Enum_Containerized_As_Possible
+  };
+
+  // For Tag_ABI_PCS_R9_use
+  enum {
+    R9_V6,
+    R9_SB,
+    R9_TLS,
+    R9_Unused
+  };
+
+  // For Tag_ABI_PCS_RW_data
+  enum {
+    RW_data_Absolute,
+    RW_data_PC_Relative,
+    RW_data_SB_Relative,
+    RW_data_unused
+  };
+
 public:
   // ARM [ABI-addenda], 2.2.2: A public attributes subsection is named aeabi.
-  ARMELFAttributeData() : ELFAttributeData("aeabi") { }
+  ARMELFAttributeData()
+    : ELFAttributeData("aeabi"), m_CurrentCPUArch(-1),
+      m_DIVUseInitialized(false), m_HardFPUseInitialized(false) { }
 
 public:
   virtual const ELFAttributeValue *getAttributeValue(TagType pTag) const;
@@ -95,8 +159,25 @@ public:
   virtual std::pair<ELFAttributeValue*, bool>
       getOrCreateAttributeValue(TagType pTag);
 
+  virtual bool preMerge(const Input &pInput)
+  {
+    // Reset states.
+    m_CPUArch = -1;
+    m_CPUName.clear();
+    m_CPURawName.clear();
+    m_SecondaryCPUArch = -1;
+    m_VFPArgs = -1;
+    m_FPArch = -1;
+    m_HardFPUse = -1;
+    m_MPextensionUse = -1;
+    m_DIVUse = -1;
+    return true;
+  }
+
   virtual bool merge(const Input &pInput, TagType pTag,
                      const ELFAttributeValue& pInAttr);
+
+  virtual bool postMerge(const Input &pInput);
 
 private:
   /// GetAttributeValueType - obtain the value type of the indicated tag.
@@ -109,6 +190,47 @@ private:
   // The storage for unknown tags
   typedef std::map<TagType, ELFAttributeValue> UnknownAttrsMap;
   UnknownAttrsMap m_UnknownAttrs;
+
+  // This is a cache for the current output architecture calculate from of
+  // Tag_CPU_arch and Tag_also_compatible_with.
+  int m_CurrentCPUArch;
+
+  // Value of Tag_DIV_use and Tag_ABI_HardFP_use requires further examination
+  // for the every time adding to the output. These booleans are initialized to
+  // false and set to true until the corresponding attribute is initialized.
+  bool m_DIVUseInitialized;
+  bool m_HardFPUseInitialized;
+
+  // These attributes have dependency with each other. During the merge, we
+  // record their attribute values in the associated variables as follows and
+  // process them in postmerge() (when all other attributes are settled down.)
+
+  // Record the value of input Tag_CPU_arch.
+  int m_CPUArch;
+
+  // Record the value of input Tag_CPU_name.
+  std::string m_CPUName;
+
+  // Record the value of input Tag_CPU_raw_name.
+  std::string m_CPURawName;
+
+  // Record the value of input Tag_FP_arch.
+  int m_FPArch;
+
+  // Record the value of input Tag_ABI_HardFP_use.
+  int m_HardFPUse;
+
+  // Record the value of input Tag_also_compatible_with.
+  int m_SecondaryCPUArch;
+
+  // Record the value of input Tag_ABI_VFP_args.
+  int m_VFPArgs;
+
+  // Record the value of input Tag_MPextension_use and Tag_MPextension_use_legacy.
+  int m_MPextensionUse;
+
+  // Record the value of input Tag_DIV_use.
+  int m_DIVUse;
 };
 
 } // namespace of mcld

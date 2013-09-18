@@ -58,9 +58,17 @@ public:
   virtual std::pair<ELFAttributeValue*, bool>
       getOrCreateAttributeValue(TagType pTag) = 0;
 
+  /// preMerge - hooks to call before starting merge the attribute data in an
+  /// input.
+  virtual bool preMerge(const Input &pInput) { return true; }
+
   /// merge - implement logics to merge input attribute to the output.
   virtual bool merge(const Input &pInput, TagType pTag,
                      const ELFAttributeValue& pInAttr) = 0;
+
+  /// postMerge - hooks to call after finishing merge the attribute data from an
+  /// input.
+  virtual bool postMerge(const Input &pInput) { return true; }
 
 public:
   /// ReadTag - read an attribute tag from input buffer.

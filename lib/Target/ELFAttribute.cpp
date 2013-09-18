@@ -168,6 +168,10 @@ bool ELFAttribute::Subsection::merge(const Input &pInput,
   const char *subsubsection_data = reinterpret_cast<const char*>(pData);
   size_t remaining_size = pSize;
 
+  if (!m_AttrData.preMerge(pInput)) {
+    return false;
+  }
+
   while (remaining_size > ELFAttribute::MinimalELFAttributeSubsectionSize) {
     // The tag of sub-subsection is encoded in ULEB128.
     size_t tag_size;
@@ -251,6 +255,6 @@ bool ELFAttribute::Subsection::merge(const Input &pInput,
     remaining_size -= subsubsection_length;
   } // while (remaining_size > ELFAttribute::MinimalELFAttributeSubsectionSize)
 
-  return true;
+  return m_AttrData.postMerge(pInput);
 }
 
