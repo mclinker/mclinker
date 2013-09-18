@@ -7,7 +7,7 @@
 //
 //===----------------------------------------------------------------------===//
 #include "LinearAllocatorTest.h"
-#include "mcld/Support/Allocators.h"
+#include <mcld/Support/Allocators.h>
 
 using namespace mcld;
 using namespace mcldtest;

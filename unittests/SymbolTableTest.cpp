@@ -6,7 +6,7 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include "mcld/LD/SymbolTable.h"
+#include <mcld/LD/SymbolTable.h>
 #include "SymbolTableTest.h"
 
 using namespace mcld;

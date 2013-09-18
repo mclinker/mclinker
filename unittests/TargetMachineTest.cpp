@@ -6,7 +6,7 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include <TargetMachineTest.h>
+#include "TargetMachineTest.h"
 
 using namespace mcld;
 using namespace mcldTEST;

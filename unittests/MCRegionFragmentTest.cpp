@@ -9,9 +9,9 @@
 
 #include "MCRegionFragmentTest.h"
 
-#include "mcld/MC/MCRegionFragment.h"
-#include "mcld/Support/MemoryAreaFactory.h"
-#include "mcld/Support/Path.h"
+#include <mcld/MC/MCRegionFragment.h>
+#include <mcld/Support/MemoryAreaFactory.h>
+#include <mcld/Support/Path.h>
 
 using namespace mcld;
 using namespace mcldtest;

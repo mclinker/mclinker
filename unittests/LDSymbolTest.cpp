@@ -7,7 +7,7 @@
 //
 //===----------------------------------------------------------------------===//
 
-#include "mcld/LD/LDSymbol.h"
+#include <mcld/LD/LDSymbol.h>
 #include "LDSymbolTest.h"
 
 using namespace mcld;
