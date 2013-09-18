@@ -21,6 +21,7 @@
 #include <mcld/ADT/SizeTraits.h>
 #include <mcld/Target/GOT.h>
 #include <mcld/Fragment/Relocation.h>
+#include <set>
 
 namespace mcld {
 
