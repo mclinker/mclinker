@@ -4,50 +4,50 @@ if ENABLE_UNITTEST
 UNITTEST=${top_srcdir}/unittests
 
 MCLD_SOURCES += \
-	${UNITTEST}/PathTest.h \
-	${UNITTEST}/PathTest.cpp \
-	${UNITTEST}/BinTreeTest.h \
 	${UNITTEST}/BinTreeTest.cpp \
-	${UNITTEST}/LinearAllocatorTest.h \
-	${UNITTEST}/LinearAllocatorTest.cpp \
-	${UNITTEST}/InputTreeTest.h \
+	${UNITTEST}/BinTreeTest.h \
+	${UNITTEST}/DirIteratorTest.cpp \
+	${UNITTEST}/DirIteratorTest.h \
+	${UNITTEST}/ELFBinaryReaderTest.cpp \
+	${UNITTEST}/ELFBinaryReaderTest.h \
+	${UNITTEST}/ELFReaderTest.cpp \
+	${UNITTEST}/ELFReaderTest.h \
+	${UNITTEST}/FileHandleTest.cpp \
+	${UNITTEST}/FileHandleTest.h \
+	${UNITTEST}/FragmentRefTest.cpp \
+	${UNITTEST}/FragmentRefTest.h \
+	${UNITTEST}/FragmentTest.cpp \
+	${UNITTEST}/FragmentTest.h \
+	${UNITTEST}/GCFactoryListTraitsTest.cpp \
+	${UNITTEST}/GCFactoryListTraitsTest.h \
+	${UNITTEST}/HashTableTest.cpp \
+	${UNITTEST}/HashTableTest.h \
 	${UNITTEST}/InputTreeTest.cpp \
+	${UNITTEST}/InputTreeTest.h \
+	${UNITTEST}/LDSymbolTest.cpp \
+	${UNITTEST}/LDSymbolTest.h \
+	${UNITTEST}/LEB128Test.cpp \
+	${UNITTEST}/LEB128Test.h \
+	${UNITTEST}/LinearAllocatorTest.cpp \
+	${UNITTEST}/LinearAllocatorTest.h \
+	${UNITTEST}/LinkerTest.cpp \
+	${UNITTEST}/LinkerTest.h \
+	${UNITTEST}/MemoryAreaTest.cpp \
+	${UNITTEST}/MemoryAreaTest.h \
+	${UNITTEST}/PathTest.cpp \
+	${UNITTEST}/PathTest.h \
 	${UNITTEST}/RTLinearAllocatorTest.h \
 	${UNITTEST}/RTLinearAllocatorTest.cpp \
-	${UNITTEST}/DirIteratorTest.h \
-	${UNITTEST}/DirIteratorTest.cpp \
-	${UNITTEST}/UniqueGCFactoryBaseTest.h \
-	${UNITTEST}/UniqueGCFactoryBaseTest.cpp \
-	${UNITTEST}/MemoryAreaTest.h \
-	${UNITTEST}/MemoryAreaTest.cpp \
-	${UNITTEST}/HashTableTest.h \
-	${UNITTEST}/HashTableTest.cpp \
-	${UNITTEST}/LDSymbolTest.h \
-	${UNITTEST}/LDSymbolTest.cpp \
-	${UNITTEST}/FragmentRefTest.h \
-	${UNITTEST}/FragmentRefTest.cpp \
-	${UNITTEST}/StaticResolverTest.h \
-	${UNITTEST}/StaticResolverTest.cpp \
-	${UNITTEST}/GCFactoryListTraitsTest.h \
-	${UNITTEST}/GCFactoryListTraitsTest.cpp \
-	${UNITTEST}/LEB128Test.h \
-	${UNITTEST}/LEB128Test.cpp \
-	${UNITTEST}/SymbolCategoryTest.h \
-	${UNITTEST}/SymbolCategoryTest.cpp \
-	${UNITTEST}/FileHandleTest.h \
-	${UNITTEST}/FileHandleTest.cpp \
-	${UNITTEST}/FragmentTest.h \
-	${UNITTEST}/FragmentTest.cpp \
-	${UNITTEST}/SectionDataTest.h \
 	${UNITTEST}/SectionDataTest.cpp \
-	${UNITTEST}/SystemUtilsTest.h \
+	${UNITTEST}/SectionDataTest.h \
+	${UNITTEST}/StaticResolverTest.cpp \
+	${UNITTEST}/StaticResolverTest.h \
+	${UNITTEST}/SymbolCategoryTest.cpp \
+	${UNITTEST}/SymbolCategoryTest.h \
 	${UNITTEST}/SystemUtilsTest.cpp \
-	${UNITTEST}/LinkerTest.h \
-	${UNITTEST}/LinkerTest.cpp \
-	${UNITTEST}/ELFReaderTest.h \
-	${UNITTEST}/ELFReaderTest.cpp \
-	${UNITTEST}/ELFBinaryReaderTest.h \
-	${UNITTEST}/ELFBinaryReaderTest.cpp
+	${UNITTEST}/SystemUtilsTest.h \
+	${UNITTEST}/UniqueGCFactoryBaseTest.cpp \
+	${UNITTEST}/UniqueGCFactoryBaseTest.h
 endif
 
 ANDROID_CPPFLAGS=-fno-rtti -fno-exceptions -Waddress -Wchar-subscripts -Wcomment -Wformat -Wparentheses -Wreorder -Wreturn-type -Wsequence-point -Wstrict-aliasing -Wstrict-overflow=1 -Wswitch -Wtrigraphs -Wuninitialized -Wunknown-pragmas -Wunused-function -Wunused-label -Wunused-value -Wunused-variable -Wvolatile-register-var

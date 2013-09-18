@@ -2,27 +2,26 @@ INCDIR=${srcdir}/include/lite
 LIBDIR=${srcdir}/lib
 
 MCLD_SOURCES = ${srcdir}/main.cpp \
-	${INCDIR}/TripleOptions.h \
-	${LIBDIR}/TripleOptions.cpp \
-	${INCDIR}/OutputFormatOptions.h \
-	${LIBDIR}/OutputFormatOptions.cpp \
 	${INCDIR}/DynamicSectionOptions.h \
 	${LIBDIR}/DynamicSectionOptions.cpp \
+	${INCDIR}/OptimizationOptions.h \
+	${LIBDIR}/OptimizationOptions.cpp \
+	${INCDIR}/OutputFormatOptions.h \
+	${LIBDIR}/OutputFormatOptions.cpp \
+	${INCDIR}/PositionalOptions.h \
+	${LIBDIR}/PositionalOptions.cpp \
+	${INCDIR}/PreferenceOptions.h \
+	${LIBDIR}/PreferenceOptions.cpp \
+	${INCDIR}/ScriptOptions.h \
+	${LIBDIR}/ScriptOptions.cpp \
 	${INCDIR}/SearchPathOptions.h \
 	${LIBDIR}/SearchPathOptions.cpp \
 	${INCDIR}/SymbolOptions.h \
 	${LIBDIR}/SymbolOptions.cpp \
 	${INCDIR}/TargetControlOptions.h \
 	${LIBDIR}/TargetControlOptions.cpp \
-	${INCDIR}/OptimizationOptions.h \
-	${LIBDIR}/OptimizationOptions.cpp \
-	${INCDIR}/PreferenceOptions.h \
-	${LIBDIR}/PreferenceOptions.cpp \
-	${INCDIR}/ScriptOptions.h \
-	${LIBDIR}/ScriptOptions.cpp \
-	${INCDIR}/PositionalOptions.h \
-	${LIBDIR}/PositionalOptions.cpp
-
+	${INCDIR}/TripleOptions.h \
+	${LIBDIR}/TripleOptions.cpp
 
 ANDROID_CPPFLAGS=-fno-rtti -fno-exceptions -Waddress -Wchar-subscripts -Wcomment -Wformat -Wparentheses -Wreorder -Wreturn-type -Wsequence-point -Wstrict-aliasing -Wstrict-overflow=1 -Wswitch -Wtrigraphs -Wuninitialized -Wunknown-pragmas -Wunused-function -Wunused-label -Wunused-value -Wunused-variable -Wvolatile-register-var
 
