@@ -14,7 +14,9 @@
 #include <mcld/LD/SectionData.h>
 #include <mcld/LinkerConfig.h>
 #include <mcld/MC/Input.h>
+#include <mcld/Support/LEB128.h>
 #include <mcld/Support/MemoryArea.h>
+#include <mcld/Target/ELFAttributeValue.h>
 #include <mcld/Target/GNULDBackend.h>
 
 #include <llvm/ADT/STLExtras.h>
@@ -153,6 +155,102 @@ bool ELFAttribute::Subsection::merge(const Input &pInput,
                                      MemoryRegion::ConstAddress pData,
                                      size_t pSize)
 {
-  // TODO: Read subsection data.
+  const bool need_swap = (llvm::sys::IsLittleEndianHost !=
+                              m_Parent.config().targets().isLittleEndian());
+  // Read attribute sub-subsection from vendor data.
+  //
+  // ARM [ABI-addenda], 2.2.4:
+  //
+  // [   Tag_File    (=1) <uint32: byte-size> <attribute>*
+  //   | Tag_Section (=2) <uint32: byte-size> <section number>* 0 <attribute>*
+  //   | Tag_symbol  (=3) <unit32: byte-size> <symbol number>* 0 <attribute>*
+  // ] +
+  const char *subsubsection_data = reinterpret_cast<const char*>(pData);
+  size_t remaining_size = pSize;
+
+  while (remaining_size > ELFAttribute::MinimalELFAttributeSubsectionSize) {
+    // The tag of sub-subsection is encoded in ULEB128.
+    size_t tag_size;
+    uint64_t tag = leb128::decode<uint64_t>(subsubsection_data, tag_size);
+
+    if ((tag_size + 4 /* byte-size */) >= remaining_size)
+      break;
+
+    size_t subsubsection_length =
+        *reinterpret_cast<const uint32_t*>(subsubsection_data + tag_size);
+
+    if (need_swap)
+      bswap32(subsubsection_length);
+
+    if (subsubsection_length > remaining_size) {
+      // The subsubsection is corrupted. Try our best to process it.
+      subsubsection_length = remaining_size;
+    }
+
+    switch (tag) {
+      case ELFAttributeData::Tag_File: {
+        ELFAttributeData::TagType tag;
+        ELFAttributeValue in_attr;
+        // The offset from the start of sub-subsection that <attribute> located
+        size_t attribute_offset = tag_size + 4 /* byte-size */;
+
+        const char* attr_buf = subsubsection_data + attribute_offset;
+        size_t attr_size = subsubsection_length - attribute_offset;
+
+        // Read attributes from the stream.
+        do {
+          if (!ELFAttributeData::ReadTag(tag, attr_buf, attr_size))
+            break;
+
+          ELFAttributeValue *out_attr;
+          bool is_newly_created;
+
+          llvm::tie(out_attr, is_newly_created) =
+              m_AttrData.getOrCreateAttributeValue(tag);
+
+          assert(out_attr != NULL);
+
+          if (is_newly_created) {
+            // Directly read the attribute value to the out_attr.
+            if (!ELFAttributeData::ReadValue(*out_attr, attr_buf, attr_size))
+              break;
+          } else {
+            // The attribute has been defined previously. Read the attribute
+            // to a temporary storage in_attr and perform the merge.
+            in_attr.reset();
+            in_attr.setType(out_attr->type());
+
+            // Read the attribute value.
+            if (!ELFAttributeData::ReadValue(in_attr, attr_buf, attr_size))
+              break;
+
+            // Merge if the read attribute value is different than current one
+            // in output.
+            if ((in_attr != *out_attr) &&
+                !m_AttrData.merge(pInput, tag, in_attr)) {
+              // Fail to merge the attribute.
+              return false;
+            }
+          }
+        } while (attr_size > 0);
+
+        break;
+      }
+      // Skip sub-subsection tagged with Tag_Section and Tag_Symbol. They are
+      // deprecated since ARM [ABI-addenda] r2.09.
+      case ELFAttributeData::Tag_Section:
+      case ELFAttributeData::Tag_Symbol:
+      // Skip any unknown tags.
+      default: {
+        break;
+      }
+    }
+
+    // Update subsubsection_data and remaining_size for next.
+    subsubsection_data += subsubsection_length;
+    remaining_size -= subsubsection_length;
+  } // while (remaining_size > ELFAttribute::MinimalELFAttributeSubsectionSize)
+
   return true;
 }
+

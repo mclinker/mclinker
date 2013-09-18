@@ -189,6 +189,7 @@ HEADER = ${INCDIR}/AttributeOption.h \
 	${INCDIR}/Target/DarwinLDBackend.h \
 	${INCDIR}/Target/ELFAttribute.h \
 	${INCDIR}/Target/ELFAttributeData.h \
+	${INCDIR}/Target/ELFAttributeValue.h \
 	${INCDIR}/Target/ELFDynamic.h \
 	${INCDIR}/Target/ELFDynamic.tcc \
 	${INCDIR}/Target/ELFEmulation.h \
@@ -347,6 +348,8 @@ SOURCE = ${LIBDIR}/ADT/StringEntry.cpp \
 	${LIBDIR}/Support/Windows/PathV3.inc \
 	${LIBDIR}/Support/Windows/System.inc \
 	${LIBDIR}/Target/ELFAttribute.cpp \
+	${LIBDIR}/Target/ELFAttributeData.cpp \
+	${LIBDIR}/Target/ELFAttributeValue.cpp \
 	${LIBDIR}/Target/ELFDynamic.cpp \
 	${LIBDIR}/Target/ELFEmulation.cpp \
 	${LIBDIR}/Target/ELFMCLinker.cpp \
