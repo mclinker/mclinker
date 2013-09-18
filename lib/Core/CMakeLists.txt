@@ -1,0 +1,23 @@
+add_mcld_library(MCLDCore
+  AttributeOption.cpp
+  BitcodeOption.cpp
+  Environment.cpp
+  GeneralOptions.cpp
+  InputTree.cpp
+  IRBuilder.cpp
+  Linker.cpp
+  LinkerConfig.cpp
+  LinkerScript.cpp
+  Module.cpp
+  TargetOptions.cpp
+  )
+
+target_link_libraries(MCLDCore
+  MCLDADT
+  MCLDMC
+  MCLDObject
+  MCLDARMLDBackend
+  MCLDHexagonLDBackend
+  MCLDMipsLDBackend
+  MCLDX86LDBackend
+  )
