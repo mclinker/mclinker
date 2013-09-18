@@ -360,6 +360,8 @@ SOURCE = ${LIBDIR}/ADT/StringEntry.cpp \
 	${LIBDIR}/Target/PLT.cpp \
 	${LIBDIR}/Target/TargetLDBackend.cpp \
 	${LIBDIR}/Target/ARM/ARMDiagnostic.cpp \
+	${LIBDIR}/Target/ARM/ARMELFAttributeData.cpp \
+	${LIBDIR}/Target/ARM/ARMELFAttributeData.h \
 	${LIBDIR}/Target/ARM/ARMELFDynamic.cpp \
 	${LIBDIR}/Target/ARM/ARMELFDynamic.h \
 	${LIBDIR}/Target/ARM/ARMELFMCLinker.cpp \

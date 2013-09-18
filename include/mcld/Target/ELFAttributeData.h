@@ -45,9 +45,18 @@ public:
 public:
   inline const std::string &getVendorName() const { return m_Vendor; }
 
-  /// getOrCreateAttributeValue - obtain attribute value for given tag and
+  /// getAttributeValue - query the data store for the attribute value of the
+  /// given tag.
+  virtual const ELFAttributeValue *getAttributeValue(TagType pTag) const = 0;
+
+  /// getOrCreateAttributeValue - obtain attribute value for the given tag and
   /// create if it does not exist.
-  virtual ELFAttributeValue &getOrCreateAttributeValue(TagType pTag) = 0;
+  ///
+  /// It returns a pair containing the attribute value instance (guaranteed to
+  /// be non-NULL) and a boolean value indicating whether the instance is newly
+  /// created (true) or not (false.)
+  virtual std::pair<ELFAttributeValue*, bool>
+      getOrCreateAttributeValue(TagType pTag) = 0;
 
   /// merge - implement logics to merge input attribute to the output.
   virtual bool merge(const Input &pInput, TagType pTag,
