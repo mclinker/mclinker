@@ -3,7 +3,7 @@ DIAG(err_cannot_open_output_file, DiagnosticEngine::Fatal, "cannot open output f
 DIAG(warn_cannot_open_search_dir, DiagnosticEngine::Warning, "can not open search directory `-L%0'", "can not open search directory `-L%0'")
 DIAG(err_no_inputs, DiagnosticEngine::Error, "no inputs", "no inputs")
 DIAG(err_empty_input, DiagnosticEngine::Error, "Empty input file `%0' : %1", "Empty input file `%0' : %1")
-DIAG(err_unrecognized_input_file, DiagnosticEngine::Fatal, "cannot recognize the format of file `%0'.\n  object format or given target machine (%1) is wrong.","cannot recognize the format of file `%0'.\n  object format or given target machine (%1) is wrong.")
+DIAG(warn_unrecognized_input_file, DiagnosticEngine::Warning, "cannot recognize the format of file `%0'.\n  object format or given target machine (%1) is incompatible.","cannot recognize the format of file `%0'.\n  object format or given target machine (%1) is incompatible.")
 DIAG(err_cannot_find_namespec, DiagnosticEngine::Fatal, "cannot recognize namespec -l%0", "cannot recognize namespec -l%0")
 DIAG(err_cannot_identify_option, DiagnosticEngine::Fatal, "unknown command line argument `%0' at %1", "unknown command line argument `%0' at %1")
 DIAG(err_mixed_shared_static_objects, DiagnosticEngine::Error, "cannot link shared objects with -static option.\nShared object `%0': %1", "cannot link shared objects with -static option.\nShared object `%0': %1")

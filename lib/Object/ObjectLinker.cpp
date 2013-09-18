@@ -165,7 +165,7 @@ void ObjectLinker::normalize()
     else if (doContinue && getArchiveReader()->isMyFormat(**input, doContinue)) {
       (*input)->setType(Input::Archive);
       Archive archive(**input, m_pBuilder->getInputBuilder());
-      getArchiveReader()->readArchive(archive);
+      getArchiveReader()->readArchive(m_Config, archive);
       if(archive.numOfObjectMember() > 0) {
         m_pModule->getInputTree().merge<InputTree::Inclusive>(input,
                                                               archive.inputs());
@@ -185,8 +185,8 @@ void ObjectLinker::normalize()
       }
     }
     else {
-      fatal(diag::err_unrecognized_input_file) << (*input)->path()
-                                          << m_Config.targets().triple().str();
+      warning(diag::warn_unrecognized_input_file) << (*input)->path()
+        << m_Config.targets().triple().str();
     }
   } // end of for
 }

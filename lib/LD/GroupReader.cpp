@@ -81,7 +81,7 @@ bool GroupReader::readGroup(Module::input_iterator pRoot,
       ArchiveListEntry* entry = new ArchiveListEntry(*ar, input);
       ar_list.push_back(entry);
       // read archive
-      m_ArchiveReader.readArchive(*ar);
+      m_ArchiveReader.readArchive(pConfig, *ar);
       cur_obj_cnt += ar->numOfObjectMember();
     }
     // read input as a binary file
@@ -108,8 +108,8 @@ bool GroupReader::readGroup(Module::input_iterator pRoot,
       m_Module.getLibraryList().push_back(*input);
     }
     else {
-      fatal(diag::err_unrecognized_input_file) << (*input)->path()
-                                               << pConfig.targets().triple().str();
+      warning(diag::warn_unrecognized_input_file) << (*input)->path()
+        << pConfig.targets().triple().str();
     }
     ++input;
   }
@@ -126,7 +126,7 @@ bool GroupReader::readGroup(Module::input_iterator pRoot,
       // if --whole-archive is given to this archive, no need to read it again
       if ( ar.getARFile().attribute()->isWholeArchive())
         continue;
-      m_ArchiveReader.readArchive(ar);
+      m_ArchiveReader.readArchive(pConfig, ar);
       cur_obj_cnt += ar.numOfObjectMember();
     }
   }

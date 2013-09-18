@@ -22,6 +22,7 @@ class Input;
 class ELFObjectReader;
 class MemoryAreaFactory;
 class Archive;
+class LinkerConfig;
 
 /** \class GNUArchiveReader
  *  \brief GNUArchiveReader reads GNU archive files.
@@ -35,7 +36,7 @@ public:
 
   /// readArchive - read an archive, include the needed members, and build up
   /// the subtree
-  bool readArchive(Archive& pArchive);
+  bool readArchive(const LinkerConfig& pConfig, Archive& pArchive);
 
   /// isMyFormat
   bool isMyFormat(Input& input, bool &pContinue) const;
@@ -78,13 +79,16 @@ private:
 
   /// includeMember - include the object member in the given file offset, and
   /// return the size of the object
+  /// @param pConfig - LinkerConfig
   /// @param pArchiveRoot - the archive root
   /// @param pFileOffset  - file offset of the member header in the archive
-  size_t includeMember(Archive& pArchiveRoot, uint32_t pFileOffset);
+  size_t includeMember(const LinkerConfig& pConfig,
+                       Archive& pArchiveRoot,
+                       uint32_t pFileOffset);
 
   /// includeAllMembers - include all object members. This is called if
   /// --whole-archive is the attribute for this archive file.
-  bool includeAllMembers(Archive& pArchive);
+  bool includeAllMembers(const LinkerConfig& pConfig, Archive& pArchive);
 
 private:
   Module& m_Module;

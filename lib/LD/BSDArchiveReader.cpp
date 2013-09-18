@@ -20,7 +20,8 @@ BSDArchiveReader::~BSDArchiveReader()
 {
 }
 
-bool BSDArchiveReader::readArchive(Archive& pArchive)
+bool BSDArchiveReader::readArchive(const LinkerConfig& pConfig,
+                                   Archive& pArchive)
 {
   // TODO
   return true;

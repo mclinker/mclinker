@@ -18,6 +18,7 @@ namespace mcld
 
 class Input;
 class Archive;
+class LinkerConfig;
 
 /** \class BSDArchiveReader
  *  \brief BSDArchiveReader reads BSD-variant archive files.
@@ -29,7 +30,7 @@ public:
   BSDArchiveReader();
   ~BSDArchiveReader();
 
-  bool readArchive(Archive& pArchive);
+  bool readArchive(const LinkerConfig& pConfig, Archive& pArchive);
   bool isMyFormat(Input& pInput, bool &pContinue) const;
 };
 

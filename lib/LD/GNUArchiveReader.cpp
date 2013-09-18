@@ -10,6 +10,7 @@
 
 #include <mcld/Module.h>
 #include <mcld/InputTree.h>
+#include <mcld/LinkerConfig.h>
 #include <mcld/MC/Attribute.h>
 #include <mcld/MC/Input.h>
 #include <mcld/LD/ResolveInfo.h>
@@ -91,14 +92,15 @@ bool GNUArchiveReader::isThinArchive(Input& pInput) const
   return result;
 }
 
-bool GNUArchiveReader::readArchive(Archive& pArchive)
+bool GNUArchiveReader::readArchive(const LinkerConfig& pConfig,
+                                   Archive& pArchive)
 {
   // bypass the empty archive
   if (Archive::MAGIC_LEN == pArchive.getARFile().memArea()->handler()->size())
     return true;
 
   if (pArchive.getARFile().attribute()->isWholeArchive())
-    return includeAllMembers(pArchive);
+    return includeAllMembers(pConfig, pArchive);
 
   // if this is the first time read this archive, setup symtab and strtab
   if (pArchive.getSymbolTable().empty()) {
@@ -137,7 +139,7 @@ bool GNUArchiveReader::readArchive(Archive& pArchive)
 
       if (Archive::Symbol::Include == status) {
         // include the object member from the given offset
-        includeMember(pArchive, pArchive.getObjFileOffset(idx));
+        includeMember(pConfig, pArchive, pArchive.getObjFileOffset(idx));
         willSymResolved = true;
       } // end of if
     } // end of for
@@ -366,9 +368,12 @@ GNUArchiveReader::shouldIncludeSymbol(const llvm::StringRef& pSymName) const
 
 /// includeMember - include the object member in the given file offset, and
 /// return the size of the object
+/// @param pConfig - LinkerConfig
 /// @param pArchiveRoot - the archive root
 /// @param pFileOffset  - file offset of the member header in the archive
-size_t GNUArchiveReader::includeMember(Archive& pArchive, uint32_t pFileOffset)
+size_t GNUArchiveReader::includeMember(const LinkerConfig& pConfig,
+                                       Archive& pArchive,
+                                       uint32_t pFileOffset)
 {
   Input* cur_archive = &(pArchive.getARFile());
   Input* member = NULL;
@@ -422,13 +427,18 @@ size_t GNUArchiveReader::includeMember(Archive& pArchive, uint32_t pFileOffset)
       cur_archive = member;
       file_offset = nested_offset;
     }
+    else {
+      warning(diag::warn_unrecognized_input_file) << member->path()
+        << pConfig.targets().triple().str();
+    }
   } while (Input::Object != member->type());
   return size;
 }
 
 /// includeAllMembers - include all object members. This is called if
 /// --whole-archive is the attribute for this archive file.
-bool GNUArchiveReader::includeAllMembers(Archive& pArchive)
+bool GNUArchiveReader::includeAllMembers(const LinkerConfig& pConfig,
+                                         Archive& pArchive)
 {
   // read the symtab of the archive
   readSymbolTable(pArchive);
@@ -457,7 +467,7 @@ bool GNUArchiveReader::includeAllMembers(Archive& pArchive)
        offset < end_offset;
        offset += sizeof(Archive::MemberHeader)) {
 
-    size_t size = includeMember(pArchive, offset);
+    size_t size = includeMember(pConfig, pArchive, offset);
 
     if (!isThinAR) {
       offset += size;
