@@ -50,3 +50,4 @@ DIAG(err_omagic_not_static, DiagnosticEngine::Error, "cannot mix -omagic option 
 DIAG(err_invalid_emulation, DiagnosticEngine::Error, "Invalid target emulation: `%0'.", "Invalid target emulation: `%0'.")
 DIAG(err_cannot_find_scriptfile, DiagnosticEngine::Fatal, "cannot open %0 file %1", "cannot open %0 file %1")
 DIAG(err_unsupported_archive, DiagnosticEngine::Error, "Unsupported archive type.", "Unsupported archive type.")
+DIAG(unexpected_frag_type, DiagnosticEngine::Unreachable, "Unexpected fragment type `%0' when constructing FG", "Unexpected fragment type `%0' when constructing FG")
