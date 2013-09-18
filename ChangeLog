@@ -1,3 +1,35 @@
+2013-09-18 Chinyen Chou <petechou@gmail.com>
+	* Executive Summary:
+	1. Support more linker script commands for linking FreeBSD and Linux kernel.
+	2. Add a smaller new linker tool: ld.lite.
+	3. Initiate MIPS64 ABI support.
+	4. Migrate to LLVM r187732.
+
+	* Command Line Options and Building System:
+	1. Support -T option.
+	2. Support -z combreloc/nocombreloc.
+
+	* SectionMap:
+	1. Support construct SectionMap from SECTIONS command in a linker script file.
+
+	* Target Backends:
+	1. GNULDBackend: use SectionMap to do layout.
+	2. GNULDBackend: add readRelocation() and emitRelocation functions.
+	3. MIPS: add 32/64 GNULDBackend, GOT, and Relocator classes.
+	4. MIPS: support more relocations. (R_MIPS_GPREL16, R_MIPS_64, R_MIPS_GOT_DISP,
+	   R_MIPS_GOT_PAGE, R_MIPS_GOT_OFST, and R_MIPS_SUB)
+	5. Target: refine target registry, lookup, and creation.
+
+	* Linker Script:
+	1. Support SECTIONS, SEARCH_DIR, ASSERT commands.
+	2. Support orphan sections placement.
+	3. Support location counter processing.
+	4. Support operators and many builtin functions in an expression.
+	5. Change to use Bison GLR skeleton.
+
+	* Architectural Changes:
+	1. Deprecate FragmentLinker: move the functions into ObjectLinker instead.
+
 2013-06-03 Chinyen Chou <petechou@gmail.com>
 	* Executive Summary:
 	1. Add linker script framework and some script commands support.
