@@ -36,6 +36,7 @@
 #include <mcld/LD/ELFObjectFileFormat.h>
 #include <mcld/LD/ELFDynObjFileFormat.h>
 #include <mcld/LD/ELFExecFileFormat.h>
+#include <mcld/Target/ELFAttribute.h>
 #include <mcld/Target/ELFDynamic.h>
 #include <mcld/Target/GNUInfo.h>
 #include <mcld/Support/MemoryArea.h>
@@ -88,6 +89,7 @@ GNULDBackend::GNULDBackend(const LinkerConfig& pConfig, GNUInfo* pInfo)
     m_pBRIslandFactory(NULL),
     m_pStubFactory(NULL),
     m_pEhFrameHdr(NULL),
+    m_pAttribute(NULL),
     m_bHasTextRel(false),
     m_bHasStaticTLS(false),
     f_pPreInitArrayStart(NULL),
@@ -111,6 +113,7 @@ GNULDBackend::GNULDBackend(const LinkerConfig& pConfig, GNUInfo* pInfo)
     f_p_End(NULL) {
   m_pELFSegmentTable = new ELFSegmentFactory();
   m_pSymIndexMap = new HashTableType(1024);
+  m_pAttribute = new ELFAttribute(*this, pConfig);
 }
 
 GNULDBackend::~GNULDBackend()
@@ -122,6 +125,7 @@ GNULDBackend::~GNULDBackend()
   delete m_pObjectFileFormat;
   delete m_pSymIndexMap;
   delete m_pEhFrameHdr;
+  delete m_pAttribute;
   delete m_pBRIslandFactory;
   delete m_pStubFactory;
 }

@@ -34,6 +34,7 @@ class StubFactory;
 class GNUInfo;
 class ELFFileFormat;
 class ELFSegmentFactory;
+class ELFAttribute;
 class ELFDynamic;
 class ELFDynObjFileFormat;
 class ELFExecFileFormat;
@@ -319,6 +320,12 @@ public:
   /// process relocations more efficiently
   void sortRelocation(LDSection& pSection);
 
+  /// attribute - the attribute section data.
+  ELFAttribute& attribute() { return *m_pAttribute; }
+
+  /// attribute - the attribute section data.
+  const ELFAttribute& attribute() const { return *m_pAttribute; }
+
 protected:
   /// getRelEntrySize - the size in BYTE of rel type relocation
   virtual size_t getRelEntrySize() = 0;
@@ -522,6 +529,9 @@ protected:
 
   // section .eh_frame_hdr
   EhFrameHdr* m_pEhFrameHdr;
+
+  // attribute section
+  ELFAttribute* m_pAttribute;
 
   // ----- dynamic flags ----- //
   // DF_TEXTREL of DT_FLAGS
