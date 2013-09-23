@@ -3,7 +3,7 @@ find_package(BISON)
 find_package(FLEX)
 BISON_TARGET(PARSER ScriptParser.yy ${CMAKE_CURRENT_BINARY_DIR}/ScriptParser.cpp)
 FLEX_TARGET(LEXER ScriptScanner.ll ${CMAKE_CURRENT_BINARY_DIR}/ScriptScanner.cpp)
-ADD_FLEX_BISON_DEPENDENCY(LEXER PARSER) 
+ADD_FLEX_BISON_DEPENDENCY(LEXER PARSER)
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 
 add_mcld_library(MCLDScript

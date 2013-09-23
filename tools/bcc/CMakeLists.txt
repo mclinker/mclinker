@@ -15,6 +15,6 @@ target_link_libraries(ld.bcc
 configure_file(
   ${CMAKE_CURRENT_SOURCE_DIR}/include/bcc/Config/Config.h.cmake
   ${CMAKE_CURRENT_BINARY_DIR}/include/bcc/Config/Config.h)
-  
+
 install(TARGETS ld.bcc
   RUNTIME DESTINATION bin)
