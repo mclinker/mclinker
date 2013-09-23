@@ -8,6 +8,7 @@
 	* Command Line Options and Building System:
 	1. Support -T option.
 	2. Support -z combreloc/nocombreloc.
+	3. Initiate CMake support.
 
 	* SectionMap:
 	1. Support construct SectionMap from SECTIONS command in a linker script file.
