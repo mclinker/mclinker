@@ -197,10 +197,7 @@ HEADER = ${INCDIR}/AttributeOption.h \
 	${INCDIR}/Target/OutputRelocSection.h \
 	${INCDIR}/Target/PLT.h \
 	${INCDIR}/Target/SymbolEntryMap.h \
-	${INCDIR}/Target/TargetLDBackend.h \
-	${GENDIR}/Config/Config.h \
-	${GENDIR}/Config/Linkers.def \
-	${GENDIR}/Config/Targets.def
+	${INCDIR}/Target/TargetLDBackend.h
 
 SOURCE = ${LIBDIR}/ADT/StringEntry.cpp \
 	${LIBDIR}/CodeGen/MCLDTargetMachine.cpp \
@@ -297,7 +294,6 @@ SOURCE = ${LIBDIR}/ADT/StringEntry.cpp \
 	${LIBDIR}/Script/GroupCmd.cpp \
 	${LIBDIR}/Script/InputSectDesc.cpp \
 	${LIBDIR}/Script/InputToken.cpp \
-	${LIBDIR}/Script/location.hh \
 	${LIBDIR}/Script/NameSpec.cpp \
 	${LIBDIR}/Script/NullaryOp.cpp \
 	${LIBDIR}/Script/Operand.cpp \
@@ -306,12 +302,10 @@ SOURCE = ${LIBDIR}/ADT/StringEntry.cpp \
 	${LIBDIR}/Script/OutputCmd.cpp \
 	${LIBDIR}/Script/OutputFormatCmd.cpp \
 	${LIBDIR}/Script/OutputSectDesc.cpp \
-	${LIBDIR}/Script/position.hh \
 	${LIBDIR}/Script/RpnEvaluator.cpp \
 	${LIBDIR}/Script/RpnExpr.cpp \
 	${LIBDIR}/Script/ScriptCommand.cpp \
 	${LIBDIR}/Script/ScriptFile.cpp \
-	${LIBDIR}/Script/ScriptParser.h \
 	${LIBDIR}/Script/ScriptParser.yy \
 	${LIBDIR}/Script/ScriptReader.cpp \
 	${LIBDIR}/Script/ScriptScanner.ll \
@@ -471,7 +465,8 @@ if ENABLE_WERROR
 ANDROID_CPPFLAGS+=-Werror
 endif
 
-MCLD_INCLUDES = -I${top_srcdir}/utils/gtest/include \
+MCLD_INCLUDES = \
+	-I${top_srcdir}/utils/gtest/include \
 	-I${top_srcdir}/include \
 	-I${top_builddir}/include \
 	-I$(INCDIR)/Script
