@@ -58,3 +58,29 @@ bool ELFAttributeData::ReadValue(ELFAttributeValue& pValue, const char* &pBuf,
 
   return true;
 }
+
+bool ELFAttributeData::WriteAttribute(TagType pTag,
+                                      const ELFAttributeValue& pValue,
+                                      char* &pBuf)
+{
+  // Write the attribute tag.
+  leb128::encode<uint32_t>(pBuf, pTag);
+
+  // Write the attribute value.
+  if (pValue.isIntValue())
+    leb128::encode<uint32_t>(pBuf, pValue.getIntValue());
+
+  if (pValue.isStringValue()) {
+    // Write string data.
+    size_t str_val_len = pValue.getStringValue().length();
+
+    if (str_val_len > 0)
+      ::memcpy(pBuf, pValue.getStringValue().c_str(), str_val_len);
+    pBuf += str_val_len;
+
+    // Write NULL-terminator.
+    *pBuf++ = '\0';
+  }
+
+  return true;
+}

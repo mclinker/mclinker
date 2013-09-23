@@ -179,6 +179,10 @@ public:
 
   virtual bool postMerge(const Input &pInput);
 
+  virtual size_t sizeOutput() const;
+
+  virtual size_t emit(char *pBuf) const;
+
 private:
   /// GetAttributeValueType - obtain the value type of the indicated tag.
   static unsigned int GetAttributeValueType(TagType pTag);

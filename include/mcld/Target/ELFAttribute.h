@@ -60,6 +60,13 @@ public:
   /// merge - merge attributes from input (attribute) section
   bool merge(const Input &pInput, LDSection &pInputAttrSectHdr);
 
+  /// sizeOutput - calculate the number of bytes required to encode this
+  /// attribute data section
+  size_t sizeOutput() const;
+
+  /// emit - encode and write out this attribute section
+  size_t emit(MemoryRegion &pRegion) const;
+
   inline const GNULDBackend &backend() const { return m_Backend; }
 
   inline const LinkerConfig &config() const { return m_Config; }
@@ -86,6 +93,13 @@ private:
     /// merge -  Merge the attributes from the section in the input data.
     bool merge(const Input &pInput, MemoryRegion::ConstAddress pData,
                size_t pSize);
+
+    /// sizeOutput - calculate the number of bytes required to encode this
+    /// subsection
+    size_t sizeOutput() const;
+
+    /// emit - write out this attribute subsection to the buffer.
+    size_t emit(char *pBuf) const;
 
   private:
     // The attribute section this subsection belongs to

@@ -9,6 +9,7 @@
 #include "ARMELFAttributeData.h"
 
 #include <mcld/MC/Input.h>
+#include <mcld/Support/LEB128.h>
 
 #include <llvm/Support/raw_ostream.h>
 
@@ -972,4 +973,100 @@ bool ARMELFAttributeData::postMerge(const Input &pInput)
   }
 
   return true;
+}
+
+size_t ARMELFAttributeData::sizeOutput() const {
+  size_t result = 0;
+
+  // Size contributed by known attributes
+  for (unsigned i = 0; i <= Tag_Max; ++i) {
+    TagType tag = static_cast<TagType>(i);
+    const ELFAttributeValue &value = m_Attrs[tag];
+
+    if (value.shouldEmit()) {
+      result += leb128::size(static_cast<uint32_t>(tag));
+      result += value.getSize();
+    }
+  }
+
+  // Size contributed by unknown attributes
+  for (UnknownAttrsMap::const_iterator unknown_attr_it = m_UnknownAttrs.begin(),
+          unknown_attr_end = m_UnknownAttrs.end();
+       unknown_attr_it != unknown_attr_end; ++unknown_attr_it) {
+    TagType tag = unknown_attr_it->first;
+    const ELFAttributeValue &value = unknown_attr_it->second;
+
+    if (value.shouldEmit()) {
+      result += leb128::size(static_cast<uint32_t>(tag));
+      result += value.getSize();
+    }
+  }
+
+  return result;
+}
+
+size_t ARMELFAttributeData::emit(char *pBuf) const {
+  char *buffer = pBuf;
+
+  // Tag_conformance "should be emitted first in a file-scope sub-subsection of
+  // the first public subsection of the attribute section."
+  //
+  // See ARM [ABI-addenda], 2.3.7.4 Conformance tag
+  const ELFAttributeValue &attr_conformance = m_Attrs[Tag_conformance];
+
+  if (attr_conformance.shouldEmit()) {
+    if (!ELFAttributeData::WriteAttribute(Tag_conformance,  attr_conformance,
+                                          buffer)) {
+      return 0;
+    }
+  }
+
+  // Tag_nodefaults "should be emitted before any other tag in an attribute
+  // subsection other that the conformance tag"
+  //
+  // See ARM [ABI-addenda], 2.3.7.5 No defaults tag
+  const ELFAttributeValue &attr_nodefaults = m_Attrs[Tag_nodefaults];
+
+  if (attr_nodefaults.shouldEmit()) {
+    if (!ELFAttributeData::WriteAttribute(Tag_nodefaults,  attr_nodefaults,
+                                          buffer)) {
+      return 0;
+    }
+  }
+
+  // Tag_conformance (=67)
+  // Tag_nodefaults (=64)
+  for (unsigned i = 0; i < Tag_nodefaults; ++i) {
+    TagType tag = static_cast<TagType>(i);
+    const ELFAttributeValue &value = m_Attrs[tag];
+
+    if (value.shouldEmit() &&
+        !ELFAttributeData::WriteAttribute(tag, value, buffer)) {
+      return 0;
+    }
+  }
+
+  for (unsigned i = (Tag_nodefaults + 1); i <= Tag_Max; ++i) {
+    TagType tag = static_cast<TagType>(i);
+    const ELFAttributeValue &value = m_Attrs[tag];
+
+    if (value.shouldEmit() && (i != Tag_conformance) &&
+        !ELFAttributeData::WriteAttribute(tag, value, buffer)) {
+      return 0;
+    }
+  }
+
+  for (UnknownAttrsMap::const_iterator unknown_attr_it = m_UnknownAttrs.begin(),
+          unknown_attr_end = m_UnknownAttrs.end();
+       unknown_attr_it != unknown_attr_end; ++unknown_attr_it) {
+    TagType tag = unknown_attr_it->first;
+    const ELFAttributeValue &value = unknown_attr_it->second;
+
+    if (value.shouldEmit() &&
+        !ELFAttributeData::WriteAttribute(tag, value, buffer)) {
+      return 0;
+    }
+  }
+
+  return (buffer - pBuf);
 }

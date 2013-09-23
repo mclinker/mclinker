@@ -70,6 +70,13 @@ public:
   /// input.
   virtual bool postMerge(const Input &pInput) { return true; }
 
+  /// sizeOutput - obtain number of bytes required to encode the attribute data.
+  virtual size_t sizeOutput() const = 0;
+
+  /// emit - write out attribute data to the buffer and return the number of
+  /// bytes written
+  virtual size_t emit(char *pBuf) const = 0;
+
 public:
   /// ReadTag - read an attribute tag from input buffer.
   ///
@@ -86,6 +93,15 @@ public:
   /// pValue prior the call.
   static bool ReadValue(ELFAttributeValue& pValue, const char* &pBuf,
                         size_t &pBufSize);
+
+  /// WriteAttribute - write an attribute tag plus value to buffer.
+  ///
+  /// On success, the pBuf moves to the new position just pass the end of the
+  /// attribute data just written. Otherwise, it returns false and leaves pBuf
+  /// in an undefined position. Note that buffer is guaranteed to be able to
+  /// contain the attribute data.
+  static bool WriteAttribute(TagType pTag, const ELFAttributeValue& pValue,
+                             char* &pBuf);
 
 private:
   const std::string m_Vendor;

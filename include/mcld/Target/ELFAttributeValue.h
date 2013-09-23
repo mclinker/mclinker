@@ -91,6 +91,12 @@ public:
 
   bool isDefaultValue() const;
 
+  // Returns true if this attribute value should be emitted to the output.
+  inline bool shouldEmit() const {
+    // Attribute with non-default value should be emitted.
+    return !isDefaultValue();
+  }
+
   bool equals(const ELFAttributeValue& pValue) const;
 
   bool operator==(const ELFAttributeValue& pValue) const

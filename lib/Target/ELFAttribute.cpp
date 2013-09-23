@@ -123,6 +123,38 @@ bool ELFAttribute::merge(const Input &pInput, LDSection &pInputAttrSectHdr)
   return true;
 }
 
+size_t ELFAttribute::sizeOutput() const
+{
+  size_t total_size = FormatVersionFieldSize;
+
+  for (llvm::SmallVectorImpl<Subsection*>::const_iterator
+          subsec_it = m_Subsections.begin(), subsec_end = m_Subsections.end();
+       subsec_it != subsec_end; ++subsec_it) {
+    total_size += (*subsec_it)->sizeOutput();
+  }
+  return total_size;
+}
+
+size_t ELFAttribute::emit(MemoryRegion &pRegion) const
+{
+  // ARM [ABI-addenda], 2.2.3
+  uint64_t total_size = 0;
+
+  // Write format-version.
+  char* buffer = reinterpret_cast<char*>(pRegion.getBuffer());
+  buffer[0] = FormatVersion;
+  total_size += FormatVersionFieldSize;
+
+  for (llvm::SmallVectorImpl<Subsection*>::const_iterator
+          subsec_it = m_Subsections.begin(), subsec_end = m_Subsections.end();
+       subsec_it != subsec_end; ++subsec_it) {
+    // Write out subsection.
+    total_size += (*subsec_it)->emit(buffer + total_size);
+  }
+
+  return total_size;
+}
+
 void ELFAttribute::registerAttributeData(ELFAttributeData& pAttrData)
 {
   assert((getSubsection(pAttrData.getVendorName()) == NULL) &&
@@ -258,3 +290,75 @@ bool ELFAttribute::Subsection::merge(const Input &pInput,
   return m_AttrData.postMerge(pInput);
 }
 
+size_t ELFAttribute::Subsection::sizeOutput() const
+{
+  // ARM [ABI-addenda], 2.2.3 and 2.2.4
+  return ELFAttribute::SubsectionLengthFieldSize +
+            m_AttrData.getVendorName().length() /* vendor-name */ +
+            1 /* NULL-terminator for vendor-name */ +
+            1 /* Tag_File */ +
+            sizeof(uint32_t) /* length of sub-subsection */ +
+            m_AttrData.sizeOutput();
+}
+
+size_t ELFAttribute::Subsection::emit(char *pBuf) const
+{
+  // ARM [ABI-addenda], 2.2.3 and 2.2.4
+  const bool need_swap = (llvm::sys::IsLittleEndianHost !=
+                              m_Parent.config().targets().isLittleEndian());
+
+  char *buffer = pBuf;
+
+  // The subsection-length and byte-size field in sub-subsection will be patched
+  // later after writing out all attribute data.
+  char *subsection_length_hole = NULL;
+  char *subsubsection_length_hole = NULL;
+
+  // Reserve space for subsection-length.
+  subsection_length_hole = buffer;
+  buffer += 4;
+
+  // Write vendor-name.
+  const std::string &vendor_name = m_AttrData.getVendorName();
+  ::memcpy(buffer, vendor_name.c_str(), vendor_name.length());
+  buffer += vendor_name.length();
+
+  // Write NULL-terminator for vendor-name.
+  *buffer++ = '\0';
+
+  // Write Tag_File (0x01).
+  *buffer++ = '\x01';
+
+  // Reserve space for byte-size for sub-subsection.
+  subsubsection_length_hole = buffer;
+  buffer += sizeof(uint32_t);
+
+  // Write attribute data.
+  uint32_t subsubsection_length = m_AttrData.emit(buffer);
+
+  // Calculate value of subsection-length.
+  uint32_t subsection_length = (buffer - pBuf) + subsubsection_length;
+
+  // ARM [ABI-addenda] 2.2.4
+  //
+  // The byte-size in sub-subsection includes Tag_File (1-byte) and the size
+  // field of itself (4-byte).
+  subsubsection_length += 1 /* Tag_File */ + 4 /* size of byte-size */;
+
+  // Patch subsubsection_length_hole.
+  assert(subsubsection_length_hole != NULL);
+
+  if(need_swap)
+    bswap32(subsubsection_length);
+
+  ::memcpy(subsubsection_length_hole, &subsubsection_length, sizeof(uint32_t));
+
+  // Write subsection-length in subsection_length_hole.
+  if(need_swap)
+    bswap32(subsection_length);
+
+  assert(subsection_length_hole != NULL);
+  ::memcpy(subsection_length_hole, &subsection_length, sizeof(uint32_t));
+
+  return subsection_length;
+}
