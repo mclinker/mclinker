@@ -8,6 +8,7 @@
 //===----------------------------------------------------------------------===//
 #include "ARM.h"
 #include "ARMGNUInfo.h"
+#include "ARMELFAttributeData.h"
 #include "ARMELFDynamic.h"
 #include "ARMLDBackend.h"
 #include "ARMRelocator.h"
@@ -40,6 +41,7 @@
 #include <mcld/LD/ELFFileFormat.h>
 #include <mcld/LD/ELFSegmentFactory.h>
 #include <mcld/LD/ELFSegment.h>
+#include <mcld/Target/ELFAttribute.h>
 #include <mcld/Target/GNUInfo.h>
 #include <mcld/Object/ObjectBuilder.h>
 
@@ -55,6 +57,7 @@ ARMGNULDBackend::ARMGNULDBackend(const LinkerConfig& pConfig, GNUInfo* pInfo)
     m_pPLT(NULL),
     m_pRelDyn(NULL),
     m_pRelPLT(NULL),
+    m_pAttrData(NULL),
     m_pDynamic(NULL),
     m_pGOTSymbol(NULL),
     m_pEXIDXStart(NULL),
@@ -72,6 +75,7 @@ ARMGNULDBackend::~ARMGNULDBackend()
   delete m_pRelDyn;
   delete m_pRelPLT;
   delete m_pDynamic;
+  delete m_pAttrData;
 }
 
 void ARMGNULDBackend::initTargetSections(Module& pModule, ObjectBuilder& pBuilder)
@@ -93,6 +97,10 @@ void ARMGNULDBackend::initTargetSections(Module& pModule, ObjectBuilder& pBuilde
                                            llvm::ELF::SHT_ARM_ATTRIBUTES,
                                            0x0,
                                            0x1);
+
+  // initialize "aeabi" attributes subsection
+  m_pAttrData = new ARMELFAttributeData();
+  attribute().registerAttributeData(*m_pAttrData);
 
   if (LinkerConfig::Object != config().codeGenType()) {
     ELFFileFormat* file_format = getOutputFormat();
@@ -208,6 +216,9 @@ void ARMGNULDBackend::doPreLayout(IRBuilder& pBuilder)
   // initialize .dynamic data
   if (!config().isCodeStatic() && NULL == m_pDynamic)
     m_pDynamic = new ARMELFDynamic(*this, config());
+
+  // set attribute section size
+  m_pAttributes->setSize(attribute().sizeOutput());
 
   // set .got size
   // when building shared object, the .got section is must
@@ -331,6 +342,10 @@ uint64_t ARMGNULDBackend::emitSectionData(const LDSection& pSection,
     return result;
   }
 
+  if (&pSection == m_pAttributes) {
+    return attribute().emit(pRegion);
+  }
+
   // FIXME: Currently Emitting .ARM.attributes, .ARM.exidx, and .ARM.extab
   // directly from the input file.
   const SectionData* sect_data = pSection.getSectionData();
@@ -396,19 +411,7 @@ bool ARMGNULDBackend::mergeSection(Module& pModule,
 {
   switch (pSection.type()) {
     case llvm::ELF::SHT_ARM_ATTRIBUTES: {
-      // FIXME: (Luba)
-      // Handle ARM attributes in the right way.
-      // In current milestone, we goes through the shortcut.
-      // It reads input's ARM attributes and copies the first ARM attributes
-      // into the output file. The correct way is merge these sections, not
-      // just copy.
-      if (0 != m_pAttributes->size())
-        return true;
-
-      // First time we meet a ARM attributes section.
-      SectionData* sd = IRBuilder::CreateSectionData(*m_pAttributes);
-      ObjectBuilder::MoveSectionData(*pSection.getSectionData(), *sd);
-      return true;
+      return attribute().merge(pInput, pSection);
     }
     default: {
       ObjectBuilder builder(config(), pModule);
@@ -485,6 +488,18 @@ const OutputRelocSection& ARMGNULDBackend::getRelPLT() const
 {
   assert(NULL != m_pRelPLT && ".rel.plt section not exist");
   return *m_pRelPLT;
+}
+
+ARMELFAttributeData& ARMGNULDBackend::getAttributeData()
+{
+  assert(NULL != m_pAttrData && ".ARM.attributes section not exist");
+  return *m_pAttrData;
+}
+
+const ARMELFAttributeData& ARMGNULDBackend::getAttributeData() const
+{
+  assert(NULL != m_pAttrData && ".ARM.attributes section not exist");
+  return *m_pAttrData;
 }
 
 unsigned int

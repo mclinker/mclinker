@@ -18,6 +18,7 @@
 
 namespace mcld {
 
+class ARMELFAttributeData;
 class LinkerConfig;
 class GNUInfo;
 
@@ -102,6 +103,9 @@ public:
   OutputRelocSection& getRelPLT();
   const OutputRelocSection& getRelPLT() const;
 
+  ARMELFAttributeData& getAttributeData();
+  const ARMELFAttributeData& getAttributeData() const;
+
   LDSymbol* getGOTSymbol()             { return m_pGOTSymbol; }
   const LDSymbol* getGOTSymbol() const { return m_pGOTSymbol; }
 
@@ -157,6 +161,9 @@ private:
   OutputRelocSection* m_pRelDyn;
   /// m_RelPLT - dynamic relocation table of .rel.plt
   OutputRelocSection* m_pRelPLT;
+
+  /// m_pAttrData - attribute data in public ("aeabi") attribute subsection
+  ARMELFAttributeData* m_pAttrData;
 
   ARMELFDynamic* m_pDynamic;
   LDSymbol* m_pGOTSymbol;
