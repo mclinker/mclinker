@@ -31,10 +31,10 @@ AM_INIT_AUTOMAKE([1.9 dist-bzip2 foreign])
 ####################
 #  Versioning, see VERSION
 MAJOR=2
-MINOR=5
+MINOR=0
 MICRO=0
-AGE=rc
-BUILD=Momo
+AGE=dev
+BUILD=
 
 DEV_VERSION=$MAJOR.$MINOR.$MICRO.$AGE-$BUILD
 PKG_VERSION=$MAJOR.$MINOR.$MICRO-$BUILD
