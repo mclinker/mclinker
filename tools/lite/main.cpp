@@ -29,6 +29,7 @@
 #include <llvm/Support/ManagedStatic.h>
 #include <llvm/Support/Signals.h>
 #include <string>
+#include <cassert>
 
 /// configure linker
 static inline bool ConfigLinker(int pArgc,
@@ -37,7 +38,8 @@ static inline bool ConfigLinker(int pArgc,
                                 mcld::Module& pModule,
                                 mcld::LinkerScript& pScript,
                                 mcld::LinkerConfig& pConfig,
-                                mcld::IRBuilder& pBuilder)
+                                mcld::IRBuilder& pBuilder,
+                                std::vector<mcld::InputAction*>& pInputActions)
 {
   mcld::PreferenceOptions     preference;
   mcld::TripleOptions         triple;
@@ -79,14 +81,22 @@ static inline bool ConfigLinker(int pArgc,
   if (!script.parse(pScript))
     return false;
 
-  typedef std::vector<mcld::InputAction*> ActionList;
-
-  ActionList actions;
-  if (!positional.parse(actions, pConfig, pScript))
+  if (!positional.parse(pInputActions, pConfig, pScript))
     return false;
 
-  ActionList::iterator action, actionEnd = actions.end();
-  for (action = actions.begin(); action != actionEnd; ++action) {
+  if (pConfig.options().soname().empty())
+    pConfig.options().setSOName(pModule.name());
+
+  return true;
+}
+
+static
+inline bool InitializeInputs(mcld::IRBuilder& pBuilder,
+                             std::vector<mcld::InputAction*>& pInputActions)
+{
+  for (std::vector<mcld::InputAction*>::iterator action = pInputActions.begin(),
+    actionEnd = pInputActions.end(); action != actionEnd; ++action) {
+    assert(*action != NULL);
     (*action)->activate(pBuilder.getInputBuilder());
     delete *action;
   }
@@ -95,9 +105,6 @@ static inline bool ConfigLinker(int pArgc,
     mcld::fatal(mcld::diag::fatal_forbid_nest_group);
     return false;
   }
-
-  if (pConfig.options().soname().empty())
-    pConfig.options().setSOName(pModule.name());
 
   return true;
 }
@@ -112,9 +119,10 @@ int main(int argc, char* argv[])
   mcld::LinkerConfig config;
   mcld::Module module(script);
   mcld::IRBuilder builder(module, config);
+  std::vector<mcld::InputAction*> input_actions;
 
-
-  if (!ConfigLinker(argc, argv, "MCLinker\n", module, script, config, builder)) {
+  if (!ConfigLinker(argc, argv, "MCLinker\n", module, script, config, builder,
+                    input_actions)) {
     mcld::errs() << argv[0]
                  << ": failed to process linker options from command line!\n";
     return 1;
@@ -124,6 +132,14 @@ int main(int argc, char* argv[])
   if (!linker.emulate(script, config)) {
     mcld::errs() << argv[0]
                  << ": failed to emulate target!\n";
+    return 1;
+  }
+
+  // FIXME: is it possible to have a lightweight MCLinker pass?
+  if (!InitializeInputs(builder, input_actions)) {
+    mcld::errs() << argv[0]
+                 << ": failed to initialize input tree!\n";
+    return 1;
   }
 
   if (!linker.link(module, builder)) {
@@ -137,5 +153,8 @@ int main(int argc, char* argv[])
                  << ": failed to emit output!\n";
     return 1;
   }
+
   mcld::Finalize();
+
+  return 0;
 }
