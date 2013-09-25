@@ -1,4 +1,7 @@
 add_mcld_library(MCLDTarget
+  ELFAttribute.cpp
+  ELFAttributeData.cpp
+  ELFAttributeValue.cpp
   ELFDynamic.cpp
   ELFEmulation.cpp
   ELFMCLinker.cpp

@@ -1,5 +1,6 @@
 add_mcld_library(MCLDARMLDBackend
   ARMDiagnostic.cpp
+  ARMELFAttributeData.cpp
   ARMELFDynamic.cpp
   ARMELFMCLinker.cpp
   ARMEmulation.cpp
