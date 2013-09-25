@@ -10,6 +10,8 @@
 
 #include <mcld/Support/LEB128.h>
 #include <mcld/Target/ELFAttributeValue.h>
+#include <cstring>
+#include <cassert>
 
 using namespace mcld;
 
