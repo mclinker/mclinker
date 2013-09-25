@@ -10,8 +10,7 @@
 
 #include <mcld/MC/Input.h>
 #include <mcld/Support/LEB128.h>
-
-#include <llvm/Support/raw_ostream.h>
+#include <mcld/Support/MsgHandling.h>
 
 using namespace mcld;
 
@@ -161,8 +160,7 @@ bool ARMELFAttributeData::merge(const Input &pInput, TagType pTag,
       if (pInAttr.getIntValue() <= CPU_Arch_Max) {
         m_CPUArch = pInAttr.getIntValue();
       } else {
-        llvm::errs() << "ERROR: input " << pInput.name() << " has unknown "
-                        " CPU architecture profile\n";
+        error(diag::error_unknown_cpu_arch) << pInput.name();
         return false;
       }
       break;
@@ -270,9 +268,8 @@ bool ARMELFAttributeData::merge(const Input &pInput, TagType pTag,
           if (pInAttr.getIntValue() != Arch_Profile_Microcontroller)
             out_attr.setIntValue(pInAttr.getIntValue());
           else
-            llvm::errs() << "WARNING: conflict architecture profile '"
-                         << static_cast<const char>(pInAttr.getIntValue())
-                         << "' in " << pInput.name() << "\n";
+            warning(diag::warn_mismatch_cpu_arch_profile)
+                << pInAttr.getIntValue() << pInput.name();
           break;
         }
         default: {
@@ -282,9 +279,8 @@ bool ARMELFAttributeData::merge(const Input &pInput, TagType pTag,
               (out_attr.getIntValue() != Arch_Profile_Microcontroller)) {
             // do nothing
           } else {
-            llvm::errs() << "WARNING: conflict architecture profile '"
-                         << static_cast<const char>(pInAttr.getIntValue())
-                         << "' in " << pInput.name() << "\n";
+            warning(diag::warn_mismatch_cpu_arch_profile)
+                << pInAttr.getIntValue() << pInput.name();
           }
           break;
         }
@@ -298,9 +294,7 @@ bool ARMELFAttributeData::merge(const Input &pInput, TagType pTag,
         m_MPextensionUse = pInAttr.getIntValue();
       } else {
         if (m_MPextensionUse != pInAttr.getIntValue()) {
-          llvm::errs() << "WARNING: conflict values from Tag_MPextension_use "
-                          " and Tag_MPextension_use_legacy in " << pInput.name()
-                       << "\n";
+          warning(diag::error_mismatch_mpextension_use) << pInput.name();
         }
       }
       break;
@@ -322,9 +316,9 @@ bool ARMELFAttributeData::merge(const Input &pInput, TagType pTag,
           (out_attr.getIntValue() == Enum_Containerized_As_Possible))
         out_attr.setIntValue(pInAttr.getIntValue());
       else if (pInAttr.getIntValue() != Enum_Containerized_As_Possible)
-        llvm::errs() << "WARNING: the size of enumerated data item in input "
-                     << pInput.name() << " is not compatible with the output. "
-                        " Use of the enum may fail.\n";
+        warning(diag::warn_mismatch_enum_size)
+            << pInput.name() << pInAttr.getIntValue()
+            << out_attr.getIntValue();
       break;
     }
     // Tag_ABI_FP_16bit_format
@@ -336,8 +330,7 @@ bool ARMELFAttributeData::merge(const Input &pInput, TagType pTag,
         if (out_attr.getIntValue() == 0) {
           out_attr.setIntValue(pInAttr.getIntValue());
         } else {
-          llvm::errs() << "WARNING: conflict 16-bit FP number format in "
-                       << pInput.name() << "\n";
+          warning(diag::warn_mismatch_fp16_format) << pInput.name();
         }
       }
       break;
@@ -368,9 +361,8 @@ bool ARMELFAttributeData::merge(const Input &pInput, TagType pTag,
             // Promote to 3
             out_attr.setIntValue(3);
           } else {
-            llvm::errs() << "WARNING: value of Tag_Virtualization_use cannot be"
-                            " recognized! (input: " << pInAttr.getIntValue()
-                         << ", output: " << out_attr.getIntValue() << ")\n";
+            warning(diag::warn_unrecognized_virtualization_use)
+                << pInput.name() << pInAttr.getIntValue();
           }
         }
       }
@@ -380,8 +372,7 @@ bool ARMELFAttributeData::merge(const Input &pInput, TagType pTag,
     case Tag_ABI_WMMX_args: {
       // There's no way to merge this value (i.e., objects contain different
       // value in this tag are definitely incompatible.)
-      llvm::errs() << "WARNING: input " << pInput.name() << " uses different "
-                      "way to pass WMMX parameters and results!\n";
+      warning(diag::warn_mismatch_abi_wmmx_args) << pInput.name();
       break;
     }
     // Tag_PCS_config
@@ -392,8 +383,7 @@ bool ARMELFAttributeData::merge(const Input &pInput, TagType pTag,
           out_attr.setIntValue(pInAttr.getIntValue());
         else
           // Different values in these attribute are conflict
-          llvm::errs() << "WARNING: conflict procedure call standard config in "
-                          "input " << pInput.name() << "!\n";
+          warning(diag::warn_mismatch_pcs_config) << pInput.name();
       }
       break;
     }
@@ -403,8 +393,7 @@ bool ARMELFAttributeData::merge(const Input &pInput, TagType pTag,
         if (out_attr.getIntValue() == R9_Unused)
           out_attr.setIntValue(pInAttr.getIntValue());
         else
-          llvm::errs() << "WARNING: differnt way to use R9 in input "
-                       << pInput.name() << "!\n";
+          warning(diag::warn_mismatch_r9_use) << pInput.name();
       }
       break;
     }
@@ -414,10 +403,7 @@ bool ARMELFAttributeData::merge(const Input &pInput, TagType pTag,
         // Require using R9 as SB (global Static Base register).
         if ((out_attr.getIntValue() != R9_Unused) &&
             (out_attr.getIntValue() != R9_SB))
-          llvm::errs() << "WARNING: RW static data addressing (SB-relative) "
-                          "conflict the use of R9 (Tag_ABI_PCS_R9_use) in "
-                          "input " << pInput.name() << "!\n";
-
+          warning(diag::warn_mismatch_r9_use) << pInput.name();
       }
       // Choose the smaller value
       if (pInAttr.getIntValue() < out_attr.getIntValue())
@@ -433,8 +419,9 @@ bool ARMELFAttributeData::merge(const Input &pInput, TagType pTag,
         if (out_attr.getIntValue() == 0)
           out_attr.setIntValue(pInAttr.getIntValue());
         else
-          llvm::errs() << "WARNING: incompatible size of wchar_t in input "
-                       << pInput.name() << "!\n";
+          warning(diag::warn_mismatch_wchar_size)
+              << pInput.name() << pInAttr.getIntValue()
+              << out_attr.getIntValue();
       }
       break;
     }
@@ -450,11 +437,9 @@ bool ARMELFAttributeData::merge(const Input &pInput, TagType pTag,
       // 2. Tag 64-127 can be safely ignored.
       // 3. Tag 0-63 must be comprehended, therefore we cannot ignore.
       if ((pTag & 127) < 64) {
-        llvm::errs() << "WARNING: unknown mandatory attribute with tag " << pTag
-                     << " was ignored!\n";
+        warning(diag::warn_unknown_mandatory_attribute) << pTag << pInput.name();
       } else {
-        llvm::errs() << "WARNING: unknown attribute with tag " << pTag << " was"
-                        " ignored!\n";
+        warning(diag::warn_unknown_attribute) << pTag << pInput.name();
       }
       break;
     }
@@ -710,8 +695,7 @@ bool ARMELFAttributeData::postMerge(const Input &pInput)
     int out_cpu_arch = out_cpu_arch_attr.getIntValue();
 
     if (out_cpu_arch > CPU_Arch_Max) {
-      llvm::errs() << "ERROR: input " << pInput.name() << " has unknown "
-                      " CPU architecture profile\n";
+      error(diag::error_unknown_cpu_arch) << pInput.name();
       return false;
     }
 
@@ -732,8 +716,8 @@ bool ARMELFAttributeData::postMerge(const Input &pInput)
     int result_cpu_arch = merge_cpu_arch(m_CurrentCPUArch, in_cpu_arch);
 
     if (result_cpu_arch < 0) {
-      llvm::errs() << "WARNING: conflict CPU architecture in the input "
-                   << pInput.name() << "\n";
+      warning(diag::warn_mismatch_cpu_arch_profile)
+          << in_cpu_arch << pInput.name();
     } else {
       if (result_cpu_arch != m_CurrentCPUArch) {
         // Value of Tag_CPU_arch are going to changea.
@@ -796,9 +780,7 @@ bool ARMELFAttributeData::postMerge(const Input &pInput)
       // Inherit requirement from input.
       out_attr.setIntValue(m_VFPArgs);
     } else {
-      llvm::errs() << "WARNING: input " << pInput.name() << " uses different "
-                      "way to pass the floating point parameter and results "
-                      "\n";
+      warning(diag::warn_mismatch_vfp_args) << pInput.name();
     }
   }
 
@@ -900,9 +882,7 @@ bool ARMELFAttributeData::postMerge(const Input &pInput)
       // Check the consistency between m_MPextensionUse and the value of
       // Tag_MPextension_use_legacy.
       if (m_MPextensionUse != out_mpextension_use_legacy.getIntValue()) {
-        llvm::errs() << "ERROR: conflict values from Tag_MPextension_use and "
-                        "Tag_MPextension_use_legacy in " << pInput.name()
-                     << "\n";
+        error(diag::error_mismatch_mpextension_use) << pInput.name();
         return false;
       }
     } else {

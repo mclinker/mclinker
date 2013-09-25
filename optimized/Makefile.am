@@ -60,6 +60,7 @@ HEADER = ${INCDIR}/AttributeOption.h \
 	${INCDIR}/LD/BranchIslandFactory.h \
 	${INCDIR}/LD/BranchIsland.h \
 	${INCDIR}/LD/BSDArchiveReader.h \
+	${INCDIR}/LD/DiagAttribute.inc \
 	${INCDIR}/LD/DiagCommonKinds.inc \
 	${INCDIR}/LD/DiagGOTPLT.inc \
 	${INCDIR}/LD/DiagLayouts.inc \

@@ -16,6 +16,7 @@
 #include <mcld/MC/Input.h>
 #include <mcld/Support/LEB128.h>
 #include <mcld/Support/MemoryArea.h>
+#include <mcld/Support/MsgHandling.h>
 #include <mcld/Target/ELFAttributeValue.h>
 #include <mcld/Target/GNULDBackend.h>
 
@@ -66,8 +67,8 @@ bool ELFAttribute::merge(const Input &pInput, LDSection &pInputAttrSectHdr)
 
   // format-version
   if (attribute_data[0] != FormatVersion) {
-    llvm::errs() << "WARNING: unsupported ELF attribute section format "
-                    "(version: " << attribute_data[0] << ")!\n";
+    warning(diag::warn_unsupported_attribute_section_format)
+        << pInput.name() << attribute_data[0];
     return true;
   }
 
@@ -99,8 +100,8 @@ bool ELFAttribute::merge(const Input &pInput, LDSection &pInputAttrSectHdr)
 
     // Only process the subsections whose vendor can be recognized.
     if (subsection == NULL) {
-      llvm::errs() << "WARNING: skip unrecognized private vendor subsection "
-                      "(name: " << vendor_name << ")!\n";
+      warning(diag::warn_unrecognized_vendor_subsection)
+          << vendor_name << pInput.name();
     } else {
       // vendor-data
       size_t vendor_data_offset = subsection_offset +
