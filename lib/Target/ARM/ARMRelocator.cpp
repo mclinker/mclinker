@@ -495,7 +495,6 @@ void ARMRelocator::scanRelocation(Relocation& pReloc,
   assert(NULL != rsym &&
          "ResolveInfo of relocation not set while scanRelocation");
 
-  pReloc.updateAddend();
   assert(NULL != pSection.getLink());
   if (0 == (pSection.getLink()->flag() & llvm::ELF::SHF_ALLOC))
     return;

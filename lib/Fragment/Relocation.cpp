@@ -91,8 +91,10 @@ Relocation::Address Relocation::place() const
 Relocation::Address Relocation::symValue() const
 {
   if (m_pSymInfo->type() == ResolveInfo::Section &&
-     m_pSymInfo->outSymbol()->hasFragRef()) {
-    return m_pSymInfo->outSymbol()->fragRef()->frag()->getParent()->getSection().addr();
+      m_pSymInfo->outSymbol()->hasFragRef()) {
+    const FragmentRef* fragRef = m_pSymInfo->outSymbol()->fragRef();
+    return fragRef->frag()->getParent()->getSection().addr() +
+           fragRef->getOutputOffset();
   }
   return m_pSymInfo->outSymbol()->value();
 }

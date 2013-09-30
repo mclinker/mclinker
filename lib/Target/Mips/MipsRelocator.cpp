@@ -114,14 +114,6 @@ public:
     return parent().place();
   }
 
-  Relocation::DWord secOff() const
-  {
-    if (isFirst() && parent().symInfo()->type() == ResolveInfo::Section)
-      return parent().symInfo()->outSymbol()->fragRef()->getOutputOffset();
-
-    return 0;
-  }
-
   Relocation::DWord result() const
   {
     return m_Result;
@@ -684,7 +676,7 @@ Relocator::Address MipsRelocator::getGOTOffset(MipsRelocationInfo& pReloc)
     uint64_t value = pReloc.S();
 
     if (ResolveInfo::Section == rsym->type())
-      value += pReloc.A() + pReloc.secOff();
+      value += pReloc.A();
 
     return got.getGPRelOffset(getApplyingInput(),
                               getLocalGOTEntry(pReloc, value));
@@ -696,7 +688,7 @@ Relocator::Address MipsRelocator::getGOTOffset(MipsRelocationInfo& pReloc)
 
 void MipsRelocator::createDynRel(MipsRelocationInfo& pReloc)
 {
-  Relocator::DWord A = pReloc.A() + pReloc.secOff();
+  Relocator::DWord A = pReloc.A();
   Relocator::DWord S = pReloc.S();
 
   ResolveInfo* rsym = pReloc.parent().symInfo();
@@ -719,7 +711,7 @@ uint64_t MipsRelocator::calcAHL(const MipsRelocationInfo& pHiReloc)
 
   uint64_t AHI = pHiReloc.A() & 0xFFFF;
   uint64_t ALO = m_CurrentLo16Reloc->A() & 0xFFFF;
-  uint64_t AHL = (AHI << 16) + int16_t(ALO) + pHiReloc.secOff();
+  uint64_t AHL = (AHI << 16) + int16_t(ALO);
 
   return AHL;
 }
@@ -811,7 +803,7 @@ MipsRelocator::Result abs32(MipsRelocationInfo& pReloc, MipsRelocator& pParent)
 {
   ResolveInfo* rsym = pReloc.parent().symInfo();
 
-  Relocator::DWord A = pReloc.A() + pReloc.secOff();
+  Relocator::DWord A = pReloc.A();
   Relocator::DWord S = pReloc.S();
 
   LDSection& target_sect =
@@ -842,7 +834,7 @@ MipsRelocator::Result rel26(MipsRelocationInfo& pReloc, MipsRelocator& pParent)
 {
   ResolveInfo* rsym = pReloc.parent().symInfo();
 
-  int32_t A = ((pReloc.parent().target() & 0x03FFFFFF) << 2) + pReloc.secOff();
+  int32_t A = ((pReloc.parent().target() & 0x03FFFFFF) << 2);
   int32_t P = pReloc.P();
   int32_t S = rsym->reserved() & MipsRelocator::ReservePLT
                   ? pParent.getPLTAddress(*rsym)
@@ -891,7 +883,7 @@ MipsRelocator::Result lo16(MipsRelocationInfo& pReloc, MipsRelocator& pParent)
   // AHL is a combination of HI16 and LO16 addends. But R_MIPS_LO16
   // uses low 16 bits of the AHL. That is why we do not need R_MIPS_HI16
   // addend here.
-  int32_t AHL = (pReloc.A() & 0xFFFF) + pReloc.secOff();
+  int32_t AHL = (pReloc.A() & 0xFFFF);
 
   if (pParent.isGpDisp(pReloc.parent())) {
     int32_t P = pReloc.P();
@@ -915,7 +907,7 @@ static
 MipsRelocator::Result gprel16(MipsRelocationInfo& pReloc, MipsRelocator& pParent)
 {
   // Remember to add the section offset to A.
-  uint64_t A = pReloc.A() + pReloc.secOff();
+  uint64_t A = pReloc.A();
   uint64_t S = pReloc.S();
   uint64_t GP0 = pParent.getGP0();
   uint64_t GP = pParent.getGPAddress();
@@ -959,7 +951,7 @@ static
 MipsRelocator::Result gothi16(MipsRelocationInfo& pReloc, MipsRelocator& pParent)
 {
   Relocator::Address G = pParent.getGOTOffset(pReloc);
-  int32_t A = pReloc.A() + pReloc.secOff();
+  int32_t A = pReloc.A();
 
   pReloc.result() = (G - (int16_t)G) >> (16 + A);
 
@@ -1003,7 +995,7 @@ static
 MipsRelocator::Result gprel32(MipsRelocationInfo& pReloc, MipsRelocator& pParent)
 {
   // Remember to add the section offset to A.
-  uint64_t A = pReloc.A() + pReloc.secOff();
+  uint64_t A = pReloc.A();
   uint64_t S = pReloc.S();
   uint64_t GP0 = pParent.getGP0();
   uint64_t GP = pParent.getGPAddress();

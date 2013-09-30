@@ -92,7 +92,6 @@ void HexagonRelocator::scanRelocation(Relocation &pReloc, IRBuilder &pLinker,
   if (LinkerConfig::Object == config().codeGenType())
     return;
 
-  pReloc.updateAddend();
   // rsym - The relocation target symbol
   ResolveInfo *rsym = pReloc.symInfo();
   assert(NULL != rsym &&
