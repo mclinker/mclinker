@@ -16,24 +16,17 @@
 #include <gtest.h>
 #endif
 
-#include <vector>
-#include <string>
-#include <map>
-
 #include <mcld/InputTree.h>
-#include <mcld/ADT/HashTable.h>
-#include <mcld/ADT/HashEntry.h>
-#include <mcld/Support/GCFactoryListTraits.h>
-#include <mcld/Fragment/Fragment.h>
 #include <mcld/LD/NamePool.h>
 #include <mcld/LD/SectionSymbolSet.h>
 #include <mcld/MC/SymbolCategory.h>
-#include <mcld/MC/Input.h>
 
-#include <llvm/ADT/ilist.h>
+#include <vector>
+#include <string>
 
 namespace mcld {
 
+class Input;
 class LinkerScript;
 class LDSection;
 class LDSymbol;
