@@ -536,8 +536,7 @@ ARMGNULDBackend::doRelax(Module& pModule, IRBuilder& pBuilder, bool& pFinished)
           case llvm::ELF::R_ARM_THM_CALL:
           case llvm::ELF::R_ARM_THM_XPC22:
           case llvm::ELF::R_ARM_THM_JUMP24:
-          case llvm::ELF::R_ARM_THM_JUMP19:
-          case llvm::ELF::R_ARM_V4BX: {
+          case llvm::ELF::R_ARM_THM_JUMP19: {
             // calculate the possible symbol value
             uint64_t sym_value = 0x0;
             LDSymbol* symbol = relocation->symInfo()->outSymbol();
@@ -576,6 +575,9 @@ ARMGNULDBackend::doRelax(Module& pModule, IRBuilder& pBuilder, bool& pFinished)
             }
             break;
           }
+          case llvm::ELF::R_ARM_V4BX:
+            /* FIXME: bypass R_ARM_V4BX relocation now */
+            break;
           default:
             break;
         } // end of switch
