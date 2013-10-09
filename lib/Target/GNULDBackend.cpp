@@ -780,14 +780,27 @@ void GNULDBackend::sizeNamePools(Module& pModule)
   Module::const_sym_iterator symbol, symEnd;
   /// Compute the size of .symtab, .strtab, and symtab_local_cnt
   /// @{
-  symEnd = symbols.end();
-  for (symbol = symbols.begin(); symbol != symEnd; ++symbol) {
-    ++symtab;
-    if (hasEntryInStrTab(**symbol))
-      strtab += (*symbol)->nameSize() + 1;
-  }
-  symtab_local_cnt = 1 + symbols.numOfFiles() + symbols.numOfLocals() +
-                     symbols.numOfLocalDyns();
+  /* TODO:
+       1. discard locals and temporary locals
+       2. check whether the symbol is used
+   */
+  switch (config().options().getStripSymbolMode()) {
+    case GeneralOptions::StripAllSymbols: {
+      symtab = strtab = 0;
+      break;
+    }
+    default: {
+      symEnd = symbols.end();
+      for (symbol = symbols.begin(); symbol != symEnd; ++symbol) {
+        ++symtab;
+        if (hasEntryInStrTab(**symbol))
+          strtab += (*symbol)->nameSize() + 1;
+      }
+      symtab_local_cnt = 1 + symbols.numOfFiles() + symbols.numOfLocals() +
+                         symbols.numOfLocalDyns();
+      break;
+    }
+  } // end of switch
 
   ELFFileFormat* file_format = getOutputFormat();
 
@@ -956,6 +969,8 @@ void GNULDBackend::emitRegNamePools(const Module& pModule,
                                     MemoryArea& pOutput)
 {
   ELFFileFormat* file_format = getOutputFormat();
+  if (!file_format->hasSymTab())
+    return;
 
   LDSection& symtab_sect = file_format->getSymTab();
   LDSection& strtab_sect = file_format->getStrTab();
