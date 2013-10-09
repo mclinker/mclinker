@@ -293,7 +293,7 @@ bool ARMELFAttributeData::merge(const Input &pInput, TagType pTag,
       if (m_MPextensionUse < 0) {
         m_MPextensionUse = pInAttr.getIntValue();
       } else {
-        if (m_MPextensionUse != pInAttr.getIntValue()) {
+        if (static_cast<unsigned>(m_MPextensionUse) != pInAttr.getIntValue()) {
           warning(diag::error_mismatch_mpextension_use) << pInput.name();
         }
       }
@@ -613,24 +613,26 @@ static const size_t num_fp_configs =
 // h(0, 0) = 0
 static const uint8_t fp_config_hash_table[] =
 {
+#define UND static_cast<uint8_t>(-1)
   /*  0 */0,
   /*  1 */1,
   /*  2 */2,
   /*  3 */4,
   /*  4 */6,
-  /*  5 */-1,
-  /*  6 */-1,
+  /*  5 */UND,
+  /*  6 */UND,
   /*  7 */3,
   /*  8 */8,
   /*  9 */5,
-  /* 10 */-1,
-  /* 11 */-1,
-  /* 12 */-1,
-  /* 13 */-1,
-  /* 14 */-1,
-  /* 15 */-1,
-  /* 16 */-1,
+  /* 10 */UND,
+  /* 11 */UND,
+  /* 12 */UND,
+  /* 13 */UND,
+  /* 14 */UND,
+  /* 15 */UND,
+  /* 16 */UND,
   /* 17 */7,
+#undef UND
 };
 
 static const size_t num_hash_table_entries =
@@ -810,8 +812,8 @@ bool ARMELFAttributeData::postMerge(const Input &pInput)
 
       // Version greater than num_fp_configs is not defined. Choose the greater
       // one for future-proofing.
-      if (m_FPArch > num_fp_configs) {
-        if (m_FPArch > out_fp_arch_attr.getIntValue()) {
+      if (static_cast<unsigned>(m_FPArch) > num_fp_configs) {
+        if (static_cast<unsigned>(m_FPArch) > out_fp_arch_attr.getIntValue()) {
           out_fp_arch_attr.setIntValue(m_FPArch);
         }
       } else {
@@ -881,7 +883,8 @@ bool ARMELFAttributeData::postMerge(const Input &pInput)
 
       // Check the consistency between m_MPextensionUse and the value of
       // Tag_MPextension_use_legacy.
-      if (m_MPextensionUse != out_mpextension_use_legacy.getIntValue()) {
+      if (static_cast<unsigned>(m_MPextensionUse) !=
+              out_mpextension_use_legacy.getIntValue()) {
         error(diag::error_mismatch_mpextension_use) << pInput.name();
         return false;
       }
@@ -906,7 +909,8 @@ bool ARMELFAttributeData::postMerge(const Input &pInput)
   if (m_MPextensionUse > 0) {
     assert(out_mpextension_use.isInitialized());
 
-    if (m_MPextensionUse > out_mpextension_use.getIntValue()) {
+    if (static_cast<unsigned>(m_MPextensionUse) >
+            out_mpextension_use.getIntValue()) {
       out_mpextension_use.setIntValue(m_MPextensionUse);
     }
   }
