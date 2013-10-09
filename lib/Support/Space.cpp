@@ -192,8 +192,7 @@ void Space::Sync(Space* pSpace, FileHandle& pHandler)
     }
     case Space::MMAPED:
     default: {
-      // system will eventually write bakc the memory after
-      // calling ::munmap
+      // system will eventually write back the memory after calling ::munmap
       return;
     }
   } // end of switch
