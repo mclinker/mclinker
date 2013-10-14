@@ -8,20 +8,13 @@
 //===----------------------------------------------------------------------===//
 #include <mcld/Script/ScriptReader.h>
 #include <mcld/Script/ScriptScanner.h>
-#include <mcld/Script/ScriptCommand.h>
 #include <mcld/Script/ScriptFile.h>
 #include <mcld/MC/Input.h>
-#include <mcld/LD/GroupReader.h>
-#include <mcld/LinkerConfig.h>
-#include <mcld/LinkerScript.h>
-#include <mcld/Support/FileHandle.h>
 #include <mcld/Support/MemoryArea.h>
 #include <mcld/Support/MemoryRegion.h>
 
 #include <istream>
 #include <sstream>
-#include <string>
-#include <cassert>
 
 using namespace mcld;
 

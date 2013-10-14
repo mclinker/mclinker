@@ -13,7 +13,6 @@
 #endif
 
 #include <mcld/LD/LDReader.h>
-#include <string>
 
 namespace mcld {
 

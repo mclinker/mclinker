@@ -12,8 +12,6 @@
 #include <mcld/Module.h>
 #include <mcld/LinkerScript.h>
 
-#include <cassert>
-
 using namespace mcld;
 
 //===----------------------------------------------------------------------===//
