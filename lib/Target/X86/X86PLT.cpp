@@ -130,27 +130,35 @@ bool X86PLT::hasPLT1() const
 
 void X86PLT::reserveEntry(size_t pNum)
 {
-  PLTEntryBase* plt1_entry = NULL;
+   PLTEntryBase* plt1_entry = NULL;
 
-  for (size_t i = 0; i < pNum; ++i) {
+   for (size_t i = 0; i < pNum; ++i) {
 
-    if (LinkerConfig::DynObj == m_Config.codeGenType())
-      plt1_entry = new X86_32DynPLT1(*m_SectionData);
-    else
-      plt1_entry = new X86_32ExecPLT1(*m_SectionData);
+      if (LinkerConfig::DynObj == m_Config.codeGenType())
+         plt1_entry = new X86_32DynPLT1(*m_SectionData);
+      else
+         plt1_entry = new X86_32ExecPLT1(*m_SectionData);
 
-    if (NULL == plt1_entry)
-      fatal(diag::fail_allocate_memory_plt);
-  }
+      if (NULL == plt1_entry)
+         fatal(diag::fail_allocate_memory_plt);
+   }
 }
 
 PLTEntryBase* X86PLT::consume()
 {
-  // This will skip PLT0.
-  ++m_Last;
-  assert(m_Last != m_SectionData->end() &&
+   // This will skip PLT0.
+   ++m_Last;
+   assert(m_Last != m_SectionData->end() &&
          "The number of PLT Entries and ResolveInfo doesn't match");
-  return llvm::cast<PLTEntryBase>(&(*m_Last));
+   return llvm::cast<PLTEntryBase>(&(*m_Last));
+}
+
+PLTEntryBase* X86PLT::create()
+{
+  if (LinkerConfig::DynObj == m_Config.codeGenType())
+    return new X86_32DynPLT1(*m_SectionData);
+  else
+    return new X86_32ExecPLT1(*m_SectionData);
 }
 
 PLTEntryBase* X86PLT::getPLT0() const

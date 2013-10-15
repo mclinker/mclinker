@@ -25,7 +25,126 @@
 using namespace mcld;
 
 //===--------------------------------------------------------------------===//
-// Relocation Functions and Tables
+// X86_32 Relocation helper function
+//===--------------------------------------------------------------------===//
+/// helper_DynRel - Get an relocation entry in .rel.dyn
+static
+Relocation& helper_DynRel_init(ResolveInfo* pSym,
+                               Fragment& pFrag,
+                               uint64_t pOffset,
+                               X86Relocator::Type pType,
+                               X86_32Relocator& pParent)
+{
+  X86_32GNULDBackend& ld_backend = pParent.getTarget();
+  Relocation& rel_entry = *ld_backend.getRelDyn().create();
+  rel_entry.setType(pType);
+  rel_entry.targetRef().assign(pFrag, pOffset);
+  if (pType == llvm::ELF::R_386_RELATIVE || NULL == pSym)
+    rel_entry.setSymInfo(NULL);
+  else
+    rel_entry.setSymInfo(pSym);
+
+  return rel_entry;
+}
+
+/// helper_use_relative_reloc - Check if symbol ceuse relocation
+/// R_386_RELATIVE
+static bool
+helper_use_relative_reloc(const ResolveInfo& pSym,
+                          const X86_32Relocator& pFactory)
+
+{
+  // if symbol is dynamic or undefine or preemptible
+  if (pSym.isDyn() ||
+      pSym.isUndef() ||
+      pFactory.getTarget().isSymbolPreemptible(pSym))
+    return false;
+  return true;
+}
+
+static
+X86_32GOTEntry& helper_GOT_init(Relocation& pReloc,
+                                bool pHasRel,
+					                      X86_32Relocator& pParent)
+{
+  // rsym - The relocation target symbol
+  ResolveInfo* rsym = pReloc.symInfo();
+  X86_32GNULDBackend& ld_backend = pParent.getTarget();
+  assert(NULL == pParent.getSymGOTMap().lookUp(*rsym));
+
+  X86_32GOTEntry* got_entry = ld_backend.getGOT().create();
+  pParent.getSymGOTMap().record(*rsym, *got_entry);
+
+  if (!pHasRel) {
+    // No corresponding dynamic relocation, initialize to the symbol value.
+    got_entry->setValue(X86Relocator::SymVal);
+  }
+  else {
+    // Initialize got_entry content and the corresponding dynamic relocation.
+    if (helper_use_relative_reloc(*rsym, pParent)) {
+      helper_DynRel_init(rsym, *got_entry, 0x0, llvm::ELF::R_386_RELATIVE,
+                                                                       pParent);
+      got_entry->setValue(X86Relocator::SymVal);
+    }
+    else {
+      helper_DynRel_init(rsym, *got_entry, 0x0, llvm::ELF::R_386_GLOB_DAT,
+                                                                       pParent);
+      got_entry->setValue(0x0);
+    }
+  }
+  return *got_entry;
+}
+
+static
+X86Relocator::Address helper_GOT_ORG(X86_32Relocator& pParent)
+{
+  return pParent.getTarget().getGOTPLT().addr();
+}
+
+static
+X86Relocator::Address helper_get_GOT_address(Relocation& pReloc,
+                                             X86_32Relocator& pParent)
+{
+  X86_32GOTEntry* got_entry = pParent.getSymGOTMap().lookUp(*pReloc.symInfo());
+  assert(NULL != got_entry);
+  return pParent.getTarget().getGOT().addr() + got_entry->getOffset();
+}
+
+static
+PLTEntryBase& helper_PLT_init(Relocation& pReloc, X86_32Relocator& pParent)
+{
+  // rsym - The relocation target symbol
+  ResolveInfo* rsym = pReloc.symInfo();
+  X86_32GNULDBackend& ld_backend = pParent.getTarget();
+  assert(NULL == pParent.getSymPLTMap().lookUp(*rsym));
+
+  PLTEntryBase* plt_entry = ld_backend.getPLT().create();
+  pParent.getSymPLTMap().record(*rsym, *plt_entry);
+
+  // initialize plt and the corresponding pltgot, dyn rel entry.
+  assert(NULL == pParent.getSymGOTPLTMap().lookUp(*rsym) &&
+         "PLT entry not exist, but GOTPLT entry exist!");
+  X86_32GOTEntry* gotplt_entry = ld_backend.getGOTPLT().create();
+  pParent.getSymGOTPLTMap().record(*rsym, *gotplt_entry);
+
+  // init the corresponding rel entry in .rel.plt
+  Relocation& rel_entry = *ld_backend.getRelPLT().create();
+  rel_entry.setType(llvm::ELF::R_386_JUMP_SLOT);
+  rel_entry.targetRef().assign(*gotplt_entry);
+  rel_entry.setSymInfo(rsym);
+  return *plt_entry;
+}
+
+static
+X86Relocator::Address helper_get_PLT_address(ResolveInfo& pSym, X86_32Relocator& pParent)
+{
+  PLTEntryBase* plt_entry = pParent.getSymPLTMap().lookUp(pSym);
+  assert(NULL != plt_entry);
+  return pParent.getTarget().getPLT().addr() + plt_entry->getOffset();
+}
+
+//===--------------------------------------------------------------------===//
+// X86_32 Relocation Functions and Tables
 //===--------------------------------------------------------------------===//
 DECL_X86_32_APPLY_RELOC_FUNCS
 
@@ -89,7 +208,7 @@ void X86Relocator::scanRelocation(Relocation& pReloc,
 
 void X86Relocator::addCopyReloc(ResolveInfo& pSym, X86GNULDBackend& pTarget)
 {
-  Relocation& rel_entry = *pTarget.getRelDyn().consumeEntry();
+  Relocation& rel_entry = *pTarget.getRelDyn().create();
   rel_entry.setType(pTarget.getCopyRelType());
   assert(pSym.outSymbol()->hasFragRef());
   rel_entry.targetRef().assign(*pSym.outSymbol()->fragRef());
@@ -214,13 +333,31 @@ void X86_32Relocator::scanLocalReloc(Relocation& pReloc,
   switch(pReloc.type()){
 
     case llvm::ELF::R_386_32:
+      // If buiding PIC object (shared library or PIC executable),
+      // a dynamic relocations with RELATIVE type to this location is needed.
+      // Reserve an entry in .rel.dyn
+      if (config().isCodeIndep()) {
+        // set Rel bit
+        rsym->setReserved(rsym->reserved() | ReserveRel);
+        getTarget().checkAndSetHasTextRel(*pSection.getLink());
+        // consume and set up the dyn rel directly
+        helper_DynRel_init(rsym,
+                           *pReloc.targetRef().frag(),
+                           pReloc.targetRef().offset(),
+                           llvm::ELF::R_386_RELATIVE,
+                           *this);
+      }
+      return;
+
     case llvm::ELF::R_386_16:
     case llvm::ELF::R_386_8:
       // If buiding PIC object (shared library or PIC executable),
       // a dynamic relocations with RELATIVE type to this location is needed.
       // Reserve an entry in .rel.dyn
       if (config().isCodeIndep()) {
-        getTarget().getRelDyn().reserveEntry();
+        // set up the dyn rel directly
+        helper_DynRel_init(rsym, *pReloc.targetRef().frag(),
+                            pReloc.targetRef().offset(), pReloc.type(), *this);
         // set Rel bit
         rsym->setReserved(rsym->reserved() | ReserveRel);
         getTarget().checkAndSetHasTextRel(*pSection.getLink());
@@ -238,28 +375,25 @@ void X86_32Relocator::scanLocalReloc(Relocation& pReloc,
     case llvm::ELF::R_386_GOT32:
       // Symbol needs GOT entry, reserve entry in .got
       // return if we already create GOT for this symbol
-      if (rsym->reserved() & (ReserveGOT | GOTRel))
+      if (rsym->reserved() & ReserveGOT)
         return;
-      // FIXME: check STT_GNU_IFUNC symbol
-      getTarget().getGOT().reserve();
 
-      // If the GOT is used in statically linked binaries,
-      // the GOT entry is enough and no relocation is needed.
-      if (config().isCodeStatic()) {
-        rsym->setReserved(rsym->reserved() | ReserveGOT);
-        return;
-      }
+      // FIXME: check STT_GNU_IFUNC symbol
+
       // If building shared object or the symbol is undefined, a dynamic
       // relocation is needed to relocate this GOT entry. Reserve an
       // entry in .rel.dyn
       if (LinkerConfig::DynObj ==
                    config().codeGenType() || rsym->isUndef() || rsym->isDyn()) {
-        getTarget().getRelDyn().reserveEntry();
-        // set GOTRel bit
-        rsym->setReserved(rsym->reserved() | GOTRel);
+        helper_GOT_init(pReloc, true, *this);
+        // set GOT bit
+        rsym->setReserved(rsym->reserved() | ReserveGOT);
         return;
       }
-      // set GOT bit
+
+      // elsewhere if the GOT is used in statically linked binaries,
+      // the GOT entry is enough and no relocation is needed.
+      helper_GOT_init(pReloc, false, *this);
       rsym->setReserved(rsym->reserved() | ReserveGOT);
       return;
 
@@ -270,13 +404,9 @@ void X86_32Relocator::scanLocalReloc(Relocation& pReloc,
 
     case llvm::ELF::R_386_TLS_GD: {
       // FIXME: no linker optimization for TLS relocation
-      if (rsym->reserved() & GOTRel)
+      if (rsym->reserved() & ReserveGOT)
         return;
-      getTarget().getGOT().reserve(2);
-      // reserve an rel entry
-      getTarget().getRelDyn().reserveEntry();
-      // set GOTRel bit
-      rsym->setReserved(rsym->reserved() | GOTRel);
+
       // define the section symbol for .tdata or .tbss
       // the target symbol of the created dynamic relocation should be the
       // section symbol of the section which this symbol defined. so we
@@ -284,19 +414,40 @@ void X86_32Relocator::scanLocalReloc(Relocation& pReloc,
       ELFFileFormat* file_format = getTarget().getOutputFormat();
       const LDSection* sym_sect =
                &rsym->outSymbol()->fragRef()->frag()->getParent()->getSection();
+      LDSymbol* sect_sym = NULL;
       if (&file_format->getTData() == sym_sect) {
-        if (!getTarget().hasTDATASymbol())
-          getTarget().setTDATASymbol(*pModule.getSectionSymbolSet().get(*sym_sect));
+        if (!getTarget().hasTDATASymbol()) {
+          sect_sym = pModule.getSectionSymbolSet().get(*sym_sect);
+          getTarget().setTDATASymbol(*sect_sym);
+        }
       }
       else if (&file_format->getTBSS() == sym_sect || rsym->isCommon()) {
-        if (!getTarget().hasTBSSSymbol())
-          getTarget().setTBSSSymbol(*pModule.getSectionSymbolSet().get(*sym_sect));
+        if (!getTarget().hasTBSSSymbol()) {
+          sect_sym = pModule.getSectionSymbolSet().get(*sym_sect);
+          getTarget().setTBSSSymbol(*sect_sym);
+        }
       }
       else
         error(diag::invalid_tls) << rsym->name() << sym_sect->name();
+
+      // set up a pair of got entries and a dyn rel
+      // set GOT bit
+      rsym->setReserved(rsym->reserved() | ReserveGOT);
+      X86_32GOTEntry* got_entry1 = getTarget().getGOT().create();
+      X86_32GOTEntry* got_entry2 = getTarget().getGOT().create();
+      getSymGOTMap().record(*rsym, *got_entry1, *got_entry2);
+      // set up value of got entries, the value of got_entry2 should be the
+      // symbol value, which has to be set during apply relocation
+      got_entry1->setValue(0x0);
+
+      // setup dyn rel for got_entry1
+      Relocation& rel_entry1 = helper_DynRel_init(rsym, *got_entry1, 0x0,
+                                        llvm::ELF::R_386_TLS_DTPMOD32, *this);
+      // for local tls symbol, add rel entry against the section symbol this
+      // symbol belong to (.tdata or .tbss)
+      rel_entry1.setSymInfo(sect_sym->resolveInfo());
       return;
     }
-
     case llvm::ELF::R_386_TLS_LDM:
       getTLSModuleID();
       return;
@@ -304,46 +455,65 @@ void X86_32Relocator::scanLocalReloc(Relocation& pReloc,
     case llvm::ELF::R_386_TLS_LDO_32:
       return;
 
-    case llvm::ELF::R_386_TLS_IE:
+    case llvm::ELF::R_386_TLS_IE: {
       getTarget().setHasStaticTLS();
-      // if buildint shared object, a RELATIVE dynamic relocation is needed
+
+      // if building shared object, a RELATIVE dynamic relocation is needed
       if (LinkerConfig::DynObj == config().codeGenType()) {
-        getTarget().getRelDyn().reserveEntry();
+         helper_DynRel_init(rsym, *pReloc.targetRef().frag(),
+                                              pReloc.targetRef().offset(),
+                                              llvm::ELF::R_386_RELATIVE, *this);
         rsym->setReserved(rsym->reserved() | ReserveRel);
         getTarget().checkAndSetHasTextRel(*pSection.getLink());
-      } else {
+      }
+      else {
         // for local sym, we can convert ie to le if not building shared object
         convertTLSIEtoLE(pReloc, pSection);
         return;
       }
-      if (rsym->reserved() & GOTRel)
-        return;
-      // reserve got and dyn relocation entries for tp-relative offset
-      getTarget().getGOT().reserve();
-      getTarget().getRelDyn().reserveEntry();
-      // set GOTRel bit
-      rsym->setReserved(rsym->reserved() | GOTRel);
-      getTarget().getRelDyn().addSymbolToDynSym(*rsym->outSymbol());
-      return;
 
-    case llvm::ELF::R_386_TLS_GOTIE:
-      getTarget().setHasStaticTLS();
-      if (rsym->reserved() & GOTRel)
+      if (rsym->reserved() & ReserveGOT)
         return;
-      // reserve got and dyn relocation entries for tp-relative offset
-      getTarget().getGOT().reserve();
-      getTarget().getRelDyn().reserveEntry();
-      // set GOTRel bit
-      rsym->setReserved(rsym->reserved() | GOTRel);
+
+      // set up the got and the corresponding rel entry
+      X86_32GOTEntry* got_entry = getTarget().getGOT().create();
+      getSymGOTMap().record(*rsym, *got_entry);
+      got_entry->setValue(0x0);
+      helper_DynRel_init(rsym, *got_entry, 0x0, llvm::ELF::R_386_TLS_TPOFF,
+                                                                         *this);
+      // set GOT bit
+      rsym->setReserved(rsym->reserved() | ReserveGOT);
+      // add symbol to dyn sym table
       getTarget().getRelDyn().addSymbolToDynSym(*rsym->outSymbol());
       return;
+    }
+
+    case llvm::ELF::R_386_TLS_GOTIE: {
+      getTarget().setHasStaticTLS();
+      if (rsym->reserved() & ReserveGOT)
+        return;
+      // set up the got and the corresponding dyn rel
+      X86_32GOTEntry* got_entry = getTarget().getGOT().create();
+      getSymGOTMap().record(*rsym, *got_entry);
+      got_entry->setValue(0x0);
+      helper_DynRel_init(rsym, *got_entry, 0x0, llvm::ELF::R_386_TLS_TPOFF,
+                                                                        *this);
+      // set GOT bit
+      rsym->setReserved(rsym->reserved() | ReserveGOT);
+      getTarget().getRelDyn().addSymbolToDynSym(*rsym->outSymbol());
+      return;
+    }
 
     case llvm::ELF::R_386_TLS_LE:
     case llvm::ELF::R_386_TLS_LE_32:
       getTarget().setHasStaticTLS();
       // if buildint shared object, a dynamic relocation is needed
       if (LinkerConfig::DynObj == config().codeGenType()) {
-        getTarget().getRelDyn().reserveEntry();
+        helper_DynRel_init(rsym,
+                           *pReloc.targetRef().frag(),
+                           pReloc.targetRef().offset(),
+                           llvm::ELF::R_386_TLS_TPOFF,
+                           *this);
         rsym->setReserved(rsym->reserved() | ReserveRel);
         getTarget().checkAndSetHasTextRel(*pSection.getLink());
         // the target symbol of the dynamic relocation is rsym, so we need to
@@ -377,29 +547,39 @@ void X86_32Relocator::scanGlobalReloc(Relocation& pReloc,
       if (getTarget().symbolNeedsPLT(*rsym)) {
         // create plt for this symbol if it does not have one
         if (!(rsym->reserved() & ReservePLT)){
-          // Symbol needs PLT entry, we need to reserve a PLT entry
+          // Symbol needs PLT entry, we need a PLT entry
           // and the corresponding GOT and dynamic relocation entry
-          // in .got and .rel.plt. (GOT entry will be reserved simultaneously
-          // when calling X86PLT->reserveEntry())
-          getTarget().getPLT().reserveEntry();
-          getTarget().getGOTPLT().reserve();
-          getTarget().getRelPLT().reserveEntry();
+          // in .got and .rel.plt.
+          helper_PLT_init(pReloc, *this);
           // set PLT bit
           rsym->setReserved(rsym->reserved() | ReservePLT);
         }
       }
 
-      if (getTarget().symbolNeedsDynRel(*rsym, (rsym->reserved() & ReservePLT), true)) {
-        // symbol needs dynamic relocation entry, reserve an entry in .rel.dyn
-        getTarget().getRelDyn().reserveEntry();
+      if (getTarget().symbolNeedsDynRel(*rsym, (rsym->reserved() & ReservePLT),
+                                                                        true)) {
+        // symbol needs dynamic relocation entry, set up the dynrel entry
         if (getTarget().symbolNeedsCopyReloc(pReloc, *rsym)) {
           LDSymbol& cpy_sym = defineSymbolforCopyReloc(pBuilder, *rsym, getTarget());
           addCopyReloc(*cpy_sym.resolveInfo(), getTarget());
         }
         else {
-          // set Rel bit
+          // set Rel bit and the dyn rel
           rsym->setReserved(rsym->reserved() | ReserveRel);
           getTarget().checkAndSetHasTextRel(*pSection.getLink());
+          if (llvm::ELF::R_386_32 == pReloc.type() &&
+              helper_use_relative_reloc(*rsym, *this))
+            helper_DynRel_init(rsym,
+                               *pReloc.targetRef().frag(),
+                               pReloc.targetRef().offset(),
+                               llvm::ELF::R_386_RELATIVE,
+                               *this);
+          else
+            helper_DynRel_init(rsym,
+                               *pReloc.targetRef().frag(),
+                               pReloc.targetRef().offset(),
+                               pReloc.type(),
+                               *this);
         }
       }
       return;
@@ -424,17 +604,14 @@ void X86_32Relocator::scanGlobalReloc(Relocation& pReloc,
       // if symbol is defined in the ouput file and it's not
       // preemptible, no need plt
       if (rsym->isDefine() && !rsym->isDyn() &&
-         !getTarget().isSymbolPreemptible(*rsym)) {
+          !getTarget().isSymbolPreemptible(*rsym))
         return;
-      }
 
-      // Symbol needs PLT entry, we need to reserve a PLT entry
+      // Symbol needs PLT entry, we need a PLT entry
       // and the corresponding GOT and dynamic relocation entry
       // in .got and .rel.plt. (GOT entry will be reserved simultaneously
       // when calling X86PLT->reserveEntry())
-      getTarget().getPLT().reserveEntry();
-      getTarget().getGOTPLT().reserve();
-      getTarget().getRelPLT().reserveEntry();
+      helper_PLT_init(pReloc, *this);
       // set PLT bit
       rsym->setReserved(rsym->reserved() | ReservePLT);
       return;
@@ -442,26 +619,16 @@ void X86_32Relocator::scanGlobalReloc(Relocation& pReloc,
     case llvm::ELF::R_386_GOT32:
       // Symbol needs GOT entry, reserve entry in .got
       // return if we already create GOT for this symbol
-      if (rsym->reserved() & (ReserveGOT | GOTRel))
+      if (rsym->reserved() & ReserveGOT)
         return;
-      getTarget().getGOT().reserve();
-
-      // If the GOT is used in statically linked binaries,
-      // the GOT entry is enough and no relocation is needed.
-      if (config().isCodeStatic()) {
-        rsym->setReserved(rsym->reserved() | ReserveGOT);
-        return;
-      }
       // If building shared object or the symbol is undefined, a dynamic
       // relocation is needed to relocate this GOT entry. Reserve an
       // entry in .rel.dyn
       if (LinkerConfig::DynObj ==
-                   config().codeGenType() || rsym->isUndef() || rsym->isDyn()) {
-        getTarget().getRelDyn().reserveEntry();
-        // set GOTRel bit
-        rsym->setReserved(rsym->reserved() | GOTRel);
-        return;
-      }
+                   config().codeGenType() || rsym->isUndef() || rsym->isDyn())
+        helper_GOT_init(pReloc, true, *this);
+      else
+        helper_GOT_init(pReloc, false, *this);
       // set GOT bit
       rsym->setReserved(rsym->reserved() | ReserveGOT);
       return;
@@ -474,43 +641,65 @@ void X86_32Relocator::scanGlobalReloc(Relocation& pReloc,
           LinkerConfig::DynObj != config().codeGenType()) {
         // create plt for this symbol if it does not have one
         if (!(rsym->reserved() & ReservePLT)){
-          // Symbol needs PLT entry, we need to reserve a PLT entry
+          // Symbol needs PLT entry, we need a PLT entry
           // and the corresponding GOT and dynamic relocation entry
-          // in .got and .rel.plt. (GOT entry will be reserved simultaneously
-          // when calling X86PLT->reserveEntry())
-          getTarget().getPLT().reserveEntry();
-          getTarget().getGOTPLT().reserve();
-          getTarget().getRelPLT().reserveEntry();
+          // in .got and .rel.plt.
           // set PLT bit
+          helper_PLT_init(pReloc, *this);
           rsym->setReserved(rsym->reserved() | ReservePLT);
         }
       }
 
-      if (getTarget().symbolNeedsDynRel(*rsym, (rsym->reserved() & ReservePLT), false)) {
-        // symbol needs dynamic relocation entry, reserve an entry in .rel.dyn
-        getTarget().getRelDyn().reserveEntry();
+      if (getTarget().symbolNeedsDynRel(*rsym, (rsym->reserved() & ReservePLT),
+                                                                       false)) {
+        // symbol needs dynamic relocation entry, setup an entry in .rel.dyn
         if (getTarget().symbolNeedsCopyReloc(pReloc, *rsym)) {
-          LDSymbol& cpy_sym = defineSymbolforCopyReloc(pBuilder, *rsym, getTarget());
+          LDSymbol& cpy_sym = defineSymbolforCopyReloc(pBuilder, *rsym,
+                                                                   getTarget());
           addCopyReloc(*cpy_sym.resolveInfo(), getTarget());
         }
         else {
-          // set Rel bit
+          // set Rel bit and the dyn rel
           rsym->setReserved(rsym->reserved() | ReserveRel);
           getTarget().checkAndSetHasTextRel(*pSection.getLink());
+          if (llvm::ELF::R_386_32 == pReloc.type() &&
+              helper_use_relative_reloc(*rsym, *this))
+            helper_DynRel_init(rsym,
+                               *pReloc.targetRef().frag(),
+                               pReloc.targetRef().offset(),
+                               llvm::ELF::R_386_RELATIVE,
+                               *this);
+          else
+            helper_DynRel_init(rsym,
+                               *pReloc.targetRef().frag(),
+                               pReloc.targetRef().offset(),
+                               pReloc.type(),
+                               *this);
         }
       }
       return;
 
     case llvm::ELF::R_386_TLS_GD: {
       // FIXME: no linker optimization for TLS relocation
-      if (rsym->reserved() & GOTRel)
+      if (rsym->reserved() & ReserveGOT)
         return;
-      // reserve two pairs of got entry and dynamic relocation
-      getTarget().getGOT().reserve(2);
-      getTarget().getRelDyn().reserveEntry(2);
+
+      // set up a pair of got entries and a pair of dyn rel
+      X86_32GOTEntry* got_entry1 = getTarget().getGOT().create();
+      X86_32GOTEntry* got_entry2 = getTarget().getGOT().create();
+      getSymGOTMap().record(*rsym, *got_entry1, *got_entry2);
+      got_entry1->setValue(0x0);
+      got_entry2->setValue(0x0);
+      // setup dyn rel for got entries against rsym
+      helper_DynRel_init(rsym, *got_entry1, 0x0,
+                                        llvm::ELF::R_386_TLS_DTPMOD32, *this);
+      helper_DynRel_init(rsym, *got_entry2, 0x0,
+                                        llvm::ELF::R_386_TLS_DTPOFF32, *this);
+
+      // add the rsym to dynamic symbol table
       getTarget().getRelDyn().addSymbolToDynSym(*rsym->outSymbol());
-      // set GOTRel bit
-      rsym->setReserved(rsym->reserved() | GOTRel);
+      // set GOT bit
+      rsym->setReserved(rsym->reserved() | ReserveGOT);
       return;
     }
 
@@ -521,11 +710,13 @@ void X86_32Relocator::scanGlobalReloc(Relocation& pReloc,
     case llvm::ELF::R_386_TLS_LDO_32:
       return;
 
-    case llvm::ELF::R_386_TLS_IE:
+    case llvm::ELF::R_386_TLS_IE: {
       getTarget().setHasStaticTLS();
       // if buildint shared object, a RELATIVE dynamic relocation is needed
       if (LinkerConfig::DynObj == config().codeGenType()) {
-        getTarget().getRelDyn().reserveEntry();
+        helper_DynRel_init(rsym, *pReloc.targetRef().frag(),
+                                               pReloc.targetRef().offset(),
+                                               llvm::ELF::R_386_RELATIVE, *this);
         rsym->setReserved(rsym->reserved() | ReserveRel);
         getTarget().checkAndSetHasTextRel(*pSection.getLink());
       } else {
@@ -535,34 +726,45 @@ void X86_32Relocator::scanGlobalReloc(Relocation& pReloc,
           return;
         }
       }
-      if (rsym->reserved() & GOTRel)
+      if (rsym->reserved() & ReserveGOT)
         return;
-      // reserve got and dyn relocation entries for tp-relative offset
-      getTarget().getGOT().reserve();
-      getTarget().getRelDyn().reserveEntry();
-      getTarget().getRelDyn().addSymbolToDynSym(*rsym->outSymbol());
-      // set GOTRel bit
-      rsym->setReserved(rsym->reserved() | GOTRel);
+      // set up the got and the corresponding rel entry
+      X86_32GOTEntry* got_entry = getTarget().getGOT().create();
+      getSymGOTMap().record(*rsym, *got_entry);
+      got_entry->setValue(0x0);
+      helper_DynRel_init(rsym, *got_entry, 0x0, llvm::ELF::R_386_TLS_TPOFF,
+                                                                         *this);
+      // set GOT bit
+      rsym->setReserved(rsym->reserved() | ReserveGOT);
       return;
+    }
 
-    case llvm::ELF::R_386_TLS_GOTIE:
+    case llvm::ELF::R_386_TLS_GOTIE: {
       getTarget().setHasStaticTLS();
-      if (rsym->reserved() & GOTRel)
+      if (rsym->reserved() & ReserveGOT)
         return;
-      // reserve got and dyn relocation entries for tp-relative offset
-      getTarget().getGOT().reserve();
-      getTarget().getRelDyn().reserveEntry();
+      // set up the got and the corresponding dyn rel
+      X86_32GOTEntry* got_entry = getTarget().getGOT().create();
+      getSymGOTMap().record(*rsym, *got_entry);
+      got_entry->setValue(0x0);
+      helper_DynRel_init(rsym, *got_entry, 0x0, llvm::ELF::R_386_TLS_TPOFF,
+                                                                        *this);
       getTarget().getRelDyn().addSymbolToDynSym(*rsym->outSymbol());
-      // set GOTRel bit
-      rsym->setReserved(rsym->reserved() | GOTRel);
+      // set GOT bit
+      rsym->setReserved(rsym->reserved() | ReserveGOT);
       return;
+    }
 
     case llvm::ELF::R_386_TLS_LE:
     case llvm::ELF::R_386_TLS_LE_32:
       getTarget().setHasStaticTLS();
       // if buildint shared object, a dynamic relocation is needed
       if (LinkerConfig::DynObj == config().codeGenType()) {
-        getTarget().getRelDyn().reserveEntry();
+        helper_DynRel_init(rsym,
+                           *pReloc.targetRef().frag(),
+                           pReloc.targetRef().offset(),
+                           llvm::ELF::R_386_TLS_TPOFF,
+                           *this);
         getTarget().getRelDyn().addSymbolToDynSym(*rsym->outSymbol());
         rsym->setReserved(rsym->reserved() | ReserveRel);
         getTarget().checkAndSetHasTextRel(*pSection.getLink());
@@ -585,16 +787,11 @@ X86_32GOTEntry& X86_32Relocator::getTLSModuleID()
     return *got_entry;
 
   // Allocate 2 got entries and 1 dynamic reloc for R_386_TLS_LDM
-  getTarget().getGOT().reserve(2);
-  got_entry = getTarget().getGOT().consume();
-  getTarget().getGOT().consume()->setValue(0x0);
+  got_entry = getTarget().getGOT().create();
+  getTarget().getGOT().create()->setValue(0x0);
 
-  getTarget().getRelDyn().reserveEntry();
-  Relocation* rel_entry = getTarget().getRelDyn().consumeEntry();
-  rel_entry->setType(llvm::ELF::R_386_TLS_DTPMOD32);
-  rel_entry->targetRef().assign(*got_entry, 0x0);
-  rel_entry->setSymInfo(NULL);
-
+  helper_DynRel_init(NULL, *got_entry, 0x0, llvm::ELF::R_386_TLS_DTPMOD32,
+                                                                          *this);
   return *got_entry;
 }
 
@@ -649,154 +846,9 @@ void X86_32Relocator::convertTLSIEtoLE(Relocation& pReloc,
   pReloc.setType(llvm::ELF::R_386_TLS_LE);
 }
 
-//===--------------------------------------------------------------------===//
-// Relocation helper function
-//===--------------------------------------------------------------------===//
-
-/// helper_DynRel - Get an relocation entry in .rel.dyn
-static
-Relocation& helper_DynRel(ResolveInfo* pSym,
-                          Fragment& pFrag,
-                          uint64_t pOffset,
-                          X86Relocator::Type pType,
-                          X86_32Relocator& pParent)
-{
-  X86_32GNULDBackend& ld_backend = pParent.getTarget();
-  Relocation& rel_entry = *ld_backend.getRelDyn().consumeEntry();
-  rel_entry.setType(pType);
-  rel_entry.targetRef().assign(pFrag, pOffset);
-  if (pType == llvm::ELF::R_386_RELATIVE || NULL == pSym)
-    rel_entry.setSymInfo(0);
-  else
-    rel_entry.setSymInfo(pSym);
-
-  return rel_entry;
-}
-
-
-/// helper_use_relative_reloc - Check if symbol can use relocation
-/// R_386_RELATIVE
-static bool
-helper_use_relative_reloc(const ResolveInfo& pSym,
-                          const X86_32Relocator& pFactory)
-
-{
-  // if symbol is dynamic or undefine or preemptible
-  if (pSym.isDyn() ||
-      pSym.isUndef() ||
-      pFactory.getTarget().isSymbolPreemptible(pSym))
-    return false;
-  return true;
-}
-
-static
-X86_32GOTEntry& helper_get_GOT_and_init(Relocation& pReloc,
-					X86_32Relocator& pParent)
-{
-  // rsym - The relocation target symbol
-  ResolveInfo* rsym = pReloc.symInfo();
-  X86_32GNULDBackend& ld_backend = pParent.getTarget();
-
-  X86_32GOTEntry* got_entry = pParent.getSymGOTMap().lookUp(*rsym);
-  if (NULL != got_entry)
-    return *got_entry;
-
-  // not found
-  got_entry = ld_backend.getGOT().consume();
-  pParent.getSymGOTMap().record(*rsym, *got_entry);
-
-  // If we first get this GOT entry, we should initialize it.
-  if (rsym->reserved() & X86Relocator::ReserveGOT) {
-    // No corresponding dynamic relocation, initialize to the symbol value.
-    got_entry->setValue(pReloc.symValue());
-  }
-  else if (rsym->reserved() & X86Relocator::GOTRel) {
-    // Initialize got_entry content and the corresponding dynamic relocation.
-    if (helper_use_relative_reloc(*rsym, pParent)) {
-      helper_DynRel(rsym, *got_entry, 0x0, llvm::ELF::R_386_RELATIVE, pParent);
-      got_entry->setValue(pReloc.symValue());
-    }
-    else {
-      helper_DynRel(rsym, *got_entry, 0x0, llvm::ELF::R_386_GLOB_DAT, pParent);
-      got_entry->setValue(0);
-    }
-  }
-  else {
-    fatal(diag::reserve_entry_number_mismatch_got);
-  }
-  return *got_entry;
-}
-
-
-static
-X86Relocator::Address helper_GOT_ORG(X86_32Relocator& pParent)
-{
-  return pParent.getTarget().getGOTPLT().addr();
-}
-
-
-static
-X86Relocator::Address helper_GOT(Relocation& pReloc, X86_32Relocator& pParent)
-{
-  X86_32GOTEntry& got_entry = helper_get_GOT_and_init(pReloc, pParent);
-  X86Relocator::Address got_addr = pParent.getTarget().getGOT().addr();
-  return got_addr + got_entry.getOffset();
-}
-
-
-static
-PLTEntryBase& helper_get_PLT_and_init(Relocation& pReloc,
-				      X86_32Relocator& pParent)
-{
-  // rsym - The relocation target symbol
-  ResolveInfo* rsym = pReloc.symInfo();
-  X86_32GNULDBackend& ld_backend = pParent.getTarget();
-
-  PLTEntryBase* plt_entry = pParent.getSymPLTMap().lookUp(*rsym);
-  if (NULL != plt_entry)
-    return *plt_entry;
-
-  // not found
-  plt_entry = ld_backend.getPLT().consume();
-  pParent.getSymPLTMap().record(*rsym, *plt_entry);
-  // If we first get this PLT entry, we should initialize it.
-  if (rsym->reserved() & X86Relocator::ReservePLT) {
-    X86_32GOTEntry* gotplt_entry = pParent.getSymGOTPLTMap().lookUp(*rsym);
-    assert(NULL == gotplt_entry && "PLT entry not exist, but DynRel entry exist!");
-    gotplt_entry = ld_backend.getGOTPLT().consume();
-    pParent.getSymGOTPLTMap().record(*rsym, *gotplt_entry);
-    // init the corresponding rel entry in .rel.plt
-    Relocation& rel_entry = *ld_backend.getRelPLT().consumeEntry();
-    rel_entry.setType(llvm::ELF::R_386_JUMP_SLOT);
-    rel_entry.targetRef().assign(*gotplt_entry);
-    rel_entry.setSymInfo(rsym);
-  }
-  else {
-    fatal(diag::reserve_entry_number_mismatch_plt);
-  }
-
-  return *plt_entry;
-}
-
-
-static
-X86Relocator::Address helper_PLT_ORG(X86_32Relocator& pParent)
-{
-  return pParent.getTarget().getPLT().addr();
-}
-
-
-static
-X86Relocator::Address helper_PLT(Relocation& pReloc, X86_32Relocator& pParent)
-{
-  PLTEntryBase& plt_entry = helper_get_PLT_and_init(pReloc, pParent);
-  return helper_PLT_ORG(pParent) + plt_entry.getOffset();
-}
-
-
-//=========================================//
-// Each relocation function implementation //
-//=========================================//
+//================================================//
+// X86_32 Each relocation function implementation //
+//================================================//
 
 // R_386_NONE
 X86Relocator::Result none(Relocation& pReloc, X86_32Relocator& pParent)
@@ -813,13 +865,12 @@ X86Relocator::Result abs(Relocation& pReloc, X86_32Relocator& pParent)
   Relocator::DWord A = pReloc.target() + pReloc.addend();
   Relocator::DWord S = pReloc.symValue();
   bool has_dyn_rel = pParent.getTarget().symbolNeedsDynRel(
-                              *rsym,
-                              (rsym->reserved() & X86Relocator::ReservePLT),
-                              true);
-  FragmentRef &target_fragref = pReloc.targetRef();
-  Fragment *target_frag = target_fragref.frag();
+                                  *rsym,
+                                  (rsym->reserved() & X86Relocator::ReservePLT),
+                                  true);
 
-  LDSection& target_sect = target_frag->getParent()->getSection();
+
+  LDSection& target_sect = pReloc.targetRef().frag()->getParent()->getSection();
   // If the flag of target section is not ALLOC, we will not scan this relocation
   // but perform static relocation. (e.g., applying .debug section)
   if (0x0 == (llvm::ELF::SHF_ALLOC & target_sect.flag())) {
@@ -827,36 +878,18 @@ X86Relocator::Result abs(Relocation& pReloc, X86_32Relocator& pParent)
     return X86Relocator::OK;
   }
 
-  // A local symbol may need REL Type dynamic relocation
-  if (rsym->isLocal() && has_dyn_rel) {
-    X86Relocator::Type pType = pReloc.type();
-    if (llvm::ELF::R_386_32 == pType)
-      pType = llvm::ELF::R_386_RELATIVE;
-    helper_DynRel(rsym, *target_frag, target_fragref.offset(), pType, pParent);
-    pReloc.target() = S + A;
-    return X86Relocator::OK;
-  }
-
   // An external symbol may need PLT and dynamic relocation
   if (!rsym->isLocal()) {
     if (rsym->reserved() & X86Relocator::ReservePLT) {
-      S = helper_PLT(pReloc, pParent);
+      S = helper_get_PLT_address(*rsym, pParent);
     }
     // If we generate a dynamic relocation (except R_386_RELATIVE)
     // for a place, we should not perform static relocation on it
     // in order to keep the addend store in the place correct.
-    if (has_dyn_rel) {
-      if (llvm::ELF::R_386_32 == pReloc.type() &&
-          helper_use_relative_reloc(*rsym, pParent)) {
-        helper_DynRel(rsym, *target_frag, target_fragref.offset(),
-              llvm::ELF::R_386_RELATIVE, pParent);
-      }
-      else {
-        helper_DynRel(rsym, *target_frag, target_fragref.offset(),
-                      pReloc.type(), pParent);
+    if (has_dyn_rel)
+      if (llvm::ELF::R_386_32 != pReloc.type() ||
+          (!helper_use_relative_reloc(*rsym, pParent)))
         return X86Relocator::OK;
-      }
-    }
   }
 
   // perform static relocation
@@ -873,6 +906,10 @@ X86Relocator::Result rel(Relocation& pReloc, X86_32Relocator& pParent)
   Relocator::DWord A = pReloc.target() + pReloc.addend();
   Relocator::DWord S = pReloc.symValue();
   Relocator::DWord P = pReloc.place();
+  bool has_dyn_rel = pParent.getTarget().symbolNeedsDynRel(
+                                  *rsym,
+                                  (rsym->reserved() & X86Relocator::ReservePLT),
+                                  true);
 
   LDSection& target_sect = pReloc.targetRef().frag()->getParent()->getSection();
   // If the flag of target section is not ALLOC, we will not scan this relocation
@@ -885,23 +922,12 @@ X86Relocator::Result rel(Relocation& pReloc, X86_32Relocator& pParent)
   // An external symbol may need PLT and dynamic relocation
   if (!rsym->isLocal()) {
     if (rsym->reserved() & X86Relocator::ReservePLT) {
-       S = helper_PLT(pReloc, pParent);
-       pReloc.target() = S + A - P;
+      S = helper_get_PLT_address(*rsym, pParent);
+      pReloc.target() = S + A - P;
     }
-    if (pParent.getTarget().symbolNeedsDynRel(
-                              *rsym,
-                              (rsym->reserved() & X86Relocator::ReservePLT),
-                              false)) {
-      if (helper_use_relative_reloc(*rsym, pParent) ) {
-        helper_DynRel(rsym, *pReloc.targetRef().frag(),
-              pReloc.targetRef().offset(), llvm::ELF::R_386_RELATIVE, pParent);
-      }
-      else {
-        helper_DynRel(rsym, *pReloc.targetRef().frag(),
-                          pReloc.targetRef().offset(), pReloc.type(), pParent);
-          return X86Relocator::OK;
-      }
-    }
+    if (has_dyn_rel)
+      if (!helper_use_relative_reloc(*rsym, pParent))
+        return X86Relocator::OK;
   }
 
    // perform static relocation
@@ -933,11 +959,18 @@ X86Relocator::Result gotpc32(Relocation& pReloc, X86_32Relocator& pParent)
 // R_386_GOT32: GOT(S) + A - GOT_ORG
 X86Relocator::Result got32(Relocation& pReloc, X86_32Relocator& pParent)
 {
-  if (!(pReloc.symInfo()->reserved()
-       & (X86Relocator::ReserveGOT | X86Relocator::GOTRel))) {
+  ResolveInfo* rsym = pReloc.symInfo();
+  if (!(rsym->reserved() & (X86Relocator::ReserveGOT)))
     return X86Relocator::BadReloc;
-  }
-  X86Relocator::Address GOT_S   = helper_GOT(pReloc, pParent);
+
+  // set up got entry value if the got has no dyn rel or
+  // the dyn rel is RELATIVE
+  X86_32GOTEntry* got_entry = pParent.getSymGOTMap().lookUp(*pReloc.symInfo());
+  assert(NULL != got_entry);
+  if (got_entry->getValue() == X86Relocator::SymVal)
+    got_entry->setValue(pReloc.symValue());
+
+  X86Relocator::Address GOT_S   = helper_get_GOT_address(pReloc, pParent);
   Relocator::DWord      A       = pReloc.target() + pReloc.addend();
   X86Relocator::Address GOT_ORG = helper_GOT_ORG(pParent);
   // Apply relocation.
@@ -951,7 +984,7 @@ X86Relocator::Result plt32(Relocation& pReloc, X86_32Relocator& pParent)
   // PLT_S depends on if there is a PLT entry.
   X86Relocator::Address PLT_S;
   if ((pReloc.symInfo()->reserved() & X86Relocator::ReservePLT))
-    PLT_S = helper_PLT(pReloc, pParent);
+    PLT_S = helper_get_PLT_address(*pReloc.symInfo(), pParent);
   else
     PLT_S = pReloc.symValue();
   Relocator::DWord      A = pReloc.target() + pReloc.addend();
@@ -966,50 +999,19 @@ X86Relocator::Result tls_gd(Relocation& pReloc, X86_32Relocator& pParent)
   // global-dynamic
   ResolveInfo* rsym = pReloc.symInfo();
   // must reserve two pairs of got and dynamic relocation
-  if (!(rsym->reserved() & X86Relocator::GOTRel)) {
-     return X86Relocator::BadReloc;
-  }
+  if (!(rsym->reserved() & X86Relocator::ReserveGOT))
+    return X86Relocator::BadReloc;
 
-  X86_32GNULDBackend& ld_backend = pParent.getTarget();
   ELFFileFormat* file_format = pParent.getTarget().getOutputFormat();
   // setup corresponding got and dynamic relocatio entries:
   // get first got entry, if there is already a got entry for rsym, then apply
   // this relocation to the got entry directly. If not, setup the corresponding
   // got and dyn relocation entries
-  X86_32GOTEntry* got_entry1 = pParent.getSymGOTMap().lookUp(*rsym);
+  X86_32GOTEntry* got_entry1 = pParent.getSymGOTMap().lookUpFirstEntry(*rsym);
 
-  if (NULL == got_entry1) {
-    // get and init two got entries if not exist
-    got_entry1 = ld_backend.getGOT().consume();
-    pParent.getSymGOTMap().record(*rsym, *got_entry1);
-    X86_32GOTEntry* got_entry2 = ld_backend.getGOT().consume();
-    got_entry1->setValue(0x0);
-    got_entry2->setValue(0x0);
-    // setup dyn rel for get_entry1
-    Relocation& rel_entry1 = helper_DynRel(rsym, *got_entry1, 0x0,
-                                        llvm::ELF::R_386_TLS_DTPMOD32, pParent);
-    if (rsym->isLocal()) {
-      // for local symbol, set got_entry2 to symbol value
-      got_entry2->setValue(pReloc.symValue());
-
-      // for local tls symbol, add rel entry against the section symbol this
-      // symbol belong to (.tdata or .tbss)
-      const LDSection* sym_sect =
-         &rsym->outSymbol()->fragRef()->frag()->getParent()->getSection();
-      ResolveInfo* sect_sym = NULL;
-      if (&file_format->getTData() == sym_sect)
-        sect_sym = pParent.getTarget().getTDATASymbol().resolveInfo();
-      else
-        sect_sym = pParent.getTarget().getTBSSSymbol().resolveInfo();
-      rel_entry1.setSymInfo(sect_sym);
-    }
-    else {
-      // for non-local symbol, add a pair of rel entries against this symbol
-      // for those two got entries
-      helper_DynRel(rsym, *got_entry2, 0x0,
-                                        llvm::ELF::R_386_TLS_DTPOFF32, pParent);
-    }
-  }
+  // set the got_entry2 value to symbol value
+  if (rsym->isLocal())
+     pParent.getSymGOTMap().lookUpSecondEntry(*rsym)->setValue(pReloc.symValue());
 
   // perform relocation to the first got entry
   Relocator::DWord A = pReloc.target() + pReloc.addend();
@@ -1053,31 +1055,13 @@ X86Relocator::Result tls_ldo_32(Relocation& pReloc, X86_32Relocator& pParent)
 X86Relocator::Result tls_ie(Relocation& pReloc, X86_32Relocator& pParent)
 {
   ResolveInfo* rsym = pReloc.symInfo();
-  if (!(rsym->reserved() & X86Relocator::GOTRel)) {
+  if (!(rsym->reserved() & X86Relocator::ReserveGOT)) {
      return X86Relocator::BadReloc;
-  }
-
-  if (rsym->reserved() & X86Relocator::ReserveRel) {
-    // when building shared object, set up a RELATIVE dynamic relocation
-    helper_DynRel(rsym, *pReloc.targetRef().frag(), pReloc.targetRef().offset(),
-                                            llvm::ELF::R_386_RELATIVE, pParent);
   }
 
   // set up the got and dynamic relocation entries if not exist
   X86_32GOTEntry* got_entry = pParent.getSymGOTMap().lookUp(*rsym);
-  if (NULL == got_entry) {
-    // set got entry
-    X86_32GNULDBackend& ld_backend = pParent.getTarget();
-    got_entry = ld_backend.getGOT().consume();
-    pParent.getSymGOTMap().record(*rsym, *got_entry);
-    got_entry->setValue(0x0);
-    // set relocation entry
-    Relocation& rel_entry = *ld_backend.getRelDyn().consumeEntry();
-    rel_entry.setType(llvm::ELF::R_386_TLS_TPOFF);
-    rel_entry.setSymInfo(rsym);
-    rel_entry.targetRef().assign(*got_entry);
-  }
-
+  assert(NULL != got_entry);
   // perform relocation to the absolute address of got_entry
   X86Relocator::Address GOT_S =
                  pParent.getTarget().getGOT().addr() + got_entry->getOffset();
@@ -1092,24 +1076,13 @@ X86Relocator::Result tls_ie(Relocation& pReloc, X86_32Relocator& pParent)
 X86Relocator::Result tls_gotie(Relocation& pReloc, X86_32Relocator& pParent)
 {
   ResolveInfo* rsym = pReloc.symInfo();
-  if (!(rsym->reserved() & X86Relocator::GOTRel)) {
+  if (!(rsym->reserved() & X86Relocator::ReserveGOT)) {
      return X86Relocator::BadReloc;
   }
 
   // set up the got and dynamic relocation entries if not exist
   X86_32GOTEntry* got_entry = pParent.getSymGOTMap().lookUp(*rsym);
-  if (NULL == got_entry) {
-    // set got entry
-    X86_32GNULDBackend& ld_backend = pParent.getTarget();
-    got_entry = ld_backend.getGOT().consume();
-    pParent.getSymGOTMap().record(*rsym, *got_entry);
-    got_entry->setValue(0x0);
-    // set relocation entry
-    Relocation& rel_entry = *ld_backend.getRelDyn().consumeEntry();
-    rel_entry.setType(llvm::ELF::R_386_TLS_TPOFF);
-    rel_entry.setSymInfo(rsym);
-    rel_entry.targetRef().assign(*got_entry);
-  }
+  assert(NULL != got_entry);
 
   // All GOT offsets are relative to the end of the GOT.
   X86Relocator::SWord GOT_S = got_entry->getOffset() -
@@ -1123,15 +1096,8 @@ X86Relocator::Result tls_gotie(Relocation& pReloc, X86_32Relocator& pParent)
 // R_X86_TLS_LE
 X86Relocator::Result tls_le(Relocation& pReloc, X86_32Relocator& pParent)
 {
-  ResolveInfo* rsym = pReloc.symInfo();
-  if (pReloc.symInfo()->reserved() & X86Relocator::ReserveRel) {
-    helper_DynRel(rsym,
-                  *pReloc.targetRef().frag(),
-                  pReloc.targetRef().offset(),
-                  llvm::ELF::R_386_TLS_TPOFF,
-                  pParent);
+  if (pReloc.symInfo()->reserved() & X86Relocator::ReserveRel)
     return X86Relocator::OK;
-  }
 
   // perform static relocation
   // get TLS segment
@@ -1152,7 +1118,147 @@ X86Relocator::Result unsupport(Relocation& pReloc, X86_32Relocator& pParent)
 }
 
 //===--------------------------------------------------------------------===//
-// Relocation Functions and Tables
+// X86_64 Relocation helper function
+//===--------------------------------------------------------------------===//
+/// helper_DynRel - Get an relocation entry in .rela.dyn
+static
+Relocation& helper_DynRel(ResolveInfo* pSym,
+                               Fragment& pFrag,
+                               uint64_t pOffset,
+                               X86Relocator::Type pType,
+                               X86_64Relocator& pParent)
+{
+  X86_64GNULDBackend& ld_backend = pParent.getTarget();
+  Relocation& rel_entry = *ld_backend.getRelDyn().consumeEntry();
+  rel_entry.setType(pType);
+  rel_entry.targetRef().assign(pFrag, pOffset);
+  if (pType == llvm::ELF::R_X86_64_RELATIVE || NULL == pSym)
+    rel_entry.setSymInfo(NULL);
+  else
+    rel_entry.setSymInfo(pSym);
+
+  return rel_entry;
+}
+
+
+/// helper_use_relative_reloc - Check if symbol can use relocation
+/// R_X86_64_RELATIVE
+static bool
+helper_use_relative_reloc(const ResolveInfo& pSym,
+                          const X86_64Relocator& pFactory)
+
+{
+  // if symbol is dynamic or undefine or preemptible
+  if (pSym.isDyn() ||
+      pSym.isUndef() ||
+      pFactory.getTarget().isSymbolPreemptible(pSym))
+    return false;
+  return true;
+}
+
+static
+X86_64GOTEntry& helper_get_GOT_and_init(Relocation& pReloc,
+      X86_64Relocator& pParent)
+{
+   // rsym - The relocation target symbol
+   ResolveInfo* rsym = pReloc.symInfo();
+   X86_64GNULDBackend& ld_backend = pParent.getTarget();
+
+   X86_64GOTEntry* got_entry = pParent.getSymGOTMap().lookUp(*rsym);
+   if (NULL != got_entry)
+      return *got_entry;
+
+   // not found
+   got_entry = ld_backend.getGOT().consume();
+   pParent.getSymGOTMap().record(*rsym, *got_entry);
+
+   // If we first get this GOT entry, we should initialize it.
+   if (rsym->reserved() & X86Relocator::ReserveGOT) {
+      // No corresponding dynamic relocation, initialize to the symbol value.
+      got_entry->setValue(pReloc.symValue());
+   }
+   else if (rsym->reserved() & X86Relocator::GOTRel) {
+      // Initialize got_entry content and the corresponding dynamic relocation.
+      if (helper_use_relative_reloc(*rsym, pParent)) {
+         Relocation& rel_entry = helper_DynRel(rsym, *got_entry, 0x0,
+               llvm::ELF::R_X86_64_RELATIVE,
+               pParent);
+         rel_entry.setAddend(pReloc.symValue());
+      }
+      else {
+         helper_DynRel(rsym, *got_entry, 0x0, llvm::ELF::R_X86_64_GLOB_DAT,
+               pParent);
+      }
+      got_entry->setValue(0);
+   }
+   else {
+      fatal(diag::reserve_entry_number_mismatch_got);
+   }
+   return *got_entry;
+}
+
+static
+X86Relocator::Address helper_GOT_ORG(X86_64Relocator& pParent)
+{
+  return pParent.getTarget().getGOT().addr();
+}
+
+static
+X86Relocator::Address helper_GOT(Relocation& pReloc, X86_64Relocator& pParent)
+{
+  X86_64GOTEntry& got_entry = helper_get_GOT_and_init(pReloc, pParent);
+  return got_entry.getOffset();
+}
+
+static
+PLTEntryBase& helper_get_PLT_and_init(Relocation& pReloc,
+				      X86_64Relocator& pParent)
+{
+  // rsym - The relocation target symbol
+  ResolveInfo* rsym = pReloc.symInfo();
+  X86_64GNULDBackend& ld_backend = pParent.getTarget();
+
+  PLTEntryBase* plt_entry = pParent.getSymPLTMap().lookUp(*rsym);
+  if (NULL != plt_entry)
+    return *plt_entry;
+
+  // not found
+  plt_entry = ld_backend.getPLT().consume();
+  pParent.getSymPLTMap().record(*rsym, *plt_entry);
+  // If we first get this PLT entry, we should initialize it.
+  if (rsym->reserved() & X86Relocator::ReservePLT) {
+    X86_64GOTEntry* gotplt_entry = pParent.getSymGOTPLTMap().lookUp(*rsym);
+    assert(NULL == gotplt_entry && "PLT entry not exist, but DynRel entry exist!");
+    gotplt_entry = ld_backend.getGOTPLT().consume();
+    pParent.getSymGOTPLTMap().record(*rsym, *gotplt_entry);
+    // init the corresponding rel entry in .rel.plt
+    Relocation& rel_entry = *ld_backend.getRelPLT().consumeEntry();
+    rel_entry.setType(llvm::ELF::R_X86_64_JUMP_SLOT);
+    rel_entry.targetRef().assign(*gotplt_entry);
+    rel_entry.setSymInfo(rsym);
+  }
+  else {
+    fatal(diag::reserve_entry_number_mismatch_plt);
+  }
+
+  return *plt_entry;
+}
+
+static
+X86Relocator::Address helper_PLT_ORG(X86_64Relocator& pParent)
+{
+  return pParent.getTarget().getPLT().addr();
+}
+
+static
+X86Relocator::Address helper_PLT(Relocation& pReloc, X86_64Relocator& pParent)
+{
+  PLTEntryBase& plt_entry = helper_get_PLT_and_init(pReloc, pParent);
+  return helper_PLT_ORG(pParent) + plt_entry.getOffset();
+}
+
+//===--------------------------------------------------------------------===//
+// X86_64 Relocation Functions and Tables
 //===--------------------------------------------------------------------===//
 DECL_X86_64_APPLY_RELOC_FUNCS
 
@@ -1411,147 +1517,9 @@ void X86_64Relocator::scanGlobalReloc(Relocation& pReloc,
   } // end switch
 }
 
-//===--------------------------------------------------------------------===//
-// Relocation helper function
-//===--------------------------------------------------------------------===//
-/// helper_DynRel - Get an relocation entry in .rela.dyn
-static
-Relocation& helper_DynRel(ResolveInfo* pSym,
-                          Fragment& pFrag,
-                          uint64_t pOffset,
-                          X86Relocator::Type pType,
-                          X86_64Relocator& pParent)
-{
-  X86_64GNULDBackend& ld_backend = pParent.getTarget();
-  Relocation& rel_entry = *ld_backend.getRelDyn().consumeEntry();
-  rel_entry.setType(pType);
-  rel_entry.targetRef().assign(pFrag, pOffset);
-  if (pType == llvm::ELF::R_X86_64_RELATIVE || NULL == pSym)
-    rel_entry.setSymInfo(0);
-  else
-    rel_entry.setSymInfo(pSym);
-
-  return rel_entry;
-}
-
-
-/// helper_use_relative_reloc - Check if symbol can use relocation
-/// R_X86_64_RELATIVE
-static bool
-helper_use_relative_reloc(const ResolveInfo& pSym,
-                          const X86_64Relocator& pFactory)
-
-{
-  // if symbol is dynamic or undefine or preemptible
-  if (pSym.isDyn() ||
-      pSym.isUndef() ||
-      pFactory.getTarget().isSymbolPreemptible(pSym))
-    return false;
-  return true;
-}
-
-static
-X86_64GOTEntry& helper_get_GOT_and_init(Relocation& pReloc,
-					X86_64Relocator& pParent)
-{
-  // rsym - The relocation target symbol
-  ResolveInfo* rsym = pReloc.symInfo();
-  X86_64GNULDBackend& ld_backend = pParent.getTarget();
-
-  X86_64GOTEntry* got_entry = pParent.getSymGOTMap().lookUp(*rsym);
-  if (NULL != got_entry)
-    return *got_entry;
-
-  // not found
-  got_entry = ld_backend.getGOT().consume();
-  pParent.getSymGOTMap().record(*rsym, *got_entry);
-
-  // If we first get this GOT entry, we should initialize it.
-  if (rsym->reserved() & X86Relocator::ReserveGOT) {
-    // No corresponding dynamic relocation, initialize to the symbol value.
-    got_entry->setValue(pReloc.symValue());
-  }
-  else if (rsym->reserved() & X86Relocator::GOTRel) {
-    // Initialize got_entry content and the corresponding dynamic relocation.
-    if (helper_use_relative_reloc(*rsym, pParent)) {
-      Relocation& rel_entry = helper_DynRel(rsym, *got_entry, 0x0,
-					    llvm::ELF::R_X86_64_RELATIVE,
-					    pParent);
-      rel_entry.setAddend(pReloc.symValue());
-    }
-    else {
-      helper_DynRel(rsym, *got_entry, 0x0, llvm::ELF::R_X86_64_GLOB_DAT,
-		    pParent);
-    }
-    got_entry->setValue(0);
-  }
-  else {
-    fatal(diag::reserve_entry_number_mismatch_got);
-  }
-  return *got_entry;
-}
-
-static
-X86Relocator::Address helper_GOT_ORG(X86_64Relocator& pParent)
-{
-  return pParent.getTarget().getGOT().addr();
-}
-
-static
-X86Relocator::Address helper_GOT(Relocation& pReloc, X86_64Relocator& pParent)
-{
-  X86_64GOTEntry& got_entry = helper_get_GOT_and_init(pReloc, pParent);
-  return got_entry.getOffset();
-}
-
-static
-PLTEntryBase& helper_get_PLT_and_init(Relocation& pReloc,
-				      X86_64Relocator& pParent)
-{
-  // rsym - The relocation target symbol
-  ResolveInfo* rsym = pReloc.symInfo();
-  X86_64GNULDBackend& ld_backend = pParent.getTarget();
-
-  PLTEntryBase* plt_entry = pParent.getSymPLTMap().lookUp(*rsym);
-  if (NULL != plt_entry)
-    return *plt_entry;
-
-  // not found
-  plt_entry = ld_backend.getPLT().consume();
-  pParent.getSymPLTMap().record(*rsym, *plt_entry);
-  // If we first get this PLT entry, we should initialize it.
-  if (rsym->reserved() & X86Relocator::ReservePLT) {
-    X86_64GOTEntry* gotplt_entry = pParent.getSymGOTPLTMap().lookUp(*rsym);
-    assert(NULL == gotplt_entry && "PLT entry not exist, but DynRel entry exist!");
-    gotplt_entry = ld_backend.getGOTPLT().consume();
-    pParent.getSymGOTPLTMap().record(*rsym, *gotplt_entry);
-    // init the corresponding rel entry in .rel.plt
-    Relocation& rel_entry = *ld_backend.getRelPLT().consumeEntry();
-    rel_entry.setType(llvm::ELF::R_X86_64_JUMP_SLOT);
-    rel_entry.targetRef().assign(*gotplt_entry);
-    rel_entry.setSymInfo(rsym);
-  }
-  else {
-    fatal(diag::reserve_entry_number_mismatch_plt);
-  }
-
-  return *plt_entry;
-}
-
-static
-X86Relocator::Address helper_PLT_ORG(X86_64Relocator& pParent)
-{
-  return pParent.getTarget().getPLT().addr();
-}
-
-static
-X86Relocator::Address helper_PLT(Relocation& pReloc, X86_64Relocator& pParent)
-{
-  PLTEntryBase& plt_entry = helper_get_PLT_and_init(pReloc, pParent);
-  return helper_PLT_ORG(pParent) + plt_entry.getOffset();
-}
-
+// ===
 //
+// ===
 // R_X86_64_NONE
 X86Relocator::Result none(Relocation& pReloc, X86_64Relocator& pParent)
 {
