@@ -103,7 +103,7 @@ WS [ \t\r]
  /* Builtin Functions */
 <EXPRESSION>"ABSOLUTE"                 { return token::ABSOLUTE; }
 <EXPRESSION>"ADDR"                     { return token::ADDR; }
-<EXPRESSION>"ALIGN"                    { return token::ALIGN; }
+<LDSCRIPT,EXPRESSION>"ALIGN"           { return token::ALIGN; }
 <EXPRESSION>"ALIGNOF"                  { return token::ALIGNOF; }
 <EXPRESSION>"BLOCK"                    { return token::BLOCK; }
 <EXPRESSION>"DATA_SEGMENT_ALIGN"       { return token::DATA_SEGMENT_ALIGN; }
