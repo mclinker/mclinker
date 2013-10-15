@@ -201,6 +201,7 @@ class X86_64Relocator : public X86Relocator
 public:
   typedef KeyEntryMap<ResolveInfo, X86_64GOTEntry> SymGOTMap;
   typedef KeyEntryMap<ResolveInfo, X86_64GOTEntry> SymGOTPLTMap;
+  typedef KeyEntryMap<Relocation, Relocation> RelRelMap;
 
 public:
   X86_64Relocator(X86_64GNULDBackend& pParent, const LinkerConfig& pConfig);
@@ -223,6 +224,9 @@ public:
   const SymGOTPLTMap& getSymGOTPLTMap() const { return m_SymGOTPLTMap; }
   SymGOTPLTMap&       getSymGOTPLTMap()       { return m_SymGOTPLTMap; }
 
+  const RelRelMap& getRelRelMap() const { return m_RelRelMap; }
+  RelRelMap&       getRelRelMap()       { return m_RelRelMap; }
+
 private:
   void scanLocalReloc(Relocation& pReloc,
                       IRBuilder& pBuilder,
@@ -238,6 +242,7 @@ private:
   X86_64GNULDBackend& m_Target;
   SymGOTMap m_SymGOTMap;
   SymGOTPLTMap m_SymGOTPLTMap;
+  RelRelMap m_RelRelMap;
 };
 
 } // namespace of mcld

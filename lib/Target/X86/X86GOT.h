@@ -66,9 +66,7 @@ public:
 
   ~X86_64GOT();
 
-  void reserve(size_t pNum = 1);
-
-  X86_64GOTEntry* consume();
+  X86_64GOTEntry* create();
 
 private:
   X86_64GOTEntry* m_pLast; ///< the last consumed entry

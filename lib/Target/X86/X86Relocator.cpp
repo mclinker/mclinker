@@ -121,7 +121,7 @@ PLTEntryBase& helper_PLT_init(Relocation& pReloc, X86_32Relocator& pParent)
   PLTEntryBase* plt_entry = ld_backend.getPLT().create();
   pParent.getSymPLTMap().record(*rsym, *plt_entry);
 
-  // initialize plt and the corresponding pltgot, dyn rel entry.
+  // initialize plt and the corresponding gotplt and dyn rel entry.
   assert(NULL == pParent.getSymGOTPLTMap().lookUp(*rsym) &&
          "PLT entry not exist, but GOTPLT entry exist!");
   X86_32GOTEntry* gotplt_entry = ld_backend.getGOTPLT().create();
@@ -340,7 +340,7 @@ void X86_32Relocator::scanLocalReloc(Relocation& pReloc,
         // set Rel bit
         rsym->setReserved(rsym->reserved() | ReserveRel);
         getTarget().checkAndSetHasTextRel(*pSection.getLink());
-        // consume and set up the dyn rel directly
+        // set up the dyn rel directly
         helper_DynRel_init(rsym,
                            *pReloc.targetRef().frag(),
                            pReloc.targetRef().offset(),
@@ -609,8 +609,7 @@ void X86_32Relocator::scanGlobalReloc(Relocation& pReloc,
 
       // Symbol needs PLT entry, we need a PLT entry
       // and the corresponding GOT and dynamic relocation entry
-      // in .got and .rel.plt. (GOT entry will be reserved simultaneously
-      // when calling X86PLT->reserveEntry())
+      // in .got and .rel.plt
       helper_PLT_init(pReloc, *this);
       // set PLT bit
       rsym->setReserved(rsym->reserved() | ReservePLT);
@@ -1122,14 +1121,14 @@ X86Relocator::Result unsupport(Relocation& pReloc, X86_32Relocator& pParent)
 //===--------------------------------------------------------------------===//
 /// helper_DynRel - Get an relocation entry in .rela.dyn
 static
-Relocation& helper_DynRel(ResolveInfo* pSym,
+Relocation& helper_DynRel_init(ResolveInfo* pSym,
                                Fragment& pFrag,
                                uint64_t pOffset,
                                X86Relocator::Type pType,
                                X86_64Relocator& pParent)
 {
   X86_64GNULDBackend& ld_backend = pParent.getTarget();
-  Relocation& rel_entry = *ld_backend.getRelDyn().consumeEntry();
+  Relocation& rel_entry = *ld_backend.getRelDyn().create();
   rel_entry.setType(pType);
   rel_entry.targetRef().assign(pFrag, pOffset);
   if (pType == llvm::ELF::R_X86_64_RELATIVE || NULL == pSym)
@@ -1157,44 +1156,38 @@ helper_use_relative_reloc(const ResolveInfo& pSym,
 }
 
 static
-X86_64GOTEntry& helper_get_GOT_and_init(Relocation& pReloc,
-      X86_64Relocator& pParent)
+X86_64GOTEntry& helper_GOT_init(Relocation& pReloc,
+                                bool pHasRel,
+                                X86_64Relocator& pParent)
 {
-   // rsym - The relocation target symbol
-   ResolveInfo* rsym = pReloc.symInfo();
-   X86_64GNULDBackend& ld_backend = pParent.getTarget();
+  // rsym - The relocation target symbol
+  ResolveInfo* rsym = pReloc.symInfo();
+  X86_64GNULDBackend& ld_backend = pParent.getTarget();
+  assert(NULL == pParent.getSymGOTMap().lookUp(*rsym));
 
-   X86_64GOTEntry* got_entry = pParent.getSymGOTMap().lookUp(*rsym);
-   if (NULL != got_entry)
-      return *got_entry;
+  X86_64GOTEntry* got_entry = ld_backend.getGOT().create();
+  pParent.getSymGOTMap().record(*rsym, *got_entry);
 
-   // not found
-   got_entry = ld_backend.getGOT().consume();
-   pParent.getSymGOTMap().record(*rsym, *got_entry);
-
-   // If we first get this GOT entry, we should initialize it.
-   if (rsym->reserved() & X86Relocator::ReserveGOT) {
-      // No corresponding dynamic relocation, initialize to the symbol value.
-      got_entry->setValue(pReloc.symValue());
-   }
-   else if (rsym->reserved() & X86Relocator::GOTRel) {
-      // Initialize got_entry content and the corresponding dynamic relocation.
-      if (helper_use_relative_reloc(*rsym, pParent)) {
-         Relocation& rel_entry = helper_DynRel(rsym, *got_entry, 0x0,
-               llvm::ELF::R_X86_64_RELATIVE,
-               pParent);
-         rel_entry.setAddend(pReloc.symValue());
-      }
-      else {
-         helper_DynRel(rsym, *got_entry, 0x0, llvm::ELF::R_X86_64_GLOB_DAT,
-               pParent);
-      }
-      got_entry->setValue(0);
-   }
-   else {
-      fatal(diag::reserve_entry_number_mismatch_got);
-   }
-   return *got_entry;
+  // If we first get this GOT entry, we should initialize it.
+  if (!pHasRel) {
+    // No corresponding dynamic relocation, initialize to the symbol value.
+    got_entry->setValue(X86Relocator::SymVal);
+  }
+  else {
+    // Initialize got_entry content and the corresponding dynamic relocation.
+    if (helper_use_relative_reloc(*rsym, pParent)) {
+       Relocation& rel_entry = helper_DynRel_init(rsym, *got_entry, 0x0,
+                                         llvm::ELF::R_X86_64_RELATIVE, pParent);
+       rel_entry.setAddend(X86Relocator::SymVal);
+       pParent.getRelRelMap().record(pReloc, rel_entry);
+    }
+    else {
+       helper_DynRel_init(rsym, *got_entry, 0x0, llvm::ELF::R_X86_64_GLOB_DAT,
+                                                                       pParent);
+    }
+    got_entry->setValue(0);
+  }
+  return *got_entry;
 }
 
 static
@@ -1204,57 +1197,46 @@ X86Relocator::Address helper_GOT_ORG(X86_64Relocator& pParent)
 }
 
 static
-X86Relocator::Address helper_GOT(Relocation& pReloc, X86_64Relocator& pParent)
+X86Relocator::Address helper_get_GOT_address(Relocation& pReloc,
+                                             X86_64Relocator& pParent)
 {
-  X86_64GOTEntry& got_entry = helper_get_GOT_and_init(pReloc, pParent);
-  return got_entry.getOffset();
+  X86_64GOTEntry* got_entry = pParent.getSymGOTMap().lookUp(*pReloc.symInfo());
+  assert(NULL != got_entry);
+  return got_entry->getOffset();
 }
 
 static
-PLTEntryBase& helper_get_PLT_and_init(Relocation& pReloc,
-				      X86_64Relocator& pParent)
+X86Relocator::Address helper_get_PLT_address(ResolveInfo& pSym,
+                                             X86_64Relocator& pParent)
+{
+  PLTEntryBase* plt_entry = pParent.getSymPLTMap().lookUp(pSym);
+  assert(NULL != plt_entry);
+  return pParent.getTarget().getPLT().addr() + plt_entry->getOffset();
+}
+
+static
+PLTEntryBase& helper_PLT_init(Relocation& pReloc, X86_64Relocator& pParent)
 {
   // rsym - The relocation target symbol
   ResolveInfo* rsym = pReloc.symInfo();
   X86_64GNULDBackend& ld_backend = pParent.getTarget();
+  assert(NULL == pParent.getSymPLTMap().lookUp(*rsym));
 
-  PLTEntryBase* plt_entry = pParent.getSymPLTMap().lookUp(*rsym);
-  if (NULL != plt_entry)
-    return *plt_entry;
-
-  // not found
-  plt_entry = ld_backend.getPLT().consume();
+  PLTEntryBase* plt_entry = ld_backend.getPLT().create();
   pParent.getSymPLTMap().record(*rsym, *plt_entry);
-  // If we first get this PLT entry, we should initialize it.
-  if (rsym->reserved() & X86Relocator::ReservePLT) {
-    X86_64GOTEntry* gotplt_entry = pParent.getSymGOTPLTMap().lookUp(*rsym);
-    assert(NULL == gotplt_entry && "PLT entry not exist, but DynRel entry exist!");
-    gotplt_entry = ld_backend.getGOTPLT().consume();
-    pParent.getSymGOTPLTMap().record(*rsym, *gotplt_entry);
-    // init the corresponding rel entry in .rel.plt
-    Relocation& rel_entry = *ld_backend.getRelPLT().consumeEntry();
-    rel_entry.setType(llvm::ELF::R_X86_64_JUMP_SLOT);
-    rel_entry.targetRef().assign(*gotplt_entry);
-    rel_entry.setSymInfo(rsym);
-  }
-  else {
-    fatal(diag::reserve_entry_number_mismatch_plt);
-  }
 
+  // initialize plt and the corresponding gotplt and dyn rel entry.
+  assert(NULL == pParent.getSymGOTPLTMap().lookUp(*rsym) &&
+         "PLT entry not exist, but DynRel entry exist!");
+  X86_64GOTEntry* gotplt_entry = ld_backend.getGOTPLT().create();
+  pParent.getSymGOTPLTMap().record(*rsym, *gotplt_entry);
+
+  // init the corresponding rel entry in .rel.plt
+  Relocation& rel_entry = *ld_backend.getRelPLT().create();
+  rel_entry.setType(llvm::ELF::R_X86_64_JUMP_SLOT);
+  rel_entry.targetRef().assign(*gotplt_entry);
+  rel_entry.setSymInfo(rsym);
   return *plt_entry;
-}
-
-static
-X86Relocator::Address helper_PLT_ORG(X86_64Relocator& pParent)
-{
-  return pParent.getTarget().getPLT().addr();
-}
-
-static
-X86Relocator::Address helper_PLT(Relocation& pReloc, X86_64Relocator& pParent)
-{
-  PLTEntryBase& plt_entry = helper_get_PLT_and_init(pReloc, pParent);
-  return helper_PLT_ORG(pParent) + plt_entry.getOffset();
 }
 
 //===--------------------------------------------------------------------===//
@@ -1321,6 +1303,22 @@ void X86_64Relocator::scanLocalReloc(Relocation& pReloc,
 
   switch(pReloc.type()){
     case llvm::ELF::R_X86_64_64:
+      // If buiding PIC object (shared library or PIC executable),
+      // a dynamic relocations with RELATIVE type to this location is needed.
+      // Reserve an entry in .rela.dyn
+      if (config().isCodeIndep()) {
+        Relocation& reloc = helper_DynRel_init(rsym,
+                                               *pReloc.targetRef().frag(),
+                                               pReloc.targetRef().offset(),
+                                               llvm::ELF::R_X86_64_RELATIVE,
+                                               *this);
+        getRelRelMap().record(pReloc, reloc);
+        // set Rel bit
+        rsym->setReserved(rsym->reserved() | ReserveRel);
+        getTarget().checkAndSetHasTextRel(*pSection.getLink());
+      }
+      return;
+
     case llvm::ELF::R_X86_64_32:
     case llvm::ELF::R_X86_64_16:
     case llvm::ELF::R_X86_64_8:
@@ -1329,7 +1327,12 @@ void X86_64Relocator::scanLocalReloc(Relocation& pReloc,
       // a dynamic relocations with RELATIVE type to this location is needed.
       // Reserve an entry in .rela.dyn
       if (config().isCodeIndep()) {
-        getTarget().getRelDyn().reserveEntry();
+        Relocation& reloc = helper_DynRel_init(rsym,
+                                               *pReloc.targetRef().frag(),
+                                               pReloc.targetRef().offset(),
+                                               pReloc.type(),
+                                               *this);
+        getRelRelMap().record(pReloc, reloc);
         // set Rel bit
         rsym->setReserved(rsym->reserved() | ReserveRel);
         getTarget().checkAndSetHasTextRel(*pSection.getLink());
@@ -1344,27 +1347,17 @@ void X86_64Relocator::scanLocalReloc(Relocation& pReloc,
     case llvm::ELF::R_X86_64_GOTPCREL:
       // Symbol needs GOT entry, reserve entry in .got
       // return if we already create GOT for this symbol
-      if (rsym->reserved() & (ReserveGOT | GOTRel))
+      if (rsym->reserved() & ReserveGOT)
         return;
-      getTarget().getGOT().reserve();
 
-      // If the GOT is used in statically linked binaries,
-      // the GOT entry is enough and no relocation is needed.
-      if (config().isCodeStatic()) {
-        rsym->setReserved(rsym->reserved() | ReserveGOT);
-        return;
-      }
       // If building shared object or the symbol is undefined, a dynamic
       // relocation is needed to relocate this GOT entry. Reserve an
       // entry in .rela.dyn
       if (LinkerConfig::DynObj ==
-                   config().codeGenType() || rsym->isUndef() || rsym->isDyn()) {
-        getTarget().getRelDyn().reserveEntry();
-        // set GOTRel bit
-        rsym->setReserved(rsym->reserved() | GOTRel);
-        return;
-      }
-      // set GOT bit
+                   config().codeGenType() || rsym->isUndef() || rsym->isDyn())
+        helper_GOT_init(pReloc, true, *this);
+      else
+        helper_GOT_init(pReloc, false, *this);
       rsym->setReserved(rsym->reserved() | ReserveGOT);
       return;
 
@@ -1396,26 +1389,41 @@ void X86_64Relocator::scanGlobalReloc(Relocation& pReloc,
         if (!(rsym->reserved() & ReservePLT)){
           // Symbol needs PLT entry, we need to reserve a PLT entry
           // and the corresponding GOT and dynamic relocation entry
-          // in .got and .rela.plt. (GOT entry will be reserved simultaneously
-          // when calling X86PLT->reserveEntry())
-          getTarget().getPLT().reserveEntry();
-          getTarget().getGOTPLT().reserve();
-          getTarget().getRelPLT().reserveEntry();
+          // in .got and .rela.plt.
+          helper_PLT_init(pReloc, *this);
           // set PLT bit
           rsym->setReserved(rsym->reserved() | ReservePLT);
         }
       }
 
-      if (getTarget().symbolNeedsDynRel(*rsym, (rsym->reserved() & ReservePLT), true)) {
-        // symbol needs dynamic relocation entry, reserve an entry in .rela.dyn
-        getTarget().getRelDyn().reserveEntry();
+      if (getTarget().symbolNeedsDynRel(*rsym, (rsym->reserved() & ReservePLT),
+                                                                        true)) {
+        // symbol needs dynamic relocation entry, set up the dynrel entry
         if (getTarget().symbolNeedsCopyReloc(pReloc, *rsym)) {
           LDSymbol& cpy_sym = defineSymbolforCopyReloc(pBuilder, *rsym, getTarget());
           addCopyReloc(*cpy_sym.resolveInfo(), getTarget());
         }
         else {
-          // set Rel bit
+          // set Rel bit and the dyn rel
           rsym->setReserved(rsym->reserved() | ReserveRel);
+          getTarget().checkAndSetHasTextRel(*pSection.getLink());
+          if (llvm::ELF::R_386_32 == pReloc.type() &&
+              helper_use_relative_reloc(*rsym, *this)) {
+            Relocation& reloc = helper_DynRel_init(rsym,
+                                                   *pReloc.targetRef().frag(),
+                                                   pReloc.targetRef().offset(),
+                                                   llvm::ELF::R_X86_64_RELATIVE,
+                                                   *this);
+            getRelRelMap().record(pReloc, reloc);
+          }
+          else {
+            Relocation& reloc = helper_DynRel_init(rsym,
+                                                   *pReloc.targetRef().frag(),
+                                                   pReloc.targetRef().offset(),
+                                                   pReloc.type(),
+                                                   *this);
+            getRelRelMap().record(pReloc, reloc);
+          }
 	        getTarget().checkAndSetHasTextRel(*pSection.getLink());
         }
       }
@@ -1424,26 +1432,17 @@ void X86_64Relocator::scanGlobalReloc(Relocation& pReloc,
     case llvm::ELF::R_X86_64_GOTPCREL:
       // Symbol needs GOT entry, reserve entry in .got
       // return if we already create GOT for this symbol
-      if (rsym->reserved() & (ReserveGOT | GOTRel))
+      if (rsym->reserved() & ReserveGOT)
         return;
-      getTarget().getGOT().reserve();
 
-      // If the GOT is used in statically linked binaries,
-      // the GOT entry is enough and no relocation is needed.
-      if (config().isCodeStatic()) {
-        rsym->setReserved(rsym->reserved() | ReserveGOT);
-        return;
-      }
       // If building shared object or the symbol is undefined, a dynamic
       // relocation is needed to relocate this GOT entry. Reserve an
       // entry in .rela.dyn
       if (LinkerConfig::DynObj ==
-                   config().codeGenType() || rsym->isUndef() || rsym->isDyn()) {
-        getTarget().getRelDyn().reserveEntry();
-        // set GOTRel bit
-        rsym->setReserved(rsym->reserved() | GOTRel);
-        return;
-      }
+                   config().codeGenType() || rsym->isUndef() || rsym->isDyn())
+        helper_GOT_init(pReloc, true, *this);
+      else
+        helper_GOT_init(pReloc, false, *this);
       // set GOT bit
       rsym->setReserved(rsym->reserved() | ReserveGOT);
       return;
@@ -1466,13 +1465,10 @@ void X86_64Relocator::scanGlobalReloc(Relocation& pReloc,
         return;
       }
 
-      // Symbol needs PLT entry, we need to reserve a PLT entry
+      // Symbol needs PLT entry, we need a PLT entry
       // and the corresponding GOT and dynamic relocation entry
-      // in .got and .rel.plt. (GOT entry will be reserved simultaneously
-      // when calling X86PLT->reserveEntry())
-      getTarget().getPLT().reserveEntry();
-      getTarget().getGOTPLT().reserve();
-      getTarget().getRelPLT().reserveEntry();
+      // in .got and .rel.plt.
+      helper_PLT_init(pReloc, *this);
       // set PLT bit
       rsym->setReserved(rsym->reserved() | ReservePLT);
       return;
@@ -1484,13 +1480,10 @@ void X86_64Relocator::scanGlobalReloc(Relocation& pReloc,
           LinkerConfig::DynObj != config().codeGenType()) {
         // create plt for this symbol if it does not have one
         if (!(rsym->reserved() & ReservePLT)){
-          // Symbol needs PLT entry, we need to reserve a PLT entry
+          // Symbol needs PLT entry, we need a PLT entry
           // and the corresponding GOT and dynamic relocation entry
-          // in .got and .rel.plt. (GOT entry will be reserved simultaneously
-          // when calling X86PLT->reserveEntry())
-          getTarget().getPLT().reserveEntry();
-          getTarget().getGOTPLT().reserve();
-          getTarget().getRelPLT().reserveEntry();
+          // in .got and .rel.plt.
+          helper_PLT_init(pReloc, *this);
           // set PLT bit
           rsym->setReserved(rsym->reserved() | ReservePLT);
         }
@@ -1502,11 +1495,12 @@ void X86_64Relocator::scanGlobalReloc(Relocation& pReloc,
       // All other dynamic relocations may lead to run-time relocation
       // overflow.
       if (getTarget().isDynamicSymbol(*rsym) &&
-	  getTarget().symbolNeedsDynRel(*rsym, (rsym->reserved() & ReservePLT), false) &&
-	  getTarget().symbolNeedsCopyReloc(pReloc, *rsym)) {
-        getTarget().getRelDyn().reserveEntry();
-   	LDSymbol& cpy_sym = defineSymbolforCopyReloc(pBuilder, *rsym, getTarget());
-	  addCopyReloc(*cpy_sym.resolveInfo(), getTarget());
+	        getTarget().symbolNeedsDynRel(*rsym,
+                                        (rsym->reserved() & ReservePLT),
+                                        false) &&
+	        getTarget().symbolNeedsCopyReloc(pReloc, *rsym)) {
+   	    LDSymbol& cpy_sym = defineSymbolforCopyReloc(pBuilder, *rsym, getTarget());
+	      addCopyReloc(*cpy_sym.resolveInfo(), getTarget());
       }
       return;
 
@@ -1535,15 +1529,10 @@ X86Relocator::Result abs(Relocation& pReloc, X86_64Relocator& pParent)
   ResolveInfo* rsym = pReloc.symInfo();
   Relocator::DWord A = pReloc.target() + pReloc.addend();
   Relocator::DWord S = pReloc.symValue();
-  bool has_dyn_rel = pParent.getTarget().symbolNeedsDynRel(
-                              *rsym,
-                              (rsym->reserved() & X86Relocator::ReservePLT),
-                              true);
+  Relocation* dyn_rel = pParent.getRelRelMap().lookUp(pReloc);
+  bool has_dyn_rel = (NULL != dyn_rel);
 
-  FragmentRef &target_fragref = pReloc.targetRef();
-  Fragment *target_frag = target_fragref.frag();
-
-  LDSection& target_sect = target_frag->getParent()->getSection();
+  LDSection& target_sect = pReloc.targetRef().frag()->getParent()->getSection();
   // If the flag of target section is not ALLOC, we will not scan this relocation
   // but perform static relocation. (e.g., applying .debug section)
   if (0x0 == (llvm::ELF::SHF_ALLOC & target_sect.flag())) {
@@ -1553,19 +1542,14 @@ X86Relocator::Result abs(Relocation& pReloc, X86_64Relocator& pParent)
 
   // A local symbol may need RELA Type dynamic relocation
   if (rsym->isLocal() && has_dyn_rel) {
-    X86Relocator::Type pType = pReloc.type();
-    if (llvm::ELF::R_X86_64_64 == pType)
-      pType = llvm::ELF::R_X86_64_RELATIVE;
-    Relocation& rel_entry = helper_DynRel(rsym, *target_frag,
-        target_fragref.offset(), pType, pParent);
-    rel_entry.setAddend(S + A);
+    dyn_rel->setAddend(S + A);
     return X86Relocator::OK;
   }
 
   // An external symbol may need PLT and dynamic relocation
   if (!rsym->isLocal()) {
     if (rsym->reserved() & X86Relocator::ReservePLT) {
-      S = helper_PLT(pReloc, pParent);
+      S = helper_get_PLT_address(*rsym, pParent);
     }
     // If we generate a dynamic relocation (except R_X86_64_RELATIVE)
     // for a place, we should not perform static relocation on it
@@ -1573,14 +1557,10 @@ X86Relocator::Result abs(Relocation& pReloc, X86_64Relocator& pParent)
     if (has_dyn_rel) {
       if (llvm::ELF::R_X86_64_64 == pReloc.type() &&
           helper_use_relative_reloc(*rsym, pParent)) {
-        Relocation& rel_entry = helper_DynRel(rsym, *target_frag,
-            target_fragref.offset(), llvm::ELF::R_X86_64_RELATIVE, pParent);
-        rel_entry.setAddend(S + A);
+        dyn_rel->setAddend(S + A);
       }
       else {
-        Relocation& rel_entry = helper_DynRel(rsym, *target_frag,
-            target_fragref.offset(), pReloc.type(), pParent);
-        rel_entry.setAddend(A);
+        dyn_rel->setAddend(A);
         return X86Relocator::OK;
       }
     }
@@ -1597,13 +1577,9 @@ X86Relocator::Result signed32(Relocation& pReloc, X86_64Relocator& pParent)
   ResolveInfo* rsym = pReloc.symInfo();
   Relocator::DWord A = pReloc.target() + pReloc.addend();
   Relocator::DWord S = pReloc.symValue();
-  bool has_dyn_rel = pParent.getTarget().symbolNeedsDynRel(
-                              *rsym,
-                              (rsym->reserved() & X86Relocator::ReservePLT),
-                              true);
 
   // There should be no dynamic relocations for R_X86_64_32S.
-  if (has_dyn_rel)
+  if (NULL != pParent.getRelRelMap().lookUp(pReloc))
     return X86Relocator::BadReloc;
 
   LDSection& target_sect = pReloc.targetRef().frag()->getParent()->getSection();
@@ -1612,7 +1588,7 @@ X86Relocator::Result signed32(Relocation& pReloc, X86_64Relocator& pParent)
   // An external symbol may need PLT and dynamic relocation
   if (0x0 != (llvm::ELF::SHF_ALLOC & target_sect.flag()) &&
       !rsym->isLocal() && rsym->reserved() & X86Relocator::ReservePLT)
-    S = helper_PLT(pReloc, pParent);
+    S = helper_get_PLT_address(*rsym, pParent);
 
 #if notyet
   // Check 32-bit signed overflow.
@@ -1629,11 +1605,22 @@ X86Relocator::Result signed32(Relocation& pReloc, X86_64Relocator& pParent)
 // R_X86_64_GOTPCREL: GOT(S) + GOT_ORG + A - P
 X86Relocator::Result gotpcrel(Relocation& pReloc, X86_64Relocator& pParent)
 {
-  if (!(pReloc.symInfo()->reserved()
-       & (X86Relocator::ReserveGOT | X86Relocator::GOTRel))) {
+  if (!(pReloc.symInfo()->reserved() & X86Relocator::ReserveGOT)) {
     return X86Relocator::BadReloc;
   }
-  X86Relocator::Address GOT_S   = helper_GOT(pReloc, pParent);
+
+  // set symbol value of the got entry if needed
+  X86_64GOTEntry* got_entry = pParent.getSymGOTMap().lookUp(*pReloc.symInfo());
+  if (X86Relocator::SymVal == got_entry->getValue())
+    got_entry->setValue(pReloc.symValue());
+
+  // setup relocation addend if needed
+  Relocation* dyn_rel = pParent.getRelRelMap().lookUp(pReloc);
+  if ((NULL != dyn_rel) && (X86Relocator::SymVal == dyn_rel->addend())) {
+    dyn_rel->setAddend(pReloc.symValue());
+  }
+
+  X86Relocator::Address GOT_S   = helper_get_GOT_address(pReloc, pParent);
   Relocator::DWord      A       = pReloc.target() + pReloc.addend();
   X86Relocator::Address GOT_ORG = helper_GOT_ORG(pParent);
   // Apply relocation.
@@ -1647,7 +1634,7 @@ X86Relocator::Result plt32(Relocation& pReloc, X86_64Relocator& pParent)
   // PLT_S depends on if there is a PLT entry.
   X86Relocator::Address PLT_S;
   if ((pReloc.symInfo()->reserved() & X86Relocator::ReservePLT))
-    PLT_S = helper_PLT(pReloc, pParent);
+    PLT_S = helper_get_PLT_address(*pReloc.symInfo(), pParent);
   else
     PLT_S = pReloc.symValue();
   Relocator::DWord      A = pReloc.target() + pReloc.addend();
@@ -1674,17 +1661,22 @@ X86Relocator::Result rel(Relocation& pReloc, X86_64Relocator& pParent)
     return X86Relocator::OK;
   }
 
+  // setup relocation addend if needed
+  Relocation* dyn_rel = pParent.getRelRelMap().lookUp(pReloc);
+  if ((NULL != dyn_rel) && (X86Relocator::SymVal == dyn_rel->addend())) {
+    dyn_rel->setAddend(S);
+  }
+
   // An external symbol may need PLT and dynamic relocation
   if (!rsym->isLocal()) {
     if (rsym->reserved() & X86Relocator::ReservePLT) {
-       S = helper_PLT(pReloc, pParent);
-       pReloc.target() = S + A - P;
+       S = helper_get_PLT_address(*rsym, pParent);
     }
     if (pParent.getTarget().symbolNeedsDynRel(
                               *rsym,
                               (rsym->reserved() & X86Relocator::ReservePLT),
                               false)) {
-          return X86Relocator::Overflow;
+      return X86Relocator::Overflow;
     }
   }
 
