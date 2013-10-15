@@ -80,13 +80,6 @@ public:
   // finalizeSectionSize - set LDSection size
   virtual void finalizeSectionSize();
 
-  /// reserve - reseve number of pNum of empty entries
-  /// Before layout, we scan all relocations to determine if GOT entries are
-  /// needed. If an entry is needed, the empty entry is reserved for layout
-  /// to adjust the fragment offset. After that, we fill up the entries when
-  /// applying relocations.
-  virtual void reserve(size_t pNum = 1) = 0;
-
 protected:
   LDSection& m_Section;
   SectionData* m_SectionData;

@@ -81,10 +81,6 @@ public:
 
   virtual ~PLT();
 
-  /// reserveEntry - reseve the number of pNum of empty entries
-  /// The empty entris are reserved for layout to adjust the fragment offset.
-  virtual void reserveEntry(size_t pNum = 1) = 0;
-
   // finalizeSectionSize - set LDSection size
   virtual void finalizeSectionSize() = 0;
 

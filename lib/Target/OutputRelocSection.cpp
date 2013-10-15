@@ -34,6 +34,13 @@ OutputRelocSection::~OutputRelocSection()
 {
 }
 
+Relocation* OutputRelocSection::create()
+{
+  Relocation* reloc = Relocation::Create();
+  m_pRelocData->append(*reloc);
+  return reloc;
+}
+
 void OutputRelocSection::reserveEntry(size_t pNum)
 {
   for(size_t i=0; i<pNum; i++)
