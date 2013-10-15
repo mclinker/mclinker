@@ -15,7 +15,7 @@
 #include <mcld/LD/Relocator.h>
 #include <mcld/Target/GOT.h>
 #include <mcld/Target/PLT.h>
-#include <mcld/Target/SymbolEntryMap.h>
+#include <mcld/Target/KeyEntryMap.h>
 #include "HexagonLDBackend.h"
 
 namespace mcld {
@@ -30,9 +30,9 @@ class LinkerConfig;
 class HexagonRelocator : public Relocator
 {
 public:
-  typedef SymbolEntryMap<PLTEntryBase> SymPLTMap;
-  typedef SymbolEntryMap<HexagonGOTEntry> SymGOTMap;
-  typedef SymbolEntryMap<HexagonGOTEntry> SymGOTPLTMap;
+  typedef KeyEntryMap<ResolveInfo, PLTEntryBase> SymPLTMap;
+  typedef KeyEntryMap<ResolveInfo, HexagonGOTEntry> SymGOTMap;
+  typedef KeyEntryMap<ResolveInfo, HexagonGOTEntry> SymGOTPLTMap;
 
 
 public:

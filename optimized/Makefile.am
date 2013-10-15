@@ -200,7 +200,7 @@ HEADER = ${INCDIR}/AttributeOption.h \
 	${INCDIR}/Target/GOT.h \
 	${INCDIR}/Target/OutputRelocSection.h \
 	${INCDIR}/Target/PLT.h \
-	${INCDIR}/Target/SymbolEntryMap.h \
+	${INCDIR}/Target/KeyEntryMap.h \
 	${INCDIR}/Target/TargetLDBackend.h
 
 SOURCE = ${LIBDIR}/ADT/StringEntry.cpp \

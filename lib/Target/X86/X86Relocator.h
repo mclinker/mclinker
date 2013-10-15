@@ -15,7 +15,7 @@
 #include <mcld/LD/Relocator.h>
 #include <mcld/Target/GOT.h>
 #include <mcld/Target/PLT.h>
-#include <mcld/Target/SymbolEntryMap.h>
+#include <mcld/Target/KeyEntryMap.h>
 #include "X86LDBackend.h"
 
 namespace mcld {
@@ -30,7 +30,7 @@ class LinkerConfig;
 class X86Relocator : public Relocator
 {
 public:
-  typedef SymbolEntryMap<PLTEntryBase> SymPLTMap;
+  typedef KeyEntryMap<ResolveInfo, PLTEntryBase> SymPLTMap;
 
   /** \enum ReservedEntryType
    *  \brief The reserved entry type of reserved space in ResolveInfo.
@@ -141,8 +141,8 @@ private:
 class X86_32Relocator : public X86Relocator
 {
 public:
-  typedef SymbolEntryMap<X86_32GOTEntry> SymGOTMap;
-  typedef SymbolEntryMap<X86_32GOTEntry> SymGOTPLTMap;
+  typedef KeyEntryMap<ResolveInfo, X86_32GOTEntry> SymGOTMap;
+  typedef KeyEntryMap<ResolveInfo, X86_32GOTEntry> SymGOTPLTMap;
 
   enum {
     R_386_TLS_OPT = 44 // mcld internal relocation type
@@ -199,8 +199,8 @@ private:
 class X86_64Relocator : public X86Relocator
 {
 public:
-  typedef SymbolEntryMap<X86_64GOTEntry> SymGOTMap;
-  typedef SymbolEntryMap<X86_64GOTEntry> SymGOTPLTMap;
+  typedef KeyEntryMap<ResolveInfo, X86_64GOTEntry> SymGOTMap;
+  typedef KeyEntryMap<ResolveInfo, X86_64GOTEntry> SymGOTPLTMap;
 
 public:
   X86_64Relocator(X86_64GNULDBackend& pParent, const LinkerConfig& pConfig);

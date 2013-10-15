@@ -14,7 +14,7 @@
 
 #include <mcld/LD/Relocator.h>
 #include <mcld/Target/GOT.h>
-#include <mcld/Target/SymbolEntryMap.h>
+#include <mcld/Target/KeyEntryMap.h>
 #include "ARMLDBackend.h"
 
 namespace mcld {
@@ -26,8 +26,8 @@ namespace mcld {
 class ARMRelocator : public Relocator
 {
 public:
-  typedef SymbolEntryMap<ARMGOTEntry> SymGOTMap;
-  typedef SymbolEntryMap<ARMPLT1> SymPLTMap;
+  typedef KeyEntryMap<ResolveInfo, ARMGOTEntry> SymGOTMap;
+  typedef KeyEntryMap<ResolveInfo, ARMPLT1> SymPLTMap;
 
   /** \enum ReservedEntryType
    *  \brief The reserved entry type of reserved space in ResolveInfo.
