@@ -72,6 +72,16 @@ public:
     PLTandRel    = 9
   };
 
+  /** \enum EntryValue
+   *  \brief The value of the entries. The symbol value will be decided at after
+   *  layout, so we mark the entry during scanRelocation and fill up the actual
+   *  value when applying relocations.
+   */
+  enum EntryValue {
+    Default = 0,
+    SymVal  = 1
+  };
+
 public:
   ARMRelocator(ARMGNULDBackend& pParent, const LinkerConfig& pConfig);
   ~ARMRelocator();
