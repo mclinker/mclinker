@@ -41,9 +41,7 @@ public:
 
   ~HexagonGOT();
 
-  void reserve(size_t pNum = 1);
-
-  HexagonGOTEntry* consume();
+  HexagonGOTEntry* create();
 
 private:
   HexagonGOTEntry* m_pLast; ///< the last consumed entry

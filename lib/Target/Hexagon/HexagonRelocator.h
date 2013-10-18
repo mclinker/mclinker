@@ -33,7 +33,7 @@ public:
   typedef KeyEntryMap<ResolveInfo, PLTEntryBase> SymPLTMap;
   typedef KeyEntryMap<ResolveInfo, HexagonGOTEntry> SymGOTMap;
   typedef KeyEntryMap<ResolveInfo, HexagonGOTEntry> SymGOTPLTMap;
-
+  typedef KeyEntryMap<Relocation, Relocation> RelRelMap;
 
 public:
   /** \enum ReservedEntryType
@@ -81,6 +81,16 @@ public:
     PLTandRel    = 9
   };
 
+  /** \enum EntryValue
+   *  \brief The value of the entries. The symbol value will be decided at after
+   *  layout, so we mark the entry during scanRelocation and fill up the actual
+   *  value when applying relocations.
+   */
+  enum EntryValue {
+    Default = 0,
+    SymVal  = 1
+  };
+
   HexagonRelocator(HexagonLDBackend& pParent, const LinkerConfig& pConfig);
   ~HexagonRelocator();
 
@@ -121,6 +131,9 @@ public:
   const SymGOTPLTMap& getSymGOTPLTMap() const { return m_SymGOTPLTMap; }
   SymGOTPLTMap&       getSymGOTPLTMap()       { return m_SymGOTPLTMap; }
 
+  const RelRelMap& getRelRelMap() const { return m_RelRelMap; }
+  RelRelMap&       getRelRelMap()       { return m_RelRelMap; }
+
 protected:
   /// addCopyReloc - add a copy relocation into .rela.dyn for pSym
   /// @param pSym - A resolved copy symbol that defined in BSS section
@@ -148,6 +161,7 @@ private:
   SymPLTMap m_SymPLTMap;
   SymGOTMap m_SymGOTMap;
   SymGOTPLTMap m_SymGOTPLTMap;
+  RelRelMap m_RelRelMap;
 };
 
 } // namespace of mcld
