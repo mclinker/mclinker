@@ -274,6 +274,12 @@ public:
   bool printMap() const
   { return m_bPrintMap; }
 
+  void setWarnMismatch(bool pEnable = true)
+  { m_bWarnMismatch = pEnable; }
+
+  bool warnMismatch() const
+  { return m_bWarnMismatch; }
+
   // -G, max GP size option
   void setGPSize(int gpsize)
   { m_GPSize = gpsize; }
@@ -371,6 +377,7 @@ private:
   bool m_bNewDTags: 1; // --enable-new-dtags
   bool m_bNoStdlib: 1; // -nostdlib
   bool m_bPrintMap: 1; // --print-map
+  bool m_bWarnMismatch: 1; // --no-warn-mismatch
   uint32_t m_GPSize; // -G, --gpsize
   StripSymbolMode m_StripSymbols;
   RpathList m_RpathList;

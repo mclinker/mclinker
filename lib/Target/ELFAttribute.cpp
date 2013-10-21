@@ -264,7 +264,7 @@ bool ELFAttribute::Subsection::merge(const Input &pInput,
             // Merge if the read attribute value is different than current one
             // in output.
             if ((in_attr != *out_attr) &&
-                !m_AttrData.merge(pInput, tag, in_attr)) {
+                !m_AttrData.merge(m_Parent.config(), pInput, tag, in_attr)) {
               // Fail to merge the attribute.
               return false;
             }
@@ -288,7 +288,7 @@ bool ELFAttribute::Subsection::merge(const Input &pInput,
     remaining_size -= subsubsection_length;
   } // while (remaining_size > ELFAttribute::MinimalELFAttributeSubsectionSize)
 
-  return m_AttrData.postMerge(pInput);
+  return m_AttrData.postMerge(m_Parent.config(), pInput);
 }
 
 size_t ELFAttribute::Subsection::sizeOutput() const

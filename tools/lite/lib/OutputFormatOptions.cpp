@@ -147,6 +147,10 @@ llvm::cl::opt<mcld::GeneralOptions::HashStyle> ArgHashStyle("hash-style",
                  "both the classic ELF and new style GNU hash tables"),
        clEnumValEnd));
 
+llvm::cl::opt<bool> ArgNoWarnMismatch("no-warn-mismatch",
+  llvm::cl::desc("Allow linking together mismatched input files."),
+  llvm::cl::init(false));
+
 // Not supported yet {
 llvm::cl::opt<bool> ArgExportDynamic("export-dynamic",
   llvm::cl::desc("Export all dynamic symbols"),
@@ -193,7 +197,8 @@ OutputFormatOptions::OutputFormatOptions()
     m_HashStyle(ArgHashStyle),
     m_ExportDynamic(ArgExportDynamic),
     m_BuildID(ArgBuildID),
-    m_ExcludeLIBS(ArgExcludeLIBS) {
+    m_ExcludeLIBS(ArgExcludeLIBS),
+    m_NoWarnMismatch(ArgNoWarnMismatch) {
 }
 
 bool OutputFormatOptions::parse(mcld::Module& pModule, LinkerConfig& pConfig)
@@ -222,6 +227,10 @@ bool OutputFormatOptions::parse(mcld::Module& pModule, LinkerConfig& pConfig)
   pConfig.options().setOMagic(m_OMagic);
   pConfig.options().setHashStyle(m_HashStyle);
   pConfig.options().setExportDynamic(m_ExportDynamic);
+  if (m_NoWarnMismatch)
+    pConfig.options().setWarnMismatch(false);
+  else
+    pConfig.options().setWarnMismatch(true);
   // build-id
   // exclude-libs
 

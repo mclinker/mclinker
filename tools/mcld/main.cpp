@@ -707,13 +707,14 @@ ArgARMCompatibility("p",
                     cl::desc("Ignore for ARM backward compatibility"),
                     cl::init(false));
 
+/// @{
+/// @name FIXME: end of unsupported options
+/// @}
+
 static cl::opt<bool>
 ArgNoWarnMismatch("no-warn-mismatch",
                   cl::desc("Allow linking together mismatched input files."),
                   cl::init(false));
-/// @{
-/// @name FIXME: end of unsupported options
-/// @}
 
 static cl::opt<bool>
 ArgNoStdlib("nostdlib",
@@ -1144,6 +1145,10 @@ static bool ProcessLinkerOptionsFromCommand(mcld::LinkerScript& pScript,
   pConfig.options().setNoStdlib(ArgNoStdlib);
   pConfig.options().setPrintMap(ArgPrintMap);
   pConfig.options().setGPSize(ArgGPSize);
+  if (ArgNoWarnMismatch)
+    pConfig.options().setWarnMismatch(false);
+  else
+    pConfig.options().setWarnMismatch(true);
 
   if (ArgStripAll)
     pConfig.options().setStripSymbols(mcld::GeneralOptions::StripAllSymbols);

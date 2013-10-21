@@ -185,8 +185,9 @@ void ObjectLinker::normalize()
       }
     }
     else {
-      warning(diag::warn_unrecognized_input_file) << (*input)->path()
-        << m_Config.targets().triple().str();
+      if (m_Config.options().warnMismatch())
+        warning(diag::warn_unrecognized_input_file) << (*input)->path()
+          << m_Config.targets().triple().str();
     }
   } // end of for
 }

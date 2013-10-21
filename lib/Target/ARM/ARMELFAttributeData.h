@@ -174,10 +174,10 @@ public:
     return true;
   }
 
-  virtual bool merge(const Input &pInput, TagType pTag,
-                     const ELFAttributeValue& pInAttr);
+  virtual bool merge(const LinkerConfig& pConfig, const Input &pInput,
+                     TagType pTag, const ELFAttributeValue& pInAttr);
 
-  virtual bool postMerge(const Input &pInput);
+  virtual bool postMerge(const LinkerConfig& pConfig, const Input &pInput);
 
   virtual size_t sizeOutput() const;
 

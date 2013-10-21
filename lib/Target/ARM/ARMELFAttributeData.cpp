@@ -8,6 +8,7 @@
 //===----------------------------------------------------------------------===//
 #include "ARMELFAttributeData.h"
 
+#include <mcld/LinkerConfig.h>
 #include <mcld/MC/Input.h>
 #include <mcld/Support/LEB128.h>
 #include <mcld/Support/MsgHandling.h>
@@ -142,7 +143,8 @@ static const int value_ordering_120[] = { 0, 2, 1 };
 // End Helper Functions for merge()
 //===--------------------------------------------------------------------===//
 
-bool ARMELFAttributeData::merge(const Input &pInput, TagType pTag,
+bool ARMELFAttributeData::merge(const LinkerConfig& pConfig,
+                                const Input &pInput, TagType pTag,
                                 const ELFAttributeValue& pInAttr)
 {
   // Pre-condition
@@ -279,8 +281,9 @@ bool ARMELFAttributeData::merge(const Input &pInput, TagType pTag,
               (out_attr.getIntValue() != Arch_Profile_Microcontroller)) {
             // do nothing
           } else {
-            warning(diag::warn_mismatch_cpu_arch_profile)
-                << pInAttr.getIntValue() << pInput.name();
+            if (pConfig.options().warnMismatch())
+              warning(diag::warn_mismatch_cpu_arch_profile)
+                  << pInAttr.getIntValue() << pInput.name();
           }
           break;
         }
@@ -315,7 +318,8 @@ bool ARMELFAttributeData::merge(const Input &pInput, TagType pTag,
       if ((out_attr.getIntValue() == Enum_Unused) ||
           (out_attr.getIntValue() == Enum_Containerized_As_Possible))
         out_attr.setIntValue(pInAttr.getIntValue());
-      else if (pInAttr.getIntValue() != Enum_Containerized_As_Possible)
+      else if (pInAttr.getIntValue() != Enum_Containerized_As_Possible &&
+               pConfig.options().warnMismatch())
         warning(diag::warn_mismatch_enum_size)
             << pInput.name() << pInAttr.getIntValue()
             << out_attr.getIntValue();
@@ -330,7 +334,8 @@ bool ARMELFAttributeData::merge(const Input &pInput, TagType pTag,
         if (out_attr.getIntValue() == 0) {
           out_attr.setIntValue(pInAttr.getIntValue());
         } else {
-          warning(diag::warn_mismatch_fp16_format) << pInput.name();
+          if (pConfig.options().warnMismatch())
+            warning(diag::warn_mismatch_fp16_format) << pInput.name();
         }
       }
       break;
@@ -372,7 +377,8 @@ bool ARMELFAttributeData::merge(const Input &pInput, TagType pTag,
     case Tag_ABI_WMMX_args: {
       // There's no way to merge this value (i.e., objects contain different
       // value in this tag are definitely incompatible.)
-      warning(diag::warn_mismatch_abi_wmmx_args) << pInput.name();
+      if (pConfig.options().warnMismatch())
+        warning(diag::warn_mismatch_abi_wmmx_args) << pInput.name();
       break;
     }
     // Tag_PCS_config
@@ -381,9 +387,11 @@ bool ARMELFAttributeData::merge(const Input &pInput, TagType pTag,
       if (pInAttr.getIntValue() != 0) {
         if (out_attr.getIntValue() == 0)
           out_attr.setIntValue(pInAttr.getIntValue());
-        else
+        else {
           // Different values in these attribute are conflict
-          warning(diag::warn_mismatch_pcs_config) << pInput.name();
+          if (pConfig.options().warnMismatch())
+            warning(diag::warn_mismatch_pcs_config) << pInput.name();
+        }
       }
       break;
     }
@@ -392,8 +400,10 @@ bool ARMELFAttributeData::merge(const Input &pInput, TagType pTag,
       if (pInAttr.getIntValue() != R9_Unused) {
         if (out_attr.getIntValue() == R9_Unused)
           out_attr.setIntValue(pInAttr.getIntValue());
-        else
-          warning(diag::warn_mismatch_r9_use) << pInput.name();
+        else {
+          if (pConfig.options().warnMismatch())
+            warning(diag::warn_mismatch_r9_use) << pInput.name();
+        }
       }
       break;
     }
@@ -402,7 +412,8 @@ bool ARMELFAttributeData::merge(const Input &pInput, TagType pTag,
       if (pInAttr.getIntValue() == RW_data_SB_Relative) {
         // Require using R9 as SB (global Static Base register).
         if ((out_attr.getIntValue() != R9_Unused) &&
-            (out_attr.getIntValue() != R9_SB))
+            (out_attr.getIntValue() != R9_SB) &&
+            pConfig.options().warnMismatch())
           warning(diag::warn_mismatch_r9_use) << pInput.name();
       }
       // Choose the smaller value
@@ -418,10 +429,12 @@ bool ARMELFAttributeData::merge(const Input &pInput, TagType pTag,
       if (pInAttr.getIntValue() != 0) {
         if (out_attr.getIntValue() == 0)
           out_attr.setIntValue(pInAttr.getIntValue());
-        else
-          warning(diag::warn_mismatch_wchar_size)
-              << pInput.name() << pInAttr.getIntValue()
-              << out_attr.getIntValue();
+        else {
+          if (pConfig.options().warnMismatch())
+            warning(diag::warn_mismatch_wchar_size)
+                << pInput.name() << pInAttr.getIntValue()
+                << out_attr.getIntValue();
+        }
       }
       break;
     }
@@ -436,10 +449,13 @@ bool ARMELFAttributeData::merge(const Input &pInput, TagType pTag,
       //    tag N % 128.
       // 2. Tag 64-127 can be safely ignored.
       // 3. Tag 0-63 must be comprehended, therefore we cannot ignore.
-      if ((pTag & 127) < 64) {
-        warning(diag::warn_unknown_mandatory_attribute) << pTag << pInput.name();
-      } else {
-        warning(diag::warn_unknown_attribute) << pTag << pInput.name();
+      if (pConfig.options().warnMismatch()) {
+        if ((pTag & 127) < 64) {
+          warning(diag::warn_unknown_mandatory_attribute) << pTag
+                                                          << pInput.name();
+        } else {
+          warning(diag::warn_unknown_attribute) << pTag << pInput.name();
+        }
       }
       break;
     }
@@ -684,7 +700,8 @@ static bool is_allowed_use_of_div(int cpu_arch, int cpu_arch_profile,
 // End Helper Functions for postMerge()
 //===--------------------------------------------------------------------===//
 
-bool ARMELFAttributeData::postMerge(const Input &pInput)
+bool ARMELFAttributeData::postMerge(const LinkerConfig& pConfig,
+                                    const Input &pInput)
 {
   // Process Tag_CPU_arch, Tag_CPU_name, Tag_CPU_raw_name, and
   // Tag_also_compatible_with.
@@ -782,7 +799,8 @@ bool ARMELFAttributeData::postMerge(const Input &pInput)
       // Inherit requirement from input.
       out_attr.setIntValue(m_VFPArgs);
     } else {
-      warning(diag::warn_mismatch_vfp_args) << pInput.name();
+      if (pConfig.options().warnMismatch())
+        warning(diag::warn_mismatch_vfp_args) << pInput.name();
     }
   }
 

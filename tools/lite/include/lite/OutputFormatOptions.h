@@ -51,6 +51,8 @@ private:
   llvm::cl::opt<bool>& m_ExportDynamic;
   llvm::cl::opt<std::string>& m_BuildID;
   llvm::cl::list<std::string>& m_ExcludeLIBS;
+
+  llvm::cl::opt<bool>& m_NoWarnMismatch;
 };
 
 } // namespace of mcld

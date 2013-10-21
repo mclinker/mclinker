@@ -20,6 +20,7 @@ namespace mcld {
 
 class ELFAttributeValue;
 class Input;
+class LinkerConfig;
 
 /** \class ELFAttributeData
  *  \brief ELFAttributeData handles data in vendor attribute subsection.
@@ -63,12 +64,13 @@ public:
   virtual bool preMerge(const Input &pInput) { return true; }
 
   /// merge - implement logics to merge input attribute to the output.
-  virtual bool merge(const Input &pInput, TagType pTag,
-                     const ELFAttributeValue& pInAttr) = 0;
+  virtual bool merge(const LinkerConfig& pConfig, const Input &pInput,
+                     TagType pTag, const ELFAttributeValue& pInAttr) = 0;
 
   /// postMerge - hooks to call after finishing merge the attribute data from an
   /// input.
-  virtual bool postMerge(const Input &pInput) { return true; }
+  virtual bool postMerge(const LinkerConfig& pConfig, const Input &pInput)
+  { return true; }
 
   /// sizeOutput - obtain number of bytes required to encode the attribute data.
   virtual size_t sizeOutput() const = 0;
