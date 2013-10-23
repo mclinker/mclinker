@@ -89,27 +89,32 @@ void Assignment::activate(Module& pModule)
     bool hasDotInRhs = m_RpnExpr.hasDot();
     SectionMap::reference out = script.sectionMap().back();
     if (hasDotInRhs) {
-      if (out->dotAssignments().empty()) {
+      if (!isLhsDot && out->dotAssignments().empty()) {
+        // . = ADDR ( `prev_output_sect' ) + SIZEOF ( `prev_output_sect' )
         SectionMap::iterator prev = script.sectionMap().begin() +
                                     script.sectionMap().size() - 2;
-        // . = ADDR ( `output_sect' ) + SIZEOF ( `output_sect' )
-        SymOperand* dot = SymOperand::create(".");
-        RpnExpr* expr = RpnExpr::create();
-        expr->push_back(SectDescOperand::create(*prev));
-        expr->push_back(&Operator::create<Operator::ADDR>());
-        expr->push_back(SectDescOperand::create(*prev));
-        expr->push_back(&Operator::create<Operator::SIZEOF>());
-        expr->push_back(&Operator::create<Operator::ADD>());
-        Assignment assign(OUTPUT_SECTION, DEFAULT, *dot, *expr);
+        Assignment assign(OUTPUT_SECTION,
+                          HIDDEN,
+                          *SymOperand::create("."),
+                          *RpnExpr::buildHelperExpr(prev));
         out->dotAssignments().push_back(assign);
       }
 
-      for (RpnExpr::iterator it = m_RpnExpr.begin(), ie = m_RpnExpr.end();
-        it != ie; ++it) {
-        if ((*it)->kind() == ExprToken::OPERAND &&
-            llvm::cast<Operand>(*it)->isDot())
-          *it = &(out->dotAssignments().back().symbol());
-      } // for each expression token
+      if (!out->dotAssignments().empty()) {
+        Assignment& prevDotAssign = out->dotAssignments().back();
+        // If this is the 1st explicit assignment that includes both lhs dot and
+        // rhs dot, then because of possible orphan sections, we are unable to
+        // substitute the rhs dot now.
+        if (!isLhsDot || prevDotAssign.type() == DEFAULT) {
+          for (RpnExpr::iterator it = m_RpnExpr.begin(), ie = m_RpnExpr.end();
+            it != ie; ++it) {
+            // substitute the rhs dot with the appropriate helper expr
+            if ((*it)->kind() == ExprToken::OPERAND &&
+                llvm::cast<Operand>(*it)->isDot())
+              *it = &(prevDotAssign.symbol());
+          } // for each expression token
+        }
+      }
     }
 
     if (isLhsDot) {
@@ -127,19 +132,22 @@ void Assignment::activate(Module& pModule)
     if (hasDotInRhs) {
       if (in->dotAssignments().empty()) {
         // . = `frag'
-        SymOperand* dot = SymOperand::create(".");
-        RpnExpr* expr = RpnExpr::create();
-        expr->push_back(
-          FragOperand::create(in->getSection()->getSectionData()->front()));
-        Assignment assign(INPUT_SECTION, DEFAULT, *dot, *expr);
+        RpnExpr* expr =
+          RpnExpr::buildHelperExpr(in->getSection()->getSectionData()->front());
+        Assignment assign(INPUT_SECTION,
+                          HIDDEN,
+                          *SymOperand::create("."),
+                          *expr);
         in->dotAssignments().push_back(std::make_pair((Fragment*)NULL, assign));
       }
 
+      Assignment& prevDotAssign = in->dotAssignments().back().second;
       for (RpnExpr::iterator it = m_RpnExpr.begin(), ie = m_RpnExpr.end();
         it != ie; ++it) {
+        // substitute the rhs dot with the appropriate helper expr
         if ((*it)->kind() == ExprToken::OPERAND &&
             llvm::cast<Operand>(*it)->isDot())
-          *it = &(in->dotAssignments().back().second.symbol());
+          *it = &(prevDotAssign.symbol());
       } // end of for
     }
 

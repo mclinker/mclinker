@@ -35,12 +35,12 @@ typedef GCFactory<SymOperand, MCLD_SYMBOLS_PER_INPUT> SymOperandFactory;
 static llvm::ManagedStatic<SymOperandFactory> g_SymOperandFactory;
 
 SymOperand::SymOperand()
-  : Operand(Operand::SYMBOL)
+  : Operand(Operand::SYMBOL), m_Value(0)
 {
 }
 
 SymOperand::SymOperand(const std::string& pName)
-  : Operand(Operand::SYMBOL), m_Name(pName)
+  : Operand(Operand::SYMBOL), m_Name(pName), m_Value(0)
 {
 }
 
@@ -81,7 +81,7 @@ typedef GCFactory<IntOperand, MCLD_SYMBOLS_PER_INPUT> IntOperandFactory;
 static llvm::ManagedStatic<IntOperandFactory> g_IntOperandFactory;
 
 IntOperand::IntOperand()
-  : Operand(Operand::INTEGER)
+  : Operand(Operand::INTEGER), m_Value(0)
 {
 }
 

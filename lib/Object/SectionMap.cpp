@@ -7,11 +7,16 @@
 //
 //===----------------------------------------------------------------------===//
 #include <mcld/Object/SectionMap.h>
+#include <mcld/Script/Assignment.h>
 #include <mcld/Script/WildcardPattern.h>
 #include <mcld/Script/StringList.h>
+#include <mcld/Script/Operand.h>
+#include <mcld/Script/Operator.h>
+#include <mcld/Script/RpnExpr.h>
 #include <mcld/LD/LDSection.h>
 #include <mcld/LD/SectionData.h>
 #include <mcld/Fragment/NullFragment.h>
+#include <llvm/Support/Casting.h>
 #include <cassert>
 #include <cstring>
 #include <climits>
@@ -100,6 +105,50 @@ SectionMap::Output::Output(const OutputSectDesc& pOutputDesc)
 bool SectionMap::Output::hasContent() const
 {
   return m_pSection != NULL && m_pSection->size() != 0;
+}
+
+SectionMap::Output::const_dot_iterator
+SectionMap::Output::find_first_explicit_dot() const
+{
+  for (const_dot_iterator it = dot_begin(), ie = dot_end(); it != ie; ++it) {
+    if ((*it).type() == Assignment::DEFAULT)
+      return it;
+  }
+  return dot_end();
+}
+
+SectionMap::Output::dot_iterator SectionMap::Output::find_first_explicit_dot()
+{
+  for (dot_iterator it = dot_begin(), ie = dot_end(); it != ie; ++it) {
+    if ((*it).type() == Assignment::DEFAULT)
+      return it;
+  }
+  return dot_end();
+}
+
+SectionMap::Output::const_dot_iterator
+SectionMap::Output::find_last_explicit_dot() const
+{
+  typedef std::reverse_iterator<DotAssignments::const_iterator> CONST_RIT;
+  CONST_RIT rie(dotAssignments().begin());
+  CONST_RIT rib(dotAssignments().end());
+  for (const_dot_iterator it = rie.base(), ie = rib.base(); it != ie; ++it) {
+    if ((*it).type() == Assignment::DEFAULT)
+      return it;
+  }
+  return dot_end();
+}
+
+SectionMap::Output::dot_iterator SectionMap::Output::find_last_explicit_dot()
+{
+  typedef std::reverse_iterator<DotAssignments::iterator> RIT;
+  RIT rie(dotAssignments().begin());
+  RIT rib(dotAssignments().end());
+  for (dot_iterator it = rie.base(), ie = rib.base(); it != ie; ++it) {
+    if ((*it).type() == Assignment::DEFAULT)
+      return it;
+  }
+  return dot_end();
 }
 
 //===----------------------------------------------------------------------===//
@@ -281,4 +330,30 @@ bool SectionMap::matched(const SectionMap::Input& pInput,
       result = false;
   }
   return result;
+}
+
+// ensureDotAssignsValid - ensure the dot assignments are valid
+void SectionMap::ensureDotAssignsValid()
+{
+  for (iterator it = begin() + 1, ie = end(); it != ie; ++it) {
+    if (!(*it)->dotAssignments().empty()) {
+      // fix the 1st explicit dot assignment if needed
+      Output::dot_iterator dot = (*it)->find_first_explicit_dot();
+      if (dot != (*it)->dot_end() &&
+          (*dot).symbol().isDot() &&
+          (*dot).getRpnExpr().hasDot()) {
+        Assignment assign(Assignment::OUTPUT_SECTION,
+                          Assignment::DEFAULT,
+                          *SymOperand::create("."),
+                          *RpnExpr::buildHelperExpr(it - 1));
+        Output::dot_iterator ref = (*it)->dotAssignments().insert(dot, assign);
+        for (RpnExpr::iterator tok = (*dot).getRpnExpr().begin(),
+          tokEnd = (*dot).getRpnExpr().end();  tok != tokEnd; ++tok) {
+          if ((*tok)->kind() == ExprToken::OPERAND &&
+              llvm::cast<Operand>(*tok)->isDot())
+            *tok = &((*ref).symbol());
+        } // for each token in the RHS expr of the dot assignment
+      }
+    }
+  } // for each output section
 }

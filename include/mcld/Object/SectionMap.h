@@ -116,6 +116,12 @@ public:
     const_dot_iterator dot_end  () const { return m_DotAssignments.end(); }
     dot_iterator       dot_end  ()       { return m_DotAssignments.end(); }
 
+    const_dot_iterator find_first_explicit_dot() const;
+    dot_iterator       find_first_explicit_dot();
+
+    const_dot_iterator find_last_explicit_dot() const;
+    dot_iterator       find_last_explicit_dot();
+
     const DotAssignments& dotAssignments() const { return m_DotAssignments; }
     DotAssignments&       dotAssignments()       { return m_DotAssignments; }
 
@@ -183,6 +189,9 @@ public:
   reverse_iterator       rend  ()       { return m_OutputDescList.rend(); }
 
   iterator insert(iterator pPosition, LDSection* pSection);
+
+  // ensureDotAssignsValid - ensure the dot assignments are valid
+  void ensureDotAssignsValid();
 
 private:
   bool matched(const Input& pInput,

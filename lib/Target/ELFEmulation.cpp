@@ -75,6 +75,10 @@ bool mcld::MCLDEmulateELF(LinkerScript& pScript, LinkerConfig& pConfig)
       if (!res.second)
         return false;
     }
+  } else {
+    // FIXME: this is the hack to help assignment processing in current
+    // implementation.
+    pScript.sectionMap().insert("", "");
   }
 
   if (!pConfig.options().nostdlib()) {

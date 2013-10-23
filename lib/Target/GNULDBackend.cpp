@@ -2512,6 +2512,17 @@ void GNULDBackend::placeOutputSections(Module& pModule)
     }
     (*out)->setOrder(order);
   } // for each orphan section
+
+  // sort output section orders if there is no default ldscript
+  if (config().options().getScriptList().empty()) {
+    std::stable_sort(sectionMap.begin(),
+                     sectionMap.end(),
+                     SectionMap::SHOCompare());
+  }
+
+  // when section ordering is fixed, now we can make sure dot assignments are
+  // all set appropriately
+  sectionMap.ensureDotAssignsValid();
 }
 
 /// layout - layout method
@@ -2520,15 +2531,8 @@ void GNULDBackend::layout(Module& pModule)
   // 1. place output sections based on SectionMap from SECTIONS command
   placeOutputSections(pModule);
 
-  // 2. sort output section orders if there is no default ldscript
+  // 2. update output sections in Module
   SectionMap& sectionMap = pModule.getScript().sectionMap();
-  if (config().options().getScriptList().empty()) {
-    std::stable_sort(sectionMap.begin(),
-                     sectionMap.end(),
-                     SectionMap::SHOCompare());
-  }
-
-  // 3. update output sections in Module
   pModule.getSectionTable().clear();
   for (SectionMap::iterator out = sectionMap.begin(), outEnd = sectionMap.end();
     out != outEnd; ++out) {
@@ -2541,15 +2545,15 @@ void GNULDBackend::layout(Module& pModule)
     }
   } // for each output section description
 
-  // 4. update the size of .shstrtab
+  // 3. update the size of .shstrtab
   sizeShstrtab(pModule);
 
-  // 5. create program headers
+  // 4. create program headers
   if (LinkerConfig::Object != config().codeGenType()) {
     createProgramHdrs(pModule);
   }
 
-  // 6. set output section address/offset
+  // 5. set output section address/offset
   if (LinkerConfig::Object != config().codeGenType())
     setOutputSectionAddress(pModule);
   else

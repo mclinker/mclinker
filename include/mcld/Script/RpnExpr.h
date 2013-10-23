@@ -14,12 +14,14 @@
 
 #include <mcld/Support/Allocators.h>
 #include <mcld/Config/Config.h>
+#include <mcld/Object/SectionMap.h>
 #include <vector>
 
 namespace mcld
 {
 
 class ExprToken;
+class Fragment;
 
 /** \class RpnExpr
  *  \brief This class defines the interfaces to a rpn expression.
@@ -62,6 +64,12 @@ public:
   static RpnExpr* create();
   static void destroy(RpnExpr*& pRpnExpr);
   static void clear();
+
+  // buildHelperExpr - build the helper expr:
+  //                   ADDR ( `output_sect' ) + SIZEOF ( `output_sect' )
+  static RpnExpr* buildHelperExpr(SectionMap::iterator pIter);
+  // buildHelperExpr - build the helper expr: `fragment'
+  static RpnExpr* buildHelperExpr(Fragment& pFrag);
 
 private:
   TokenQueue m_TokenQueue;

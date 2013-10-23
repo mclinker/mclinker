@@ -9,6 +9,7 @@
 #include <mcld/Script/RpnExpr.h>
 #include <mcld/Script/ExprToken.h>
 #include <mcld/Script/Operand.h>
+#include <mcld/Script/Operator.h>
 #include <mcld/Support/GCFactory.h>
 #include <mcld/Support/raw_ostream.h>
 #include <llvm/Support/ManagedStatic.h>
@@ -80,4 +81,25 @@ RpnExpr::iterator RpnExpr::insert(iterator pPosition, ExprToken* pToken)
 void RpnExpr::erase(iterator pPosition)
 {
   m_TokenQueue.erase(pPosition);
+}
+
+// buildHelperExpr - build the helper expr:
+//                   ADDR ( `output_sect' ) + SIZEOF ( `output_sect' )
+RpnExpr* RpnExpr::buildHelperExpr(SectionMap::iterator pIter)
+{
+  RpnExpr* expr = RpnExpr::create();
+  expr->push_back(SectDescOperand::create(*pIter));
+  expr->push_back(&Operator::create<Operator::ADDR>());
+  expr->push_back(SectDescOperand::create(*pIter));
+  expr->push_back(&Operator::create<Operator::SIZEOF>());
+  expr->push_back(&Operator::create<Operator::ADD>());
+  return expr;
+}
+
+// buildHelperExpr - build the helper expr: `fragment'
+RpnExpr* RpnExpr::buildHelperExpr(Fragment& pFrag)
+{
+  RpnExpr* expr = RpnExpr::create();
+  expr->push_back(FragOperand::create(pFrag));
+  return expr;
 }
