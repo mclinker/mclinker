@@ -100,11 +100,10 @@ message(
   "enum == " ${MCLD_ENUM_LINKERS}
 )
 
-if( ${CMAKE_SYSTEM_NAME} MATCHES Linux )
-  set (MCLD_ON_UNIX 1)
-endif()
 if( ${CMAKE_SYSTEM_NAME} MATCHES Windows )
   set (MCLD_ON_WIN32 1)
+else()
+  set (MCLD_ON_UNIX 1)
 endif()
 
 if (CMAKE_SOURCE_DIR STREQUAL CMAKE_BINARY_DIR)
