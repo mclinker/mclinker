@@ -100,11 +100,22 @@ message(
   "enum == " ${MCLD_ENUM_LINKERS}
 )
 
-if( ${CMAKE_SYSTEM_NAME} MATCHES Windows )
-  set (MCLD_ON_WIN32 1)
-else()
-  set (MCLD_ON_UNIX 1)
-endif()
+if(WIN32)
+  if(CYGWIN)
+    set(MCLD_ON_WIN32 0)
+    set(MCLD_ON_UNIX 1)
+  else(CYGWIN)
+    set(MCLD_ON_WIN32 1)
+    set(MCLD_ON_UNIX 0)
+  endif(CYGWIN)
+else(WIN32)
+  if(UNIX)
+    set(MCLD_ON_WIN32 0)
+    set(MCLD_ON_UNIX 1)
+  else(UNIX)
+    MESSAGE(SEND_ERROR "Unable to determine platform")
+  endif(UNIX)
+endif(WIN32)
 
 if (CMAKE_SOURCE_DIR STREQUAL CMAKE_BINARY_DIR)
   message(FATAL_ERROR "In-source builds are not allowed. CMake would overwrite "
