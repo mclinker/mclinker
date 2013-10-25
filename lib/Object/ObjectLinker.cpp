@@ -307,22 +307,39 @@ bool ObjectLinker::mergeSections()
     } // for each section
   } // for each obj
 
+  RpnEvaluator evaluator(*m_pModule, m_LDBackend);
   SectionMap::iterator out, outBegin, outEnd;
   outBegin = m_pModule->getScript().sectionMap().begin();
   outEnd = m_pModule->getScript().sectionMap().end();
   for (out = outBegin; out != outEnd; ++out) {
+    uint64_t out_align = 0x0, in_align = 0x0;
     LDSection* out_sect = (*out)->getSection();
     SectionMap::Output::iterator in, inBegin, inEnd;
     inBegin = (*out)->begin();
     inEnd = (*out)->end();
+
+    // force input alignment from ldscript if any
+    if ((*out)->prolog().hasSubAlign()) {
+      evaluator.eval((*out)->prolog().subAlign(), in_align);
+    }
+
     for (in = inBegin; in != inEnd; ++in) {
       LDSection* in_sect = (*in)->getSection();
+      if ((*out)->prolog().hasSubAlign())
+        in_sect->setAlign(in_align);
+
       if (builder.MoveSectionData(*in_sect->getSectionData(),
                                   *out_sect->getSectionData())) {
         builder.UpdateSectionAlign(*out_sect, *in_sect);
         m_LDBackend.updateSectionFlags(*out_sect, *in_sect);
       }
     } // for each input section description
+
+    // force output alignment from ldscript if any
+    if ((*out)->prolog().hasAlign()) {
+      evaluator.eval((*out)->prolog().align(), out_align);
+      out_sect->setAlign(out_align);
+    }
 
     if ((*out)->hasContent()) {
       LDSection* target = m_pModule->getSection((*out)->name());
