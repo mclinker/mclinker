@@ -2214,6 +2214,7 @@ void GNULDBackend::setOutputSectionAddress(Module& pModule)
   LDSection* prev = NULL;
   LinkerScript::AddressMap::iterator addr, addrEnd = script.addressMap().end();
   ELFSegmentFactory::iterator seg, segEnd = elfSegmentTable().end();
+  SectionMap::Output::dot_iterator dot;
   SectionMap::iterator out, outBegin, outEnd;
   outBegin = script.sectionMap().begin();
   outEnd = script.sectionMap().end();
@@ -2248,9 +2249,9 @@ void GNULDBackend::setOutputSectionAddress(Module& pModule)
     } else if ((*out)->prolog().hasVMA()) {
       // use address from output section description
       evaluator.eval((*out)->prolog().vma(), vma);
-    } else if (!(*out)->dotAssignments().empty()) {
+    } else if ((dot = (*out)->find_last_explicit_dot()) != (*out)->dot_end()) {
       // assign address based on `.' symbol in ldscript
-      vma = (*out)->dotAssignments().back().symbol().value();
+      vma = (*dot).symbol().value();
       alignAddress(vma, cur->align());
     } else {
       if ((cur->flag() & llvm::ELF::SHF_ALLOC) != 0) {
