@@ -55,6 +55,8 @@ public:
 
   void push_back(StrToken* pToken);
 
+  void dump() const;
+
   /* factory methods */
   static StringList* create();
   static void destroy(StringList*& pStringList);

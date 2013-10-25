@@ -33,6 +33,13 @@ void StringList::push_back(StrToken* pToken)
   m_Tokens.push_back(pToken);
 }
 
+void StringList::dump() const
+{
+  for (const_iterator it = begin(), ie = end(); it != ie; ++it)
+    mcld::outs() << (*it)->name() << "\t";
+  mcld::outs() << "\n";
+}
+
 StringList* StringList::create()
 {
   StringList* result = g_StringListFactory->allocate();
