@@ -2254,7 +2254,9 @@ void GNULDBackend::setOutputSectionAddress(Module& pModule)
       vma = (*dot).symbol().value();
       alignAddress(vma, cur->align());
     } else {
-      if ((cur->flag() & llvm::ELF::SHF_ALLOC) != 0) {
+      if ((*out)->prolog().type() == OutputSectDesc::NOLOAD) {
+        vma = prev->addr() + prev->size();
+      } else if ((cur->flag() & llvm::ELF::SHF_ALLOC) != 0) {
         if (prev->kind() == LDFileFormat::Null) {
           // Let SECTIONS starts at 0 if we have a default ldscript but don't
           // have any initial value (VMA or `.').
