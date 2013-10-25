@@ -70,9 +70,9 @@ public:
       return true;
     }
 
-    WildcardPattern* m_pWildcardFile;
-    StringList* m_pExcludeFiles;
-    StringList* m_pWildcardSections;
+    const WildcardPattern* m_pWildcardFile;
+    const StringList* m_pExcludeFiles;
+    const StringList* m_pWildcardSections;
   };
 
 public:

@@ -53,9 +53,11 @@ SectionMap::Input::Input(const std::string& pName)
 }
 
 SectionMap::Input::Input(const InputSectDesc& pInputDesc)
-  : m_Policy(pInputDesc.policy()),
-    m_Spec(pInputDesc.spec())
+  : m_Policy(pInputDesc.policy())
 {
+  m_Spec.m_pWildcardFile = pInputDesc.spec().m_pWildcardFile;
+  m_Spec.m_pExcludeFiles = pInputDesc.spec().m_pExcludeFiles;
+  m_Spec.m_pWildcardSections = pInputDesc.spec().m_pWildcardSections;
   m_pSection = LDSection::Create("", LDFileFormat::Regular, 0, 0);
   SectionData* sd = SectionData::Create(*m_pSection);
   m_pSection->setSectionData(sd);
@@ -303,10 +305,9 @@ bool SectionMap::matched(const SectionMap::Input& pInput,
                          const std::string& pInputFile,
                          const std::string& pInputSection) const
 {
-  bool result = false;
   if (pInput.spec().hasFile() &&
-      fnmatch0(pInput.spec().file().name().c_str(), pInputFile.c_str()))
-    result = true;
+      !fnmatch0(pInput.spec().file().name().c_str(), pInputFile.c_str()))
+      return false;
 
   if (pInput.spec().hasExcludeFiles()) {
     StringList::const_iterator file, fileEnd;
@@ -322,14 +323,12 @@ bool SectionMap::matched(const SectionMap::Input& pInput,
     StringList::const_iterator sect, sectEnd = pInput.spec().sections().end();
     for (sect = pInput.spec().sections().begin(); sect != sectEnd; ++sect) {
       if (fnmatch0((*sect)->name().c_str(), pInputSection.c_str())) {
-        result = true;
-        break;
+        return true;
       }
     }
-    if (sect == sectEnd)
-      result = false;
   }
-  return result;
+
+  return false;
 }
 
 // ensureDotAssignsValid - ensure the dot assignments are valid
