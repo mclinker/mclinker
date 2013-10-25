@@ -43,9 +43,6 @@
 #include <llvm/Support/Casting.h>
 #include <llvm/Support/Host.h>
 
-
-#include <mcld/Script/StringList.h>
-#include <mcld/Script/WildcardPattern.h>
 using namespace llvm;
 using namespace mcld;
 ObjectLinker::ObjectLinker(const LinkerConfig& pConfig,
