@@ -2271,11 +2271,13 @@ void GNULDBackend::setOutputSectionAddress(Module& pModule)
             vma = prev->addr() + prev->size();
         }
         alignAddress(vma, cur->align());
-        if (seg != segEnd && cur == (*seg)->front()) {
-          // Try to align p_vaddr at page boundary if not in script options.
-          // To do so will add more padding in file, but can save one page
-          // at runtime.
-          alignAddress(vma, (*seg)->align());
+        if (config().options().getScriptList().empty()) {
+          if (seg != segEnd && cur == (*seg)->front()) {
+            // Try to align p_vaddr at page boundary if not in script options.
+            // To do so will add more padding in file, but can save one page
+            // at runtime.
+            alignAddress(vma, (*seg)->align());
+          }
         }
       } else {
         vma = 0x0;
