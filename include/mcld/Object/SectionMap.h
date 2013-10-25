@@ -79,8 +79,10 @@ public:
     const std::string& name() const { return m_Name; }
 
     const OutputSectDesc::Prolog& prolog() const { return m_Prolog; }
+    OutputSectDesc::Prolog&       prolog()       { return m_Prolog; }
 
     const OutputSectDesc::Epilog& epilog() const { return m_Epilog; }
+    OutputSectDesc::Epilog&       epilog()       { return m_Epilog; }
 
     size_t order() const { return m_Order; }
 
@@ -190,8 +192,8 @@ public:
 
   iterator insert(iterator pPosition, LDSection* pSection);
 
-  // ensureDotAssignsValid - ensure the dot assignments are valid
-  void ensureDotAssignsValid();
+  // fixupDotSymbols - ensure the dot assignments are valid
+  void fixupDotSymbols();
 
 private:
   bool matched(const Input& pInput,

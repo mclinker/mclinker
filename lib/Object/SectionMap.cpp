@@ -331,12 +331,12 @@ bool SectionMap::matched(const SectionMap::Input& pInput,
   return false;
 }
 
-// ensureDotAssignsValid - ensure the dot assignments are valid
-void SectionMap::ensureDotAssignsValid()
+// fixupDotSymbols - ensure the dot symbols are valid
+void SectionMap::fixupDotSymbols()
 {
   for (iterator it = begin() + 1, ie = end(); it != ie; ++it) {
+    // fixup the 1st explicit dot assignment if needed
     if (!(*it)->dotAssignments().empty()) {
-      // fix the 1st explicit dot assignment if needed
       Output::dot_iterator dot = (*it)->find_first_explicit_dot();
       if (dot != (*it)->dot_end() &&
           (*dot).symbol().isDot() &&
@@ -354,5 +354,24 @@ void SectionMap::ensureDotAssignsValid()
         } // for each token in the RHS expr of the dot assignment
       }
     }
+
+    // fixup dot in output VMA if needed
+    if ((*it)->prolog().hasVMA() && (*it)->prolog().vma().hasDot()) {
+      Output::dot_iterator dot = (*it)->find_last_explicit_dot();
+      if (dot == (*it)->dot_end()) {
+        Assignment assign(Assignment::OUTPUT_SECTION,
+                          Assignment::DEFAULT,
+                          *SymOperand::create("."),
+                          *RpnExpr::buildHelperExpr(it - 1));
+        dot = (*it)->dotAssignments().insert(dot, assign);
+      }
+      for (RpnExpr::iterator tok = (*it)->prolog().vma().begin(),
+        tokEnd = (*it)->prolog().vma().end();  tok != tokEnd; ++tok) {
+        if ((*tok)->kind() == ExprToken::OPERAND &&
+            llvm::cast<Operand>(*tok)->isDot())
+          *tok = &((*dot).symbol());
+      } // for each token in the RHS expr of the dot assignment
+    }
+
   } // for each output section
 }

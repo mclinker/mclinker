@@ -2522,7 +2522,7 @@ void GNULDBackend::placeOutputSections(Module& pModule)
 
   // when section ordering is fixed, now we can make sure dot assignments are
   // all set appropriately
-  sectionMap.ensureDotAssignsValid();
+  sectionMap.fixupDotSymbols();
 }
 
 /// layout - layout method

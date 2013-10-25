@@ -51,11 +51,19 @@ public:
       assert(hasVMA());
       return *m_pVMA;
     }
+    RpnExpr& vma() {
+      assert(hasVMA());
+      return *m_pVMA;
+    }
 
     Type type() const { return m_Type; }
 
     bool hasLMA() const { return m_pLMA != NULL; }
     const RpnExpr& lma() const {
+      assert(hasLMA());
+      return *m_pLMA;
+    }
+    RpnExpr& lma() {
       assert(hasLMA());
       return *m_pLMA;
     }
