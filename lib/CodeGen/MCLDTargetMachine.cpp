@@ -277,8 +277,7 @@ bool mcld::MCLDTargetMachine::addPassesToEmitFile(PassManagerBase &pPM,
 }
 
 bool mcld::MCLDTargetMachine::addCompilerPasses(PassManagerBase &pPM,
-                                                llvm::formatted_raw_ostream &pOutput,
-                                                llvm::MCContext *&Context)
+  llvm::formatted_raw_ostream &pOutput, llvm::MCContext *&Context)
 {
   const MCAsmInfo &MAI = *getTM().getMCAsmInfo();
   const MCInstrInfo &MII = *getTM().getInstrInfo();
@@ -287,28 +286,27 @@ bool mcld::MCLDTargetMachine::addCompilerPasses(PassManagerBase &pPM,
 
   MCInstPrinter *InstPrinter =
     m_pLLVMTarget->createMCInstPrinter(MAI.getAssemblerDialect(), MAI,
-                                           MII,
-                                           *Context->getRegisterInfo(), STI);
+                                       MII, *Context->getRegisterInfo(), STI);
 
   MCCodeEmitter* MCE = 0;
   MCAsmBackend *MAB = 0;
   if (ArgShowMCEncoding) {
     MCE = m_pLLVMTarget->createMCCodeEmitter(MII, MRI, STI, *Context);
-    MAB = m_pLLVMTarget->createMCAsmBackend(m_Triple,
-                                                getTM().getTargetCPU());
+    MAB = m_pLLVMTarget->createMCAsmBackend(MRI, m_Triple,
+                                            getTM().getTargetCPU());
   }
 
 
   // now, we have MCCodeEmitter and MCAsmBackend, we can create AsmStreamer.
   OwningPtr<MCStreamer> AsmStreamer(
     m_pLLVMTarget->createAsmStreamer(*Context, pOutput,
-                                         getVerboseAsm(),
-                                         getTM().hasMCUseLoc(),
-                                         getTM().hasMCUseCFI(),
-                                         getTM().hasMCUseDwarfDirectory(),
-                                         InstPrinter,
-                                         MCE, MAB,
-                                         ArgShowMCInst));
+                                     getVerboseAsm(),
+                                     getTM().hasMCUseLoc(),
+                                     getTM().hasMCUseCFI(),
+                                     getTM().hasMCUseDwarfDirectory(),
+                                     InstPrinter,
+                                     MCE, MAB,
+                                     ArgShowMCInst));
 
   llvm::MachineFunctionPass* funcPass =
     m_pLLVMTarget->createAsmPrinter(getTM(), *AsmStreamer.get());
@@ -334,22 +332,18 @@ bool mcld::MCLDTargetMachine::addAssemblerPasses(PassManagerBase &pPM,
 
   // MCAsmBackend
   MCAsmBackend* MAB =
-    m_pLLVMTarget->createMCAsmBackend(m_Triple,getTM().getTargetCPU());
+    m_pLLVMTarget->createMCAsmBackend(MRI, m_Triple, getTM().getTargetCPU());
   if (MCE == 0 || MAB == 0)
     return true;
 
   // now, we have MCCodeEmitter and MCAsmBackend, we can create AsmStreamer.
   OwningPtr<MCStreamer> AsmStreamer(m_pLLVMTarget->createMCObjectStreamer(
-                                                              m_Triple,
-                                                              *Context,
-                                                              *MAB,
-                                                              pOutput,
-                                                              MCE,
-                                                              getTM().hasMCRelaxAll(),
-                                                              getTM().hasMCNoExecStack()));
+    m_Triple, *Context, *MAB, pOutput, MCE, getTM().hasMCRelaxAll(),
+    getTM().hasMCNoExecStack()));
+
   AsmStreamer.get()->InitSections();
-  MachineFunctionPass *funcPass = m_pLLVMTarget->createAsmPrinter(getTM(),
-                                                                      *AsmStreamer.get());
+  MachineFunctionPass *funcPass =
+    m_pLLVMTarget->createAsmPrinter(getTM(), *AsmStreamer.get());
   if (funcPass == 0)
     return true;
   // If successful, createAsmPrinter took ownership of AsmStreamer
