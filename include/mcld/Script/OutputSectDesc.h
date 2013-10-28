@@ -56,6 +56,10 @@ public:
       return *m_pVMA;
     }
 
+    void setType(Type pType) {
+      m_Type = pType;
+    }
+
     Type type() const { return m_Type; }
 
     bool hasLMA() const { return m_pLMA != NULL; }

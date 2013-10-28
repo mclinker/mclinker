@@ -2485,6 +2485,7 @@ void GNULDBackend::placeOutputSections(Module& pModule)
   // set up sections in SectionMap but do not exist at all.
   uint32_t flag = 0x0;
   unsigned int order = SHO_UNDEFINED;
+  OutputSectDesc::Type type = OutputSectDesc::LOAD;
   for (SectionMap::reverse_iterator out = sectionMap.rbegin(),
     outEnd = sectionMap.rend(); out != outEnd; ++out) {
     if ((*out)->hasContent() ||
@@ -2492,9 +2493,11 @@ void GNULDBackend::placeOutputSections(Module& pModule)
         (*out)->getSection()->kind() == LDFileFormat::StackNote) {
       flag = (*out)->getSection()->flag();
       order = (*out)->order();
+      type = (*out)->prolog().type();
     } else {
       (*out)->getSection()->setFlag(flag);
       (*out)->setOrder(order);
+      (*out)->prolog().setType(type);
     }
   } // for each output section description
 
