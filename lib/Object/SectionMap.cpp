@@ -131,24 +131,26 @@ SectionMap::Output::dot_iterator SectionMap::Output::find_first_explicit_dot()
 SectionMap::Output::const_dot_iterator
 SectionMap::Output::find_last_explicit_dot() const
 {
-  typedef std::reverse_iterator<DotAssignments::const_iterator> CONST_RIT;
-  CONST_RIT rie(dotAssignments().begin());
-  CONST_RIT rib(dotAssignments().end());
-  for (const_dot_iterator it = rie.base(), ie = rib.base(); it != ie; ++it) {
-    if ((*it).type() == Assignment::DEFAULT)
-      return it;
+  typedef DotAssignments::const_reverse_iterator CONST_RIT;
+  for (CONST_RIT rit = dotAssignments().rbegin(), rie = dotAssignments().rend();
+    rit != rie; ++rit) {
+    if ((*rit).type() == Assignment::DEFAULT) {
+      return dot_begin() +
+             (dotAssignments().size() - (rit - dotAssignments().rbegin()) - 1);
+    }
   }
   return dot_end();
 }
 
 SectionMap::Output::dot_iterator SectionMap::Output::find_last_explicit_dot()
 {
-  typedef std::reverse_iterator<DotAssignments::iterator> RIT;
-  RIT rie(dotAssignments().begin());
-  RIT rib(dotAssignments().end());
-  for (dot_iterator it = rie.base(), ie = rib.base(); it != ie; ++it) {
-    if ((*it).type() == Assignment::DEFAULT)
-      return it;
+  typedef DotAssignments::reverse_iterator RIT;
+  for (RIT rit = dotAssignments().rbegin(), rie = dotAssignments().rend();
+    rit != rie; ++rit) {
+    if ((*rit).type() == Assignment::DEFAULT) {
+      return dot_begin() +
+             (dotAssignments().size() - (rit - dotAssignments().rbegin()) - 1);
+    }
   }
   return dot_end();
 }
