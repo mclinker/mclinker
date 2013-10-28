@@ -1854,7 +1854,8 @@ void GNULDBackend::createProgramHdrs(Module& pModule)
       break;
 
     // bypass empty sections
-    if (!(*out)->hasContent())
+    if (!(*out)->hasContent() &&
+        (*out)->getSection()->kind() != LDFileFormat::Null)
       continue;
 
     cur_flag = getSegmentFlag(sect->flag());
