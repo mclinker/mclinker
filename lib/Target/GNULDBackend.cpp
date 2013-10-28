@@ -1853,6 +1853,10 @@ void GNULDBackend::createProgramHdrs(Module& pModule)
         LDFileFormat::Null != sect->kind())
       break;
 
+    // bypass empty sections
+    if (!(*out)->hasContent())
+      continue;
+
     cur_flag = getSegmentFlag(sect->flag());
     bool createPT_LOAD = false;
     if (LDFileFormat::Null == sect->kind()) {
