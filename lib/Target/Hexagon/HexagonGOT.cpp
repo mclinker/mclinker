@@ -27,22 +27,8 @@ HexagonGOT::~HexagonGOT()
 {
 }
 
-void HexagonGOT::reserve(size_t pNum)
+HexagonGOTEntry* HexagonGOT::create()
 {
-  for (size_t i = 0; i < pNum; i++) {
-    new HexagonGOTEntry(0, m_SectionData);
-  }
-}
-
-HexagonGOTEntry* HexagonGOT::consume()
-{
-  if (NULL == m_pLast) {
-    assert(!empty() && "Consume empty GOT entry!");
-    m_pLast = llvm::cast<HexagonGOTEntry>(&m_SectionData->front());
-    return m_pLast;
-  }
-
-  m_pLast = llvm::cast<HexagonGOTEntry>(m_pLast->getNextNode());
-  return m_pLast;
+  return new HexagonGOTEntry(0, m_SectionData);
 }
 

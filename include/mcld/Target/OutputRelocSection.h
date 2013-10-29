@@ -32,6 +32,9 @@ public:
 
   ~OutputRelocSection();
 
+  /// create - create an dynamic relocation entry
+  Relocation* create();
+
   void reserveEntry(size_t pNum=1);
 
   Relocation* consumeEntry();

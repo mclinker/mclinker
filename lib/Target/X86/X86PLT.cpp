@@ -90,9 +90,7 @@ X86PLT::X86PLT(LDSection& pSection,
     m_PLT1Size = sizeof (x86_64_plt1);
     // create PLT0
     new X86_64PLT0(*m_SectionData);
-    m_Last = m_SectionData->begin();
   }
-  m_Last = m_SectionData->begin();
 }
 
 X86PLT::~X86PLT()
@@ -128,29 +126,12 @@ bool X86PLT::hasPLT1() const
   return (m_SectionData->size() > 1);
 }
 
-void X86PLT::reserveEntry(size_t pNum)
+PLTEntryBase* X86PLT::create()
 {
-  PLTEntryBase* plt1_entry = NULL;
-
-  for (size_t i = 0; i < pNum; ++i) {
-
-    if (LinkerConfig::DynObj == m_Config.codeGenType())
-      plt1_entry = new X86_32DynPLT1(*m_SectionData);
-    else
-      plt1_entry = new X86_32ExecPLT1(*m_SectionData);
-
-    if (NULL == plt1_entry)
-      fatal(diag::fail_allocate_memory_plt);
-  }
-}
-
-PLTEntryBase* X86PLT::consume()
-{
-  // This will skip PLT0.
-  ++m_Last;
-  assert(m_Last != m_SectionData->end() &&
-         "The number of PLT Entries and ResolveInfo doesn't match");
-  return llvm::cast<PLTEntryBase>(&(*m_Last));
+  if (LinkerConfig::DynObj == m_Config.codeGenType())
+    return new X86_32DynPLT1(*m_SectionData);
+  else
+    return new X86_32ExecPLT1(*m_SectionData);
 }
 
 PLTEntryBase* X86PLT::getPLT0() const

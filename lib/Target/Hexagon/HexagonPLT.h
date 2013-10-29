@@ -76,9 +76,7 @@ public:
   // hasPLT1 - return if this PLT has any PLT1 entry
   bool hasPLT1() const;
 
-  void reserveEntry(size_t pNum = 1) ;
-
-  HexagonPLT1* consume();
+  HexagonPLT1* create();
 
   void applyPLT0();
 
@@ -90,9 +88,6 @@ public:
 
 private:
   HexagonGOTPLT& m_GOTPLT;
-
-  // the last consumed entry.
-  SectionData::iterator m_Last;
 
   const uint8_t *m_PLT0;
   unsigned int m_PLT0Size;

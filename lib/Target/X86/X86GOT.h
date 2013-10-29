@@ -41,12 +41,7 @@ public:
 
   ~X86_32GOT();
 
-  void reserve(size_t pNum = 1);
-
-  X86_32GOTEntry* consume();
-
-private:
-  X86_32GOTEntry* m_pLast; ///< the last consumed entry
+  X86_32GOTEntry* create();
 };
 
 /** \class X86_64GOTEntry
@@ -71,9 +66,7 @@ public:
 
   ~X86_64GOT();
 
-  void reserve(size_t pNum = 1);
-
-  X86_64GOTEntry* consume();
+  X86_64GOTEntry* create();
 
 private:
   X86_64GOTEntry* m_pLast; ///< the last consumed entry

@@ -15,7 +15,7 @@
 #include <mcld/LD/Relocator.h>
 #include <mcld/Target/GOT.h>
 #include <mcld/Target/PLT.h>
-#include <mcld/Target/SymbolEntryMap.h>
+#include <mcld/Target/KeyEntryMap.h>
 #include "HexagonLDBackend.h"
 
 namespace mcld {
@@ -30,55 +30,45 @@ class LinkerConfig;
 class HexagonRelocator : public Relocator
 {
 public:
-  typedef SymbolEntryMap<PLTEntryBase> SymPLTMap;
-  typedef SymbolEntryMap<HexagonGOTEntry> SymGOTMap;
-  typedef SymbolEntryMap<HexagonGOTEntry> SymGOTPLTMap;
-
+  typedef KeyEntryMap<ResolveInfo, PLTEntryBase> SymPLTMap;
+  typedef KeyEntryMap<ResolveInfo, HexagonGOTEntry> SymGOTMap;
+  typedef KeyEntryMap<ResolveInfo, HexagonGOTEntry> SymGOTPLTMap;
+  typedef KeyEntryMap<Relocation, Relocation> RelRelMap;
 
 public:
   /** \enum ReservedEntryType
    *  \brief The reserved entry type of reserved space in ResolveInfo.
    *
    *  This is used for sacnRelocation to record what kinds of entries are
-   *  reserved for this resolved symbol
+   *  reserved for this resolved symbol. In Hexagon, there are three kinds
+   *  of entries, GOT, PLT, and dynamic relocation.
    *
-   *  In Hexagon, there are three kinds of entries, GOT, PLT, and dynamic
-   *  relocation.
-   *
-   *  GOT may needs a corresponding relocation to relocate itself, so we
-   *  separate GOT to two situations: GOT and GOTRel. Besides, for the same
-   *  symbol, there might be two kinds of entries reserved for different location.
-   *  For example, reference to the same symbol, one may use GOT and the other may
-   *  use dynamic relocation.
-   *
-   *  bit:  3       2      1     0
-   *   | PLT | GOTRel | GOT | Rel |
+   *  bit:  3     2     1     0
+   *   |    | PLT | GOT | Rel |
    *
    *  value    Name         - Description
    *
    *  0000     None         - no reserved entry
    *  0001     ReserveRel   - reserve an dynamic relocation entry
    *  0010     ReserveGOT   - reserve an GOT entry
-   *  0011     GOTandRel    - For different relocation, we've reserved GOT and
-   *                          Rel for different location.
-   *  0100     GOTRel       - reserve an GOT entry and the corresponding Dyncamic
-   *                          relocation entry which relocate this GOT entry
-   *  0101     GOTRelandRel - For different relocation, we've reserved GOTRel
-   *                          and relocation entry for different location.
-   *  1000     ReservePLT   - reserve an PLT entry and the corresponding GOT,
-   *                          Dynamic relocation entries
-   *  1001     PLTandRel    - For different relocation, we've reserved PLT and
-   *                          Rel for different location.
+   *  0100     ReservePLT   - reserve an PLT entry and the corresponding GOT,
+   *
    */
   enum ReservedEntryType {
     None         = 0,
     ReserveRel   = 1,
     ReserveGOT   = 2,
-    GOTandRel    = 3,
-    GOTRel       = 4,
-    GOTRelandRel = 5,
-    ReservePLT   = 8,
-    PLTandRel    = 9
+    ReservePLT   = 4,
+  };
+
+  /** \enum EntryValue
+   *  \brief The value of the entries. The symbol value will be decided at after
+   *  layout, so we mark the entry during scanRelocation and fill up the actual
+   *  value when applying relocations.
+   */
+  enum EntryValue {
+    Default = 0,
+    SymVal  = 1
   };
 
   HexagonRelocator(HexagonLDBackend& pParent, const LinkerConfig& pConfig);
@@ -121,6 +111,9 @@ public:
   const SymGOTPLTMap& getSymGOTPLTMap() const { return m_SymGOTPLTMap; }
   SymGOTPLTMap&       getSymGOTPLTMap()       { return m_SymGOTPLTMap; }
 
+  const RelRelMap& getRelRelMap() const { return m_RelRelMap; }
+  RelRelMap&       getRelRelMap()       { return m_RelRelMap; }
+
 protected:
   /// addCopyReloc - add a copy relocation into .rela.dyn for pSym
   /// @param pSym - A resolved copy symbol that defined in BSS section
@@ -148,6 +141,7 @@ private:
   SymPLTMap m_SymPLTMap;
   SymGOTMap m_SymGOTMap;
   SymGOTPLTMap m_SymGOTPLTMap;
+  RelRelMap m_RelRelMap;
 };
 
 } // namespace of mcld

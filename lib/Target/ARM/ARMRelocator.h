@@ -14,7 +14,7 @@
 
 #include <mcld/LD/Relocator.h>
 #include <mcld/Target/GOT.h>
-#include <mcld/Target/SymbolEntryMap.h>
+#include <mcld/Target/KeyEntryMap.h>
 #include "ARMLDBackend.h"
 
 namespace mcld {
@@ -26,50 +26,42 @@ namespace mcld {
 class ARMRelocator : public Relocator
 {
 public:
-  typedef SymbolEntryMap<ARMGOTEntry> SymGOTMap;
-  typedef SymbolEntryMap<ARMPLT1> SymPLTMap;
+  typedef KeyEntryMap<ResolveInfo, ARMGOTEntry> SymGOTMap;
+  typedef KeyEntryMap<ResolveInfo, ARMPLT1> SymPLTMap;
 
   /** \enum ReservedEntryType
    *  \brief The reserved entry type of reserved space in ResolveInfo.
    *
    *  This is used for sacnRelocation to record what kinds of entries are
-   *  reserved for this resolved symbol
+   *  reserved for this resolved symbol In ARM, there are three kinds of
+   *  entries, GOT, PLT, and dynamic reloction.
    *
-   *  In ARM, there are three kinds of entries, GOT, PLT, and dynamic reloction.
-   *  GOT may needs a corresponding relocation to relocate itself, so we
-   *  separate GOT to two situations: GOT and GOTRel. Besides, for the same
-   *  symbol, there might be two kinds of entries reserved for different location.
-   *  For example, reference to the same symbol, one may use GOT and the other may
-   *  use dynamic relocation.
-   *
-   *  bit:  3       2      1     0
-   *   | PLT | GOTRel | GOT | Rel |
+   *  bit:  3     2     1     0
+   *   |    | PLT | GOT | Rel |
    *
    *  value    Name         - Description
    *
    *  0000     None         - no reserved entry
    *  0001     ReserveRel   - reserve an dynamic relocation entry
    *  0010     ReserveGOT   - reserve an GOT entry
-   *  0011     GOTandRel    - For different relocation, we've reserved GOT and
-   *                          Rel for different location.
-   *  0100     GOTRel       - reserve an GOT entry and the corresponding Dyncamic
-   *                          relocation entry which relocate this GOT entry
-   *  0101     GOTRelandRel - For different relocation, we've reserved GOTRel
-   *                          and relocation entry for different location.
-   *  1000     ReservePLT   - reserve an PLT entry and the corresponding GOT,
-   *                          Dynamic relocation entries
-   *  1001     PLTandRel    - For different relocation, we've reserved PLT and
-   *                          Rel for different location.
+   *  0100     ReservePLT   - reserve an PLT entry and the corresponding GOT,
+   *
    */
   enum ReservedEntryType {
     None         = 0,
     ReserveRel   = 1,
     ReserveGOT   = 2,
-    GOTandRel    = 3,
-    GOTRel       = 4,
-    GOTRelandRel = 5,
-    ReservePLT   = 8,
-    PLTandRel    = 9
+    ReservePLT   = 4,
+  };
+
+  /** \enum EntryValue
+   *  \brief The value of the entries. The symbol value will be decided at after
+   *  layout, so we mark the entry during scanRelocation and fill up the actual
+   *  value when applying relocations.
+   */
+  enum EntryValue {
+    Default = 0,
+    SymVal  = 1
   };
 
 public:

@@ -20,6 +20,106 @@
 using namespace mcld;
 
 //===--------------------------------------------------------------------===//
+// Relocation Helper Functions
+//===--------------------------------------------------------------------===//
+/// helper_DynRel - Get an relocation entry in .rela.dyn
+static Relocation &helper_DynRel_init(ResolveInfo *pSym,
+                                      Fragment &pFrag,
+                                      uint64_t pOffset,
+                                      HexagonRelocator::Type pType,
+                                      HexagonRelocator &pParent) {
+  HexagonLDBackend &ld_backend = pParent.getTarget();
+  Relocation &rela_entry = *ld_backend.getRelaDyn().create();
+  rela_entry.setType(pType);
+  rela_entry.targetRef().assign(pFrag, pOffset);
+  if (pType == llvm::ELF::R_HEX_RELATIVE || NULL == pSym)
+    rela_entry.setSymInfo(0);
+  else
+    rela_entry.setSymInfo(pSym);
+
+  return rela_entry;
+}
+
+/// helper_use_relative_reloc - Check if symbol can use relocation
+/// R_HEX_RELATIVE
+static bool helper_use_relative_reloc(const ResolveInfo &pSym,
+                                      const HexagonRelocator &pFactory) {
+  // if symbol is dynamic or undefine or preemptible
+  if (pSym.isDyn() || pSym.isUndef() ||
+      pFactory.getTarget().isSymbolPreemptible(pSym))
+    return false;
+  return true;
+}
+
+static HexagonGOTEntry &helper_GOT_init(Relocation &pReloc,
+                                        bool pHasRel,
+                                        HexagonRelocator &pParent) {
+  // rsym - The relocation target symbol
+  ResolveInfo *rsym = pReloc.symInfo();
+  HexagonLDBackend &ld_backend = pParent.getTarget();
+  assert(NULL == pParent.getSymGOTMap().lookUp(*rsym));
+
+  HexagonGOTEntry *got_entry = ld_backend.getGOT().create();
+  pParent.getSymGOTMap().record(*rsym, *got_entry);
+
+  if (!pHasRel) {
+    // No corresponding dynamic relocation, initialize to the symbol value.
+    got_entry->setValue(HexagonRelocator::SymVal);
+  }
+  else {
+    // Initialize got_entry content and the corresponding dynamic relocation.
+    if (helper_use_relative_reloc(*rsym, pParent)) {
+      helper_DynRel_init(rsym, *got_entry, 0x0, llvm::ELF::R_HEX_RELATIVE,
+                                                                       pParent);
+      got_entry->setValue(HexagonRelocator::SymVal);
+    }
+    else {
+      helper_DynRel_init(rsym, *got_entry, 0x0, llvm::ELF::R_HEX_GLOB_DAT,
+                                                                       pParent);
+      got_entry->setValue(0);
+    }
+  }
+  return *got_entry;
+}
+
+static HexagonRelocator::Address helper_get_GOT_address(ResolveInfo &pSym,
+                                                    HexagonRelocator &pParent) {
+  HexagonGOTEntry *got_entry = pParent.getSymGOTMap().lookUp(pSym);
+  assert(NULL != got_entry);
+  return pParent.getTarget().getGOT().addr() + got_entry->getOffset();
+}
+
+static PLTEntryBase &helper_PLT_init(Relocation &pReloc,
+                                     HexagonRelocator &pParent) {
+  // rsym - The relocation target symbol
+  ResolveInfo *rsym = pReloc.symInfo();
+  HexagonLDBackend &ld_backend = pParent.getTarget();
+  assert(NULL == pParent.getSymPLTMap().lookUp(*rsym));
+
+  PLTEntryBase *plt_entry = ld_backend.getPLT().create();
+  pParent.getSymPLTMap().record(*rsym, *plt_entry);
+
+  assert(NULL == pParent.getSymGOTPLTMap().lookUp(*rsym) &&
+         "PLT entry not exist, but DynRel entry exist!");
+  HexagonGOTEntry *gotplt_entry = ld_backend.getGOTPLT().create();
+  pParent.getSymGOTPLTMap().record(*rsym, *gotplt_entry);
+  // init the corresponding rel entry in .rela.plt
+  Relocation &rela_entry = *ld_backend.getRelaPLT().create();
+  rela_entry.setType(llvm::ELF::R_HEX_JMP_SLOT);
+  rela_entry.targetRef().assign(*gotplt_entry);
+  rela_entry.setSymInfo(rsym);
+
+  return *plt_entry;
+}
+
+static HexagonRelocator::Address helper_get_PLT_address(ResolveInfo& pSym,
+                                                    HexagonRelocator &pParent) {
+  PLTEntryBase *plt_entry = pParent.getSymPLTMap().lookUp(pSym);
+  assert(NULL != plt_entry);
+  return pParent.getTarget().getPLT().addr() + plt_entry->getOffset();
+}
+
+//===--------------------------------------------------------------------===//
 // Relocation Functions and Tables
 //===--------------------------------------------------------------------===//
 DECL_HEXAGON_APPLY_RELOC_FUNCS
@@ -117,7 +217,7 @@ void HexagonRelocator::scanRelocation(Relocation &pReloc, IRBuilder &pLinker,
 
 void HexagonRelocator::addCopyReloc(ResolveInfo &pSym,
                                     HexagonLDBackend &pTarget) {
-  Relocation &rel_entry = *pTarget.getRelaDyn().consumeEntry();
+  Relocation &rel_entry = *pTarget.getRelaDyn().create();
   rel_entry.setType(pTarget.getCopyRelType());
   assert(pSym.outSymbol()->hasFragRef());
   rel_entry.targetRef().assign(*pSym.outSymbol()->fragRef());
@@ -153,7 +253,15 @@ void HexagonRelocator::scanLocalReloc(Relocation &pReloc, IRBuilder &pBuilder,
     // a dynamic relocations with RELATIVE type to this location is needed.
     // Reserve an entry in .rel.dyn
     if (config().isCodeIndep()) {
-      getTarget().getRelaDyn().reserveEntry();
+      Relocation &reloc = helper_DynRel_init(rsym,
+                                             *pReloc.targetRef().frag(),
+                                             pReloc.targetRef().offset(),
+                                             llvm::ELF::R_HEX_RELATIVE,
+                                             *this);
+      // we need to set up the relocation addend at apply relocation, record the
+      // relocation
+      getRelRelMap().record(pReloc, reloc);
+
       // set Rel bit
       rsym->setReserved(rsym->reserved() | ReserveRel);
       getTarget().checkAndSetHasTextRel(*pSection.getLink());
@@ -193,21 +301,27 @@ void HexagonRelocator::scanGlobalReloc(Relocation &pReloc, IRBuilder &pBuilder,
     if (ld_backend.symbolNeedsPLT(*rsym)) {
       //create PLT for this symbol if it does not have.
       if (!(rsym->reserved() & ReservePLT)) {
-        ld_backend.getPLT().reserveEntry();
-        ld_backend.getGOTPLT().reserve();
-        ld_backend.getRelaPLT().reserveEntry();
+        helper_PLT_init(pReloc, *this);
         rsym->setReserved(rsym->reserved() | ReservePLT);
       }
     }
 
     if (ld_backend.symbolNeedsDynRel(*rsym, (rsym->reserved() & ReservePLT),
                                      true)) {
-      ld_backend.getRelaDyn().reserveEntry();
       if (ld_backend.symbolNeedsCopyReloc(pReloc, *rsym)) {
         LDSymbol &cpy_sym =
             defineSymbolforCopyReloc(pBuilder, *rsym, ld_backend);
         addCopyReloc(*cpy_sym.resolveInfo(), ld_backend);
-      } else {
+      }
+      else {
+        Relocation &reloc = helper_DynRel_init(rsym,
+                                               *pReloc.targetRef().frag(),
+                                               pReloc.targetRef().offset(),
+                                               llvm::ELF::R_HEX_RELATIVE,
+                                               *this);
+        // we need to set up the relocation addend at apply relocation, record the
+        // relocation
+        getRelRelMap().record(pReloc, reloc);
         rsym->setReserved(rsym->reserved() | ReserveRel);
         ld_backend.checkAndSetHasTextRel(*pSection.getLink());
       }
@@ -232,26 +346,14 @@ void HexagonRelocator::scanGlobalReloc(Relocation &pReloc, IRBuilder &pBuilder,
   case llvm::ELF::R_HEX_GOT_11_X:
     // Symbol needs GOT entry, reserve entry in .got
     // return if we already create GOT for this symbol
-    if (rsym->reserved() & (ReserveGOT | GOTRel))
+    if (rsym->reserved() & ReserveGOT)
       return;
-    ld_backend.getGOT().reserve();
-
     // If the GOT is used in statically linked binaries,
     // the GOT entry is enough and no relocation is needed.
-    if (config().isCodeStatic()) {
-      rsym->setReserved(rsym->reserved() | ReserveGOT);
-      return;
-    }
-    // If building shared object or the symbol is undefined, a dynamic
-    // relocation is needed to relocate this GOT entry. Reserve an
-    // entry in .rel.dyn
-    if (LinkerConfig::DynObj == config().codeGenType() || rsym->isUndef() ||
-        rsym->isDyn()) {
-      ld_backend.getRelaDyn().reserveEntry();
-      // set GOTRel bit
-      rsym->setReserved(rsym->reserved() | GOTRel);
-      return;
-    }
+    if (config().isCodeStatic())
+      helper_GOT_init(pReloc, false, *this);
+    else
+      helper_GOT_init(pReloc, true, *this);
     // set GOT bit
     rsym->setReserved(rsym->reserved() | ReserveGOT);
     return;
@@ -274,9 +376,7 @@ void HexagonRelocator::scanGlobalReloc(Relocation &pReloc, IRBuilder &pBuilder,
       return;
     if (ld_backend.symbolNeedsPLT(*rsym) ||
         pReloc.type() == llvm::ELF::R_HEX_PLT_B22_PCREL) {
-      ld_backend.getPLT().reserveEntry();
-      ld_backend.getGOTPLT().reserve();
-      ld_backend.getRelaPLT().reserveEntry();
+      helper_PLT_init(pReloc, *this);
       rsym->setReserved(rsym->reserved() | ReservePLT);
     }
     return;
@@ -370,118 +470,6 @@ void HexagonRelocator::partialScanRelocation(Relocation &pReloc,
     // set relocation target symbol to the output section symbol's resolveInfo
     pReloc.setSymInfo(sym_info);
   }
-}
-
-/// helper_DynRel - Get an relocation entry in .rela.dyn
-static Relocation &helper_DynRel(ResolveInfo *pSym, Fragment &pFrag,
-                                 uint64_t pOffset, HexagonRelocator::Type pType,
-                                 HexagonRelocator &pParent) {
-  HexagonLDBackend &ld_backend = pParent.getTarget();
-  Relocation &rela_entry = *ld_backend.getRelaDyn().consumeEntry();
-  rela_entry.setType(pType);
-  rela_entry.targetRef().assign(pFrag, pOffset);
-  if (pType == llvm::ELF::R_HEX_RELATIVE || NULL == pSym)
-    rela_entry.setSymInfo(0);
-  else
-    rela_entry.setSymInfo(pSym);
-
-  return rela_entry;
-}
-
-/// helper_use_relative_reloc - Check if symbol can use relocation
-/// R_HEX_RELATIVE
-static bool helper_use_relative_reloc(const ResolveInfo &pSym,
-                                      const HexagonRelocator &pFactory) {
-  // if symbol is dynamic or undefine or preemptible
-  if (pSym.isDyn() || pSym.isUndef() ||
-      pFactory.getTarget().isSymbolPreemptible(pSym))
-    return false;
-  return true;
-}
-
-static HexagonGOTEntry &helper_get_GOT_and_init(Relocation &pReloc,
-                                                HexagonRelocator &pParent) {
-  // rsym - The relocation target symbol
-  ResolveInfo *rsym = pReloc.symInfo();
-  HexagonLDBackend &ld_backend = pParent.getTarget();
-
-  HexagonGOTEntry *got_entry = pParent.getSymGOTMap().lookUp(*rsym);
-  if (NULL != got_entry)
-    return *got_entry;
-
-  // not found
-  got_entry = ld_backend.getGOT().consume();
-  pParent.getSymGOTMap().record(*rsym, *got_entry);
-
-  // If we first get this GOT entry, we should initialize it.
-  if (rsym->reserved() & HexagonRelocator::ReserveGOT) {
-    // No corresponding dynamic relocation, initialize to the symbol value.
-    got_entry->setValue(pReloc.symValue());
-  } else if (rsym->reserved() & HexagonRelocator::GOTRel) {
-    // Initialize got_entry content and the corresponding dynamic relocation.
-    if (helper_use_relative_reloc(*rsym, pParent)) {
-      helper_DynRel(rsym, *got_entry, 0x0, llvm::ELF::R_HEX_RELATIVE, pParent);
-      got_entry->setValue(pReloc.symValue());
-    } else {
-      helper_DynRel(rsym, *got_entry, 0x0, llvm::ELF::R_HEX_GLOB_DAT, pParent);
-      got_entry->setValue(0);
-    }
-  } else {
-    fatal(diag::reserve_entry_number_mismatch_got);
-  }
-  return *got_entry;
-}
-
-static HexagonRelocator::Address helper_GOT_ORG(HexagonRelocator &pParent) {
-  return pParent.getTarget().getGOT().addr();
-}
-
-static HexagonRelocator::Address helper_GOT(Relocation &pReloc,
-                                            HexagonRelocator &pParent) {
-  HexagonGOTEntry &got_entry = helper_get_GOT_and_init(pReloc, pParent);
-  return helper_GOT_ORG(pParent) + got_entry.getOffset();
-}
-
-static PLTEntryBase &helper_get_PLT_and_init(Relocation &pReloc,
-                                             HexagonRelocator &pParent) {
-  // rsym - The relocation target symbol
-  ResolveInfo *rsym = pReloc.symInfo();
-  HexagonLDBackend &ld_backend = pParent.getTarget();
-
-  PLTEntryBase *plt_entry = pParent.getSymPLTMap().lookUp(*rsym);
-  if (NULL != plt_entry)
-    return *plt_entry;
-
-  // not found
-  plt_entry = ld_backend.getPLT().consume();
-  pParent.getSymPLTMap().record(*rsym, *plt_entry);
-  // If we first get this PLT entry, we should initialize it.
-  if (rsym->reserved() & HexagonRelocator::ReservePLT) {
-    HexagonGOTEntry *gotplt_entry = pParent.getSymGOTPLTMap().lookUp(*rsym);
-    assert(NULL == gotplt_entry &&
-           "PLT entry not exist, but DynRel entry exist!");
-    gotplt_entry = ld_backend.getGOTPLT().consume();
-    pParent.getSymGOTPLTMap().record(*rsym, *gotplt_entry);
-    // init the corresponding rel entry in .rel.plt
-    Relocation &rela_entry = *ld_backend.getRelaPLT().consumeEntry();
-    rela_entry.setType(llvm::ELF::R_HEX_JMP_SLOT);
-    rela_entry.targetRef().assign(*gotplt_entry);
-    rela_entry.setSymInfo(rsym);
-  } else {
-    fatal(diag::reserve_entry_number_mismatch_plt);
-  }
-
-  return *plt_entry;
-}
-
-static HexagonRelocator::Address helper_PLT_ORG(HexagonRelocator &pParent) {
-  return pParent.getTarget().getPLT().addr();
-}
-
-static HexagonRelocator::Address helper_PLT(Relocation &pReloc,
-                                            HexagonRelocator &pParent) {
-  PLTEntryBase &plt_entry = helper_get_PLT_and_init(pReloc, pParent);
-  return helper_PLT_ORG(pParent) + plt_entry.getOffset();
 }
 
 //=========================================//
@@ -689,51 +677,36 @@ HexagonRelocator::Result applyRel(Relocation &pReloc, int64_t pResult) {
 HexagonRelocator::Result relocAbs(Relocation &pReloc,
                                   HexagonRelocator &pParent) {
   ResolveInfo *rsym = pReloc.symInfo();
-  HexagonLDBackend &ld_backend = pParent.getTarget();
   HexagonRelocator::Address S = pReloc.symValue();
   HexagonRelocator::DWord A = pReloc.addend();
 
-  bool has_dyn_rel = ld_backend.symbolNeedsDynRel(
-      *rsym, (rsym->reserved() & HexagonRelocator::ReservePLT), true);
+  Relocation* rel_entry = pParent.getRelRelMap().lookUp(pReloc);
+  bool has_dyn_rel = (NULL != rel_entry);
 
-  FragmentRef &target_fragref = pReloc.targetRef();
-  Fragment *target_frag = target_fragref.frag();
-
-  LDSection &target_sect = target_frag->getParent()->getSection();
   // if the flag of target section is not ALLOC, we eprform only static
   // relocation.
-  if (0 == (llvm::ELF::SHF_ALLOC & target_sect.flag())) {
+  if (0 == (llvm::ELF::SHF_ALLOC &
+            pReloc.targetRef().frag()->getParent()->getSection().flag())) {
     return applyAbs(pReloc);
   }
 
   // a local symbol with .rela type relocation
   if (rsym->isLocal() && has_dyn_rel) {
-    HexagonRelocator::Type type = pReloc.type();
-    if (llvm::ELF::R_HEX_32 == type)
-      type = llvm::ELF::R_HEX_RELATIVE;
-    Relocation &rel_entry = helper_DynRel(
-        rsym, *target_frag, target_fragref.offset(), type, pParent);
-    rel_entry.setAddend(S + A);
+    rel_entry->setAddend(S + A);
     return HexagonRelocator::OK;
   }
 
   if (!rsym->isLocal()) {
     if (rsym->reserved() & HexagonRelocator::ReservePLT) {
-      S = helper_PLT(pReloc, pParent);
+      S = helper_get_PLT_address(*rsym, pParent);
     }
 
     if (has_dyn_rel) {
       if (llvm::ELF::R_HEX_32 == pReloc.type() &&
           helper_use_relative_reloc(*rsym, pParent)) {
-        Relocation &rel_entry =
-            helper_DynRel(rsym, *target_frag, target_fragref.offset(),
-                          llvm::ELF::R_HEX_RELATIVE, pParent);
-        rel_entry.setAddend(S + A);
+        rel_entry->setAddend(S + A);
       } else {
-        Relocation &rel_entry =
-            helper_DynRel(rsym, *target_frag, target_fragref.offset(),
-                          pReloc.type(), pParent);
-        rel_entry.setAddend(A);
+        rel_entry->setAddend(A);
         return HexagonRelocator::OK;
       }
     }
@@ -764,7 +737,7 @@ HexagonRelocator::Result relocPCREL(Relocation &pReloc,
 
   if (!rsym->isLocal()) {
     if (rsym->reserved() & HexagonRelocator::ReservePLT) {
-      S = helper_PLT(pReloc, pParent);
+      S = helper_get_PLT_address(*rsym, pParent);
       result = (int64_t)(S + A - P);
       applyRel(pReloc, result);
       return HexagonRelocator::OK;
@@ -831,7 +804,7 @@ HexagonRelocator::Result relocPLTB22PCREL(Relocation &pReloc,
   // PLT_S depends on if there is a PLT entry.
   HexagonRelocator::Address PLT_S;
   if ((pReloc.symInfo()->reserved() & HexagonRelocator::ReservePLT))
-    PLT_S = helper_PLT(pReloc, pParent);
+    PLT_S = helper_get_PLT_address(*pReloc.symInfo(), pParent);
   else
     PLT_S = pReloc.symValue();
   HexagonRelocator::Address P = pReloc.place();
@@ -846,12 +819,18 @@ HexagonRelocator::Result relocPLTB22PCREL(Relocation &pReloc,
 // Exception: R_HEX_GOT_11_X : unsigned truncate
 HexagonRelocator::Result relocGOT(Relocation &pReloc,
                                   HexagonRelocator &pParent) {
-  if (!(pReloc.symInfo()->reserved() &
-        (HexagonRelocator::ReserveGOT | HexagonRelocator::GOTRel))) {
+  if (!(pReloc.symInfo()->reserved() & HexagonRelocator::ReserveGOT)) {
     return HexagonRelocator::BadReloc;
   }
 
-  HexagonRelocator::Address GOT_S = helper_GOT(pReloc, pParent);
+  // set got entry value if needed
+  HexagonGOTEntry *got_entry = pParent.getSymGOTMap().lookUp(*pReloc.symInfo());
+  assert(NULL != got_entry);
+  if (HexagonRelocator::SymVal == got_entry->getValue())
+    got_entry->setValue(pReloc.symValue());
+
+  HexagonRelocator::Address GOT_S =
+                             helper_get_GOT_address(*pReloc.symInfo(), pParent);
   HexagonRelocator::Address GOT = pParent.getTarget().getGOTSymbolAddr();
   int32_t result = (int32_t)(GOT_S - GOT);
   uint32_t effectiveBits = 0;

@@ -23,12 +23,9 @@ namespace mcld {
 HexagonGOTPLT::HexagonGOTPLT(LDSection& pSection)
   : HexagonGOT(pSection)
 {
-  // Create GOT0 entries
-  reserve(HexagonGOTPLT0Num);
-
   // Skip GOT0 entries
   for (size_t i = 0; i < HexagonGOTPLT0Num; ++i) {
-    consume();
+    create();
   }
   pSection.setAlign(8);
 }

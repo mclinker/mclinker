@@ -62,9 +62,7 @@ public:
   // hasPLT1 - return if this plt section has any plt1 entry
   bool hasPLT1() const;
 
-  void reserveEntry(size_t pNum = 1) ;
-
-  ARMPLT1* consume();
+  ARMPLT1* create();
 
   ARMPLT0* getPLT0() const;
 
@@ -76,9 +74,6 @@ public:
 
 private:
   ARMGOT& m_GOT;
-
-  // Used by getEntry() for mapping a ResolveInfo instance to a PLT1 Entry.
-  iterator m_PLTEntryIterator;
 };
 
 } // namespace of mcld

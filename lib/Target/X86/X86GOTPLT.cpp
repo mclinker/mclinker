@@ -23,13 +23,9 @@ namespace mcld {
 X86_32GOTPLT::X86_32GOTPLT(LDSection& pSection)
   : X86_32GOT(pSection)
 {
-  // Create GOT0 entries
-  reserve(X86GOTPLT0Num);
-
-  // Skip GOT0 entries
-  for (size_t i = 0; i < X86GOTPLT0Num; ++i) {
-    consume();
-  }
+  // create GOT0 entries
+  for (size_t i = 0; i < X86GOTPLT0Num; ++i)
+    create();
 }
 
 X86_32GOTPLT::~X86_32GOTPLT()
@@ -67,13 +63,8 @@ void X86_32GOTPLT::applyAllGOTPLT(const X86PLT& pPLT)
 X86_64GOTPLT::X86_64GOTPLT(LDSection& pSection)
   : X86_64GOT(pSection)
 {
-  // Create GOT0 entries
-  reserve(X86GOTPLT0Num);
-
-  // Skip GOT0 entries
-  for (size_t i = 0; i < X86GOTPLT0Num; ++i) {
-    consume();
-  }
+  for (size_t i = 0; i < X86GOTPLT0Num; ++i)
+    create();
 }
 
 X86_64GOTPLT::~X86_64GOTPLT()
