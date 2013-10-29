@@ -1515,11 +1515,8 @@ GNULDBackend::getSymbolShndx(const LDSymbol& pSymbol) const
 
   if (pSymbol.resolveInfo()->isLocal() &&
       LinkerConfig::Object != config().codeGenType()) {
-    switch (pSymbol.type()) {
-      case ResolveInfo::NoType:
-      case ResolveInfo::File:
+    if (pSymbol.type() ==  ResolveInfo::File)
         return llvm::ELF::SHN_ABS;
-    }
   }
 
   if (pSymbol.resolveInfo()->isDefine() && !pSymbol.hasFragRef())
