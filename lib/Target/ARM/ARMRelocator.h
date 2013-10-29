@@ -98,7 +98,8 @@ public:
   void scanRelocation(Relocation& pReloc,
                       IRBuilder& pBuilder,
                       Module& pModule,
-                      LDSection& pSection);
+                      LDSection& pSection,
+                      Input& pInput);
 
 private:
   void scanLocalReloc(Relocation& pReloc, const LDSection& pSection);

@@ -188,7 +188,7 @@ Relocator::Size HexagonRelocator::getSize(Relocation::Type pType) const {
 }
 
 void HexagonRelocator::scanRelocation(Relocation &pReloc, IRBuilder &pLinker,
-                                      Module &pModule, LDSection &pSection) {
+                                      Module &pModule, LDSection &pSection, Input &pInput) {
   if (LinkerConfig::Object == config().codeGenType())
     return;
 
@@ -212,7 +212,7 @@ void HexagonRelocator::scanRelocation(Relocation &pReloc, IRBuilder &pLinker,
   // check if we should issue undefined reference for the relocation target
   // symbol
   if (rsym->isUndef() && !rsym->isDyn() && !rsym->isWeak() && !rsym->isNull())
-    fatal(diag::undefined_reference) << rsym->name();
+    issueUndefRef(pReloc, pSection, pInput);
 }
 
 void HexagonRelocator::addCopyReloc(ResolveInfo &pSym,

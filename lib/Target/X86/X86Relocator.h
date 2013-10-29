@@ -87,7 +87,8 @@ public:
   void scanRelocation(Relocation& pReloc,
                       IRBuilder& pBuilder,
                       Module& pModule,
-                      LDSection& pSection);
+                      LDSection& pSection,
+                      Input& pInput);
 
 protected:
   /// addCopyReloc - add a copy relocation into .rel.dyn for pSym

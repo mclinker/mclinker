@@ -43,7 +43,8 @@ public:
   void scanRelocation(Relocation& pReloc,
                       IRBuilder& pBuilder,
                       Module& pModule,
-                      LDSection& pSection);
+                      LDSection& pSection,
+                      Input& pInput);
 
   /// initializeScan - do initialization before scan relocations in pInput
   /// @return - return true for initialization success

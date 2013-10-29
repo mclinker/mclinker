@@ -180,7 +180,8 @@ X86Relocator::~X86Relocator()
 void X86Relocator::scanRelocation(Relocation& pReloc,
                                   IRBuilder& pLinker,
                                   Module& pModule,
-                                  LDSection& pSection)
+                                  LDSection& pSection,
+                                  Input& pInput)
 {
   if (LinkerConfig::Object == config().codeGenType())
     return;
@@ -203,7 +204,7 @@ void X86Relocator::scanRelocation(Relocation& pReloc,
   // check if we should issue undefined reference for the relocation target
   // symbol
   if (rsym->isUndef() && !rsym->isDyn() && !rsym->isWeak() && !rsym->isNull())
-    fatal(diag::undefined_reference) << rsym->name();
+    issueUndefRef(pReloc, pSection, pInput);
 }
 
 void X86Relocator::addCopyReloc(ResolveInfo& pSym, X86GNULDBackend& pTarget)

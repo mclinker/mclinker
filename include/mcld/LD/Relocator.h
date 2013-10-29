@@ -61,10 +61,21 @@ public:
   /// @param pReloc - a read in relocation entry
   /// @param pInputSym - the input LDSymbol of relocation target symbol
   /// @param pSection - the section of relocation applying target
+  /// @param pInput - the input file of relocation
   virtual void scanRelocation(Relocation& pReloc,
                               IRBuilder& pBuilder,
                               Module& pModule,
-                              LDSection& pSection) = 0;
+                              LDSection& pSection,
+                              Input& pInput) = 0;
+
+  /// issueUndefRefError - Provides a basic version for undefined reference dump.
+  /// It will handle the filename and function name automatically.
+  /// @param pReloc - a read in relocation entry
+  /// @param pSection - the section of relocation applying target
+  /// @ param pInput - the input file of relocation
+  virtual void issueUndefRef(Relocation& pReloc,
+                             LDSection& pSection,
+                             Input& pInput);
 
   /// initializeScan - do initialization before scan relocations in pInput
   /// @return - return true for initialization success

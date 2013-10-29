@@ -741,7 +741,8 @@ void ARMRelocator::scanGlobalReloc(Relocation& pReloc,
 void ARMRelocator::scanRelocation(Relocation& pReloc,
                                   IRBuilder& pBuilder,
                                   Module& pModule,
-                                  LDSection& pSection)
+                                  LDSection& pSection,
+                                  Input& pInput)
 {
   // rsym - The relocation target symbol
   ResolveInfo* rsym = pReloc.symInfo();
@@ -767,7 +768,7 @@ void ARMRelocator::scanRelocation(Relocation& pReloc,
   // check if we shoule issue undefined reference for the relocation target
   // symbol
   if (rsym->isUndef() && !rsym->isDyn() && !rsym->isWeak() && !rsym->isNull())
-    fatal(diag::undefined_reference) << rsym->name();
+    issueUndefRef(pReloc, pSection, pInput);
 }
 
 //=========================================//

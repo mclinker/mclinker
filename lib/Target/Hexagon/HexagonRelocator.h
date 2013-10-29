@@ -85,7 +85,8 @@ public:
   void scanRelocation(Relocation& pReloc,
                       IRBuilder& pBuilder,
                       Module& pModule,
-                      LDSection& pSection);
+                      LDSection& pSection,
+                      Input& pInput);
 
   // Handle partial linking
   void partialScanRelocation(Relocation& pReloc,

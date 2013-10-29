@@ -466,7 +466,7 @@ bool ObjectLinker::scanRelocations()
         // scan relocation
         if (LinkerConfig::Object != m_Config.codeGenType())
           m_LDBackend.getRelocator()->scanRelocation(
-                                    *relocation, *m_pBuilder, *m_pModule, **rs);
+                                    *relocation, *m_pBuilder, *m_pModule, **rs, **input);
         else
           m_LDBackend.getRelocator()->partialScanRelocation(
                                                  *relocation, *m_pModule, **rs);

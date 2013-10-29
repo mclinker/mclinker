@@ -227,7 +227,8 @@ Relocator::Size MipsRelocator::getSize(Relocation::Type pType) const
 void MipsRelocator::scanRelocation(Relocation& pReloc,
                                    IRBuilder& pBuilder,
                                    Module& pModule,
-                                   LDSection& pSection)
+                                   LDSection& pSection,
+                                   Input& pInput)
 {
   // rsym - The relocation target symbol
   ResolveInfo* rsym = pReloc.symInfo();
@@ -259,7 +260,7 @@ void MipsRelocator::scanRelocation(Relocation& pReloc,
   // Check if we should issue undefined reference
   // for the relocation target symbol.
   if (rsym->isUndef() && !rsym->isDyn() && !rsym->isWeak() && !rsym->isNull())
-    fatal(diag::undefined_reference) << rsym->name();
+    issueUndefRef(pReloc, pSection, pInput);
 }
 
 bool MipsRelocator::initializeScan(Input& pInput)

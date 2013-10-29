@@ -1,6 +1,7 @@
 DIAG(reloc_factory_has_not_config, DiagnosticEngine::Fatal, "Please call mcld::Linker::config before creating relocations", "Please call mcld::Linker::config before creating relocations")
 DIAG(unsupported_bitclass, DiagnosticEngine::Fatal, "Only supports 32 and 64 bits targets. (Target: %0, bitclass:%1)", "Only supports 32 and 64 bits targets. (Target: %0, bitclass:%1)")
-DIAG(undefined_reference, DiagnosticEngine::Fatal, "undefined reference to `%0'", "In %1:%2, variable %0 must be defined")
+DIAG(undefined_reference, DiagnosticEngine::Fatal, "%1(%2+%3): undefined reference to `%0'", "%1(%2+%3): undefined reference to `%0'")
+DIAG(undefined_reference_text, DiagnosticEngine::Fatal, "%1:%2:function %3: undefined reference to `%0'", "%1:%2: undefined reference to `%0'")
 DIAG(non_pic_relocation, DiagnosticEngine::Error, "attempt to generate unsupported relocation type `%0' for symbol `%1', recompile with -fPIC", "attempt to generate unsupported relocation type `%0' for symbol `%1, recompile with -fPIC")
 DIAG(base_relocation, DiagnosticEngine::Fatal, "relocation type `%0' is not supported for symbol `%1'\nPlease report to %2", "relocation type `%0' is not supported for symbol `%1'\nPlease report to %2")
 DIAG(dynamic_relocation, DiagnosticEngine::Fatal, "unexpected relocation type `%0' in object file", "unexpected relocation type `%0' in object file")
