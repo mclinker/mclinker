@@ -824,6 +824,15 @@ ARMRelocator::Result rel32(Relocation& pReloc, ARMRelocator& pParent)
   ARMRelocator::Address S = pReloc.symValue();
   ARMRelocator::DWord   T = getThumbBit(pReloc);
   ARMRelocator::DWord   A = pReloc.target() + pReloc.addend();
+
+  // An external symbol may need PLT (this reloc is from a stub/veneer)
+  if (!pReloc.symInfo()->isLocal()) {
+    if (pReloc.symInfo()->reserved() & ARMRelocator::ReservePLT) {
+      S = helper_get_PLT_address(*pReloc.symInfo(), pParent);
+      T = 0;  // PLT is not thumb.
+    }
+  }
+
   if (T != 0x0)
     helper_clear_thumb_bit(S);
 
