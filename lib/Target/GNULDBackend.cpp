@@ -1513,12 +1513,6 @@ GNULDBackend::getSymbolShndx(const LDSymbol& pSymbol) const
   if (pSymbol.resolveInfo()->isUndef() || pSymbol.isDyn())
     return llvm::ELF::SHN_UNDEF;
 
-  if (pSymbol.resolveInfo()->isLocal() &&
-      LinkerConfig::Object != config().codeGenType()) {
-    if (pSymbol.type() ==  ResolveInfo::File)
-        return llvm::ELF::SHN_ABS;
-  }
-
   if (pSymbol.resolveInfo()->isDefine() && !pSymbol.hasFragRef())
     return llvm::ELF::SHN_ABS;
 
