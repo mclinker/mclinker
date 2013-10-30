@@ -197,9 +197,10 @@ Path Path::stem() const
 
 Path Path::extension() const
 {
-  size_t begin_pos = m_PathName.find_last_of('.');
-  Path result_path(m_PathName.substr(begin_pos));
-  return result_path;
+  size_t pos = m_PathName.find_last_of('.');
+  if (pos == StringType::npos)
+    return Path();
+  return Path(m_PathName.substr(pos));
 }
 
 //===--------------------------------------------------------------------===//
