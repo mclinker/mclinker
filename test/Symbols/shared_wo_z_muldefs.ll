@@ -2,7 +2,7 @@
 ; RUN: -filetype=obj -relocation-model=pic %s -o %t.1.o
 ; RUN: %LLC -mtriple="arm-none-linux-gnueabi" -march=arm \
 ; RUN: -filetype=obj -relocation-model=pic %s -o %t.2.o
-; RUN: %MCLinker -mtriple="arm-none-linux-gnueabi" -march=arm \
+; RUN: not %MCLinker -mtriple="arm-none-linux-gnueabi" -march=arm \
 ; RUN: %t.1.o %t.2.o 2>&1 | grep "multiple definition"
 
 define i32 @_Z1fv() nounwind uwtable ssp {
