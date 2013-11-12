@@ -1,0 +1,36 @@
+//===- AArch64Diagnostic.cpp ----------------------------------------------===//
+//
+//                     The MCLinker Project
+//
+// This file is distributed under the University of Illinois Open Source
+// License. See LICENSE.TXT for details.
+//
+//===----------------------------------------------------------------------===//
+#include <mcld/Support/TargetRegistry.h>
+#include <mcld/LD/DWARFLineInfo.h>
+#include "AArch64.h"
+
+using namespace mcld;
+
+namespace mcld {
+//===----------------------------------------------------------------------===//
+// createAArch64Diagnostic - the help function to create corresponding
+// AArch64Diagnostic
+//===----------------------------------------------------------------------===//
+DiagnosticLineInfo* createAArch64DiagLineInfo(const mcld::Target& pTarget,
+                                              const std::string &pTriple)
+{
+  return new DWARFLineInfo();
+}
+
+} // namespace of mcld
+
+//===----------------------------------------------------------------------===//
+// InitializeAArch64Diagnostic
+//===----------------------------------------------------------------------===//
+extern "C" void MCLDInitializeAArch64DiagnosticLineInfo() {
+  // Register the linker frontend
+  mcld::TargetRegistry::RegisterDiagnosticLineInfo(TheAArch64Target,
+                                                   createAArch64DiagLineInfo);
+}
+
