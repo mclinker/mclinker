@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef AArch64_ELF_SECTION_LINKER_H
-#define AArch64_ELF_SECTION_LINKER_H
+#ifndef AARCH64_ELF_SECTION_LINKER_H
+#define AARCH64_ELF_SECTION_LINKER_H
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif

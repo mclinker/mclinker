@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_AArch64_PLT_H
-#define MCLD_AArch64_PLT_H
+#ifndef MCLD_AARCH64_PLT_H
+#define MCLD_AARCH64_PLT_H
 
 #include <mcld/Target/GOT.h>
 #include <mcld/Target/PLT.h>
