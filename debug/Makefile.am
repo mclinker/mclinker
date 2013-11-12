@@ -360,7 +360,7 @@ SOURCE = ${LIBDIR}/ADT/StringEntry.cpp \
 	${LIBDIR}/Target/OutputRelocSection.cpp \
 	${LIBDIR}/Target/PLT.cpp \
 	${LIBDIR}/Target/TargetLDBackend.cpp \
-  ${LIBDIR}/Target/AArch64/AArch64Diagnostic.cpp \
+	${LIBDIR}/Target/AArch64/AArch64Diagnostic.cpp \
 	${LIBDIR}/Target/AArch64/AArch64ELFDynamic.cpp \
 	${LIBDIR}/Target/AArch64/AArch64ELFDynamic.h \
 	${LIBDIR}/Target/AArch64/AArch64ELFMCLinker.cpp \
@@ -378,7 +378,7 @@ SOURCE = ${LIBDIR}/ADT/StringEntry.cpp \
 	${LIBDIR}/Target/AArch64/AArch64TargetMachine.cpp \
 	${LIBDIR}/Target/AArch64/AArch64TargetMachine.h \
 	${LIBDIR}/Target/AArch64/TargetInfo/AArch64TargetInfo.cpp \
-  ${LIBDIR}/Target/ARM/ARMDiagnostic.cpp \
+	${LIBDIR}/Target/ARM/ARMDiagnostic.cpp \
 	${LIBDIR}/Target/ARM/ARMELFAttributeData.cpp \
 	${LIBDIR}/Target/ARM/ARMELFAttributeData.h \
 	${LIBDIR}/Target/ARM/ARMELFDynamic.cpp \

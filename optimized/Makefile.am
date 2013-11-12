@@ -360,7 +360,7 @@ SOURCE = ${LIBDIR}/ADT/StringEntry.cpp \
 	${LIBDIR}/Target/OutputRelocSection.cpp \
 	${LIBDIR}/Target/PLT.cpp \
 	${LIBDIR}/Target/TargetLDBackend.cpp \
-  ${LIBDIR}/Target/AArch64/AArch64Diagnostic.cpp \
+	${LIBDIR}/Target/AArch64/AArch64Diagnostic.cpp \
 	${LIBDIR}/Target/AArch64/AArch64ELFDynamic.cpp \
 	${LIBDIR}/Target/AArch64/AArch64ELFDynamic.h \
 	${LIBDIR}/Target/AArch64/AArch64ELFMCLinker.cpp \
