@@ -810,10 +810,11 @@ void X86_32Relocator::convertTLSIEtoLE(Relocation& pReloc,
     off = 0;
 
   FragmentRef* fragref = FragmentRef::Create(*pReloc.targetRef().frag(), off);
-  // TODO: add symbols for R_386_TLS_OPT relocs
   Relocation* reloc = Relocation::Create(X86_32Relocator::R_386_TLS_OPT,
                                          *fragref,
                                          0x0);
+  // FIXME: should we create a special symbol for the tls opt instead?
+  reloc->setSymInfo(pReloc.symInfo());
 
   // 2. modify the opcodes to the appropriate ones
   uint8_t* op =  (reinterpret_cast<uint8_t*>(&reloc->target()));

@@ -463,6 +463,14 @@ bool ObjectLinker::scanRelocations()
       RelocData::iterator reloc, rEnd = (*rs)->getRelocData()->end();
       for (reloc = (*rs)->getRelocData()->begin(); reloc != rEnd; ++reloc) {
         Relocation* relocation = llvm::cast<Relocation>(reloc);
+
+        // bypass the reloc if the symbol is in the discarded input section
+        ResolveInfo* info = relocation->symInfo();
+        if (!info->outSymbol()->hasFragRef() &&
+            ResolveInfo::Section == info->type() &&
+            ResolveInfo::Undefined == info->desc())
+          continue;
+
         // scan relocation
         if (LinkerConfig::Object != m_Config.codeGenType())
           m_LDBackend.getRelocator()->scanRelocation(
@@ -646,6 +654,14 @@ bool ObjectLinker::relocation()
       RelocData::iterator reloc, rEnd = (*rs)->getRelocData()->end();
       for (reloc = (*rs)->getRelocData()->begin(); reloc != rEnd; ++reloc) {
         Relocation* relocation = llvm::cast<Relocation>(reloc);
+
+        // bypass the reloc if the symbol is in the discarded input section
+        ResolveInfo* info = relocation->symInfo();
+        if (!info->outSymbol()->hasFragRef() &&
+            ResolveInfo::Section == info->type() &&
+            ResolveInfo::Undefined == info->desc())
+          continue;
+
         relocation->apply(*m_LDBackend.getRelocator());
       } // for all relocations
     } // for all relocation section
@@ -707,6 +723,13 @@ void ObjectLinker::normalSyncRelocationResult(MemoryArea& pOutput)
       RelocData::iterator reloc, rEnd = (*rs)->getRelocData()->end();
       for (reloc = (*rs)->getRelocData()->begin(); reloc != rEnd; ++reloc) {
         Relocation* relocation = llvm::cast<Relocation>(reloc);
+
+        // bypass the reloc if the symbol is in the discarded input section
+        ResolveInfo* info = relocation->symInfo();
+        if (!info->outSymbol()->hasFragRef() &&
+            ResolveInfo::Section == info->type() &&
+            ResolveInfo::Undefined == info->desc())
+          continue;
 
         // bypass the relocation with NONE type. This is to avoid overwrite the
         // target result by NONE type relocation if there is a place which has

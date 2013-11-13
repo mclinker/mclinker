@@ -675,20 +675,11 @@ Relocation* IRBuilder::AddRelocation(LDSection& pSection,
                                      uint32_t pOffset,
                                      Relocation::Address pAddend)
 {
-  // FIXME: we should dicard sections and symbols first instead
-  // if the symbol is in the discarded input section, then we also need to
-  // discard this relocation.
-  ResolveInfo* resolve_info = pSym.resolveInfo();
-  if (!pSym.hasFragRef() &&
-      ResolveInfo::Section == resolve_info->type() &&
-      ResolveInfo::Undefined == resolve_info->desc())
-    return NULL;
-
   FragmentRef* frag_ref = FragmentRef::Create(*pSection.getLink(), pOffset);
 
   Relocation* relocation = Relocation::Create(pType, *frag_ref, pAddend);
 
-  relocation->setSymInfo(resolve_info);
+  relocation->setSymInfo(pSym.resolveInfo());
   pSection.getRelocData()->append(*relocation);
 
   return relocation;
