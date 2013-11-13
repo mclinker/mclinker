@@ -584,7 +584,8 @@ static cl::opt<std::string>
 ArgEmulation("m",
              cl::ZeroOrMore,
              cl::desc("Set GNU linker emulation"),
-             cl::value_desc("emulation"));
+             cl::value_desc("emulation"),
+             cl::Prefix);
 
 static cl::list<std::string, bool, llvm::cl::SearchDirParser>
 ArgRuntimePathLink("rpath-link",
