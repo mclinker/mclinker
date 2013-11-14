@@ -80,16 +80,21 @@ void EhFrameHdr::emitOutput<32>(MemoryArea& pOutput)
     // prepare the binary search table
     typedef std::vector<bit32::Entry> SearchTableType;
     SearchTableType search_table;
-    EhFrame::const_fde_iterator fde, fde_end = m_EhFrame.getEhFrame()->fde_end();
-    for(fde = m_EhFrame.getEhFrame()->fde_begin(); fde != fde_end; ++fde) {
-      assert(*fde != NULL);
-      SizeTraits<32>::Offset offset;
-      SizeTraits<32>::Address fde_pc;
-      SizeTraits<32>::Address fde_addr;
-      offset = (*fde)->getOffset();
-      fde_pc = computePCBegin(**fde, *ehframe_region);
-      fde_addr = m_EhFrame.addr() + offset;
-      search_table.push_back(std::make_pair(fde_pc, fde_addr));
+
+    for (EhFrame::const_cie_iterator i = m_EhFrame.getEhFrame()->cie_begin(),
+         e = m_EhFrame.getEhFrame()->cie_end(); i != e; ++i) {
+      EhFrame::CIE& cie = **i;
+      for (EhFrame::const_fde_iterator fi = cie.begin(), fe = cie.end();
+           fi != fe; ++fi) {
+        EhFrame::FDE& fde = **fi;
+        SizeTraits<32>::Offset offset;
+        SizeTraits<32>::Address fde_pc;
+        SizeTraits<32>::Address fde_addr;
+        offset = fde.getOffset();
+        fde_pc = computePCBegin(fde, *ehframe_region);
+        fde_addr = m_EhFrame.addr() + offset;
+        search_table.push_back(std::make_pair(fde_pc, fde_addr));
+      }
     }
 
     std::sort(search_table.begin(), search_table.end(), bit32::EntryCompare);
@@ -170,7 +175,7 @@ uint32_t EhFrameHdr::computePCBegin(const EhFrame::FDE& pFDE,
   SizeTraits<32>::Address pc = 0x0;
   const uint8_t* offset = (const uint8_t*) pEhFrameRegion.start() +
                           pFDE.getOffset() +
-                          pFDE.getDataStart();
+                          EhFrame::getLengthAndIDOffset();
   std::memcpy(&pc, offset, pc_size);
 
   // adjust the signed value
@@ -184,7 +189,8 @@ uint32_t EhFrameHdr::computePCBegin(const EhFrame::FDE& pFDE,
     case DW_EH_PE_absptr:
       break;
     case DW_EH_PE_pcrel:
-      pc += m_EhFrame.addr() + pFDE.getOffset() + pFDE.getDataStart();
+      pc += m_EhFrame.addr() + pFDE.getOffset() +
+                               EhFrame::getLengthAndIDOffset();
       break;
     case DW_EH_PE_datarel:
       // TODO

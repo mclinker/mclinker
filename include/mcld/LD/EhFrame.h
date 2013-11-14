@@ -14,15 +14,19 @@
 
 #include <mcld/Config/Config.h>
 #include <mcld/Fragment/RegionFragment.h>
-#include <mcld/Fragment/NullFragment.h>
+#include <mcld/LD/SectionData.h>
 #include <mcld/Support/Allocators.h>
 
+#include <set>
 #include <vector>
 
 namespace mcld {
 
+class Input;
+class Module;
 class LDSection;
-class SectionData;
+class ObjectLinker;
+class Relocation;
 
 /** \class EhFrame
  *  \brief EhFrame represents .eh_frame section
@@ -41,53 +45,152 @@ private:
   EhFrame& operator=(const EhFrame&); // DO NOT IMPLEMENT
 
 public:
+  enum DataStartOffset {
+    OFFSET_32BIT = 8,   /*Length + ID*/
+    OFFSET_64BIT = 16   /*Length + Extend Length + ID*/
+  };
+
+  enum RecordType {
+    RECORD_UNKNOWN,
+    RECORD_INPUT,
+    RECORD_GENERATED
+  };
+
+  class CIE;
+  class FDE;
+
+  typedef std::vector<CIE*> CIEList;
+  typedef CIEList::iterator cie_iterator;
+  typedef CIEList::const_iterator const_cie_iterator;
+
+  typedef std::vector<FDE*> FDEList;
+  typedef FDEList::iterator fde_iterator;
+  typedef FDEList::const_iterator const_fde_iterator;
+
+  friend bool operator<(const CIE&, const CIE&);
+  struct CIELesser {
+    bool operator() (const CIE* p1, const CIE* p2) const {
+      return *p1 < *p2;
+    }
+  };
+  typedef std::set<CIE*, CIELesser> CIESet;
+  typedef CIESet::iterator cie_set_iterator;
+  typedef CIESet::const_iterator const_cie_set_iterator;
+
+  typedef std::pair<const Input*, EhFrame*> InputFramePair;
+  typedef std::vector<InputFramePair> InputFrameList;
+  typedef InputFrameList::iterator input_frame_iterator;
+  typedef InputFrameList::const_iterator const_input_frame_iterator;
+
+  // A super class of CIE and FDE, containing the same part
+  class Record : public RegionFragment
+  {
+  public:
+    Record(MemoryRegion& pRegion);
+    virtual ~Record();
+
+    const MemoryRegion& getRegion() const { return RegionFragment::getRegion(); }
+          MemoryRegion& getRegion()       { return RegionFragment::getRegion(); }
+    virtual RecordType getRecordType() const { return RECORD_UNKNOWN; }
+
+  private:
+    Record(const Record&);            // DO NOT IMPLEMENT
+    Record& operator=(const Record&); // DO NOT IMPLEMENT
+  };
+
   /** \class CIE
    *  \brief Common Information Entry.
    *  The CIE structure refers to LSB Core Spec 4.1, chap.10.6. Exception Frames.
    */
-  class CIE : public RegionFragment
+  class CIE : public Record
   {
   public:
     CIE(MemoryRegion& pRegion);
+    ~CIE();
+
+    virtual RecordType getRecordType() const { return RECORD_INPUT; }
 
     void setFDEEncode(uint8_t pEncode) { m_FDEEncode = pEncode; }
     uint8_t getFDEEncode() const { return m_FDEEncode; }
 
+    void setMergeable(bool pVal = true) { m_Mergeable = pVal; }
+    virtual bool getMergeable() const { return m_Mergeable; }
+
+    void setRelocation(const Relocation& pReloc) { m_pReloc = &pReloc; }
+    const Relocation* getRelocation() const { return m_pReloc; }
+
+    void setPersonalityOffset(uint64_t pOffset) { m_PersonalityOffset = pOffset; }
+    uint64_t getPersonalityOffset() const { return m_PersonalityOffset; }
+
+    void setPersonalityName(const std::string& pStr) { m_PersonalityName = pStr; }
+    const std::string& getPersonalityName() const { return m_PersonalityName; }
+
+    void setAugmentationData(const std::string& pStr) { m_AugmentationData = pStr; }
+    const std::string& getAugmentationData() const { return m_AugmentationData; }
+
+    void add(FDE& pFDE) { m_FDEs.push_back(&pFDE); }
+    void remove(FDE& pFDE) {
+      // FIXME: Don't use vector
+      for (fde_iterator i = begin(), e = end(); i != e; ++i)
+        if (&**i == &pFDE)
+          m_FDEs.erase(i);
+    }
+    void clearFDEs() { m_FDEs.clear(); }
+    size_t numOfFDEs() const { return m_FDEs.size(); }
+
+    const_fde_iterator begin() const { return m_FDEs.begin(); }
+    fde_iterator       begin()       { return m_FDEs.begin(); }
+    const_fde_iterator end() const { return m_FDEs.end(); }
+    fde_iterator       end()       { return m_FDEs.end(); }
+
   private:
     uint8_t m_FDEEncode;
+    bool m_Mergeable;
+    const Relocation* m_pReloc;
+    uint64_t m_PersonalityOffset;
+    std::string m_PersonalityName;
+    std::string m_AugmentationData;
+    FDEList m_FDEs;
   };
 
   /** \class FDE
    *  \brief Frame Description Entry
    *  The FDE structure refers to LSB Core Spec 4.1, chap.10.6. Exception Frames.
    */
-  class FDE : public RegionFragment
+  class FDE : public Record
   {
   public:
-    FDE(MemoryRegion& pRegion,
-        const CIE& pCIE,
-        uint32_t pDataStart);
+    FDE(MemoryRegion& pRegion, CIE& pCIE);
+    ~FDE();
 
-    const CIE& getCIE() const { return m_CIE; }
-
-    uint32_t getDataStart() const { return m_DataStart; }
+    void setCIE(CIE& pCIE);
+    const CIE& getCIE() const { return *m_pCIE; }
+    CIE&       getCIE()       { return *m_pCIE; }
 
   private:
-    const CIE& m_CIE;
-    uint32_t m_DataStart;
+    CIE* m_pCIE;  // Referenced CIE may change when merging.
   };
 
-  typedef std::vector<CIE*> CIEList;
+  // These are created for PLT
+  class GeneratedCIE : public CIE
+  {
+  public:
+    GeneratedCIE(MemoryRegion& pRegion);
+    ~GeneratedCIE();
 
-  // cie_iterator and const_cie_iterator must be a kind of random access iterator
-  typedef CIEList::iterator cie_iterator;
-  typedef CIEList::const_iterator const_cie_iterator;
+    virtual RecordType getRecordType() const { return RECORD_GENERATED; }
+    virtual bool getMergeable() const { return true; }
+  };
 
-  typedef std::vector<FDE*> FDEList;
+  class GeneratedFDE : public FDE
+  {
+  public:
+    GeneratedFDE(MemoryRegion& pRegion, CIE& pCIE);
+    ~GeneratedFDE();
 
-  // fde_iterator and const_fde_iterator must be a kind of random access iterator
-  typedef FDEList::iterator fde_iterator;
-  typedef FDEList::const_iterator const_fde_iterator;
+    virtual RecordType getRecordType() const { return RECORD_GENERATED; }
+  };
+
 
 public:
   static EhFrame* Create(LDSection& pSection);
@@ -106,17 +209,13 @@ public:
   SectionData*       getSectionData()       { return m_pSectionData; }
 
   // -----  fragment  ----- //
-  /// addFragment - when we start treating CIEs and FDEs as regular fragments,
-  /// we call this function instead of addCIE() and addFDE().
-  void addFragment(RegionFragment& pFrag);
-
-  void addFragment(NullFragment& pFrag);
+  void addFragment(Fragment& pFrag);
 
   /// addCIE - add a CIE entry in EhFrame
-  void addCIE(CIE& pCIE);
+  void addCIE(CIE& pCIE, bool pAlsoAddFragment = true);
 
   /// addFDE - add a FDE entry in EhFrame
-  void addFDE(FDE& pFDE);
+  void addFDE(FDE& pFDE, bool pAlsoAddFragment = true);
 
   // -----  CIE  ----- //
   const_cie_iterator cie_begin() const { return m_CIEs.begin(); }
@@ -130,27 +229,26 @@ public:
   CIE&       cie_back ()       { return *m_CIEs.back(); }
 
   size_t numOfCIEs() const { return m_CIEs.size(); }
+  size_t numOfFDEs() const;
 
-  // -----  FDE  ----- //
-  const_fde_iterator fde_begin() const { return m_FDEs.begin(); }
-  fde_iterator       fde_begin()       { return m_FDEs.begin(); }
-  const_fde_iterator fde_end  () const { return m_FDEs.end(); }
-  fde_iterator       fde_end  ()       { return m_FDEs.end(); }
-
-  const FDE& fde_front() const { return *m_FDEs.front(); }
-  FDE&       fde_front()       { return *m_FDEs.front(); }
-  const FDE& fde_back () const { return *m_FDEs.back(); }
-  FDE&       fde_back ()       { return *m_FDEs.back(); }
-
-  size_t numOfFDEs() const { return m_FDEs.size(); }
+  static void setLengthAndIDOffset(DataStartOffset offset) { g_Offset = offset; }
+  static DataStartOffset getLengthAndIDOffset() { return g_Offset; }
 
 private:
   LDSection* m_pSection;
   SectionData* m_pSectionData;
 
+  // Each eh_frame has a list of CIE, and each CIE has a list of FDE
+  // pointing to the CIE itself. This is used by management when we are
+  // processing eh_frame merge.
+  // However, don't forget we need to handle the Fragments inside SectionData
+  // correctly since they are truly used when output emission.
   CIEList m_CIEs;
-  FDEList m_FDEs;
+
+  static DataStartOffset g_Offset;  // Only different between 32b and 64b
 };
+
+bool operator<(const EhFrame::CIE&, const EhFrame::CIE&);
 
 } // namespace of mcld
 

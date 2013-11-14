@@ -10,7 +10,9 @@
 
 #include <llvm/ADT/StringRef.h>
 #include <llvm/Support/Dwarf.h>
+#include <llvm/Support/LEB128.h>
 
+#include <mcld/Fragment/NullFragment.h>
 #include <mcld/MC/Input.h>
 #include <mcld/LD/LDSection.h>
 #include <mcld/Support/MemoryArea.h>
@@ -119,6 +121,7 @@ bool EhFrameReader::read<32, true>(Input& pInput, EhFrame& pEhFrame)
     { addCIE, addFDE, addTerm, reject}, // Q1
   };
 
+  EhFrame::setLengthAndIDOffset(EhFrame::OFFSET_32BIT);
   LDSection& section = pEhFrame.getSection();
   if (section.size() == 0x0) {
     NullFragment* frag = new NullFragment();
@@ -171,6 +174,8 @@ bool EhFrameReader::addCIE(EhFrame& pEhFrame,
   // skip Length, Extended Length and CIE ID.
   ConstAddress handler = pRegion.start() + pToken.data_off;
   ConstAddress cie_end = pRegion.end();
+  ConstAddress handler_start = handler;
+  uint64_t pr_ptr_data_offset = pToken.data_off;
 
   // the version should be 1 or 3
   uint8_t version = *handler++;
@@ -222,12 +227,13 @@ bool EhFrameReader::addCIE(EhFrame& pEhFrame,
 
   // parse the Augmentation String to get the FDE encodeing if 'z' existed
   uint8_t fde_encoding = llvm::dwarf::DW_EH_PE_absptr;
+  std::string augdata;
+  std::string pr_ptr_data;
   if ('z' == augment[0]) {
-
-    // skip the Augumentation Data Length
-    if (!skip_LEB128(&handler, cie_end)) {
-      return false;
-    }
+    unsigned offset;
+    size_t augdata_size = llvm::decodeULEB128(handler, &offset);
+    handler += offset;
+    augdata = std::string((const char*)handler, augdata_size);
 
     // parse the Augmentation String
     for (size_t i = 1; i < augment.size(); ++i) {
@@ -285,6 +291,8 @@ bool EhFrameReader::addCIE(EhFrame& pEhFrame,
           if (static_cast<uint32_t>(cie_end - handler) < per_length) {
             return false;
           }
+          pr_ptr_data_offset += handler - handler_start;
+          pr_ptr_data = std::string((const char*)handler, per_length);
           handler += per_length;
           break;
         } // end of case 'P'
@@ -316,6 +324,9 @@ bool EhFrameReader::addCIE(EhFrame& pEhFrame,
   // create and push back the CIE entry
   EhFrame::CIE* cie = new EhFrame::CIE(pRegion);
   cie->setFDEEncode(fde_encoding);
+  cie->setPersonalityOffset(pr_ptr_data_offset);
+  cie->setPersonalityName(pr_ptr_data);
+  cie->setAugmentationData(augdata);
   pEhFrame.addCIE(*cie);
   g_FoundCIEs.insert(std::make_pair(pToken.file_off, cie));
   return true;
@@ -337,9 +348,7 @@ bool EhFrameReader::addFDE(EhFrame& pEhFrame,
     return false;
 
   // create and push back the FDE entry
-  EhFrame::FDE* fde = new EhFrame::FDE(pRegion,
-                                       *iter->second,
-                                       pToken.data_off);
+  EhFrame::FDE* fde = new EhFrame::FDE(pRegion, *iter->second);
   pEhFrame.addFDE(*fde);
   return true;
 }

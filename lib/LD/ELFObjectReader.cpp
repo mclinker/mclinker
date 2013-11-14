@@ -223,10 +223,7 @@ bool ELFObjectReader::readSections(Input& pInput)
       case LDFileFormat::EhFrame: {
         EhFrame* eh_frame = IRBuilder::CreateEhFrame(**section);
 
-        if (m_Config.options().hasEhFrameHdr() &&
-            (m_ReadFlag & ParseEhFrame)) {
-
-          // if --eh-frame-hdr option is given, parse .eh_frame.
+        if (m_ReadFlag & ParseEhFrame) {
           if (!m_pEhFrameReader->read<32, true>(pInput, *eh_frame)) {
             // if we failed to parse a .eh_frame, we should not parse the rest
             // .eh_frame.
