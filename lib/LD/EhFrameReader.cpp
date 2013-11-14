@@ -357,8 +357,6 @@ bool EhFrameReader::addTerm(EhFrame& pEhFrame,
                             MemoryRegion& pRegion,
                             const EhFrameReader::Token& pToken)
 {
-  RegionFragment* frag = new RegionFragment(pRegion);
-  pEhFrame.addFragment(*frag);
   return true;
 }
 
