@@ -12,7 +12,6 @@
 #include <llvm/Support/Dwarf.h>
 
 #include <mcld/MC/Input.h>
-#include <mcld/LD/EhFrame.h>
 #include <mcld/LD/LDSection.h>
 #include <mcld/Support/MemoryArea.h>
 #include <mcld/Support/MsgHandling.h>
@@ -211,6 +210,7 @@ bool EhFrameReader::addCIE(EhFrame& pEhFrame,
     EhFrame::CIE* cie = new EhFrame::CIE(pRegion);
     cie->setFDEEncode(llvm::dwarf::DW_EH_PE_absptr);
     pEhFrame.addCIE(*cie);
+    g_FoundCIEs.insert(std::make_pair(pToken.file_off, cie));
     return true;
   }
 
@@ -317,6 +317,7 @@ bool EhFrameReader::addCIE(EhFrame& pEhFrame,
   EhFrame::CIE* cie = new EhFrame::CIE(pRegion);
   cie->setFDEEncode(fde_encoding);
   pEhFrame.addCIE(*cie);
+  g_FoundCIEs.insert(std::make_pair(pToken.file_off, cie));
   return true;
 }
 
@@ -327,9 +328,17 @@ bool EhFrameReader::addFDE(EhFrame& pEhFrame,
   if (pToken.data_off == pRegion.size())
     return false;
 
+  int32_t offset = *(int32_t*) pRegion.getBuffer(pToken.data_off - 4);
+  size_t cie_offset = (size_t) ((int64_t) (pToken.file_off + 4) -
+                                (int32_t) offset);
+
+  CIEMap::iterator iter = g_FoundCIEs.find(cie_offset);
+  if (iter == g_FoundCIEs.end())
+    return false;
+
   // create and push back the FDE entry
   EhFrame::FDE* fde = new EhFrame::FDE(pRegion,
-                                       pEhFrame.cie_back(),
+                                       *iter->second,
                                        pToken.data_off);
   pEhFrame.addFDE(*fde);
   return true;
@@ -351,3 +360,4 @@ bool EhFrameReader::reject(EhFrame& pEhFrame,
   return true;
 }
 
+EhFrameReader::CIEMap EhFrameReader::g_FoundCIEs;

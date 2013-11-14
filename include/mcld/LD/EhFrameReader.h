@@ -11,12 +11,13 @@
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif
+#include <mcld/LD/EhFrame.h>
 #include <mcld/Support/MemoryRegion.h>
+#include <map>
 
 namespace mcld {
 
 class Input;
-class EhFrame;
 class LDSection;
 
 /** \class EhFrameReader
@@ -30,6 +31,7 @@ class EhFrameReader
 public:
   typedef const uint8_t* ConstAddress;
   typedef       uint8_t* Address;
+  typedef std::map</*offset*/size_t, EhFrame::CIE*> CIEMap;
 
 public:
   /// read - read an .eh_frame section and create the corresponding
@@ -93,6 +95,7 @@ private:
                      MemoryRegion& pRegion,
                      const Token& pToken);
 
+  static CIEMap g_FoundCIEs;
 };
 
 template<> bool
