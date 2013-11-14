@@ -60,6 +60,9 @@ public:
   /// readRelocations - read all relocation entries
   bool readRelocations();
 
+  /// dataStrippingOpt - optimizations for reducing code size
+  void dataStrippingOpt();
+
   /// mergeSections - put allinput sections into output sections
   bool mergeSections();
 

@@ -225,6 +225,11 @@ bool ObjectLinker::linkable() const
   return true;
 }
 
+void ObjectLinker::dataStrippingOpt()
+{
+  return;
+}
+
 /// readRelocations - read all relocation entries
 ///
 /// All symbols should be read and resolved before this function.

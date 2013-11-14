@@ -170,7 +170,11 @@ bool Linker::resolve()
   //   To collect all edges in the reference graph.
   m_pObjLinker->readRelocations();
 
-  // 7. - merge all sections
+
+  // 7. - data stripping optimizations
+  m_pObjLinker->dataStrippingOpt();
+
+  // 8. - merge all sections
   //   Push sections into Module's SectionTable.
   //   Merge sections that have the same name.
   //   Maintain them as fragments in the section.
@@ -179,7 +183,7 @@ bool Linker::resolve()
   if (!m_pObjLinker->mergeSections())
     return false;
 
-  // 8. - allocateCommonSymbols
+  // 9. - allocateCommonSymbols
   //   Allocate fragments for common symbols to the corresponding sections.
   if (!m_pObjLinker->allocateCommonSymbols())
     return false;
@@ -190,38 +194,38 @@ bool Linker::layout()
 {
   assert(NULL != m_pConfig && NULL != m_pObjLinker);
 
-  // 9. - add standard symbols, target-dependent symbols and script symbols
+  // 10. - add standard symbols, target-dependent symbols and script symbols
   // m_pObjLinker->addUndefSymbols();
   if (!m_pObjLinker->addStandardSymbols() ||
       !m_pObjLinker->addTargetSymbols() ||
       !m_pObjLinker->addScriptSymbols())
     return false;
 
-  // 10. - scan all relocation entries by output symbols.
+  // 11. - scan all relocation entries by output symbols.
   //   reserve GOT space for layout.
   //   the space info is needed by pre-layout to compute the section size
   m_pObjLinker->scanRelocations();
 
-  // 11.a - init relaxation stuff.
+  // 12.a - init relaxation stuff.
   m_pObjLinker->initStubs();
 
-  // 11.b - pre-layout
+  // 12.b - pre-layout
   m_pObjLinker->prelayout();
 
-  // 11.c - linear layout
+  // 12.c - linear layout
   //   Decide which sections will be left in. Sort the sections according to
   //   a given order. Then, create program header accordingly.
   //   Finally, set the offset for sections (@ref LDSection)
   //   according to the new order.
   m_pObjLinker->layout();
 
-  // 11.d - post-layout (create segment, instruction relaxing)
+  // 12.d - post-layout (create segment, instruction relaxing)
   m_pObjLinker->postlayout();
 
-  // 12. - finalize symbol value
+  // 13. - finalize symbol value
   m_pObjLinker->finalizeSymbolValue();
 
-  // 13. - apply relocations
+  // 14. - apply relocations
   m_pObjLinker->relocation();
 
   if (!Diagnose())
@@ -231,10 +235,10 @@ bool Linker::layout()
 
 bool Linker::emit(MemoryArea& pOutput)
 {
-  // 13. - write out output
+  // 15. - write out output
   m_pObjLinker->emitOutput(pOutput);
 
-  // 14. - post processing
+  // 16. - post processing
   m_pObjLinker->postProcessing(pOutput);
 
   if (!Diagnose())
