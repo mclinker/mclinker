@@ -88,6 +88,7 @@ HEADER = ${INCDIR}/AttributeOption.h \
 	${INCDIR}/LD/ELFReaderIf.h \
 	${INCDIR}/LD/ELFSegmentFactory.h \
 	${INCDIR}/LD/ELFSegment.h \
+	${INCDIR}/LD/GarbageCollection.h \
 	${INCDIR}/LD/GNUArchiveReader.h \
 	${INCDIR}/LD/Group.h \
 	${INCDIR}/LD/GroupReader.h \
@@ -249,6 +250,7 @@ SOURCE = ${LIBDIR}/ADT/StringEntry.cpp \
 	${LIBDIR}/LD/ELFReaderIf.cpp \
 	${LIBDIR}/LD/ELFSegment.cpp \
 	${LIBDIR}/LD/ELFSegmentFactory.cpp \
+	${LIBDIR}/LD/GarbageCollection.cpp \
 	${LIBDIR}/LD/GNUArchiveReader.cpp \
 	${LIBDIR}/LD/GroupReader.cpp \
 	${LIBDIR}/LD/LDContext.cpp \
