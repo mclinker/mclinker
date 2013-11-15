@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_GARBAGE_COLLECTION_H
-#define MCLD_GARBAGE_COLLECTION_H
+#ifndef MCLD_LD_GARBAGECOLLECTION_H
+#define MCLD_LD_GARBAGECOLLECTION_H
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif
