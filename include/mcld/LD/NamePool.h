@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_NAME_POOL_H
-#define MCLD_NAME_POOL_H
+#ifndef MCLD_LD_NAMEPOOL_H
+#define MCLD_LD_NAMEPOOL_H
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif

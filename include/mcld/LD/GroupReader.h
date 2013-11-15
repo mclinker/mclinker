@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_GROUPREADER_H
-#define MCLD_GROUPREADER_H
+#ifndef MCLD_LD_GROUPREADER_H
+#define MCLD_LD_GROUPREADER_H
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif

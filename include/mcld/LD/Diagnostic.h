@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_DIAGNOSTIC_H
-#define MCLD_DIAGNOSTIC_H
+#ifndef MCLD_LD_DIAGNOSTIC_H
+#define MCLD_LD_DIAGNOSTIC_H
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif

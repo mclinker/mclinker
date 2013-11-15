@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_STRING_HASH_FUNCTION_H
-#define MCLD_STRING_HASH_FUNCTION_H
+#ifndef MCLD_ADT_STRINGHASH_H
+#define MCLD_ADT_STRINGHASH_H
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif

@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_SUPPORT_MEMORY_AREA_FACTORY_H
-#define MCLD_SUPPORT_MEMORY_AREA_FACTORY_H
+#ifndef MCLD_SUPPORT_MEMORYAREAFACTORY_H
+#define MCLD_SUPPORT_MEMORYAREAFACTORY_H
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif

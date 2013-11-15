@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_SYMBOL_CATEGORY_H
-#define MCLD_SYMBOL_CATEGORY_H
+#ifndef MCLD_MC_SYMBOLCATEGORY_H
+#define MCLD_MC_SYMBOLCATEGORY_H
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif

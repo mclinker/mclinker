@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_DYNAMIC_SHARED_OBJECT_READER_H
-#define MCLD_DYNAMIC_SHARED_OBJECT_READER_H
+#ifndef MCLD_LD_DYNOBJREADER_H
+#define MCLD_LD_DYNOBJREADER_H
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif

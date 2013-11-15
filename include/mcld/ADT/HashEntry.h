@@ -7,8 +7,8 @@
 //
 //===----------------------------------------------------------------------===//
 
-#ifndef MCLD_HASH_ENTRY_H
-#define MCLD_HASH_ENTRY_H
+#ifndef MCLD_ADT_HASHENTRY_H
+#define MCLD_ADT_HASHENTRY_H
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif

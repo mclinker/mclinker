@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_TARGET_GNU_LDBACKEND_H
-#define MCLD_TARGET_GNU_LDBACKEND_H
+#ifndef MCLD_TARGET_GNULDBACKEND_H
+#define MCLD_TARGET_GNULDBACKEND_H
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif

@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_OBJECT_WRITER_INTERFACE_H
-#define MCLD_OBJECT_WRITER_INTERFACE_H
+#ifndef MCLD_LD_OBJECTWRITER_H
+#define MCLD_LD_OBJECTWRITER_H
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif

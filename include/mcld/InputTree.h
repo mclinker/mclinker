@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_MC_INPUT_TREE_H
-#define MCLD_MC_INPUT_TREE_H
+#ifndef MCLD_INPUTTREE_H
+#define MCLD_INPUTTREE_H
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif

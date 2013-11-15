@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_SCRIPT_INPUT_SECTION_DESCRIPTION_INTERFACE_H
-#define MCLD_SCRIPT_INPUT_SECTION_DESCRIPTION_INTERFACE_H
+#ifndef MCLD_SCRIPT_INPUTSECTDESC_H
+#define MCLD_SCRIPT_INPUTSECTDESC_H
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif

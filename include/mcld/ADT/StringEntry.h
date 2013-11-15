@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_STRING_ENTRY_H
-#define MCLD_STRING_ENTRY_H
+#ifndef MCLD_ADT_STRINGENTRY_H
+#define MCLD_ADT_STRINGENTRY_H
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif

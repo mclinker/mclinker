@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_FLAGS_H
-#define MCLD_FLAGS_H
+#ifndef MCLD_ADT_FLAGS_H
+#define MCLD_ADT_FLAGS_H
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif

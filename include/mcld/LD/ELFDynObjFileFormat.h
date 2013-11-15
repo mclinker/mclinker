@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_ELF_DYNAMIC_OBJECT_FILE_FROMAT_H
-#define MCLD_ELF_DYNAMIC_OBJECT_FILE_FROMAT_H
+#ifndef MCLD_LD_ELFDYNOBJFILEFROMAT_H
+#define MCLD_LD_ELFDYNOBJFILEFROMAT_H
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif

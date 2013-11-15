@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_SECTION_MAP_H
-#define MCLD_SECTION_MAP_H
+#ifndef MCLD_OBJECT_SECTIONMAP_H
+#define MCLD_OBJECT_SECTIONMAP_H
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif

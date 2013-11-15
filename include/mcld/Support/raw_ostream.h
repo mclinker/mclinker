@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_RAW_OSTREAM_H
-#define MCLD_RAW_OSTREAM_H
+#ifndef MCLD_SUPPORT_RAWOSTREAM_H
+#define MCLD_SUPPORT_RAWOSTREAM_H
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif

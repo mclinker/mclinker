@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_TARGET_GNU_INFO_H
-#define MCLD_TARGET_GNU_INFO_H
+#ifndef MCLD_TARGET_GNUINFO_H
+#define MCLD_TARGET_GNUINFO_H
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif

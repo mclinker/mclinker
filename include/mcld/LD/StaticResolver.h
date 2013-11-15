@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_STATIC_SYMBOL_RESOLVER_H
-#define MCLD_STATIC_SYMBOL_RESOLVER_H
+#ifndef MCLD_LD_STATICRESOLVER_H
+#define MCLD_LD_STATICRESOLVER_H
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif

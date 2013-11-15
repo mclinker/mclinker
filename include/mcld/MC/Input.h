@@ -10,8 +10,8 @@
 //  Input class inherits MCLDFile, which is used to represent a input file
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_INPUT_H
-#define MCLD_INPUT_H
+#ifndef MCLD_MC_INPUT_H
+#define MCLD_MC_INPUT_H
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif

@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_SIZE_TRAITS_H
-#define MCLD_SIZE_TRAITS_H
+#ifndef MCLD_ADT_SIZETRAITS_H
+#define MCLD_ADT_SIZETRAITS_H
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif

@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_MESSAGE_HANDLING_H
-#define MCLD_MESSAGE_HANDLING_H
+#ifndef MCLD_SUPPORT_MSGHANDLING_H
+#define MCLD_SUPPORT_MSGHANDLING_H
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif

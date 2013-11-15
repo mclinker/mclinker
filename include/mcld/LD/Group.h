@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef LD_GROUP_H
-#define LD_GROUP_H
+#ifndef MCLD_LD_GROUP_H
+#define MCLD_LD_GROUP_H
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif

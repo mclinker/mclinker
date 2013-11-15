@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef LD_MEMORY_REGION_H
-#define LD_MEMORY_REGION_H
+#ifndef MCLD_SUPPORT_MEMORYREGION_H
+#define MCLD_SUPPORT_MEMORYREGION_H
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif

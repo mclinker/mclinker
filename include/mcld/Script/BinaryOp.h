@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_SCRIPT_BINARY_OPERATOR_INTERFACE_H
-#define MCLD_SCRIPT_BINARY_OPERATOR_INTERFACE_H
+#ifndef MCLD_SCRIPT_BINARYOP_H
+#define MCLD_SCRIPT_BINARYOP_H
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif

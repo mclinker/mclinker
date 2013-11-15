@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_TARGET_TARGET_MACHINE_H
-#define MCLD_TARGET_TARGET_MACHINE_H
+#ifndef MCLD_CODEGEN_TARGETMACHINE_H
+#define MCLD_CODEGEN_TARGETMACHINE_H
 #include <llvm/Support/CodeGen.h>
 #include <string>
 

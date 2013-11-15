@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_ELF_EMULATION_H
-#define MCLD_ELF_EMULATION_H
+#ifndef MCLD_TARGET_ELFEMULATION_H
+#define MCLD_TARGET_ELFEMULATION_H
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif

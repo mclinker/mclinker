@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_OBJECT_OBJECT_BUILDER_H
-#define MCLD_OBJECT_OBJECT_BUILDER_H
+#ifndef MCLD_OBJECT_OBJECTBUILDER_H
+#define MCLD_OBJECT_OBJECTBUILDER_H
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif

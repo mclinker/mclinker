@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_SCRIPT_SCANNER_H
-#define MCLD_SCRIPT_SCANNER_H
+#ifndef MCLD_SCRIPT_SCRIPTSCANNER_H
+#define MCLD_SCRIPT_SCRIPTSCANNER_H
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif

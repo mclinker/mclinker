@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_GENERAL_OPTIONS_H
-#define MCLD_GENERAL_OPTIONS_H
+#ifndef MCLD_GENERALOPTIONS_H
+#define MCLD_GENERALOPTIONS_H
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif

@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_TARGET_KEY_ENTRY_MAP_H
-#define MCLD_TARGET_KEY_ENTRY_MAP_H
+#ifndef MCLD_TARGET_KEYENTRYMAP_H
+#define MCLD_TARGET_KEYENTRYMAP_H
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif

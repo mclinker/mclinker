@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_GRAPHLITE_GRAPH_BASIC_TYPES_H
-#define MCLD_GRAPHLITE_GRAPH_BASIC_TYPES_H
+#ifndef MCLD_ADT_GRAPHLITE_GRAPHBASICTYPES_H
+#define MCLD_ADT_GRAPHLITE_GRAPHBASICTYPES_H
 
 namespace mcld {
 namespace graph {

@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_GLOBAL_OFFSET_TABLE_H
-#define MCLD_GLOBAL_OFFSET_TABLE_H
+#ifndef MCLD_TARGET_GOT_H
+#define MCLD_TARGET_GOT_H
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif

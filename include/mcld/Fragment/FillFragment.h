@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_LD_FILLFRAGMENT_H
-#define MCLD_LD_FILLFRAGMENT_H
+#ifndef MCLD_FRAGMENT_FILLFRAGMENT_H
+#define MCLD_FRAGMENT_FILLFRAGMENT_H
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif

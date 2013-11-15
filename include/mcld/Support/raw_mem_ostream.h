@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_RAW_MEMORY_AREA_OSTREAM_H
-#define MCLD_RAW_MEMORY_AREA_OSTREAM_H
+#ifndef MCLD_SUPPORT_RAWMEMOSTREAM_H
+#define MCLD_SUPPORT_RAWMEMOSTREAM_H
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif

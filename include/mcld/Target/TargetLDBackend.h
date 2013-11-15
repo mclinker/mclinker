@@ -1,4 +1,4 @@
-//===-- llvm/Target/TargetLDBackend.h - Target LD Backend -----*- C++ -*-===//
+//===-- TargetLDBackend.h - Target LD Backend -------------------*- C++ -*-===//
 //
 //                     The MCLinker Project
 //

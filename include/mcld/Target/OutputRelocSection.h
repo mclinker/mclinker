@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_OUTPUT_RELOCATION_SECTION_H
-#define MCLD_OUTPUT_RELOCATION_SECTION_H
+#ifndef MCLD_TARGET_OUTPUTRELOCSECTION_H
+#define MCLD_TARGET_OUTPUTRELOCSECTION_H
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif
