@@ -17,6 +17,7 @@
 #include <mcld/LD/SectionData.h>
 #include <mcld/Support/Allocators.h>
 
+#include <list>
 #include <set>
 #include <vector>
 
@@ -63,24 +64,9 @@ public:
   typedef CIEList::iterator cie_iterator;
   typedef CIEList::const_iterator const_cie_iterator;
 
-  typedef std::vector<FDE*> FDEList;
+  typedef std::list<FDE*> FDEList;
   typedef FDEList::iterator fde_iterator;
   typedef FDEList::const_iterator const_fde_iterator;
-
-  friend bool operator<(const CIE&, const CIE&);
-  struct CIELesser {
-    bool operator() (const CIE* p1, const CIE* p2) const {
-      return *p1 < *p2;
-    }
-  };
-  typedef std::set<CIE*, CIELesser> CIESet;
-  typedef CIESet::iterator cie_set_iterator;
-  typedef CIESet::const_iterator const_cie_set_iterator;
-
-  typedef std::pair<const Input*, EhFrame*> InputFramePair;
-  typedef std::vector<InputFramePair> InputFrameList;
-  typedef InputFrameList::iterator input_frame_iterator;
-  typedef InputFrameList::const_iterator const_input_frame_iterator;
 
   // A super class of CIE and FDE, containing the same part
   class Record : public RegionFragment
@@ -129,12 +115,7 @@ public:
     const std::string& getAugmentationData() const { return m_AugmentationData; }
 
     void add(FDE& pFDE) { m_FDEs.push_back(&pFDE); }
-    void remove(FDE& pFDE) {
-      // FIXME: Don't use vector
-      for (fde_iterator i = begin(), e = end(); i != e; ++i)
-        if (&**i == &pFDE)
-          m_FDEs.erase(i);
-    }
+    void remove(FDE& pFDE) { m_FDEs.remove(&pFDE); }
     void clearFDEs() { m_FDEs.clear(); }
     size_t numOfFDEs() const { return m_FDEs.size(); }
 
@@ -200,7 +181,7 @@ public:
   static void Clear();
 
   /// merge - move all data from pOther to this object.
-  EhFrame& merge(EhFrame& pOther);
+  EhFrame& merge(const Input& pInput, EhFrame& pInFrame);
 
   const LDSection& getSection() const;
   LDSection&       getSection();
@@ -234,6 +215,21 @@ public:
   static void setLengthAndIDOffset(DataStartOffset offset) { g_Offset = offset; }
   static DataStartOffset getLengthAndIDOffset() { return g_Offset; }
 
+public:
+  size_t computeOffsetSize();
+
+private:
+  // We needs to check if it is mergeable and check personality name
+  // before merging them. The important note is we must do this after
+  // ALL readSections done, that is the reason why we don't check this
+  // immediately when reading.
+  void setupAttributes(const Input& pInput);
+  void removeDiscardedFDE(CIE& pCIE, const LDSection* pRelocEhFrameSect);
+
+private:
+  void removeAndUpdateCIEForFDE(EhFrame& pInFrame, CIE& pInCIE, CIE& pOutCIE);
+  void moveInputFragments(EhFrame& pInFrame, CIE& pInCIE, CIE* pOutCIE = 0);
+
 private:
   LDSection* m_pSection;
   SectionData* m_pSectionData;
@@ -248,7 +244,7 @@ private:
   static DataStartOffset g_Offset;  // Only different between 32b and 64b
 };
 
-bool operator<(const EhFrame::CIE&, const EhFrame::CIE&);
+bool operator==(const EhFrame::CIE&, const EhFrame::CIE&);
 
 } // namespace of mcld
 

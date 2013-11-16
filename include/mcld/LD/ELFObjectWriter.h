@@ -18,6 +18,7 @@
 
 namespace mcld {
 
+class EhFrame;
 class Module;
 class LinkerConfig;
 class GNULDBackend;
@@ -77,6 +78,8 @@ private:
 
   void emitSectionData(const LDSection& pSection,
                        MemoryRegion& pRegion) const;
+
+  void emitEhFrame(EhFrame& pFrame, MemoryRegion& pRegion) const;
 
   void emitRelocation(const LinkerConfig& pConfig,
                       const LDSection& pSection,

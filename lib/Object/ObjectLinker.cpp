@@ -312,6 +312,11 @@ bool ObjectLinker::mergeSections()
     } // for each section
   } // for each obj
 
+  LDSection* eh_frame_sect = m_pModule->getSection(".eh_frame");
+  if (eh_frame_sect)
+    if (eh_frame_sect->hasEhFrame())
+      eh_frame_sect->getEhFrame()->computeOffsetSize();
+
   RpnEvaluator evaluator(*m_pModule, m_LDBackend);
   SectionMap::iterator out, outBegin, outEnd;
   outBegin = m_pModule->getScript().sectionMap().begin();
@@ -468,6 +473,11 @@ bool ObjectLinker::scanRelocations()
       RelocData::iterator reloc, rEnd = (*rs)->getRelocData()->end();
       for (reloc = (*rs)->getRelocData()->begin(); reloc != rEnd; ++reloc) {
         Relocation* relocation = llvm::cast<Relocation>(reloc);
+
+        // Someone changes the relocation before and
+        // want the relocator ignore this.
+        if (relocation->type() == 0x0)
+          continue;
 
         // bypass the reloc if the symbol is in the discarded input section
         ResolveInfo* info = relocation->symInfo();
@@ -659,6 +669,11 @@ bool ObjectLinker::relocation()
       RelocData::iterator reloc, rEnd = (*rs)->getRelocData()->end();
       for (reloc = (*rs)->getRelocData()->begin(); reloc != rEnd; ++reloc) {
         Relocation* relocation = llvm::cast<Relocation>(reloc);
+
+        // Someone changes the relocation before and
+        // want the relocator ignore this.
+        if (relocation->type() == 0x0)
+          continue;
 
         // bypass the reloc if the symbol is in the discarded input section
         ResolveInfo* info = relocation->symInfo();

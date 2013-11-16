@@ -6,9 +6,15 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
+#include <mcld/Fragment/Relocation.h>
 #include <mcld/LD/EhFrame.h>
+#include <mcld/LD/LDContext.h>
 #include <mcld/LD/LDSection.h>
+#include <mcld/LD/LDSymbol.h>
+#include <mcld/LD/RelocData.h>
+#include <mcld/LD/ResolveInfo.h>
 #include <mcld/LD/SectionData.h>
+#include <mcld/MC/Input.h>
 #include <mcld/Object/ObjectBuilder.h>
 #include <mcld/Support/MemoryRegion.h>
 #include <mcld/Support/GCFactory.h>
@@ -169,26 +175,198 @@ size_t EhFrame::numOfFDEs() const
   return size;
 }
 
-EhFrame& EhFrame::merge(EhFrame& pOther)
+EhFrame& EhFrame::merge(const Input& pInput, EhFrame& pFrame)
 {
-  ObjectBuilder::MoveSectionData(*pOther.getSectionData(), *m_pSectionData);
+  assert (this != &pFrame);
+  pFrame.setupAttributes(pInput);
 
-  // TODO: The CIEs should be merged as many as possible.
-  m_CIEs.reserve(pOther.numOfCIEs() + m_CIEs.size());
-  for (cie_iterator cie = pOther.cie_begin(); cie != pOther.cie_end(); ++cie)
-    m_CIEs.push_back(*cie);
-  pOther.m_CIEs.clear();
+  // Most CIE will be merged, so we don't reserve space first.
+  for (cie_iterator i = pFrame.cie_begin(), e = pFrame.cie_end(); i != e; ++i) {
+    CIE& input_cie = **i;
+    // CIE number is usually very few, so we just use vector sequential search.
+    if (!input_cie.getMergeable()) {
+      moveInputFragments(pFrame, input_cie);
+      addCIE(input_cie, /*AlsoAddFragment=*/false);
+      continue;
+    }
+
+    cie_iterator out_i = cie_begin();
+    for (cie_iterator out_e = cie_end(); out_i != out_e; ++out_i) {
+      CIE& output_cie = **out_i;
+      if (output_cie == input_cie) {
+        // This input CIE can be merged
+        moveInputFragments(pFrame, input_cie, &output_cie);
+        removeAndUpdateCIEForFDE(pFrame, input_cie, output_cie);
+        break;
+      }
+    }
+    if (out_i == cie_end()) {
+      moveInputFragments(pFrame, input_cie);
+      addCIE(input_cie, /*AlsoAddFragment=*/false);
+    }
+  }
   return *this;
 }
 
-//===----------------------------------------------------------------------===//
-// operator
-//===----------------------------------------------------------------------===//
-bool mcld::operator<(const EhFrame::CIE& p1, const EhFrame::CIE& p2)
+void EhFrame::setupAttributes(const Input& pInput)
 {
-  const std::string& pr1 = p1.getPersonalityName();
-  const std::string& pr2 = p2.getPersonalityName();
-  if (pr1 != pr2)
-    return pr1 < pr2;
-  return p1.getAugmentationData() < p2.getAugmentationData();
+  const LDContext& ctx = *pInput.context();
+  const LDSection* rel_sec = 0;
+  for (LDContext::const_sect_iterator ri = ctx.relocSectBegin(),
+       re = ctx.relocSectEnd(); ri != re; ++ri) {
+    rel_sec = *ri;
+    if (rel_sec->getLink() == &getSection())
+      break;
+  }
+
+  for (cie_iterator i = cie_begin(), e = cie_end(); i != e; ++i) {
+    CIE* cie = *i;
+    removeDiscardedFDE(*cie, rel_sec);
+
+    if (cie->getPersonalityName().size() == 0) {
+      // There's no personality data encoding inside augmentation string.
+      cie->setMergeable();
+    } else {
+      const LDSection* rel_sec = 0;
+      for (LDContext::const_sect_iterator ri = ctx.relocSectBegin(),
+           re = ctx.relocSectEnd(); ri != re; ++ri) {
+        rel_sec = *ri;
+        if (rel_sec->getLink() == &getSection())
+          break;
+      }
+      if (!rel_sec) {
+        // No relocation to eh_frame section
+        assert (cie->getPersonalityName() != "" &&
+                "PR name should be a symbol address or offset");
+        continue;
+      }
+      const RelocData* reloc_data = rel_sec->getRelocData();
+      for (RelocData::const_iterator ri = reloc_data->begin(),
+           re = reloc_data->end(); ri != re; ++ri) {
+        const Relocation& rel = *ri;
+        if (rel.targetRef().getOutputOffset() == cie->getOffset() +
+                                                 cie->getPersonalityOffset()) {
+          cie->setMergeable();
+          cie->setPersonalityName(rel.symInfo()->outSymbol()->name());
+          cie->setRelocation(rel);
+          break;
+        }
+      }
+
+      assert (cie->getPersonalityName() != "" &&
+              "PR name should be a symbol address or offset");
+    }
+  }
+}
+
+void EhFrame::removeDiscardedFDE(CIE& pCIE, const LDSection* pRelocSect)
+{
+  if (!pRelocSect)
+    return;
+
+  typedef std::vector<FDE*> FDERemoveList;
+  FDERemoveList to_be_removed_fdes;
+  const RelocData* reloc_data = pRelocSect->getRelocData();
+  for (fde_iterator i = pCIE.begin(), e = pCIE.end(); i != e; ++i) {
+    FDE& fde = **i;
+    for (RelocData::const_iterator ri = reloc_data->begin(),
+         re = reloc_data->end(); ri != re; ++ri) {
+      const Relocation& rel = *ri;
+      if (rel.targetRef().getOutputOffset() == fde.getOffset() +
+                                               getLengthAndIDOffset()) {
+        bool has_section = rel.symInfo()->outSymbol()->hasFragRef();
+        if (!has_section)
+          // The section was discarded, just ignore this FDE.
+          // This may happen when redundant group section was read.
+          to_be_removed_fdes.push_back(&fde);
+        break;
+      }
+    }
+  }
+
+  for (FDERemoveList::iterator i = to_be_removed_fdes.begin(),
+       e = to_be_removed_fdes.end(); i != e; ++i) {
+    FDE& fde = **i;
+    fde.getCIE().remove(fde);
+
+    for (RelocData::const_iterator ri = reloc_data->begin(),
+         re = reloc_data->end(); ri != re; ++ri) {
+      const Relocation& rel = *ri;
+      if (rel.targetRef().getOutputOffset() >= fde.getOffset() &&
+          rel.targetRef().getOutputOffset() < fde.getOffset() + fde.size()) {
+        // Make this relocation to be ignored.
+        const_cast<Relocation&>(rel).setType(0x0);
+      }
+    }
+  }
+}
+
+void EhFrame::removeAndUpdateCIEForFDE(EhFrame& pInFrame,
+                                       CIE& pInCIE, CIE& pOutCIE)
+{
+  // Make this relocation to be ignored.
+  Relocation* rel = const_cast<Relocation*>(pInCIE.getRelocation());
+  if (rel)
+    rel->setType(0x0);
+
+  // Update the CIE-pointed FDEs
+  for (fde_iterator i = pInCIE.begin(), e = pInCIE.end(); i != e; ++i)
+    (*i)->setCIE(pOutCIE);
+
+  // Take out the CIE fragment from SectionData
+  SectionData::iterator frag_iter(pInCIE);
+  pInFrame.getSectionData()->getFragmentList().remove(frag_iter);
+
+  pInCIE.clearFDEs();
+  delete &pInCIE;
+}
+
+void EhFrame::moveInputFragments(EhFrame& pInFrame,
+                                 CIE& pInCIE, CIE* pOutCIE)
+{
+  SectionData& in_sd = *pInFrame.getSectionData();
+  SectionData::FragmentListType& in_frag_list = in_sd.getFragmentList();
+  SectionData& out_sd = *getSectionData();
+  SectionData::FragmentListType& out_frag_list = out_sd.getFragmentList();
+
+  if (!pOutCIE) {
+    // Newly inserted
+    Fragment* frag = in_frag_list.remove(SectionData::iterator(pInCIE));
+    out_frag_list.push_back(frag);
+    for (fde_iterator i = pInCIE.begin(), e = pInCIE.end(); i != e; ++i) {
+      frag = in_frag_list.remove(SectionData::iterator(**i));
+      out_frag_list.push_back(frag);
+      frag->setParent(&out_sd);
+    }
+    return;
+  }
+
+  SectionData::iterator cur_iter(*pOutCIE);
+  assert (cur_iter != out_frag_list.end());
+  for (fde_iterator i = pInCIE.begin(), e = pInCIE.end(); i != e; ++i) {
+    Fragment* frag = in_frag_list.remove(SectionData::iterator(**i));
+    cur_iter = out_frag_list.insertAfter(cur_iter, frag);
+    frag->setParent(&out_sd);
+  }
+}
+
+size_t EhFrame::computeOffsetSize()
+{
+  size_t offset = 0u;
+  SectionData::FragmentListType& frag_list = getSectionData()->getFragmentList();
+  for (SectionData::iterator i = frag_list.begin(), e = frag_list.end();
+       i != e; ++i) {
+    Fragment& frag = *i;
+    frag.setParent(getSectionData());
+    frag.setOffset(offset);
+    offset += frag.size();
+  }
+  getSection().setSize(offset);
+  return offset;
+}
+
+bool mcld::operator==(const EhFrame::CIE& p1, const EhFrame::CIE& p2)
+{
+  return p1.getPersonalityName() == p2.getPersonalityName() &&
+         p1.getAugmentationData() == p2.getAugmentationData();
 }

@@ -97,13 +97,13 @@ void ELFObjectWriter::writeSection(MemoryArea& pOutput, LDSection *section)
   // Write out sections with data
   switch(section->kind()) {
   case LDFileFormat::GCCExceptTable:
-  case LDFileFormat::EhFrame:
   case LDFileFormat::Regular:
   case LDFileFormat::Debug:
   case LDFileFormat::Note:
-    // FIXME: if optimization of exception handling sections is enabled,
-    // then we should emit these sections by the other way.
     emitSectionData(*section, *region);
+    break;
+  case LDFileFormat::EhFrame:
+    emitEhFrame(*section->getEhFrame(), *region);
     break;
   case LDFileFormat::Relocation:
     // sort relocation for the benefit of the dynamic linker.
@@ -394,6 +394,37 @@ ELFObjectWriter::emitSectionData(const LDSection& pSection,
       break;
   }
   emitSectionData(*sd, pRegion);
+}
+
+/// emitEhFrame
+void ELFObjectWriter::emitEhFrame(EhFrame& pFrame, MemoryRegion& pRegion) const
+{
+  emitSectionData(*pFrame.getSectionData(), pRegion);
+
+  // Patch FDE field (offset to CIE)
+  for (EhFrame::cie_iterator i = pFrame.cie_begin(), e = pFrame.cie_end();
+       i != e; ++i) {
+    EhFrame::CIE& cie = **i;
+    if (cie.getRecordType() == EhFrame::RECORD_GENERATED)
+      continue; // TODO: CIE entry for PLT
+
+    for (EhFrame::fde_iterator fi = cie.begin(), fe = cie.end();
+         fi != fe; ++fi) {
+      EhFrame::FDE& fde = **fi;
+      if (fde.getRecordType() == EhFrame::RECORD_GENERATED)
+        continue; // TODO: FDE entry for PLT
+
+      uint64_t fde_cie_ptr_offset = fde.getOffset() +
+                                    EhFrame::getLengthAndIDOffset() - /*ID*/4;
+      uint64_t cie_start_offset = cie.getOffset();
+      int32_t offset = 0;
+      if (fde_cie_ptr_offset > cie_start_offset)
+        offset = fde_cie_ptr_offset - cie_start_offset;
+      else
+        offset = 0 - (int32_t)(cie_start_offset - fde_cie_ptr_offset);
+      memcpy(pRegion.getBuffer(fde_cie_ptr_offset), &offset, 4);
+    } // for loop fde_iterator
+  } // for loop cie_iterator
 }
 
 /// emitRelocation
