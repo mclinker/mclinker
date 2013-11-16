@@ -473,17 +473,7 @@ bool ObjectLinker::scanRelocations()
       RelocData::iterator reloc, rEnd = (*rs)->getRelocData()->end();
       for (reloc = (*rs)->getRelocData()->begin(); reloc != rEnd; ++reloc) {
         Relocation* relocation = llvm::cast<Relocation>(reloc);
-
-        // Someone changes the relocation before and
-        // want the relocator ignore this.
-        if (relocation->type() == 0x0)
-          continue;
-
-        // bypass the reloc if the symbol is in the discarded input section
-        ResolveInfo* info = relocation->symInfo();
-        if (!info->outSymbol()->hasFragRef() &&
-            ResolveInfo::Section == info->type() &&
-            ResolveInfo::Undefined == info->desc())
+        if (relocation->shouldIgnore())
           continue;
 
         // scan relocation
@@ -669,17 +659,7 @@ bool ObjectLinker::relocation()
       RelocData::iterator reloc, rEnd = (*rs)->getRelocData()->end();
       for (reloc = (*rs)->getRelocData()->begin(); reloc != rEnd; ++reloc) {
         Relocation* relocation = llvm::cast<Relocation>(reloc);
-
-        // Someone changes the relocation before and
-        // want the relocator ignore this.
-        if (relocation->type() == 0x0)
-          continue;
-
-        // bypass the reloc if the symbol is in the discarded input section
-        ResolveInfo* info = relocation->symInfo();
-        if (!info->outSymbol()->hasFragRef() &&
-            ResolveInfo::Section == info->type() &&
-            ResolveInfo::Undefined == info->desc())
+        if (relocation->shouldIgnore())
           continue;
 
         relocation->apply(*m_LDBackend.getRelocator());
@@ -743,22 +723,9 @@ void ObjectLinker::normalSyncRelocationResult(MemoryArea& pOutput)
       RelocData::iterator reloc, rEnd = (*rs)->getRelocData()->end();
       for (reloc = (*rs)->getRelocData()->begin(); reloc != rEnd; ++reloc) {
         Relocation* relocation = llvm::cast<Relocation>(reloc);
-
-        // bypass the reloc if the symbol is in the discarded input section
-        ResolveInfo* info = relocation->symInfo();
-        if (!info->outSymbol()->hasFragRef() &&
-            ResolveInfo::Section == info->type() &&
-            ResolveInfo::Undefined == info->desc())
+        if (relocation->shouldIgnore())
           continue;
 
-        // bypass the relocation with NONE type. This is to avoid overwrite the
-        // target result by NONE type relocation if there is a place which has
-        // two relocations to apply to, and one of it is NONE type. The result
-        // we want is the value of the other relocation result. For example,
-        // in .exidx, there are usually an R_ARM_NONE and R_ARM_PREL31 apply to
-        // the same place
-        if (0x0 == relocation->type())
-          continue;
         writeRelocationResult(*relocation, data);
       } // for all relocations
     } // for all relocation section

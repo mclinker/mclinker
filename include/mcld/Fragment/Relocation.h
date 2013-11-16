@@ -109,6 +109,12 @@ public:
 
   void setSymInfo(ResolveInfo* pSym);
 
+  /// setIgnore - Someone can call this if it found this relocation should
+  /// do nothing. This may happen when we merge or drop some section or symbol
+  /// in the middle of whole linking flow.
+  void setIgnore() { m_Type = 0x0; }
+  bool shouldIgnore() const;
+
 private:
   /// m_Type - the type of the relocation entries
   Type m_Type;

@@ -295,7 +295,7 @@ void EhFrame::removeDiscardedFDE(CIE& pCIE, const LDSection* pRelocSect)
       if (rel.targetRef().getOutputOffset() >= fde.getOffset() &&
           rel.targetRef().getOutputOffset() < fde.getOffset() + fde.size()) {
         // Make this relocation to be ignored.
-        const_cast<Relocation&>(rel).setType(0x0);
+        const_cast<Relocation&>(rel).setIgnore();
       }
     }
   }
@@ -307,7 +307,7 @@ void EhFrame::removeAndUpdateCIEForFDE(EhFrame& pInFrame,
   // Make this relocation to be ignored.
   Relocation* rel = const_cast<Relocation*>(pInCIE.getRelocation());
   if (rel)
-    rel->setType(0x0);
+    rel->setIgnore();
 
   // Update the CIE-pointed FDEs
   for (fde_iterator i = pInCIE.begin(), e = pInCIE.end(); i != e; ++i)
