@@ -12,18 +12,21 @@
 #include <gtest.h>
 #endif
 
-#include <set>
-#include <queue>
 #include <map>
+#include <queue>
+#include <set>
+#include <vector>
 
 namespace mcld {
 
 class LDSection;
 class LinkerConfig;
 class Module;
+class LDSymbol;
 
 /** \class GarbageCollection
- *  \brief Implementation of garbage collection for --gc-section
+ *  \brief Implementation of garbage collection for --gc-section.
+ *  @ref GNU gold, gc.
  */
 class GarbageCollection
 {
@@ -31,25 +34,36 @@ public:
   GarbageCollection(const LinkerConfig& pConfig, Module& pModule);
   ~GarbageCollection();
 
+  /// setEntrySymbol - set up the entry symbol for executable
+  void setEntrySymbol(const LDSymbol& pEntry)
+  { m_pEntry = &pEntry; }
+
+  /// run - do garbage collection
   bool run();
 
 private:
-  typedef std::set<LDSection*> SectionListTy;
-  typedef std::queue<LDSection*> WorkListTy;
-  typedef std::map<LDSection*, SectionListTy> ReachedSectionsTy;
+  typedef std::set<const LDSection*> SectionListTy;
+  typedef std::queue<const LDSection*> WorkListTy;
+  typedef std::map<const LDSection*, SectionListTy> ReachedSectionsTy;
+  typedef std::vector<const LDSection*> SectionVecTy;
 
 private:
-  /// m_WorkList - a list of sections waiting to be processed
-  WorkListTy m_WorkList;
+  void setUpReachedSections();
+  void findReferencedSections();
+  void stripSections();
 
+  void getEntrySections(SectionVecTy& pEntry);
+
+private:
   /// m_ReachedSections - map a section to the reachable sections list
   ReachedSectionsTy m_ReachedSections;
 
-  /// m_ReferencedSections - a list of sections which can be
+  /// m_ReferencedSections - a list of sections which can be reached from entry
   SectionListTy m_ReferencedSections;
 
   const LinkerConfig& m_Config;
   Module& m_Module;
+  const LDSymbol* m_pEntry;
 };
 
 } // namespace of mcld
