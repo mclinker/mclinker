@@ -1145,6 +1145,7 @@ static bool ProcessLinkerOptionsFromCommand(mcld::LinkerScript& pScript,
   pConfig.options().setHashStyle(ArgHashStyle);
   pConfig.options().setNoStdlib(ArgNoStdlib);
   pConfig.options().setPrintMap(ArgPrintMap);
+  pConfig.options().setGCSections(ArgGCSections);
   pConfig.options().setGPSize(ArgGPSize);
   if (ArgNoWarnMismatch)
     pConfig.options().setWarnMismatch(false);
