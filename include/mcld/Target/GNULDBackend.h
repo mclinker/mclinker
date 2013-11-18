@@ -296,6 +296,9 @@ public:
   LDSymbol& getTBSSSymbol();
   const LDSymbol& getTBSSSymbol() const;
 
+  /// getEntry - get the entry point name
+  llvm::StringRef getEntry(const Module& pModule) const;
+
   //  -----  relaxation  -----  //
   /// initBRIslandFactory - initialize the branch island factory for relaxation
   bool initBRIslandFactory();

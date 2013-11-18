@@ -9,6 +9,7 @@
 #ifndef MCLD_TARGET_TARGETLDBACKEND_H
 #define MCLD_TARGET_TARGETLDBACKEND_H
 
+#include <llvm/ADT/StringRef.h>
 #include <llvm/Support/DataTypes.h>
 
 namespace mcld {
@@ -132,6 +133,9 @@ public:
   /// sizeInterp - compute the size of program interpreter's name
   /// In ELF executables, this is the length of dynamic linker's path name
   virtual void sizeInterp() = 0;
+
+  /// getEntry - get the entry point name
+  virtual llvm::StringRef getEntry(const Module& pModule) const = 0;
 
   // -----  relaxation  ----- //
   virtual bool initBRIslandFactory() = 0;

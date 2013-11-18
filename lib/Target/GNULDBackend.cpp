@@ -2959,6 +2959,14 @@ const LDSymbol& GNULDBackend::getTBSSSymbol() const
   return *f_pTBSS;
 }
 
+llvm::StringRef GNULDBackend::getEntry(const Module& pModule) const
+{
+  if (pModule.getScript().hasEntry())
+    return pModule.getScript().entry();
+  else
+    return getInfo().entry();
+}
+
 void GNULDBackend::checkAndSetHasTextRel(const LDSection& pSection)
 {
   if (m_bHasTextRel)
