@@ -72,6 +72,8 @@ EhFrameReader::scan<true>(ConstAddress pHandler,
     extended |= data[cur_idx++];
     result.size = extended + 12;
     result.data_off = 16;
+    // 64-bit obj file still uses 32-bit eh_frame.
+    assert (false && "We don't support 64-bit eh_frame.");
   }
   else {
     result.size = length + 4;
@@ -121,7 +123,6 @@ bool EhFrameReader::read<32, true>(Input& pInput, EhFrame& pEhFrame)
     { addCIE, addFDE, addTerm, reject}, // Q1
   };
 
-  EhFrame::setLengthAndIDOffset(EhFrame::OFFSET_32BIT);
   LDSection& section = pEhFrame.getSection();
   if (section.size() == 0x0) {
     NullFragment* frag = new NullFragment();

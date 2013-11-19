@@ -46,11 +46,6 @@ private:
   EhFrame& operator=(const EhFrame&); // DO NOT IMPLEMENT
 
 public:
-  enum DataStartOffset {
-    OFFSET_32BIT = 8,   /*Length + ID*/
-    OFFSET_64BIT = 16   /*Length + Extend Length + ID*/
-  };
-
   enum RecordType {
     RECORD_UNKNOWN,
     RECORD_INPUT,
@@ -172,7 +167,6 @@ public:
     virtual RecordType getRecordType() const { return RECORD_GENERATED; }
   };
 
-
 public:
   static EhFrame* Create(LDSection& pSection);
 
@@ -212,11 +206,14 @@ public:
   size_t numOfCIEs() const { return m_CIEs.size(); }
   size_t numOfFDEs() const;
 
-  static void setLengthAndIDOffset(DataStartOffset offset) { g_Offset = offset; }
-  static DataStartOffset getLengthAndIDOffset() { return g_Offset; }
-
 public:
   size_t computeOffsetSize();
+
+  /// getDataStartOffset - Get the offset after length and ID field.
+  /// The offset is 8byte for 32b, and 16byte for 64b.
+  /// We can just use "BITCLASS/4" to represent offset.
+  template <size_t BITCLASS>
+  static size_t getDataStartOffset() { return BITCLASS / 4; }
 
 private:
   // We needs to check if it is mergeable and check personality name
@@ -240,8 +237,6 @@ private:
   // However, don't forget we need to handle the Fragments inside SectionData
   // correctly since they are truly used when output emission.
   CIEList m_CIEs;
-
-  static DataStartOffset g_Offset;  // Only different between 32b and 64b
 };
 
 bool operator==(const EhFrame::CIE&, const EhFrame::CIE&);

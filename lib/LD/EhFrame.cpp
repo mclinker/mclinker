@@ -93,8 +93,6 @@ EhFrame::GeneratedFDE::~GeneratedFDE()
 //===----------------------------------------------------------------------===//
 // EhFrame
 //===----------------------------------------------------------------------===//
-EhFrame::DataStartOffset EhFrame::g_Offset = EhFrame::OFFSET_32BIT;
-
 EhFrame::EhFrame()
   : m_pSection(NULL), m_pSectionData(NULL) {
 }
@@ -273,7 +271,7 @@ void EhFrame::removeDiscardedFDE(CIE& pCIE, const LDSection* pRelocSect)
          re = reloc_data->end(); ri != re; ++ri) {
       const Relocation& rel = *ri;
       if (rel.targetRef().getOutputOffset() == fde.getOffset() +
-                                               getLengthAndIDOffset()) {
+                                               getDataStartOffset<32>()) {
         bool has_section = rel.symInfo()->outSymbol()->hasFragRef();
         if (!has_section)
           // The section was discarded, just ignore this FDE.

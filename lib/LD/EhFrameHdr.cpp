@@ -175,7 +175,7 @@ uint32_t EhFrameHdr::computePCBegin(const EhFrame::FDE& pFDE,
   SizeTraits<32>::Address pc = 0x0;
   const uint8_t* offset = (const uint8_t*) pEhFrameRegion.start() +
                           pFDE.getOffset() +
-                          EhFrame::getLengthAndIDOffset();
+                          EhFrame::getDataStartOffset<32>();
   std::memcpy(&pc, offset, pc_size);
 
   // adjust the signed value
@@ -190,7 +190,7 @@ uint32_t EhFrameHdr::computePCBegin(const EhFrame::FDE& pFDE,
       break;
     case DW_EH_PE_pcrel:
       pc += m_EhFrame.addr() + pFDE.getOffset() +
-                               EhFrame::getLengthAndIDOffset();
+                               EhFrame::getDataStartOffset<32>();
       break;
     case DW_EH_PE_datarel:
       // TODO

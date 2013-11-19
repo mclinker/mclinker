@@ -415,7 +415,8 @@ void ELFObjectWriter::emitEhFrame(EhFrame& pFrame, MemoryRegion& pRegion) const
         continue; // TODO: FDE entry for PLT
 
       uint64_t fde_cie_ptr_offset = fde.getOffset() +
-                                    EhFrame::getLengthAndIDOffset() - /*ID*/4;
+                                    EhFrame::getDataStartOffset<32>() -
+                                    /*ID*/4;
       uint64_t cie_start_offset = cie.getOffset();
       int32_t offset = 0;
       if (fde_cie_ptr_offset > cie_start_offset)
