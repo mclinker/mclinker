@@ -53,7 +53,8 @@ ELFObjectWriter::~ELFObjectWriter()
 {
 }
 
-void ELFObjectWriter::writeSection(MemoryArea& pOutput, LDSection *section)
+void ELFObjectWriter::writeSection(Module& pModule,
+                                   MemoryArea& pOutput, LDSection *section)
 {
   MemoryRegion* region;
   // Request output region
@@ -103,7 +104,7 @@ void ELFObjectWriter::writeSection(MemoryArea& pOutput, LDSection *section)
     emitSectionData(*section, *region);
     break;
   case LDFileFormat::EhFrame:
-    emitEhFrame(*section->getEhFrame(), *region);
+    emitEhFrame(pModule, *section->getEhFrame(), *region);
     break;
   case LDFileFormat::Relocation:
     // sort relocation for the benefit of the dynamic linker.
@@ -153,14 +154,14 @@ llvm::error_code ELFObjectWriter::writeObject(Module& pModule,
       if (llvm::ELF::PT_LOAD == (*seg)->type()) {
         ELFSegment::iterator sect, sectEnd = (*seg)->end();
         for (sect = (*seg)->begin(); sect != sectEnd; ++sect)
-          writeSection(pOutput, *sect);
+          writeSection(pModule, pOutput, *sect);
       }
     }
   } else {
     // Write out regular ELF sections
     Module::iterator sect, sectEnd = pModule.end();
     for (sect = pModule.begin(); sect != sectEnd; ++sect)
-      writeSection(pOutput, *sect);
+      writeSection(pModule, pOutput, *sect);
 
     emitShStrTab(target().getOutputFormat()->getShStrTab(), pModule, pOutput);
 
@@ -397,7 +398,8 @@ ELFObjectWriter::emitSectionData(const LDSection& pSection,
 }
 
 /// emitEhFrame
-void ELFObjectWriter::emitEhFrame(EhFrame& pFrame, MemoryRegion& pRegion) const
+void ELFObjectWriter::emitEhFrame(Module& pModule,
+                                  EhFrame& pFrame, MemoryRegion& pRegion) const
 {
   emitSectionData(*pFrame.getSectionData(), pRegion);
 
@@ -405,24 +407,35 @@ void ELFObjectWriter::emitEhFrame(EhFrame& pFrame, MemoryRegion& pRegion) const
   for (EhFrame::cie_iterator i = pFrame.cie_begin(), e = pFrame.cie_end();
        i != e; ++i) {
     EhFrame::CIE& cie = **i;
-    if (cie.getRecordType() == EhFrame::RECORD_GENERATED)
-      continue; // TODO: CIE entry for PLT
-
     for (EhFrame::fde_iterator fi = cie.begin(), fe = cie.end();
          fi != fe; ++fi) {
       EhFrame::FDE& fde = **fi;
-      if (fde.getRecordType() == EhFrame::RECORD_GENERATED)
-        continue; // TODO: FDE entry for PLT
-
+      if (fde.getRecordType() == EhFrame::RECORD_GENERATED) {
+        // Patch PLT offset
+        LDSection* plt_sect = pModule.getSection(".plt");
+        assert (plt_sect && "We have no plt but have corresponding eh_frame?");
+        uint64_t plt_offset = plt_sect->offset();
+        // FDE entry for PLT is always 32-bit
+        uint64_t fde_offset = pFrame.getSection().offset() + fde.getOffset() +
+                              EhFrame::getDataStartOffset<32>();
+        int32_t offset = fde_offset - plt_offset;
+        if (plt_offset < fde_offset)
+          offset = -offset;
+        memcpy(pRegion.getBuffer(fde.getOffset() +
+                                 EhFrame::getDataStartOffset<32>()),
+                                 &offset, 4);
+        uint32_t size = plt_sect->size();
+        memcpy(pRegion.getBuffer(fde.getOffset() +
+                                 EhFrame::getDataStartOffset<32>() + 4),
+                                 &size, 4);
+      }
       uint64_t fde_cie_ptr_offset = fde.getOffset() +
                                     EhFrame::getDataStartOffset<32>() -
                                     /*ID*/4;
       uint64_t cie_start_offset = cie.getOffset();
-      int32_t offset = 0;
-      if (fde_cie_ptr_offset > cie_start_offset)
-        offset = fde_cie_ptr_offset - cie_start_offset;
-      else
-        offset = 0 - (int32_t)(cie_start_offset - fde_cie_ptr_offset);
+      int32_t offset = fde_cie_ptr_offset - cie_start_offset;
+      if (fde_cie_ptr_offset < cie_start_offset)
+        offset = -offset;
       memcpy(pRegion.getBuffer(fde_cie_ptr_offset), &offset, 4);
     } // for loop fde_iterator
   } // for loop cie_iterator

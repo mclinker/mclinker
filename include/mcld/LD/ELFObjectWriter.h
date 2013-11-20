@@ -46,7 +46,7 @@ public:
   llvm::error_code writeObject(Module& pModule, MemoryArea& pOutput);
 
 private:
-  void writeSection(MemoryArea& pOutput, LDSection *section);
+  void writeSection(Module& pModule, MemoryArea& pOutput, LDSection *section);
 
   GNULDBackend&       target()        { return m_Backend; }
 
@@ -79,7 +79,8 @@ private:
   void emitSectionData(const LDSection& pSection,
                        MemoryRegion& pRegion) const;
 
-  void emitEhFrame(EhFrame& pFrame, MemoryRegion& pRegion) const;
+  void emitEhFrame(Module& pModule,
+                   EhFrame& pFrame, MemoryRegion& pRegion) const;
 
   void emitRelocation(const LinkerConfig& pConfig,
                       const LDSection& pSection,

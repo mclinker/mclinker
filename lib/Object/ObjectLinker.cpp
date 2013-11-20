@@ -312,11 +312,6 @@ bool ObjectLinker::mergeSections()
     } // for each section
   } // for each obj
 
-  LDSection* eh_frame_sect = m_pModule->getSection(".eh_frame");
-  if (eh_frame_sect)
-    if (eh_frame_sect->hasEhFrame())
-      eh_frame_sect->getEhFrame()->computeOffsetSize();
-
   RpnEvaluator evaluator(*m_pModule, m_LDBackend);
   SectionMap::iterator out, outBegin, outEnd;
   outBegin = m_pModule->getScript().sectionMap().begin();
@@ -549,6 +544,15 @@ bool ObjectLinker::prelayout()
   /// @note sizeNamePools replies on LinkerConfig::CodePosition. Must determine
   /// code position model before calling GNULDBackend::sizeNamePools()
   m_LDBackend.sizeNamePools(*m_pModule);
+
+  /// Some targets need eh_frame CIE/FDE for PLT
+  m_LDBackend.addEhFrameForPLT(*m_pModule);
+  LDSection* eh_frame_sect = m_pModule->getSection(".eh_frame");
+  if (eh_frame_sect && eh_frame_sect->hasEhFrame())
+    eh_frame_sect->getEhFrame()->computeOffsetSize();
+
+  /// Must after addEhFrameForPLT
+  m_LDBackend.createAndSizeEhFrameHdr(*m_pModule);
 
   return true;
 }

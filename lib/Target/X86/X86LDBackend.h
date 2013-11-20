@@ -104,6 +104,8 @@ public:
   Relocation::Type getCopyRelType()    const { return m_CopyRel;    }
   Relocation::Type getPointerRelType() const { return m_PointerRel; }
 
+  void addEhFrameForPLT(Module& pModule);
+
 protected:
   void defineGOTSymbol(IRBuilder& pBuilder, Fragment&);
 
@@ -129,6 +131,9 @@ private:
 
   virtual void setRelDynSize() = 0;
   virtual void setRelPLTSize() = 0;
+
+  virtual MemoryRegion* createCIEMemoryRegionForPLT() = 0;
+  virtual MemoryRegion* createFDEMemoryRegionForPLT() = 0;
 
 protected:
   Relocator* m_pRelocator;
@@ -183,6 +188,9 @@ private:
   void setRelDynSize();
   void setRelPLTSize();
 
+  MemoryRegion* createCIEMemoryRegionForPLT();
+  MemoryRegion* createFDEMemoryRegionForPLT();
+
 private:
   X86_32GOT* m_pGOT;
   X86_32GOTPLT* m_pGOTPLT;
@@ -222,6 +230,9 @@ private:
 
   void setRelDynSize();
   void setRelPLTSize();
+
+  MemoryRegion* createCIEMemoryRegionForPLT();
+  MemoryRegion* createFDEMemoryRegionForPLT();
 
 private:
   X86_64GOT* m_pGOT;

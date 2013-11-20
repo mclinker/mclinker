@@ -24,6 +24,7 @@
 #include <mcld/Support/MsgHandling.h>
 #include <mcld/Support/TargetRegistry.h>
 #include <mcld/Object/ObjectBuilder.h>
+#include <llvm/Support/Dwarf.h>
 
 #include <cstring>
 
@@ -286,6 +287,56 @@ void X86GNULDBackend::initTargetSymbols(IRBuilder& pBuilder, Module& pModule)
   }
 }
 
+void X86GNULDBackend::addEhFrameForPLT(Module& pModule)
+{
+  LDSection* plt_sect = pModule.getSection(".plt");
+  if (!plt_sect || plt_sect->size() == 0u)
+    return;
+
+  LDSection* eh_sect = pModule.getSection(".eh_frame");
+  if (!eh_sect || !eh_sect->hasEhFrame())
+    return;
+
+  EhFrame* eh_frame = eh_sect->getEhFrame();
+  SectionData::FragmentListType& frag_list =
+      eh_frame->getSectionData()->getFragmentList();
+  MemoryRegion* cie_region = createCIEMemoryRegionForPLT();
+  MemoryRegion* fde_region = createFDEMemoryRegionForPLT();
+  if (!cie_region || !fde_region)
+    return;
+
+  EhFrame::CIE* cie = new EhFrame::GeneratedCIE(*cie_region);
+  EhFrame::FDE* fde = new EhFrame::GeneratedFDE(*fde_region, *cie);
+  // Augmentation data only contains FDE encoding.
+  uint8_t aug_data = (uint8_t)(llvm::dwarf::DW_EH_PE_pcrel |
+                               llvm::dwarf::DW_EH_PE_sdata4);
+  cie->setFDEEncode(aug_data);
+  cie->setAugmentationData(std::string(1, aug_data));
+
+  EhFrame::cie_iterator i = eh_frame->cie_begin();
+  for (EhFrame::cie_iterator e = eh_frame->cie_end(); i != e; ++i) {
+    EhFrame::CIE& exist_cie = **i;
+    if (exist_cie == *cie) {
+      // Insert the FDE fragment
+      SectionData::iterator cur_iter(exist_cie);
+      frag_list.insertAfter(cur_iter, fde);
+      fde->setCIE(exist_cie);
+
+      // Cleanup the CIE we created
+      cie->clearFDEs();
+      delete cie;
+      MemoryRegion::Destroy(cie_region);
+
+      break;
+    }
+  }
+  if (i == eh_frame->cie_end()) {
+    // Newly insert
+    eh_frame->addCIE(*cie);
+    eh_frame->addFDE(*fde);
+  }
+}
+
 /// finalizeSymbol - finalize the symbol value
 bool X86GNULDBackend::finalizeTargetSymbols()
 {
@@ -373,6 +424,59 @@ const X86_32GOTPLT& X86_32GNULDBackend::getGOTPLT() const
 {
   assert(NULL != m_pGOTPLT);
   return *m_pGOTPLT;
+}
+
+MemoryRegion* X86_32GNULDBackend::createCIEMemoryRegionForPLT()
+{
+  using namespace llvm::dwarf;
+  static const uint8_t data[4+4+16] = {
+    0x14, 0, 0, 0, // length
+    0, 0, 0, 0, // ID
+    1,  // version
+    'z', 'R', '\0', // augmentation string
+    1,  // code alignment factor
+    0x7c, // data alignment factor
+    8,  // return address column
+    1,  // augmentation data size
+    DW_EH_PE_pcrel | DW_EH_PE_sdata4, // FDE encoding
+    DW_CFA_def_cfa, 4, 4,
+    DW_CFA_offset + 8, 1,
+    DW_CFA_nop,
+    DW_CFA_nop
+  };
+  return MemoryRegion::Create((void*)data, 4+4+16);
+}
+
+MemoryRegion* X86_32GNULDBackend::createFDEMemoryRegionForPLT()
+{
+  using namespace llvm::dwarf;
+  static const uint8_t data[4+4+32] = {
+    0x24, 0, 0, 0,  // length
+    0, 0, 0, 0,   // offset to CIE
+    0, 0, 0, 0,   // offset to PLT
+    0, 0, 0, 0,   // size of PLT
+    0,            // augmentation data size
+    DW_CFA_def_cfa_offset, 8,
+    DW_CFA_advance_loc + 6,
+    DW_CFA_def_cfa_offset, 12,
+    DW_CFA_advance_loc + 10,
+    DW_CFA_def_cfa_expression,
+    11,
+    DW_OP_breg4, 4,
+    DW_OP_breg8, 0,
+    DW_OP_lit15,
+    DW_OP_and,
+    DW_OP_lit11,
+    DW_OP_ge,
+    DW_OP_lit2,
+    DW_OP_shl,
+    DW_OP_plus,
+    DW_CFA_nop,
+    DW_CFA_nop,
+    DW_CFA_nop,
+    DW_CFA_nop
+  };
+  return MemoryRegion::Create((void*)data, 4+4+32);
 }
 
 void X86_32GNULDBackend::setRelDynSize()
@@ -490,6 +594,59 @@ const X86_64GOTPLT& X86_64GNULDBackend::getGOTPLT() const
 {
   assert(NULL != m_pGOTPLT);
   return *m_pGOTPLT;
+}
+
+MemoryRegion* X86_64GNULDBackend::createCIEMemoryRegionForPLT()
+{
+  using namespace llvm::dwarf;
+  static const uint8_t data[4+4+16] = {
+    0x14, 0, 0, 0,  // length
+    0, 0, 0, 0,   // ID
+    1,          // CIE version
+    'z', 'R', '\0', // augmentation string
+    1,          // code alignment factor
+    0x78,       // data alignment factor
+    16,         // return address column
+    1,          // augmentation data size
+    DW_EH_PE_pcrel | DW_EH_PE_sdata4, // FDE encoding
+    DW_CFA_def_cfa, 7, 8,
+    DW_CFA_offset + 16, 1,
+    DW_CFA_nop,
+    DW_CFA_nop
+  };
+  return MemoryRegion::Create((void*)data, 4+4+16);
+}
+
+MemoryRegion* X86_64GNULDBackend::createFDEMemoryRegionForPLT()
+{
+  using namespace llvm::dwarf;
+  static const uint8_t data[4+4+32] = {
+    0x24, 0, 0, 0,  // length
+    0, 0, 0, 0,   // ID
+    0, 0, 0, 0,   // offset to PLT
+    0, 0, 0, 0,   // size of PLT
+    0,            // augmentation data size
+    DW_CFA_def_cfa_offset, 16,
+    DW_CFA_advance_loc + 6,
+    DW_CFA_def_cfa_offset, 24,
+    DW_CFA_advance_loc + 10,
+    DW_CFA_def_cfa_expression,
+    11,
+    DW_OP_breg7, 8,
+    DW_OP_breg16, 0,
+    DW_OP_lit15,
+    DW_OP_and,
+    DW_OP_lit11,
+    DW_OP_ge,
+    DW_OP_lit3,
+    DW_OP_shl,
+    DW_OP_plus,
+    DW_CFA_nop,
+    DW_CFA_nop,
+    DW_CFA_nop,
+    DW_CFA_nop
+  };
+  return MemoryRegion::Create((void*)data, 4+4+32);
 }
 
 void X86_64GNULDBackend::setRelDynSize()

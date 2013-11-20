@@ -323,6 +323,14 @@ public:
   /// process relocations more efficiently
   void sortRelocation(LDSection& pSection);
 
+  /// addEhFrameForPLT - some targets needs eh_frame entry for plt
+  /// when unwinding
+  void addEhFrameForPLT(Module& pModule) {}
+
+  /// createAndSizeEhFrameHdr - This is seperated since we may add eh_frame
+  /// entry in the middle
+  void createAndSizeEhFrameHdr(Module& pModule);
+
   /// attribute - the attribute section data.
   ELFAttribute& attribute() { return *m_pAttribute; }
 

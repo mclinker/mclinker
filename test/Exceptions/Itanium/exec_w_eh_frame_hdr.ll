@@ -32,5 +32,5 @@
 ; RUN: readelf -S %t.out | \
 ; RUN: grep -o "\.eh_frame_hdr *PROGBITS *[0-9a-f]* *[0-9a-f]* *[0-9a-f]*" | \
 ; RUN: awk '{print $5}' | FileCheck %s -check-prefix=SIZE
-; SIZE: 00002c
+; SIZE: 000034
 

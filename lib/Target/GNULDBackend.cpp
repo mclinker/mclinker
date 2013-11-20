@@ -2564,12 +2564,8 @@ void GNULDBackend::layout(Module& pModule)
     setOutputSectionOffset(pModule);
 }
 
-/// preLayout - Backend can do any needed modification before layout
-void GNULDBackend::preLayout(Module& pModule, IRBuilder& pBuilder)
+void GNULDBackend::createAndSizeEhFrameHdr(Module& pModule)
 {
-  // prelayout target first
-  doPreLayout(pBuilder);
-
   if (LinkerConfig::Object != config().codeGenType() &&
       config().options().hasEhFrameHdr() && getOutputFormat()->hasEhFrame()) {
     // init EhFrameHdr and size the output section
@@ -2578,6 +2574,13 @@ void GNULDBackend::preLayout(Module& pModule, IRBuilder& pBuilder)
                                    format->getEhFrame());
     m_pEhFrameHdr->sizeOutput();
   }
+}
+
+/// preLayout - Backend can do any needed modification before layout
+void GNULDBackend::preLayout(Module& pModule, IRBuilder& pBuilder)
+{
+  // prelayout target first
+  doPreLayout(pBuilder);
 
   // change .tbss and .tdata section symbol from Local to LocalDyn category
   if (NULL != f_pTDATA)
