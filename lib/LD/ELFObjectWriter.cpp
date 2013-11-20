@@ -251,12 +251,7 @@ void ELFObjectWriter::writeELFHeader(const LinkerConfig& pConfig,
 uint64_t ELFObjectWriter::getEntryPoint(const LinkerConfig& pConfig,
                                         const Module& pModule) const
 {
-  llvm::StringRef entry_name;
-  if (pModule.getScript().hasEntry())
-    entry_name = pModule.getScript().entry();
-  else
-    entry_name = target().getInfo().entry();
-
+  llvm::StringRef entry_name = target().getEntry(pModule);
   uint64_t result = 0x0;
 
   bool issue_warning = (pModule.getScript().hasEntry() &&
