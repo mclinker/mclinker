@@ -7,14 +7,13 @@
 //
 //===----------------------------------------------------------------------===//
 #include "MipsELFMCLinker.h"
-#include <mcld/LinkerConfig.h>
 
 using namespace mcld;
 
 MipsELFMCLinker::MipsELFMCLinker(LinkerConfig& pConfig,
                                  mcld::Module& pModule,
-                                 MemoryArea& pOutput)
-  : ELFMCLinker(pConfig, pModule, pOutput) {
+                                 FileHandle& pFileHandle)
+  : ELFMCLinker(pConfig, pModule, pFileHandle) {
 }
 
 MipsELFMCLinker::~MipsELFMCLinker()

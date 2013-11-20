@@ -45,11 +45,11 @@ MCLinker*
 Target::createMCLinker(const std::string &pTriple,
                        LinkerConfig& pConfig,
                        Module& pModule,
-                       MemoryArea& pOutput) const
+                       FileHandle& pFileHandle) const
 {
   if (NULL == MCLinkerCtorFn)
     return NULL;
-  return MCLinkerCtorFn(pTriple, pConfig, pModule, pOutput);
+  return MCLinkerCtorFn(pTriple, pConfig, pModule, pFileHandle);
 }
 
 /// emulate - given MCLinker default values for the other aspects of the

@@ -16,7 +16,7 @@
 namespace mcld {
 
 class Module;
-class MemoryArea;
+class FileHandle;
 
 /** \class ARMELFMCLinker
  *  \brief ARMELFMCLinker sets up the environment for linking.
@@ -26,7 +26,7 @@ class ARMELFMCLinker : public ELFMCLinker
 public:
   ARMELFMCLinker(LinkerConfig& pConfig,
                  mcld::Module& pModule,
-                 MemoryArea& pOutput);
+                 FileHandle& pFileHandle);
 
   ~ARMELFMCLinker();
 };

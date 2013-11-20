@@ -969,11 +969,11 @@ static mcld::ToolOutputFile *GetOutputStream(const char* pTargetName,
 
   // Open the file.
   mcld::ToolOutputFile* result_output =
-                      new mcld::ToolOutputFile(pOutputFilename,
-                                                 mcld::FileHandle::ReadWrite |
-                                                 mcld::FileHandle::Create |
-                                                 mcld::FileHandle::Truncate,
-                                               permission);
+    new mcld::ToolOutputFile(pOutputFilename,
+                             mcld::FileHandle::ReadWrite |
+                               mcld::FileHandle::Create |
+                               mcld::FileHandle::Truncate,
+                             permission);
 
   return result_output;
 }
@@ -1515,13 +1515,13 @@ int main(int argc, char* argv[])
 
   {
     // Ask the target to add backend passes as necessary.
-    if( TheTargetMachine.addPassesToEmitFile(PM,
-                                             *Out,
-                                             ArgFileType,
-                                             OLvl,
-                                             LDIRModule,
-                                             LDConfig,
-                                             NoVerify)) {
+    if(TheTargetMachine.addPassesToEmitFile(PM,
+                                            *Out,
+                                            ArgFileType,
+                                            OLvl,
+                                            LDIRModule,
+                                            LDConfig,
+                                            NoVerify)) {
       errs() << argv[0] << ": target does not support generation of this"
              << " file type!\n";
       return 1;

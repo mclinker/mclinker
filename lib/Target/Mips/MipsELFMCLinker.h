@@ -16,7 +16,7 @@
 namespace mcld {
 
 class Module;
-class MemoryArea;
+class FileHandle;
 
 /** \class MipsELFMCLinker
  *  \brief MipsELFMCLinker sets up the environment for linking.
@@ -26,7 +26,7 @@ class MipsELFMCLinker : public ELFMCLinker
 public:
   MipsELFMCLinker(LinkerConfig& pConfig,
                   mcld::Module& pModule,
-                  MemoryArea& pOutput);
+                  FileHandle& pFileHandle);
 
   ~MipsELFMCLinker();
 };

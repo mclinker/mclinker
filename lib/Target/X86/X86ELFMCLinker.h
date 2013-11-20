@@ -16,7 +16,7 @@
 namespace mcld {
 
 class Module;
-class MemoryArea;
+class FileHandle;
 
 /** \class X86ELFMCLinker
  *  \brief X86ELFMCLinker sets up the environment for linking.
@@ -28,7 +28,7 @@ class X86ELFMCLinker : public ELFMCLinker
 public:
   X86ELFMCLinker(LinkerConfig& pConfig,
                  mcld::Module& pModule,
-                 MemoryArea& pOutput);
+                 FileHandle& pFileHandle);
 
   ~X86ELFMCLinker();
 };

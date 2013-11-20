@@ -14,7 +14,6 @@
 #include <mcld/Support/raw_mem_ostream.h>
 #include <mcld/Support/TargetRegistry.h>
 #include <mcld/Support/ToolOutputFile.h>
-#include <mcld/Support/MemoryArea.h>
 #include <mcld/Target/TargetLDBackend.h>
 
 #include <llvm/ADT/OwningPtr.h>
@@ -227,7 +226,7 @@ bool mcld::MCLDTargetMachine::addPassesToEmitFile(PassManagerBase &pPM,
     if (getTM().hasMCSaveTempLabels())
       Context->setAllowTemporaryLabels(false);
     if (addAssemblerPasses(pPM,
-                           pOutput.mem_os(),
+                           pOutput.formatted_os(),
                            Context))
       return true;
     break;
@@ -237,7 +236,7 @@ bool mcld::MCLDTargetMachine::addPassesToEmitFile(PassManagerBase &pPM,
     if (addLinkerPasses(pPM,
                         pConfig,
                         pModule,
-                        pOutput.memory(),
+                        pOutput.fd(),
                         Context))
       return true;
     break;
@@ -247,7 +246,7 @@ bool mcld::MCLDTargetMachine::addPassesToEmitFile(PassManagerBase &pPM,
     if (addLinkerPasses(pPM,
                         pConfig,
                         pModule,
-                        pOutput.memory(),
+                        pOutput.fd(),
                         Context))
       return true;
     break;
@@ -257,7 +256,7 @@ bool mcld::MCLDTargetMachine::addPassesToEmitFile(PassManagerBase &pPM,
     if (addLinkerPasses(pPM,
                         pConfig,
                         pModule,
-                        pOutput.memory(),
+                        pOutput.fd(),
                         Context))
       return true;
     break;
@@ -267,7 +266,7 @@ bool mcld::MCLDTargetMachine::addPassesToEmitFile(PassManagerBase &pPM,
     if (addLinkerPasses(pPM,
                         pConfig,
                         pModule,
-                        pOutput.memory(),
+                        pOutput.fd(),
                         Context))
       return true;
     break;
@@ -355,26 +354,23 @@ bool mcld::MCLDTargetMachine::addAssemblerPasses(PassManagerBase &pPM,
 bool mcld::MCLDTargetMachine::addLinkerPasses(PassManagerBase &pPM,
                                               LinkerConfig& pConfig,
                                               mcld::Module& pModule,
-                                              mcld::MemoryArea& pOutput,
+                                              mcld::FileHandle& pFileHandle,
                                               llvm::MCContext *&Context)
 {
-  if (NULL == pOutput.handler())
-    return true;
-
   // set up output's SOName
   if (pConfig.options().soname().empty()) {
     // if the output is a shared object, and the option -soname was not
     // enable, set soname as the output file name. soname must be UTF-8 string.
-    pConfig.options().setSOName(pOutput.handler()->path().filename().native());
+    pConfig.options().setSOName(pFileHandle.path().filename().native());
   }
 
   // set up output module name
-  pModule.setName(pOutput.handler()->path().filename().native());
+  pModule.setName(pFileHandle.path().filename().native());
 
   MachineFunctionPass* funcPass = m_pMCLDTarget->createMCLinker(m_Triple,
                                                                 pConfig,
                                                                 pModule,
-                                                                pOutput);
+                                                                pFileHandle);
   if (NULL == funcPass)
     return true;
 

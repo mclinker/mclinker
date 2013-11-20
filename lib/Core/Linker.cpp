@@ -271,11 +271,8 @@ bool Linker::emit(const std::string& pPath)
     return false;
   }
 
-  MemoryArea* output = new MemoryArea(file);
-
-  bool result = emit(*output);
-
-  delete output;
+  MemoryArea output(file);
+  bool result = emit(output);
   file.close();
   return result;
 }
@@ -284,12 +281,10 @@ bool Linker::emit(int pFileDescriptor)
 {
   FileHandle file;
   file.delegate(pFileDescriptor);
-  MemoryArea* output = new MemoryArea(file);
 
-  bool result = emit(*output);
+  MemoryArea output(file);
+  bool result = emit(output);
 
-  delete output;
-  file.close();
   return result;
 }
 

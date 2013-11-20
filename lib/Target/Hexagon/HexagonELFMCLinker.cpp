@@ -7,14 +7,13 @@
 //
 //===----------------------------------------------------------------------===//
 #include "HexagonELFMCLinker.h"
-#include <mcld/LinkerConfig.h>
 
 using namespace mcld;
 
 HexagonELFMCLinker::HexagonELFMCLinker(LinkerConfig& pConfig,
                                        mcld::Module& pModule,
-                                       MemoryArea& pOutput)
-  : ELFMCLinker(pConfig, pModule, pOutput) {
+                                       FileHandle& pFileHandle)
+  : ELFMCLinker(pConfig, pModule, pFileHandle) {
 }
 
 HexagonELFMCLinker::~HexagonELFMCLinker()

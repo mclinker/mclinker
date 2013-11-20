@@ -23,7 +23,6 @@ namespace mcld {
 
 class Path;
 class FileHandle;
-class MemoryArea;
 class raw_mem_ostream;
 
 /** \class ToolOutputFile
@@ -42,14 +41,14 @@ public:
 
   ~ToolOutputFile();
 
-  /// mem_os - Return the contained raw_mem_ostream.
-  raw_mem_ostream &mem_os();
+  /// fd - Retutn the output file handle
+  FileHandle& fd() { return m_FileHandle; }
 
-  /// os - Return the contained formatted_raw_ostream
+  /// os - Return the contained raw_fd_ostream
+  llvm::raw_fd_ostream& os();
+
+  /// formatted_os - Return the contained formatted_raw_ostream
   llvm::formatted_raw_ostream& formatted_os();
-
-  /// memory - Return the contained MemoryArea.
-  MemoryArea& memory();
 
   /// keep - Indicate that the tool's job wrt this output file has been
   /// successful and the file should not be deleted.
@@ -73,13 +72,10 @@ private:
 private:
   FileHandle m_FileHandle;
   CleanupInstaller m_Installer;
-  MemoryArea* m_pMemoryArea;
-  raw_mem_ostream* m_pOStream;
-  llvm::formatted_raw_ostream* m_pFOStream;
-
+  llvm::raw_fd_ostream* m_pFdOstream;
+  llvm::formatted_raw_ostream* m_pFormattedOstream;
 };
 
 } // namespace of mcld
 
 #endif
-
