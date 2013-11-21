@@ -55,7 +55,7 @@ bool ELFAttribute::merge(const Input &pInput, LDSection &pInputAttrSectHdr)
   const RegionFragment& region_frag =
       llvm::cast<RegionFragment>(sect_data->front());
 
-  const MemoryRegion& region = region_frag.getRegion();
+  llvm::StringRef region = region_frag.getRegion();
 
   // Parse the ELF attribute section header. ARM [ABI-addenda], 2.2.3.
   //
@@ -63,7 +63,7 @@ bool ELFAttribute::merge(const Input &pInput, LDSection &pInputAttrSectHdr)
   // [ <uint32: subsection-length> NTBS: vendor-name
   //   <bytes: vendor-data>
   // ]*
-  const char *attribute_data = reinterpret_cast<const char*>(region.start());
+  const char *attribute_data = region.begin();
 
   // format-version
   if (attribute_data[0] != FormatVersion) {
@@ -76,8 +76,7 @@ bool ELFAttribute::merge(const Input &pInput, LDSection &pInputAttrSectHdr)
 
   // Iterate all subsections containing in this attribute section.
   do {
-    const char *subsection_data =
-        reinterpret_cast<const char*>(region.getBuffer(subsection_offset));
+    const char *subsection_data = region.begin() + subsection_offset;
 
     // subsection-length
     uint32_t subsection_length =
@@ -111,7 +110,8 @@ bool ELFAttribute::merge(const Input &pInput, LDSection &pInputAttrSectHdr)
                                 vendor_name_length;
 
       MemoryRegion::ConstAddress vendor_data =
-          region.getBuffer(vendor_data_offset);
+          reinterpret_cast<MemoryRegion::ConstAddress>(region.begin()) +
+          vendor_data_offset;
 
       // Merge the vendor data in the subsection.
       if (!subsection->merge(pInput, vendor_data, vendor_data_size))

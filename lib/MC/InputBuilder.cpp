@@ -131,10 +131,6 @@ bool InputBuilder::setMemory(Input& pInput,
                              FileHandle::Permission pPerm)
 {
   MemoryArea *memory = m_pMemFactory->produce(pInput.path(), pMode, pPerm);
-
-  if (!memory->handler()->isGood())
-    return false;
-
   pInput.setMemArea(memory);
   return true;
 }

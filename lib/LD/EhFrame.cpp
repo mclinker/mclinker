@@ -24,14 +24,14 @@ static llvm::ManagedStatic<EhFrameFactory> g_EhFrameFactory;
 //===----------------------------------------------------------------------===//
 // EhFrame::CIE
 //===----------------------------------------------------------------------===//
-EhFrame::CIE::CIE(MemoryRegion& pRegion)
+EhFrame::CIE::CIE(llvm::StringRef pRegion)
   : RegionFragment(pRegion) {
 }
 
 //===----------------------------------------------------------------------===//
 // EhFrame::FDE
 //===----------------------------------------------------------------------===//
-EhFrame::FDE::FDE(MemoryRegion& pRegion,
+EhFrame::FDE::FDE(llvm::StringRef pRegion,
                   const EhFrame::CIE& pCIE,
                   uint32_t pDataStart)
   : RegionFragment(pRegion),

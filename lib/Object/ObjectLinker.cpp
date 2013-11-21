@@ -33,7 +33,7 @@
 #include <mcld/Script/Operand.h>
 #include <mcld/Script/RpnEvaluator.h>
 #include <mcld/Support/RealPath.h>
-#include <mcld/Support/MemoryArea.h>
+#include <mcld/Support/FileOutputBuffer.h>
 #include <mcld/Support/MemoryRegion.h>
 #include <mcld/Support/MsgHandling.h>
 #include <mcld/Target/TargetLDBackend.h>
@@ -686,14 +686,14 @@ bool ObjectLinker::relocation()
 }
 
 /// emitOutput - emit the output file.
-bool ObjectLinker::emitOutput(MemoryArea& pOutput)
+bool ObjectLinker::emitOutput(FileOutputBuffer& pOutput)
 {
   return llvm::errc::success == getWriter()->writeObject(*m_pModule, pOutput);
 }
 
 
 /// postProcessing - do modification after all processes
-bool ObjectLinker::postProcessing(MemoryArea& pOutput)
+bool ObjectLinker::postProcessing(FileOutputBuffer& pOutput)
 {
   if (LinkerConfig::Object != m_Config.codeGenType())
     normalSyncRelocationResult(pOutput);
@@ -707,11 +707,9 @@ bool ObjectLinker::postProcessing(MemoryArea& pOutput)
   return true;
 }
 
-void ObjectLinker::normalSyncRelocationResult(MemoryArea& pOutput)
+void ObjectLinker::normalSyncRelocationResult(FileOutputBuffer& pOutput)
 {
-  MemoryRegion* region = pOutput.request(0, pOutput.handler()->size());
-
-  uint8_t* data = region->getBuffer();
+  uint8_t* data = pOutput.getBufferStart();
 
   // sync all relocations of all inputs
   Module::obj_iterator input, inEnd = m_pModule->obj_end();
@@ -760,15 +758,11 @@ void ObjectLinker::normalSyncRelocationResult(MemoryArea& pOutput)
       writeRelocationResult(*reloc, data);
     }
   }
-
-  pOutput.clear();
 }
 
-void ObjectLinker::partialSyncRelocationResult(MemoryArea& pOutput)
+void ObjectLinker::partialSyncRelocationResult(FileOutputBuffer& pOutput)
 {
-  MemoryRegion* region = pOutput.request(0, pOutput.handler()->size());
-
-  uint8_t* data = region->getBuffer();
+  uint8_t* data = pOutput.getBufferStart();
 
   // traverse outputs' LDSection to get RelocData
   Module::iterator sectIter, sectEnd = m_pModule->end();
@@ -792,8 +786,6 @@ void ObjectLinker::partialSyncRelocationResult(MemoryArea& pOutput)
       writeRelocationResult(*reloc, data);
     }
   }
-
-  pOutput.clear();
 }
 
 void ObjectLinker::writeRelocationResult(Relocation& pReloc, uint8_t* pOutput)

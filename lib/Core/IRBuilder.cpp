@@ -14,8 +14,10 @@
 #include <mcld/LD/EhFrame.h>
 #include <mcld/LD/RelocData.h>
 #include <mcld/Support/MsgHandling.h>
+#include <mcld/Support/MemoryArea.h>
 #include <mcld/Support/ELF.h>
 #include <mcld/Fragment/FragmentRef.h>
+#include <llvm/ADT/StringRef.h>
 
 using namespace mcld;
 
@@ -199,29 +201,6 @@ Input* IRBuilder::ReadInput(const std::string& pNameSpec)
 }
 
 /// ReadInput - To read an input file and append it to the input tree.
-Input* IRBuilder::ReadInput(raw_mem_ostream& pMemOStream)
-{
-  Input* input = NULL;
-  if (pMemOStream.getMemoryArea().hasHandler()) {
-    m_InputBuilder.createNode<InputTree::Positional>(
-                               "memory ostream",
-                               pMemOStream.getMemoryArea().handler()->path());
-
-    input = *m_InputBuilder.getCurrentNode();
-    m_InputBuilder.setContext(*input);
-    input->setMemArea(&pMemOStream.getMemoryArea());
-  }
-  else {
-    m_InputBuilder.createNode<InputTree::Positional>("memory ostream", "NAN");
-    input = *m_InputBuilder.getCurrentNode();
-    m_InputBuilder.setContext(*input, false);
-    input->setMemArea(&pMemOStream.getMemoryArea());
-  }
-
-  return input;
-}
-
-/// ReadInput - To read an input file and append it to the input tree.
 Input* IRBuilder::ReadInput(FileHandle& pFileHandle)
 {
   m_InputBuilder.createNode<InputTree::Positional>("file handler",
@@ -379,12 +358,8 @@ Fragment* IRBuilder::CreateRegion(Input& pInput, size_t pOffset, size_t pLength)
   if (0 == pLength)
     return new FillFragment(0x0, 0, 0);
 
-  MemoryRegion* region = pInput.memArea()->request(pOffset, pLength);
-
-  if (NULL == region)
-    return new FillFragment(0x0, 0, 0);
-
-  return new RegionFragment(*region);
+  llvm::StringRef region = pInput.memArea()->request(pOffset, pLength);
+  return new RegionFragment(region);
 }
 
 /// CreateRegion - To create a region fragment wrapping the given memory
@@ -393,11 +368,8 @@ Fragment* IRBuilder::CreateRegion(void* pMemory, size_t pLength)
   if (0 == pLength)
     return new FillFragment(0x0, 0, 0);
 
-  MemoryRegion* region = MemoryRegion::Create(pMemory, pLength);
-  if (NULL == region)
-    return new FillFragment(0x0, 0, 0);
-
-  return new RegionFragment(*region);
+  llvm::StringRef region(reinterpret_cast<const char*>(pMemory), pLength);
+  return new RegionFragment(region);
 }
 
 /// AppendFragment - To append pFrag to the given SectionData pSD

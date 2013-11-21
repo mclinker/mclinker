@@ -148,7 +148,7 @@ int main(int argc, char* argv[])
     return 1;
   }
 
-  if (!linker.emit(module.name())) {
+  if (!linker.emit(module, module.name())) {
     mcld::errs() << argv[0]
                  << ": failed to emit output!\n";
     return 1;

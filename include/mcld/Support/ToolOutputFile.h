@@ -23,11 +23,9 @@ namespace mcld {
 
 class Path;
 class FileHandle;
-class raw_mem_ostream;
 
 /** \class ToolOutputFile
- *  \brief ToolOutputFile contains a raw_mem_ostream and adds extra new
- *  features:
+ *  \brief ToolOutputFile has the following features:
  *   - The file is automatically deleted if the process is killed.
  *   - The file is automatically deleted when the TooOutputFile object is
  *     destoryed unless the client calls keep().

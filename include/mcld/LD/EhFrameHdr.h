@@ -18,7 +18,7 @@
 namespace mcld {
 
 class LDSection;
-class MemoryArea;
+class FileOutputBuffer;
 class MemoryRegion;
 
 /** \class EhFrameHdr
@@ -47,7 +47,7 @@ public:
 
   /// emitOutput - write out eh_frame_hdr
   template<size_t size>
-  void emitOutput(MemoryArea& pOutput)
+  void emitOutput(FileOutputBuffer& pOutput)
   { assert(false && "Call invalid EhFrameHdr::emitOutput"); }
 
 private:
@@ -68,7 +68,7 @@ private:
 //===----------------------------------------------------------------------===//
 /// emitOutput - write out eh_frame_hdr
 template<>
-void EhFrameHdr::emitOutput<32>(MemoryArea& pOutput);
+void EhFrameHdr::emitOutput<32>(FileOutputBuffer& pOutput);
 
 } // namespace of mcld
 

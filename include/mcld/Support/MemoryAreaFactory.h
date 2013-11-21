@@ -15,7 +15,7 @@
 #include <mcld/Support/MemoryArea.h>
 #include <mcld/Support/Path.h>
 #include <mcld/Support/FileHandle.h>
-#include <mcld/Support/HandleToArea.h>
+#include <llvm/ADT/StringMap.h>
 
 namespace mcld
 {
@@ -63,12 +63,10 @@ public:
   MemoryArea* produce(int pFD, FileHandle::OpenMode pMode);
 
   void destruct(MemoryArea* pArea);
-
 private:
-  HandleToArea m_HandleToArea;
+  llvm::StringMap<MemoryArea*> m_AreaMap;
 };
 
 } // namespace of mcld
 
 #endif
-

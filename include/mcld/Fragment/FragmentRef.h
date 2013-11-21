@@ -78,17 +78,6 @@ public:
 
   Offset getOutputOffset() const;
 
-  // -----  dereference  ----- //
-  Address deref();
-
-  ConstAddress deref() const;
-
-  Address operator*()
-  { return deref(); }
-
-  ConstAddress operator*() const
-  { return deref(); }
-
 private:
   friend FragmentRef& NullFragmentRef();
   friend class Chunk<FragmentRef, MCLD_SECTIONS_PER_INPUT>;

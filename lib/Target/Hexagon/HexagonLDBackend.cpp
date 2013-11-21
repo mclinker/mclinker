@@ -199,7 +199,7 @@ uint64_t HexagonLDBackend::emitSectionData(const LDSection& pSection,
       case Fragment::Region: {
         const RegionFragment& region_frag =
           llvm::cast<RegionFragment>(*frag_iter);
-        const uint8_t* start = region_frag.getRegion().start();
+        const char* start = region_frag.getRegion().begin();
         memcpy(out_offset, start, size);
         break;
       }
@@ -960,14 +960,14 @@ bool HexagonLDBackend::readSection(Input& pInput, SectionData& pSD)
     frag = new FillFragment(0x0, 1, size);
   }
   else {
-    MemoryRegion* region = pInput.memArea()->request(offset, size);
-    if (NULL == region) {
+    llvm::StringRef region = pInput.memArea()->request(offset, size);
+    if (region.size() == 0) {
       // If the input section's size is zero, we got a NULL region.
       // use a virtual fill fragment
       frag = new FillFragment(0x0, 0, 0);
     }
     else {
-      frag = new RegionFragment(*region);
+      frag = new RegionFragment(region);
     }
   }
 

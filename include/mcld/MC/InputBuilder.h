@@ -26,7 +26,6 @@ class InputFactory;
 class ContextFactory;
 class MemoryAreaFactory;
 class AttrConstraint;
-class raw_mem_ostream;
 
 /** \class InputBuilder
  *  \brief InputBuilder recieves InputActions and build the InputTree.

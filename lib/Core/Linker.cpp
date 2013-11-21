@@ -14,7 +14,7 @@
 #include <mcld/Support/MsgHandling.h>
 #include <mcld/Support/TargetRegistry.h>
 #include <mcld/Support/FileHandle.h>
-#include <mcld/Support/MemoryArea.h>
+#include <mcld/Support/FileOutputBuffer.h>
 #include <mcld/Support/raw_ostream.h>
 
 #include <mcld/Object/ObjectLinker.h>
@@ -24,8 +24,11 @@
 #include <mcld/LD/LDSymbol.h>
 #include <mcld/LD/SectionData.h>
 #include <mcld/LD/RelocData.h>
+#include <mcld/LD/ObjectWriter.h>
 #include <mcld/Fragment/Relocation.h>
 #include <mcld/Fragment/FragmentRef.h>
+
+#include <llvm/ADT/OwningPtr.h>
 
 #include <cassert>
 
@@ -233,7 +236,7 @@ bool Linker::layout()
   return true;
 }
 
-bool Linker::emit(MemoryArea& pOutput)
+bool Linker::emit(FileOutputBuffer& pOutput)
 {
   // 15. - write out output
   m_pObjLinker->emitOutput(pOutput);
@@ -247,7 +250,7 @@ bool Linker::emit(MemoryArea& pOutput)
   return true;
 }
 
-bool Linker::emit(const std::string& pPath)
+bool Linker::emit(const Module& pModule, const std::string& pPath)
 {
   FileHandle file;
   FileHandle::Permission perm;
@@ -271,19 +274,27 @@ bool Linker::emit(const std::string& pPath)
     return false;
   }
 
-  MemoryArea output(file);
-  bool result = emit(output);
+  llvm::OwningPtr<FileOutputBuffer> output;
+  FileOutputBuffer::create(file,
+                           m_pObjLinker->getWriter()->getOutputSize(pModule),
+                           output);
+
+  bool result = emit(*output.get());
   file.close();
   return result;
 }
 
-bool Linker::emit(int pFileDescriptor)
+bool Linker::emit(const Module& pModule, int pFileDescriptor)
 {
   FileHandle file;
   file.delegate(pFileDescriptor);
 
-  MemoryArea output(file);
-  bool result = emit(output);
+  llvm::OwningPtr<FileOutputBuffer> output;
+  FileOutputBuffer::create(file,
+                           m_pObjLinker->getWriter()->getOutputSize(pModule),
+                           output);
+
+  bool result = emit(*output.get());
 
   return result;
 }

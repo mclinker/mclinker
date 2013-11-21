@@ -18,7 +18,6 @@
 #include <mcld/Support/FileSystem.h>
 #include <mcld/Support/FileHandle.h>
 #include <mcld/Support/MemoryArea.h>
-#include <mcld/Support/MemoryRegion.h>
 #include <mcld/Support/MsgHandling.h>
 #include <mcld/Support/Path.h>
 #include <mcld/ADT/SizeTraits.h>
@@ -49,9 +48,9 @@ bool GNUArchiveReader::isMyFormat(Input& pInput, bool &pContinue) const
   if (pInput.memArea()->size() < Archive::MAGIC_LEN)
     return false;
 
-  MemoryRegion* region = pInput.memArea()->request(pInput.fileOffset(),
-                                                   Archive::MAGIC_LEN);
-  const char* str = reinterpret_cast<const char*>(region->getBuffer());
+  llvm::StringRef region =
+      pInput.memArea()->request(pInput.fileOffset(), Archive::MAGIC_LEN);
+  const char* str = region.begin();
 
   bool result = false;
   assert(NULL != str);
@@ -59,7 +58,6 @@ bool GNUArchiveReader::isMyFormat(Input& pInput, bool &pContinue) const
   if (isArchive(str) || isThinArchive(str))
     result = true;
 
-  pInput.memArea()->release(region);
   return result;
 }
 
@@ -79,16 +77,15 @@ bool GNUArchiveReader::isThinArchive(const char* pStr) const
 bool GNUArchiveReader::isThinArchive(Input& pInput) const
 {
   assert(pInput.hasMemArea());
-  MemoryRegion* region = pInput.memArea()->request(pInput.fileOffset(),
-                                                   Archive::MAGIC_LEN);
-  const char* str = reinterpret_cast<const char*>(region->getBuffer());
+  llvm::StringRef region =
+      pInput.memArea()->request(pInput.fileOffset(), Archive::MAGIC_LEN);
+  const char* str = region.begin();
 
   bool result = false;
   assert(NULL != str);
   if (isThinArchive(str))
     result = true;
 
-  pInput.memArea()->release(region);
   return result;
 }
 
@@ -96,7 +93,7 @@ bool GNUArchiveReader::readArchive(const LinkerConfig& pConfig,
                                    Archive& pArchive)
 {
   // bypass the empty archive
-  if (Archive::MAGIC_LEN == pArchive.getARFile().memArea()->handler()->size())
+  if (Archive::MAGIC_LEN == pArchive.getARFile().memArea()->size())
     return true;
 
   if (pArchive.getARFile().attribute()->isWholeArchive())
@@ -165,11 +162,11 @@ Input* GNUArchiveReader::readMemberHeader(Archive& pArchiveRoot,
 {
   assert(pArchiveFile.hasMemArea());
 
-  MemoryRegion* header_region =
+  llvm::StringRef header_region =
     pArchiveFile.memArea()->request((pArchiveFile.fileOffset() + pFileOffset),
                                     sizeof(Archive::MemberHeader));
   const Archive::MemberHeader* header =
-    reinterpret_cast<const Archive::MemberHeader*>(header_region->getBuffer());
+    reinterpret_cast<const Archive::MemberHeader*>(header_region.begin());
 
   assert(0 == memcmp(header->fmag, Archive::MEMBER_MAGIC, sizeof(header->fmag)));
 
@@ -239,16 +236,15 @@ Input* GNUArchiveReader::readMemberHeader(Archive& pArchiveRoot,
                                         input_path);
   }
 
-  pArchiveFile.memArea()->release(header_region);
   return member;
 }
 
 template <size_t SIZE>
-static void readSymbolTableEntries(Archive& pArchive, MemoryRegion& pMemRegion)
+static void readSymbolTableEntries(Archive& pArchive, llvm::StringRef pMemRegion)
 {
   typedef typename SizeTraits<SIZE>::Offset Offset;
 
-  const Offset* data = reinterpret_cast<const Offset*>(pMemRegion.getBuffer());
+  const Offset* data = reinterpret_cast<const Offset*>(pMemRegion.begin());
 
   // read the number of symbols
   Offset number = 0;
@@ -277,37 +273,34 @@ bool GNUArchiveReader::readSymbolTable(Archive& pArchive)
 {
   assert(pArchive.getARFile().hasMemArea());
 
-  MemoryRegion* header_region =
+  llvm::StringRef header_region =
     pArchive.getARFile().memArea()->request((pArchive.getARFile().fileOffset() +
                                              Archive::MAGIC_LEN),
                                             sizeof(Archive::MemberHeader));
   const Archive::MemberHeader* header =
-    reinterpret_cast<const Archive::MemberHeader*>(header_region->getBuffer());
+    reinterpret_cast<const Archive::MemberHeader*>(header_region.begin());
   assert(0 == memcmp(header->fmag, Archive::MEMBER_MAGIC, sizeof(header->fmag)));
 
   int symtab_size = atoi(header->size);
   pArchive.setSymTabSize(symtab_size);
 
   if (!pArchive.getARFile().attribute()->isWholeArchive()) {
-    MemoryRegion* symtab_region =
-      pArchive.getARFile().memArea()->request(
-                                            (pArchive.getARFile().fileOffset() +
-                                             Archive::MAGIC_LEN +
-                                             sizeof(Archive::MemberHeader)),
-                                            symtab_size);
+    llvm::StringRef symtab_region = pArchive.getARFile().memArea()->request(
+        (pArchive.getARFile().fileOffset() +
+         Archive::MAGIC_LEN +
+         sizeof(Archive::MemberHeader)),
+        symtab_size);
 
     if (0 == strncmp(header->name, Archive::SVR4_SYMTAB_NAME,
                                    strlen(Archive::SVR4_SYMTAB_NAME)))
-      readSymbolTableEntries<32>(pArchive, *symtab_region);
+      readSymbolTableEntries<32>(pArchive, symtab_region);
     else if (0 == strncmp(header->name, Archive::IRIX6_SYMTAB_NAME,
                                         strlen(Archive::IRIX6_SYMTAB_NAME)))
-      readSymbolTableEntries<64>(pArchive, *symtab_region);
+      readSymbolTableEntries<64>(pArchive, symtab_region);
     else
       unreachable(diag::err_unsupported_archive);
 
-    pArchive.getARFile().memArea()->release(symtab_region);
   }
-  pArchive.getARFile().memArea()->release(header_region);
   return true;
 }
 
@@ -323,29 +316,26 @@ bool GNUArchiveReader::readStringTable(Archive& pArchive)
 
   assert(pArchive.getARFile().hasMemArea());
 
-  MemoryRegion* header_region =
+  llvm::StringRef header_region =
     pArchive.getARFile().memArea()->request((pArchive.getARFile().fileOffset() +
                                              offset),
                                             sizeof(Archive::MemberHeader));
   const Archive::MemberHeader* header =
-    reinterpret_cast<const Archive::MemberHeader*>(header_region->getBuffer());
+    reinterpret_cast<const Archive::MemberHeader*>(header_region.begin());
 
   assert(0 == memcmp(header->fmag, Archive::MEMBER_MAGIC, sizeof(header->fmag)));
 
   if (0 == memcmp(header->name, Archive::STRTAB_NAME, sizeof(header->name))) {
     // read the extended name table
     int strtab_size = atoi(header->size);
-    MemoryRegion* strtab_region =
+    llvm::StringRef strtab_region =
       pArchive.getARFile().memArea()->request(
                                    (pArchive.getARFile().fileOffset() +
                                     offset + sizeof(Archive::MemberHeader)),
                                    strtab_size);
-    const char* strtab =
-      reinterpret_cast<const char*>(strtab_region->getBuffer());
+    const char* strtab = strtab_region.begin();
     pArchive.getStrTable().assign(strtab, strtab_size);
-    pArchive.getARFile().memArea()->release(strtab_region);
   }
-  pArchive.getARFile().memArea()->release(header_region);
   return true;
 }
 
@@ -462,7 +452,7 @@ bool GNUArchiveReader::includeAllMembers(const LinkerConfig& pConfig,
     begin_offset += sizeof(Archive::MemberHeader) +
                     pArchive.getStrTable().size();
   }
-  uint32_t end_offset = pArchive.getARFile().memArea()->handler()->size();
+  uint32_t end_offset = pArchive.getARFile().memArea()->size();
   for (uint32_t offset = begin_offset;
        offset < end_offset;
        offset += sizeof(Archive::MemberHeader)) {

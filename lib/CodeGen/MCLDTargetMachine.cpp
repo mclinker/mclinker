@@ -11,7 +11,6 @@
 #include <mcld/Module.h>
 #include <mcld/LinkerConfig.h>
 #include <mcld/CodeGen/MCLinker.h>
-#include <mcld/Support/raw_mem_ostream.h>
 #include <mcld/Support/TargetRegistry.h>
 #include <mcld/Support/ToolOutputFile.h>
 #include <mcld/Target/TargetLDBackend.h>

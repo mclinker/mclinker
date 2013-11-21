@@ -17,6 +17,7 @@
 #include <mcld/Fragment/NullFragment.h>
 #include <mcld/Support/Allocators.h>
 
+#include <llvm/ADT/StringRef.h>
 #include <vector>
 
 namespace mcld {
@@ -48,7 +49,7 @@ public:
   class CIE : public RegionFragment
   {
   public:
-    CIE(MemoryRegion& pRegion);
+    CIE(llvm::StringRef pRegion);
 
     void setFDEEncode(uint8_t pEncode) { m_FDEEncode = pEncode; }
     uint8_t getFDEEncode() const { return m_FDEEncode; }
@@ -64,7 +65,7 @@ public:
   class FDE : public RegionFragment
   {
   public:
-    FDE(MemoryRegion& pRegion,
+    FDE(llvm::StringRef pRegion,
         const CIE& pCIE,
         uint32_t pDataStart);
 

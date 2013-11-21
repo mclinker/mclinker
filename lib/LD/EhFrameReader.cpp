@@ -8,14 +8,13 @@
 //===----------------------------------------------------------------------===//
 #include <mcld/LD/EhFrameReader.h>
 
-#include <llvm/ADT/StringRef.h>
-#include <llvm/Support/Dwarf.h>
-
 #include <mcld/MC/Input.h>
 #include <mcld/LD/EhFrame.h>
 #include <mcld/LD/LDSection.h>
-#include <mcld/Support/MemoryArea.h>
 #include <mcld/Support/MsgHandling.h>
+#include <mcld/Support/MemoryArea.h>
+
+#include <llvm/Support/Dwarf.h>
 
 using namespace mcld;
 using namespace llvm::dwarf;
@@ -45,7 +44,7 @@ skip_LEB128(EhFrameReader::ConstAddress* pp, EhFrameReader::ConstAddress pend)
 template<> EhFrameReader::Token
 EhFrameReader::scan<true>(ConstAddress pHandler,
                           uint64_t pOffset,
-                          const MemoryRegion& pData) const
+                          llvm::StringRef pData) const
 {
   Token result;
   result.file_off = pOffset;
@@ -129,17 +128,17 @@ bool EhFrameReader::read<32, true>(Input& pInput, EhFrame& pEhFrame)
 
   // get file offset and address
   uint64_t file_off = pInput.fileOffset() + section.offset();
-  MemoryRegion* sect_reg =
-                       pInput.memArea()->request(file_off, section.size());
-  ConstAddress handler = (ConstAddress)sect_reg->start();
+  llvm::StringRef sect_reg =
+      pInput.memArea()->request(file_off, section.size());
+  ConstAddress handler = (ConstAddress)sect_reg.begin();
 
   State cur_state = Q0;
   while (Reject != cur_state && Accept != cur_state) {
 
-    Token token = scan<true>(handler, file_off, *sect_reg);
-    MemoryRegion* entry = pInput.memArea()->request(token.file_off, token.size);
+    Token token = scan<true>(handler, file_off, sect_reg);
+    llvm::StringRef entry = pInput.memArea()->request(token.file_off, token.size);
 
-    if (!transition[cur_state][token.kind](pEhFrame, *entry, token)) {
+    if (!transition[cur_state][token.kind](pEhFrame, entry, token)) {
       // fail to scan
       debug(diag::debug_cannot_scan_eh) << pInput.name();
       return false;
@@ -148,9 +147,9 @@ bool EhFrameReader::read<32, true>(Input& pInput, EhFrame& pEhFrame)
     file_off += token.size;
     handler += token.size;
 
-    if (handler == sect_reg->end())
+    if (handler == sect_reg.end())
       cur_state = Accept;
-    else if (handler > sect_reg->end()) {
+    else if (handler > sect_reg.end()) {
       cur_state = Reject;
     }
     else
@@ -166,11 +165,11 @@ bool EhFrameReader::read<32, true>(Input& pInput, EhFrame& pEhFrame)
 }
 
 bool EhFrameReader::addCIE(EhFrame& pEhFrame,
-                           MemoryRegion& pRegion,
+                           llvm::StringRef pRegion,
                            const EhFrameReader::Token& pToken)
 {
   // skip Length, Extended Length and CIE ID.
-  ConstAddress handler = pRegion.start() + pToken.data_off;
+  ConstAddress handler = pRegion.begin() + pToken.data_off;
   ConstAddress cie_end = pRegion.end();
 
   // the version should be 1 or 3
@@ -321,7 +320,7 @@ bool EhFrameReader::addCIE(EhFrame& pEhFrame,
 }
 
 bool EhFrameReader::addFDE(EhFrame& pEhFrame,
-                           MemoryRegion& pRegion,
+                           llvm::StringRef pRegion,
                            const EhFrameReader::Token& pToken)
 {
   if (pToken.data_off == pRegion.size())
@@ -336,7 +335,7 @@ bool EhFrameReader::addFDE(EhFrame& pEhFrame,
 }
 
 bool EhFrameReader::addTerm(EhFrame& pEhFrame,
-                            MemoryRegion& pRegion,
+                            llvm::StringRef pRegion,
                             const EhFrameReader::Token& pToken)
 {
   RegionFragment* frag = new RegionFragment(pRegion);
@@ -345,7 +344,7 @@ bool EhFrameReader::addTerm(EhFrame& pEhFrame,
 }
 
 bool EhFrameReader::reject(EhFrame& pEhFrame,
-                           MemoryRegion& pRegion,
+                           llvm::StringRef pRegion,
                            const EhFrameReader::Token& pToken)
 {
   return true;

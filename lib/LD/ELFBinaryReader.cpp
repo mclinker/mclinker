@@ -58,7 +58,7 @@ bool ELFBinaryReader::readBinary(Input& pInput)
 
 
   SectionData* data = m_Builder.CreateSectionData(*data_sect);
-  size_t data_size = pInput.memArea()->handler()->size();
+  size_t data_size = pInput.memArea()->size();
   Fragment* frag = m_Builder.CreateRegion(pInput, 0x0, data_size);
   m_Builder.AppendFragment(*frag, *data);
 

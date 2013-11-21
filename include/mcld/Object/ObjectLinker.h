@@ -19,8 +19,7 @@ class Module;
 class LinkerConfig;
 class IRBuilder;
 class TargetLDBackend;
-class MemoryArea;
-class MemoryAreaFactory;
+class FileOutputBuffer;
 class ObjectReader;
 class DynObjReader;
 class ArchiveReader;
@@ -116,10 +115,10 @@ public:
   bool finalizeSymbolValue();
 
   /// emitOutput - emit the output file.
-  bool emitOutput(MemoryArea& pOutput);
+  bool emitOutput(FileOutputBuffer& pOutput);
 
   /// postProcessing - do modificatiion after all processes
-  bool postProcessing(MemoryArea& pOutput);
+  bool postProcessing(FileOutputBuffer& pOutput);
 
   // -----  readers and writers  ----- //
   const ObjectReader*  getObjectReader () const { return m_pObjectReader;  }
@@ -146,11 +145,11 @@ public:
 private:
   /// normalSyncRelocationResult - sync relocation result when producing shared
   /// objects or executables
-  void normalSyncRelocationResult(MemoryArea& pOutput);
+  void normalSyncRelocationResult(FileOutputBuffer& pOutput);
 
   /// partialSyncRelocationResult - sync relocation result when doing partial
   /// link
-  void partialSyncRelocationResult(MemoryArea& pOutput);
+  void partialSyncRelocationResult(FileOutputBuffer& pOutput);
 
   /// writeRelocationResult - helper function of syncRelocationResult, write
   /// relocation target data to output

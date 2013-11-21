@@ -11,7 +11,6 @@
 #include <mcld/Support/Path.h>
 #include <mcld/Support/FileHandle.h>
 #include <mcld/Support/MemoryArea.h>
-#include <mcld/Support/raw_mem_ostream.h>
 
 #include <mcld/Support/SystemUtils.h>
 #include <mcld/Support/MsgHandling.h>

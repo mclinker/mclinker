@@ -16,7 +16,7 @@
 namespace mcld {
 
 class Module;
-class MemoryArea;
+class FileOutputBuffer;
 
 /** \class ObjectWriter
  *  \brief ObjectWriter provides a common interface for object file writers.
@@ -29,7 +29,10 @@ protected:
 public:
   virtual ~ObjectWriter();
 
-  virtual llvm::error_code writeObject(Module& pModule, MemoryArea& pOutput) = 0;
+  virtual llvm::error_code writeObject(Module& pModule,
+                                       FileOutputBuffer& pOutput) = 0;
+
+  virtual size_t getOutputSize(const Module& pModule) const = 0;
 };
 
 } // namespace of mcld

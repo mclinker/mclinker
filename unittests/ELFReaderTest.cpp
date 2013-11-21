@@ -8,12 +8,14 @@
 //===----------------------------------------------------------------------===//
 #include <cstdio>
 
+#include <llvm/ADT/StringRef.h>
 #include <llvm/Support/ELF.h>
 #include <mcld/IRBuilder.h>
 #include <mcld/TargetOptions.h>
 #include <mcld/LD/ELFReader.h>
 #include <mcld/MC/Input.h>
 #include <mcld/Support/Path.h>
+#include <mcld/Support/MemoryArea.h>
 #include <../lib/Target/X86/X86LDBackend.h>
 #include <../lib/Target/X86/X86GNUInfo.h>
 
@@ -66,11 +68,10 @@ void ELFReaderTest::SetUp()
 
   ASSERT_TRUE(m_pInput->hasMemArea());
   size_t hdr_size = m_pELFReader->getELFHeaderSize();
-  MemoryRegion* region = m_pInput->memArea()->request(m_pInput->fileOffset(),
-                                                    hdr_size);
-  uint8_t* ELF_hdr = region->start();
+  llvm::StringRef region = m_pInput->memArea()->request(m_pInput->fileOffset(),
+                                                        hdr_size);
+  const char* ELF_hdr = region.begin();
   bool shdr_result = m_pELFReader->readSectionHeaders(*m_pInput, ELF_hdr);
-  m_pInput->memArea()->release(region);
   ASSERT_TRUE(shdr_result);
 }
 
@@ -109,22 +110,18 @@ TEST_F( ELFReaderTest, read_symbol_and_rela )
   LDSection* strtab_shdr = symtab_shdr->getLink();
   ASSERT_TRUE(NULL!=strtab_shdr);
 
-  MemoryRegion* symtab_region = m_pInput->memArea()->request(
-                         m_pInput->fileOffset() + symtab_shdr->offset(),
-                         symtab_shdr->size());
+  llvm::StringRef symtab_region = m_pInput->memArea()->request(
+      m_pInput->fileOffset() + symtab_shdr->offset(), symtab_shdr->size());
 
-  MemoryRegion* strtab_region = m_pInput->memArea()->request(
-                         m_pInput->fileOffset() + strtab_shdr->offset(),
-                         strtab_shdr->size());
-  char* strtab = reinterpret_cast<char*>(strtab_region->start());
+  llvm::StringRef strtab_region = m_pInput->memArea()->request(
+      m_pInput->fileOffset() + strtab_shdr->offset(), strtab_shdr->size());
+  const char* strtab = strtab_region.begin();
   bool result = m_pELFReader->readSymbols(*m_pInput, *m_pIRBuilder,
-                                          *symtab_region, strtab);
+                                          symtab_region, strtab);
   ASSERT_TRUE(result);
   ASSERT_EQ("hello.c", std::string(m_pInput->context()->getSymbol(1)->name()));
   ASSERT_EQ("puts", std::string(m_pInput->context()->getSymbol(10)->name()));
   ASSERT_TRUE(NULL==m_pInput->context()->getSymbol(11));
-  m_pInput->memArea()->release(symtab_region);
-  m_pInput->memArea()->release(strtab_region);
 
   // -- read relocations
   MemoryArea* mem = m_pInput->memArea();
@@ -134,12 +131,11 @@ TEST_F( ELFReaderTest, read_symbol_and_rela )
 
   uint64_t offset = m_pInput->fileOffset() + (*rs)->offset();
   uint64_t size = (*rs)->size();
-  MemoryRegion* region = mem->request(offset, size);
+  llvm::StringRef region = mem->request(offset, size);
   IRBuilder::CreateRelocData(**rs); /// create relocation data for the header
 
   ASSERT_EQ(llvm::ELF::SHT_RELA, (*rs)->type());
-  ASSERT_TRUE(m_pELFReader->readRela(*m_pInput, **rs, *region));
-  mem->release(region);
+  ASSERT_TRUE(m_pELFReader->readRela(*m_pInput, **rs, region));
 
   const RelocData::RelocationListType &rRelocs =
                           (*rs)->getRelocData()->getRelocationList();

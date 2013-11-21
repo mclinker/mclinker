@@ -17,7 +17,6 @@
 namespace mcld {
 
 class ContextFactory;
-class MemoryAreaFactory;
 
 /** \class ContextAction
  *  \brief ContextAction is a command object to create input's LDContext.

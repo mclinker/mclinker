@@ -20,7 +20,6 @@ namespace mcld {
 class Module;
 class Input;
 class ELFObjectReader;
-class MemoryAreaFactory;
 class Archive;
 class LinkerConfig;
 

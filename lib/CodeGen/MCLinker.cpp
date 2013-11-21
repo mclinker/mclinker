@@ -234,7 +234,7 @@ bool MCLinker::doFinalization(llvm::Module &pM)
   if (!m_pLinker->link(m_Module, *m_pBuilder))
     return true;
 
-  if (!m_pLinker->emit(m_FileHandle.handler()))
+  if (!m_pLinker->emit(m_Module, m_FileHandle.handler()))
     return true;
 
   return false;
