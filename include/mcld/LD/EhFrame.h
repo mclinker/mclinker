@@ -220,11 +220,12 @@ private:
   // before merging them. The important note is we must do this after
   // ALL readSections done, that is the reason why we don't check this
   // immediately when reading.
-  void setupAttributes(const Input& pInput);
+  void setupAttributes(const LDSection* reloc_sect);
   void removeDiscardedFDE(CIE& pCIE, const LDSection* pRelocEhFrameSect);
 
 private:
-  void removeAndUpdateCIEForFDE(EhFrame& pInFrame, CIE& pInCIE, CIE& pOutCIE);
+  void removeAndUpdateCIEForFDE(EhFrame& pInFrame, CIE& pInCIE, CIE& pOutCIE,
+                                const LDSection* reloc_sect);
   void moveInputFragments(EhFrame& pInFrame, CIE& pInCIE, CIE* pOutCIE = 0);
 
 private:

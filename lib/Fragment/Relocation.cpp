@@ -158,23 +158,3 @@ void Relocation::updateAddend()
     m_Addend += offset;
   }
 }
-
-bool Relocation::shouldIgnore() const
-{
-  // bypass the relocation with NONE type. This is to avoid overwrite the
-  // target result by NONE type relocation if there is a place which has
-  // two relocations to apply to, and one of it is NONE type. The result
-  // we want is the value of the other relocation result. For example,
-  // in .exidx, there are usually an R_ARM_NONE and R_ARM_PREL31 apply to
-  // the same place
-  if (m_Type == 0x0)
-    return true;
-
-  // bypass the reloc if the symbol is in the discarded input section
-  if (!m_pSymInfo->outSymbol()->hasFragRef() &&
-      ResolveInfo::Section == m_pSymInfo->type() &&
-      ResolveInfo::Undefined == m_pSymInfo->desc())
-    return true;
-
-  return false;
-}

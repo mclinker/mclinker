@@ -176,7 +176,15 @@ size_t EhFrame::numOfFDEs() const
 EhFrame& EhFrame::merge(const Input& pInput, EhFrame& pFrame)
 {
   assert (this != &pFrame);
-  pFrame.setupAttributes(pInput);
+  const LDContext& ctx = *pInput.context();
+  const LDSection* rel_sec = 0;
+  for (LDContext::const_sect_iterator ri = ctx.relocSectBegin(),
+       re = ctx.relocSectEnd(); ri != re; ++ri) {
+    rel_sec = *ri;
+    if (rel_sec->getLink() == &getSection())
+      break;
+  }
+  pFrame.setupAttributes(rel_sec);
 
   // Most CIE will be merged, so we don't reserve space first.
   for (cie_iterator i = pFrame.cie_begin(), e = pFrame.cie_end(); i != e; ++i) {
@@ -194,7 +202,7 @@ EhFrame& EhFrame::merge(const Input& pInput, EhFrame& pFrame)
       if (output_cie == input_cie) {
         // This input CIE can be merged
         moveInputFragments(pFrame, input_cie, &output_cie);
-        removeAndUpdateCIEForFDE(pFrame, input_cie, output_cie);
+        removeAndUpdateCIEForFDE(pFrame, input_cie, output_cie, rel_sec);
         break;
       }
     }
@@ -206,16 +214,8 @@ EhFrame& EhFrame::merge(const Input& pInput, EhFrame& pFrame)
   return *this;
 }
 
-void EhFrame::setupAttributes(const Input& pInput)
+void EhFrame::setupAttributes(const LDSection* rel_sec)
 {
-  const LDContext& ctx = *pInput.context();
-  const LDSection* rel_sec = 0;
-  for (LDContext::const_sect_iterator ri = ctx.relocSectBegin(),
-       re = ctx.relocSectEnd(); ri != re; ++ri) {
-    rel_sec = *ri;
-    if (rel_sec->getLink() == &getSection())
-      break;
-  }
 
   for (cie_iterator i = cie_begin(), e = cie_end(); i != e; ++i) {
     CIE* cie = *i;
@@ -225,13 +225,6 @@ void EhFrame::setupAttributes(const Input& pInput)
       // There's no personality data encoding inside augmentation string.
       cie->setMergeable();
     } else {
-      const LDSection* rel_sec = 0;
-      for (LDContext::const_sect_iterator ri = ctx.relocSectBegin(),
-           re = ctx.relocSectEnd(); ri != re; ++ri) {
-        rel_sec = *ri;
-        if (rel_sec->getLink() == &getSection())
-          break;
-      }
       if (!rel_sec) {
         // No relocation to eh_frame section
         assert (cie->getPersonalityName() != "" &&
@@ -288,24 +281,23 @@ void EhFrame::removeDiscardedFDE(CIE& pCIE, const LDSection* pRelocSect)
     fde.getCIE().remove(fde);
 
     for (RelocData::const_iterator ri = reloc_data->begin(),
-         re = reloc_data->end(); ri != re; ++ri) {
-      const Relocation& rel = *ri;
+         re = reloc_data->end(); ri != re; ) {
+      Relocation& rel = const_cast<Relocation&>(*ri++);
       if (rel.targetRef().getOutputOffset() >= fde.getOffset() &&
           rel.targetRef().getOutputOffset() < fde.getOffset() + fde.size()) {
-        // Make this relocation to be ignored.
-        const_cast<Relocation&>(rel).setIgnore();
+        const_cast<RelocData*>(reloc_data)->remove(rel);
       }
     }
   }
 }
 
-void EhFrame::removeAndUpdateCIEForFDE(EhFrame& pInFrame,
-                                       CIE& pInCIE, CIE& pOutCIE)
+void EhFrame::removeAndUpdateCIEForFDE(EhFrame& pInFrame, CIE& pInCIE,
+                                       CIE& pOutCIE, const LDSection* rel_sect)
 {
   // Make this relocation to be ignored.
   Relocation* rel = const_cast<Relocation*>(pInCIE.getRelocation());
-  if (rel)
-    rel->setIgnore();
+  if (rel && rel_sect)
+    const_cast<RelocData*>(rel_sect->getRelocData())->remove(*rel);
 
   // Update the CIE-pointed FDEs
   for (fde_iterator i = pInCIE.begin(), e = pInCIE.end(); i != e; ++i)

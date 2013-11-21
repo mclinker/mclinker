@@ -53,3 +53,9 @@ RelocData& RelocData::append(Relocation& pRelocation)
   return *this;
 }
 
+Relocation& RelocData::remove(Relocation& pRelocation)
+{
+  iterator iter(pRelocation);
+  Relocation* rel = m_Relocations.remove(iter);
+  return *rel;
+}
