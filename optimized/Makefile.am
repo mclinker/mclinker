@@ -176,7 +176,6 @@ HEADER = ${INCDIR}/AttributeOption.h \
 	${INCDIR}/Support/Path.h \
 	${INCDIR}/Support/raw_ostream.h \
 	${INCDIR}/Support/RealPath.h \
-	${INCDIR}/Support/RegionFactory.h \
 	${INCDIR}/Support/SystemUtils.h \
 	${INCDIR}/Support/Target.h \
 	${INCDIR}/Support/TargetRegistry.h \
@@ -323,12 +322,10 @@ SOURCE = ${LIBDIR}/ADT/StringEntry.cpp \
 	${LIBDIR}/Support/LEB128.cpp \
 	${LIBDIR}/Support/MemoryArea.cpp \
 	${LIBDIR}/Support/MemoryAreaFactory.cpp \
-	${LIBDIR}/Support/MemoryRegion.cpp \
 	${LIBDIR}/Support/MsgHandling.cpp \
 	${LIBDIR}/Support/Path.cpp \
 	${LIBDIR}/Support/raw_ostream.cpp \
 	${LIBDIR}/Support/RealPath.cpp \
-	${LIBDIR}/Support/RegionFactory.cpp \
 	${LIBDIR}/Support/SystemUtils.cpp \
 	${LIBDIR}/Support/Target.cpp \
 	${LIBDIR}/Support/TargetRegistry.cpp \

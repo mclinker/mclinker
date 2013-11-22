@@ -7,7 +7,6 @@
 //
 //===----------------------------------------------------------------------===//
 #include <llvm/Support/Casting.h>
-#include <mcld/Support/MemoryRegion.h>
 #include "MipsGOTPLT.h"
 
 namespace {
@@ -38,7 +37,7 @@ void MipsGOTPLT::reserve(size_t pNum)
 
 uint64_t MipsGOTPLT::emit(MemoryRegion& pRegion)
 {
-  uint32_t* buffer = reinterpret_cast<uint32_t*>(pRegion.getBuffer());
+  uint32_t* buffer = reinterpret_cast<uint32_t*>(pRegion.begin());
 
   uint64_t result = 0;
   for (iterator it = begin(), ie = end(); it != ie; ++it, ++buffer) {

@@ -10,6 +10,7 @@
 #define MCLD_TARGET_MIPS_PLT_H
 
 #include <mcld/Target/PLT.h>
+#include <mcld/Support/MemoryRegion.h>
 
 namespace mcld {
 

@@ -11,7 +11,6 @@
 #include <llvm/Support/ELF.h>
 
 #include <mcld/LD/ResolveInfo.h>
-#include <mcld/Support/MemoryRegion.h>
 #include <mcld/Support/MsgHandling.h>
 #include <mcld/Target/OutputRelocSection.h>
 
@@ -411,7 +410,7 @@ void Mips32GOT::setEntryValue(Fragment* entry, uint64_t pValue)
 
 uint64_t Mips32GOT::emit(MemoryRegion& pRegion)
 {
-  uint32_t* buffer = reinterpret_cast<uint32_t*>(pRegion.getBuffer());
+  uint32_t* buffer = reinterpret_cast<uint32_t*>(pRegion.begin());
 
   uint64_t result = 0;
   for (iterator it = begin(), ie = end(); it != ie; ++it, ++buffer) {
@@ -452,7 +451,7 @@ void Mips64GOT::setEntryValue(Fragment* entry, uint64_t pValue)
 
 uint64_t Mips64GOT::emit(MemoryRegion& pRegion)
 {
-  uint64_t* buffer = reinterpret_cast<uint64_t*>(pRegion.getBuffer());
+  uint64_t* buffer = reinterpret_cast<uint64_t*>(pRegion.begin());
 
   uint64_t result = 0;
   for (iterator it = begin(), ie = end(); it != ie; ++it, ++buffer) {

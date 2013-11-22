@@ -91,8 +91,7 @@ private:
     }
 
     /// merge -  Merge the attributes from the section in the input data.
-    bool merge(const Input &pInput, MemoryRegion::ConstAddress pData,
-               size_t pSize);
+    bool merge(const Input &pInput, ConstAddress pData, size_t pSize);
 
     /// sizeOutput - calculate the number of bytes required to encode this
     /// subsection

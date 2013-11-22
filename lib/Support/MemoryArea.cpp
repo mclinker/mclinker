@@ -7,10 +7,7 @@
 //
 //===----------------------------------------------------------------------===//
 #include <mcld/Support/MemoryArea.h>
-#include <mcld/Support/MemoryRegion.h>
-#include <mcld/Support/MsgHandling.h>
-
-#include <llvm/Support/MemoryBuffer.h>
+#include <llvm/Support/system_error.h>
 
 #include <cassert>
 

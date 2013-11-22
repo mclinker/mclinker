@@ -41,7 +41,6 @@ class ELFExecFileFormat;
 class ELFObjectFileFormat;
 class LinkerScript;
 class Relocation;
-class MemoryRegion;
 
 /** \class GNULDBackend
  *  \brief GNULDBackend provides a common interface for all GNU Unix-OS

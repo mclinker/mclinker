@@ -12,8 +12,6 @@
 #include <mcld/LinkerConfig.h>
 #include <mcld/LinkerScript.h>
 #include <mcld/Target/GNULDBackend.h>
-#include <mcld/Support/FileOutputBuffer.h>
-#include <mcld/Support/MemoryRegion.h>
 #include <mcld/Support/MsgHandling.h>
 #include <mcld/ADT/SizeTraits.h>
 #include <mcld/Fragment/AlignFragment.h>
@@ -55,7 +53,7 @@ ELFObjectWriter::~ELFObjectWriter()
 
 void ELFObjectWriter::writeSection(FileOutputBuffer& pOutput, LDSection *section)
 {
-  MemoryRegion* region;
+  MemoryRegion region;
   // Request output region
   switch (section->kind()) {
   case LDFileFormat::Note:
@@ -69,10 +67,8 @@ void ELFObjectWriter::writeSection(FileOutputBuffer& pOutput, LDSection *section
   case LDFileFormat::GCCExceptTable:
   case LDFileFormat::EhFrame: {
     region = pOutput.request(section->offset(), section->size());
-    if (NULL == region) {
-      llvm::report_fatal_error(llvm::Twine("cannot get enough memory region for output section `") +
-                               llvm::Twine(section->name()) +
-                               llvm::Twine("'.\n"));
+    if (region.size() == 0) {
+      return;
     }
     break;
   }
@@ -103,16 +99,16 @@ void ELFObjectWriter::writeSection(FileOutputBuffer& pOutput, LDSection *section
   case LDFileFormat::Note:
     // FIXME: if optimization of exception handling sections is enabled,
     // then we should emit these sections by the other way.
-    emitSectionData(*section, *region);
+    emitSectionData(*section, region);
     break;
   case LDFileFormat::Relocation:
     // sort relocation for the benefit of the dynamic linker.
     target().sortRelocation(*section);
 
-    emitRelocation(m_Config, *section, *region);
+    emitRelocation(m_Config, *section, region);
     break;
   case LDFileFormat::Target:
-    target().emitSectionData(*section, *region);
+    target().emitSectionData(*section, region);
     break;
   default:
     llvm_unreachable("invalid section kind");
@@ -215,8 +211,8 @@ void ELFObjectWriter::writeELFHeader(const LinkerConfig& pConfig,
   typedef typename ELFSizeTraits<SIZE>::Phdr ElfXX_Phdr;
 
   // ELF header must start from 0x0
-  MemoryRegion *region = pOutput.request(0, sizeof(ElfXX_Ehdr));
-  ElfXX_Ehdr* header = (ElfXX_Ehdr*)region->start();
+  MemoryRegion region = pOutput.request(0, sizeof(ElfXX_Ehdr));
+  ElfXX_Ehdr* header = (ElfXX_Ehdr*)region.begin();
 
   memcpy(header->e_ident, ElfMagic, EI_MAG3+1);
 
@@ -312,9 +308,9 @@ void ELFObjectWriter::emitSectionHeader(const Module& pModule,
   // emit section header
   unsigned int sectNum = pModule.size();
   unsigned int header_size = sizeof(ElfXX_Shdr) * sectNum;
-  MemoryRegion* region = pOutput.request(getLastStartOffset<SIZE>(pModule),
-                                         header_size);
-  ElfXX_Shdr* shdr = (ElfXX_Shdr*)region->start();
+  MemoryRegion region = pOutput.request(getLastStartOffset<SIZE>(pModule),
+                                        header_size);
+  ElfXX_Shdr* shdr = (ElfXX_Shdr*)region.begin();
 
   // Iterate the SectionTable in LDContext
   unsigned int sectIdx = 0;
@@ -349,11 +345,10 @@ void ELFObjectWriter::emitProgramHeader(FileOutputBuffer& pOutput) const
   start_offset = sizeof(ElfXX_Ehdr);
   phdr_size = sizeof(ElfXX_Phdr);
   // Program header must start directly after ELF header
-  MemoryRegion *region =
-    pOutput.request(start_offset,
-                    target().elfSegmentTable().size() * phdr_size);
+  MemoryRegion region = pOutput.request(start_offset,
+      target().elfSegmentTable().size() * phdr_size);
 
-  ElfXX_Phdr* phdr = (ElfXX_Phdr*)region->start();
+  ElfXX_Phdr* phdr = (ElfXX_Phdr*)region.begin();
 
   // Iterate the elf segment table in GNULDBackend
   size_t index = 0;
@@ -378,8 +373,8 @@ ELFObjectWriter::emitShStrTab(const LDSection& pShStrTab,
                               FileOutputBuffer& pOutput)
 {
   // write out data
-  MemoryRegion* region = pOutput.request(pShStrTab.offset(), pShStrTab.size());
-  unsigned char* data = region->start();
+  MemoryRegion region = pOutput.request(pShStrTab.offset(), pShStrTab.size());
+  char* data = (char*)region.begin();
   size_t shstrsize = 0;
   Module::const_iterator section, sectEnd = pModule.end();
   for (section = pModule.begin(); section != sectEnd; ++section) {
@@ -451,7 +446,7 @@ void ELFObjectWriter::emitRel(const LinkerConfig& pConfig,
   typedef typename ELFSizeTraits<SIZE>::Addr ElfXX_Addr;
   typedef typename ELFSizeTraits<SIZE>::Word ElfXX_Word;
 
-  ElfXX_Rel* rel = reinterpret_cast<ElfXX_Rel*>(pRegion.start());
+  ElfXX_Rel* rel = reinterpret_cast<ElfXX_Rel*>(pRegion.begin());
 
   const Relocation* relocation = 0;
   const FragmentRef* frag_ref = 0;
@@ -494,7 +489,7 @@ void ELFObjectWriter::emitRela(const LinkerConfig& pConfig,
   typedef typename ELFSizeTraits<SIZE>::Addr ElfXX_Addr;
   typedef typename ELFSizeTraits<SIZE>::Word ElfXX_Word;
 
-  ElfXX_Rela* rel = reinterpret_cast<ElfXX_Rela*>(pRegion.start());
+  ElfXX_Rela* rel = reinterpret_cast<ElfXX_Rela*>(pRegion.begin());
 
   const Relocation* relocation = 0;
   const FragmentRef* frag_ref = 0;
@@ -627,7 +622,7 @@ void ELFObjectWriter::emitSectionData(const SectionData& pSD,
       case Fragment::Region: {
         const RegionFragment& region_frag = llvm::cast<RegionFragment>(*fragIter);
         const char* from = region_frag.getRegion().begin();
-        memcpy(pRegion.getBuffer(cur_offset), from, size);
+        memcpy(pRegion.begin() + cur_offset, from, size);
         break;
       }
       case Fragment::Alignment: {
@@ -636,7 +631,7 @@ void ELFObjectWriter::emitSectionData(const SectionData& pSD,
         uint64_t count = size / align_frag.getValueSize();
         switch (align_frag.getValueSize()) {
           case 1u:
-            std::memset(pRegion.getBuffer(cur_offset),
+            std::memset(pRegion.begin() + cur_offset,
                         align_frag.getValue(),
                         count);
             break;
@@ -657,7 +652,7 @@ void ELFObjectWriter::emitSectionData(const SectionData& pSD,
 
         uint64_t num_tiles = fill_frag.size() / fill_frag.getValueSize();
         for (uint64_t i = 0; i != num_tiles; ++i) {
-          std::memset(pRegion.getBuffer(cur_offset),
+          std::memset(pRegion.begin() + cur_offset,
                       fill_frag.getValue(),
                       fill_frag.getValueSize());
         }
@@ -665,7 +660,7 @@ void ELFObjectWriter::emitSectionData(const SectionData& pSD,
       }
       case Fragment::Stub: {
         const Stub& stub_frag = llvm::cast<Stub>(*fragIter);
-        memcpy(pRegion.getBuffer(cur_offset), stub_frag.getContent(), size);
+        memcpy(pRegion.begin() + cur_offset, stub_frag.getContent(), size);
         break;
       }
       case Fragment::Null: {

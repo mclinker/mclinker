@@ -12,7 +12,6 @@
 #include <mcld/Target/GNULDBackend.h>
 #include <mcld/LD/ELFFileFormat.h>
 #include <mcld/LinkerConfig.h>
-#include <mcld/Support/MemoryRegion.h>
 #include <mcld/Support/MsgHandling.h>
 
 using namespace mcld;
@@ -341,7 +340,7 @@ void ELFDynamic::emit(const LDSection& pSection, MemoryRegion& pRegion) const
                              llvm::Twine(" than the section's demaind.\n"));
   }
 
-  uint8_t* address = (uint8_t*)pRegion.start();
+  uint8_t* address = (uint8_t*)pRegion.begin();
   EntryListType::const_iterator entry, entryEnd = m_NeedList.end();
   for (entry = m_NeedList.begin(); entry != entryEnd; ++entry)
     address += (*entry)->emit(address);

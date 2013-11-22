@@ -7,7 +7,6 @@
 //
 //===----------------------------------------------------------------------===//
 #include <mcld/Fragment/RegionFragment.h>
-#include <mcld/Support/MemoryRegion.h>
 
 using namespace mcld;
 

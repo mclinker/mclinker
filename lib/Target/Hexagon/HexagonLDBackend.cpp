@@ -21,7 +21,6 @@
 #include <mcld/Fragment/AlignFragment.h>
 #include <mcld/Fragment/FillFragment.h>
 #include <mcld/Fragment/RegionFragment.h>
-#include <mcld/Support/MemoryRegion.h>
 #include <mcld/Support/MemoryArea.h>
 #include <mcld/Support/MsgHandling.h>
 #include <mcld/Support/TargetRegistry.h>
@@ -134,7 +133,7 @@ const HexagonELFDynamic& HexagonLDBackend::dynamic() const
 }
 
 uint64_t HexagonLDBackend::emitSectionData(const LDSection& pSection,
-                                          MemoryRegion& pRegion) const
+                                           MemoryRegion& pRegion) const
 {
   if (!pRegion.size())
     return 0;
@@ -148,7 +147,7 @@ uint64_t HexagonLDBackend::emitSectionData(const LDSection& pSection,
     if (&pSection == &(FileFormat->getPLT())) {
       assert(m_pPLT && "emitSectionData failed, m_pPLT is NULL!");
 
-      unsigned char* buffer = pRegion.getBuffer();
+      unsigned char* buffer = pRegion.begin();
 
       m_pPLT->applyPLT0();
       m_pPLT->applyPLT1();
@@ -182,7 +181,7 @@ uint64_t HexagonLDBackend::emitSectionData(const LDSection& pSection,
 
   const SectionData* sect_data = pSection.getSectionData();
   SectionData::const_iterator frag_iter, frag_end = sect_data->end();
-  uint8_t* out_offset = pRegion.start();
+  uint8_t* out_offset = pRegion.begin();
   for (frag_iter = sect_data->begin(); frag_iter != frag_end; ++frag_iter) {
     size_t size = frag_iter->size();
     switch(frag_iter->getKind()) {
@@ -320,11 +319,12 @@ void HexagonLDBackend::setGOTSectionSize(IRBuilder& pBuilder)
     m_pGOT->finalizeSectionSize();
 }
 
-uint64_t HexagonLDBackend::emitGOTSectionData(MemoryRegion& pRegion) const
+uint64_t
+HexagonLDBackend::emitGOTSectionData(MemoryRegion& pRegion) const
 {
   assert(m_pGOT && "emitGOTSectionData failed, m_pGOT is NULL!");
 
-  uint32_t* buffer = reinterpret_cast<uint32_t*>(pRegion.getBuffer());
+  uint32_t* buffer = reinterpret_cast<uint32_t*>(pRegion.begin());
 
   HexagonGOTEntry* got = 0;
   unsigned int EntrySize = HexagonGOTEntry::EntrySize;
@@ -369,13 +369,13 @@ void HexagonLDBackend::defineGOTSymbol(IRBuilder& pBuilder,
 }
 
 uint64_t HexagonLDBackend::emitGOTPLTSectionData(MemoryRegion& pRegion,
-                                         const ELFFileFormat* FileFormat) const
+    const ELFFileFormat* FileFormat) const
 {
   assert(m_pGOTPLT && "emitGOTPLTSectionData failed, m_pGOTPLT is NULL!");
   m_pGOTPLT->applyGOT0(FileFormat->getDynamic().addr());
   m_pGOTPLT->applyAllGOTPLT(*m_pPLT);
 
-  uint32_t* buffer = reinterpret_cast<uint32_t*>(pRegion.getBuffer());
+  uint32_t* buffer = reinterpret_cast<uint32_t*>(pRegion.begin());
 
   HexagonGOTEntry* got = 0;
   unsigned int EntrySize = HexagonGOTEntry::EntrySize;

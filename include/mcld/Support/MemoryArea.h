@@ -20,9 +20,6 @@
 
 namespace mcld {
 
-class FileHandle;
-class MemoryRegion;
-
 /** \class MemoryArea
  *  \brief MemoryArea is used to manage input read-only memory space.
  */

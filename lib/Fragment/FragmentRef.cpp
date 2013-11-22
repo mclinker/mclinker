@@ -13,7 +13,6 @@
 #include <mcld/LD/SectionData.h>
 #include <mcld/LD/EhFrame.h>
 #include <mcld/Support/GCFactory.h>
-#include <mcld/Support/MemoryRegion.h>
 #include <mcld/Fragment/RegionFragment.h>
 #include <mcld/Fragment/Stub.h>
 

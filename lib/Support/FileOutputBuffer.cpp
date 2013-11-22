@@ -8,7 +8,6 @@
 //===----------------------------------------------------------------------===//
 #include <mcld/Support/FileOutputBuffer.h>
 #include <mcld/Support/FileHandle.h>
-#include <mcld/Support/MemoryRegion.h>
 #include <mcld/Support/Path.h>
 
 using namespace mcld;
@@ -47,12 +46,11 @@ llvm::error_code FileOutputBuffer::create(FileHandle& pFileHandle,
   return llvm::error_code::success();
 }
 
-MemoryRegion* FileOutputBuffer::request(size_t pOffset, size_t pLength)
+MemoryRegion FileOutputBuffer::request(size_t pOffset, size_t pLength)
 {
   if (pOffset > getBufferSize() || (pOffset + pLength) > getBufferSize())
-    return NULL;
-
-  return MemoryRegion::Create(getBufferStart() + pOffset, pLength);
+    return MemoryRegion();
+  return MemoryRegion(getBufferStart() + pOffset, pLength);
 }
 
 llvm::StringRef FileOutputBuffer::getPath() const

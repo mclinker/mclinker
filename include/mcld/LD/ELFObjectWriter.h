@@ -14,6 +14,7 @@
 #include <mcld/LD/ObjectWriter.h>
 #include <cassert>
 
+#include <mcld/Support/FileOutputBuffer.h>
 #include <llvm/Support/system_error.h>
 
 namespace mcld {
@@ -27,8 +28,6 @@ class LDSection;
 class SectionData;
 class RelocData;
 class Output;
-class FileOutputBuffer;
-class MemoryRegion;
 
 /** \class ELFObjectWriter
  *  \brief ELFObjectWriter writes the target-independent parts of object files.
@@ -77,8 +76,7 @@ private:
                     const Module& pModule,
                     FileOutputBuffer& pOutput);
 
-  void emitSectionData(const LDSection& pSection,
-                       MemoryRegion& pRegion) const;
+  void emitSectionData(const LDSection& pSection, MemoryRegion& pRegion) const;
 
   void emitRelocation(const LinkerConfig& pConfig,
                       const LDSection& pSection,

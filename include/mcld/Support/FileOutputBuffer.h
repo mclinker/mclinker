@@ -12,6 +12,7 @@
 #include <gtest.h>
 #endif
 
+#include <mcld/Support/MemoryRegion.h>
 #include <llvm/ADT/OwningPtr.h>
 #include <llvm/ADT/StringRef.h>
 #include <llvm/Support/DataTypes.h>
@@ -21,7 +22,6 @@
 namespace mcld {
 
 class FileHandle;
-class MemoryRegion;
 
 /// FileOutputBuffer - This interface is borrowed from llvm bassically, and we
 /// may use ostream to emit output later.
@@ -49,7 +49,7 @@ public:
     return m_pRegion->size();
   }
 
-  MemoryRegion* request(size_t pOffset, size_t pLength);
+  MemoryRegion request(size_t pOffset, size_t pLength);
 
   /// Returns path where file will show up if buffer is committed.
   llvm::StringRef getPath() const;
