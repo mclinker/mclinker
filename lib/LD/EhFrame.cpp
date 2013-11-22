@@ -16,7 +16,6 @@
 #include <mcld/LD/SectionData.h>
 #include <mcld/MC/Input.h>
 #include <mcld/Object/ObjectBuilder.h>
-#include <mcld/Support/MemoryRegion.h>
 #include <mcld/Support/GCFactory.h>
 
 #include <llvm/Support/ManagedStatic.h>
@@ -30,7 +29,7 @@ static llvm::ManagedStatic<EhFrameFactory> g_EhFrameFactory;
 //===----------------------------------------------------------------------===//
 // EhFrame::Record
 //===----------------------------------------------------------------------===//
-EhFrame::Record::Record(MemoryRegion& pRegion)
+EhFrame::Record::Record(llvm::StringRef pRegion)
   : RegionFragment(pRegion) {
 }
 
@@ -42,7 +41,7 @@ EhFrame::Record::~Record()
 //===----------------------------------------------------------------------===//
 // EhFrame::CIE
 //===----------------------------------------------------------------------===//
-EhFrame::CIE::CIE(MemoryRegion& pRegion)
+EhFrame::CIE::CIE(llvm::StringRef pRegion)
   : EhFrame::Record(pRegion),
     m_FDEEncode(0u), m_Mergeable(false), m_pReloc(0), m_PersonalityOffset(0) {
 }
@@ -54,7 +53,7 @@ EhFrame::CIE::~CIE()
 //===----------------------------------------------------------------------===//
 // EhFrame::FDE
 //===----------------------------------------------------------------------===//
-EhFrame::FDE::FDE(MemoryRegion& pRegion, EhFrame::CIE& pCIE)
+EhFrame::FDE::FDE(llvm::StringRef pRegion, EhFrame::CIE& pCIE)
   : EhFrame::Record(pRegion), m_pCIE(&pCIE) {
 }
 
@@ -71,7 +70,7 @@ void EhFrame::FDE::setCIE(EhFrame::CIE& pCIE)
 //===----------------------------------------------------------------------===//
 // EhFrame::GeneratedCIE
 //===----------------------------------------------------------------------===//
-EhFrame::GeneratedCIE::GeneratedCIE(MemoryRegion& pRegion)
+EhFrame::GeneratedCIE::GeneratedCIE(llvm::StringRef pRegion)
   : EhFrame::CIE(pRegion) {
 }
 
@@ -82,7 +81,7 @@ EhFrame::GeneratedCIE::~GeneratedCIE()
 //===----------------------------------------------------------------------===//
 // EhFrame::GeneratedFDE
 //===----------------------------------------------------------------------===//
-EhFrame::GeneratedFDE::GeneratedFDE(MemoryRegion& pRegion, CIE &pCIE)
+EhFrame::GeneratedFDE::GeneratedFDE(llvm::StringRef pRegion, CIE &pCIE)
   : EhFrame::FDE(pRegion, pCIE) {
 }
 

@@ -25,7 +25,7 @@ class MCLinker;
 class LinkerScript;
 class LinkerConfig;
 class Module;
-class MemoryArea;
+class FileHandle;
 class DiagnosticLineInfo;
 class TargetLDBackend;
 
@@ -48,7 +48,7 @@ public:
   typedef MCLinker *(*MCLinkerCtorTy)(const std::string& pTriple,
                                       LinkerConfig&,
                                       Module&,
-                                      MemoryArea& pOutput);
+                                      FileHandle& pFileHandle);
 
   typedef bool (*EmulationFnTy)(LinkerScript&, LinkerConfig&);
 
@@ -74,7 +74,7 @@ public:
   MCLinker *createMCLinker(const std::string &pTriple,
                            LinkerConfig& pConfig,
                            Module& pModule,
-                           MemoryArea& pOutput) const;
+                           FileHandle& pFileHandle) const;
 
   /// emulate - given MCLinker default values for the other aspects of the
   /// target system.

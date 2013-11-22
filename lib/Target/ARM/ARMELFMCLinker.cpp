@@ -8,15 +8,12 @@
 //===----------------------------------------------------------------------===//
 #include "ARMELFMCLinker.h"
 
-#include <mcld/LinkerConfig.h>
-#include <mcld/Object/SectionMap.h>
-
 using namespace mcld;
 
 ARMELFMCLinker::ARMELFMCLinker(LinkerConfig& pConfig,
                                mcld::Module &pModule,
-                               MemoryArea& pOutput)
-  : ELFMCLinker(pConfig, pModule, pOutput) {
+                               FileHandle& pFileHandle)
+  : ELFMCLinker(pConfig, pModule, pFileHandle) {
 }
 
 ARMELFMCLinker::~ARMELFMCLinker()

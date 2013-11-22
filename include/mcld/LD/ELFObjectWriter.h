@@ -28,8 +28,8 @@ class LDSection;
 class SectionData;
 class RelocData;
 class Output;
+class FileOutputBuffer;
 class MemoryRegion;
-class MemoryArea;
 
 /** \class ELFObjectWriter
  *  \brief ELFObjectWriter writes the target-independent parts of object files.
@@ -43,10 +43,13 @@ public:
 
   ~ELFObjectWriter();
 
-  llvm::error_code writeObject(Module& pModule, MemoryArea& pOutput);
+  llvm::error_code writeObject(Module& pModule, FileOutputBuffer& pOutput);
+
+  size_t getOutputSize(const Module& pModule) const;
 
 private:
-  void writeSection(Module& pModule, MemoryArea& pOutput, LDSection *section);
+  void writeSection(Module& pModule,
+                    FileOutputBuffer& pOutput, LDSection *section);
 
   GNULDBackend&       target()        { return m_Backend; }
 
@@ -56,7 +59,7 @@ private:
   template<size_t SIZE>
   void writeELFHeader(const LinkerConfig& pConfig,
                       const Module& pModule,
-                      MemoryArea& pOutput) const;
+                      FileOutputBuffer& pOutput) const;
 
   uint64_t getEntryPoint(const LinkerConfig& pConfig,
                          const Module& pModule) const;
@@ -65,16 +68,16 @@ private:
   template<size_t SIZE>
   void emitSectionHeader(const Module& pModule,
                          const LinkerConfig& pConfig,
-                         MemoryArea& pOutput) const;
+                         FileOutputBuffer& pOutput) const;
 
   // emitProgramHeader - emit ElfXX_Phdr
   template<size_t SIZE>
-  void emitProgramHeader(MemoryArea& pOutput) const;
+  void emitProgramHeader(FileOutputBuffer& pOutput) const;
 
   // emitShStrTab - emit .shstrtab
   void emitShStrTab(const LDSection& pShStrTab,
                     const Module& pModule,
-                    MemoryArea& pOutput);
+                    FileOutputBuffer& pOutput);
 
   void emitSectionData(const LDSection& pSection,
                        MemoryRegion& pRegion) const;

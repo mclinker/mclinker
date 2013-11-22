@@ -12,7 +12,7 @@
 #include <mcld/LinkerConfig.h>
 #include <mcld/LinkerScript.h>
 #include <mcld/Target/GNULDBackend.h>
-#include <mcld/Support/MemoryArea.h>
+#include <mcld/Support/FileOutputBuffer.h>
 #include <mcld/Support/MemoryRegion.h>
 #include <mcld/Support/MsgHandling.h>
 #include <mcld/ADT/SizeTraits.h>
@@ -54,7 +54,7 @@ ELFObjectWriter::~ELFObjectWriter()
 }
 
 void ELFObjectWriter::writeSection(Module& pModule,
-                                   MemoryArea& pOutput, LDSection *section)
+                                   FileOutputBuffer& pOutput, LDSection *section)
 {
   MemoryRegion* region;
   // Request output region
@@ -121,7 +121,7 @@ void ELFObjectWriter::writeSection(Module& pModule,
 }
 
 llvm::error_code ELFObjectWriter::writeObject(Module& pModule,
-                                              MemoryArea& pOutput)
+                                              FileOutputBuffer& pOutput)
 {
   bool is_dynobj = m_Config.codeGenType() == LinkerConfig::DynObj;
   bool is_exec = m_Config.codeGenType() == LinkerConfig::Exec;
@@ -187,15 +187,29 @@ llvm::error_code ELFObjectWriter::writeObject(Module& pModule,
       return make_error_code(errc::not_supported);
   }
 
-  pOutput.clear();
   return llvm::make_error_code(llvm::errc::success);
+}
+
+// getOutputSize - count the final output size
+size_t ELFObjectWriter::getOutputSize(const Module& pModule) const
+{
+  if (m_Config.targets().is32Bits()) {
+    return getLastStartOffset<32>(pModule) +
+           sizeof(ELFSizeTraits<32>::Shdr) * pModule.size();
+  } else if (m_Config.targets().is64Bits()) {
+    return getLastStartOffset<64>(pModule) +
+           sizeof(ELFSizeTraits<64>::Shdr) * pModule.size();
+  } else {
+    assert(0 && "Invalid ELF Class");
+    return 0;
+  }
 }
 
 // writeELFHeader - emit ElfXX_Ehdr
 template<size_t SIZE>
 void ELFObjectWriter::writeELFHeader(const LinkerConfig& pConfig,
                                      const Module& pModule,
-                                     MemoryArea& pOutput) const
+                                     FileOutputBuffer& pOutput) const
 {
   typedef typename ELFSizeTraits<SIZE>::Ehdr ElfXX_Ehdr;
   typedef typename ELFSizeTraits<SIZE>::Shdr ElfXX_Shdr;
@@ -292,7 +306,7 @@ uint64_t ELFObjectWriter::getEntryPoint(const LinkerConfig& pConfig,
 template<size_t SIZE>
 void ELFObjectWriter::emitSectionHeader(const Module& pModule,
                                         const LinkerConfig& pConfig,
-                                        MemoryArea& pOutput) const
+                                        FileOutputBuffer& pOutput) const
 {
   typedef typename ELFSizeTraits<SIZE>::Shdr ElfXX_Shdr;
 
@@ -326,7 +340,7 @@ void ELFObjectWriter::emitSectionHeader(const Module& pModule,
 
 // emitProgramHeader - emit ElfXX_Phdr
 template<size_t SIZE>
-void ELFObjectWriter::emitProgramHeader(MemoryArea& pOutput) const
+void ELFObjectWriter::emitProgramHeader(FileOutputBuffer& pOutput) const
 {
   typedef typename ELFSizeTraits<SIZE>::Ehdr ElfXX_Ehdr;
   typedef typename ELFSizeTraits<SIZE>::Phdr ElfXX_Phdr;
@@ -362,7 +376,7 @@ void ELFObjectWriter::emitProgramHeader(MemoryArea& pOutput) const
 void
 ELFObjectWriter::emitShStrTab(const LDSection& pShStrTab,
                               const Module& pModule,
-                              MemoryArea& pOutput)
+                              FileOutputBuffer& pOutput)
 {
   // write out data
   MemoryRegion* region = pOutput.request(pShStrTab.offset(), pShStrTab.size());
@@ -657,7 +671,7 @@ void ELFObjectWriter::emitSectionData(const SectionData& pSD,
     switch(fragIter->getKind()) {
       case Fragment::Region: {
         const RegionFragment& region_frag = llvm::cast<RegionFragment>(*fragIter);
-        const uint8_t* from = region_frag.getRegion().start();
+        const char* from = region_frag.getRegion().begin();
         memcpy(pRegion.getBuffer(cur_offset), from, size);
         break;
       }

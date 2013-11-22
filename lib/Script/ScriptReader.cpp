@@ -11,7 +11,8 @@
 #include <mcld/Script/ScriptFile.h>
 #include <mcld/MC/Input.h>
 #include <mcld/Support/MemoryArea.h>
-#include <mcld/Support/MemoryRegion.h>
+
+#include <llvm/ADT/StringRef.h>
 
 #include <istream>
 #include <sstream>
@@ -39,12 +40,10 @@ bool ScriptReader::readScript(const LinkerConfig& pConfig,
                               ScriptFile& pScriptFile)
 {
   bool result = false;
-  std::stringbuf buf;
   Input& input = pScriptFile.input();
   size_t size = input.memArea()->size();
-  MemoryRegion* region = input.memArea()->request(input.fileOffset(), size);
-  char* str = reinterpret_cast<char*>(region->getBuffer());
-  buf.pubsetbuf(str, size);
+  llvm::StringRef region = input.memArea()->request(input.fileOffset(), size);
+  std::stringbuf buf(region.data());
 
   std::istream in(&buf);
   ScriptScanner scanner(&in);
@@ -54,7 +53,6 @@ bool ScriptReader::readScript(const LinkerConfig& pConfig,
                       m_GroupReader);
   result = (0 == parser.parse());;
 
-  input.memArea()->release(region);
   return result;
 }
 

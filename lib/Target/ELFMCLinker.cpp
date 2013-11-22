@@ -7,9 +7,6 @@
 //
 //===----------------------------------------------------------------------===//
 #include <mcld/Target/ELFMCLinker.h>
-#include <mcld/LinkerConfig.h>
-#include <mcld/Object/SectionMap.h>
-#include <mcld/Support/MsgHandling.h>
 
 using namespace mcld;
 
@@ -18,8 +15,8 @@ using namespace mcld;
 //===----------------------------------------------------------------------===//
 ELFMCLinker::ELFMCLinker(LinkerConfig& pConfig,
                          mcld::Module& pModule,
-                         MemoryArea& pOutput)
-  : MCLinker(pConfig, pModule, pOutput) {
+                         FileHandle& pFileHandle)
+  : MCLinker(pConfig, pModule, pFileHandle) {
 
 }
 

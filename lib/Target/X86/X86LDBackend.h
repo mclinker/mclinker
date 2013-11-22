@@ -132,8 +132,8 @@ private:
   virtual void setRelDynSize() = 0;
   virtual void setRelPLTSize() = 0;
 
-  virtual MemoryRegion* createCIEMemoryRegionForPLT() = 0;
-  virtual MemoryRegion* createFDEMemoryRegionForPLT() = 0;
+  virtual llvm::StringRef createCIERegionForPLT() = 0;
+  virtual llvm::StringRef createFDERegionForPLT() = 0;
 
 protected:
   Relocator* m_pRelocator;
@@ -188,8 +188,8 @@ private:
   void setRelDynSize();
   void setRelPLTSize();
 
-  MemoryRegion* createCIEMemoryRegionForPLT();
-  MemoryRegion* createFDEMemoryRegionForPLT();
+  llvm::StringRef createCIERegionForPLT();
+  llvm::StringRef createFDERegionForPLT();
 
 private:
   X86_32GOT* m_pGOT;
@@ -231,8 +231,8 @@ private:
   void setRelDynSize();
   void setRelPLTSize();
 
-  MemoryRegion* createCIEMemoryRegionForPLT();
-  MemoryRegion* createFDEMemoryRegionForPLT();
+  llvm::StringRef createCIERegionForPLT();
+  llvm::StringRef createFDERegionForPLT();
 
 private:
   X86_64GOT* m_pGOT;

@@ -7,14 +7,13 @@
 //
 //===----------------------------------------------------------------------===//
 #include "X86ELFMCLinker.h"
-#include <mcld/LinkerConfig.h>
 
 using namespace mcld;
 
 X86ELFMCLinker::X86ELFMCLinker(LinkerConfig& pConfig,
                                mcld::Module& pModule,
-                               MemoryArea& pOutput)
-  : ELFMCLinker(pConfig, pModule, pOutput) {
+                               FileHandle& pFileHandle)
+  : ELFMCLinker(pConfig, pModule, pFileHandle) {
 }
 
 X86ELFMCLinker::~X86ELFMCLinker()

@@ -32,8 +32,6 @@ MCLD_SOURCES += \
 	${UNITTEST}/LinearAllocatorTest.h \
 	${UNITTEST}/LinkerTest.cpp \
 	${UNITTEST}/LinkerTest.h \
-	${UNITTEST}/MemoryAreaTest.cpp \
-	${UNITTEST}/MemoryAreaTest.h \
 	${UNITTEST}/PathTest.cpp \
 	${UNITTEST}/PathTest.h \
 	${UNITTEST}/RTLinearAllocatorTest.h \

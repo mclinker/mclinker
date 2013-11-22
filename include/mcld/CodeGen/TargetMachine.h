@@ -27,7 +27,7 @@ namespace mcld {
 
 class Module;
 class Target;
-class MemoryArea;
+class FileHandle;
 class LinkerConfig;
 class ToolOutputFile;
 
@@ -94,7 +94,7 @@ private:
   bool addLinkerPasses(llvm::PassManagerBase &pPM,
                        mcld::LinkerConfig& pConfig,
                        mcld::Module& pModule,
-                       mcld::MemoryArea& pOutput,
+                       mcld::FileHandle& pFileHandle,
                        llvm::MCContext *&OutCtx);
 
 private:

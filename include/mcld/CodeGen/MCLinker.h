@@ -28,10 +28,10 @@ class MachineFunction;
 namespace mcld {
 
 class Module;
-class MemoryArea;
 class IRBuilder;
 class LinkerConfig;
 class Linker;
+class FileHandle;
 
 /** \class MCLinker
 *  \brief MCLinker provides a linking pass for standard compilation flow
@@ -54,7 +54,7 @@ protected:
   // - the standard symbols
   MCLinker(LinkerConfig& pConfig,
            mcld::Module& pModule,
-           MemoryArea& pOutput);
+           FileHandle& pFileHandle);
 
 public:
   virtual ~MCLinker();
@@ -71,7 +71,7 @@ protected:
 protected:
   LinkerConfig& m_Config;
   mcld::Module& m_Module;
-  MemoryArea& m_Output;
+  FileHandle& m_FileHandle;
   IRBuilder* m_pBuilder;
   Linker* m_pLinker;
 

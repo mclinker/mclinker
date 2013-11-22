@@ -163,10 +163,10 @@ HEADER = ${INCDIR}/AttributeOption.h \
 	${INCDIR}/Support/Directory.h \
 	${INCDIR}/Support/ELF.h \
 	${INCDIR}/Support/FileHandle.h \
+	${INCDIR}/Support/FileOutputBuffer.h \
 	${INCDIR}/Support/FileSystem.h \
 	${INCDIR}/Support/GCFactory.h \
 	${INCDIR}/Support/GCFactoryListTraits.h \
-	${INCDIR}/Support/HandleToArea.h \
 	${INCDIR}/Support/LEB128.h \
 	${INCDIR}/Support/MemoryAreaFactory.h \
 	${INCDIR}/Support/MemoryArea.h \
@@ -174,11 +174,9 @@ HEADER = ${INCDIR}/AttributeOption.h \
 	${INCDIR}/Support/MsgHandling.h \
 	${INCDIR}/Support/PathCache.h \
 	${INCDIR}/Support/Path.h \
-	${INCDIR}/Support/raw_mem_ostream.h \
 	${INCDIR}/Support/raw_ostream.h \
 	${INCDIR}/Support/RealPath.h \
 	${INCDIR}/Support/RegionFactory.h \
-	${INCDIR}/Support/Space.h \
 	${INCDIR}/Support/SystemUtils.h \
 	${INCDIR}/Support/Target.h \
 	${INCDIR}/Support/TargetRegistry.h \
@@ -320,19 +318,17 @@ SOURCE = ${LIBDIR}/ADT/StringEntry.cpp \
 	${LIBDIR}/Support/CommandLine.cpp \
 	${LIBDIR}/Support/Directory.cpp \
 	${LIBDIR}/Support/FileHandle.cpp \
+	${LIBDIR}/Support/FileOutputBuffer.cpp \
 	${LIBDIR}/Support/FileSystem.cpp \
-	${LIBDIR}/Support/HandleToArea.cpp \
 	${LIBDIR}/Support/LEB128.cpp \
 	${LIBDIR}/Support/MemoryArea.cpp \
 	${LIBDIR}/Support/MemoryAreaFactory.cpp \
 	${LIBDIR}/Support/MemoryRegion.cpp \
 	${LIBDIR}/Support/MsgHandling.cpp \
 	${LIBDIR}/Support/Path.cpp \
-	${LIBDIR}/Support/raw_mem_ostream.cpp \
 	${LIBDIR}/Support/raw_ostream.cpp \
 	${LIBDIR}/Support/RealPath.cpp \
 	${LIBDIR}/Support/RegionFactory.cpp \
-	${LIBDIR}/Support/Space.cpp \
 	${LIBDIR}/Support/SystemUtils.cpp \
 	${LIBDIR}/Support/Target.cpp \
 	${LIBDIR}/Support/TargetRegistry.cpp \

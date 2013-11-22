@@ -17,6 +17,7 @@
 #include <mcld/LD/SectionData.h>
 #include <mcld/Support/Allocators.h>
 
+#include <llvm/ADT/StringRef.h>
 #include <list>
 #include <set>
 #include <vector>
@@ -67,11 +68,11 @@ public:
   class Record : public RegionFragment
   {
   public:
-    Record(MemoryRegion& pRegion);
+    Record(llvm::StringRef pRegion);
     virtual ~Record();
 
-    const MemoryRegion& getRegion() const { return RegionFragment::getRegion(); }
-          MemoryRegion& getRegion()       { return RegionFragment::getRegion(); }
+    const llvm::StringRef getRegion() const { return RegionFragment::getRegion(); }
+          llvm::StringRef getRegion()       { return RegionFragment::getRegion(); }
     virtual RecordType getRecordType() const { return RECORD_UNKNOWN; }
 
   private:
@@ -86,7 +87,7 @@ public:
   class CIE : public Record
   {
   public:
-    CIE(MemoryRegion& pRegion);
+    CIE(llvm::StringRef pRegion);
     ~CIE();
 
     virtual RecordType getRecordType() const { return RECORD_INPUT; }
@@ -136,7 +137,7 @@ public:
   class FDE : public Record
   {
   public:
-    FDE(MemoryRegion& pRegion, CIE& pCIE);
+    FDE(llvm::StringRef pRegion, CIE& pCIE);
     ~FDE();
 
     void setCIE(CIE& pCIE);
@@ -151,7 +152,7 @@ public:
   class GeneratedCIE : public CIE
   {
   public:
-    GeneratedCIE(MemoryRegion& pRegion);
+    GeneratedCIE(llvm::StringRef pRegion);
     ~GeneratedCIE();
 
     virtual RecordType getRecordType() const { return RECORD_GENERATED; }
@@ -161,7 +162,7 @@ public:
   class GeneratedFDE : public FDE
   {
   public:
-    GeneratedFDE(MemoryRegion& pRegion, CIE& pCIE);
+    GeneratedFDE(llvm::StringRef pRegion, CIE& pCIE);
     ~GeneratedFDE();
 
     virtual RecordType getRecordType() const { return RECORD_GENERATED; }

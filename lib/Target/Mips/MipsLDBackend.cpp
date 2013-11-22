@@ -374,12 +374,12 @@ bool MipsGNULDBackend::readSection(Input& pInput, SectionData& pSD)
     uint32_t offset = pInput.fileOffset() + pSD.getSection().offset();
     uint32_t size = pSD.getSection().size();
 
-    MemoryRegion* region = pInput.memArea()->request(offset, size);
-    if (NULL != region) {
+    llvm::StringRef region = pInput.memArea()->request(offset, size);
+    if (region.size() > 0) {
       const llvm::ELF::Elf_Options* optb =
-        reinterpret_cast<const llvm::ELF::Elf_Options*>(region->start());
+        reinterpret_cast<const llvm::ELF::Elf_Options*>(region.begin());
       const llvm::ELF::Elf_Options* opte =
-        reinterpret_cast<const llvm::ELF::Elf_Options*>(region->start() + size);
+        reinterpret_cast<const llvm::ELF::Elf_Options*>(region.begin() + size);
 
       for (const llvm::ELF::Elf_Options* opt = optb; opt < opte; opt += opt->size) {
         switch (opt->kind) {

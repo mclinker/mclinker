@@ -8,12 +8,6 @@
 //===----------------------------------------------------------------------===//
 #include <mcld/Fragment/FragmentRef.h>
 
-#include <cstring>
-#include <cassert>
-
-#include <llvm/Support/Casting.h>
-#include <llvm/Support/ManagedStatic.h>
-
 #include <mcld/Fragment/Fragment.h>
 #include <mcld/LD/LDSection.h>
 #include <mcld/LD/SectionData.h>
@@ -22,6 +16,12 @@
 #include <mcld/Support/MemoryRegion.h>
 #include <mcld/Fragment/RegionFragment.h>
 #include <mcld/Fragment/Stub.h>
+
+#include <llvm/ADT/StringRef.h>
+#include <llvm/Support/Casting.h>
+#include <llvm/Support/ManagedStatic.h>
+
+#include <cassert>
 
 using namespace mcld;
 
@@ -132,7 +132,7 @@ void FragmentRef::memcpy(void* pDest, size_t pNBytes, Offset pOffset) const
       if (total_length < (total_offset+pNBytes))
         pNBytes = total_length - total_offset;
 
-      std::memcpy(pDest, region_frag->getRegion().getBuffer(total_offset), pNBytes);
+      std::memcpy(pDest, region_frag->getRegion().begin() + total_offset, pNBytes);
       return;
     }
     case Fragment::Stub: {
@@ -150,40 +150,6 @@ void FragmentRef::memcpy(void* pDest, size_t pNBytes, Offset pOffset) const
   }
 }
 
-FragmentRef::Address FragmentRef::deref()
-{
-  if (NULL == m_pFragment)
-    return NULL;
-  Address base = NULL;
-  switch(m_pFragment->getKind()) {
-    case Fragment::Region:
-      base = static_cast<RegionFragment*>(m_pFragment)->getRegion().getBuffer();
-      break;
-    case Fragment::Alignment:
-    case Fragment::Fillment:
-    default:
-      return NULL;
-  }
-  return base + m_Offset;
-}
-
-FragmentRef::ConstAddress FragmentRef::deref() const
-{
-  if (NULL == m_pFragment)
-    return NULL;
-  ConstAddress base = NULL;
-  switch(m_pFragment->getKind()) {
-    case Fragment::Region:
-      base = static_cast<const RegionFragment*>(m_pFragment)->getRegion().getBuffer();
-      break;
-    case Fragment::Alignment:
-    case Fragment::Fillment:
-    default:
-      return NULL;
-  }
-  return base + m_Offset;
-}
-
 FragmentRef::Offset FragmentRef::getOutputOffset() const
 {
   Offset result = 0;
@@ -191,4 +157,3 @@ FragmentRef::Offset FragmentRef::getOutputOffset() const
     result = m_pFragment->getOffset();
   return (result + m_Offset);
 }
-

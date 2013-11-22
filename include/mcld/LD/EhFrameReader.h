@@ -12,7 +12,8 @@
 #include <gtest.h>
 #endif
 #include <mcld/LD/EhFrame.h>
-#include <mcld/Support/MemoryRegion.h>
+#include <llvm/ADT/StringRef.h>
+#include <llvm/Support/DataTypes.h>
 #include <map>
 
 namespace mcld {
@@ -29,8 +30,8 @@ class LDSection;
 class EhFrameReader
 {
 public:
-  typedef const uint8_t* ConstAddress;
-  typedef       uint8_t* Address;
+  typedef const char* ConstAddress;
+  typedef       char* Address;
   typedef std::map</*offset*/size_t, EhFrame::CIE*> CIEMap;
 
 public:
@@ -72,27 +73,28 @@ private:
   /// @param pSection - the input .eh_frame section
   /// @param pRegion - the memory region that needs to handle with.
   typedef bool (*Action)(EhFrame& pEhFrame,
-                         MemoryRegion& pRegion,
+                         llvm::StringRef pRegion,
                          const Token& pToken);
 private:
   /// scan - scan pData from pHandler for a token.
-  template<bool SAME_ENDIAN> Token
-  scan(ConstAddress pHandler, uint64_t pOffset, const MemoryRegion& pData) const;
+  template<bool SAME_ENDIAN> Token scan(ConstAddress pHandler,
+                                        uint64_t pOffset,
+                                        llvm::StringRef pData) const;
 
   static bool addCIE(EhFrame& pEhFrame,
-                     MemoryRegion& pRegion,
+                     llvm::StringRef pRegion,
                      const Token& pToken);
 
   static bool addFDE(EhFrame& pEhFrame,
-                     MemoryRegion& pRegion,
+                     llvm::StringRef pRegion,
                      const Token& pToken);
 
   static bool addTerm(EhFrame& pEhFrame,
-                      MemoryRegion& pRegion,
+                      llvm::StringRef pRegion,
                       const Token& pToken);
 
   static bool reject(EhFrame& pEhFrame,
-                     MemoryRegion& pRegion,
+                     llvm::StringRef pRegion,
                      const Token& pToken);
 
   static CIEMap g_FoundCIEs;
@@ -104,7 +106,7 @@ EhFrameReader::read<32, true>(Input& pInput, EhFrame& pEhFrame);
 template<> EhFrameReader::Token
 EhFrameReader::scan<true>(ConstAddress pHandler,
                           uint64_t pOffset,
-                          const MemoryRegion& pData) const;
+                          llvm::StringRef pData) const;
 
 } // namespace of mcld
 

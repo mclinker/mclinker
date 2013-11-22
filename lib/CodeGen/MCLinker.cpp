@@ -27,7 +27,6 @@
 #include <mcld/Support/MsgHandling.h>
 #include <mcld/Support/FileHandle.h>
 #include <mcld/Support/raw_ostream.h>
-#include <mcld/Support/MemoryArea.h>
 
 #include <llvm/IR/Module.h>
 #include <llvm/Support/CommandLine.h>
@@ -200,11 +199,11 @@ ArgDefSymList("defsym",
 //===----------------------------------------------------------------------===//
 MCLinker::MCLinker(LinkerConfig& pConfig,
                    mcld::Module& pModule,
-                   MemoryArea& pOutput)
+                   FileHandle& pFileHandle)
   : MachineFunctionPass(m_ID),
     m_Config(pConfig),
     m_Module(pModule),
-    m_Output(pOutput),
+    m_FileHandle(pFileHandle),
     m_pBuilder(NULL),
     m_pLinker(NULL) {
 }
@@ -235,7 +234,7 @@ bool MCLinker::doFinalization(llvm::Module &pM)
   if (!m_pLinker->link(m_Module, *m_pBuilder))
     return true;
 
-  if (!m_pLinker->emit(m_Output))
+  if (!m_pLinker->emit(m_Module, m_FileHandle.handler()))
     return true;
 
   return false;

@@ -12,6 +12,7 @@
 #include "X86Relocator.h"
 #include "X86GNUInfo.h"
 
+#include <llvm/ADT/StringRef.h>
 #include <llvm/ADT/Triple.h>
 #include <llvm/Support/Casting.h>
 
@@ -300,13 +301,10 @@ void X86GNULDBackend::addEhFrameForPLT(Module& pModule)
   EhFrame* eh_frame = eh_sect->getEhFrame();
   SectionData::FragmentListType& frag_list =
       eh_frame->getSectionData()->getFragmentList();
-  MemoryRegion* cie_region = createCIEMemoryRegionForPLT();
-  MemoryRegion* fde_region = createFDEMemoryRegionForPLT();
-  if (!cie_region || !fde_region)
-    return;
-
-  EhFrame::CIE* cie = new EhFrame::GeneratedCIE(*cie_region);
-  EhFrame::FDE* fde = new EhFrame::GeneratedFDE(*fde_region, *cie);
+  llvm::StringRef cie_region = createCIERegionForPLT();
+  llvm::StringRef fde_region = createFDERegionForPLT();
+  EhFrame::CIE* cie = new EhFrame::GeneratedCIE(cie_region);
+  EhFrame::FDE* fde = new EhFrame::GeneratedFDE(fde_region, *cie);
   // Augmentation data only contains FDE encoding.
   uint8_t aug_data = (uint8_t)(llvm::dwarf::DW_EH_PE_pcrel |
                                llvm::dwarf::DW_EH_PE_sdata4);
@@ -325,8 +323,6 @@ void X86GNULDBackend::addEhFrameForPLT(Module& pModule)
       // Cleanup the CIE we created
       cie->clearFDEs();
       delete cie;
-      MemoryRegion::Destroy(cie_region);
-
       break;
     }
   }
@@ -426,7 +422,7 @@ const X86_32GOTPLT& X86_32GNULDBackend::getGOTPLT() const
   return *m_pGOTPLT;
 }
 
-MemoryRegion* X86_32GNULDBackend::createCIEMemoryRegionForPLT()
+llvm::StringRef X86_32GNULDBackend::createCIERegionForPLT()
 {
   using namespace llvm::dwarf;
   static const uint8_t data[4+4+16] = {
@@ -444,10 +440,10 @@ MemoryRegion* X86_32GNULDBackend::createCIEMemoryRegionForPLT()
     DW_CFA_nop,
     DW_CFA_nop
   };
-  return MemoryRegion::Create((void*)data, 4+4+16);
+  return llvm::StringRef((const char*)data, 4+4+16);
 }
 
-MemoryRegion* X86_32GNULDBackend::createFDEMemoryRegionForPLT()
+llvm::StringRef X86_32GNULDBackend::createFDERegionForPLT()
 {
   using namespace llvm::dwarf;
   static const uint8_t data[4+4+32] = {
@@ -476,7 +472,7 @@ MemoryRegion* X86_32GNULDBackend::createFDEMemoryRegionForPLT()
     DW_CFA_nop,
     DW_CFA_nop
   };
-  return MemoryRegion::Create((void*)data, 4+4+32);
+  return llvm::StringRef((const char*)data, 4+4+32);
 }
 
 void X86_32GNULDBackend::setRelDynSize()
@@ -596,7 +592,7 @@ const X86_64GOTPLT& X86_64GNULDBackend::getGOTPLT() const
   return *m_pGOTPLT;
 }
 
-MemoryRegion* X86_64GNULDBackend::createCIEMemoryRegionForPLT()
+llvm::StringRef X86_64GNULDBackend::createCIERegionForPLT()
 {
   using namespace llvm::dwarf;
   static const uint8_t data[4+4+16] = {
@@ -614,10 +610,10 @@ MemoryRegion* X86_64GNULDBackend::createCIEMemoryRegionForPLT()
     DW_CFA_nop,
     DW_CFA_nop
   };
-  return MemoryRegion::Create((void*)data, 4+4+16);
+  return llvm::StringRef((const char*)data, 4+4+16);
 }
 
-MemoryRegion* X86_64GNULDBackend::createFDEMemoryRegionForPLT()
+llvm::StringRef X86_64GNULDBackend::createFDERegionForPLT()
 {
   using namespace llvm::dwarf;
   static const uint8_t data[4+4+32] = {
@@ -646,7 +642,7 @@ MemoryRegion* X86_64GNULDBackend::createFDEMemoryRegionForPLT()
     DW_CFA_nop,
     DW_CFA_nop
   };
-  return MemoryRegion::Create((void*)data, 4+4+32);
+  return llvm::StringRef((const char*)data, 4+4+32);
 }
 
 void X86_64GNULDBackend::setRelDynSize()

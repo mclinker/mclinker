@@ -22,13 +22,14 @@ namespace mcld {
 
 class Module;
 class Output;
+class FileHandle;
 
 class ELFMCLinker : public MCLinker
 {
 public:
   ELFMCLinker(LinkerConfig& pConfig,
               mcld::Module& pModule,
-              MemoryArea& pOutput);
+              FileHandle& pFileHandle);
 
   virtual ~ELFMCLinker();
 };

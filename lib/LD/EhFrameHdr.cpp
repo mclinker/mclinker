@@ -8,7 +8,7 @@
 //===----------------------------------------------------------------------===//
 #include <mcld/LD/EhFrameHdr.h>
 
-#include <mcld/Support/MemoryArea.h>
+#include <mcld/Support/FileOutputBuffer.h>
 #include <mcld/Support/MemoryRegion.h>
 #include <mcld/LD/EhFrame.h>
 #include <mcld/LD/LDSection.h>
@@ -39,7 +39,7 @@ bool EntryCompare(const Entry& pX, const Entry& pY)
 //===----------------------------------------------------------------------===//
 /// emitOutput<32> - write out eh_frame_hdr
 template<>
-void EhFrameHdr::emitOutput<32>(MemoryArea& pOutput)
+void EhFrameHdr::emitOutput<32>(FileOutputBuffer& pOutput)
 {
   MemoryRegion* ehframehdr_region =
     pOutput.request(m_EhFrameHdr.offset(), m_EhFrameHdr.size());
@@ -108,8 +108,6 @@ void EhFrameHdr::emitOutput<32>(MemoryArea& pOutput)
       bst[id++] = (*entry).second - m_EhFrameHdr.addr();
     }
   }
-  pOutput.release(ehframehdr_region);
-  pOutput.release(ehframe_region);
 }
 
 //===----------------------------------------------------------------------===//

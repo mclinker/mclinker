@@ -164,12 +164,12 @@ enum Linker::ErrorCode Linker::setOutput(int pFileHandler) {
 enum Linker::ErrorCode Linker::link() {
   mLinker->link(*mModule, *mBuilder);
   if (!mOutputPath.empty()) {
-    mLinker->emit(mOutputPath);
+    mLinker->emit(*mModule, mOutputPath);
     return kSuccess;
   }
 
   if (-1 != mOutputHandler) {
-    mLinker->emit(mOutputHandler);
+    mLinker->emit(*mModule, mOutputHandler);
     return kSuccess;
   }
   return kNotSetUpOutput;

@@ -11,7 +11,6 @@
 #include <mcld/Support/Path.h>
 #include <mcld/Support/FileHandle.h>
 #include <mcld/Support/MemoryArea.h>
-#include <mcld/Support/raw_mem_ostream.h>
 
 #include <mcld/Support/SystemUtils.h>
 #include <mcld/Support/MsgHandling.h>
@@ -55,28 +54,23 @@ ToolOutputFile::ToolOutputFile(const sys::fs::Path& pPath,
                                FileHandle::OpenMode pMode,
                                FileHandle::Permission pPermission)
   : m_Installer(pPath),
-    m_pMemoryArea(NULL),
-    m_pOStream(NULL),
-    m_pFOStream(NULL) {
+    m_pFdOstream(NULL),
+    m_pFormattedOstream(NULL) {
 
   if (!m_FileHandle.open(pPath, pMode, pPermission)) {
     // If open fails, no clean-up is needed.
     m_Installer.Keep = true;
     fatal(diag::err_cannot_open_output_file)
-                                   << pPath
-                                   << sys::strerror(m_FileHandle.error());
+      << pPath
+      << sys::strerror(m_FileHandle.error());
     return;
   }
-
-  m_pMemoryArea = new MemoryArea(m_FileHandle);
-  m_pOStream = new raw_mem_ostream(*m_pMemoryArea);
 }
 
 ToolOutputFile::~ToolOutputFile()
 {
-  delete m_pFOStream;
-  delete m_pOStream;
-  delete m_pMemoryArea;
+  if (m_pFdOstream != NULL)
+    delete m_pFdOstream;
 }
 
 void ToolOutputFile::keep()
@@ -84,29 +78,24 @@ void ToolOutputFile::keep()
   m_Installer.Keep = true;
 }
 
-/// mem_os - Return the contained raw_mem_ostream.
-raw_mem_ostream& ToolOutputFile::mem_os()
+/// os - Return the containeed raw_fd_ostream.
+/// Since os is rarely used, we lazily initialize it.
+llvm::raw_fd_ostream& ToolOutputFile::os()
 {
-  assert(NULL != m_pOStream);
-  return *m_pOStream;
+  if (m_pFdOstream == NULL) {
+    assert(m_FileHandle.isOpened() &&
+           m_FileHandle.isGood() &&
+           m_FileHandle.isWritable());
+    m_pFdOstream = new llvm::raw_fd_ostream(m_FileHandle.handler(), false);
+  }
+  return *m_pFdOstream;
 }
 
-/// formatted_os - Return the containeed formatted_raw_ostream.
-/// Since formatted_os is rarely used, we lazily initialize it.
+/// formatted_os - Return the contained formatted_raw_ostream
 llvm::formatted_raw_ostream& ToolOutputFile::formatted_os()
 {
-  if (NULL == m_pFOStream) {
-    assert(NULL != m_pOStream);
-    m_pFOStream = new llvm::formatted_raw_ostream(*m_pOStream);
+  if (m_pFormattedOstream == NULL) {
+    m_pFormattedOstream = new llvm::formatted_raw_ostream(os());
   }
-
-  return *m_pFOStream;
+  return *m_pFormattedOstream;
 }
-
-/// memory - Return the contained MemoryArea.
-MemoryArea& ToolOutputFile::memory()
-{
-  assert(NULL != m_pOStream);
-  return m_pOStream->getMemoryArea();
-}
-

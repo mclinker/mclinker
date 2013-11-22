@@ -41,6 +41,7 @@ class ELFExecFileFormat;
 class ELFObjectFileFormat;
 class LinkerScript;
 class Relocation;
+class MemoryRegion;
 
 /** \class GNULDBackend
  *  \brief GNULDBackend provides a common interface for all GNU Unix-OS
@@ -122,25 +123,25 @@ public:
                                    MemoryRegion& pRegion) const = 0;
 
   /// emitRegNamePools - emit regular name pools - .symtab, .strtab
-  virtual void emitRegNamePools(const Module& pModule, MemoryArea& pOutput);
+  virtual void emitRegNamePools(const Module& pModule, FileOutputBuffer& pOutput);
 
   /// emitNamePools - emit dynamic name pools - .dyntab, .dynstr, .hash
-  virtual void emitDynNamePools(Module& pModule, MemoryArea& pOutput);
+  virtual void emitDynNamePools(Module& pModule, FileOutputBuffer& pOutput);
 
   /// emitELFHashTab - emit .hash
   virtual void emitELFHashTab(const Module::SymbolTable& pSymtab,
-                              MemoryArea& pOutput);
+                              FileOutputBuffer& pOutput);
 
   /// emitGNUHashTab - emit .gnu.hash
   virtual void emitGNUHashTab(Module::SymbolTable& pSymtab,
-                              MemoryArea& pOutput);
+                              FileOutputBuffer& pOutput);
 
   /// sizeInterp - compute the size of program interpreter's name
   /// In ELF executables, this is the length of dynamic linker's path name
   virtual void sizeInterp();
 
   /// emitInterp - emit the .interp
-  virtual void emitInterp(MemoryArea& pOutput);
+  virtual void emitInterp(FileOutputBuffer& pOutput);
 
   /// hasEntryInStrTab - symbol has an entry in a .strtab
   virtual bool hasEntryInStrTab(const LDSymbol& pSym) const;
@@ -421,7 +422,7 @@ private:
   virtual void doPostLayout(Module& pModule, IRBuilder& pLinker) = 0;
 
   /// postProcessing - Backend can do any needed modification in the final stage
-  void postProcessing(MemoryArea& pOutput);
+  void postProcessing(FileOutputBuffer& pOutput);
 
   /// dynamic - the dynamic section of the target machine.
   virtual ELFDynamic& dynamic() = 0;

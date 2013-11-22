@@ -17,8 +17,6 @@ namespace mcld {
 class Module;
 class LinkerConfig;
 class IRBuilder;
-class Relocation;
-class RelocationFactory;
 class Relocator;
 class Layout;
 class ArchiveReader;
@@ -29,18 +27,14 @@ class ObjectWriter;
 class DynObjWriter;
 class ExecWriter;
 class BinaryWriter;
-class LDFileFormat;
 class LDSymbol;
 class LDSection;
 class SectionData;
 class Input;
-class GOT;
-class MemoryArea;
-class MemoryAreaFactory;
+class FileOutputBuffer;
 class BranchIslandFactory;
 class StubFactory;
 class ObjectBuilder;
-class Input;
 
 //===----------------------------------------------------------------------===//
 /// TargetLDBackend - Generic interface to target specific assembler backends.
@@ -86,7 +80,7 @@ public:
   virtual void postLayout(Module& pModule, IRBuilder& pBuilder) = 0;
 
   /// postProcessing - Backend can do any needed modification in the final stage
-  virtual void postProcessing(MemoryArea& pOutput) = 0;
+  virtual void postProcessing(FileOutputBuffer& pOutput) = 0;
 
   /// section start offset in the output file
   virtual size_t sectionStartOffset() const = 0;

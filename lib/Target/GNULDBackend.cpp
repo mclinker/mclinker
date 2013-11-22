@@ -39,10 +39,9 @@
 #include <mcld/Target/ELFAttribute.h>
 #include <mcld/Target/ELFDynamic.h>
 #include <mcld/Target/GNUInfo.h>
-#include <mcld/Support/MemoryArea.h>
+#include <mcld/Support/FileOutputBuffer.h>
 #include <mcld/Support/MemoryRegion.h>
 #include <mcld/Support/MsgHandling.h>
-#include <mcld/Support/MemoryAreaFactory.h>
 #include <mcld/Object/ObjectBuilder.h>
 #include <mcld/Object/SectionMap.h>
 #include <mcld/Script/RpnEvaluator.h>
@@ -966,7 +965,7 @@ void GNULDBackend::emitSymbol64(llvm::ELF::Elf64_Sym& pSym,
 /// the size of these tables should be computed before layout
 /// layout should computes the start offset of these tables
 void GNULDBackend::emitRegNamePools(const Module& pModule,
-                                    MemoryArea& pOutput)
+                                    FileOutputBuffer& pOutput)
 {
   ELFFileFormat* file_format = getOutputFormat();
   if (!file_format->hasSymTab())
@@ -1034,7 +1033,7 @@ void GNULDBackend::emitRegNamePools(const Module& pModule,
 ///
 /// the size of these tables should be computed before layout
 /// layout should computes the start offset of these tables
-void GNULDBackend::emitDynNamePools(Module& pModule, MemoryArea& pOutput)
+void GNULDBackend::emitDynNamePools(Module& pModule, FileOutputBuffer& pOutput)
 {
   ELFFileFormat* file_format = getOutputFormat();
   if (!file_format->hasDynSymTab() ||
@@ -1152,7 +1151,7 @@ void GNULDBackend::emitDynNamePools(Module& pModule, MemoryArea& pOutput)
 
 /// emitELFHashTab - emit .hash
 void GNULDBackend::emitELFHashTab(const Module::SymbolTable& pSymtab,
-                                  MemoryArea& pOutput)
+                                  FileOutputBuffer& pOutput)
 {
   ELFFileFormat* file_format = getOutputFormat();
   if (!file_format->hasHashTab())
@@ -1191,7 +1190,7 @@ void GNULDBackend::emitELFHashTab(const Module::SymbolTable& pSymtab,
 
 /// emitGNUHashTab - emit .gnu.hash
 void GNULDBackend::emitGNUHashTab(Module::SymbolTable& pSymtab,
-                                  MemoryArea& pOutput)
+                                  FileOutputBuffer& pOutput)
 {
   ELFFileFormat* file_format = getOutputFormat();
   if (!file_format->hasGNUHashTab())
@@ -1329,7 +1328,7 @@ void GNULDBackend::sizeInterp()
 }
 
 /// emitInterp - emit the .interp
-void GNULDBackend::emitInterp(MemoryArea& pOutput)
+void GNULDBackend::emitInterp(FileOutputBuffer& pOutput)
 {
   if (getOutputFormat()->hasInterp()) {
     const LDSection& interp = getOutputFormat()->getInterp();
@@ -2664,7 +2663,7 @@ void GNULDBackend::postLayout(Module& pModule, IRBuilder& pBuilder)
   doPostLayout(pModule, pBuilder);
 }
 
-void GNULDBackend::postProcessing(MemoryArea& pOutput)
+void GNULDBackend::postProcessing(FileOutputBuffer& pOutput)
 {
   if (LinkerConfig::Object != config().codeGenType() &&
       config().options().hasEhFrameHdr() && getOutputFormat()->hasEhFrame()) {

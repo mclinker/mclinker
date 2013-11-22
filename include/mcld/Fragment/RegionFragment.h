@@ -13,6 +13,7 @@
 #endif
 
 #include <mcld/Fragment/Fragment.h>
+#include <llvm/ADT/StringRef.h>
 
 namespace mcld {
 
@@ -24,12 +25,12 @@ class MemoryRegion;
 class RegionFragment : public Fragment
 {
 public:
-  RegionFragment(MemoryRegion& pRegion, SectionData* pSD = NULL);
+  RegionFragment(llvm::StringRef pRegion, SectionData* pSD = NULL);
 
   ~RegionFragment();
 
-  const MemoryRegion& getRegion() const { return m_Region; }
-  MemoryRegion&       getRegion()       { return m_Region; }
+  const llvm::StringRef getRegion() const { return m_Region; }
+  llvm::StringRef       getRegion()       { return m_Region; }
 
   static bool classof(const Fragment *F)
   { return F->getKind() == Fragment::Region; }
@@ -40,7 +41,7 @@ public:
   size_t size() const;
 
 private:
-  MemoryRegion& m_Region;
+  llvm::StringRef m_Region;
 };
 
 } // namespace of mcld
