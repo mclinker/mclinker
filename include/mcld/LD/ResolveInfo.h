@@ -18,6 +18,7 @@
 namespace mcld {
 
 class LDSymbol;
+class LinkerConfig;
 
 /** \class ResolveInfo
  *  \brief ResolveInfo records the information about how to resolve a symbol.
@@ -206,6 +207,9 @@ public:
 
   uint32_t bitfield() const
   { return m_BitField; }
+
+  // shouldForceLocal - check if this symbol should be forced to local
+  bool shouldForceLocal(const LinkerConfig& pConfig);
 
   // -----  For HashTable  ----- //
   bool compare(const key_type& pKey);

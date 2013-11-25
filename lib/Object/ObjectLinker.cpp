@@ -376,7 +376,7 @@ void ObjectLinker::addSymbolToOutput(ResolveInfo& pInfo, Module& pModule)
         pInfo.outSymbol()->fragRef()->frag()->getParent()->getSection().kind())
     return;
 
-  if (m_pBuilder->shouldForceLocal(pInfo, m_Config))
+  if (pInfo.shouldForceLocal(m_Config))
     pModule.getSymbolTable().forceLocal(*pInfo.outSymbol());
   else
     pModule.getSymbolTable().add(*pInfo.outSymbol());

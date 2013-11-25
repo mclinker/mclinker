@@ -623,7 +623,7 @@ IRBuilder::AddSymbol<IRBuilder::Force, IRBuilder::Unresolve>(
     output_sym = LDSymbol::Create(*result.info);
     result.info->setSymPtr(output_sym);
 
-    if (shouldForceLocal(*result.info, m_Config))
+    if (result.info->shouldForceLocal(m_Config))
       m_Module.getSymbolTable().forceLocal(*output_sym);
     else
       m_Module.getSymbolTable().add(*output_sym);
@@ -744,7 +744,7 @@ IRBuilder::AddSymbol<IRBuilder::Force, IRBuilder::Resolve>(
 
   // After symbol resolution, the visibility is changed to the most restrict.
   // arrange the output position
-  if (shouldForceLocal(*result.info, m_Config))
+  if (result.info->shouldForceLocal(m_Config))
     m_Module.getSymbolTable().forceLocal(*output_sym);
   else if (has_output_sym)
     m_Module.getSymbolTable().arrange(*output_sym, old_info);
@@ -781,22 +781,5 @@ IRBuilder::AddSymbol<IRBuilder::AsReferred, IRBuilder::Resolve>(
                                    pValue,
                                    pFragmentRef,
                                    pVisibility);
-}
-
-bool IRBuilder::shouldForceLocal(const ResolveInfo& pInfo,
-                                 const LinkerConfig& pConfig)
-{
-  // forced local symbol matches all rules:
-  // 1. We are not doing incremental linking.
-  // 2. The symbol is with Hidden or Internal visibility.
-  // 3. The symbol should be global or weak. Otherwise, local symbol is local.
-  // 4. The symbol is defined or common
-  if (LinkerConfig::Object != pConfig.codeGenType() &&
-      (pInfo.visibility() == ResolveInfo::Hidden ||
-         pInfo.visibility() == ResolveInfo::Internal) &&
-      (pInfo.isGlobal() || pInfo.isWeak()) &&
-      (pInfo.isDefine() || pInfo.isCommon()))
-    return true;
-  return false;
 }
 

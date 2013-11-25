@@ -8,6 +8,7 @@
 //===----------------------------------------------------------------------===//
 #include <mcld/LD/ResolveInfo.h>
 #include <mcld/LD/LDSection.h>
+#include <mcld/LinkerConfig.h>
 #include <mcld/Support/GCFactory.h>
 #include <llvm/Support/ManagedStatic.h>
 #include <cstdlib>
@@ -239,6 +240,21 @@ bool ResolveInfo::compare(const ResolveInfo::key_type& pKey)
   return (0 == std::memcmp(m_Name, pKey.data(), length));
 }
 
+bool ResolveInfo::shouldForceLocal(const LinkerConfig& pConfig)
+{
+  // forced local symbol matches all rules:
+  // 1. We are not doing incremental linking.
+  // 2. The symbol is with Hidden or Internal visibility.
+  // 3. The symbol should be global or weak. Otherwise, local symbol is local.
+  // 4. The symbol is defined or common
+  if (LinkerConfig::Object != pConfig.codeGenType() &&
+      (visibility() == ResolveInfo::Hidden ||
+       visibility() == ResolveInfo::Internal) &&
+      (isGlobal() || isWeak()) &&
+      (isDefine() || isCommon()))
+    return true;
+  return false;
+}
 //===----------------------------------------------------------------------===//
 // ResolveInfo Factory Methods
 //===----------------------------------------------------------------------===//
