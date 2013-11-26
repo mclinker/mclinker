@@ -134,27 +134,33 @@ void GarbageCollection::getEntrySections(SectionVecTy& pEntry)
   }
 
   // get the sections those the entry symbols defined in
-  Module::SymbolTable& sym_tab = m_Module.getSymbolTable();
   if (LinkerConfig::Exec == m_Config.codeGenType()) {
+    // when building executable, the entry symbol is the only entry
     assert(NULL != m_pEntry);
     pEntry.push_back(&m_pEntry->fragRef()->frag()->getParent()->getSection());
   }
   else {
     // when building shared objects, the global define symbols are entries
-    SymbolCategory::iterator it, end = sym_tab.regularEnd();
-    for (it = sym_tab.dynamicBegin(); it != end; ++it) {
-      LDSymbol* sym = *it;
-      if (!sym->resolveInfo()->isDefine() || !sym->hasFragRef())
+    NamePool::syminfo_iterator info_it,
+                                info_end = m_Module.getNamePool().syminfo_end();
+    for (info_it = m_Module.getNamePool().syminfo_begin(); info_it != info_end;
+                                                                    ++info_it) {
+      ResolveInfo* info = info_it.getEntry();
+      if (!info->isDefine() ||
+          info->isLocal()   ||
+          info->shouldForceLocal(m_Config))
+        continue;
+      LDSymbol* sym = info->outSymbol();
+      if (NULL == sym || !sym->hasFragRef())
         continue;
 
-      // only the target symbols defined in the concerned sections can make
-      // the reference
+      // only the target symbols defined in the concerned sections can make be
+      // entries
       const LDSection* sect =
                              &sym->fragRef()->frag()->getParent()->getSection();
       if (sect->kind() != LDFileFormat::Regular &&
           sect->kind() != LDFileFormat::BSS)
         continue;
-
       pEntry.push_back(sect);
     }
   }
