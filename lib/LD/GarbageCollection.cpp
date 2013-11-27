@@ -134,11 +134,13 @@ void GarbageCollection::getEntrySections(SectionVecTy& pEntry)
   }
 
   // get the sections those the entry symbols defined in
-  if (LinkerConfig::Exec == m_Config.codeGenType()) {
+  if (LinkerConfig::Exec == m_Config.codeGenType() ||
+                                                   m_Config.options().isPIE()) {
     // when building executable, the entry symbol is the only entry
     assert(NULL != m_pEntry);
     pEntry.push_back(&m_pEntry->fragRef()->frag()->getParent()->getSection());
   }
+
   else {
     // when building shared objects, the global define symbols are entries
     NamePool::syminfo_iterator info_it,
