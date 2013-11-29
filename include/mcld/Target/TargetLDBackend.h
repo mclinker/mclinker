@@ -155,10 +155,6 @@ public:
   /// process relocations more efficiently
   virtual void sortRelocation(LDSection& pSection) = 0;
 
-  /// addEhFrameForPLT - some targets needs eh_frame entry for plt
-  /// when unwinding
-  virtual void addEhFrameForPLT(Module& pModule) = 0;
-
   /// createAndSizeEhFrameHdr - This is seperated since we may add eh_frame
   /// entry in the middle
   virtual void createAndSizeEhFrameHdr(Module& pModule) = 0;

@@ -104,8 +104,6 @@ public:
   Relocation::Type getCopyRelType()    const { return m_CopyRel;    }
   Relocation::Type getPointerRelType() const { return m_PointerRel; }
 
-  void addEhFrameForPLT(Module& pModule);
-
 protected:
   void defineGOTSymbol(IRBuilder& pBuilder, Fragment&);
 
@@ -132,6 +130,7 @@ private:
   virtual void setRelDynSize() = 0;
   virtual void setRelPLTSize() = 0;
 
+  void addEhFrameForPLT(Module& pModule);
   virtual llvm::StringRef createCIERegionForPLT() = 0;
   virtual llvm::StringRef createFDERegionForPLT() = 0;
 

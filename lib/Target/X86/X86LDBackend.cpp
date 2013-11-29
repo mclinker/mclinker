@@ -107,6 +107,8 @@ void X86GNULDBackend::doPreLayout(IRBuilder& pBuilder)
       setRelPLTSize();
     }
   }
+
+  addEhFrameForPLT(pBuilder.getModule());
 }
 
 void X86GNULDBackend::doPostLayout(Module& pModule,

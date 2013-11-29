@@ -279,6 +279,10 @@ void EhFrame::removeDiscardedFDE(CIE& pCIE, const LDSection* pRelocSect)
     FDE& fde = **i;
     fde.getCIE().remove(fde);
 
+    // FIXME: This traverses relocations from the beginning on each FDE, which
+    // may cause performance degration. Actually relocations will be sequential
+    // order, so we can bookkeep the previously found relocation for next use.
+    // Note: We must ensure FDE order is ordered.
     for (RelocData::const_iterator ri = reloc_data->begin(),
          re = reloc_data->end(); ri != re; ) {
       Relocation& rel = const_cast<Relocation&>(*ri++);
