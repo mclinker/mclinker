@@ -40,7 +40,6 @@
 #include <mcld/Target/ELFDynamic.h>
 #include <mcld/Target/GNUInfo.h>
 #include <mcld/Support/FileOutputBuffer.h>
-#include <mcld/Support/MemoryRegion.h>
 #include <mcld/Support/MsgHandling.h>
 #include <mcld/Object/ObjectBuilder.h>
 #include <mcld/Object/SectionMap.h>
@@ -974,25 +973,25 @@ void GNULDBackend::emitRegNamePools(const Module& pModule,
   LDSection& symtab_sect = file_format->getSymTab();
   LDSection& strtab_sect = file_format->getStrTab();
 
-  MemoryRegion* symtab_region = pOutput.request(symtab_sect.offset(),
-                                                symtab_sect.size());
-  MemoryRegion* strtab_region = pOutput.request(strtab_sect.offset(),
-                                                strtab_sect.size());
+  MemoryRegion symtab_region = pOutput.request(symtab_sect.offset(),
+                                               symtab_sect.size());
+  MemoryRegion strtab_region = pOutput.request(strtab_sect.offset(),
+                                               strtab_sect.size());
 
   // set up symtab_region
   llvm::ELF::Elf32_Sym* symtab32 = NULL;
   llvm::ELF::Elf64_Sym* symtab64 = NULL;
   if (config().targets().is32Bits())
-    symtab32 = (llvm::ELF::Elf32_Sym*)symtab_region->start();
+    symtab32 = (llvm::ELF::Elf32_Sym*)symtab_region.begin();
   else if (config().targets().is64Bits())
-    symtab64 = (llvm::ELF::Elf64_Sym*)symtab_region->start();
+    symtab64 = (llvm::ELF::Elf64_Sym*)symtab_region.begin();
   else {
     fatal(diag::unsupported_bitclass) << config().targets().triple().str()
                                       << config().targets().bitclass();
   }
 
   // set up strtab_region
-  char* strtab = (char*)strtab_region->start();
+  char* strtab = (char*)strtab_region.begin();
 
   // emit the first ELF symbol
   if (config().targets().is32Bits())
@@ -1048,26 +1047,26 @@ void GNULDBackend::emitDynNamePools(Module& pModule, FileOutputBuffer& pOutput)
   LDSection& strtab_sect = file_format->getDynStrTab();
   LDSection& dyn_sect    = file_format->getDynamic();
 
-  MemoryRegion* symtab_region = pOutput.request(symtab_sect.offset(),
-                                                symtab_sect.size());
-  MemoryRegion* strtab_region = pOutput.request(strtab_sect.offset(),
-                                                strtab_sect.size());
-  MemoryRegion* dyn_region    = pOutput.request(dyn_sect.offset(),
-                                                dyn_sect.size());
+  MemoryRegion symtab_region = pOutput.request(symtab_sect.offset(),
+                                               symtab_sect.size());
+  MemoryRegion strtab_region = pOutput.request(strtab_sect.offset(),
+                                               strtab_sect.size());
+  MemoryRegion dyn_region = pOutput.request(dyn_sect.offset(),
+                                            dyn_sect.size());
   // set up symtab_region
   llvm::ELF::Elf32_Sym* symtab32 = NULL;
   llvm::ELF::Elf64_Sym* symtab64 = NULL;
   if (config().targets().is32Bits())
-    symtab32 = (llvm::ELF::Elf32_Sym*)symtab_region->start();
+    symtab32 = (llvm::ELF::Elf32_Sym*)symtab_region.begin();
   else if (config().targets().is64Bits())
-    symtab64 = (llvm::ELF::Elf64_Sym*)symtab_region->start();
+    symtab64 = (llvm::ELF::Elf64_Sym*)symtab_region.begin();
   else {
     fatal(diag::unsupported_bitclass) << config().targets().triple().str()
                                       << config().targets().bitclass();
   }
 
   // set up strtab_region
-  char* strtab = (char*)strtab_region->start();
+  char* strtab = (char*)strtab_region.begin();
 
   // emit the first ELF symbol
   if (config().targets().is32Bits())
@@ -1140,7 +1139,7 @@ void GNULDBackend::emitDynNamePools(Module& pModule, FileOutputBuffer& pOutput)
     dynamic().applySoname(strtabsize);
   }
   dynamic().applyEntries(*file_format);
-  dynamic().emit(dyn_sect, *dyn_region);
+  dynamic().emit(dyn_sect, dyn_region);
 
   // emit soname
   if (LinkerConfig::DynObj == config().codeGenType()) {
@@ -1157,11 +1156,11 @@ void GNULDBackend::emitELFHashTab(const Module::SymbolTable& pSymtab,
   if (!file_format->hasHashTab())
     return;
   LDSection& hash_sect = file_format->getHashTab();
-  MemoryRegion* hash_region = pOutput.request(hash_sect.offset(),
-                                              hash_sect.size());
+  MemoryRegion hash_region = pOutput.request(hash_sect.offset(),
+                                             hash_sect.size());
   // both 32 and 64 bits hash table use 32-bit entry
   // set up hash_region
-  uint32_t* word_array = (uint32_t*)hash_region->start();
+  uint32_t* word_array = (uint32_t*)hash_region.begin();
   uint32_t& nbucket = word_array[0];
   uint32_t& nchain  = word_array[1];
 
@@ -1196,11 +1195,11 @@ void GNULDBackend::emitGNUHashTab(Module::SymbolTable& pSymtab,
   if (!file_format->hasGNUHashTab())
     return;
 
-  MemoryRegion* gnuhash_region =
+  MemoryRegion gnuhash_region =
     pOutput.request(file_format->getGNUHashTab().offset(),
                     file_format->getGNUHashTab().size());
 
-  uint32_t* word_array = (uint32_t*)gnuhash_region->start();
+  uint32_t* word_array = (uint32_t*)gnuhash_region.begin();
   // fixed-length fields
   uint32_t& nbucket   = word_array[0];
   uint32_t& symidx    = word_array[1];
@@ -1332,14 +1331,14 @@ void GNULDBackend::emitInterp(FileOutputBuffer& pOutput)
 {
   if (getOutputFormat()->hasInterp()) {
     const LDSection& interp = getOutputFormat()->getInterp();
-    MemoryRegion *region = pOutput.request(interp.offset(), interp.size());
+    MemoryRegion region = pOutput.request(interp.offset(), interp.size());
     const char* dyld_name;
     if (config().options().hasDyld())
       dyld_name = config().options().dyld().c_str();
     else
       dyld_name = m_pInfo->dyld();
 
-    std::memcpy(region->start(), dyld_name, interp.size());
+    std::memcpy(region.begin(), dyld_name, interp.size());
   }
 }
 

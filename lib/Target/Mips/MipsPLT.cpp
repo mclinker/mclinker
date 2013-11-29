@@ -8,7 +8,6 @@
 //===----------------------------------------------------------------------===//
 #include <llvm/Support/Casting.h>
 #include <llvm/Support/ELF.h>
-#include <mcld/Support/MemoryRegion.h>
 #include <mcld/Support/MsgHandling.h>
 #include "MipsGOTPLT.h"
 #include "MipsPLT.h"
@@ -93,7 +92,7 @@ uint64_t MipsPLT::emit(MemoryRegion& pRegion)
   uint64_t result = 0x0;
   iterator it = begin();
 
-  unsigned char* buffer = pRegion.getBuffer();
+  unsigned char* buffer = pRegion.begin();
   memcpy(buffer, llvm::cast<MipsPLT0>((*it)).getValue(), MipsPLT0::EntrySize);
   result += MipsPLT0::EntrySize;
   ++it;

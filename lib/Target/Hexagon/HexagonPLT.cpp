@@ -183,7 +183,7 @@ uint64_t HexagonPLT::emit(MemoryRegion& pRegion)
   uint64_t result = 0x0;
   iterator it = begin();
 
-  unsigned char* buffer = pRegion.getBuffer();
+  unsigned char* buffer = pRegion.begin();
   memcpy(buffer, llvm::cast<HexagonPLT0>((*it)).getValue(), HexagonPLT0::EntrySize);
   result += HexagonPLT0::EntrySize;
   ++it;

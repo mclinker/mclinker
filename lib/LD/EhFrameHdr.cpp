@@ -8,8 +8,6 @@
 //===----------------------------------------------------------------------===//
 #include <mcld/LD/EhFrameHdr.h>
 
-#include <mcld/Support/FileOutputBuffer.h>
-#include <mcld/Support/MemoryRegion.h>
 #include <mcld/LD/EhFrame.h>
 #include <mcld/LD/LDSection.h>
 
@@ -41,14 +39,13 @@ bool EntryCompare(const Entry& pX, const Entry& pY)
 template<>
 void EhFrameHdr::emitOutput<32>(FileOutputBuffer& pOutput)
 {
-  MemoryRegion* ehframehdr_region =
-    pOutput.request(m_EhFrameHdr.offset(), m_EhFrameHdr.size());
+  MemoryRegion ehframehdr_region = pOutput.request(m_EhFrameHdr.offset(),
+                                                   m_EhFrameHdr.size());
 
-  MemoryRegion* ehframe_region =
-    pOutput.request(m_EhFrame.offset(),
-                    m_EhFrame.size());
+  MemoryRegion ehframe_region = pOutput.request(m_EhFrame.offset(),
+                                                m_EhFrame.size());
 
-  uint8_t* data = (uint8_t*)ehframehdr_region->start();
+  uint8_t* data = ehframehdr_region.begin();
   // version
   data[0] = 1;
   // eh_frame_ptr_enc
@@ -91,7 +88,7 @@ void EhFrameHdr::emitOutput<32>(FileOutputBuffer& pOutput)
         SizeTraits<32>::Address fde_pc;
         SizeTraits<32>::Address fde_addr;
         offset = fde.getOffset();
-        fde_pc = computePCBegin(fde, *ehframe_region);
+        fde_pc = computePCBegin(fde, ehframe_region);
         fde_addr = m_EhFrame.addr() + offset;
         search_table.push_back(std::make_pair(fde_pc, fde_addr));
       }
@@ -171,7 +168,7 @@ uint32_t EhFrameHdr::computePCBegin(const EhFrame::FDE& pFDE,
   }
 
   SizeTraits<32>::Address pc = 0x0;
-  const uint8_t* offset = (const uint8_t*) pEhFrameRegion.start() +
+  const uint8_t* offset = (const uint8_t*) pEhFrameRegion.begin() +
                           pFDE.getOffset() +
                           EhFrame::getDataStartOffset<32>();
   std::memcpy(&pc, offset, pc_size);

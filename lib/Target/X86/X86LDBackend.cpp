@@ -21,7 +21,6 @@
 #include <mcld/LD/ELFFileFormat.h>
 #include <mcld/Fragment/FillFragment.h>
 #include <mcld/Fragment/RegionFragment.h>
-#include <mcld/Support/MemoryRegion.h>
 #include <mcld/Support/MsgHandling.h>
 #include <mcld/Support/TargetRegistry.h>
 #include <mcld/Object/ObjectBuilder.h>
@@ -175,7 +174,7 @@ uint64_t X86GNULDBackend::emitSectionData(const LDSection& pSection,
   if (&pSection == &(FileFormat->getPLT())) {
     assert(m_pPLT && "emitSectionData failed, m_pPLT is NULL!");
 
-    unsigned char* buffer = pRegion.getBuffer();
+    unsigned char* buffer = pRegion.begin();
 
     m_pPLT->applyPLT0();
     m_pPLT->applyPLT1();
@@ -510,7 +509,7 @@ uint64_t X86_32GNULDBackend::emitGOTSectionData(MemoryRegion& pRegion) const
 {
   assert(m_pGOT && "emitGOTSectionData failed, m_pGOT is NULL!");
 
-  uint32_t* buffer = reinterpret_cast<uint32_t*>(pRegion.getBuffer());
+  uint32_t* buffer = reinterpret_cast<uint32_t*>(pRegion.begin());
 
   X86_32GOTEntry* got = 0;
   unsigned int EntrySize = X86_32GOTEntry::EntrySize;
@@ -533,7 +532,7 @@ uint64_t X86_32GNULDBackend::emitGOTPLTSectionData(MemoryRegion& pRegion,
   m_pGOTPLT->applyGOT0(FileFormat->getDynamic().addr());
   m_pGOTPLT->applyAllGOTPLT(*m_pPLT);
 
-  uint32_t* buffer = reinterpret_cast<uint32_t*>(pRegion.getBuffer());
+  uint32_t* buffer = reinterpret_cast<uint32_t*>(pRegion.begin());
 
   X86_32GOTEntry* got = 0;
   unsigned int EntrySize = X86_32GOTEntry::EntrySize;
@@ -711,7 +710,7 @@ uint64_t X86_64GNULDBackend::emitGOTSectionData(MemoryRegion& pRegion) const
 {
   assert(m_pGOT && "emitGOTSectionData failed, m_pGOT is NULL!");
 
-  uint64_t* buffer = reinterpret_cast<uint64_t*>(pRegion.getBuffer());
+  uint64_t* buffer = reinterpret_cast<uint64_t*>(pRegion.begin());
 
   X86_64GOTEntry* got = 0;
   unsigned int EntrySize = X86_64GOTEntry::EntrySize;
@@ -734,7 +733,7 @@ uint64_t X86_64GNULDBackend::emitGOTPLTSectionData(MemoryRegion& pRegion,
   m_pGOTPLT->applyGOT0(FileFormat->getDynamic().addr());
   m_pGOTPLT->applyAllGOTPLT(*m_pPLT);
 
-  uint64_t* buffer = reinterpret_cast<uint64_t*>(pRegion.getBuffer());
+  uint64_t* buffer = reinterpret_cast<uint64_t*>(pRegion.begin());
 
   X86_64GOTEntry* got = 0;
   unsigned int EntrySize = X86_64GOTEntry::EntrySize;

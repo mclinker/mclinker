@@ -12,8 +12,9 @@
 #include <gtest.h>
 #endif
 
-#include <llvm/Support/ELF.h>
 #include <mcld/LD/LDSection.h>
+#include <mcld/Support/FileOutputBuffer.h>
+#include <llvm/Support/ELF.h>
 #include <vector>
 #include <cstring>
 
@@ -22,7 +23,6 @@ namespace mcld {
 class ELFFileFormat;
 class GNULDBackend;
 class LinkerConfig;
-class MemoryRegion;
 
 namespace elf_dynamic {
 

@@ -109,9 +109,8 @@ bool ELFAttribute::merge(const Input &pInput, LDSection &pInputAttrSectHdr)
       size_t vendor_data_size = subsection_length - SubsectionLengthFieldSize -
                                 vendor_name_length;
 
-      MemoryRegion::ConstAddress vendor_data =
-          reinterpret_cast<MemoryRegion::ConstAddress>(region.begin()) +
-          vendor_data_offset;
+      ConstAddress vendor_data =
+          reinterpret_cast<ConstAddress>(region.begin()) + vendor_data_offset;
 
       // Merge the vendor data in the subsection.
       if (!subsection->merge(pInput, vendor_data, vendor_data_size))
@@ -142,7 +141,7 @@ size_t ELFAttribute::emit(MemoryRegion &pRegion) const
   uint64_t total_size = 0;
 
   // Write format-version.
-  char* buffer = reinterpret_cast<char*>(pRegion.getBuffer());
+  char* buffer = reinterpret_cast<char*>(pRegion.begin());
   buffer[0] = FormatVersion;
   total_size += FormatVersionFieldSize;
 
@@ -185,7 +184,7 @@ ELFAttribute::getSubsection(llvm::StringRef pVendorName) const
 // ELFAttribute::Subsection
 //===----------------------------------------------------------------------===//
 bool ELFAttribute::Subsection::merge(const Input &pInput,
-                                     MemoryRegion::ConstAddress pData,
+                                     ConstAddress pData,
                                      size_t pSize)
 {
   const bool need_swap = (llvm::sys::IsLittleEndianHost !=

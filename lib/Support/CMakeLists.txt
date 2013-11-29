@@ -7,12 +7,10 @@ add_mcld_library(MCLDSupport
   LEB128.cpp
   MemoryArea.cpp
   MemoryAreaFactory.cpp
-  MemoryRegion.cpp
   MsgHandling.cpp
   Path.cpp
   raw_ostream.cpp
   RealPath.cpp
-  RegionFactory.cpp
   SystemUtils.cpp
   Target.cpp
   TargetRegistry.cpp

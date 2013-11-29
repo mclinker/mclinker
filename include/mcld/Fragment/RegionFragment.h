@@ -17,10 +17,8 @@
 
 namespace mcld {
 
-class MemoryRegion;
-
 /** \class RegionFragment
- *  \brief RegionFragment is a kind of Fragment containing mcld::MemoryRegion
+ *  \brief RegionFragment is a kind of Fragment containing input memory region
  */
 class RegionFragment : public Fragment
 {

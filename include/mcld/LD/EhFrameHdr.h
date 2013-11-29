@@ -15,11 +15,11 @@
 #include <cassert>
 
 #include <mcld/LD/EhFrame.h>
+#include <mcld/Support/FileOutputBuffer.h>
 namespace mcld {
 
 class LDSection;
 class FileOutputBuffer;
-class MemoryRegion;
 
 /** \class EhFrameHdr
  *  \brief EhFrameHdr represents .eh_frame_hdr section.
@@ -53,7 +53,8 @@ public:
 private:
   /// computePCBegin - return the address of FDE's pc
   /// @ref binutils gold: ehframe.cc:222
-  uint32_t computePCBegin(const EhFrame::FDE& pFDE, const MemoryRegion& pEhFrameRegion);
+  uint32_t computePCBegin(const EhFrame::FDE& pFDE,
+                          const MemoryRegion& pEhFrameRegion);
 
 private:
   /// .eh_frame_hdr section
