@@ -307,15 +307,14 @@ bool SectionMap::matched(const SectionMap::Input& pInput,
                          const std::string& pInputFile,
                          const std::string& pInputSection) const
 {
-  if (pInput.spec().hasFile() &&
-      !fnmatch0(pInput.spec().file().name().c_str(), pInputFile.c_str()))
+  if (pInput.spec().hasFile() && !matched(pInput.spec().file(), pInputFile))
       return false;
 
   if (pInput.spec().hasExcludeFiles()) {
     StringList::const_iterator file, fileEnd;
     fileEnd = pInput.spec().excludeFiles().end();
     for (file = pInput.spec().excludeFiles().begin(); file != fileEnd; ++file) {
-      if (fnmatch0((*file)->name().c_str(), pInputFile.c_str())) {
+      if (matched(llvm::cast<WildcardPattern>(**file), pInputFile)) {
         return false;
       }
     }
@@ -324,13 +323,24 @@ bool SectionMap::matched(const SectionMap::Input& pInput,
   if (pInput.spec().hasSections()) {
     StringList::const_iterator sect, sectEnd = pInput.spec().sections().end();
     for (sect = pInput.spec().sections().begin(); sect != sectEnd; ++sect) {
-      if (fnmatch0((*sect)->name().c_str(), pInputSection.c_str())) {
+      if (matched(llvm::cast<WildcardPattern>(**sect), pInputSection)) {
         return true;
       }
     }
   }
 
   return false;
+}
+
+bool SectionMap::matched(const WildcardPattern& pPattern,
+                         const std::string& pName) const
+{
+  if (pPattern.isPrefix()) {
+    llvm::StringRef name(pName);
+    return name.startswith(pPattern.prefix());
+  } else {
+    return fnmatch0(pPattern.name().c_str(), pName.c_str());
+  }
 }
 
 // fixupDotSymbols - ensure the dot symbols are valid

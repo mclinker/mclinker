@@ -22,6 +22,7 @@ static llvm::ManagedStatic<WildcardPatternFactory> g_WildcardPatternFactory;
 // WildcardPattern
 //===----------------------------------------------------------------------===//
 WildcardPattern::WildcardPattern()
+  : m_bIsPrefix(false)
 {
 }
 
@@ -29,10 +30,23 @@ WildcardPattern::WildcardPattern(const std::string& pPattern,
                                  SortPolicy pPolicy)
   : StrToken(StrToken::Wildcard, pPattern), m_SortPolicy(pPolicy)
 {
+  llvm::StringRef str(pPattern);
+  if ((str.rfind('*') != llvm::StringRef::npos) && (str.count('*') == 1))
+    m_bIsPrefix = true;
+  else
+    m_bIsPrefix = false;
 }
 
 WildcardPattern::~WildcardPattern()
 {
+}
+
+llvm::StringRef WildcardPattern::prefix() const
+{
+  if (isPrefix())
+    return llvm::StringRef(name().c_str(), name().size() - 1);
+
+  return llvm::StringRef(name());
 }
 
 WildcardPattern* WildcardPattern::create(const std::string& pPattern,

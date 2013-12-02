@@ -200,6 +200,8 @@ private:
                const std::string& pInputFile,
                const std::string& pInputSection) const;
 
+  bool matched(const WildcardPattern& pPattern, const std::string& pName) const;
+
 private:
   OutputDescList m_OutputDescList;
 };
