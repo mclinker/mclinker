@@ -45,6 +45,7 @@ uint64_t helper_sign_extend(uint64_t pVal, uint64_t pOri_width)
   assert(pOri_width <= 64);
   if (pOri_width == 64)
     return pVal;
+
   uint64_t mask = (~((uint64_t)0)) >> (64 - pOri_width);
   pVal &= mask;
   // Reverse sign bit, then subtract sign bit.
@@ -264,6 +265,36 @@ helper_thumb32_branch_lower(ARMRelocator::DWord pLower16,
           ((((pOffset >> 23) & 1) ^ !sign) << 13) |
           ((((pOffset >> 22) & 1) ^ !sign) << 11) |
           ((pOffset >> 1) & 0x7ffU));
+}
+
+static ARMRelocator::DWord
+helper_thumb32_cond_branch_offset(ARMRelocator::DWord pUpper16,
+                                  ARMRelocator::DWord pLower16)
+{
+  uint32_t s = (pUpper16 & 0x0400U) >> 10;
+  uint32_t j1 = (pLower16 & 0x2000U) >> 13;
+  uint32_t j2 = (pLower16 & 0x0800U) >> 11;
+  uint32_t lower = (pLower16 & 0x07ffU);
+  uint32_t upper = (s << 8) | (j2 << 7) | (j1 << 6) | (pUpper16 & 0x003fU);
+  return helper_sign_extend((upper << 12) | (lower << 1), 21);
+}
+
+static ARMRelocator::DWord
+helper_thumb32_cond_branch_upper(ARMRelocator::DWord pUpper16,
+                                 ARMRelocator::DWord pOffset)
+{
+  uint32_t sign = ((pOffset & 0x80000000U) >> 31);
+  return (pUpper16 & 0xfbc0U) | (sign << 10) | ((pOffset & 0x0003f000U) >> 12);
+}
+
+static ARMRelocator::DWord
+helper_thumb32_cond_branch_lower(ARMRelocator::DWord pLower16,
+                                 ARMRelocator::DWord pOffset)
+{
+  uint32_t j2 = (pOffset & 0x00080000U) >> 19;
+  uint32_t j1 = (pOffset & 0x00040000U) >> 18;
+  uint32_t lo = (pOffset & 0x00000ffeU) >> 1;
+  return (pLower16 & 0xd000U) | (j1 << 13) | (j2 << 11) | lo;
 }
 
 // Return true if overflow
@@ -927,6 +958,48 @@ ARMRelocator::Result thm_jump11(Relocation& pReloc, ARMRelocator& pParent)
   return ARMRelocator::OK;
 }
 
+// R_ARM_THM_JUMP19: ((S + A) | T) - P
+ARMRelocator::Result thm_jump19(Relocation& pReloc, ARMRelocator& pParent)
+{
+  // get lower and upper 16 bit instructions from relocation targetData
+  uint16_t upper_inst = *(reinterpret_cast<uint16_t*>(&pReloc.target()));
+  uint16_t lower_inst = *(reinterpret_cast<uint16_t*>(&pReloc.target()) + 1);
+
+  ARMRelocator::DWord T = getThumbBit(pReloc);
+  ARMRelocator::DWord A = helper_thumb32_cond_branch_offset(upper_inst,
+                                                                    lower_inst);
+  ARMRelocator::Address P = pReloc.place();
+  ARMRelocator::Address S;
+  // if symbol has plt
+  if (pReloc.symInfo()->reserved() & ARMRelocator::ReservePLT) {
+    S = helper_get_PLT_address(*pReloc.symInfo(), pParent);
+    T = 0;  // PLT is not thumb.
+  }
+  else {
+    S = pReloc.symValue();
+    if (T != 0x0)
+      helper_clear_thumb_bit(S);
+  }
+
+  if (0x0 == T) {
+    // FIXME: conditional branch to PLT in THUMB-2 not supported yet
+    error(diag::unsupport_cond_branch_reloc) << (int)pReloc.type();
+    return ARMRelocator::BadReloc;
+  }
+
+  ARMRelocator::DWord X = ((S + A) | T) - P;
+  if (helper_check_signed_overflow(X, 21))
+    return ARMRelocator::Overflow;
+
+  upper_inst = helper_thumb32_cond_branch_upper(upper_inst, X);
+  lower_inst = helper_thumb32_cond_branch_lower(lower_inst, X);
+
+  *(reinterpret_cast<uint16_t*>(&pReloc.target())) = upper_inst;
+  *(reinterpret_cast<uint16_t*>(&pReloc.target()) + 1) = lower_inst;
+
+  return ARMRelocator::OK;
+}
+
 // R_ARM_PC24: ((S + A) | T) - P
 // R_ARM_PLT32: ((S + A) | T) - P
 // R_ARM_JUMP24: ((S + A) | T) - P
@@ -1005,8 +1078,7 @@ ARMRelocator::Result thm_call(Relocation& pReloc, ARMRelocator& pParent)
   uint16_t lower_inst = *(reinterpret_cast<uint16_t*>(&pReloc.target()) + 1);
 
   ARMRelocator::DWord T = getThumbBit(pReloc);
-  ARMRelocator::DWord A = helper_thumb32_branch_offset(upper_inst,
-                                                               lower_inst);
+  ARMRelocator::DWord A = helper_thumb32_branch_offset(upper_inst, lower_inst);
   ARMRelocator::Address P = pReloc.place();
   ARMRelocator::Address S;
 
