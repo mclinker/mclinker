@@ -340,7 +340,8 @@ bool EhFrameReader::addFDE(EhFrame& pEhFrame,
   if (pToken.data_off == pRegion.size())
     return false;
 
-  int32_t offset = *(int32_t*) (pRegion.begin() + pToken.data_off - 4);
+  const int32_t offset = *(const int32_t*) (pRegion.begin() + pToken.data_off
+                                            - 4);
   size_t cie_offset = (size_t) ((int64_t) (pToken.file_off + 4) -
                                 (int32_t) offset);
 
