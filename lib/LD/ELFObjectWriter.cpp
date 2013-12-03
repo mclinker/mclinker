@@ -591,6 +591,8 @@ uint64_t ELFObjectWriter::getSectEntrySize(const LDSection& pSection) const
     return sizeof(ElfXX_Word);
   if (llvm::ELF::SHT_DYNAMIC == pSection.type())
     return sizeof(ElfXX_Dyn);
+  if (pSection.flag() & llvm::ELF::SHF_STRINGS)
+    return 0x1; // Always 1 for both 32/64-bit
   return 0x0;
 }
 
