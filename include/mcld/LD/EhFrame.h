@@ -204,6 +204,7 @@ public:
   const CIE& cie_back () const { return *m_CIEs.back(); }
   CIE&       cie_back ()       { return *m_CIEs.back(); }
 
+  bool emptyCIEs() const { return m_CIEs.empty(); }
   size_t numOfCIEs() const { return m_CIEs.size(); }
   size_t numOfFDEs() const;
 
@@ -227,6 +228,7 @@ private:
 private:
   void removeAndUpdateCIEForFDE(EhFrame& pInFrame, CIE& pInCIE, CIE& pOutCIE,
                                 const LDSection* reloc_sect);
+  void moveInputFragments(EhFrame& pInFrame);
   void moveInputFragments(EhFrame& pInFrame, CIE& pInCIE, CIE* pOutCIE = 0);
 
 private:

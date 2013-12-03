@@ -175,6 +175,13 @@ size_t EhFrame::numOfFDEs() const
 EhFrame& EhFrame::merge(const Input& pInput, EhFrame& pFrame)
 {
   assert (this != &pFrame);
+  if (pFrame.emptyCIEs()) {
+    // May be a partial linking, or the eh_frame has no data.
+    // Just append the fragments.
+    moveInputFragments(pFrame);
+    return *this;
+  }
+
   const LDContext& ctx = *pInput.context();
   const LDSection* rel_sec = 0;
   for (LDContext::const_sect_iterator ri = ctx.relocSectBegin(),
@@ -215,7 +222,6 @@ EhFrame& EhFrame::merge(const Input& pInput, EhFrame& pFrame)
 
 void EhFrame::setupAttributes(const LDSection* rel_sec)
 {
-
   for (cie_iterator i = cie_begin(), e = cie_end(); i != e; ++i) {
     CIE* cie = *i;
     removeDiscardedFDE(*cie, rel_sec);
@@ -312,6 +318,20 @@ void EhFrame::removeAndUpdateCIEForFDE(EhFrame& pInFrame, CIE& pInCIE,
 
   pInCIE.clearFDEs();
   delete &pInCIE;
+}
+
+void EhFrame::moveInputFragments(EhFrame& pInFrame)
+{
+  SectionData& in_sd = *pInFrame.getSectionData();
+  SectionData::FragmentListType& in_frag_list = in_sd.getFragmentList();
+  SectionData& out_sd = *getSectionData();
+  SectionData::FragmentListType& out_frag_list = out_sd.getFragmentList();
+
+  while (!in_frag_list.empty()) {
+    Fragment* frag = in_frag_list.remove(in_frag_list.begin());
+    out_frag_list.push_back(frag);
+    frag->setParent(&out_sd);
+  }
 }
 
 void EhFrame::moveInputFragments(EhFrame& pInFrame,

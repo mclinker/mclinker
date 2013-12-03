@@ -222,7 +222,9 @@ bool ELFObjectReader::readSections(Input& pInput)
       case LDFileFormat::EhFrame: {
         EhFrame* eh_frame = IRBuilder::CreateEhFrame(**section);
 
-        if (m_ReadFlag & ParseEhFrame) {
+        // We don't really parse EhFrame if this is a partial linking
+        if ((m_Config.codeGenType() != LinkerConfig::Object) &&
+            (m_ReadFlag & ParseEhFrame)) {
           if (!m_pEhFrameReader->read<32, true>(pInput, *eh_frame)) {
             // if we failed to parse a .eh_frame, we should not parse the rest
             // .eh_frame.
