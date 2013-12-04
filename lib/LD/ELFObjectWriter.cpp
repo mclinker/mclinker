@@ -591,8 +591,12 @@ uint64_t ELFObjectWriter::getSectEntrySize(const LDSection& pSection) const
     return sizeof(ElfXX_Word);
   if (llvm::ELF::SHT_DYNAMIC == pSection.type())
     return sizeof(ElfXX_Dyn);
+  // FIXME: We should get the entsize from input since the size of each
+  // character is specified in the section header's sh_entsize field.
+  // For example, traditional string is 0x1, UCS-2 is 0x2, ... and so on.
+  // Ref: http://www.sco.com/developers/gabi/2003-12-17/ch4.sheader.html
   if (pSection.flag() & llvm::ELF::SHF_STRINGS)
-    return 0x1; // Always 1 for both 32/64-bit
+    return 0x1;
   return 0x0;
 }
 
