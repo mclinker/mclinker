@@ -30,8 +30,7 @@ WildcardPattern::WildcardPattern(const std::string& pPattern,
                                  SortPolicy pPolicy)
   : StrToken(StrToken::Wildcard, pPattern), m_SortPolicy(pPolicy)
 {
-  llvm::StringRef str(pPattern);
-  if ((str.rfind('*') != llvm::StringRef::npos) && (str.count('*') == 1))
+  if (pPattern.find_first_of('*') == (pPattern.size() - 1))
     m_bIsPrefix = true;
   else
     m_bIsPrefix = false;
