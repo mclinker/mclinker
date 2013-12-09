@@ -437,16 +437,12 @@ bool ELFReader<32, true>::readSectionHeaders(Input& pInput,
   // set up InfoLink
   LinkInfoList::iterator info, infoEnd = link_info_list.end();
   for (info = link_info_list.begin(); info != infoEnd; ++info) {
-    if (LDFileFormat::NamePool == info->section->kind() ||
-        LDFileFormat::Group == info->section->kind() ||
-        LDFileFormat::Note == info->section->kind()) {
-      info->section->setLink(pInput.context()->getSection(info->sh_link));
-      continue;
-    }
     if (LDFileFormat::Relocation == info->section->kind()) {
       info->section->setLink(pInput.context()->getSection(info->sh_info));
       continue;
     }
+    info->section->setLink(pInput.context()->getSection(info->sh_link));
+      continue;
   }
 
   return true;
