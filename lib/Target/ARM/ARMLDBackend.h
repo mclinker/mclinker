@@ -118,6 +118,11 @@ public:
   /// mergeSection - merge target dependent sections
   bool mergeSection(Module& pModule, const Input& pInput, LDSection& pSection);
 
+  /// setUpReachedSectionsForGC - set the reference from section XXX to
+  /// .ARM.exidx.XXX to make sure GC correctly handle section exidx
+  void setUpReachedSectionsForGC(const Module& pModule,
+           GarbageCollection::SectionReachedListMap& pSectReachedListMap) const;
+
   /// readSection - read target dependent sections
   bool readSection(Input& pInput, SectionData& pSD);
 

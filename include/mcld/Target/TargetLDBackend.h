@@ -11,30 +11,32 @@
 
 #include <llvm/ADT/StringRef.h>
 #include <llvm/Support/DataTypes.h>
+#include <mcld/LD/GarbageCollection.h>
 
 namespace mcld {
 
-class Module;
-class LinkerConfig;
-class IRBuilder;
-class Relocator;
-class Layout;
 class ArchiveReader;
-class ObjectReader;
-class DynObjReader;
 class BinaryReader;
-class ObjectWriter;
+class BinaryWriter;
+class BranchIslandFactory;
+class DynObjReader;
 class DynObjWriter;
 class ExecWriter;
-class BinaryWriter;
-class LDSymbol;
-class LDSection;
-class SectionData;
-class Input;
 class FileOutputBuffer;
-class BranchIslandFactory;
-class StubFactory;
+class SectionReachedListMap;
+class IRBuilder;
+class Input;
+class LDSection;
+class LDSymbol;
+class Layout;
+class LinkerConfig;
+class Module;
 class ObjectBuilder;
+class ObjectReader;
+class ObjectWriter;
+class Relocator;
+class SectionData;
+class StubFactory;
 
 //===----------------------------------------------------------------------===//
 /// TargetLDBackend - Generic interface to target specific assembler backends.
@@ -112,6 +114,12 @@ public:
                             const Input& pInputFile,
                             LDSection& pInputSection)
   { return true; }
+
+  /// setUpReachedSectionsForGC - set the reference between two sections for
+  /// some special target sections. GC will set up the reference for the Regular
+  /// and BSS sections. Backends can also set up the reference if need.
+  virtual void setUpReachedSectionsForGC(const Module& pModule,
+        GarbageCollection::SectionReachedListMap& pSectReachedListMap) const { }
 
   /// updateSectionFlags - update pTo's flags when merging pFrom
   /// update the output section flags based on input section flags.

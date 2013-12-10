@@ -71,6 +71,7 @@ bool GarbageCollection::run()
   // 1. traverse all the relocations to set up the reached sections of each
   // section
   setUpReachedSections();
+  m_Backend.setUpReachedSectionsForGC(m_Module, m_SectionReachedListMap);
 
   // 2. get all sections defined the entry point
   SectionVecTy entry;

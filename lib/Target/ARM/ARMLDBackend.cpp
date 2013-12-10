@@ -420,6 +420,69 @@ bool ARMGNULDBackend::mergeSection(Module& pModule,
   return true;
 }
 
+void ARMGNULDBackend::setUpReachedSectionsForGC(const Module& pModule,
+            GarbageCollection::SectionReachedListMap& pSectReachedListMap) const
+{
+  // traverse all the input relocations to find the relocation sections applying
+  // .ARM.exidx sections
+  Module::const_obj_iterator input, inEnd = pModule.obj_end();
+  for (input = pModule.obj_begin(); input != inEnd; ++input) {
+    LDContext::const_sect_iterator rs,
+                                   rsEnd = (*input)->context()->relocSectEnd();
+    for (rs = (*input)->context()->relocSectBegin(); rs != rsEnd; ++rs) {
+      // bypass the discarded relocation section
+      // 1. its section kind is changed to Ignore. (The target section is a
+      // discarded group section.)
+      // 2. it has no reloc data. (All symbols in the input relocs are in the
+      // discarded group sections)
+      LDSection* reloc_sect = *rs;
+      LDSection* apply_sect = reloc_sect->getLink();
+      if ((LDFileFormat::Ignore == reloc_sect->kind()) ||
+          (!reloc_sect->hasRelocData()))
+        continue;
+
+      if (llvm::ELF::SHT_ARM_EXIDX == apply_sect->type()) {
+        // 1. set up the reference according to relocations
+        bool add_first = false;
+        GarbageCollection::SectionListTy* reached_sects = NULL;
+        RelocData::iterator reloc_it, rEnd = reloc_sect->getRelocData()->end();
+        for (reloc_it = reloc_sect->getRelocData()->begin(); reloc_it != rEnd;
+                                                                   ++reloc_it) {
+          Relocation* reloc = llvm::cast<Relocation>(reloc_it);
+          ResolveInfo* sym = reloc->symInfo();
+          // only the target symbols defined in the input fragments can make the
+          // reference
+          if (NULL == sym)
+            continue;
+          if (!sym->isDefine() || !sym->outSymbol()->hasFragRef())
+            continue;
+
+          // only the target symbols defined in the concerned sections can make
+          // the reference
+          const LDSection* target_sect =
+                &sym->outSymbol()->fragRef()->frag()->getParent()->getSection();
+          if (target_sect->kind() != LDFileFormat::Regular &&
+              target_sect->kind() != LDFileFormat::BSS)
+            continue;
+
+          // setup the reached list, if we first add the element to reached list
+          // of this section, create an entry in ReachedSections map
+          if (!add_first) {
+            reached_sects = &pSectReachedListMap.getReachedList(*apply_sect);
+            add_first = true;
+          }
+          reached_sects->insert(target_sect);
+        }
+        reached_sects = NULL;
+        add_first = false;
+        // 2. set up the reference from XXX to .ARM.exidx.XXX
+        assert(apply_sect->getLink() != NULL);
+        pSectReachedListMap.addReference(*apply_sect->getLink(), *apply_sect);
+      }
+    }
+  }
+}
+
 bool ARMGNULDBackend::readSection(Input& pInput, SectionData& pSD)
 {
   Fragment* frag = NULL;
