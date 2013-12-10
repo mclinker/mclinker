@@ -6,10 +6,9 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include <mcld/LD/GarbageCollection.h>
-#include <mcld/LinkerScript.h>
 #include <mcld/Fragment/Fragment.h>
 #include <mcld/Fragment/Relocation.h>
+#include <mcld/LD/GarbageCollection.h>
 #include <mcld/LD/LDContext.h>
 #include <mcld/LD/LDFileFormat.h>
 #include <mcld/LD/LDSection.h>
@@ -17,8 +16,10 @@
 #include <mcld/LD/SectionData.h>
 #include <mcld/LD/RelocData.h>
 #include <mcld/LinkerConfig.h>
+#include <mcld/LinkerScript.h>
 #include <mcld/Module.h>
 #include <mcld/Support/MsgHandling.h>
+#include <mcld/Target/TargetLDBackend.h>
 
 #include <llvm/Support/Casting.h>
 
@@ -28,8 +29,9 @@ using namespace mcld;
 // GarbageCollection
 //===----------------------------------------------------------------------===//
 GarbageCollection::GarbageCollection(const LinkerConfig& pConfig,
+                                     const TargetLDBackend& pBackend,
                                      Module& pModule)
-  : m_Config(pConfig), m_Module(pModule), m_pEntry(NULL)
+  : m_Config(pConfig), m_Backend(pBackend), m_Module(pModule)
 {
 }
 
@@ -137,8 +139,10 @@ void GarbageCollection::getEntrySections(SectionVecTy& pEntry)
   if (LinkerConfig::Exec == m_Config.codeGenType() ||
                                                    m_Config.options().isPIE()) {
     // when building executable, the entry symbol is the only entry
-    assert(NULL != m_pEntry);
-    pEntry.push_back(&m_pEntry->fragRef()->frag()->getParent()->getSection());
+    LDSymbol* entry_sym =
+                m_Module.getNamePool().findSymbol(m_Backend.getEntry(m_Module));
+    assert(NULL != entry_sym);
+    pEntry.push_back(&entry_sym->fragRef()->frag()->getParent()->getSection());
   }
 
   else {

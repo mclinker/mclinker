@@ -22,7 +22,7 @@ namespace mcld {
 class LDSection;
 class LinkerConfig;
 class Module;
-class LDSymbol;
+class TargetLDBackend;
 
 /** \class GarbageCollection
  *  \brief Implementation of garbage collection for --gc-section.
@@ -31,12 +31,10 @@ class LDSymbol;
 class GarbageCollection
 {
 public:
-  GarbageCollection(const LinkerConfig& pConfig, Module& pModule);
+  GarbageCollection(const LinkerConfig& pConfig,
+                    const TargetLDBackend& pBackend,
+                    Module& pModule);
   ~GarbageCollection();
-
-  /// setEntrySymbol - set up the entry symbol for executable
-  void setEntrySymbol(const LDSymbol& pEntry)
-  { m_pEntry = &pEntry; }
 
   /// run - do garbage collection
   bool run();
@@ -62,8 +60,8 @@ private:
   SectionListTy m_ReferencedSections;
 
   const LinkerConfig& m_Config;
+  const TargetLDBackend& m_Backend;
   Module& m_Module;
-  const LDSymbol* m_pEntry;
 };
 
 } // namespace of mcld
