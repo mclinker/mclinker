@@ -411,6 +411,16 @@ bool ARMGNULDBackend::mergeSection(Module& pModule,
     case llvm::ELF::SHT_ARM_ATTRIBUTES: {
       return attribute().merge(pInput, pSection);
     }
+    case llvm::ELF::SHT_ARM_EXIDX: {
+      assert(NULL != pSection.getLink());
+      if (LDFileFormat::Ignore == pSection.getLink()->kind()) {
+        // if the target section of the .ARM.exidx is Ignore, then it should be
+        // ignored as well
+        pSection.setKind(LDFileFormat::Ignore);
+        return true;
+      }
+    }
+    /** fall through **/
     default: {
       ObjectBuilder builder(config(), pModule);
       builder.MergeSection(pInput, pSection);
