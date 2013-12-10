@@ -70,7 +70,7 @@ bool Linker::link(Module& pModule, IRBuilder& pBuilder)
   if (!normalize(pModule, pBuilder))
     return false;
 
-  if (!resolve())
+  if (!resolve(pModule))
     return false;
 
   return layout();
@@ -160,7 +160,7 @@ bool Linker::normalize(Module& pModule, IRBuilder& pBuilder)
   return true;
 }
 
-bool Linker::resolve()
+bool Linker::resolve(Module& pModule)
 {
   assert(NULL != m_pConfig);
   assert(m_pObjLinker != NULL);
@@ -186,10 +186,16 @@ bool Linker::resolve()
   if (!m_pObjLinker->mergeSections())
     return false;
 
-  // 9. - allocateCommonSymbols
+  // 9.a - add symbols to output
+  //  After all input symbols have been resolved, add them to output symbol
+  //  table at once
+  m_pObjLinker->addSymbolsToOutput(pModule);
+
+  // 9.b - allocateCommonSymbols
   //   Allocate fragments for common symbols to the corresponding sections.
   if (!m_pObjLinker->allocateCommonSymbols())
     return false;
+
   return true;
 }
 

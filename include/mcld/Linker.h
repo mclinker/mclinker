@@ -46,7 +46,7 @@ public:
   bool normalize(Module& pModule, IRBuilder& pBuilder);
 
   /// resolve - To build up the topology of mcld::Module.
-  bool resolve();
+  bool resolve(Module& pModule);
 
   /// layout - To serialize the final result of the output mcld::Module.
   bool layout();

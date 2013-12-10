@@ -456,6 +456,10 @@ public:
                                    uint32_t pOffset,
                                    Relocation::Address pAddend = 0);
 
+  /// shouldForceLocal - The helper function for AddSymbol to check if the
+  /// symbols should be force to local symbols
+  bool shouldForceLocal(const ResolveInfo& pInfo, const LinkerConfig& pConfig);
+
 private:
   LDSymbol* addSymbolFromObject(const std::string& pName,
                                 ResolveInfo::Type pType,

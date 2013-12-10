@@ -44,6 +44,10 @@
 
 using namespace llvm;
 using namespace mcld;
+
+//===----------------------------------------------------------------------===//
+// ObjectLinker
+//===----------------------------------------------------------------------===//
 ObjectLinker::ObjectLinker(const LinkerConfig& pConfig,
                            TargetLDBackend& pLDBackend)
   : m_Config(pConfig),
@@ -358,6 +362,44 @@ bool ObjectLinker::mergeSections()
 
   return true;
 }
+
+void ObjectLinker::addSymbolToOutput(ResolveInfo& pInfo, Module& pModule)
+{
+  // section symbols will be defined by linker later, we should not add section
+  // symbols to output here
+  if (ResolveInfo::Section == pInfo.type() || NULL == pInfo.outSymbol())
+    return;
+
+  // if the symbols defined in the Ignore sections (e.g. discared by GC), then
+  // not to put them to output
+  if (pInfo.outSymbol()->hasFragRef() && LDFileFormat::Ignore ==
+        pInfo.outSymbol()->fragRef()->frag()->getParent()->getSection().kind())
+    return;
+
+  if (m_pBuilder->shouldForceLocal(pInfo, m_Config))
+    pModule.getSymbolTable().forceLocal(*pInfo.outSymbol());
+  else
+    pModule.getSymbolTable().add(*pInfo.outSymbol());
+}
+
+void ObjectLinker::addSymbolsToOutput(Module& pModule)
+{
+  // Traverse all the free ResolveInfo and add the output symobols to output
+  NamePool::freeinfo_iterator free_it,
+                              free_end = pModule.getNamePool().freeinfo_end();
+  for (free_it = pModule.getNamePool().freeinfo_begin(); free_it != free_end;
+                                                                      ++free_it)
+    addSymbolToOutput(**free_it, pModule);
+
+
+  // Traverse all the resolveInfo and add the output symbol to output
+  NamePool::syminfo_iterator info_it,
+                             info_end = pModule.getNamePool().syminfo_end();
+  for (info_it = pModule.getNamePool().syminfo_begin(); info_it != info_end;
+                                                                      ++info_it)
+    addSymbolToOutput(*info_it.getEntry(), pModule);
+}
+
 
 /// addStandardSymbols - shared object and executable files need some
 /// standard symbols

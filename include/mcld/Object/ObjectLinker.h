@@ -31,6 +31,7 @@ class DynObjWriter;
 class ExecWriter;
 class BinaryWriter;
 class Relocation;
+class ResolveInfo;
 
 /** \class ObjectLinker
  */
@@ -64,6 +65,10 @@ public:
 
   /// mergeSections - put allinput sections into output sections
   bool mergeSections();
+
+  /// addSymbolsToOutput - after all symbols has been resolved, add the symbol
+  /// to output
+  void addSymbolsToOutput(Module& pModule);
 
   /// allocateCommonSymobols - allocate fragments for common symbols to the
   /// corresponding sections
@@ -154,6 +159,10 @@ private:
   /// writeRelocationResult - helper function of syncRelocationResult, write
   /// relocation target data to output
   void writeRelocationResult(Relocation& pReloc, uint8_t* pOutput);
+
+  /// addSymbolToOutput - add a symbol to output symbol table if it's not a
+  /// section symbol and not defined in the discarded section
+  void addSymbolToOutput(ResolveInfo& pInfo, Module& pModule);
 
 private:
   const LinkerConfig& m_Config;
