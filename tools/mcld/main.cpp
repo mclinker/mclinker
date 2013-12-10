@@ -1241,10 +1241,6 @@ static bool ProcessLinkerOptionsFromCommand(mcld::LinkerScript& pScript,
     pConfig.options().addZOption(*zOpt);
   }
 
-  if (ArgGCSections) {
-    mcld::warning(mcld::diag::warn_unsupported_option) << ArgGCSections.ArgStr;
-  }
-
   // set up icf mode
   switch (ArgICF) {
     case icf::None:

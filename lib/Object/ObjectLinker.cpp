@@ -21,6 +21,7 @@
 #include <mcld/LD/DynObjReader.h>
 #include <mcld/LD/GroupReader.h>
 #include <mcld/LD/BinaryReader.h>
+#include <mcld/LD/GarbageCollection.h>
 #include <mcld/LD/ObjectWriter.h>
 #include <mcld/LD/ResolveInfo.h>
 #include <mcld/LD/RelocData.h>
@@ -230,6 +231,11 @@ bool ObjectLinker::linkable() const
 
 void ObjectLinker::dataStrippingOpt()
 {
+  // Garbege collection
+  if (m_Config.options().GCSections()) {
+    GarbageCollection GC(m_Config, m_LDBackend, *m_pModule);
+    GC.run();
+  }
   return;
 }
 
