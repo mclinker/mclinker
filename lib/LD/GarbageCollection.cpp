@@ -26,6 +26,33 @@
 using namespace mcld;
 
 //===----------------------------------------------------------------------===//
+// GarbageCollection::SectionReachedListMap
+//===----------------------------------------------------------------------===//
+void
+GarbageCollection::SectionReachedListMap::addReference(const LDSection& pFrom,
+                                                       const LDSection& pTo)
+{
+  m_ReachedSections[&pFrom].insert(&pTo);
+}
+
+GarbageCollection::SectionListTy&
+GarbageCollection::SectionReachedListMap::getReachedList(
+                                                      const LDSection& pSection)
+{
+  return m_ReachedSections[&pSection];
+}
+
+GarbageCollection::SectionListTy*
+GarbageCollection::SectionReachedListMap::findReachedList(
+                                                      const LDSection& pSection)
+{
+  ReachedSectionsTy::iterator it = m_ReachedSections.find(&pSection);
+  if (it == m_ReachedSections.end())
+    return NULL;
+  return &it->second;
+}
+
+//===----------------------------------------------------------------------===//
 // GarbageCollection
 //===----------------------------------------------------------------------===//
 GarbageCollection::GarbageCollection(const LinkerConfig& pConfig,
@@ -41,13 +68,18 @@ GarbageCollection::~GarbageCollection()
 
 bool GarbageCollection::run()
 {
-  // 1. traverse all the relocations to setup the reached sections
+  // 1. traverse all the relocations to set up the reached sections of each
+  // section
   setUpReachedSections();
 
-  // 2. find all the referenced sections those can be reached by entry
-  findReferencedSections();
+  // 2. get all sections defined the entry point
+  SectionVecTy entry;
+  getEntrySections(entry);
 
-  // 3. stripSections - set the unreached sections to Ignore
+  // 3. find all the referenced sections those can be reached by entry
+  findReferencedSections(entry);
+
+  // 4. stripSections - set the unreached sections to Ignore
   stripSections();
   return true;
 }
@@ -101,8 +133,7 @@ void GarbageCollection::setUpReachedSections()
         // setup the reached list, if we first add the element to reached list
         // of this section, create an entry in ReachedSections map
         if (!add_first) {
-          assert(NULL == reached_sects);
-          reached_sects = &m_ReachedSections[apply_sect];
+          reached_sects = &m_SectionReachedListMap.getReachedList(*apply_sect);
           add_first = true;
         }
         reached_sects->insert(target_sect);
@@ -172,17 +203,14 @@ void GarbageCollection::getEntrySections(SectionVecTy& pEntry)
   }
 }
 
-void GarbageCollection::findReferencedSections()
+void GarbageCollection::findReferencedSections(SectionVecTy& pEntry)
 {
-  // find all sections reached by entry symbols
-  SectionVecTy entry;
-  getEntrySections(entry);
-
   // list of sections waiting to be processed
+  typedef std::queue<const LDSection*> WorkListTy;
   WorkListTy work_list;
   // start from each entry, resolve the transitive closure
-  SectionVecTy::iterator entry_it, entry_end = entry.end();
-  for (entry_it = entry.begin(); entry_it != entry_end; ++entry_it) {
+  SectionVecTy::iterator entry_it, entry_end = pEntry.end();
+  for (entry_it = pEntry.begin(); entry_it != entry_end; ++entry_it) {
     // add entry point to work list
     work_list.push(*entry_it);
 
@@ -198,15 +226,15 @@ void GarbageCollection::findReferencedSections()
 
       // get the section reached list, if the section do not has one, which
       // means no referenced between it and other sections, then skip it
-      ReachedSectionsTy::iterator reach_it = m_ReachedSections.find(sect);
-      if (reach_it == m_ReachedSections.end())
+      SectionListTy* reach_list =
+                                 m_SectionReachedListMap.findReachedList(*sect);
+      if (NULL == reach_list)
         continue;
 
       // put the reached sections to work list, skip the one already be in
       // referencedSections
-      SectionListTy& reach_list = reach_it->second;
-      SectionListTy::iterator it, end = reach_list.end();
-      for (it = reach_list.begin(); it != end; ++it) {
+      SectionListTy::iterator it, end = reach_list->end();
+      for (it = reach_list->begin(); it != end; ++it) {
         if (m_ReferencedSections.find(*it) == m_ReferencedSections.end())
           work_list.push(*it);
       }
