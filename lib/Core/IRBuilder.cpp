@@ -570,14 +570,9 @@ LDSymbol* IRBuilder::addSymbolFromDynObj(Input& pInput,
   input_sym->setFragmentRef(FragmentRef::Null());
   input_sym->setValue(pValue);
 
-  LDSymbol* output_sym = NULL;
   if (!resolved_result.existent) {
     // we get a new symbol, leave it as NULL
     resolved_result.info->setSymPtr(NULL);
-  }
-  else {
-    // we saw the symbol before, but the output_sym still may be NULL.
-    output_sym = resolved_result.info->outSymbol();
   }
   return input_sym;
 }
