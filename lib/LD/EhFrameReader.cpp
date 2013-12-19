@@ -216,7 +216,7 @@ bool EhFrameReader::addCIE(EhFrame& pEhFrame,
     EhFrame::CIE* cie = new EhFrame::CIE(pRegion);
     cie->setFDEEncode(llvm::dwarf::DW_EH_PE_absptr);
     pEhFrame.addCIE(*cie);
-    g_FoundCIEs.insert(std::make_pair(pToken.file_off, cie));
+    pEhFrame.getCIEMap().insert(std::make_pair(pToken.file_off, cie));
     return true;
   }
 
@@ -329,7 +329,7 @@ bool EhFrameReader::addCIE(EhFrame& pEhFrame,
   cie->setPersonalityName(pr_ptr_data);
   cie->setAugmentationData(augdata);
   pEhFrame.addCIE(*cie);
-  g_FoundCIEs.insert(std::make_pair(pToken.file_off, cie));
+  pEhFrame.getCIEMap().insert(std::make_pair(pToken.file_off, cie));
   return true;
 }
 
@@ -345,8 +345,8 @@ bool EhFrameReader::addFDE(EhFrame& pEhFrame,
   size_t cie_offset = (size_t) ((int64_t) (pToken.file_off + 4) -
                                 (int32_t) offset);
 
-  CIEMap::iterator iter = g_FoundCIEs.find(cie_offset);
-  if (iter == g_FoundCIEs.end())
+  EhFrame::CIEMap::iterator iter = pEhFrame.getCIEMap().find(cie_offset);
+  if (iter == pEhFrame.getCIEMap().end())
     return false;
 
   // create and push back the FDE entry
@@ -368,5 +368,3 @@ bool EhFrameReader::reject(EhFrame& pEhFrame,
 {
   return true;
 }
-
-EhFrameReader::CIEMap EhFrameReader::g_FoundCIEs;

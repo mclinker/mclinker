@@ -14,7 +14,6 @@
 #include <mcld/LD/EhFrame.h>
 #include <llvm/ADT/StringRef.h>
 #include <llvm/Support/DataTypes.h>
-#include <map>
 
 namespace mcld {
 
@@ -32,7 +31,6 @@ class EhFrameReader
 public:
   typedef const char* ConstAddress;
   typedef       char* Address;
-  typedef std::map</*offset*/size_t, EhFrame::CIE*> CIEMap;
 
 public:
   /// read - read an .eh_frame section and create the corresponding
@@ -96,8 +94,6 @@ private:
   static bool reject(EhFrame& pEhFrame,
                      llvm::StringRef pRegion,
                      const Token& pToken);
-
-  static CIEMap g_FoundCIEs;
 };
 
 template<> bool

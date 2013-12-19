@@ -312,12 +312,9 @@ void EhFrame::removeAndUpdateCIEForFDE(EhFrame& pInFrame, CIE& pInCIE,
   for (fde_iterator i = pInCIE.begin(), e = pInCIE.end(); i != e; ++i)
     (*i)->setCIE(pOutCIE);
 
-  // Take out the CIE fragment from SectionData
-  SectionData::iterator frag_iter(pInCIE);
-  pInFrame.getSectionData()->getFragmentList().remove(frag_iter);
-
+  // We cannot know whether there are references to this fragment, so just
+  // keep it in input fragment list instead of memory deallocation
   pInCIE.clearFDEs();
-  delete &pInCIE;
 }
 
 void EhFrame::moveInputFragments(EhFrame& pInFrame)
@@ -346,6 +343,7 @@ void EhFrame::moveInputFragments(EhFrame& pInFrame,
     // Newly inserted
     Fragment* frag = in_frag_list.remove(SectionData::iterator(pInCIE));
     out_frag_list.push_back(frag);
+    frag->setParent(&out_sd);
     for (fde_iterator i = pInCIE.begin(), e = pInCIE.end(); i != e; ++i) {
       frag = in_frag_list.remove(SectionData::iterator(**i));
       out_frag_list.push_back(frag);
@@ -370,7 +368,6 @@ size_t EhFrame::computeOffsetSize()
   for (SectionData::iterator i = frag_list.begin(), e = frag_list.end();
        i != e; ++i) {
     Fragment& frag = *i;
-    frag.setParent(getSectionData());
     frag.setOffset(offset);
     offset += frag.size();
   }

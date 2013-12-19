@@ -19,6 +19,7 @@
 
 #include <llvm/ADT/StringRef.h>
 #include <list>
+#include <map>
 #include <set>
 #include <vector>
 
@@ -63,6 +64,8 @@ public:
   typedef std::list<FDE*> FDEList;
   typedef FDEList::iterator fde_iterator;
   typedef FDEList::const_iterator const_fde_iterator;
+
+  typedef std::map</*offset*/size_t, CIE*> CIEMap;
 
   // A super class of CIE and FDE, containing the same part
   class Record : public RegionFragment
@@ -208,6 +211,9 @@ public:
   size_t numOfCIEs() const { return m_CIEs.size(); }
   size_t numOfFDEs() const;
 
+  const CIEMap& getCIEMap() const { return m_FoundCIEs; }
+  CIEMap&       getCIEMap()       { return m_FoundCIEs; }
+
 public:
   size_t computeOffsetSize();
 
@@ -241,6 +247,10 @@ private:
   // However, don't forget we need to handle the Fragments inside SectionData
   // correctly since they are truly used when output emission.
   CIEList m_CIEs;
+
+  // We need this map to find the corresponding CIE for FDE. Not all FDE point
+  // to the nearest CIE.
+  CIEMap m_FoundCIEs;
 };
 
 bool operator==(const EhFrame::CIE&, const EhFrame::CIE&);
