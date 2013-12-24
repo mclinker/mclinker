@@ -143,6 +143,10 @@ public:
     m_BitField |= indirect_flag;
   }
 
+  /// setInDyn - set if the symbol has been seen in the dynamic objects. Once
+  /// InDyn set, then it won't be set back to false
+  void setInDyn();
+
   // -----  observers  ----- //
   bool isNull() const;
 
@@ -167,6 +171,8 @@ public:
   bool isCommon() const;
 
   bool isIndirect() const;
+
+  bool isInDyn() const;
 
   uint32_t type() const;
 
@@ -240,7 +246,11 @@ private:
 
   static const uint32_t RESERVED_OFFSET    = 12;
   static const uint32_t RESERVED_MASK      = 0xF << RESERVED_OFFSET;
-  static const uint32_t NAME_LENGTH_OFFSET = 16;
+
+  static const uint32_t IN_DYN_OFFSET      = 16;
+  static const uint32_t IN_DYN_MASK        = 1   << IN_DYN_OFFSET;
+
+  static const uint32_t NAME_LENGTH_OFFSET = 17;
   static const uint32_t INFO_MASK          = 0xF;
   static const uint32_t RESOLVE_MASK       = 0xFFFF;
 
@@ -266,6 +276,7 @@ public:
   static const uint32_t file_flag      = File     << TYPE_OFFSET;
   static const uint32_t string_flag    = 0        << SYMBOL_OFFSET;
   static const uint32_t symbol_flag    = 1        << SYMBOL_OFFSET;
+  static const uint32_t indyn_flag     = 1        << IN_DYN_OFFSET;
 
 private:
   ResolveInfo();
@@ -278,8 +289,8 @@ private:
   SymOrInfo m_Ptr;
 
   /** m_BitField
-   *  31     ...    16 15    12 11     10..7 6      ..    5 4     3   2   1   0
-   * |length of m_Name|reserved|Symbol|Type |ELF visibility|Local|Com|Def|Dyn|Weak|
+   *  31     ...    17 16    15    12 11     10..7 6      ..    5 4     3   2   1   0
+   * |length of m_Name|InDyn|reserved|Symbol|Type |ELF visibility|Local|Com|Def|Dyn|Weak|
    */
   uint32_t m_BitField;
   char m_Name[];

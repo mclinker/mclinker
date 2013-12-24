@@ -570,6 +570,9 @@ LDSymbol* IRBuilder::addSymbolFromDynObj(Input& pInput,
   input_sym->setFragmentRef(FragmentRef::Null());
   input_sym->setValue(pValue);
 
+  // this symbol is seen in a dynamic object, set the InDyn flag
+  resolved_result.info->setInDyn();
+
   if (!resolved_result.existent) {
     // we get a new symbol, leave it as NULL
     resolved_result.info->setSymPtr(NULL);

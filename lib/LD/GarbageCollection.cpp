@@ -170,11 +170,38 @@ void GarbageCollection::getEntrySections(SectionVecTy& pEntry)
   // get the sections those the entry symbols defined in
   if (LinkerConfig::Exec == m_Config.codeGenType() ||
                                                    m_Config.options().isPIE()) {
-    // when building executable, the entry symbol is the only entry
+    // 1. when building executable, the entry symbol is the entry
     LDSymbol* entry_sym =
                 m_Module.getNamePool().findSymbol(m_Backend.getEntry(m_Module));
     assert(NULL != entry_sym);
     pEntry.push_back(&entry_sym->fragRef()->frag()->getParent()->getSection());
+
+    // 2. the symbols have been seen in dynamice objects are entries
+    NamePool::syminfo_iterator info_it,
+                                info_end = m_Module.getNamePool().syminfo_end();
+    for (info_it = m_Module.getNamePool().syminfo_begin(); info_it != info_end;
+                                                                    ++info_it) {
+      ResolveInfo* info = info_it.getEntry();
+      if (!info->isDefine() || info->isLocal())
+        continue;
+
+      if (!info->isInDyn())
+        continue;
+
+      LDSymbol* sym = info->outSymbol();
+      if (NULL == sym || !sym->hasFragRef())
+        continue;
+
+      // only the target symbols defined in the concerned sections can make be
+      // entries
+      const LDSection* sect =
+                             &sym->fragRef()->frag()->getParent()->getSection();
+      if (sect->kind() != LDFileFormat::Regular &&
+          sect->kind() != LDFileFormat::BSS)
+        continue;
+
+      pEntry.push_back(sect);
+    }
   }
 
   else {

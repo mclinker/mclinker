@@ -91,6 +91,11 @@ void ResolveInfo::setSource(bool pIsDyn)
     m_BitField &= (~dynamic_flag);
 }
 
+void ResolveInfo::setInDyn()
+{
+  m_BitField |= indyn_flag;
+}
+
 void ResolveInfo::setType(uint32_t pType)
 {
   m_BitField &= ~TYPE_MASK;
@@ -199,6 +204,11 @@ bool ResolveInfo::isSymbol() const
 bool ResolveInfo::isString() const
 {
   return (string_flag == (m_BitField & SYMBOL_MASK));
+}
+
+bool ResolveInfo::isInDyn() const
+{
+  return (indyn_flag == (m_BitField & IN_DYN_MASK));
 }
 
 uint32_t ResolveInfo::type() const
