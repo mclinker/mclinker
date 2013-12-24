@@ -86,9 +86,8 @@ OptimizationOptions::OptimizationOptions()
 bool OptimizationOptions::parse(LinkerConfig& pConfig)
 {
   // set --gc-sections
-  if (m_GCSections) {
-    warning(mcld::diag::warn_unsupported_option) << ArgGCSectionsFlag.ArgStr;
-  }
+  if (m_GCSections)
+    pConfig.options().setGCSections();
 
   // set --ld-generated-unwind-info (or not)
   pConfig.options().setGenUnwindInfo(m_GenUnwindInfo);
