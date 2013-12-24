@@ -23,7 +23,42 @@
 
 #include <llvm/Support/Casting.h>
 
+#if !defined(MCLD_ON_WIN32)
+#include <fnmatch.h>
+#define fnmatch0(pattern,string) (fnmatch(pattern,string,0) == 0)
+#else
+#include <windows.h>
+#include <shlwapi.h>
+#define fnmatch0(pattern,string) (PathMatchSpec(string, pattern) == true)
+#endif
+
 using namespace mcld;
+
+//===----------------------------------------------------------------------===//
+// Non-member functions
+//===----------------------------------------------------------------------===//
+// FIXME: these rules should be added into SectionMap, while currently adding to
+// SectionMap will cause the output order change in .text section and leads to
+// the .ARM.exidx order incorrect. We should sort the .ARM.exidx.
+static const char* pattern_to_keep[] =
+{
+  ".text*personality*",
+  ".data*personality*",
+  ".gnu.linkonce.d*personality*",
+  ".sdata*personality*"
+};
+
+/// shouldKeep - check the section name for the keep sections
+static bool shouldKeep(const std::string& pName)
+{
+  static const unsigned int pattern_size =
+                           sizeof(pattern_to_keep) / sizeof(pattern_to_keep[0]);
+  for (unsigned int i=0; i < pattern_size; ++i) {
+    if (fnmatch0(pattern_to_keep[i], pName.c_str()))
+      return true;
+  }
+  return false;
+}
 
 //===----------------------------------------------------------------------===//
 // GarbageCollection::SectionReachedListMap
@@ -162,7 +197,8 @@ void GarbageCollection::getEntrySections(SectionVecTy& pEntry)
 
       SectionMap::Input* sm_input =
                               sect_map.find(input_name, section->name()).second;
-      if ((sm_input != NULL) && (InputSectDesc::Keep == sm_input->policy()))
+      if (((sm_input != NULL) && (InputSectDesc::Keep == sm_input->policy())) ||
+          shouldKeep(section->name()))
         pEntry.push_back(section);
     }
   }
@@ -170,7 +206,8 @@ void GarbageCollection::getEntrySections(SectionVecTy& pEntry)
   // get the sections those the entry symbols defined in
   if (LinkerConfig::Exec == m_Config.codeGenType() ||
                                                    m_Config.options().isPIE()) {
-    // 1. when building executable, the entry symbol is the entry
+    // when building executable
+    // 1. the entry symbol is the entry
     LDSymbol* entry_sym =
                 m_Module.getNamePool().findSymbol(m_Backend.getEntry(m_Module));
     assert(NULL != entry_sym);
@@ -192,7 +229,7 @@ void GarbageCollection::getEntrySections(SectionVecTy& pEntry)
       if (NULL == sym || !sym->hasFragRef())
         continue;
 
-      // only the target symbols defined in the concerned sections can make be
+      // only the target symbols defined in the concerned sections can be
       // entries
       const LDSection* sect =
                              &sym->fragRef()->frag()->getParent()->getSection();
@@ -219,7 +256,7 @@ void GarbageCollection::getEntrySections(SectionVecTy& pEntry)
       if (NULL == sym || !sym->hasFragRef())
         continue;
 
-      // only the target symbols defined in the concerned sections can make be
+      // only the target symbols defined in the concerned sections can be
       // entries
       const LDSection* sect =
                              &sym->fragRef()->frag()->getParent()->getSection();
