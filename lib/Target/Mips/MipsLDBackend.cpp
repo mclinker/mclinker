@@ -545,19 +545,20 @@ bool MipsGNULDBackend::allocateCommonSymbols(Module& pModule)
       // description here.
       (*com_sym)->resolveInfo()->setDesc(ResolveInfo::Define);
       Fragment* frag = new FillFragment(0x0, 1, (*com_sym)->size());
-      (*com_sym)->setFragmentRef(FragmentRef::Create(*frag, 0));
 
       if (ResolveInfo::ThreadLocal == (*com_sym)->type()) {
         // allocate TLS common symbol in tbss section
         tbss_offset += ObjectBuilder::AppendFragment(*frag,
                                                      *tbss_sect_data,
                                                      (*com_sym)->value());
+        (*com_sym)->setFragmentRef(FragmentRef::Create(*frag, 0));
       }
       // FIXME: how to identify small and large common symbols?
       else {
         bss_offset += ObjectBuilder::AppendFragment(*frag,
                                                     *bss_sect_data,
                                                     (*com_sym)->value());
+        (*com_sym)->setFragmentRef(FragmentRef::Create(*frag, 0));
       }
     }
   }
@@ -572,19 +573,20 @@ bool MipsGNULDBackend::allocateCommonSymbols(Module& pModule)
     // description here.
     (*com_sym)->resolveInfo()->setDesc(ResolveInfo::Define);
     Fragment* frag = new FillFragment(0x0, 1, (*com_sym)->size());
-    (*com_sym)->setFragmentRef(FragmentRef::Create(*frag, 0));
 
     if (ResolveInfo::ThreadLocal == (*com_sym)->type()) {
       // allocate TLS common symbol in tbss section
       tbss_offset += ObjectBuilder::AppendFragment(*frag,
                                                    *tbss_sect_data,
                                                    (*com_sym)->value());
+      (*com_sym)->setFragmentRef(FragmentRef::Create(*frag, 0));
     }
     // FIXME: how to identify small and large common symbols?
     else {
       bss_offset += ObjectBuilder::AppendFragment(*frag,
                                                   *bss_sect_data,
                                                   (*com_sym)->value());
+      (*com_sym)->setFragmentRef(FragmentRef::Create(*frag, 0));
     }
   }
 

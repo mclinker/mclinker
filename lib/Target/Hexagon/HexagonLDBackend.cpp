@@ -791,7 +791,6 @@ bool HexagonLDBackend::allocateCommonSymbols(Module& pModule)
       // description here.
       (*com_sym)->resolveInfo()->setDesc(ResolveInfo::Define);
       Fragment* frag = new FillFragment(0x0, 1, (*com_sym)->size());
-      (*com_sym)->setFragmentRef(FragmentRef::Create(*frag, 0));
 
       switch((*com_sym)->size())  {
       case 1:
@@ -800,6 +799,7 @@ bool HexagonLDBackend::allocateCommonSymbols(Module& pModule)
         ObjectBuilder::AppendFragment(*frag,
                                       *(m_pscommon_1->getSectionData()),
                                       (*com_sym)->value());
+        (*com_sym)->setFragmentRef(FragmentRef::Create(*frag, 0));
         continue;
       case 2:
         if (maxGPSize <= 1)
@@ -807,6 +807,7 @@ bool HexagonLDBackend::allocateCommonSymbols(Module& pModule)
         ObjectBuilder::AppendFragment(*frag,
                                       *(m_pscommon_2->getSectionData()),
                                       (*com_sym)->value());
+        (*com_sym)->setFragmentRef(FragmentRef::Create(*frag, 0));
         continue;
       case 4:
         if (maxGPSize <= 3)
@@ -814,6 +815,7 @@ bool HexagonLDBackend::allocateCommonSymbols(Module& pModule)
         ObjectBuilder::AppendFragment(*frag,
                                       *(m_pscommon_4->getSectionData()),
                                       (*com_sym)->value());
+        (*com_sym)->setFragmentRef(FragmentRef::Create(*frag, 0));
         continue;
       case 8:
         if (maxGPSize <= 7)
@@ -821,6 +823,7 @@ bool HexagonLDBackend::allocateCommonSymbols(Module& pModule)
         ObjectBuilder::AppendFragment(*frag,
                                       *(m_pscommon_8->getSectionData()),
                                       (*com_sym)->value());
+        (*com_sym)->setFragmentRef(FragmentRef::Create(*frag, 0));
         continue;
       default:
         break;
@@ -831,12 +834,14 @@ bool HexagonLDBackend::allocateCommonSymbols(Module& pModule)
         tbss_offset += ObjectBuilder::AppendFragment(*frag,
                                                      *tbss_sect_data,
                                                      (*com_sym)->value());
+        (*com_sym)->setFragmentRef(FragmentRef::Create(*frag, 0));
       }
       // FIXME: how to identify small and large common symbols?
       else {
         bss_offset += ObjectBuilder::AppendFragment(*frag,
                                                     *bss_sect_data,
                                                     (*com_sym)->value());
+        (*com_sym)->setFragmentRef(FragmentRef::Create(*frag, 0));
       }
     }
   }
@@ -851,7 +856,6 @@ bool HexagonLDBackend::allocateCommonSymbols(Module& pModule)
     // description here.
     (*com_sym)->resolveInfo()->setDesc(ResolveInfo::Define);
     Fragment* frag = new FillFragment(0x0, 1, (*com_sym)->size());
-    (*com_sym)->setFragmentRef(FragmentRef::Create(*frag, 0));
 
     switch((*com_sym)->size())  {
     case 1:
@@ -860,6 +864,7 @@ bool HexagonLDBackend::allocateCommonSymbols(Module& pModule)
       ObjectBuilder::AppendFragment(*frag,
                                     *(m_pscommon_1->getSectionData()),
                                     (*com_sym)->value());
+      (*com_sym)->setFragmentRef(FragmentRef::Create(*frag, 0));
       continue;
     case 2:
       if (maxGPSize <= 1)
@@ -867,6 +872,7 @@ bool HexagonLDBackend::allocateCommonSymbols(Module& pModule)
       ObjectBuilder::AppendFragment(*frag,
                                     *(m_pscommon_2->getSectionData()),
                                     (*com_sym)->value());
+      (*com_sym)->setFragmentRef(FragmentRef::Create(*frag, 0));
       continue;
     case 4:
       if (maxGPSize <= 3)
@@ -874,6 +880,7 @@ bool HexagonLDBackend::allocateCommonSymbols(Module& pModule)
       ObjectBuilder::AppendFragment(*frag,
                                     *(m_pscommon_4->getSectionData()),
                                     (*com_sym)->value());
+      (*com_sym)->setFragmentRef(FragmentRef::Create(*frag, 0));
       continue;
     case 8:
       if (maxGPSize <= 7)
@@ -881,6 +888,7 @@ bool HexagonLDBackend::allocateCommonSymbols(Module& pModule)
       ObjectBuilder::AppendFragment(*frag,
                                     *(m_pscommon_8->getSectionData()),
                                     (*com_sym)->value());
+      (*com_sym)->setFragmentRef(FragmentRef::Create(*frag, 0));
       continue;
     default:
       break;
@@ -891,12 +899,14 @@ bool HexagonLDBackend::allocateCommonSymbols(Module& pModule)
       tbss_offset += ObjectBuilder::AppendFragment(*frag,
                                                    *tbss_sect_data,
                                                    (*com_sym)->value());
+      (*com_sym)->setFragmentRef(FragmentRef::Create(*frag, 0));
     }
     // FIXME: how to identify small and large common symbols?
     else {
       bss_offset += ObjectBuilder::AppendFragment(*frag,
                                                   *bss_sect_data,
                                                   (*com_sym)->value());
+      (*com_sym)->setFragmentRef(FragmentRef::Create(*frag, 0));
     }
   }
 
