@@ -141,7 +141,8 @@ void GarbageCollection::setUpReachedSections()
       // bypass the apply target sections which are not handled by gc (currently
       // we only handle the Regular and BSS sections)
       if (apply_sect->kind() != LDFileFormat::Regular &&
-          apply_sect->kind() != LDFileFormat::BSS)
+          apply_sect->kind() != LDFileFormat::BSS &&
+          apply_sect->kind() != LDFileFormat::GCCExceptTable)
         continue;
 
       bool add_first = false;
@@ -163,7 +164,8 @@ void GarbageCollection::setUpReachedSections()
         const LDSection* target_sect =
                 &sym->outSymbol()->fragRef()->frag()->getParent()->getSection();
         if (target_sect->kind() != LDFileFormat::Regular &&
-            target_sect->kind() != LDFileFormat::BSS)
+            target_sect->kind() != LDFileFormat::BSS &&
+            target_sect->kind() != LDFileFormat::GCCExceptTable)
           continue;
 
         // setup the reached list, if we first add the element to reached list
@@ -191,8 +193,9 @@ void GarbageCollection::getEntrySections(SectionVecTy& pEntry)
     LDContext::sect_iterator sect, sectEnd = (*obj)->context()->sectEnd();
     for (sect = (*obj)->context()->sectBegin(); sect != sectEnd; ++sect) {
       LDSection* section = *sect;
-      if (LDFileFormat::Regular != section->kind() &&
-          LDFileFormat::BSS != section->kind())
+      if (section->kind() != LDFileFormat::Regular &&
+          section->kind() != LDFileFormat::BSS &&
+          section->kind() != LDFileFormat::GCCExceptTable)
         continue;
 
       SectionMap::Input* sm_input =
@@ -234,7 +237,8 @@ void GarbageCollection::getEntrySections(SectionVecTy& pEntry)
       const LDSection* sect =
                              &sym->fragRef()->frag()->getParent()->getSection();
       if (sect->kind() != LDFileFormat::Regular &&
-          sect->kind() != LDFileFormat::BSS)
+          sect->kind() != LDFileFormat::BSS &&
+          sect->kind() != LDFileFormat::GCCExceptTable)
         continue;
 
       pEntry.push_back(sect);
@@ -261,7 +265,8 @@ void GarbageCollection::getEntrySections(SectionVecTy& pEntry)
       const LDSection* sect =
                              &sym->fragRef()->frag()->getParent()->getSection();
       if (sect->kind() != LDFileFormat::Regular &&
-          sect->kind() != LDFileFormat::BSS)
+          sect->kind() != LDFileFormat::BSS &&
+          sect->kind() != LDFileFormat::GCCExceptTable)
         continue;
       pEntry.push_back(sect);
     }
@@ -316,8 +321,9 @@ void GarbageCollection::stripSections()
     LDContext::sect_iterator sect, sectEnd = (*obj)->context()->sectEnd();
     for (sect = (*obj)->context()->sectBegin(); sect != sectEnd; ++sect) {
       LDSection* section = *sect;
-      if (LDFileFormat::Regular != section->kind() &&
-          LDFileFormat::BSS != section->kind())
+      if (section->kind() != LDFileFormat::Regular &&
+          section->kind() != LDFileFormat::BSS &&
+          section->kind() != LDFileFormat::GCCExceptTable)
         continue;
 
       if (m_ReferencedSections.find(section) == m_ReferencedSections.end())
