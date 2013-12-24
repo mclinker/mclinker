@@ -251,18 +251,15 @@ uint64_t MipsGNULDBackend::emitSectionData(const LDSection& pSection,
 
   const ELFFileFormat* file_format = getOutputFormat();
 
-  if (&pSection == &(file_format->getGOT())) {
-    assert(NULL != m_pGOT && "emitSectionData failed, m_pGOT is NULL!");
+  if (file_format->hasGOT() && (&pSection == &(file_format->getGOT()))) {
     return m_pGOT->emit(pRegion);
   }
 
-  if (&pSection == &(file_format->getPLT())) {
-    assert(NULL != m_pPLT && "emitSectionData failed, m_pPLT is NULL!");
+  if (file_format->hasPLT() && (&pSection == &(file_format->getPLT()))) {
     return m_pPLT->emit(pRegion);
   }
 
-  if (&pSection == &(file_format->getGOTPLT())) {
-    assert(NULL != m_pGOTPLT && "emitSectionData failed, m_pGOTPLT is NULL!");
+  if (file_format->hasGOTPLT() && (&pSection == &(file_format->getGOTPLT()))) {
     return m_pGOTPLT->emit(pRegion);
   }
 

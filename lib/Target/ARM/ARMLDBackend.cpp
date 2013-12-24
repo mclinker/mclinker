@@ -330,14 +330,12 @@ uint64_t ARMGNULDBackend::emitSectionData(const LDSection& pSection,
 
   const ELFFileFormat* file_format = getOutputFormat();
 
-  if (&pSection == &(file_format->getPLT())) {
-    assert(NULL != m_pPLT && "emitSectionData failed, m_pPLT is NULL!");
+  if (file_format->hasPLT() && (&pSection == &(file_format->getPLT()))) {
     uint64_t result = m_pPLT->emit(pRegion);
     return result;
   }
 
-  if (&pSection == &(file_format->getGOT())) {
-    assert(NULL != m_pGOT && "emitSectionData failed, m_pGOT is NULL!");
+  if (file_format->hasGOT() && (&pSection == &(file_format->getGOT()))) {
     uint64_t result = m_pGOT->emit(pRegion);
     return result;
   }

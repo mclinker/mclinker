@@ -144,8 +144,7 @@ uint64_t HexagonLDBackend::emitSectionData(const LDSection& pSection,
 
   if ((LinkerConfig::Object != config().codeGenType()) &&
       (!config().isCodeStatic())) {
-    if (&pSection == &(FileFormat->getPLT())) {
-      assert(m_pPLT && "emitSectionData failed, m_pPLT is NULL!");
+    if (FileFormat->hasPLT() && (&pSection == &(FileFormat->getPLT()))) {
 
       unsigned char* buffer = pRegion.begin();
 
@@ -169,11 +168,12 @@ uint64_t HexagonLDBackend::emitSectionData(const LDSection& pSection,
       }
       return RegionSize;
     }
-    else if (&pSection == &(FileFormat->getGOT())) {
+    else if (FileFormat->hasGOT() && (&pSection == &(FileFormat->getGOT()))) {
       RegionSize += emitGOTSectionData(pRegion);
       return RegionSize;
     }
-    else if (&pSection == &(FileFormat->getGOTPLT())) {
+    else if (FileFormat->hasGOTPLT() &&
+             (&pSection == &(FileFormat->getGOTPLT()))) {
       RegionSize += emitGOTPLTSectionData(pRegion, FileFormat);
       return RegionSize;
     }

@@ -171,9 +171,7 @@ uint64_t X86GNULDBackend::emitSectionData(const LDSection& pSection,
   unsigned int EntrySize = 0;
   uint64_t RegionSize = 0;
 
-  if (&pSection == &(FileFormat->getPLT())) {
-    assert(m_pPLT && "emitSectionData failed, m_pPLT is NULL!");
-
+  if (FileFormat->hasPLT() && (&pSection == &(FileFormat->getPLT()))) {
     unsigned char* buffer = pRegion.begin();
 
     m_pPLT->applyPLT0();
@@ -195,15 +193,13 @@ uint64_t X86GNULDBackend::emitSectionData(const LDSection& pSection,
       ++it;
     }
   }
-
-  else if (&pSection == &(FileFormat->getGOT())) {
+  else if (FileFormat->hasGOT() && (&pSection == &(FileFormat->getGOT()))) {
     RegionSize += emitGOTSectionData(pRegion);
   }
-
-  else if (&pSection == &(FileFormat->getGOTPLT())) {
+  else if (FileFormat->hasGOTPLT() &&
+           (&pSection == &(FileFormat->getGOTPLT()))) {
     RegionSize += emitGOTPLTSectionData(pRegion, FileFormat);
   }
-
   else {
     fatal(diag::unrecognized_output_sectoin)
             << pSection.name()
