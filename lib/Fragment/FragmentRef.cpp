@@ -60,10 +60,12 @@ FragmentRef* FragmentRef::Create(Fragment& pFrag, uint64_t pOffset)
       break;
     frag = frag->getNextNode();
   }
-  if (offset == 0 && frag != NULL && frag->getKind() != Fragment::Null)
-    frag = frag->getNextNode();
-  else if (offset < 0)
-    offset += frag->size();
+  if ((frag != NULL) && (frag->size() != 0)) {
+    if (offset == 0)
+      frag = frag->getNextNode();
+    else
+      offset += frag->size();
+  }
 
   if (NULL == frag)
     return Null();
