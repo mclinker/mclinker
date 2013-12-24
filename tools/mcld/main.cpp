@@ -527,6 +527,22 @@ ArgGPSize("G",
           cl::desc("Set the maximum size of objects to be optimized using GP"),
           cl::init(8));
 
+static bool ArgGenUnwindInfo;
+
+static cl::opt<bool, true, cl::FalseParser>
+ArgNoGenUnwindInfoFlag("no-ld-generated-unwind-info",
+                       cl::ZeroOrMore, cl::location(ArgGenUnwindInfo),
+                       cl::desc("Opposite of --ld-generated-unwind-info"),
+                       cl::init(false),
+                       cl::ValueDisallowed);
+static cl::opt<bool, true>
+ArgGenUnwindInfoFlag("ld-generated-unwind-info",
+                     cl::ZeroOrMore, cl::location(ArgGenUnwindInfo),
+                     cl::desc("Request creation of unwind info for linker"
+                              " generated code sections like PLT."),
+                     cl::init(true),
+                     cl::ValueDisallowed);
+/// @{
 /// @{
 /// @name FIXME: begin of unsupported options
 /// @}
@@ -1080,6 +1096,8 @@ static bool ProcessLinkerOptionsFromCommand(mcld::LinkerScript& pScript,
   for (sp = ArgLinkerScript.begin(); sp != spEnd; ++sp) {
     pConfig.options().getScriptList().push_back(*sp);
   }
+
+  pConfig.options().setGenUnwindInfo(ArgGenUnwindInfo);
 
   // --fatal-warnings
   // pConfig.options().setFatalWarnings(ArgFatalWarnings);

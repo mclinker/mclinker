@@ -107,7 +107,8 @@ void X86GNULDBackend::doPreLayout(IRBuilder& pBuilder)
     }
   }
 
-  addEhFrameForPLT(pBuilder.getModule());
+  if (config().options().genUnwindInfo())
+    addEhFrameForPLT(pBuilder.getModule());
 }
 
 void X86GNULDBackend::doPostLayout(Module& pModule,
@@ -379,6 +380,7 @@ void X86_32GNULDBackend::initTargetSections(Module& pModule,
 
     // initialize .plt
     LDSection& plt = file_format->getPLT();
+    plt.setAlign(16u);
     m_pPLT = new X86_32PLT(plt,
 			   *m_pGOTPLT,
 			   config());
@@ -671,6 +673,7 @@ void X86_64GNULDBackend::initTargetSections(Module& pModule,
 
     // initialize .plt
     LDSection& plt = file_format->getPLT();
+    plt.setAlign(16u);
     m_pPLT = new X86_64PLT(plt,
 			   *m_pGOTPLT,
 			   config());
