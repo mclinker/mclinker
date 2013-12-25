@@ -31,7 +31,6 @@ static const NameMap map[] =
   {".bss*", ".bss", InputSectDesc::NoKeep},
   {".tdata*", ".tdata", InputSectDesc::NoKeep},
   {".tbss*", ".tbss", InputSectDesc::NoKeep},
-  {".eh_frame", ".eh_frame", InputSectDesc::Keep},
   {".init", ".init", InputSectDesc::Keep},
   {".fini", ".fini", InputSectDesc::Keep},
   {".preinit_array*", ".preinit_array", InputSectDesc::Keep},
@@ -50,7 +49,7 @@ static const NameMap map[] =
   {".lrodata*", ".lrodata", InputSectDesc::NoKeep},
   {".ldata*", ".ldata", InputSectDesc::NoKeep},
   {".lbss*", ".lbss", InputSectDesc::NoKeep},
-  {".gcc_except_table*", ".gcc_except_table", InputSectDesc::NoKeep},
+  {".gcc_except_table*", ".gcc_except_table", InputSectDesc::Keep},
   {".gnu.linkonce.d.rel.ro.local*", ".data.rel.ro.local", InputSectDesc::NoKeep},
   {".gnu.linkonce.d.rel.ro*", ".data.rel.ro", InputSectDesc::NoKeep},
   {".gnu.linkonce.r*", ".rodata", InputSectDesc::NoKeep},
@@ -67,7 +66,6 @@ static const NameMap map[] =
   {".gnu.linkonce.lr*", ".lrodata", InputSectDesc::NoKeep},
   {".gnu.linkonce.lb*", ".lbss", InputSectDesc::NoKeep},
   {".gnu.linkonce.l*", ".ldata", InputSectDesc::NoKeep},
-  {".gnu.attributes", ".gnu.attributes", InputSectDesc::Keep},
 };
 
 bool mcld::MCLDEmulateELF(LinkerScript& pScript, LinkerConfig& pConfig)
