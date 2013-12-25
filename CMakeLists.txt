@@ -213,8 +213,6 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 include_directories(BEFORE
   ${CMAKE_CURRENT_BINARY_DIR}/include
   ${CMAKE_CURRENT_SOURCE_DIR}/include
-  ${CMAKE_CURRENT_BINARY_DIR}/tools/bcc/include
-  ${CMAKE_CURRENT_SOURCE_DIR}/tools/bcc/include
   ${CMAKE_CURRENT_BINARY_DIR}/tools/ld.lite/include
   ${CMAKE_CURRENT_SOURCE_DIR}/tools/ld.lite/include
   )

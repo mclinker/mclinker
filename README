@@ -45,8 +45,7 @@ Build MCLinker
 
   6.  Type `make install` to install the package into your system.
 
-  7.  ${MCLINKER_INSTALL}/ld.mcld is the linker binary, and
-      ${MCLINKER_INSTALL}/ld.bcc is Android's bcc linker.
+  7.  ${MCLINKER_INSTALL}/ld.mcld is the linker binary.
 
 ===================
 Directory Structure

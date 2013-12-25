@@ -7,12 +7,3 @@
 ; RUN: -lm -llog -ljnigraphics -lc
 
 ; RUN: diff -s libplasma.so %p/libplasma.golden.so
-
-; RUN: %AloneLinker --shared -soname=libplasma.so \
-; RUN: -mtriple="i386-none-linux-gnueabi" \
-; RUN: -L=%p/../../../libs/X86/Android/android-14  -Bsymbolic \
-; RUN: %p/plasma.o \
-; RUN: -o libplasma.mcld.so \
-; RUN: -lm -llog -ljnigraphics -lc
-
-; RUN: diff -s libplasma.mcld.so %p/libplasma.golden.so
