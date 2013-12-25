@@ -18,11 +18,11 @@
 #include <mcld/LinkerConfig.h>
 #include <mcld/LinkerScript.h>
 #include <mcld/Module.h>
-#include <mcld/Support/MsgHandling.h>
 #include <mcld/Target/TargetLDBackend.h>
 
 #include <llvm/Support/Casting.h>
 
+#include <queue>
 #if !defined(MCLD_ON_WIN32)
 #include <fnmatch.h>
 #define fnmatch0(pattern,string) (fnmatch(pattern,string,0) == 0)
@@ -57,6 +57,16 @@ static bool shouldKeep(const std::string& pName)
     if (fnmatch0(pattern_to_keep[i], pName.c_str()))
       return true;
   }
+  return false;
+}
+
+/// shouldProcessGC - check if the section kind is handled in GC
+static bool mayProcessGC(const LDSection& pSection)
+{
+  if (pSection.kind() == LDFileFormat::Regular ||
+      pSection.kind() == LDFileFormat::BSS ||
+      pSection.kind() == LDFileFormat::GCCExceptTable)
+    return true;
   return false;
 }
 
@@ -138,11 +148,8 @@ void GarbageCollection::setUpReachedSections()
           (!reloc_sect->hasRelocData()))
         continue;
 
-      // bypass the apply target sections which are not handled by gc (currently
-      // we only handle the Regular and BSS sections)
-      if (apply_sect->kind() != LDFileFormat::Regular &&
-          apply_sect->kind() != LDFileFormat::BSS &&
-          apply_sect->kind() != LDFileFormat::GCCExceptTable)
+      // bypass the apply target sections which are not handled by gc
+      if (!mayProcessGC(*apply_sect))
         continue;
 
       bool add_first = false;
@@ -163,9 +170,7 @@ void GarbageCollection::setUpReachedSections()
         // the reference
         const LDSection* target_sect =
                 &sym->outSymbol()->fragRef()->frag()->getParent()->getSection();
-        if (target_sect->kind() != LDFileFormat::Regular &&
-            target_sect->kind() != LDFileFormat::BSS &&
-            target_sect->kind() != LDFileFormat::GCCExceptTable)
+        if (!mayProcessGC(*target_sect))
           continue;
 
         // setup the reached list, if we first add the element to reached list
@@ -193,9 +198,7 @@ void GarbageCollection::getEntrySections(SectionVecTy& pEntry)
     LDContext::sect_iterator sect, sectEnd = (*obj)->context()->sectEnd();
     for (sect = (*obj)->context()->sectBegin(); sect != sectEnd; ++sect) {
       LDSection* section = *sect;
-      if (section->kind() != LDFileFormat::Regular &&
-          section->kind() != LDFileFormat::BSS &&
-          section->kind() != LDFileFormat::GCCExceptTable)
+      if (!mayProcessGC(*section))
         continue;
 
       SectionMap::Input* sm_input =
@@ -236,9 +239,7 @@ void GarbageCollection::getEntrySections(SectionVecTy& pEntry)
       // entries
       const LDSection* sect =
                              &sym->fragRef()->frag()->getParent()->getSection();
-      if (sect->kind() != LDFileFormat::Regular &&
-          sect->kind() != LDFileFormat::BSS &&
-          sect->kind() != LDFileFormat::GCCExceptTable)
+      if (!mayProcessGC(*sect))
         continue;
 
       pEntry.push_back(sect);
@@ -264,9 +265,7 @@ void GarbageCollection::getEntrySections(SectionVecTy& pEntry)
       // entries
       const LDSection* sect =
                              &sym->fragRef()->frag()->getParent()->getSection();
-      if (sect->kind() != LDFileFormat::Regular &&
-          sect->kind() != LDFileFormat::BSS &&
-          sect->kind() != LDFileFormat::GCCExceptTable)
+      if (!mayProcessGC(*sect))
         continue;
       pEntry.push_back(sect);
     }
@@ -321,9 +320,7 @@ void GarbageCollection::stripSections()
     LDContext::sect_iterator sect, sectEnd = (*obj)->context()->sectEnd();
     for (sect = (*obj)->context()->sectBegin(); sect != sectEnd; ++sect) {
       LDSection* section = *sect;
-      if (section->kind() != LDFileFormat::Regular &&
-          section->kind() != LDFileFormat::BSS &&
-          section->kind() != LDFileFormat::GCCExceptTable)
+      if (!mayProcessGC(*section))
         continue;
 
       if (m_ReferencedSections.find(section) == m_ReferencedSections.end())

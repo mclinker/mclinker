@@ -13,7 +13,6 @@
 #endif
 
 #include <map>
-#include <queue>
 #include <set>
 #include <vector>
 
