@@ -26,8 +26,8 @@ attributes #1 = { "less-precise-fpmad"="false" "no-frame-pointer-elim"="true" "n
 ; RUN: | awk -F '.' '{print "PC_END "$3}' >> %t.txt
 
 ; RUN: cat %t.txt | FileCheck %s --check-prefix=X86
-; X86: PLT Addr [[PLT_ADDR:([0-9a-f]+)]] Align 16
-; X86-NEXT: PLT End [[PLT_END:([0-9a-f]+)]]
+; X86: PLT Addr [[PLT_ADDR:[0-9a-f]+]] Align 16
+; X86-NEXT: PLT End [[PLT_END:[0-9a-f]+]]
 ; X86-NEXT: EhFrame Size 00005c Align 4
 ; X86-NEXT: PC_START [[PLT_ADDR]]
 ; X86-NEXT: PC_END [[PLT_END]]
@@ -44,13 +44,20 @@ attributes #1 = { "less-precise-fpmad"="false" "no-frame-pointer-elim"="true" "n
 ; RUN: readelf -S %t.out | grep -A 1 '\ \.eh_frame' | tr '\n' ' ' \
 ; RUN: | awk '{print "EhFrame Size "$7" Align "$12}' >> %t.txt
 ; RUN: readelf -w %t.out | grep 'pc=' | head -n 1 | awk -F '=' '{print $3}' \
-; RUN: | awk -F '.' '{print "PC_START "$1}' >> %t.txt
+; RUN: | awk -F '.' '{printf "PC_START %016s\n", $1}' >> %t.txt
 ; RUN: readelf -w %t.out | grep 'pc=' | head -n 1 \
-; RUN: | awk -F '.' '{print "PC_END "$3}' >> %t.txt
+; RUN: | awk -F '.' '{printf "PC_END %016s\n", $3}' >> %t.txt
 
 ; RUN: cat %t.txt | FileCheck %s --check-prefix=X86_64
-; X86_64: PLT Addr [[PLT_ADDR:([0-9a-f]+)]] Align 16
-; X86_64-NEXT: PLT End [[PLT_END:([0-9a-f]+)]]
+; X86_64: PLT Addr [[PLT_ADDR:[0-9a-f]+]] Align 16
+; X86_64-NEXT: PLT End [[PLT_END:[0-9a-f]+]]
 ; X86_64-NEXT: EhFrame Size 0000000000000060 Align 8
 ; X86_64-NEXT: PC_START [[PLT_ADDR]]
 ; X86_64-NEXT: PC_END [[PLT_END]]
+
+
+; Check --no-ld-generated-unwind-info
+; RUN: %MCLinker -shared -fPIC -march=x86-64 %t.o -o %t.out --no-ld-generated-unwind-info
+; RUN: readelf -w %t.out | grep 'pc=' | wc -l > %t.txt
+; RUN: cat %t.txt | FileCheck %s --check-prefix=NO_GEN
+; NO_GEN: 1

@@ -532,7 +532,8 @@ static bool ArgGenUnwindInfo;
 static cl::opt<bool, true, cl::FalseParser>
 ArgNoGenUnwindInfoFlag("no-ld-generated-unwind-info",
                        cl::ZeroOrMore, cl::location(ArgGenUnwindInfo),
-                       cl::desc("Opposite of --ld-generated-unwind-info"),
+                       cl::desc("Don't create unwind info for linker generated"
+                                " sections to save size"),
                        cl::init(false),
                        cl::ValueDisallowed);
 static cl::opt<bool, true>

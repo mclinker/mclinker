@@ -31,6 +31,7 @@ public:
 
 private:
   bool& m_GCSections;
+  bool& m_GenUnwindInfo;
   llvm::cl::opt<ICF>& m_ICF;
   llvm::cl::list<std::string>& m_Plugin;
   llvm::cl::list<std::string>& m_PluginOpt;
