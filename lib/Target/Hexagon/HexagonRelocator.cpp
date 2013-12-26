@@ -153,6 +153,9 @@ static uint32_t findBitMask(uint32_t insn, Instruction *encodings,
       return encodings[i].insnBitMask;
   }
   assert(0);
+  // Should not be here, but add a return for -Werror=return-type
+  // error: control reaches end of non-void function
+  return -1;
 }
 
 #define FINDBITMASK(INSN)                                                      \

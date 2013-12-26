@@ -28,19 +28,15 @@ AC_DEFUN([CHECK_ALONE_TARGET],
 			PROVIDE_ALONE_TARGET="X86"
 			DEFAULT_ALONE_TARGET="X86"
 			;;
-		  x86_64-*-*)
+		  x86_64-*-* | amd64-*-*)
 			PROVIDE_ALONE_TARGET="X86"
 			DEFAULT_ALONE_TARGET="X86_64"
 			;;
-		  amd64-*-*)
-			PROVIDE_ALONE_TARGET="X86"
-			DEFAULT_ALONE_TARGET="X86_64"
-			;;
-		  arm-*-*)
+		  arm*-*-*)
 			PROVIDE_ALONE_TARGET="ARM"
 			DEFAULT_ALONE_TARGET="ARM"
 			;;
-		  mips-*-*)
+		  mips*-*-*)
 			PROVIDE_ALONE_TARGET="MIPS"
 			DEFAULT_ALONE_TARGET="MIPS"
 			;;
