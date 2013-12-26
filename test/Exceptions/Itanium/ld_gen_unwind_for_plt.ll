@@ -44,9 +44,9 @@ attributes #1 = { "less-precise-fpmad"="false" "no-frame-pointer-elim"="true" "n
 ; RUN: readelf -S %t.out | grep -A 1 '\ \.eh_frame' | tr '\n' ' ' \
 ; RUN: | awk '{print "EhFrame Size "$7" Align "$12}' >> %t.txt
 ; RUN: readelf -w %t.out | grep 'pc=' | head -n 1 | awk -F '=' '{print $3}' \
-; RUN: | awk -F '.' '{printf "PC_START %016s\n", $1}' >> %t.txt
+; RUN: | awk -F '.' '{printf "PC_START %016d\n", $1}' >> %t.txt
 ; RUN: readelf -w %t.out | grep 'pc=' | head -n 1 \
-; RUN: | awk -F '.' '{printf "PC_END %016s\n", $3}' >> %t.txt
+; RUN: | awk -F '.' '{printf "PC_END %016d\n", $3}' >> %t.txt
 
 ; RUN: cat %t.txt | FileCheck %s --check-prefix=X86_64
 ; X86_64: PLT Addr [[PLT_ADDR:[0-9a-f]+]] Align 16
