@@ -397,19 +397,19 @@ HexagonLDBackend::getTargetSectionOrder(const LDSection& pSectHdr) const
   const ELFFileFormat* file_format = getOutputFormat();
 
   if (LinkerConfig::Object != config().codeGenType()) {
-    if (&pSectHdr == &file_format->getGOT()) {
+    if (file_format->hasGOT() && (&pSectHdr == &file_format->getGOT())) {
       if (config().options().hasNow())
         return SHO_RELRO;
       return SHO_RELRO_LAST;
     }
 
-    if (&pSectHdr == &file_format->getGOTPLT()) {
+    if (file_format->hasGOTPLT() && (&pSectHdr == &file_format->getGOTPLT())) {
       if (config().options().hasNow())
         return SHO_RELRO;
       return SHO_NON_RELRO_FIRST;
     }
 
-    if (&pSectHdr == &file_format->getPLT())
+    if (file_format->hasPLT() && (&pSectHdr == &file_format->getPLT()))
       return SHO_PLT;
   }
 

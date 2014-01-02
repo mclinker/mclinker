@@ -578,13 +578,13 @@ ARMGNULDBackend::getTargetSectionOrder(const LDSection& pSectHdr) const
 {
   const ELFFileFormat* file_format = getOutputFormat();
 
-  if (&pSectHdr == &file_format->getGOT()) {
+  if (file_format->hasGOT() && (&pSectHdr == &file_format->getGOT())) {
     if (config().options().hasNow())
       return SHO_RELRO_LAST;
     return SHO_DATA;
   }
 
-  if (&pSectHdr == &file_format->getPLT())
+  if (file_format->hasPLT() && (&pSectHdr == &file_format->getPLT()))
     return SHO_PLT;
 
   if (&pSectHdr == m_pEXIDX || &pSectHdr == m_pEXTAB) {
