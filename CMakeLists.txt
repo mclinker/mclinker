@@ -66,7 +66,7 @@ set(MCLD_DEFAULT_TARGET_TRIPLE "${LLVM_HOST_TRIPLE}" CACHE STRING
 ################################################################################
 #  Versioning, see VERSION
   set(MAJOR 2)
-  set(MINOR 6)
+  set(MINOR 7)
   set(MICRO 0)
   set(AGE dev)
   set(BUILD )
