@@ -5,7 +5,7 @@
 	3. Enhance EH Frame to reduce eh_frame section size
 	4. Support garbage collection
 	5. Enhance linker script
-	6. Migrate to LLVM r193315
+	6. Migrate to LLVM r195092
 
 	* Command Line Options and Building System:
 	1. Support -x and -X

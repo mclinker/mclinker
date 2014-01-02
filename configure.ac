@@ -109,7 +109,7 @@ AC_CHECK_HEADERS([cxxabi.h])
 
 ####################
 # Configure LLVM
-CHECK_LLVM([3.3])
+CHECK_LLVM([3.4])
 ENUM_MCLD_TARGETS
 CHECK_ALONE_TARGET
 
