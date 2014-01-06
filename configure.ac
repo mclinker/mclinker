@@ -145,6 +145,7 @@ AH_BOTTOM([
 # OUTPUT
 AC_CONFIG_FILES([VERSION])
 AC_CONFIG_FILES([Makefile])
+AC_CONFIG_FILES([include/Makefile])
 AC_CONFIG_FILES([debug/Makefile])
 AC_CONFIG_FILES([optimized/Makefile])
 AC_CONFIG_FILES([utils/Makefile])
