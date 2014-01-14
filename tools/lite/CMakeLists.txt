@@ -8,6 +8,7 @@ add_subdirectory(lib)
 target_link_libraries(ld.lite
   LiteOptions
   MCLDADT
+  MCLDAArch64LDBackend
   MCLDARMLDBackend
   MCLDHexagonLDBackend
   MCLDMipsLDBackend

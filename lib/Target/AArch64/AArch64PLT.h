@@ -16,9 +16,13 @@
 namespace {
 
 const uint32_t aarch64_plt0[] = {
+  // FIXME
+  0x0
 };
 
 const uint32_t aarch64_plt1[] = {
+  // FIXME
+  0x0
 };
 
 } // anonymous namespace

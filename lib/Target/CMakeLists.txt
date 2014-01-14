@@ -13,6 +13,7 @@ add_mcld_library(MCLDTarget
   TargetLDBackend.cpp
   )
 
+add_subdirectory(AArch64)
 add_subdirectory(ARM)
 add_subdirectory(Hexagon)
 add_subdirectory(Mips)

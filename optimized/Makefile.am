@@ -172,6 +172,7 @@ SOURCE = ${LIBDIR}/ADT/StringEntry.cpp \
 	${LIBDIR}/Target/AArch64/AArch64GNUInfo.h \
 	${LIBDIR}/Target/AArch64/AArch64GOT.h \
 	${LIBDIR}/Target/AArch64/AArch64.h \
+	${LIBDIR}/Target/AArch64/AArch64LDBackend.cpp \
 	${LIBDIR}/Target/AArch64/AArch64LDBackend.h \
 	${LIBDIR}/Target/AArch64/AArch64MCLinker.cpp \
 	${LIBDIR}/Target/AArch64/AArch64PLT.h \
