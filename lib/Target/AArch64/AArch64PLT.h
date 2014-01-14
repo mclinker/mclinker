@@ -11,6 +11,7 @@
 
 #include <mcld/Target/GOT.h>
 #include <mcld/Target/PLT.h>
+#include <mcld/Support/MemoryRegion.h>
 
 namespace {
 
@@ -25,7 +26,6 @@ const uint32_t aarch64_plt1[] = {
 namespace mcld {
 
 class AArch64GOT;
-class MemoryRegion;
 
 class AArch64PLT0 : public PLT::Entry<sizeof(aarch64_plt0)>
 {

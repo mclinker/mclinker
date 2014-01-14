@@ -15,8 +15,8 @@ using namespace mcld;
 
 AArch64ELFMCLinker::AArch64ELFMCLinker(LinkerConfig& pConfig,
                                        mcld::Module &pModule,
-                                       MemoryArea& pOutput)
-  : ELFMCLinker(pConfig, pModule, pOutput) {
+                                       FileHandle& pFileHandle)
+  : ELFMCLinker(pConfig, pModule, pFileHandle) {
 }
 
 AArch64ELFMCLinker::~AArch64ELFMCLinker()

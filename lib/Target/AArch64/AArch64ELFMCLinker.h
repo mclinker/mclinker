@@ -16,7 +16,7 @@
 namespace mcld {
 
 class Module;
-class MemoryArea;
+class FileHandle;
 
 /** \class AArch64ELFMCLinker
  *  \brief AArch64ELFMCLinker sets up the environment for linking.
@@ -26,7 +26,7 @@ class AArch64ELFMCLinker : public ELFMCLinker
 public:
   AArch64ELFMCLinker(LinkerConfig& pConfig,
                      mcld::Module& pModule,
-                     MemoryArea& pOutput);
+                     FileHandle& pFileHandle);
 
   ~AArch64ELFMCLinker();
 };

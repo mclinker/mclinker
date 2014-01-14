@@ -23,7 +23,7 @@ namespace mcld {
 MCLinker* createAArch64MCLinker(const std::string& pTriple,
                                 LinkerConfig& pConfig,
                                 mcld::Module& pModule,
-                                MemoryArea& pOutput)
+                                FileHandle& pFileHandle)
 {
   llvm::Triple theTriple(pTriple);
   if (theTriple.isOSDarwin()) {
@@ -35,7 +35,7 @@ MCLinker* createAArch64MCLinker(const std::string& pTriple,
     return NULL;
   }
 
-  return new AArch64ELFMCLinker(pConfig, pModule, pOutput);
+  return new AArch64ELFMCLinker(pConfig, pModule, pFileHandle);
 }
 
 } // namespace of mcld
