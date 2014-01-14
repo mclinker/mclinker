@@ -330,14 +330,12 @@ uint64_t ARMGNULDBackend::emitSectionData(const LDSection& pSection,
 
   const ELFFileFormat* file_format = getOutputFormat();
 
-  if (&pSection == &(file_format->getPLT())) {
-    assert(NULL != m_pPLT && "emitSectionData failed, m_pPLT is NULL!");
+  if (file_format->hasPLT() && (&pSection == &(file_format->getPLT()))) {
     uint64_t result = m_pPLT->emit(pRegion);
     return result;
   }
 
-  if (&pSection == &(file_format->getGOT())) {
-    assert(NULL != m_pGOT && "emitSectionData failed, m_pGOT is NULL!");
+  if (file_format->hasGOT() && (&pSection == &(file_format->getGOT()))) {
     uint64_t result = m_pGOT->emit(pRegion);
     return result;
   }
@@ -350,7 +348,7 @@ uint64_t ARMGNULDBackend::emitSectionData(const LDSection& pSection,
   // directly from the input file.
   const SectionData* sect_data = pSection.getSectionData();
   SectionData::const_iterator frag_iter, frag_end = sect_data->end();
-  uint8_t* out_offset = pRegion.start();
+  uint8_t* out_offset = pRegion.begin();
   for (frag_iter = sect_data->begin(); frag_iter != frag_end; ++frag_iter) {
     size_t size = frag_iter->size();
     switch(frag_iter->getKind()) {
@@ -368,7 +366,7 @@ uint64_t ARMGNULDBackend::emitSectionData(const LDSection& pSection,
       case Fragment::Region: {
         const RegionFragment& region_frag =
           llvm::cast<RegionFragment>(*frag_iter);
-        const uint8_t* start = region_frag.getRegion().start();
+        const char* start = region_frag.getRegion().begin();
         memcpy(out_offset, start, size);
         break;
       }
@@ -413,6 +411,16 @@ bool ARMGNULDBackend::mergeSection(Module& pModule,
     case llvm::ELF::SHT_ARM_ATTRIBUTES: {
       return attribute().merge(pInput, pSection);
     }
+    case llvm::ELF::SHT_ARM_EXIDX: {
+      assert(NULL != pSection.getLink());
+      if (LDFileFormat::Ignore == pSection.getLink()->kind()) {
+        // if the target section of the .ARM.exidx is Ignore, then it should be
+        // ignored as well
+        pSection.setKind(LDFileFormat::Ignore);
+        return true;
+      }
+    }
+    /** fall through **/
     default: {
       ObjectBuilder builder(config(), pModule);
       builder.MergeSection(pInput, pSection);
@@ -422,20 +430,83 @@ bool ARMGNULDBackend::mergeSection(Module& pModule,
   return true;
 }
 
+void ARMGNULDBackend::setUpReachedSectionsForGC(const Module& pModule,
+            GarbageCollection::SectionReachedListMap& pSectReachedListMap) const
+{
+  // traverse all the input relocations to find the relocation sections applying
+  // .ARM.exidx sections
+  Module::const_obj_iterator input, inEnd = pModule.obj_end();
+  for (input = pModule.obj_begin(); input != inEnd; ++input) {
+    LDContext::const_sect_iterator rs,
+                                   rsEnd = (*input)->context()->relocSectEnd();
+    for (rs = (*input)->context()->relocSectBegin(); rs != rsEnd; ++rs) {
+      // bypass the discarded relocation section
+      // 1. its section kind is changed to Ignore. (The target section is a
+      // discarded group section.)
+      // 2. it has no reloc data. (All symbols in the input relocs are in the
+      // discarded group sections)
+      LDSection* reloc_sect = *rs;
+      LDSection* apply_sect = reloc_sect->getLink();
+      if ((LDFileFormat::Ignore == reloc_sect->kind()) ||
+          (!reloc_sect->hasRelocData()))
+        continue;
+
+      if (llvm::ELF::SHT_ARM_EXIDX == apply_sect->type()) {
+        // 1. set up the reference according to relocations
+        bool add_first = false;
+        GarbageCollection::SectionListTy* reached_sects = NULL;
+        RelocData::iterator reloc_it, rEnd = reloc_sect->getRelocData()->end();
+        for (reloc_it = reloc_sect->getRelocData()->begin(); reloc_it != rEnd;
+                                                                   ++reloc_it) {
+          Relocation* reloc = llvm::cast<Relocation>(reloc_it);
+          ResolveInfo* sym = reloc->symInfo();
+          // only the target symbols defined in the input fragments can make the
+          // reference
+          if (NULL == sym)
+            continue;
+          if (!sym->isDefine() || !sym->outSymbol()->hasFragRef())
+            continue;
+
+          // only the target symbols defined in the concerned sections can make
+          // the reference
+          const LDSection* target_sect =
+                &sym->outSymbol()->fragRef()->frag()->getParent()->getSection();
+          if (target_sect->kind() != LDFileFormat::Regular &&
+              target_sect->kind() != LDFileFormat::BSS)
+            continue;
+
+          // setup the reached list, if we first add the element to reached list
+          // of this section, create an entry in ReachedSections map
+          if (!add_first) {
+            reached_sects = &pSectReachedListMap.getReachedList(*apply_sect);
+            add_first = true;
+          }
+          reached_sects->insert(target_sect);
+        }
+        reached_sects = NULL;
+        add_first = false;
+        // 2. set up the reference from XXX to .ARM.exidx.XXX
+        assert(apply_sect->getLink() != NULL);
+        pSectReachedListMap.addReference(*apply_sect->getLink(), *apply_sect);
+      }
+    }
+  }
+}
+
 bool ARMGNULDBackend::readSection(Input& pInput, SectionData& pSD)
 {
   Fragment* frag = NULL;
   uint32_t offset = pInput.fileOffset() + pSD.getSection().offset();
   uint32_t size = pSD.getSection().size();
 
-  MemoryRegion* region = pInput.memArea()->request(offset, size);
-  if (NULL == region) {
+  llvm::StringRef region = pInput.memArea()->request(offset, size);
+  if (region.size() == 0) {
     // If the input section's size is zero, we got a NULL region.
     // use a virtual fill fragment
     frag = new FillFragment(0x0, 0, 0);
   }
   else {
-    frag = new RegionFragment(*region);
+    frag = new RegionFragment(region);
   }
 
   ObjectBuilder::AppendFragment(*frag, pSD);
@@ -507,13 +578,13 @@ ARMGNULDBackend::getTargetSectionOrder(const LDSection& pSectHdr) const
 {
   const ELFFileFormat* file_format = getOutputFormat();
 
-  if (&pSectHdr == &file_format->getGOT()) {
+  if (file_format->hasGOT() && (&pSectHdr == &file_format->getGOT())) {
     if (config().options().hasNow())
       return SHO_RELRO_LAST;
     return SHO_DATA;
   }
 
-  if (&pSectHdr == &file_format->getPLT())
+  if (file_format->hasPLT() && (&pSectHdr == &file_format->getPLT()))
     return SHO_PLT;
 
   if (&pSectHdr == m_pEXIDX || &pSectHdr == m_pEXTAB) {

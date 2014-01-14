@@ -2,19 +2,15 @@ add_mcld_library(MCLDSupport
   CommandLine.cpp
   Directory.cpp
   FileHandle.cpp
+  FileOutputBuffer.cpp
   FileSystem.cpp
-  HandleToArea.cpp
   LEB128.cpp
   MemoryArea.cpp
   MemoryAreaFactory.cpp
-  MemoryRegion.cpp
   MsgHandling.cpp
   Path.cpp
-  raw_mem_ostream.cpp
   raw_ostream.cpp
   RealPath.cpp
-  RegionFactory.cpp
-  Space.cpp
   SystemUtils.cpp
   Target.cpp
   TargetRegistry.cpp

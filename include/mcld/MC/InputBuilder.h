@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_MC_INPUT_BUILDER_H
-#define MCLD_MC_INPUT_BUILDER_H
+#ifndef MCLD_MC_INPUTBUILDER_H
+#define MCLD_MC_INPUTBUILDER_H
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif
@@ -26,7 +26,6 @@ class InputFactory;
 class ContextFactory;
 class MemoryAreaFactory;
 class AttrConstraint;
-class raw_mem_ostream;
 
 /** \class InputBuilder
  *  \brief InputBuilder recieves InputActions and build the InputTree.

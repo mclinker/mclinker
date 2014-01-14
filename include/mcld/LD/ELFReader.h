@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_ELF_READER_H
-#define MCLD_ELF_READER_H
+#ifndef MCLD_LD_ELFREADER_H
+#define MCLD_LD_ELFREADER_H
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif
@@ -20,8 +20,6 @@
 #include <mcld/LD/ResolveInfo.h>
 #include <mcld/LD/LDSymbol.h>
 #include <mcld/Target/GNULDBackend.h>
-#include <mcld/Support/MemoryRegion.h>
-#include <mcld/Support/MemoryArea.h>
 
 namespace mcld {
 
@@ -60,19 +58,19 @@ public:
   { return sizeof(ELFHeader); }
 
   /// isELF - is this a ELF file
-  bool isELF(void* pELFHeader) const;
+  bool isELF(const void* pELFHeader) const;
 
   /// isMyEndian - is this ELF file in the same endian to me?
-  bool isMyEndian(void* pELFHeader) const;
+  bool isMyEndian(const void* pELFHeader) const;
 
   /// isMyMachine - is this ELF file generated for the same machine.
-  bool isMyMachine(void* pELFHeader) const;
+  bool isMyMachine(const void* pELFHeader) const;
 
   /// fileType - the file type of this file
-  Input::Type fileType(void* pELFHeader) const;
+  Input::Type fileType(const void* pELFHeader) const;
 
   /// readSectionHeaders - read ELF section header table and create LDSections
-  bool readSectionHeaders(Input& pInput, void* pELFHeader) const;
+  bool readSectionHeaders(Input& pInput, const void* pELFHeader) const;
 
   /// readRegularSection - read a regular section and create fragments.
   bool readRegularSection(Input& pInput, SectionData& pSD) const;
@@ -80,24 +78,24 @@ public:
   /// readSymbols - read ELF symbols and create LDSymbol
   bool readSymbols(Input& pInput,
                    IRBuilder& pBuilder,
-                   const MemoryRegion& pRegion,
+                   llvm::StringRef pRegion,
                    const char* StrTab) const;
 
   /// readSignature - read a symbol from the given Input and index in symtab
   /// This is used to get the signature of a group section.
   ResolveInfo* readSignature(Input& pInput,
-                                    LDSection& pSymTab,
-                                    uint32_t pSymIdx) const;
+                             LDSection& pSymTab,
+                             uint32_t pSymIdx) const;
 
   /// readRela - read ELF rela and create Relocation
   bool readRela(Input& pInput,
                 LDSection& pSection,
-                const MemoryRegion& pRegion) const;
+                llvm::StringRef pRegion) const;
 
   /// readRel - read ELF rel and create Relocation
   bool readRel(Input& pInput,
                LDSection& pSection,
-               const MemoryRegion& pRegion) const;
+               llvm::StringRef pRegion) const;
 
   /// readDynamic - read ELF .dynamic in input dynobj
   bool readDynamic(Input& pInput) const;
@@ -150,19 +148,19 @@ public:
   { return sizeof(ELFHeader); }
 
   /// isELF - is this a ELF file
-  bool isELF(void* pELFHeader) const;
+  bool isELF(const void* pELFHeader) const;
 
   /// isMyEndian - is this ELF file in the same endian to me?
-  bool isMyEndian(void* pELFHeader) const;
+  bool isMyEndian(const void* pELFHeader) const;
 
   /// isMyMachine - is this ELF file generated for the same machine.
-  bool isMyMachine(void* pELFHeader) const;
+  bool isMyMachine(const void* pELFHeader) const;
 
   /// fileType - the file type of this file
-  Input::Type fileType(void* pELFHeader) const;
+  Input::Type fileType(const void* pELFHeader) const;
 
   /// readSectionHeaders - read ELF section header table and create LDSections
-  bool readSectionHeaders(Input& pInput, void* pELFHeader) const;
+  bool readSectionHeaders(Input& pInput, const void* pELFHeader) const;
 
   /// readRegularSection - read a regular section and create fragments.
   bool readRegularSection(Input& pInput, SectionData& pSD) const;
@@ -170,24 +168,24 @@ public:
   /// readSymbols - read ELF symbols and create LDSymbol
   bool readSymbols(Input& pInput,
                    IRBuilder& pBuilder,
-                   const MemoryRegion& pRegion,
+                   llvm::StringRef pRegion,
                    const char* StrTab) const;
 
   /// readSignature - read a symbol from the given Input and index in symtab
   /// This is used to get the signature of a group section.
   ResolveInfo* readSignature(Input& pInput,
-                                    LDSection& pSymTab,
-                                    uint32_t pSymIdx) const;
+                             LDSection& pSymTab,
+                             uint32_t pSymIdx) const;
 
   /// readRela - read ELF rela and create Relocation
   bool readRela(Input& pInput,
                 LDSection& pSection,
-                const MemoryRegion& pRegion) const;
+                llvm::StringRef pRegion) const;
 
   /// readRel - read ELF rel and create Relocation
   bool readRel(Input& pInput,
                LDSection& pSection,
-               const MemoryRegion& pRegion) const;
+               llvm::StringRef pRegion) const;
 
   /// readDynamic - read ELF .dynamic in input dynobj
   bool readDynamic(Input& pInput) const;

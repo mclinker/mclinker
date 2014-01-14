@@ -1,3 +1,3 @@
 AUTOMAKE_OPTIONS = foreign
 
-SUBDIRS = bcc lite mcld
+SUBDIRS = lite mcld

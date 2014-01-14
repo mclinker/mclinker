@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_ELF_BINARY_READER_H
-#define MCLD_ELF_BINARY_READER_H
+#ifndef MCLD_LD_ELFBINARYREADER_H
+#define MCLD_LD_ELFBINARYREADER_H
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif

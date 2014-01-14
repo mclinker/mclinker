@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_LD_BRANCH_ISLAND_H
-#define MCLD_LD_BRANCH_ISLAND_H
+#ifndef MCLD_LD_BRANCHISLAND_H
+#define MCLD_LD_BRANCHISLAND_H
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif

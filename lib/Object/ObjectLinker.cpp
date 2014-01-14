@@ -21,6 +21,7 @@
 #include <mcld/LD/DynObjReader.h>
 #include <mcld/LD/GroupReader.h>
 #include <mcld/LD/BinaryReader.h>
+#include <mcld/LD/GarbageCollection.h>
 #include <mcld/LD/ObjectWriter.h>
 #include <mcld/LD/ResolveInfo.h>
 #include <mcld/LD/RelocData.h>
@@ -33,8 +34,7 @@
 #include <mcld/Script/Operand.h>
 #include <mcld/Script/RpnEvaluator.h>
 #include <mcld/Support/RealPath.h>
-#include <mcld/Support/MemoryArea.h>
-#include <mcld/Support/MemoryRegion.h>
+#include <mcld/Support/FileOutputBuffer.h>
 #include <mcld/Support/MsgHandling.h>
 #include <mcld/Target/TargetLDBackend.h>
 #include <mcld/Fragment/Relocation.h>
@@ -45,6 +45,10 @@
 
 using namespace llvm;
 using namespace mcld;
+
+//===----------------------------------------------------------------------===//
+// ObjectLinker
+//===----------------------------------------------------------------------===//
 ObjectLinker::ObjectLinker(const LinkerConfig& pConfig,
                            TargetLDBackend& pLDBackend)
   : m_Config(pConfig),
@@ -225,6 +229,16 @@ bool ObjectLinker::linkable() const
   return true;
 }
 
+void ObjectLinker::dataStrippingOpt()
+{
+  // Garbege collection
+  if (m_Config.options().GCSections()) {
+    GarbageCollection GC(m_Config, m_LDBackend, *m_pModule);
+    GC.run();
+  }
+  return;
+}
+
 /// readRelocations - read all relocation entries
 ///
 /// All symbols should be read and resolved before this function.
@@ -355,6 +369,44 @@ bool ObjectLinker::mergeSections()
   return true;
 }
 
+void ObjectLinker::addSymbolToOutput(ResolveInfo& pInfo, Module& pModule)
+{
+  // section symbols will be defined by linker later, we should not add section
+  // symbols to output here
+  if (ResolveInfo::Section == pInfo.type() || NULL == pInfo.outSymbol())
+    return;
+
+  // if the symbols defined in the Ignore sections (e.g. discared by GC), then
+  // not to put them to output
+  if (pInfo.outSymbol()->hasFragRef() && LDFileFormat::Ignore ==
+        pInfo.outSymbol()->fragRef()->frag()->getParent()->getSection().kind())
+    return;
+
+  if (pInfo.shouldForceLocal(m_Config))
+    pModule.getSymbolTable().forceLocal(*pInfo.outSymbol());
+  else
+    pModule.getSymbolTable().add(*pInfo.outSymbol());
+}
+
+void ObjectLinker::addSymbolsToOutput(Module& pModule)
+{
+  // Traverse all the free ResolveInfo and add the output symobols to output
+  NamePool::freeinfo_iterator free_it,
+                              free_end = pModule.getNamePool().freeinfo_end();
+  for (free_it = pModule.getNamePool().freeinfo_begin(); free_it != free_end;
+                                                                      ++free_it)
+    addSymbolToOutput(**free_it, pModule);
+
+
+  // Traverse all the resolveInfo and add the output symbol to output
+  NamePool::syminfo_iterator info_it,
+                             info_end = pModule.getNamePool().syminfo_end();
+  for (info_it = pModule.getNamePool().syminfo_begin(); info_it != info_end;
+                                                                      ++info_it)
+    addSymbolToOutput(*info_it.getEntry(), pModule);
+}
+
+
 /// addStandardSymbols - shared object and executable files need some
 /// standard symbols
 ///   @return if there are some input symbols with the same name to the
@@ -463,6 +515,14 @@ bool ObjectLinker::scanRelocations()
       RelocData::iterator reloc, rEnd = (*rs)->getRelocData()->end();
       for (reloc = (*rs)->getRelocData()->begin(); reloc != rEnd; ++reloc) {
         Relocation* relocation = llvm::cast<Relocation>(reloc);
+
+        // bypass the reloc if the symbol is in the discarded input section
+        ResolveInfo* info = relocation->symInfo();
+        if (!info->outSymbol()->hasFragRef() &&
+            ResolveInfo::Section == info->type() &&
+            ResolveInfo::Undefined == info->desc())
+           continue;
+
         // scan relocation
         if (LinkerConfig::Object != m_Config.codeGenType())
           m_LDBackend.getRelocator()->scanRelocation(
@@ -531,6 +591,12 @@ bool ObjectLinker::prelayout()
   /// @note sizeNamePools replies on LinkerConfig::CodePosition. Must determine
   /// code position model before calling GNULDBackend::sizeNamePools()
   m_LDBackend.sizeNamePools(*m_pModule);
+
+  // Do this after backend prelayout since it may add eh_frame entries.
+  LDSection* eh_frame_sect = m_pModule->getSection(".eh_frame");
+  if (eh_frame_sect && eh_frame_sect->hasEhFrame())
+    eh_frame_sect->getEhFrame()->computeOffsetSize();
+  m_LDBackend.createAndSizeEhFrameHdr(*m_pModule);
 
   return true;
 }
@@ -646,6 +712,14 @@ bool ObjectLinker::relocation()
       RelocData::iterator reloc, rEnd = (*rs)->getRelocData()->end();
       for (reloc = (*rs)->getRelocData()->begin(); reloc != rEnd; ++reloc) {
         Relocation* relocation = llvm::cast<Relocation>(reloc);
+
+        // bypass the reloc if the symbol is in the discarded input section
+        ResolveInfo* info = relocation->symInfo();
+        if (!info->outSymbol()->hasFragRef() &&
+            ResolveInfo::Section == info->type() &&
+            ResolveInfo::Undefined == info->desc())
+          continue;
+
         relocation->apply(*m_LDBackend.getRelocator());
       } // for all relocations
     } // for all relocation section
@@ -665,14 +739,14 @@ bool ObjectLinker::relocation()
 }
 
 /// emitOutput - emit the output file.
-bool ObjectLinker::emitOutput(MemoryArea& pOutput)
+bool ObjectLinker::emitOutput(FileOutputBuffer& pOutput)
 {
   return llvm::errc::success == getWriter()->writeObject(*m_pModule, pOutput);
 }
 
 
 /// postProcessing - do modification after all processes
-bool ObjectLinker::postProcessing(MemoryArea& pOutput)
+bool ObjectLinker::postProcessing(FileOutputBuffer& pOutput)
 {
   if (LinkerConfig::Object != m_Config.codeGenType())
     normalSyncRelocationResult(pOutput);
@@ -686,11 +760,9 @@ bool ObjectLinker::postProcessing(MemoryArea& pOutput)
   return true;
 }
 
-void ObjectLinker::normalSyncRelocationResult(MemoryArea& pOutput)
+void ObjectLinker::normalSyncRelocationResult(FileOutputBuffer& pOutput)
 {
-  MemoryRegion* region = pOutput.request(0, pOutput.handler()->size());
-
-  uint8_t* data = region->getBuffer();
+  uint8_t* data = pOutput.getBufferStart();
 
   // sync all relocations of all inputs
   Module::obj_iterator input, inEnd = m_pModule->obj_end();
@@ -707,6 +779,13 @@ void ObjectLinker::normalSyncRelocationResult(MemoryArea& pOutput)
       RelocData::iterator reloc, rEnd = (*rs)->getRelocData()->end();
       for (reloc = (*rs)->getRelocData()->begin(); reloc != rEnd; ++reloc) {
         Relocation* relocation = llvm::cast<Relocation>(reloc);
+
+        // bypass the reloc if the symbol is in the discarded input section
+        ResolveInfo* info = relocation->symInfo();
+        if (!info->outSymbol()->hasFragRef() &&
+            ResolveInfo::Section == info->type() &&
+            ResolveInfo::Undefined == info->desc())
+          continue;
 
         // bypass the relocation with NONE type. This is to avoid overwrite the
         // target result by NONE type relocation if there is a place which has
@@ -732,15 +811,11 @@ void ObjectLinker::normalSyncRelocationResult(MemoryArea& pOutput)
       writeRelocationResult(*reloc, data);
     }
   }
-
-  pOutput.clear();
 }
 
-void ObjectLinker::partialSyncRelocationResult(MemoryArea& pOutput)
+void ObjectLinker::partialSyncRelocationResult(FileOutputBuffer& pOutput)
 {
-  MemoryRegion* region = pOutput.request(0, pOutput.handler()->size());
-
-  uint8_t* data = region->getBuffer();
+  uint8_t* data = pOutput.getBufferStart();
 
   // traverse outputs' LDSection to get RelocData
   Module::iterator sectIter, sectEnd = m_pModule->end();
@@ -764,8 +839,6 @@ void ObjectLinker::partialSyncRelocationResult(MemoryArea& pOutput)
       writeRelocationResult(*reloc, data);
     }
   }
-
-  pOutput.clear();
 }
 
 void ObjectLinker::writeRelocationResult(Relocation& pReloc, uint8_t* pOutput)

@@ -15,12 +15,12 @@
 #include <gtest.h>
 #endif
 
-#include <llvm/ADT/DenseMap.h>
-#include <llvm/ADT/DenseSet.h>
-
 #include <mcld/ADT/SizeTraits.h>
 #include <mcld/Target/GOT.h>
 #include <mcld/Fragment/Relocation.h>
+#include <mcld/Support/MemoryRegion.h>
+#include <llvm/ADT/DenseMap.h>
+#include <llvm/ADT/DenseSet.h>
 #include <set>
 
 namespace mcld {
@@ -28,7 +28,6 @@ namespace mcld {
 class Input;
 class LDSection;
 class LDSymbol;
-class MemoryRegion;
 class OutputRelocSection;
 
 /** \class MipsGOT

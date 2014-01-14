@@ -41,5 +41,13 @@
 ; RUN: readelf -S %t.out | \
 ; RUN: grep -o "\.eh_frame_hdr *PROGBITS *[0-9a-f]* *[0-9a-f]* *[0-9a-f]*" | \
 ; RUN: awk '{print $5}' | FileCheck %s -check-prefix=SIZE
-; SIZE: 00002c
+; SIZE: 000034
 
+; check .eh_frame CIE/FDE for plt
+; RUN: readelf -S %t.out | grep -o "\ \.plt *PROGBITS *[0-9a-f]*" | \
+; RUN: awk '{print $3}' > %t.txt
+; RUN: readelf -w %t.out | grep pc= | tail -n 1 | awk -F '='  '{print $3}' | \
+; RUN: awk -F '.' '{print $1}' >> %t.txt
+; RUN: cat %t.txt | FileCheck %s -check-prefix=EHPLT
+; EHPLT: [[ADDR:([0-9a-f]*)]]
+; EHPLT-NEXT: [[ADDR]]

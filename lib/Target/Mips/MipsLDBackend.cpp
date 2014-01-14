@@ -251,18 +251,15 @@ uint64_t MipsGNULDBackend::emitSectionData(const LDSection& pSection,
 
   const ELFFileFormat* file_format = getOutputFormat();
 
-  if (&pSection == &(file_format->getGOT())) {
-    assert(NULL != m_pGOT && "emitSectionData failed, m_pGOT is NULL!");
+  if (file_format->hasGOT() && (&pSection == &(file_format->getGOT()))) {
     return m_pGOT->emit(pRegion);
   }
 
-  if (&pSection == &(file_format->getPLT())) {
-    assert(NULL != m_pPLT && "emitSectionData failed, m_pPLT is NULL!");
+  if (file_format->hasPLT() && (&pSection == &(file_format->getPLT()))) {
     return m_pPLT->emit(pRegion);
   }
 
-  if (&pSection == &(file_format->getGOTPLT())) {
-    assert(NULL != m_pGOTPLT && "emitSectionData failed, m_pGOTPLT is NULL!");
+  if (file_format->hasGOTPLT() && (&pSection == &(file_format->getGOTPLT()))) {
     return m_pGOTPLT->emit(pRegion);
   }
 
@@ -374,12 +371,12 @@ bool MipsGNULDBackend::readSection(Input& pInput, SectionData& pSD)
     uint32_t offset = pInput.fileOffset() + pSD.getSection().offset();
     uint32_t size = pSD.getSection().size();
 
-    MemoryRegion* region = pInput.memArea()->request(offset, size);
-    if (NULL != region) {
+    llvm::StringRef region = pInput.memArea()->request(offset, size);
+    if (region.size() > 0) {
       const llvm::ELF::Elf_Options* optb =
-        reinterpret_cast<const llvm::ELF::Elf_Options*>(region->start());
+        reinterpret_cast<const llvm::ELF::Elf_Options*>(region.begin());
       const llvm::ELF::Elf_Options* opte =
-        reinterpret_cast<const llvm::ELF::Elf_Options*>(region->start() + size);
+        reinterpret_cast<const llvm::ELF::Elf_Options*>(region.begin() + size);
 
       for (const llvm::ELF::Elf_Options* opt = optb; opt < opte; opt += opt->size) {
         switch (opt->kind) {
@@ -473,13 +470,13 @@ MipsGNULDBackend::getTargetSectionOrder(const LDSection& pSectHdr) const
 {
   const ELFFileFormat* file_format = getOutputFormat();
 
-  if (&pSectHdr == &file_format->getGOT())
+  if (file_format->hasGOT() && (&pSectHdr == &file_format->getGOT()))
     return SHO_DATA;
 
-  if (&pSectHdr == &file_format->getGOTPLT())
+  if (file_format->hasGOTPLT() && (&pSectHdr == &file_format->getGOTPLT()))
     return SHO_DATA;
 
-  if (&pSectHdr == &file_format->getPLT())
+  if (file_format->hasPLT() && (&pSectHdr == &file_format->getPLT()))
     return SHO_PLT;
 
   return SHO_UNDEFINED;
@@ -545,19 +542,20 @@ bool MipsGNULDBackend::allocateCommonSymbols(Module& pModule)
       // description here.
       (*com_sym)->resolveInfo()->setDesc(ResolveInfo::Define);
       Fragment* frag = new FillFragment(0x0, 1, (*com_sym)->size());
-      (*com_sym)->setFragmentRef(FragmentRef::Create(*frag, 0));
 
       if (ResolveInfo::ThreadLocal == (*com_sym)->type()) {
         // allocate TLS common symbol in tbss section
         tbss_offset += ObjectBuilder::AppendFragment(*frag,
                                                      *tbss_sect_data,
                                                      (*com_sym)->value());
+        (*com_sym)->setFragmentRef(FragmentRef::Create(*frag, 0));
       }
       // FIXME: how to identify small and large common symbols?
       else {
         bss_offset += ObjectBuilder::AppendFragment(*frag,
                                                     *bss_sect_data,
                                                     (*com_sym)->value());
+        (*com_sym)->setFragmentRef(FragmentRef::Create(*frag, 0));
       }
     }
   }
@@ -572,19 +570,20 @@ bool MipsGNULDBackend::allocateCommonSymbols(Module& pModule)
     // description here.
     (*com_sym)->resolveInfo()->setDesc(ResolveInfo::Define);
     Fragment* frag = new FillFragment(0x0, 1, (*com_sym)->size());
-    (*com_sym)->setFragmentRef(FragmentRef::Create(*frag, 0));
 
     if (ResolveInfo::ThreadLocal == (*com_sym)->type()) {
       // allocate TLS common symbol in tbss section
       tbss_offset += ObjectBuilder::AppendFragment(*frag,
                                                    *tbss_sect_data,
                                                    (*com_sym)->value());
+      (*com_sym)->setFragmentRef(FragmentRef::Create(*frag, 0));
     }
     // FIXME: how to identify small and large common symbols?
     else {
       bss_offset += ObjectBuilder::AppendFragment(*frag,
                                                   *bss_sect_data,
                                                   (*com_sym)->value());
+      (*com_sym)->setFragmentRef(FragmentRef::Create(*frag, 0));
     }
   }
 

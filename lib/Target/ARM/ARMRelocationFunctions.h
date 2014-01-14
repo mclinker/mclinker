@@ -33,6 +33,7 @@ DECL_ARM_APPLY_RELOC_FUNC(prel31)           \
 DECL_ARM_APPLY_RELOC_FUNC(got_prel)         \
 DECL_ARM_APPLY_RELOC_FUNC(tls)              \
 DECL_ARM_APPLY_RELOC_FUNC(thm_jump11)       \
+DECL_ARM_APPLY_RELOC_FUNC(thm_jump19)       \
 DECL_ARM_APPLY_RELOC_FUNC(unsupport)
 
 
@@ -88,7 +89,7 @@ DECL_ARM_APPLY_RELOC_FUNC(unsupport)
   { &thm_movt_abs,      48, "R_ARM_THM_MOVT_ABS"      },  \
   { &thm_movw_prel_nc,  49, "R_ARM_THM_MOVW_PREL_NC"  },  \
   { &thm_movt_prel,     50, "R_ARM_THM_MOVT_PREL"     },  \
-  { &unsupport,         51, "R_ARM_THM_JUMP19"        },  \
+  { &thm_jump19,        51, "R_ARM_THM_JUMP19"        },  \
   { &unsupport,         52, "R_ARM_THM_JUMP6"         },  \
   { &unsupport,         53, "R_ARM_THM_ALU_PREL_11_0" },  \
   { &unsupport,         54, "R_ARM_THM_PC12"          },  \

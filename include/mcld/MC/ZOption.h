@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_LD_ZOPTION_H
-#define MCLD_LD_ZOPTION_H
+#ifndef MCLD_MC_ZOPTION_H
+#define MCLD_MC_ZOPTION_H
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif

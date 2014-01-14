@@ -13,6 +13,7 @@
 #include "HexagonGOTPLT.h"
 #include <mcld/Target/GOT.h>
 #include <mcld/Target/PLT.h>
+#include <mcld/Support/MemoryRegion.h>
 
 namespace {
 
@@ -44,7 +45,6 @@ namespace mcld {
 
 class GOTEntry;
 class LinkerConfig;
-class MemoryRegion;
 class HexagonPLT1;
 
 //===----------------------------------------------------------------------===//

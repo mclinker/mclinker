@@ -7,8 +7,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_CONFIG_H
-#define MCLD_CONFIG_H
+#ifndef MCLD_CONFIG_CONFIG_H
+#define MCLD_CONFIG_CONFIG_H
 
 #define MCLD_REGION_CHUNK_SIZE 32
 #define MCLD_NUM_OF_INPUTS 32

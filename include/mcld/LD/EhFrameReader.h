@@ -6,17 +6,18 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_EH_FRAME_READER_H
-#define MCLD_EH_FRAME_READER_H
+#ifndef MCLD_LD_EHFRAMEREADER_H
+#define MCLD_LD_EHFRAMEREADER_H
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif
-#include <mcld/Support/MemoryRegion.h>
+#include <mcld/LD/EhFrame.h>
+#include <llvm/ADT/StringRef.h>
+#include <llvm/Support/DataTypes.h>
 
 namespace mcld {
 
 class Input;
-class EhFrame;
 class LDSection;
 
 /** \class EhFrameReader
@@ -28,8 +29,8 @@ class LDSection;
 class EhFrameReader
 {
 public:
-  typedef const uint8_t* ConstAddress;
-  typedef       uint8_t* Address;
+  typedef const char* ConstAddress;
+  typedef       char* Address;
 
 public:
   /// read - read an .eh_frame section and create the corresponding
@@ -70,29 +71,29 @@ private:
   /// @param pSection - the input .eh_frame section
   /// @param pRegion - the memory region that needs to handle with.
   typedef bool (*Action)(EhFrame& pEhFrame,
-                         MemoryRegion& pRegion,
+                         llvm::StringRef pRegion,
                          const Token& pToken);
 private:
   /// scan - scan pData from pHandler for a token.
-  template<bool SAME_ENDIAN> Token
-  scan(ConstAddress pHandler, uint64_t pOffset, const MemoryRegion& pData) const;
+  template<bool SAME_ENDIAN> Token scan(ConstAddress pHandler,
+                                        uint64_t pOffset,
+                                        llvm::StringRef pData) const;
 
   static bool addCIE(EhFrame& pEhFrame,
-                     MemoryRegion& pRegion,
+                     llvm::StringRef pRegion,
                      const Token& pToken);
 
   static bool addFDE(EhFrame& pEhFrame,
-                     MemoryRegion& pRegion,
+                     llvm::StringRef pRegion,
                      const Token& pToken);
 
   static bool addTerm(EhFrame& pEhFrame,
-                      MemoryRegion& pRegion,
+                      llvm::StringRef pRegion,
                       const Token& pToken);
 
   static bool reject(EhFrame& pEhFrame,
-                     MemoryRegion& pRegion,
+                     llvm::StringRef pRegion,
                      const Token& pToken);
-
 };
 
 template<> bool
@@ -101,7 +102,7 @@ EhFrameReader::read<32, true>(Input& pInput, EhFrame& pEhFrame);
 template<> EhFrameReader::Token
 EhFrameReader::scan<true>(ConstAddress pHandler,
                           uint64_t pOffset,
-                          const MemoryRegion& pData) const;
+                          llvm::StringRef pData) const;
 
 } // namespace of mcld
 

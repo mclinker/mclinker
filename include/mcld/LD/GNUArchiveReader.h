@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_GNU_ARCHIVE_READER_H
-#define MCLD_GNU_ARCHIVE_READER_H
+#ifndef MCLD_LD_GNUARCHIVEREADER_H
+#define MCLD_LD_GNUARCHIVEREADER_H
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif
@@ -20,7 +20,6 @@ namespace mcld {
 class Module;
 class Input;
 class ELFObjectReader;
-class MemoryAreaFactory;
 class Archive;
 class LinkerConfig;
 

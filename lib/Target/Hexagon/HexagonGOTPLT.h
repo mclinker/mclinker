@@ -14,7 +14,6 @@
 
 #include <llvm/ADT/DenseMap.h>
 #include "HexagonGOT.h"
-#include <mcld/Support/MemoryRegion.h>
 
 namespace mcld {
 

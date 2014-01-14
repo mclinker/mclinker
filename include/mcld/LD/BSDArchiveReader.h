@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_BSD_ARCHIVE_READER_H
-#define MCLD_BSD_ARCHIVE_READER_H
+#ifndef MCLD_LD_BSDARCHIVEREADER_H
+#define MCLD_LD_BSDARCHIVEREADER_H
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif

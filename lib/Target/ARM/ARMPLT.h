@@ -11,6 +11,7 @@
 
 #include <mcld/Target/GOT.h>
 #include <mcld/Target/PLT.h>
+#include <mcld/Support/MemoryRegion.h>
 
 namespace {
 
@@ -33,7 +34,6 @@ const uint32_t arm_plt1[] = {
 namespace mcld {
 
 class ARMGOT;
-class MemoryRegion;
 
 class ARMPLT0 : public PLT::Entry<sizeof(arm_plt0)>
 {

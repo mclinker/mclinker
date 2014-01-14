@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_SCRIPT_RPN_EVALUATOR_H
-#define MCLD_SCRIPT_RPN_EVALUATOR_H
+#ifndef MCLD_SCRIPT_RPNEVALUATOR_H
+#define MCLD_SCRIPT_RPNEVALUATOR_H
 
 namespace mcld {
 

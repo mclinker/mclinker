@@ -27,7 +27,7 @@ class IRBuilder;
 class ObjectLinker;
 
 class FileHandle;
-class MemoryArea;
+class FileOutputBuffer;
 
 /** \class Linker
 *  \brief Linker is a modular linker.
@@ -46,7 +46,7 @@ public:
   bool normalize(Module& pModule, IRBuilder& pBuilder);
 
   /// resolve - To build up the topology of mcld::Module.
-  bool resolve();
+  bool resolve(Module& pModule);
 
   /// layout - To serialize the final result of the output mcld::Module.
   bool layout();
@@ -54,15 +54,15 @@ public:
   /// link - A convenient way to resolve and to layout the output mcld::Module.
   bool link(Module& pModule, IRBuilder& pBuilder);
 
-  /// emit - To emit output mcld::Module to a output MemoryArea
-  bool emit(MemoryArea& pOutput);
+  /// emit - To emit output mcld::Module to a FileOutputBuffer.
+  bool emit(FileOutputBuffer& pOutput);
 
   /// emit - To open a file for output in pPath and to emit output mcld::Module
   /// to the file.
-  bool emit(const std::string& pPath);
+  bool emit(const Module& pModule, const std::string& pPath);
 
   /// emit - To emit output mcld::Module in the pFileDescriptor.
-  bool emit(int pFileDescriptor);
+  bool emit(const Module& pModule, int pFileDescriptor);
 
   bool reset();
 

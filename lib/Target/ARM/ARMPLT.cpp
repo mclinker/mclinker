@@ -14,7 +14,6 @@
 #include <llvm/Support/Casting.h>
 
 #include <mcld/LD/LDSection.h>
-#include <mcld/Support/MemoryRegion.h>
 #include <mcld/Support/MsgHandling.h>
 
 using namespace mcld;
@@ -152,7 +151,7 @@ uint64_t ARMPLT::emit(MemoryRegion& pRegion)
   uint64_t result = 0x0;
   iterator it = begin();
 
-  unsigned char* buffer = pRegion.getBuffer();
+  unsigned char* buffer = pRegion.begin();
   memcpy(buffer, llvm::cast<ARMPLT0>((*it)).getValue(), ARMPLT0::EntrySize);
   result += ARMPLT0::EntrySize;
   ++it;

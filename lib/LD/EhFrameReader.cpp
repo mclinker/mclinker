@@ -8,14 +8,15 @@
 //===----------------------------------------------------------------------===//
 #include <mcld/LD/EhFrameReader.h>
 
+#include <mcld/Fragment/NullFragment.h>
+#include <mcld/MC/Input.h>
+#include <mcld/LD/LDSection.h>
+#include <mcld/Support/MsgHandling.h>
+#include <mcld/Support/MemoryArea.h>
+
 #include <llvm/ADT/StringRef.h>
 #include <llvm/Support/Dwarf.h>
-
-#include <mcld/MC/Input.h>
-#include <mcld/LD/EhFrame.h>
-#include <mcld/LD/LDSection.h>
-#include <mcld/Support/MemoryArea.h>
-#include <mcld/Support/MsgHandling.h>
+#include <llvm/Support/LEB128.h>
 
 using namespace mcld;
 using namespace llvm::dwarf;
@@ -45,7 +46,7 @@ skip_LEB128(EhFrameReader::ConstAddress* pp, EhFrameReader::ConstAddress pend)
 template<> EhFrameReader::Token
 EhFrameReader::scan<true>(ConstAddress pHandler,
                           uint64_t pOffset,
-                          const MemoryRegion& pData) const
+                          llvm::StringRef pData) const
 {
   Token result;
   result.file_off = pOffset;
@@ -71,6 +72,8 @@ EhFrameReader::scan<true>(ConstAddress pHandler,
     extended |= data[cur_idx++];
     result.size = extended + 12;
     result.data_off = 16;
+    // 64-bit obj file still uses 32-bit eh_frame.
+    assert (false && "We don't support 64-bit eh_frame.");
   }
   else {
     result.size = length + 4;
@@ -129,17 +132,17 @@ bool EhFrameReader::read<32, true>(Input& pInput, EhFrame& pEhFrame)
 
   // get file offset and address
   uint64_t file_off = pInput.fileOffset() + section.offset();
-  MemoryRegion* sect_reg =
-                       pInput.memArea()->request(file_off, section.size());
-  ConstAddress handler = (ConstAddress)sect_reg->start();
+  llvm::StringRef sect_reg =
+      pInput.memArea()->request(file_off, section.size());
+  ConstAddress handler = (ConstAddress)sect_reg.begin();
 
   State cur_state = Q0;
   while (Reject != cur_state && Accept != cur_state) {
 
-    Token token = scan<true>(handler, file_off, *sect_reg);
-    MemoryRegion* entry = pInput.memArea()->request(token.file_off, token.size);
+    Token token = scan<true>(handler, file_off, sect_reg);
+    llvm::StringRef entry = pInput.memArea()->request(token.file_off, token.size);
 
-    if (!transition[cur_state][token.kind](pEhFrame, *entry, token)) {
+    if (!transition[cur_state][token.kind](pEhFrame, entry, token)) {
       // fail to scan
       debug(diag::debug_cannot_scan_eh) << pInput.name();
       return false;
@@ -148,9 +151,9 @@ bool EhFrameReader::read<32, true>(Input& pInput, EhFrame& pEhFrame)
     file_off += token.size;
     handler += token.size;
 
-    if (handler == sect_reg->end())
+    if (handler == sect_reg.end())
       cur_state = Accept;
-    else if (handler > sect_reg->end()) {
+    else if (handler > sect_reg.end()) {
       cur_state = Reject;
     }
     else
@@ -166,12 +169,14 @@ bool EhFrameReader::read<32, true>(Input& pInput, EhFrame& pEhFrame)
 }
 
 bool EhFrameReader::addCIE(EhFrame& pEhFrame,
-                           MemoryRegion& pRegion,
+                           llvm::StringRef pRegion,
                            const EhFrameReader::Token& pToken)
 {
   // skip Length, Extended Length and CIE ID.
-  ConstAddress handler = pRegion.start() + pToken.data_off;
+  ConstAddress handler = pRegion.begin() + pToken.data_off;
   ConstAddress cie_end = pRegion.end();
+  ConstAddress handler_start = handler;
+  uint64_t pr_ptr_data_offset = pToken.data_off;
 
   // the version should be 1 or 3
   uint8_t version = *handler++;
@@ -211,6 +216,7 @@ bool EhFrameReader::addCIE(EhFrame& pEhFrame,
     EhFrame::CIE* cie = new EhFrame::CIE(pRegion);
     cie->setFDEEncode(llvm::dwarf::DW_EH_PE_absptr);
     pEhFrame.addCIE(*cie);
+    pEhFrame.getCIEMap().insert(std::make_pair(pToken.file_off, cie));
     return true;
   }
 
@@ -222,12 +228,13 @@ bool EhFrameReader::addCIE(EhFrame& pEhFrame,
 
   // parse the Augmentation String to get the FDE encodeing if 'z' existed
   uint8_t fde_encoding = llvm::dwarf::DW_EH_PE_absptr;
+  std::string augdata;
+  std::string pr_ptr_data;
   if ('z' == augment[0]) {
-
-    // skip the Augumentation Data Length
-    if (!skip_LEB128(&handler, cie_end)) {
-      return false;
-    }
+    unsigned offset;
+    size_t augdata_size = llvm::decodeULEB128((const uint8_t*)handler, &offset);
+    handler += offset;
+    augdata = std::string((const char*)handler, augdata_size);
 
     // parse the Augmentation String
     for (size_t i = 1; i < augment.size(); ++i) {
@@ -285,6 +292,8 @@ bool EhFrameReader::addCIE(EhFrame& pEhFrame,
           if (static_cast<uint32_t>(cie_end - handler) < per_length) {
             return false;
           }
+          pr_ptr_data_offset += handler - handler_start;
+          pr_ptr_data = std::string((const char*)handler, per_length);
           handler += per_length;
           break;
         } // end of case 'P'
@@ -316,38 +325,46 @@ bool EhFrameReader::addCIE(EhFrame& pEhFrame,
   // create and push back the CIE entry
   EhFrame::CIE* cie = new EhFrame::CIE(pRegion);
   cie->setFDEEncode(fde_encoding);
+  cie->setPersonalityOffset(pr_ptr_data_offset);
+  cie->setPersonalityName(pr_ptr_data);
+  cie->setAugmentationData(augdata);
   pEhFrame.addCIE(*cie);
+  pEhFrame.getCIEMap().insert(std::make_pair(pToken.file_off, cie));
   return true;
 }
 
 bool EhFrameReader::addFDE(EhFrame& pEhFrame,
-                           MemoryRegion& pRegion,
+                           llvm::StringRef pRegion,
                            const EhFrameReader::Token& pToken)
 {
   if (pToken.data_off == pRegion.size())
     return false;
 
+  const int32_t offset = *(const int32_t*) (pRegion.begin() + pToken.data_off
+                                            - 4);
+  size_t cie_offset = (size_t) ((int64_t) (pToken.file_off + 4) -
+                                (int32_t) offset);
+
+  EhFrame::CIEMap::iterator iter = pEhFrame.getCIEMap().find(cie_offset);
+  if (iter == pEhFrame.getCIEMap().end())
+    return false;
+
   // create and push back the FDE entry
-  EhFrame::FDE* fde = new EhFrame::FDE(pRegion,
-                                       pEhFrame.cie_back(),
-                                       pToken.data_off);
+  EhFrame::FDE* fde = new EhFrame::FDE(pRegion, *iter->second);
   pEhFrame.addFDE(*fde);
   return true;
 }
 
 bool EhFrameReader::addTerm(EhFrame& pEhFrame,
-                            MemoryRegion& pRegion,
+                            llvm::StringRef pRegion,
                             const EhFrameReader::Token& pToken)
 {
-  RegionFragment* frag = new RegionFragment(pRegion);
-  pEhFrame.addFragment(*frag);
   return true;
 }
 
 bool EhFrameReader::reject(EhFrame& pEhFrame,
-                           MemoryRegion& pRegion,
+                           llvm::StringRef pRegion,
                            const EhFrameReader::Token& pToken)
 {
   return true;
 }
-

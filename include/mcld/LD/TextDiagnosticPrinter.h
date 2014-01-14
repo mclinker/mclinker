@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_TEXT_DIAGNOSTIC_PRINTER_H
-#define MCLD_TEXT_DIAGNOSTIC_PRINTER_H
+#ifndef MCLD_LD_TEXTDIAGNOSTICPRINTER_H
+#define MCLD_LD_TEXTDIAGNOSTICPRINTER_H
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif

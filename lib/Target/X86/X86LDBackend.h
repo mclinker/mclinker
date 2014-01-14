@@ -130,6 +130,10 @@ private:
   virtual void setRelDynSize() = 0;
   virtual void setRelPLTSize() = 0;
 
+  void addEhFrameForPLT(Module& pModule);
+  virtual llvm::StringRef createCIERegionForPLT() = 0;
+  virtual llvm::StringRef createFDERegionForPLT() = 0;
+
 protected:
   Relocator* m_pRelocator;
   X86PLT* m_pPLT;
@@ -183,6 +187,9 @@ private:
   void setRelDynSize();
   void setRelPLTSize();
 
+  llvm::StringRef createCIERegionForPLT();
+  llvm::StringRef createFDERegionForPLT();
+
 private:
   X86_32GOT* m_pGOT;
   X86_32GOTPLT* m_pGOTPLT;
@@ -222,6 +229,9 @@ private:
 
   void setRelDynSize();
   void setRelPLTSize();
+
+  llvm::StringRef createCIERegionForPLT();
+  llvm::StringRef createFDERegionForPLT();
 
 private:
   X86_64GOT* m_pGOT;

@@ -11,8 +11,8 @@
 // This pass set up default parameters for ELF.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_ELF_SECTION_LINKER_H
-#define MCLD_ELF_SECTION_LINKER_H
+#ifndef MCLD_TARGET_ELFMCLINKER_H
+#define MCLD_TARGET_ELFMCLINKER_H
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif
@@ -22,13 +22,14 @@ namespace mcld {
 
 class Module;
 class Output;
+class FileHandle;
 
 class ELFMCLinker : public MCLinker
 {
 public:
   ELFMCLinker(LinkerConfig& pConfig,
               mcld::Module& pModule,
-              MemoryArea& pOutput);
+              FileHandle& pFileHandle);
 
   virtual ~ELFMCLinker();
 };

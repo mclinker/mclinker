@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_PROCEDURE_LINKAGE_TABLE_H
-#define MCLD_PROCEDURE_LINKAGE_TABLE_H
+#ifndef MCLD_TARGET_PLT_H
+#define MCLD_TARGET_PLT_H
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif
@@ -22,7 +22,7 @@ class LDSection;
 class ResolveInfo;
 
 /** \class PLTEntryDefaultBase
- *  \brief PLTEntryDefaultBase provides the default interface for PLE Entry
+ *  \brief PLTEntryDefaultBase provides the default interface for PLT Entry
  */
 class PLTEntryBase : public TargetFragment
 {

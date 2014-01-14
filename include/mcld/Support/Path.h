@@ -10,8 +10,8 @@
 // filesystem (v3), but modified to remove exception handling and the
 // path class.
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_PATH_H
-#define MCLD_PATH_H
+#ifndef MCLD_SUPPORT_PATH_H
+#define MCLD_SUPPORT_PATH_H
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif

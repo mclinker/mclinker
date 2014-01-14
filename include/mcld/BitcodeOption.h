@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_BITCODE_OPTIONS_H
-#define MCLD_BITCODE_OPTIONS_H
+#ifndef MCLD_BITCODEOPTION_H
+#define MCLD_BITCODEOPTION_H
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif

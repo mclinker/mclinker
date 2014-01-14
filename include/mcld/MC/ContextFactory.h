@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_CONTEXT_FACTORY_H
-#define MCLD_CONTEXT_FACTORY_H
+#ifndef MCLD_MC_CONTEXTFACTORY_H
+#define MCLD_MC_CONTEXTFACTORY_H
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif

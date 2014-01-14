@@ -26,6 +26,7 @@ add_mcld_library(MCLDLD
   ELFReaderIf.cpp
   ELFSegment.cpp
   ELFSegmentFactory.cpp
+  GarbageCollection.cpp
   GNUArchiveReader.cpp
   GroupReader.cpp
   LDContext.cpp

@@ -14,8 +14,10 @@
 #include <mcld/LD/EhFrame.h>
 #include <mcld/LD/RelocData.h>
 #include <mcld/Support/MsgHandling.h>
+#include <mcld/Support/MemoryArea.h>
 #include <mcld/Support/ELF.h>
 #include <mcld/Fragment/FragmentRef.h>
+#include <llvm/ADT/StringRef.h>
 
 using namespace mcld;
 
@@ -92,22 +94,6 @@ LDFileFormat::Kind GetELFSectionKind(uint32_t pType, const char* pName,
     fatal(diag::err_unsupported_section) << pName << pType;
   }
   return LDFileFormat::MetaData;
-}
-
-bool ShouldForceLocal(const ResolveInfo& pInfo, const LinkerConfig& pConfig)
-{
-  // forced local symbol matches all rules:
-  // 1. We are not doing incremental linking.
-  // 2. The symbol is with Hidden or Internal visibility.
-  // 3. The symbol should be global or weak. Otherwise, local symbol is local.
-  // 4. The symbol is defined or common
-  if (LinkerConfig::Object != pConfig.codeGenType() &&
-      (pInfo.visibility() == ResolveInfo::Hidden ||
-         pInfo.visibility() == ResolveInfo::Internal) &&
-      (pInfo.isGlobal() || pInfo.isWeak()) &&
-      (pInfo.isDefine() || pInfo.isCommon()))
-    return true;
-  return false;
 }
 
 //===----------------------------------------------------------------------===//
@@ -194,29 +180,6 @@ Input* IRBuilder::ReadInput(const std::string& pNameSpec)
 
   if (!input->hasMemArea())
     m_InputBuilder.setMemory(*input, FileHandle::ReadOnly, FileHandle::System);
-
-  return input;
-}
-
-/// ReadInput - To read an input file and append it to the input tree.
-Input* IRBuilder::ReadInput(raw_mem_ostream& pMemOStream)
-{
-  Input* input = NULL;
-  if (pMemOStream.getMemoryArea().hasHandler()) {
-    m_InputBuilder.createNode<InputTree::Positional>(
-                               "memory ostream",
-                               pMemOStream.getMemoryArea().handler()->path());
-
-    input = *m_InputBuilder.getCurrentNode();
-    m_InputBuilder.setContext(*input);
-    input->setMemArea(&pMemOStream.getMemoryArea());
-  }
-  else {
-    m_InputBuilder.createNode<InputTree::Positional>("memory ostream", "NAN");
-    input = *m_InputBuilder.getCurrentNode();
-    m_InputBuilder.setContext(*input, false);
-    input->setMemArea(&pMemOStream.getMemoryArea());
-  }
 
   return input;
 }
@@ -379,12 +342,8 @@ Fragment* IRBuilder::CreateRegion(Input& pInput, size_t pOffset, size_t pLength)
   if (0 == pLength)
     return new FillFragment(0x0, 0, 0);
 
-  MemoryRegion* region = pInput.memArea()->request(pOffset, pLength);
-
-  if (NULL == region)
-    return new FillFragment(0x0, 0, 0);
-
-  return new RegionFragment(*region);
+  llvm::StringRef region = pInput.memArea()->request(pOffset, pLength);
+  return new RegionFragment(region);
 }
 
 /// CreateRegion - To create a region fragment wrapping the given memory
@@ -393,11 +352,8 @@ Fragment* IRBuilder::CreateRegion(void* pMemory, size_t pLength)
   if (0 == pLength)
     return new FillFragment(0x0, 0, 0);
 
-  MemoryRegion* region = MemoryRegion::Create(pMemory, pLength);
-  if (NULL == region)
-    return new FillFragment(0x0, 0, 0);
-
-  return new RegionFragment(*region);
+  llvm::StringRef region(reinterpret_cast<const char*>(pMemory), pLength);
+  return new RegionFragment(region);
 }
 
 /// AppendFragment - To append pFrag to the given SectionData pSD
@@ -568,36 +524,6 @@ LDSymbol* IRBuilder::addSymbolFromObject(const std::string& pName,
     output_sym->setFragmentRef(pFragmentRef);
     output_sym->setValue(pValue);
   }
-
-  // Step 4. Adjust the position of output LDSymbol.
-  // After symbol resolution, visibility is changed to the most restrict one.
-  // we need to arrange its position in the output symbol. We arrange the
-  // positions by sorting symbols in SymbolCategory.
-  if (pType != ResolveInfo::Section) {
-    if (!has_output_sym) {
-      // We merge sections when reading them. So we do not need to output symbols
-      // with section type
-
-      // No matter the symbol is already in the output or not, add it if it
-      // should be forcefully set local.
-      if (ShouldForceLocal(*resolved_result.info, m_Config))
-        m_Module.getSymbolTable().forceLocal(*output_sym);
-      else {
-        // the symbol should not be forcefully local.
-        m_Module.getSymbolTable().add(*output_sym);
-      }
-    }
-    else if (resolved_result.overriden) {
-      if (!ShouldForceLocal(old_info, m_Config) ||
-          !ShouldForceLocal(*resolved_result.info, m_Config)) {
-        // If the old info and the new info are both forcefully local, then
-        // we should keep the output_sym in forcefully local category. Else,
-        // we should re-sort the output_sym
-        m_Module.getSymbolTable().arrange(*output_sym, old_info);
-      }
-    }
-  }
-
   return input_sym;
 }
 
@@ -644,25 +570,13 @@ LDSymbol* IRBuilder::addSymbolFromDynObj(Input& pInput,
   input_sym->setFragmentRef(FragmentRef::Null());
   input_sym->setValue(pValue);
 
-  LDSymbol* output_sym = NULL;
+  // this symbol is seen in a dynamic object, set the InDyn flag
+  resolved_result.info->setInDyn();
+
   if (!resolved_result.existent) {
     // we get a new symbol, leave it as NULL
     resolved_result.info->setSymPtr(NULL);
   }
-  else {
-    // we saw the symbol before, but the output_sym still may be NULL.
-    output_sym = resolved_result.info->outSymbol();
-  }
-
-  if (output_sym != NULL) {
-    // After symbol resolution, visibility is changed to the most restrict one.
-    // If we are not doing incremental linking, then any symbol with hidden
-    // or internal visibility is forcefully set as a local symbol.
-    if (ShouldForceLocal(*resolved_result.info, m_Config)) {
-      m_Module.getSymbolTable().forceLocal(*output_sym);
-    }
-  }
-
   return input_sym;
 }
 
@@ -675,20 +589,11 @@ Relocation* IRBuilder::AddRelocation(LDSection& pSection,
                                      uint32_t pOffset,
                                      Relocation::Address pAddend)
 {
-  // FIXME: we should dicard sections and symbols first instead
-  // if the symbol is in the discarded input section, then we also need to
-  // discard this relocation.
-  ResolveInfo* resolve_info = pSym.resolveInfo();
-  if (!pSym.hasFragRef() &&
-      ResolveInfo::Section == resolve_info->type() &&
-      ResolveInfo::Undefined == resolve_info->desc())
-    return NULL;
-
   FragmentRef* frag_ref = FragmentRef::Create(*pSection.getLink(), pOffset);
 
   Relocation* relocation = Relocation::Create(pType, *frag_ref, pAddend);
 
-  relocation->setSymInfo(resolve_info);
+  relocation->setSymInfo(pSym.resolveInfo());
   pSection.getRelocData()->append(*relocation);
 
   return relocation;
@@ -721,7 +626,7 @@ IRBuilder::AddSymbol<IRBuilder::Force, IRBuilder::Unresolve>(
     output_sym = LDSymbol::Create(*result.info);
     result.info->setSymPtr(output_sym);
 
-    if (ShouldForceLocal(*result.info, m_Config))
+    if (result.info->shouldForceLocal(m_Config))
       m_Module.getSymbolTable().forceLocal(*output_sym);
     else
       m_Module.getSymbolTable().add(*output_sym);
@@ -842,7 +747,7 @@ IRBuilder::AddSymbol<IRBuilder::Force, IRBuilder::Resolve>(
 
   // After symbol resolution, the visibility is changed to the most restrict.
   // arrange the output position
-  if (ShouldForceLocal(*result.info, m_Config))
+  if (result.info->shouldForceLocal(m_Config))
     m_Module.getSymbolTable().forceLocal(*output_sym);
   else if (has_output_sym)
     m_Module.getSymbolTable().arrange(*output_sym, old_info);

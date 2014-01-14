@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_FRAGMENT_FRAGMENT_REFERENCE_H
-#define MCLD_FRAGMENT_FRAGMENT_REFERENCE_H
+#ifndef MCLD_FRAGMENT_FRAGMENTREF_H
+#define MCLD_FRAGMENT_FRAGMENTREF_H
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif
@@ -77,17 +77,6 @@ public:
   { return m_Offset; }
 
   Offset getOutputOffset() const;
-
-  // -----  dereference  ----- //
-  Address deref();
-
-  ConstAddress deref() const;
-
-  Address operator*()
-  { return deref(); }
-
-  ConstAddress operator*() const
-  { return deref(); }
 
 private:
   friend FragmentRef& NullFragmentRef();

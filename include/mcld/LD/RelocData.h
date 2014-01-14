@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_RELOCATION_DATA_H
-#define MCLD_RELOCATION_DATA_H
+#ifndef MCLD_LD_RELOCDATA_H
+#define MCLD_LD_RELOCDATA_H
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif
@@ -75,6 +75,7 @@ public:
   bool empty() const { return m_Relocations.empty(); }
 
   RelocData& append(Relocation& pRelocation);
+  Relocation& remove(Relocation& pRelocation);
 
   reference              front ()       { return m_Relocations.front();  }
   const_reference        front () const { return m_Relocations.front();  }

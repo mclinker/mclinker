@@ -11,10 +11,8 @@
 #include <mcld/Module.h>
 #include <mcld/LinkerConfig.h>
 #include <mcld/CodeGen/MCLinker.h>
-#include <mcld/Support/raw_mem_ostream.h>
 #include <mcld/Support/TargetRegistry.h>
 #include <mcld/Support/ToolOutputFile.h>
-#include <mcld/Support/MemoryArea.h>
 #include <mcld/Target/TargetLDBackend.h>
 
 #include <llvm/ADT/OwningPtr.h>
@@ -116,7 +114,7 @@ const mcld::Target& mcld::MCLDTargetMachine::getTarget() const
 /// Turn exception handling constructs into something the code generators can
 /// handle.
 static void addPassesToHandleExceptions(llvm::TargetMachine *TM,
-                                        PassManagerBase &PM) {
+                                        llvm::legacy::PassManagerBase &PM) {
   switch (TM->getMCAsmInfo()->getExceptionHandlingType()) {
   case llvm::ExceptionHandling::SjLj:
     // SjLj piggy-backs on dwarf for this bit. The cleanups done apply to both
@@ -142,9 +140,10 @@ static void addPassesToHandleExceptions(llvm::TargetMachine *TM,
 }
 
 
-static llvm::MCContext *addPassesToGenerateCode(llvm::LLVMTargetMachine *TM,
-                                                PassManagerBase &PM,
-                                                bool DisableVerify)
+static llvm::MCContext *
+addPassesToGenerateCode(llvm::LLVMTargetMachine *TM,
+                        llvm::legacy::PassManagerBase &PM,
+                        bool DisableVerify)
 {
   // Targets may override createPassConfig to provide a target-specific sublass.
   TargetPassConfig *PassConfig = TM->createPassConfig(PM);
@@ -189,7 +188,8 @@ static llvm::MCContext *addPassesToGenerateCode(llvm::LLVMTargetMachine *TM,
 
 }
 
-bool mcld::MCLDTargetMachine::addPassesToEmitFile(PassManagerBase &pPM,
+bool
+mcld::MCLDTargetMachine::addPassesToEmitFile(llvm::legacy::PassManagerBase &pPM,
                                              mcld::ToolOutputFile& pOutput,
                                              mcld::CodeGenFileType pFileType,
                                              CodeGenOpt::Level pOptLvl,
@@ -227,7 +227,7 @@ bool mcld::MCLDTargetMachine::addPassesToEmitFile(PassManagerBase &pPM,
     if (getTM().hasMCSaveTempLabels())
       Context->setAllowTemporaryLabels(false);
     if (addAssemblerPasses(pPM,
-                           pOutput.mem_os(),
+                           pOutput.formatted_os(),
                            Context))
       return true;
     break;
@@ -237,7 +237,7 @@ bool mcld::MCLDTargetMachine::addPassesToEmitFile(PassManagerBase &pPM,
     if (addLinkerPasses(pPM,
                         pConfig,
                         pModule,
-                        pOutput.memory(),
+                        pOutput.fd(),
                         Context))
       return true;
     break;
@@ -247,7 +247,7 @@ bool mcld::MCLDTargetMachine::addPassesToEmitFile(PassManagerBase &pPM,
     if (addLinkerPasses(pPM,
                         pConfig,
                         pModule,
-                        pOutput.memory(),
+                        pOutput.fd(),
                         Context))
       return true;
     break;
@@ -257,7 +257,7 @@ bool mcld::MCLDTargetMachine::addPassesToEmitFile(PassManagerBase &pPM,
     if (addLinkerPasses(pPM,
                         pConfig,
                         pModule,
-                        pOutput.memory(),
+                        pOutput.fd(),
                         Context))
       return true;
     break;
@@ -267,7 +267,7 @@ bool mcld::MCLDTargetMachine::addPassesToEmitFile(PassManagerBase &pPM,
     if (addLinkerPasses(pPM,
                         pConfig,
                         pModule,
-                        pOutput.memory(),
+                        pOutput.fd(),
                         Context))
       return true;
     break;
@@ -276,8 +276,10 @@ bool mcld::MCLDTargetMachine::addPassesToEmitFile(PassManagerBase &pPM,
   return false;
 }
 
-bool mcld::MCLDTargetMachine::addCompilerPasses(PassManagerBase &pPM,
-  llvm::formatted_raw_ostream &pOutput, llvm::MCContext *&Context)
+bool
+mcld::MCLDTargetMachine::addCompilerPasses(llvm::legacy::PassManagerBase &pPM,
+                                           llvm::formatted_raw_ostream &pOutput,
+                                           llvm::MCContext *&Context)
 {
   const MCAsmInfo &MAI = *getTM().getMCAsmInfo();
   const MCInstrInfo &MII = *getTM().getInstrInfo();
@@ -319,9 +321,10 @@ bool mcld::MCLDTargetMachine::addCompilerPasses(PassManagerBase &pPM,
   return false;
 }
 
-bool mcld::MCLDTargetMachine::addAssemblerPasses(PassManagerBase &pPM,
-                                                 llvm::raw_ostream &pOutput,
-                                                 llvm::MCContext *&Context)
+bool
+mcld::MCLDTargetMachine::addAssemblerPasses(llvm::legacy::PassManagerBase &pPM,
+                                            llvm::raw_ostream &pOutput,
+                                            llvm::MCContext *&Context)
 {
   // MCCodeEmitter
   const MCInstrInfo &MII = *getTM().getInstrInfo();
@@ -352,29 +355,27 @@ bool mcld::MCLDTargetMachine::addAssemblerPasses(PassManagerBase &pPM,
   return false;
 }
 
-bool mcld::MCLDTargetMachine::addLinkerPasses(PassManagerBase &pPM,
-                                              LinkerConfig& pConfig,
-                                              mcld::Module& pModule,
-                                              mcld::MemoryArea& pOutput,
-                                              llvm::MCContext *&Context)
+bool
+mcld::MCLDTargetMachine::addLinkerPasses(llvm::legacy::PassManagerBase &pPM,
+                                         LinkerConfig& pConfig,
+                                         mcld::Module& pModule,
+                                         mcld::FileHandle& pFileHandle,
+                                         llvm::MCContext *&Context)
 {
-  if (NULL == pOutput.handler())
-    return true;
-
   // set up output's SOName
   if (pConfig.options().soname().empty()) {
     // if the output is a shared object, and the option -soname was not
     // enable, set soname as the output file name. soname must be UTF-8 string.
-    pConfig.options().setSOName(pOutput.handler()->path().filename().native());
+    pConfig.options().setSOName(pFileHandle.path().filename().native());
   }
 
   // set up output module name
-  pModule.setName(pOutput.handler()->path().filename().native());
+  pModule.setName(pFileHandle.path().filename().native());
 
   MachineFunctionPass* funcPass = m_pMCLDTarget->createMCLinker(m_Triple,
                                                                 pConfig,
                                                                 pModule,
-                                                                pOutput);
+                                                                pFileHandle);
   if (NULL == funcPass)
     return true;
 

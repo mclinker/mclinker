@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_LINKER_SCRIPT_H
-#define MCLD_LINKER_SCRIPT_H
+#ifndef MCLD_LINKERSCRIPT_H
+#define MCLD_LINKERSCRIPT_H
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif

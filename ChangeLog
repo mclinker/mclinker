@@ -1,3 +1,49 @@
+2013-12-30 Chinyen Chou <petechou@gmail.com>
+	* Executive Summary:
+	1. Support ARM ELF Attribute
+	2. Refine I/O memory management to improve linking speed
+	3. Enhance EH Frame to reduce eh_frame section size
+	4. Support garbage collection
+	5. Enhance linker script
+	6. Migrate to LLVM r195092
+
+	* Command Line Options and Building System:
+	1. Support -x and -X
+	2. Support -gc-sections
+	3. Support --no-warn-mismatch
+	4. Support --(no-)ld-generated-unwind-info
+
+	* Linker Script:
+	1. Support --no-warn-mismatch
+	2. SectionMap: Add "Input Section Keep" attribute
+
+	* Garbage Collection:
+	1. Add class GarbageCollection to support --gc-sections
+	2. TargetLDBackend: Add API setUpReachedSectionsForGC
+	3. ARM: GC .ARM.exidx
+	4. Add ResolveInfo::InDyn
+
+	* EH Frame Enhancement:
+	1. EhFrame: In EhFrame::merge identical eh_frame CIE and discard the FDE for
+	   Ignore sections
+	2. X86LDBackend: Add eh_frame entry for x86/x86_64 PLT
+
+	* Target Backends:
+	1. Target: add ELF attribute support
+	2. ARM: add ARM ELF attribute support
+	3. ARM: support more relocation types: R_ARM_V4BX and R_ARM_THM_JUMP19
+	4. GOT/PLT/OutputRelocSection: remove the concept "reserve" and "consume". In
+	   ARM, X86 and Hexagon backends, reserve and consume entries at the same time
+	5. TargetLDBackend: add getEntry to get the entry point of an executable
+
+	* Architectural Changes:
+	1. Deprecate bcc
+	2. Add ObjectLinker::dataStrippingOpt for the data stripping optimizations
+	3. Change the include guard naming to <PROJECT>_<PATH>_<FILE>_H
+	4. Refine I/O memory management to improve linking speed
+	5. Add ObjectLinker::addSymbolsToOutput to add symbols to output symbol table
+	   at once after all input symbols have been resolved
+
 2013-09-18 Chinyen Chou <petechou@gmail.com>
 	* Executive Summary:
 	1. Support more linker script commands for linking FreeBSD and Linux kernel.

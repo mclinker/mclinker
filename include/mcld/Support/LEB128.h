@@ -7,8 +7,8 @@
 //
 //===----------------------------------------------------------------------===//
 
-#ifndef MCLD_LEB128_H
-#define MCLD_LEB128_H
+#ifndef MCLD_SUPPORT_LEB128_H
+#define MCLD_SUPPORT_LEB128_H
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif

@@ -54,6 +54,8 @@ GeneralOptions::GeneralOptions()
     m_bNewDTags(false),
     m_bNoStdlib(false),
     m_bWarnMismatch(true),
+    m_bGCSections(false),
+    m_bGenUnwindInfo(true),
     m_GPSize(8),
     m_StripSymbols(KeepAllSymbols),
     m_HashStyle(SystemV) {

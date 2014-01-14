@@ -66,7 +66,7 @@ set(MCLD_DEFAULT_TARGET_TRIPLE "${LLVM_HOST_TRIPLE}" CACHE STRING
 ################################################################################
 #  Versioning, see VERSION
   set(MAJOR 2)
-  set(MINOR 6)
+  set(MINOR 7)
   set(MICRO 0)
   set(AGE dev)
   set(BUILD )
@@ -213,8 +213,6 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 include_directories(BEFORE
   ${CMAKE_CURRENT_BINARY_DIR}/include
   ${CMAKE_CURRENT_SOURCE_DIR}/include
-  ${CMAKE_CURRENT_BINARY_DIR}/tools/bcc/include
-  ${CMAKE_CURRENT_SOURCE_DIR}/tools/bcc/include
   ${CMAKE_CURRENT_BINARY_DIR}/tools/ld.lite/include
   ${CMAKE_CURRENT_SOURCE_DIR}/tools/ld.lite/include
   )

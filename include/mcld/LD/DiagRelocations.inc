@@ -12,3 +12,4 @@ DIAG(result_overflow, DiagnosticEngine::Error, "applying relocation `%0' causes 
 DIAG(result_badreloc, DiagnosticEngine::Error, "applying relocation `%0' encounters unexpected opcode on symbol `%1'","applying relocation `%0' encounters unexpected opcode on symbol `%1'")
 DIAG(invalid_tls, DiagnosticEngine::Error, "TLS relocation against invalid symbol `%0' in section `%1'", "TLS relocation against invalid symbol `%0' in section `%1'")
 DIAG(unknown_reloc_section_type, DiagnosticEngine::Unreachable, "unknown relocation section type: `%0' in section `%1'", "unknown relocation section type: `%0' in section `%1'")
+DIAG(unsupport_cond_branch_reloc, DiagnosticEngine::Error, "applying relocation `%0', conditional branch to PLT in THUMB-2 not supported yet", "applying relocation `%0', conditional branch to PLT in THUMB-2 not supported yet")

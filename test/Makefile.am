@@ -1,7 +1,6 @@
 
 LLC="`$(LLVM_CONFIG_BIN) --bindir`/llc"
 MCLD=$(abs_top_builddir)/tools/mcld/ld.mcld
-ALONELD=$(abs_top_builddir)/tools/bcc/ld.bcc
 FAKELD=$(abs_top_srcdir)/scripts/bin/ld.fake
 
 LLVM_SRC_ROOT="`$(LLVM_CONFIG_BIN) --src-root`"
@@ -23,7 +22,6 @@ lit.site.cfg: FORCE
 	@echo "Making MCLinker 'lit.site.cfg' file..."
 	@echo s=@LLC@=$(LLC)=g > lit.tmp
 	@echo s=@MCLD@=$(MCLD)=g >> lit.tmp
-	@echo s=@ALONELD@=$(ALONELD)=g >> lit.tmp
 	@echo s=@FAKELD@=$(FAKELD)=g >> lit.tmp
 	@echo s=@MCLINKER_SOURCE_ROOT@=$(abs_top_srcdir)=g >> lit.tmp
 	@echo s=@MCLINKER_OBJECT_ROOT@=$(abs_top_builddir)=g >> lit.tmp

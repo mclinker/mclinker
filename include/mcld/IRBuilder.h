@@ -29,7 +29,6 @@
 
 #include <mcld/Support/Path.h>
 #include <mcld/Support/FileHandle.h>
-#include <mcld/Support/raw_mem_ostream.h>
 
 namespace mcld {
 
@@ -127,19 +126,6 @@ public:
   /// @param pNameSpec [in] The namespec of the input file.
   /// @return the created mcld::Input.
   Input* ReadInput(const std::string& pNameSpec);
-
-  /// ReadInput - To read an input file and append it to the input tree.
-  ///
-  /// This function is like to add an input in the command line.
-  ///
-  /// LLVM compiler usually emits outputs by llvm::raw_ostream.
-  /// mcld::raw_mem_ostream inherits llvm::raw_ostream and is suitable to be
-  /// the output of LLVM compier. Users can connect LLVM compiler and MCLinker
-  /// by passing mcld::raw_mem_ostream from LLVM compiler to MCLinker.
-  ///
-  /// @param pMemOStream [in] The input raw_mem_stream
-  /// @param the create mcld::Input.
-  Input* ReadInput(raw_mem_ostream& pMemOStream);
 
   /// ReadInput - To read an input file and append it to the input tree.
   /// Another way to open file manually. Use MCLinker's mcld::FileHandle.
@@ -469,6 +455,10 @@ public:
                                    LDSymbol& pSym,
                                    uint32_t pOffset,
                                    Relocation::Address pAddend = 0);
+
+  /// shouldForceLocal - The helper function for AddSymbol to check if the
+  /// symbols should be force to local symbols
+  bool shouldForceLocal(const ResolveInfo& pInfo, const LinkerConfig& pConfig);
 
 private:
   LDSymbol* addSymbolFromObject(const std::string& pName,

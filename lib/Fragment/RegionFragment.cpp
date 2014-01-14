@@ -7,14 +7,13 @@
 //
 //===----------------------------------------------------------------------===//
 #include <mcld/Fragment/RegionFragment.h>
-#include <mcld/Support/MemoryRegion.h>
 
 using namespace mcld;
 
 //===----------------------------------------------------------------------===//
 // RegionFragment
 //===----------------------------------------------------------------------===//
-RegionFragment::RegionFragment(MemoryRegion& pRegion, SectionData* pSD)
+RegionFragment::RegionFragment(llvm::StringRef pRegion, SectionData* pSD)
   : Fragment(Fragment::Region, pSD), m_Region(pRegion) {
 }
 

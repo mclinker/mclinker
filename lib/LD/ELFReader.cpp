@@ -14,8 +14,8 @@
 #include <mcld/LD/SectionData.h>
 #include <mcld/Target/GNULDBackend.h>
 #include <mcld/Target/GNUInfo.h>
-#include <mcld/Support/MemoryRegion.h>
 #include <mcld/Support/MsgHandling.h>
+#include <mcld/Support/MemoryArea.h>
 #include <mcld/Object/ObjectBuilder.h>
 
 #include <cstring>
@@ -43,10 +43,10 @@ ELFReader<32, true>::~ELFReader()
 }
 
 /// isELF - is this a ELF file
-bool ELFReader<32, true>::isELF(void* pELFHeader) const
+bool ELFReader<32, true>::isELF(const void* pELFHeader) const
 {
-  llvm::ELF::Elf32_Ehdr* hdr =
-                          reinterpret_cast<llvm::ELF::Elf32_Ehdr*>(pELFHeader);
+  const llvm::ELF::Elf32_Ehdr* hdr =
+      reinterpret_cast<const llvm::ELF::Elf32_Ehdr*>(pELFHeader);
   if (0 == memcmp(llvm::ELF::ElfMagic, hdr, 4))
     return true;
   return false;
@@ -67,13 +67,13 @@ ELFReader<32, true>::readRegularSection(Input& pInput, SectionData& pSD) const
 /// readSymbols - read ELF symbols and create LDSymbol
 bool ELFReader<32, true>::readSymbols(Input& pInput,
                                       IRBuilder& pBuilder,
-                                      const MemoryRegion& pRegion,
+                                      llvm::StringRef pRegion,
                                       const char* pStrTab) const
 {
   // get number of symbols
   size_t entsize = pRegion.size()/sizeof(llvm::ELF::Elf32_Sym);
   const llvm::ELF::Elf32_Sym* symtab =
-                 reinterpret_cast<const llvm::ELF::Elf32_Sym*>(pRegion.start());
+      reinterpret_cast<const llvm::ELF::Elf32_Sym*>(pRegion.begin());
 
   uint32_t st_name  = 0x0;
   uint32_t st_value = 0x0;
@@ -145,22 +145,22 @@ bool ELFReader<32, true>::readSymbols(Input& pInput,
       ld_name = std::string(pStrTab + st_name);
     }
 
-    LDSymbol *psym =
-        pBuilder.AddSymbol(pInput,
-                           ld_name,
-                           ld_type,
-                           ld_desc,
-                           ld_binding,
-                           st_size,
-                           ld_value,
-                           section, ld_vis);
+    LDSymbol* psym = pBuilder.AddSymbol(pInput,
+                                        ld_name,
+                                        ld_type,
+                                        ld_desc,
+                                        ld_binding,
+                                        st_size,
+                                        ld_value,
+                                        section,
+                                        ld_vis);
 
-    if ( is_dyn_obj
-         && NULL!=psym
-         && ResolveInfo::Undefined!=ld_desc
-         && (ResolveInfo::Global==ld_binding ||
-             ResolveInfo::Weak==ld_binding)
-         && ResolveInfo::Object==ld_type ) {
+    if (is_dyn_obj
+        && NULL != psym
+        && ResolveInfo::Undefined != ld_desc
+        && (ResolveInfo::Global == ld_binding ||
+            ResolveInfo::Weak == ld_binding)
+        && ResolveInfo::Object == ld_type) {
       AliasInfo p;
       p.pt_alias = psym;
       p.ld_binding = ld_binding;
@@ -175,9 +175,9 @@ bool ELFReader<32, true>::readSymbols(Input& pInput,
   //        1. eliminate code duplication
   //        2. easy to know if a symbol is from .so
   //           (so that it may be a potential alias)
-  if ( is_dyn_obj ) {
+  if (is_dyn_obj) {
     // sort symbols by symbol value and then weak before strong
-    std::sort( potential_aliases.begin(), potential_aliases.end(), less);
+    std::sort(potential_aliases.begin(), potential_aliases.end(), less);
 
     // for each weak symbol, find out all its aliases, and
     // then link them as a circular list in Module
@@ -190,16 +190,16 @@ bool ELFReader<32, true>::readSymbols(Input& pInput,
       Module& pModule = pBuilder.getModule();
       std::vector<AliasInfo>::iterator alias_it = sym_it+1;
       while(alias_it!=sym_e) {
-        if ( sym_it->ld_value != alias_it->ld_value )
+        if (sym_it->ld_value != alias_it->ld_value)
           break;
 
-        if (sym_it+1==alias_it)
+        if (sym_it + 1 == alias_it)
           pModule.CreateAliasList(*sym_it->pt_alias->resolveInfo());
         pModule.addAlias(*alias_it->pt_alias->resolveInfo());
         ++alias_it;
       }
 
-      sym_it = alias_it-1;
+      sym_it = alias_it - 1;
     }// end of for loop
   }
 
@@ -212,12 +212,12 @@ bool ELFReader<32, true>::readSymbols(Input& pInput,
 /// ELFReader::readRela - read ELF rela and create Relocation
 bool ELFReader<32, true>::readRela(Input& pInput,
                                    LDSection& pSection,
-                                   const MemoryRegion& pRegion) const
+                                   llvm::StringRef pRegion) const
 {
   // get the number of rela
   size_t entsize = pRegion.size() / sizeof(llvm::ELF::Elf32_Rela);
   const llvm::ELF::Elf32_Rela* relaTab =
-                reinterpret_cast<const llvm::ELF::Elf32_Rela*>(pRegion.start());
+      reinterpret_cast<const llvm::ELF::Elf32_Rela*>(pRegion.begin());
 
   for (size_t idx=0; idx < entsize; ++idx) {
     Relocation::Type r_type = 0x0;
@@ -240,12 +240,12 @@ bool ELFReader<32, true>::readRela(Input& pInput,
 /// readRel - read ELF rel and create Relocation
 bool ELFReader<32, true>::readRel(Input& pInput,
                                   LDSection& pSection,
-                                  const MemoryRegion& pRegion) const
+                                  llvm::StringRef pRegion) const
 {
   // get the number of rel
   size_t entsize = pRegion.size() / sizeof(llvm::ELF::Elf32_Rel);
   const llvm::ELF::Elf32_Rel* relTab =
-                 reinterpret_cast<const llvm::ELF::Elf32_Rel*>(pRegion.start());
+      reinterpret_cast<const llvm::ELF::Elf32_Rel*>(pRegion.begin());
 
   for (size_t idx=0; idx < entsize; ++idx) {
     Relocation::Type r_type = 0x0;
@@ -266,19 +266,19 @@ bool ELFReader<32, true>::readRel(Input& pInput,
 }
 
 /// isMyEndian - is this ELF file in the same endian to me?
-bool ELFReader<32, true>::isMyEndian(void* pELFHeader) const
+bool ELFReader<32, true>::isMyEndian(const void* pELFHeader) const
 {
-  llvm::ELF::Elf32_Ehdr* hdr =
-                          reinterpret_cast<llvm::ELF::Elf32_Ehdr*>(pELFHeader);
+  const llvm::ELF::Elf32_Ehdr* hdr =
+      reinterpret_cast<const llvm::ELF::Elf32_Ehdr*>(pELFHeader);
 
   return (hdr->e_ident[llvm::ELF::EI_DATA] == llvm::ELF::ELFDATA2LSB);
 }
 
 /// isMyMachine - is this ELF file generated for the same machine.
-bool ELFReader<32, true>::isMyMachine(void* pELFHeader) const
+bool ELFReader<32, true>::isMyMachine(const void* pELFHeader) const
 {
-  llvm::ELF::Elf32_Ehdr* hdr =
-                          reinterpret_cast<llvm::ELF::Elf32_Ehdr*>(pELFHeader);
+  const llvm::ELF::Elf32_Ehdr* hdr =
+      reinterpret_cast<const llvm::ELF::Elf32_Ehdr*>(pELFHeader);
 
   if (llvm::sys::IsLittleEndianHost)
     return (hdr->e_machine == target().getInfo().machine());
@@ -286,10 +286,10 @@ bool ELFReader<32, true>::isMyMachine(void* pELFHeader) const
 }
 
 /// fileType - return the file type
-Input::Type ELFReader<32, true>::fileType(void* pELFHeader) const
+Input::Type ELFReader<32, true>::fileType(const void* pELFHeader) const
 {
-  llvm::ELF::Elf32_Ehdr* hdr =
-                          reinterpret_cast<llvm::ELF::Elf32_Ehdr*>(pELFHeader);
+  const llvm::ELF::Elf32_Ehdr* hdr =
+      reinterpret_cast<const llvm::ELF::Elf32_Ehdr*>(pELFHeader);
   uint32_t type = 0x0;
   if (llvm::sys::IsLittleEndianHost)
     type = hdr->e_type;
@@ -312,11 +312,11 @@ Input::Type ELFReader<32, true>::fileType(void* pELFHeader) const
 }
 
 /// readSectionHeaders - read ELF section header table and create LDSections
-bool
-ELFReader<32, true>::readSectionHeaders(Input& pInput, void* pELFHeader) const
+bool ELFReader<32, true>::readSectionHeaders(Input& pInput,
+                                             const void* pELFHeader) const
 {
-  llvm::ELF::Elf32_Ehdr* ehdr =
-                          reinterpret_cast<llvm::ELF::Elf32_Ehdr*>(pELFHeader);
+  const llvm::ELF::Elf32_Ehdr* ehdr =
+      reinterpret_cast<const llvm::ELF::Elf32_Ehdr*>(pELFHeader);
 
   uint32_t shoff     = 0x0;
   uint16_t shentsize = 0x0;
@@ -340,8 +340,8 @@ ELFReader<32, true>::readSectionHeaders(Input& pInput, void* pELFHeader) const
   if (0x0 == shoff)
     return true;
 
-  llvm::ELF::Elf32_Shdr *shdr = NULL;
-  MemoryRegion* shdr_region = NULL;
+  const llvm::ELF::Elf32_Shdr *shdr = NULL;
+  llvm::StringRef shdr_region;
   uint32_t sh_name      = 0x0;
   uint32_t sh_type      = 0x0;
   uint32_t sh_flags     = 0x0;
@@ -355,7 +355,7 @@ ELFReader<32, true>::readSectionHeaders(Input& pInput, void* pELFHeader) const
   if (shnum == llvm::ELF::SHN_UNDEF || shstrtab == llvm::ELF::SHN_XINDEX) {
     shdr_region = pInput.memArea()->request(pInput.fileOffset() + shoff,
                                             shentsize);
-    shdr = reinterpret_cast<llvm::ELF::Elf32_Shdr*>(shdr_region->start());
+    shdr = reinterpret_cast<const llvm::ELF::Elf32_Shdr*>(shdr_region.begin());
 
     if (llvm::sys::IsLittleEndianHost) {
       sh_size = shdr->sh_size;
@@ -365,7 +365,6 @@ ELFReader<32, true>::readSectionHeaders(Input& pInput, void* pELFHeader) const
       sh_size = mcld::bswap32(shdr->sh_size);
       sh_link = mcld::bswap32(shdr->sh_link);
     }
-    pInput.memArea()->release(shdr_region);
 
     if (shnum == llvm::ELF::SHN_UNDEF)
       shnum = sh_size;
@@ -377,8 +376,8 @@ ELFReader<32, true>::readSectionHeaders(Input& pInput, void* pELFHeader) const
 
   shdr_region = pInput.memArea()->request(pInput.fileOffset() + shoff,
                                           shnum * shentsize);
-  llvm::ELF::Elf32_Shdr * shdrTab =
-    reinterpret_cast<llvm::ELF::Elf32_Shdr*>(shdr_region->start());
+  const llvm::ELF::Elf32_Shdr* shdrTab =
+      reinterpret_cast<const llvm::ELF::Elf32_Shdr*>(shdr_region.begin());
 
   // get .shstrtab first
   shdr = &shdrTab[shstrtab];
@@ -391,10 +390,9 @@ ELFReader<32, true>::readSectionHeaders(Input& pInput, void* pELFHeader) const
     sh_size   = mcld::bswap32(shdr->sh_size);
   }
 
-  MemoryRegion* sect_name_region = pInput.memArea()->request(
-                                      pInput.fileOffset() + sh_offset, sh_size);
-  const char* sect_name =
-                       reinterpret_cast<const char*>(sect_name_region->start());
+  llvm::StringRef sect_name_region = pInput.memArea()->request(
+      pInput.fileOffset() + sh_offset, sh_size);
+  const char* sect_name = sect_name_region.begin();
 
   LinkInfoList link_info_list;
 
@@ -439,20 +437,11 @@ ELFReader<32, true>::readSectionHeaders(Input& pInput, void* pELFHeader) const
   // set up InfoLink
   LinkInfoList::iterator info, infoEnd = link_info_list.end();
   for (info = link_info_list.begin(); info != infoEnd; ++info) {
-    if (LDFileFormat::NamePool == info->section->kind() ||
-        LDFileFormat::Group == info->section->kind() ||
-        LDFileFormat::Note == info->section->kind()) {
-      info->section->setLink(pInput.context()->getSection(info->sh_link));
-      continue;
-    }
-    if (LDFileFormat::Relocation == info->section->kind()) {
+    if (LDFileFormat::Relocation == info->section->kind())
       info->section->setLink(pInput.context()->getSection(info->sh_info));
-      continue;
-    }
+    else
+      info->section->setLink(pInput.context()->getSection(info->sh_link));
   }
-
-  pInput.memArea()->release(shdr_region);
-  pInput.memArea()->release(sect_name_region);
 
   return true;
 }
@@ -469,10 +458,10 @@ ResolveInfo* ELFReader<32, true>::readSignature(Input& pInput,
 
   uint32_t offset = pInput.fileOffset() + symtab->offset() +
                       sizeof(llvm::ELF::Elf32_Sym) * pSymIdx;
-  MemoryRegion* symbol_region =
-                pInput.memArea()->request(offset, sizeof(llvm::ELF::Elf32_Sym));
-  llvm::ELF::Elf32_Sym* entry =
-                reinterpret_cast<llvm::ELF::Elf32_Sym*>(symbol_region->start());
+  llvm::StringRef symbol_region =
+      pInput.memArea()->request(offset, sizeof(llvm::ELF::Elf32_Sym));
+  const llvm::ELF::Elf32_Sym* entry =
+      reinterpret_cast<const llvm::ELF::Elf32_Sym*>(symbol_region.begin());
 
   uint32_t st_name  = 0x0;
   uint8_t  st_info  = 0x0;
@@ -489,12 +478,11 @@ ResolveInfo* ELFReader<32, true>::readSignature(Input& pInput,
     st_shndx = mcld::bswap16(entry->st_shndx);
   }
 
-  MemoryRegion* strtab_region = pInput.memArea()->request(
-                       pInput.fileOffset() + strtab->offset(), strtab->size());
+  llvm::StringRef strtab_region = pInput.memArea()->request(
+      pInput.fileOffset() + strtab->offset(), strtab->size());
 
   // get ld_name
-  llvm::StringRef ld_name(
-                    reinterpret_cast<char*>(strtab_region->start() + st_name));
+  llvm::StringRef ld_name(strtab_region.begin() + st_name);
 
   ResolveInfo* result = ResolveInfo::Create(ld_name);
   result->setSource(pInput.type() == Input::DynObj);
@@ -502,10 +490,6 @@ ResolveInfo* ELFReader<32, true>::readSignature(Input& pInput,
   result->setDesc(getSymDesc(st_shndx, pInput));
   result->setBinding(getSymBinding((st_info >> 4), st_shndx, st_other));
   result->setVisibility(getSymVisibility(st_other));
-
-  // release regions
-  pInput.memArea()->release(symbol_region);
-  pInput.memArea()->release(strtab_region);
 
   return result;
 }
@@ -523,17 +507,15 @@ bool ELFReader<32, true>::readDynamic(Input& pInput) const
     fatal(diag::err_cannot_read_section) << ".dynstr";
   }
 
-  MemoryRegion* dynamic_region = pInput.memArea()->request(
-           pInput.fileOffset() + dynamic_sect->offset(), dynamic_sect->size());
+  llvm::StringRef dynamic_region = pInput.memArea()->request(
+      pInput.fileOffset() + dynamic_sect->offset(), dynamic_sect->size());
 
-  MemoryRegion* dynstr_region = pInput.memArea()->request(
-             pInput.fileOffset() + dynstr_sect->offset(), dynstr_sect->size());
-
-  assert(NULL != dynamic_region && NULL != dynstr_region);
+  llvm::StringRef dynstr_region = pInput.memArea()->request(
+      pInput.fileOffset() + dynstr_sect->offset(), dynstr_sect->size());
 
   const llvm::ELF::Elf32_Dyn* dynamic =
-    (llvm::ELF::Elf32_Dyn*) dynamic_region->start();
-  const char* dynstr = (const char*) dynstr_region->start();
+      reinterpret_cast<const llvm::ELF::Elf32_Dyn*>(dynamic_region.begin());
+  const char* dynstr = dynstr_region.begin();
   bool hasSOName = false;
   size_t numOfEntries = dynamic_sect->size() / sizeof(llvm::ELF::Elf32_Dyn);
 
@@ -569,8 +551,6 @@ bool ELFReader<32, true>::readDynamic(Input& pInput) const
   if (!hasSOName)
     pInput.setName(pInput.path().filename().native());
 
-  pInput.memArea()->release(dynamic_region);
-  pInput.memArea()->release(dynstr_region);
   return true;
 }
 
@@ -588,10 +568,10 @@ ELFReader<64, true>::~ELFReader()
 }
 
 /// isELF - is this a ELF file
-bool ELFReader<64, true>::isELF(void* pELFHeader) const
+bool ELFReader<64, true>::isELF(const void* pELFHeader) const
 {
-  llvm::ELF::Elf64_Ehdr* hdr =
-                          reinterpret_cast<llvm::ELF::Elf64_Ehdr*>(pELFHeader);
+  const llvm::ELF::Elf64_Ehdr* hdr =
+      reinterpret_cast<const llvm::ELF::Elf64_Ehdr*>(pELFHeader);
   if (0 == memcmp(llvm::ELF::ElfMagic, hdr, 4))
     return true;
   return false;
@@ -612,13 +592,13 @@ ELFReader<64, true>::readRegularSection(Input& pInput, SectionData& pSD) const
 /// readSymbols - read ELF symbols and create LDSymbol
 bool ELFReader<64, true>::readSymbols(Input& pInput,
                                       IRBuilder& pBuilder,
-                                      const MemoryRegion& pRegion,
+                                      llvm::StringRef pRegion,
                                       const char* pStrTab) const
 {
   // get number of symbols
-  size_t entsize = pRegion.size()/sizeof(llvm::ELF::Elf64_Sym);
+  size_t entsize = pRegion.size() / sizeof(llvm::ELF::Elf64_Sym);
   const llvm::ELF::Elf64_Sym* symtab =
-                 reinterpret_cast<const llvm::ELF::Elf64_Sym*>(pRegion.start());
+      reinterpret_cast<const llvm::ELF::Elf64_Sym*>(pRegion.begin());
 
   uint32_t st_name  = 0x0;
   uint64_t st_value = 0x0;
@@ -690,22 +670,22 @@ bool ELFReader<64, true>::readSymbols(Input& pInput,
       ld_name = std::string(pStrTab + st_name);
     }
 
-    LDSymbol *psym =
-            pBuilder.AddSymbol(pInput,
-                               ld_name,
-                               ld_type,
-                               ld_desc,
-                               ld_binding,
-                               st_size,
-                               ld_value,
-                               section, ld_vis);
+    LDSymbol* psym = pBuilder.AddSymbol(pInput,
+                                        ld_name,
+                                        ld_type,
+                                        ld_desc,
+                                        ld_binding,
+                                        st_size,
+                                        ld_value,
+                                        section,
+                                        ld_vis);
 
-    if ( is_dyn_obj
-         && NULL!=psym
-         && ResolveInfo::Undefined!=ld_desc
-         && (ResolveInfo::Global==ld_binding ||
-             ResolveInfo::Weak==ld_binding)
-         && ResolveInfo::Object==ld_type ) {
+    if (is_dyn_obj
+        && NULL != psym
+        && ResolveInfo::Undefined != ld_desc
+        && (ResolveInfo::Global == ld_binding ||
+            ResolveInfo::Weak == ld_binding)
+        && ResolveInfo::Object == ld_type ) {
       AliasInfo p;
       p.pt_alias = psym;
       p.ld_binding = ld_binding;
@@ -716,9 +696,9 @@ bool ELFReader<64, true>::readSymbols(Input& pInput,
   } // end of for loop
 
   // analyze weak alias here
-  if ( is_dyn_obj ) {
+  if (is_dyn_obj) {
     // sort symbols by symbol value and then weak before strong
-    std::sort( potential_aliases.begin(), potential_aliases.end(), less);
+    std::sort(potential_aliases.begin(), potential_aliases.end(), less);
 
     // for each weak symbol, find out all its aliases, and
     // then link them as a circular list in Module
@@ -731,16 +711,16 @@ bool ELFReader<64, true>::readSymbols(Input& pInput,
       Module& pModule = pBuilder.getModule();
       std::vector<AliasInfo>::iterator alias_it = sym_it+1;
       while(alias_it!=sym_e) {
-        if ( sym_it->ld_value != alias_it->ld_value )
+        if (sym_it->ld_value != alias_it->ld_value)
           break;
 
-        if (sym_it+1==alias_it)
+        if (sym_it + 1 == alias_it)
           pModule.CreateAliasList(*sym_it->pt_alias->resolveInfo());
         pModule.addAlias(*alias_it->pt_alias->resolveInfo());
         ++alias_it;
       }
 
-      sym_it = alias_it-1;
+      sym_it = alias_it - 1;
     }// end of for loop
   }
   return true;
@@ -752,12 +732,12 @@ bool ELFReader<64, true>::readSymbols(Input& pInput,
 /// ELFReader::readRela - read ELF rela and create Relocation
 bool ELFReader<64, true>::readRela(Input& pInput,
                                    LDSection& pSection,
-                                   const MemoryRegion& pRegion) const
+                                   llvm::StringRef pRegion) const
 {
   // get the number of rela
   size_t entsize = pRegion.size() / sizeof(llvm::ELF::Elf64_Rela);
   const llvm::ELF::Elf64_Rela* relaTab =
-                reinterpret_cast<const llvm::ELF::Elf64_Rela*>(pRegion.start());
+      reinterpret_cast<const llvm::ELF::Elf64_Rela*>(pRegion.begin());
 
   for (size_t idx=0; idx < entsize; ++idx) {
     Relocation::Type r_type = 0x0;
@@ -782,12 +762,12 @@ bool ELFReader<64, true>::readRela(Input& pInput,
 /// readRel - read ELF rel and create Relocation
 bool ELFReader<64, true>::readRel(Input& pInput,
                                   LDSection& pSection,
-                                  const MemoryRegion& pRegion) const
+                                  llvm::StringRef pRegion) const
 {
   // get the number of rel
   size_t entsize = pRegion.size() / sizeof(llvm::ELF::Elf64_Rel);
   const llvm::ELF::Elf64_Rel* relTab =
-                 reinterpret_cast<const llvm::ELF::Elf64_Rel*>(pRegion.start());
+      reinterpret_cast<const llvm::ELF::Elf64_Rel*>(pRegion.begin());
 
   for (size_t idx=0; idx < entsize; ++idx) {
     Relocation::Type r_type = 0x0;
@@ -807,19 +787,19 @@ bool ELFReader<64, true>::readRel(Input& pInput,
 }
 
 /// isMyEndian - is this ELF file in the same endian to me?
-bool ELFReader<64, true>::isMyEndian(void* pELFHeader) const
+bool ELFReader<64, true>::isMyEndian(const void* pELFHeader) const
 {
-  llvm::ELF::Elf64_Ehdr* hdr =
-                          reinterpret_cast<llvm::ELF::Elf64_Ehdr*>(pELFHeader);
+  const llvm::ELF::Elf64_Ehdr* hdr =
+      reinterpret_cast<const llvm::ELF::Elf64_Ehdr*>(pELFHeader);
 
   return (hdr->e_ident[llvm::ELF::EI_DATA] == llvm::ELF::ELFDATA2LSB);
 }
 
 /// isMyMachine - is this ELF file generated for the same machine.
-bool ELFReader<64, true>::isMyMachine(void* pELFHeader) const
+bool ELFReader<64, true>::isMyMachine(const void* pELFHeader) const
 {
-  llvm::ELF::Elf64_Ehdr* hdr =
-                          reinterpret_cast<llvm::ELF::Elf64_Ehdr*>(pELFHeader);
+  const llvm::ELF::Elf64_Ehdr* hdr =
+      reinterpret_cast<const llvm::ELF::Elf64_Ehdr*>(pELFHeader);
 
   if (llvm::sys::IsLittleEndianHost)
     return (hdr->e_machine == target().getInfo().machine());
@@ -827,10 +807,10 @@ bool ELFReader<64, true>::isMyMachine(void* pELFHeader) const
 }
 
 /// fileType - return the file type
-Input::Type ELFReader<64, true>::fileType(void* pELFHeader) const
+Input::Type ELFReader<64, true>::fileType(const void* pELFHeader) const
 {
-  llvm::ELF::Elf64_Ehdr* hdr =
-                          reinterpret_cast<llvm::ELF::Elf64_Ehdr*>(pELFHeader);
+  const llvm::ELF::Elf64_Ehdr* hdr =
+      reinterpret_cast<const llvm::ELF::Elf64_Ehdr*>(pELFHeader);
   uint32_t type = 0x0;
   if (llvm::sys::IsLittleEndianHost)
     type = hdr->e_type;
@@ -853,11 +833,11 @@ Input::Type ELFReader<64, true>::fileType(void* pELFHeader) const
 }
 
 /// readSectionHeaders - read ELF section header table and create LDSections
-bool
-ELFReader<64, true>::readSectionHeaders(Input& pInput, void* pELFHeader) const
+bool ELFReader<64, true>::readSectionHeaders(Input& pInput,
+                                             const void* pELFHeader) const
 {
-  llvm::ELF::Elf64_Ehdr* ehdr =
-                          reinterpret_cast<llvm::ELF::Elf64_Ehdr*>(pELFHeader);
+  const llvm::ELF::Elf64_Ehdr* ehdr =
+      reinterpret_cast<const llvm::ELF::Elf64_Ehdr*>(pELFHeader);
 
   uint64_t shoff     = 0x0;
   uint16_t shentsize = 0x0;
@@ -881,8 +861,8 @@ ELFReader<64, true>::readSectionHeaders(Input& pInput, void* pELFHeader) const
   if (0x0 == shoff)
     return true;
 
-  llvm::ELF::Elf64_Shdr *shdr = NULL;
-  MemoryRegion* shdr_region = NULL;
+  const llvm::ELF::Elf64_Shdr *shdr = NULL;
+  llvm::StringRef shdr_region;
   uint32_t sh_name      = 0x0;
   uint32_t sh_type      = 0x0;
   uint64_t sh_flags     = 0x0;
@@ -896,7 +876,7 @@ ELFReader<64, true>::readSectionHeaders(Input& pInput, void* pELFHeader) const
   if (shnum == llvm::ELF::SHN_UNDEF || shstrtab == llvm::ELF::SHN_XINDEX) {
     shdr_region = pInput.memArea()->request(pInput.fileOffset() + shoff,
                                             shentsize);
-    shdr = reinterpret_cast<llvm::ELF::Elf64_Shdr*>(shdr_region->start());
+    shdr = reinterpret_cast<const llvm::ELF::Elf64_Shdr*>(shdr_region.begin());
 
     if (llvm::sys::IsLittleEndianHost) {
       sh_size = shdr->sh_size;
@@ -906,7 +886,6 @@ ELFReader<64, true>::readSectionHeaders(Input& pInput, void* pELFHeader) const
       sh_size = mcld::bswap64(shdr->sh_size);
       sh_link = mcld::bswap32(shdr->sh_link);
     }
-    pInput.memArea()->release(shdr_region);
 
     if (shnum == llvm::ELF::SHN_UNDEF)
       shnum = sh_size;
@@ -918,8 +897,8 @@ ELFReader<64, true>::readSectionHeaders(Input& pInput, void* pELFHeader) const
 
   shdr_region = pInput.memArea()->request(pInput.fileOffset() + shoff,
                                           shnum * shentsize);
-  llvm::ELF::Elf64_Shdr * shdrTab =
-    reinterpret_cast<llvm::ELF::Elf64_Shdr*>(shdr_region->start());
+  const llvm::ELF::Elf64_Shdr* shdrTab =
+      reinterpret_cast<const llvm::ELF::Elf64_Shdr*>(shdr_region.begin());
 
   // get .shstrtab first
   shdr = &shdrTab[shstrtab];
@@ -932,10 +911,9 @@ ELFReader<64, true>::readSectionHeaders(Input& pInput, void* pELFHeader) const
     sh_size   = mcld::bswap64(shdr->sh_size);
   }
 
-  MemoryRegion* sect_name_region = pInput.memArea()->request(
-                                      pInput.fileOffset() + sh_offset, sh_size);
-  const char* sect_name =
-                       reinterpret_cast<const char*>(sect_name_region->start());
+  llvm::StringRef sect_name_region = pInput.memArea()->request(
+      pInput.fileOffset() + sh_offset, sh_size);
+  const char* sect_name = sect_name_region.begin();
 
   LinkInfoList link_info_list;
 
@@ -980,20 +958,11 @@ ELFReader<64, true>::readSectionHeaders(Input& pInput, void* pELFHeader) const
   // set up InfoLink
   LinkInfoList::iterator info, infoEnd = link_info_list.end();
   for (info = link_info_list.begin(); info != infoEnd; ++info) {
-    if (LDFileFormat::NamePool == info->section->kind() ||
-        LDFileFormat::Group == info->section->kind() ||
-        LDFileFormat::Note == info->section->kind()) {
-      info->section->setLink(pInput.context()->getSection(info->sh_link));
-      continue;
-    }
-    if (LDFileFormat::Relocation == info->section->kind()) {
+    if (LDFileFormat::Relocation == info->section->kind())
       info->section->setLink(pInput.context()->getSection(info->sh_info));
-      continue;
-    }
+    else
+      info->section->setLink(pInput.context()->getSection(info->sh_link));
   }
-
-  pInput.memArea()->release(shdr_region);
-  pInput.memArea()->release(sect_name_region);
 
   return true;
 }
@@ -1010,10 +979,10 @@ ResolveInfo* ELFReader<64, true>::readSignature(Input& pInput,
 
   uint64_t offset = pInput.fileOffset() + symtab->offset() +
                       sizeof(llvm::ELF::Elf64_Sym) * pSymIdx;
-  MemoryRegion* symbol_region =
-                pInput.memArea()->request(offset, sizeof(llvm::ELF::Elf64_Sym));
-  llvm::ELF::Elf64_Sym* entry =
-                reinterpret_cast<llvm::ELF::Elf64_Sym*>(symbol_region->start());
+  llvm::StringRef symbol_region =
+      pInput.memArea()->request(offset, sizeof(llvm::ELF::Elf64_Sym));
+  const llvm::ELF::Elf64_Sym* entry =
+      reinterpret_cast<const llvm::ELF::Elf64_Sym*>(symbol_region.begin());
 
   uint32_t st_name  = 0x0;
   uint8_t  st_info  = 0x0;
@@ -1030,12 +999,11 @@ ResolveInfo* ELFReader<64, true>::readSignature(Input& pInput,
     st_shndx = mcld::bswap16(entry->st_shndx);
   }
 
-  MemoryRegion* strtab_region = pInput.memArea()->request(
-                       pInput.fileOffset() + strtab->offset(), strtab->size());
+  llvm::StringRef strtab_region = pInput.memArea()->request(
+      pInput.fileOffset() + strtab->offset(), strtab->size());
 
   // get ld_name
-  llvm::StringRef ld_name(
-                    reinterpret_cast<char*>(strtab_region->start() + st_name));
+  llvm::StringRef ld_name(strtab_region.begin() + st_name);
 
   ResolveInfo* result = ResolveInfo::Create(ld_name);
   result->setSource(pInput.type() == Input::DynObj);
@@ -1043,10 +1011,6 @@ ResolveInfo* ELFReader<64, true>::readSignature(Input& pInput,
   result->setDesc(getSymDesc(st_shndx, pInput));
   result->setBinding(getSymBinding((st_info >> 4), st_shndx, st_other));
   result->setVisibility(getSymVisibility(st_other));
-
-  // release regions
-  pInput.memArea()->release(symbol_region);
-  pInput.memArea()->release(strtab_region);
 
   return result;
 }
@@ -1064,17 +1028,15 @@ bool ELFReader<64, true>::readDynamic(Input& pInput) const
     fatal(diag::err_cannot_read_section) << ".dynstr";
   }
 
-  MemoryRegion* dynamic_region = pInput.memArea()->request(
-           pInput.fileOffset() + dynamic_sect->offset(), dynamic_sect->size());
+  llvm::StringRef dynamic_region = pInput.memArea()->request(
+      pInput.fileOffset() + dynamic_sect->offset(), dynamic_sect->size());
 
-  MemoryRegion* dynstr_region = pInput.memArea()->request(
-             pInput.fileOffset() + dynstr_sect->offset(), dynstr_sect->size());
-
-  assert(NULL != dynamic_region && NULL != dynstr_region);
+  llvm::StringRef dynstr_region = pInput.memArea()->request(
+      pInput.fileOffset() + dynstr_sect->offset(), dynstr_sect->size());
 
   const llvm::ELF::Elf64_Dyn* dynamic =
-    (llvm::ELF::Elf64_Dyn*) dynamic_region->start();
-  const char* dynstr = (const char*) dynstr_region->start();
+      reinterpret_cast<const llvm::ELF::Elf64_Dyn*>(dynamic_region.begin());
+  const char* dynstr = dynstr_region.begin();
   bool hasSOName = false;
   size_t numOfEntries = dynamic_sect->size() / sizeof(llvm::ELF::Elf64_Dyn);
 
@@ -1110,8 +1072,5 @@ bool ELFReader<64, true>::readDynamic(Input& pInput) const
   if (!hasSOName)
     pInput.setName(pInput.path().filename().native());
 
-  pInput.memArea()->release(dynamic_region);
-  pInput.memArea()->release(dynstr_region);
   return true;
 }
-

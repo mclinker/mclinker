@@ -38,7 +38,8 @@ llvm::cl::list<std::string> ArgMAttrs("mattr",
 llvm::cl::opt<std::string> ArgEmulation("m",
                                      llvm::cl::ZeroOrMore,
                                      llvm::cl::desc("Set GNU linker emulation"),
-                                     llvm::cl::value_desc("emulation"));
+                                     llvm::cl::value_desc("emulation"),
+                                     llvm::cl::Prefix);
 
 /// ParseProgName - Parse program name
 /// This function simplifies cross-compiling by reading triple from the program

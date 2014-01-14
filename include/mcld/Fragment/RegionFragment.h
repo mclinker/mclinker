@@ -6,30 +6,29 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_LD_REGION_FRAGMENT_H
-#define MCLD_LD_REGION_FRAGMENT_H
+#ifndef MCLD_FRAGMENT_REGIONFRAGMENT_H
+#define MCLD_FRAGMENT_REGIONFRAGMENT_H
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif
 
 #include <mcld/Fragment/Fragment.h>
+#include <llvm/ADT/StringRef.h>
 
 namespace mcld {
 
-class MemoryRegion;
-
 /** \class RegionFragment
- *  \brief RegionFragment is a kind of Fragment containing mcld::MemoryRegion
+ *  \brief RegionFragment is a kind of Fragment containing input memory region
  */
 class RegionFragment : public Fragment
 {
 public:
-  RegionFragment(MemoryRegion& pRegion, SectionData* pSD = NULL);
+  RegionFragment(llvm::StringRef pRegion, SectionData* pSD = NULL);
 
   ~RegionFragment();
 
-  const MemoryRegion& getRegion() const { return m_Region; }
-  MemoryRegion&       getRegion()       { return m_Region; }
+  const llvm::StringRef getRegion() const { return m_Region; }
+  llvm::StringRef       getRegion()       { return m_Region; }
 
   static bool classof(const Fragment *F)
   { return F->getKind() == Fragment::Region; }
@@ -40,7 +39,7 @@ public:
   size_t size() const;
 
 private:
-  MemoryRegion& m_Region;
+  llvm::StringRef m_Region;
 };
 
 } // namespace of mcld

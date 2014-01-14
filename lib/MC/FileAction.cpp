@@ -9,8 +9,6 @@
 #include <mcld/MC/FileAction.h>
 #include <mcld/MC/Input.h>
 #include <mcld/MC/InputBuilder.h>
-#include <mcld/MC/ContextFactory.h>
-#include <mcld/Support/MemoryAreaFactory.h>
 
 using namespace mcld;
 

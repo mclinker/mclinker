@@ -1,4 +1,4 @@
-//===- ELFReader.h --------------------------------------------------------===//
+//===- ELFReaderIf.h ------------------------------------------------------===//
 //
 //                     The MCLinker Project
 //
@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_ELF_READER_INTERFACE_H
-#define MCLD_ELF_READER_INTERFACE_H
+#ifndef MCLD_LD_ELFREADERIF_H
+#define MCLD_LD_ELFREADERIF_H
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif
@@ -46,16 +46,16 @@ public:
   virtual size_t getELFHeaderSize() const = 0;
 
   /// isELF - is this a ELF file
-  virtual bool isELF(void* pELFHeader) const = 0;
+  virtual bool isELF(const void* pELFHeader) const = 0;
 
   /// isMyEndian - is this ELF file in the same endian to me?
-  virtual bool isMyEndian(void* pELFHeader) const = 0;
+  virtual bool isMyEndian(const void* pELFHeader) const = 0;
 
   /// isMyMachine - is this ELF file generated for the same machine.
-  virtual bool isMyMachine(void* pELFHeader) const = 0;
+  virtual bool isMyMachine(const void* pELFHeader) const = 0;
 
   /// fileType - the file type of this file
-  virtual Input::Type fileType(void* pELFHeader) const = 0;
+  virtual Input::Type fileType(const void* pELFHeader) const = 0;
 
   /// target - the target backend
   const GNULDBackend& target() const { return m_Backend; }
@@ -63,7 +63,8 @@ public:
 
 
   /// readSectionHeaders - read ELF section header table and create LDSections
-  virtual bool readSectionHeaders(Input& pInput, void* pELFHeader) const = 0;
+  virtual bool readSectionHeaders(Input& pInput,
+                                  const void* pELFHeader) const = 0;
 
   /// readRegularSection - read a regular section and create fragments.
   virtual bool readRegularSection(Input& pInput, SectionData& pSD) const = 0;
@@ -71,7 +72,7 @@ public:
   /// readSymbols - read ELF symbols and create LDSymbol
   virtual bool readSymbols(Input& pInput,
                            IRBuilder& pBuilder,
-                           const MemoryRegion& pRegion,
+                           llvm::StringRef pRegion,
                            const char* StrTab) const = 0;
 
   /// readSignature - read a symbol from the given Input and index in symtab
@@ -83,12 +84,12 @@ public:
   /// readRela - read ELF rela and create Relocation
   virtual bool readRela(Input& pInput,
                         LDSection& pSection,
-                        const MemoryRegion& pRegion) const = 0;
+                        llvm::StringRef pRegion) const = 0;
 
   /// readRel - read ELF rel and create Relocation
   virtual bool readRel(Input& pInput,
                        LDSection& pSection,
-                       const MemoryRegion& pRegion) const = 0;
+                       llvm::StringRef pRegion) const = 0;
 
   /// readDynamic - read ELF .dynamic in input dynobj
   virtual bool readDynamic(Input& pInput) const = 0;

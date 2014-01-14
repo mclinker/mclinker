@@ -14,8 +14,8 @@ Compilation Instructions
 ----------------------
 Prepare LLVM
 ----------------------
-  0.a Download LLVM@r193315
-      `svn co -r 193315 http://llvm.org/svn/llvm-project/llvm/trunk llvm-src'
+  0.a Download LLVM@r195092
+      `svn co -r 195092 http://llvm.org/svn/llvm-project/llvm/trunk llvm-src'
 
   0.b Type `cd llvm-src' to enter the directory containing LLVM source code
 
@@ -45,8 +45,7 @@ Build MCLinker
 
   6.  Type `make install` to install the package into your system.
 
-  7.  ${MCLINKER_INSTALL}/ld.mcld is the linker binary, and
-      ${MCLINKER_INSTALL}/ld.bcc is Android's bcc linker.
+  7.  ${MCLINKER_INSTALL}/ld.mcld is the linker binary.
 
 ===================
 Directory Structure

@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_SUPPORT_TARGET_REGISTRY_H
-#define MCLD_SUPPORT_TARGET_REGISTRY_H
+#ifndef MCLD_SUPPORT_TARGETREGISTRY_H
+#define MCLD_SUPPORT_TARGETREGISTRY_H
 #include <mcld/Support/Target.h>
 #include <llvm/ADT/Triple.h>
 

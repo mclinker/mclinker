@@ -12,16 +12,14 @@
 #include <gtest.h>
 #endif
 
-#include <llvm/ADT/DenseMap.h>
-
 #include <mcld/Target/GOT.h>
-
+#include <mcld/Support/MemoryRegion.h>
+#include <llvm/ADT/DenseMap.h>
 #include <vector>
 
 namespace mcld {
 
 class LDSection;
-class MemoryRegion;
 
 /** \class ARMGOTEntry
  *  \brief GOT Entry with size of 4 bytes

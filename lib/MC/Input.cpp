@@ -9,7 +9,6 @@
 #include <mcld/MC/Input.h>
 #include <mcld/MC/Attribute.h>
 #include <mcld/LD/LDContext.h>
-#include <mcld/Support/MemoryArea.h>
 
 using namespace mcld;
 
@@ -71,7 +70,5 @@ Input::~Input()
 {
   // Attribute is deleted by AttributeFactory
   // MemoryArea is deleted by MemoryAreaFactory
-  if (NULL != m_pMemArea)
-    m_pMemArea->clear();
 }
 

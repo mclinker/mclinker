@@ -21,7 +21,6 @@
 #include <mcld/Fragment/AlignFragment.h>
 #include <mcld/Fragment/FillFragment.h>
 #include <mcld/Fragment/RegionFragment.h>
-#include <mcld/Support/MemoryRegion.h>
 #include <mcld/Support/MemoryArea.h>
 #include <mcld/Support/MsgHandling.h>
 #include <mcld/Support/TargetRegistry.h>
@@ -134,7 +133,7 @@ const HexagonELFDynamic& HexagonLDBackend::dynamic() const
 }
 
 uint64_t HexagonLDBackend::emitSectionData(const LDSection& pSection,
-                                          MemoryRegion& pRegion) const
+                                           MemoryRegion& pRegion) const
 {
   if (!pRegion.size())
     return 0;
@@ -145,10 +144,9 @@ uint64_t HexagonLDBackend::emitSectionData(const LDSection& pSection,
 
   if ((LinkerConfig::Object != config().codeGenType()) &&
       (!config().isCodeStatic())) {
-    if (&pSection == &(FileFormat->getPLT())) {
-      assert(m_pPLT && "emitSectionData failed, m_pPLT is NULL!");
+    if (FileFormat->hasPLT() && (&pSection == &(FileFormat->getPLT()))) {
 
-      unsigned char* buffer = pRegion.getBuffer();
+      unsigned char* buffer = pRegion.begin();
 
       m_pPLT->applyPLT0();
       m_pPLT->applyPLT1();
@@ -170,11 +168,12 @@ uint64_t HexagonLDBackend::emitSectionData(const LDSection& pSection,
       }
       return RegionSize;
     }
-    else if (&pSection == &(FileFormat->getGOT())) {
+    else if (FileFormat->hasGOT() && (&pSection == &(FileFormat->getGOT()))) {
       RegionSize += emitGOTSectionData(pRegion);
       return RegionSize;
     }
-    else if (&pSection == &(FileFormat->getGOTPLT())) {
+    else if (FileFormat->hasGOTPLT() &&
+             (&pSection == &(FileFormat->getGOTPLT()))) {
       RegionSize += emitGOTPLTSectionData(pRegion, FileFormat);
       return RegionSize;
     }
@@ -182,7 +181,7 @@ uint64_t HexagonLDBackend::emitSectionData(const LDSection& pSection,
 
   const SectionData* sect_data = pSection.getSectionData();
   SectionData::const_iterator frag_iter, frag_end = sect_data->end();
-  uint8_t* out_offset = pRegion.start();
+  uint8_t* out_offset = pRegion.begin();
   for (frag_iter = sect_data->begin(); frag_iter != frag_end; ++frag_iter) {
     size_t size = frag_iter->size();
     switch(frag_iter->getKind()) {
@@ -199,7 +198,7 @@ uint64_t HexagonLDBackend::emitSectionData(const LDSection& pSection,
       case Fragment::Region: {
         const RegionFragment& region_frag =
           llvm::cast<RegionFragment>(*frag_iter);
-        const uint8_t* start = region_frag.getRegion().start();
+        const char* start = region_frag.getRegion().begin();
         memcpy(out_offset, start, size);
         break;
       }
@@ -320,11 +319,12 @@ void HexagonLDBackend::setGOTSectionSize(IRBuilder& pBuilder)
     m_pGOT->finalizeSectionSize();
 }
 
-uint64_t HexagonLDBackend::emitGOTSectionData(MemoryRegion& pRegion) const
+uint64_t
+HexagonLDBackend::emitGOTSectionData(MemoryRegion& pRegion) const
 {
   assert(m_pGOT && "emitGOTSectionData failed, m_pGOT is NULL!");
 
-  uint32_t* buffer = reinterpret_cast<uint32_t*>(pRegion.getBuffer());
+  uint32_t* buffer = reinterpret_cast<uint32_t*>(pRegion.begin());
 
   HexagonGOTEntry* got = 0;
   unsigned int EntrySize = HexagonGOTEntry::EntrySize;
@@ -369,13 +369,13 @@ void HexagonLDBackend::defineGOTSymbol(IRBuilder& pBuilder,
 }
 
 uint64_t HexagonLDBackend::emitGOTPLTSectionData(MemoryRegion& pRegion,
-                                         const ELFFileFormat* FileFormat) const
+    const ELFFileFormat* FileFormat) const
 {
   assert(m_pGOTPLT && "emitGOTPLTSectionData failed, m_pGOTPLT is NULL!");
   m_pGOTPLT->applyGOT0(FileFormat->getDynamic().addr());
   m_pGOTPLT->applyAllGOTPLT(*m_pPLT);
 
-  uint32_t* buffer = reinterpret_cast<uint32_t*>(pRegion.getBuffer());
+  uint32_t* buffer = reinterpret_cast<uint32_t*>(pRegion.begin());
 
   HexagonGOTEntry* got = 0;
   unsigned int EntrySize = HexagonGOTEntry::EntrySize;
@@ -397,19 +397,19 @@ HexagonLDBackend::getTargetSectionOrder(const LDSection& pSectHdr) const
   const ELFFileFormat* file_format = getOutputFormat();
 
   if (LinkerConfig::Object != config().codeGenType()) {
-    if (&pSectHdr == &file_format->getGOT()) {
+    if (file_format->hasGOT() && (&pSectHdr == &file_format->getGOT())) {
       if (config().options().hasNow())
         return SHO_RELRO;
       return SHO_RELRO_LAST;
     }
 
-    if (&pSectHdr == &file_format->getGOTPLT()) {
+    if (file_format->hasGOTPLT() && (&pSectHdr == &file_format->getGOTPLT())) {
       if (config().options().hasNow())
         return SHO_RELRO;
       return SHO_NON_RELRO_FIRST;
     }
 
-    if (&pSectHdr == &file_format->getPLT())
+    if (file_format->hasPLT() && (&pSectHdr == &file_format->getPLT()))
       return SHO_PLT;
   }
 
@@ -791,7 +791,6 @@ bool HexagonLDBackend::allocateCommonSymbols(Module& pModule)
       // description here.
       (*com_sym)->resolveInfo()->setDesc(ResolveInfo::Define);
       Fragment* frag = new FillFragment(0x0, 1, (*com_sym)->size());
-      (*com_sym)->setFragmentRef(FragmentRef::Create(*frag, 0));
 
       switch((*com_sym)->size())  {
       case 1:
@@ -800,6 +799,7 @@ bool HexagonLDBackend::allocateCommonSymbols(Module& pModule)
         ObjectBuilder::AppendFragment(*frag,
                                       *(m_pscommon_1->getSectionData()),
                                       (*com_sym)->value());
+        (*com_sym)->setFragmentRef(FragmentRef::Create(*frag, 0));
         continue;
       case 2:
         if (maxGPSize <= 1)
@@ -807,6 +807,7 @@ bool HexagonLDBackend::allocateCommonSymbols(Module& pModule)
         ObjectBuilder::AppendFragment(*frag,
                                       *(m_pscommon_2->getSectionData()),
                                       (*com_sym)->value());
+        (*com_sym)->setFragmentRef(FragmentRef::Create(*frag, 0));
         continue;
       case 4:
         if (maxGPSize <= 3)
@@ -814,6 +815,7 @@ bool HexagonLDBackend::allocateCommonSymbols(Module& pModule)
         ObjectBuilder::AppendFragment(*frag,
                                       *(m_pscommon_4->getSectionData()),
                                       (*com_sym)->value());
+        (*com_sym)->setFragmentRef(FragmentRef::Create(*frag, 0));
         continue;
       case 8:
         if (maxGPSize <= 7)
@@ -821,6 +823,7 @@ bool HexagonLDBackend::allocateCommonSymbols(Module& pModule)
         ObjectBuilder::AppendFragment(*frag,
                                       *(m_pscommon_8->getSectionData()),
                                       (*com_sym)->value());
+        (*com_sym)->setFragmentRef(FragmentRef::Create(*frag, 0));
         continue;
       default:
         break;
@@ -831,12 +834,14 @@ bool HexagonLDBackend::allocateCommonSymbols(Module& pModule)
         tbss_offset += ObjectBuilder::AppendFragment(*frag,
                                                      *tbss_sect_data,
                                                      (*com_sym)->value());
+        (*com_sym)->setFragmentRef(FragmentRef::Create(*frag, 0));
       }
       // FIXME: how to identify small and large common symbols?
       else {
         bss_offset += ObjectBuilder::AppendFragment(*frag,
                                                     *bss_sect_data,
                                                     (*com_sym)->value());
+        (*com_sym)->setFragmentRef(FragmentRef::Create(*frag, 0));
       }
     }
   }
@@ -851,7 +856,6 @@ bool HexagonLDBackend::allocateCommonSymbols(Module& pModule)
     // description here.
     (*com_sym)->resolveInfo()->setDesc(ResolveInfo::Define);
     Fragment* frag = new FillFragment(0x0, 1, (*com_sym)->size());
-    (*com_sym)->setFragmentRef(FragmentRef::Create(*frag, 0));
 
     switch((*com_sym)->size())  {
     case 1:
@@ -860,6 +864,7 @@ bool HexagonLDBackend::allocateCommonSymbols(Module& pModule)
       ObjectBuilder::AppendFragment(*frag,
                                     *(m_pscommon_1->getSectionData()),
                                     (*com_sym)->value());
+      (*com_sym)->setFragmentRef(FragmentRef::Create(*frag, 0));
       continue;
     case 2:
       if (maxGPSize <= 1)
@@ -867,6 +872,7 @@ bool HexagonLDBackend::allocateCommonSymbols(Module& pModule)
       ObjectBuilder::AppendFragment(*frag,
                                     *(m_pscommon_2->getSectionData()),
                                     (*com_sym)->value());
+      (*com_sym)->setFragmentRef(FragmentRef::Create(*frag, 0));
       continue;
     case 4:
       if (maxGPSize <= 3)
@@ -874,6 +880,7 @@ bool HexagonLDBackend::allocateCommonSymbols(Module& pModule)
       ObjectBuilder::AppendFragment(*frag,
                                     *(m_pscommon_4->getSectionData()),
                                     (*com_sym)->value());
+      (*com_sym)->setFragmentRef(FragmentRef::Create(*frag, 0));
       continue;
     case 8:
       if (maxGPSize <= 7)
@@ -881,6 +888,7 @@ bool HexagonLDBackend::allocateCommonSymbols(Module& pModule)
       ObjectBuilder::AppendFragment(*frag,
                                     *(m_pscommon_8->getSectionData()),
                                     (*com_sym)->value());
+      (*com_sym)->setFragmentRef(FragmentRef::Create(*frag, 0));
       continue;
     default:
       break;
@@ -891,12 +899,14 @@ bool HexagonLDBackend::allocateCommonSymbols(Module& pModule)
       tbss_offset += ObjectBuilder::AppendFragment(*frag,
                                                    *tbss_sect_data,
                                                    (*com_sym)->value());
+      (*com_sym)->setFragmentRef(FragmentRef::Create(*frag, 0));
     }
     // FIXME: how to identify small and large common symbols?
     else {
       bss_offset += ObjectBuilder::AppendFragment(*frag,
                                                   *bss_sect_data,
                                                   (*com_sym)->value());
+      (*com_sym)->setFragmentRef(FragmentRef::Create(*frag, 0));
     }
   }
 
@@ -960,14 +970,14 @@ bool HexagonLDBackend::readSection(Input& pInput, SectionData& pSD)
     frag = new FillFragment(0x0, 1, size);
   }
   else {
-    MemoryRegion* region = pInput.memArea()->request(offset, size);
-    if (NULL == region) {
+    llvm::StringRef region = pInput.memArea()->request(offset, size);
+    if (region.size() == 0) {
       // If the input section's size is zero, we got a NULL region.
       // use a virtual fill fragment
       frag = new FillFragment(0x0, 0, 0);
     }
     else {
-      frag = new RegionFragment(*region);
+      frag = new RegionFragment(region);
     }
   }
 

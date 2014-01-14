@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_ELF_ATTRIBUTE_DATA_H
-#define MCLD_ELF_ATTRIBUTE_DATA_H
+#ifndef MCLD_TARGET_ELFATTRIBUTEDATA_H
+#define MCLD_TARGET_ELFATTRIBUTEDATA_H
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif

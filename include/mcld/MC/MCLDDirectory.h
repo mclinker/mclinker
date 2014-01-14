@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_MCLDDIRECTORY_H
-#define MCLD_MCLDDIRECTORY_H
+#ifndef MCLD_MC_MCLDDIRECTORY_H
+#define MCLD_MC_MCLDDIRECTORY_H
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif

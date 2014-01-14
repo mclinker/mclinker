@@ -28,6 +28,25 @@ llvm::cl::opt<bool, true, llvm::cl::FalseParser> ArgNoGCSectionsFlag("no-gc-sect
   llvm::cl::desc("disable garbage collection of unused input sections."),
   llvm::cl::init(false));
 
+bool ArgGenUnwindInfo;
+
+llvm::cl::opt<bool, true, llvm::cl::FalseParser>
+ArgNoGenUnwindInfoFlag("no-ld-generated-unwind-info",
+                       llvm::cl::ZeroOrMore,
+                       llvm::cl::location(ArgGenUnwindInfo),
+                       llvm::cl::desc("Don't create unwind info for linker"
+                                      " generated sections to save size"),
+                       llvm::cl::init(false),
+                       llvm::cl::ValueDisallowed);
+llvm::cl::opt<bool, true>
+ArgGenUnwindInfoFlag("ld-generated-unwind-info",
+                     llvm::cl::ZeroOrMore,
+                     llvm::cl::location(ArgGenUnwindInfo),
+                     llvm::cl::desc("Request creation of unwind info for linker"
+                                    " generated code sections like PLT."),
+                     llvm::cl::init(true),
+                     llvm::cl::ValueDisallowed);
+
 llvm::cl::opt<mcld::OptimizationOptions::ICF> ArgICF("icf",
   llvm::cl::ZeroOrMore,
   llvm::cl::desc("Identical Code Folding"),
@@ -58,6 +77,7 @@ using namespace mcld;
 //===----------------------------------------------------------------------===//
 OptimizationOptions::OptimizationOptions()
   : m_GCSections(ArgGCSections),
+    m_GenUnwindInfo(ArgGenUnwindInfo),
     m_ICF(ArgICF),
     m_Plugin(ArgPlugin),
     m_PluginOpt(ArgPluginOpt) {
@@ -66,9 +86,11 @@ OptimizationOptions::OptimizationOptions()
 bool OptimizationOptions::parse(LinkerConfig& pConfig)
 {
   // set --gc-sections
-  if (m_GCSections) {
-    warning(mcld::diag::warn_unsupported_option) << ArgGCSectionsFlag.ArgStr;
-  }
+  if (m_GCSections)
+    pConfig.options().setGCSections();
+
+  // set --ld-generated-unwind-info (or not)
+  pConfig.options().setGenUnwindInfo(m_GenUnwindInfo);
 
   // set --icf [mode]
   switch (m_ICF) {

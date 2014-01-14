@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_TARGET_GNU_LDBACKEND_H
-#define MCLD_TARGET_GNU_LDBACKEND_H
+#ifndef MCLD_TARGET_GNULDBACKEND_H
+#define MCLD_TARGET_GNULDBACKEND_H
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif
@@ -122,25 +122,25 @@ public:
                                    MemoryRegion& pRegion) const = 0;
 
   /// emitRegNamePools - emit regular name pools - .symtab, .strtab
-  virtual void emitRegNamePools(const Module& pModule, MemoryArea& pOutput);
+  virtual void emitRegNamePools(const Module& pModule, FileOutputBuffer& pOutput);
 
   /// emitNamePools - emit dynamic name pools - .dyntab, .dynstr, .hash
-  virtual void emitDynNamePools(Module& pModule, MemoryArea& pOutput);
+  virtual void emitDynNamePools(Module& pModule, FileOutputBuffer& pOutput);
 
   /// emitELFHashTab - emit .hash
   virtual void emitELFHashTab(const Module::SymbolTable& pSymtab,
-                              MemoryArea& pOutput);
+                              FileOutputBuffer& pOutput);
 
   /// emitGNUHashTab - emit .gnu.hash
   virtual void emitGNUHashTab(Module::SymbolTable& pSymtab,
-                              MemoryArea& pOutput);
+                              FileOutputBuffer& pOutput);
 
   /// sizeInterp - compute the size of program interpreter's name
   /// In ELF executables, this is the length of dynamic linker's path name
   virtual void sizeInterp();
 
   /// emitInterp - emit the .interp
-  virtual void emitInterp(MemoryArea& pOutput);
+  virtual void emitInterp(FileOutputBuffer& pOutput);
 
   /// hasEntryInStrTab - symbol has an entry in a .strtab
   virtual bool hasEntryInStrTab(const LDSymbol& pSym) const;
@@ -296,6 +296,9 @@ public:
   LDSymbol& getTBSSSymbol();
   const LDSymbol& getTBSSSymbol() const;
 
+  /// getEntry - get the entry point name
+  llvm::StringRef getEntry(const Module& pModule) const;
+
   //  -----  relaxation  -----  //
   /// initBRIslandFactory - initialize the branch island factory for relaxation
   bool initBRIslandFactory();
@@ -319,6 +322,10 @@ public:
   /// sortRelocation - sort the dynamic relocations to let dynamic linker
   /// process relocations more efficiently
   void sortRelocation(LDSection& pSection);
+
+  /// createAndSizeEhFrameHdr - This is seperated since we may add eh_frame
+  /// entry in the middle
+  void createAndSizeEhFrameHdr(Module& pModule);
 
   /// attribute - the attribute section data.
   ELFAttribute& attribute() { return *m_pAttribute; }
@@ -410,7 +417,7 @@ private:
   virtual void doPostLayout(Module& pModule, IRBuilder& pLinker) = 0;
 
   /// postProcessing - Backend can do any needed modification in the final stage
-  void postProcessing(MemoryArea& pOutput);
+  void postProcessing(FileOutputBuffer& pOutput);
 
   /// dynamic - the dynamic section of the target machine.
   virtual ELFDynamic& dynamic() = 0;

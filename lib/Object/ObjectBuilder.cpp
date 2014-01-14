@@ -89,7 +89,7 @@ LDSection* ObjectBuilder::MergeSection(const Input& pInputFile,
       else
         eh_frame = IRBuilder::CreateEhFrame(*target);
 
-      eh_frame->merge(*pInputSection.getEhFrame());
+      eh_frame->merge(pInputFile, *pInputSection.getEhFrame());
       UpdateSectionAlign(*target, pInputSection);
       return target;
     }

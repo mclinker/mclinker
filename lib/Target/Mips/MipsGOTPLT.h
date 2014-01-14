@@ -12,13 +12,13 @@
 #include <gtest.h>
 #endif
 
-#include <llvm/ADT/DenseMap.h>
 #include <mcld/Target/GOT.h>
+#include <mcld/Support/MemoryRegion.h>
+#include <llvm/ADT/DenseMap.h>
 
 namespace mcld {
 
 class LDSection;
-class MemoryRegion;
 
 /** \class MipsGOTPLT
  *  \brief Mips .got.plt section.

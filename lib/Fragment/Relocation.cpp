@@ -158,4 +158,3 @@ void Relocation::updateAddend()
     m_Addend += offset;
   }
 }
-

@@ -12,7 +12,6 @@
 
 #include <mcld/LD/LDSection.h>
 #include <mcld/LD/LDFileFormat.h>
-#include <mcld/Support/MemoryRegion.h>
 #include <mcld/Support/MsgHandling.h>
 
 namespace {
@@ -123,7 +122,7 @@ void ARMGOT::applyGOTPLT(uint64_t pPLTBase)
 
 uint64_t ARMGOT::emit(MemoryRegion& pRegion)
 {
-  uint32_t* buffer = reinterpret_cast<uint32_t*>(pRegion.getBuffer());
+  uint32_t* buffer = reinterpret_cast<uint32_t*>(pRegion.begin());
 
   ARMGOTEntry* got = NULL;
   uint64_t result = 0x0;

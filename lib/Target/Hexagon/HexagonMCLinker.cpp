@@ -21,7 +21,7 @@ namespace mcld {
 MCLinker* createHexagonMCLinker(const std::string &pTriple,
                                 LinkerConfig& pConfig,
                                 mcld::Module& pModule,
-                                MemoryArea& pOutput)
+                                FileHandle& pFileHandle)
 {
   llvm::Triple theTriple(pTriple);
   if (theTriple.isOSDarwin()) {
@@ -34,7 +34,7 @@ MCLinker* createHexagonMCLinker(const std::string &pTriple,
   }
 
   if (theTriple.isArch32Bit())
-    return new HexagonELFMCLinker(pConfig, pModule, pOutput);
+    return new HexagonELFMCLinker(pConfig, pModule, pFileHandle);
 
   assert(0 && "Hexagon_64 has not supported yet");
   return NULL;

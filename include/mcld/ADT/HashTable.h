@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_HASH_TABLE_H
-#define MCLD_HASH_TABLE_H
+#ifndef MCLD_ADT_HASHTABLE_H
+#define MCLD_ADT_HASHTABLE_H
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif

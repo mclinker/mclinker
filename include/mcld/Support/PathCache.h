@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_PATHCACHE_H
-#define MCLD_PATHCACHE_H
+#ifndef MCLD_SUPPORT_PATHCACHE_H
+#define MCLD_SUPPORT_PATHCACHE_H
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif

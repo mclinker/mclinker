@@ -11,8 +11,8 @@
 // path class.
 //===----------------------------------------------------------------------===//
 
-#ifndef MCLD_FILE_SYSTEM_H
-#define MCLD_FILE_SYSTEM_H
+#ifndef MCLD_SUPPORT_FILESYSTEM_H
+#define MCLD_SUPPORT_FILESYSTEM_H
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif

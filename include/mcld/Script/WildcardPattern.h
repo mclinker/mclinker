@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_SCRIPT_WILDCARD_PATTERN_INTERFACE_H
-#define MCLD_SCRIPT_WILDCARD_PATTERN_INTERFACE_H
+#ifndef MCLD_SCRIPT_WILDCARDPATTERN_H
+#define MCLD_SCRIPT_WILDCARDPATTERN_H
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif
@@ -15,6 +15,7 @@
 #include <mcld/Script/StrToken.h>
 #include <mcld/Support/Allocators.h>
 #include <mcld/Config/Config.h>
+#include <llvm/ADT/StringRef.h>
 
 namespace mcld
 {
@@ -45,6 +46,10 @@ public:
 
   SortPolicy sortPolicy() const { return m_SortPolicy; }
 
+  bool isPrefix() const { return m_bIsPrefix; }
+
+  llvm::StringRef prefix() const;
+
   static bool classof(const StrToken* pToken)
   {
     return pToken->kind() == StrToken::Wildcard;
@@ -58,6 +63,7 @@ public:
 
 private:
   SortPolicy m_SortPolicy;
+  bool m_bIsPrefix;
 };
 
 } // namepsace of mcld

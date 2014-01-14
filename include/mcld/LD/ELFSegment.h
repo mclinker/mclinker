@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_ELF_SEGMENT_H
-#define MCLD_ELF_SEGMENT_H
+#ifndef MCLD_LD_ELFSEGMENT_H
+#define MCLD_LD_ELFSEGMENT_H
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif

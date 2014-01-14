@@ -1,6 +1,7 @@
 # SYNOPSIS
 #
-#   AX_PROG_BISON_VERSION([VERSION],[ACTION-IF-TRUE],[ACTION-IF-FALSE])
+#   AX_PROG_BISON_VERSION([LOW_VERSION],[HIGH_VERSION],
+#                         [ACTION-IF-TRUE],[ACTION-IF-FALSE])
 #
 # DESCRIPTION
 #
@@ -12,10 +13,10 @@
 #   Example:
 #
 #     AC_PATH_PROG([BISON],[bison])
-#     AX_PROG_FLEX_VERSION([2.5.4],[ ... ],[ ... ])
+#     AX_PROG_FLEX_VERSION([2.5.4],[3.0.1],[ ... ],[ ... ])
 #
-#   This will check to make sure that the bison you have supports at least
-#   version 2.5.4.
+#   This will check to make sure that the bison you have supports
+#   >= version 2.5.4 and < version 3.0.1.
 #
 #   NOTE: This macro uses the $BISON variable to perform the check.
 #   AX_WITH_BISON can be used to set that variable prior to running this
@@ -27,6 +28,7 @@
 #
 # LICENSE
 #
+#   Copyright (c) 2013 WenHan Gu <wenhan.gu@gmail.com>
 #   Copyright (c) 2013 Pete Chou <petechou@gmail.com>
 #   Copyright (c) 2009 Francesco Salvestrini <salvestrini@users.sourceforge.net>
 #
@@ -43,7 +45,8 @@ AC_DEFUN([AX_PROG_BISON_VERSION],[
     AC_REQUIRE([AC_PROG_GREP])
 
     AS_IF([test -n "$BISON"],[
-        ax_bison_version="$1"
+        ax_bison_low_version="$1"
+        ax_bison_high_version="$2"
 
         AC_MSG_CHECKING([for bison version])
         changequote(<<,>>)
@@ -51,17 +54,25 @@ AC_DEFUN([AX_PROG_BISON_VERSION],[
         changequote([,])
         AC_MSG_RESULT($bison_version)
 
-	AC_SUBST([BISON_VERSION],[$bison_version])
+        AC_SUBST([BISON_VERSION],[$bison_version])
 
-        AX_COMPARE_VERSION([$ax_bison_version],[le],[$bison_version],[
-	    :
-            $2
-        ],[
-	    :
+        AX_COMPARE_VERSION([$ax_bison_low_version],[le],[$bison_version],[
+            :
             $3
+        ],[
+            :
+            $4
+        ])
+
+        AX_COMPARE_VERSION([$ax_bison_high_version],[gt],[$bison_version],[
+            :
+            $3
+        ],[
+            :
+            $4
         ])
     ],[
         AC_MSG_WARN([could not find the bison parser generator])
-        $3
+        $4
     ])
 ])

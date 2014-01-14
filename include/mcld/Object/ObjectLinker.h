@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_OBJECT_OBJECT_LINKER_H
-#define MCLD_OBJECT_OBJECT_LINKER_H
+#ifndef MCLD_OBJECT_OBJECTLINKER_H
+#define MCLD_OBJECT_OBJECTLINKER_H
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif
@@ -19,8 +19,7 @@ class Module;
 class LinkerConfig;
 class IRBuilder;
 class TargetLDBackend;
-class MemoryArea;
-class MemoryAreaFactory;
+class FileOutputBuffer;
 class ObjectReader;
 class DynObjReader;
 class ArchiveReader;
@@ -32,6 +31,7 @@ class DynObjWriter;
 class ExecWriter;
 class BinaryWriter;
 class Relocation;
+class ResolveInfo;
 
 /** \class ObjectLinker
  */
@@ -60,8 +60,15 @@ public:
   /// readRelocations - read all relocation entries
   bool readRelocations();
 
+  /// dataStrippingOpt - optimizations for reducing code size
+  void dataStrippingOpt();
+
   /// mergeSections - put allinput sections into output sections
   bool mergeSections();
+
+  /// addSymbolsToOutput - after all symbols has been resolved, add the symbol
+  /// to output
+  void addSymbolsToOutput(Module& pModule);
 
   /// allocateCommonSymobols - allocate fragments for common symbols to the
   /// corresponding sections
@@ -113,10 +120,10 @@ public:
   bool finalizeSymbolValue();
 
   /// emitOutput - emit the output file.
-  bool emitOutput(MemoryArea& pOutput);
+  bool emitOutput(FileOutputBuffer& pOutput);
 
   /// postProcessing - do modificatiion after all processes
-  bool postProcessing(MemoryArea& pOutput);
+  bool postProcessing(FileOutputBuffer& pOutput);
 
   // -----  readers and writers  ----- //
   const ObjectReader*  getObjectReader () const { return m_pObjectReader;  }
@@ -143,15 +150,19 @@ public:
 private:
   /// normalSyncRelocationResult - sync relocation result when producing shared
   /// objects or executables
-  void normalSyncRelocationResult(MemoryArea& pOutput);
+  void normalSyncRelocationResult(FileOutputBuffer& pOutput);
 
   /// partialSyncRelocationResult - sync relocation result when doing partial
   /// link
-  void partialSyncRelocationResult(MemoryArea& pOutput);
+  void partialSyncRelocationResult(FileOutputBuffer& pOutput);
 
   /// writeRelocationResult - helper function of syncRelocationResult, write
   /// relocation target data to output
   void writeRelocationResult(Relocation& pReloc, uint8_t* pOutput);
+
+  /// addSymbolToOutput - add a symbol to output symbol table if it's not a
+  /// section symbol and not defined in the discarded section
+  void addSymbolToOutput(ResolveInfo& pInfo, Module& pModule);
 
 private:
   const LinkerConfig& m_Config;

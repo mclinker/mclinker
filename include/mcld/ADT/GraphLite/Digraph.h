@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_GRAPHLITE_DIRECTED_GRAPH_H
-#define MCLD_GRAPHLITE_DIRECTED_GRAPH_H
+#ifndef MCLD_ADT_GRAPHLITE_DIGRAPH_H
+#define MCLD_ADT_GRAPHLITE_DIGRAPH_H
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif

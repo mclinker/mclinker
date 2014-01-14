@@ -12,6 +12,7 @@
 #include "X86Relocator.h"
 #include "X86GNUInfo.h"
 
+#include <llvm/ADT/StringRef.h>
 #include <llvm/ADT/Triple.h>
 #include <llvm/Support/Casting.h>
 
@@ -20,10 +21,10 @@
 #include <mcld/LD/ELFFileFormat.h>
 #include <mcld/Fragment/FillFragment.h>
 #include <mcld/Fragment/RegionFragment.h>
-#include <mcld/Support/MemoryRegion.h>
 #include <mcld/Support/MsgHandling.h>
 #include <mcld/Support/TargetRegistry.h>
 #include <mcld/Object/ObjectBuilder.h>
+#include <llvm/Support/Dwarf.h>
 
 #include <cstring>
 
@@ -105,6 +106,9 @@ void X86GNULDBackend::doPreLayout(IRBuilder& pBuilder)
       setRelPLTSize();
     }
   }
+
+  if (config().options().genUnwindInfo())
+    addEhFrameForPLT(pBuilder.getModule());
 }
 
 void X86GNULDBackend::doPostLayout(Module& pModule,
@@ -168,10 +172,8 @@ uint64_t X86GNULDBackend::emitSectionData(const LDSection& pSection,
   unsigned int EntrySize = 0;
   uint64_t RegionSize = 0;
 
-  if (&pSection == &(FileFormat->getPLT())) {
-    assert(m_pPLT && "emitSectionData failed, m_pPLT is NULL!");
-
-    unsigned char* buffer = pRegion.getBuffer();
+  if (FileFormat->hasPLT() && (&pSection == &(FileFormat->getPLT()))) {
+    unsigned char* buffer = pRegion.begin();
 
     m_pPLT->applyPLT0();
     m_pPLT->applyPLT1();
@@ -192,15 +194,13 @@ uint64_t X86GNULDBackend::emitSectionData(const LDSection& pSection,
       ++it;
     }
   }
-
-  else if (&pSection == &(FileFormat->getGOT())) {
+  else if (FileFormat->hasGOT() && (&pSection == &(FileFormat->getGOT()))) {
     RegionSize += emitGOTSectionData(pRegion);
   }
-
-  else if (&pSection == &(FileFormat->getGOTPLT())) {
+  else if (FileFormat->hasGOTPLT() &&
+           (&pSection == &(FileFormat->getGOTPLT()))) {
     RegionSize += emitGOTPLTSectionData(pRegion, FileFormat);
   }
-
   else {
     fatal(diag::unrecognized_output_sectoin)
             << pSection.name()
@@ -250,19 +250,19 @@ X86GNULDBackend::getTargetSectionOrder(const LDSection& pSectHdr) const
 {
   const ELFFileFormat* file_format = getOutputFormat();
 
-  if (&pSectHdr == &file_format->getGOT()) {
+  if (file_format->hasGOT() && (&pSectHdr == &file_format->getGOT())) {
     if (config().options().hasNow())
       return SHO_RELRO;
     return SHO_RELRO_LAST;
   }
 
-  if (&pSectHdr == &file_format->getGOTPLT()) {
+  if (file_format->hasGOTPLT() && (&pSectHdr == &file_format->getGOTPLT())) {
     if (config().options().hasNow())
       return SHO_RELRO;
     return SHO_NON_RELRO_FIRST;
   }
 
-  if (&pSectHdr == &file_format->getPLT())
+  if (file_format->hasPLT() && (&pSectHdr == &file_format->getPLT()))
     return SHO_PLT;
 
   return SHO_UNDEFINED;
@@ -283,6 +283,51 @@ void X86GNULDBackend::initTargetSymbols(IRBuilder& pBuilder, Module& pModule)
                                                 0x0,  // value
                                                 FragmentRef::Null(), // FragRef
                                                 ResolveInfo::Hidden);
+  }
+}
+
+void X86GNULDBackend::addEhFrameForPLT(Module& pModule)
+{
+  LDSection* plt_sect = pModule.getSection(".plt");
+  if (!plt_sect || plt_sect->size() == 0u)
+    return;
+
+  LDSection* eh_sect = pModule.getSection(".eh_frame");
+  if (!eh_sect || !eh_sect->hasEhFrame())
+    return;
+
+  EhFrame* eh_frame = eh_sect->getEhFrame();
+  SectionData::FragmentListType& frag_list =
+      eh_frame->getSectionData()->getFragmentList();
+  llvm::StringRef cie_region = createCIERegionForPLT();
+  llvm::StringRef fde_region = createFDERegionForPLT();
+  EhFrame::CIE* cie = new EhFrame::GeneratedCIE(cie_region);
+  EhFrame::FDE* fde = new EhFrame::GeneratedFDE(fde_region, *cie);
+  // Augmentation data only contains FDE encoding.
+  uint8_t aug_data = (uint8_t)(llvm::dwarf::DW_EH_PE_pcrel |
+                               llvm::dwarf::DW_EH_PE_sdata4);
+  cie->setFDEEncode(aug_data);
+  cie->setAugmentationData(std::string(1, aug_data));
+
+  EhFrame::cie_iterator i = eh_frame->cie_begin();
+  for (EhFrame::cie_iterator e = eh_frame->cie_end(); i != e; ++i) {
+    EhFrame::CIE& exist_cie = **i;
+    if (exist_cie == *cie) {
+      // Insert the FDE fragment
+      SectionData::iterator cur_iter(exist_cie);
+      frag_list.insertAfter(cur_iter, fde);
+      fde->setCIE(exist_cie);
+
+      // Cleanup the CIE we created
+      cie->clearFDEs();
+      delete cie;
+      break;
+    }
+  }
+  if (i == eh_frame->cie_end()) {
+    // Newly insert
+    eh_frame->addCIE(*cie);
+    eh_frame->addFDE(*fde);
   }
 }
 
@@ -335,6 +380,7 @@ void X86_32GNULDBackend::initTargetSections(Module& pModule,
 
     // initialize .plt
     LDSection& plt = file_format->getPLT();
+    plt.setAlign(16u);
     m_pPLT = new X86_32PLT(plt,
 			   *m_pGOTPLT,
 			   config());
@@ -375,6 +421,59 @@ const X86_32GOTPLT& X86_32GNULDBackend::getGOTPLT() const
   return *m_pGOTPLT;
 }
 
+llvm::StringRef X86_32GNULDBackend::createCIERegionForPLT()
+{
+  using namespace llvm::dwarf;
+  static const uint8_t data[4+4+16] = {
+    0x14, 0, 0, 0, // length
+    0, 0, 0, 0, // ID
+    1,  // version
+    'z', 'R', '\0', // augmentation string
+    1,  // code alignment factor
+    0x7c, // data alignment factor
+    8,  // return address column
+    1,  // augmentation data size
+    DW_EH_PE_pcrel | DW_EH_PE_sdata4, // FDE encoding
+    DW_CFA_def_cfa, 4, 4,
+    DW_CFA_offset + 8, 1,
+    DW_CFA_nop,
+    DW_CFA_nop
+  };
+  return llvm::StringRef((const char*)data, 4+4+16);
+}
+
+llvm::StringRef X86_32GNULDBackend::createFDERegionForPLT()
+{
+  using namespace llvm::dwarf;
+  static const uint8_t data[4+4+32] = {
+    0x24, 0, 0, 0,  // length
+    0, 0, 0, 0,   // offset to CIE
+    0, 0, 0, 0,   // offset to PLT
+    0, 0, 0, 0,   // size of PLT
+    0,            // augmentation data size
+    DW_CFA_def_cfa_offset, 8,
+    DW_CFA_advance_loc + 6,
+    DW_CFA_def_cfa_offset, 12,
+    DW_CFA_advance_loc + 10,
+    DW_CFA_def_cfa_expression,
+    11,
+    DW_OP_breg4, 4,
+    DW_OP_breg8, 0,
+    DW_OP_lit15,
+    DW_OP_and,
+    DW_OP_lit11,
+    DW_OP_ge,
+    DW_OP_lit2,
+    DW_OP_shl,
+    DW_OP_plus,
+    DW_CFA_nop,
+    DW_CFA_nop,
+    DW_CFA_nop,
+    DW_CFA_nop
+  };
+  return llvm::StringRef((const char*)data, 4+4+32);
+}
+
 void X86_32GNULDBackend::setRelDynSize()
 {
   ELFFileFormat* file_format = getOutputFormat();
@@ -408,7 +507,7 @@ uint64_t X86_32GNULDBackend::emitGOTSectionData(MemoryRegion& pRegion) const
 {
   assert(m_pGOT && "emitGOTSectionData failed, m_pGOT is NULL!");
 
-  uint32_t* buffer = reinterpret_cast<uint32_t*>(pRegion.getBuffer());
+  uint32_t* buffer = reinterpret_cast<uint32_t*>(pRegion.begin());
 
   X86_32GOTEntry* got = 0;
   unsigned int EntrySize = X86_32GOTEntry::EntrySize;
@@ -431,7 +530,7 @@ uint64_t X86_32GNULDBackend::emitGOTPLTSectionData(MemoryRegion& pRegion,
   m_pGOTPLT->applyGOT0(FileFormat->getDynamic().addr());
   m_pGOTPLT->applyAllGOTPLT(*m_pPLT);
 
-  uint32_t* buffer = reinterpret_cast<uint32_t*>(pRegion.getBuffer());
+  uint32_t* buffer = reinterpret_cast<uint32_t*>(pRegion.begin());
 
   X86_32GOTEntry* got = 0;
   unsigned int EntrySize = X86_32GOTEntry::EntrySize;
@@ -492,6 +591,59 @@ const X86_64GOTPLT& X86_64GNULDBackend::getGOTPLT() const
   return *m_pGOTPLT;
 }
 
+llvm::StringRef X86_64GNULDBackend::createCIERegionForPLT()
+{
+  using namespace llvm::dwarf;
+  static const uint8_t data[4+4+16] = {
+    0x14, 0, 0, 0,  // length
+    0, 0, 0, 0,   // ID
+    1,          // CIE version
+    'z', 'R', '\0', // augmentation string
+    1,          // code alignment factor
+    0x78,       // data alignment factor
+    16,         // return address column
+    1,          // augmentation data size
+    DW_EH_PE_pcrel | DW_EH_PE_sdata4, // FDE encoding
+    DW_CFA_def_cfa, 7, 8,
+    DW_CFA_offset + 16, 1,
+    DW_CFA_nop,
+    DW_CFA_nop
+  };
+  return llvm::StringRef((const char*)data, 4+4+16);
+}
+
+llvm::StringRef X86_64GNULDBackend::createFDERegionForPLT()
+{
+  using namespace llvm::dwarf;
+  static const uint8_t data[4+4+32] = {
+    0x24, 0, 0, 0,  // length
+    0, 0, 0, 0,   // ID
+    0, 0, 0, 0,   // offset to PLT
+    0, 0, 0, 0,   // size of PLT
+    0,            // augmentation data size
+    DW_CFA_def_cfa_offset, 16,
+    DW_CFA_advance_loc + 6,
+    DW_CFA_def_cfa_offset, 24,
+    DW_CFA_advance_loc + 10,
+    DW_CFA_def_cfa_expression,
+    11,
+    DW_OP_breg7, 8,
+    DW_OP_breg16, 0,
+    DW_OP_lit15,
+    DW_OP_and,
+    DW_OP_lit11,
+    DW_OP_ge,
+    DW_OP_lit3,
+    DW_OP_shl,
+    DW_OP_plus,
+    DW_CFA_nop,
+    DW_CFA_nop,
+    DW_CFA_nop,
+    DW_CFA_nop
+  };
+  return llvm::StringRef((const char*)data, 4+4+32);
+}
+
 void X86_64GNULDBackend::setRelDynSize()
 {
   ELFFileFormat* file_format = getOutputFormat();
@@ -521,6 +673,7 @@ void X86_64GNULDBackend::initTargetSections(Module& pModule,
 
     // initialize .plt
     LDSection& plt = file_format->getPLT();
+    plt.setAlign(16u);
     m_pPLT = new X86_64PLT(plt,
 			   *m_pGOTPLT,
 			   config());
@@ -556,7 +709,7 @@ uint64_t X86_64GNULDBackend::emitGOTSectionData(MemoryRegion& pRegion) const
 {
   assert(m_pGOT && "emitGOTSectionData failed, m_pGOT is NULL!");
 
-  uint64_t* buffer = reinterpret_cast<uint64_t*>(pRegion.getBuffer());
+  uint64_t* buffer = reinterpret_cast<uint64_t*>(pRegion.begin());
 
   X86_64GOTEntry* got = 0;
   unsigned int EntrySize = X86_64GOTEntry::EntrySize;
@@ -579,7 +732,7 @@ uint64_t X86_64GNULDBackend::emitGOTPLTSectionData(MemoryRegion& pRegion,
   m_pGOTPLT->applyGOT0(FileFormat->getDynamic().addr());
   m_pGOTPLT->applyAllGOTPLT(*m_pPLT);
 
-  uint64_t* buffer = reinterpret_cast<uint64_t*>(pRegion.getBuffer());
+  uint64_t* buffer = reinterpret_cast<uint64_t*>(pRegion.begin());
 
   X86_64GOTEntry* got = 0;
   unsigned int EntrySize = X86_64GOTEntry::EntrySize;

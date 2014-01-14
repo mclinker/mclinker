@@ -12,9 +12,10 @@
 #include <mcld/IRBuilder.h>
 #include <mcld/LD/ELFReader.h>
 #include <mcld/MC/Input.h>
-#include <mcld/Support/MemoryRegion.h>
 #include <mcld/Target/GNULDBackend.h>
+#include <mcld/Support/MemoryArea.h>
 
+#include <llvm/ADT/StringRef.h>
 #include <llvm/ADT/Twine.h>
 #include <llvm/ADT/OwningPtr.h>
 #include <llvm/Support/ErrorHandling.h>
@@ -54,10 +55,10 @@ bool ELFDynObjReader::isMyFormat(Input &pInput, bool &pContinue) const
   if (pInput.memArea()->size() < hdr_size)
     return false;
 
-  MemoryRegion* region = pInput.memArea()->request(pInput.fileOffset(),
-                                                   hdr_size);
+  llvm::StringRef region = pInput.memArea()->request(pInput.fileOffset(),
+                                                     hdr_size);
 
-  uint8_t* ELF_hdr = region->start();
+  const char* ELF_hdr = region.begin();
   bool result = true;
   if (!m_pELFReader->isELF(ELF_hdr)) {
     pContinue = true;
@@ -72,7 +73,6 @@ bool ELFDynObjReader::isMyFormat(Input &pInput, bool &pContinue) const
     pContinue = false;
     result = false;
   }
-  pInput.memArea()->release(region);
   return result;
 }
 
@@ -82,12 +82,11 @@ bool ELFDynObjReader::readHeader(Input& pInput)
   assert(pInput.hasMemArea());
 
   size_t hdr_size = m_pELFReader->getELFHeaderSize();
-  MemoryRegion* region = pInput.memArea()->request(pInput.fileOffset(),
-                                                   hdr_size);
-  uint8_t* ELF_hdr = region->start();
+  llvm::StringRef region = pInput.memArea()->request(pInput.fileOffset(),
+                                                     hdr_size);
+  const char* ELF_hdr = region.begin();
 
   bool shdr_result = m_pELFReader->readSectionHeaders(pInput, ELF_hdr);
-  pInput.memArea()->release(region);
 
   // read .dynamic to get the correct SONAME
   bool dyn_result = m_pELFReader->readDynamic(pInput);
@@ -116,17 +115,14 @@ bool ELFDynObjReader::readSymbols(Input& pInput)
     return false;
   }
 
-  MemoryRegion* symtab_region = pInput.memArea()->request(
-              pInput.fileOffset() + symtab_shdr->offset(), symtab_shdr->size());
+  llvm::StringRef symtab_region = pInput.memArea()->request(
+      pInput.fileOffset() + symtab_shdr->offset(), symtab_shdr->size());
 
-  MemoryRegion* strtab_region = pInput.memArea()->request(
-              pInput.fileOffset() + strtab_shdr->offset(), strtab_shdr->size());
-  char* strtab = reinterpret_cast<char*>(strtab_region->start());
+  llvm::StringRef strtab_region = pInput.memArea()->request(
+      pInput.fileOffset() + strtab_shdr->offset(), strtab_shdr->size());
+  const char* strtab = strtab_region.begin();
   bool result = m_pELFReader->readSymbols(pInput, m_Builder,
-                                          *symtab_region, strtab);
-  pInput.memArea()->release(symtab_region);
-  pInput.memArea()->release(strtab_region);
-
+                                          symtab_region, strtab);
   return result;
 }
 

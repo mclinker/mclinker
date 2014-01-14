@@ -16,7 +16,7 @@
 namespace mcld {
 
 class Module;
-class MemoryArea;
+class FileHandle;
 
 /** \class HexagonELFMCLinker
  *  \brief HexagonELFMCLinker sets up the environment for linking.
@@ -28,7 +28,7 @@ class HexagonELFMCLinker : public ELFMCLinker
 public:
   HexagonELFMCLinker(LinkerConfig& pConfig,
                      mcld::Module& pModule,
-                     MemoryArea& pOutput);
+                     FileHandle& pFileHandle);
 
   ~HexagonELFMCLinker();
 };
