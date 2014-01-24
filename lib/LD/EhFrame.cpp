@@ -186,9 +186,10 @@ EhFrame& EhFrame::merge(const Input& pInput, EhFrame& pFrame)
   const LDSection* rel_sec = 0;
   for (LDContext::const_sect_iterator ri = ctx.relocSectBegin(),
        re = ctx.relocSectEnd(); ri != re; ++ri) {
-    rel_sec = *ri;
-    if (rel_sec->getLink() == &getSection())
+    if ((*ri)->getLink() == &pFrame.getSection()) {
+      rel_sec = *ri;
       break;
+    }
   }
   pFrame.setupAttributes(rel_sec);
 
