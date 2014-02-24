@@ -49,6 +49,7 @@ llvm::cl::opt<mcld::LinkerConfig::CodeGenType> ArgOFormat("oformat",
     clEnumValEnd));
 
 llvm::cl::opt<bool> ArgShared("shared",
+  llvm::cl::ZeroOrMore,
   llvm::cl::desc("Create a shared library."),
   llvm::cl::init(false));
 

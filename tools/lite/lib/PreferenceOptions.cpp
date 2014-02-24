@@ -85,6 +85,7 @@ llvm::cl::opt<bool, true, llvm::cl::FalseParser> ArgNoFatalWarnings("no-fatal-wa
   llvm::cl::ValueDisallowed);
 
 llvm::cl::opt<bool, true> ArgFatalWarningsFlag("fatal-warnings",
+  llvm::cl::ZeroOrMore,
   llvm::cl::location(ArgFatalWarnings),
   llvm::cl::desc("turn all warnings into errors"),
   llvm::cl::init(false),

@@ -17,6 +17,7 @@ llvm::cl::opt<int> ArgGPSize("G",
   llvm::cl::init(8));
 
 llvm::cl::opt<bool> ArgWarnSharedTextrel("warn-shared-textrel",
+  llvm::cl::ZeroOrMore,
   llvm::cl::desc("Warn if adding DT_TEXTREL in a shared object."),
   llvm::cl::init(false));
 
