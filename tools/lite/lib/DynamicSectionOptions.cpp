@@ -23,6 +23,7 @@ llvm::cl::alias ArgEntryAlias("entry",
   llvm::cl::aliasopt(ArgEntry));
 
 llvm::cl::opt<bool> ArgBsymbolic("Bsymbolic",
+  llvm::cl::ZeroOrMore,
   llvm::cl::desc("Bind references within the shared library."),
   llvm::cl::init(false));
 

@@ -336,6 +336,7 @@ ArgEntryAlias("entry",
 
 static cl::opt<bool>
 ArgBsymbolic("Bsymbolic",
+             cl::ZeroOrMore,
              cl::desc("Bind references within the shared library."),
              cl::init(false));
 
