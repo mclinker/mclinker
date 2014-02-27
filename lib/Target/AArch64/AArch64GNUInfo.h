@@ -24,8 +24,8 @@ public:
   // FIXME: the default segment address
   uint64_t defaultTextSegmentAddr() const { return 0x10000; }
 
-  // FIXME: check if the flag is the same as arm
-  uint64_t flags() const { return llvm::ELF::EF_ARM_EABI_VER5; }
+  // There are no processor-specific flags so this field shall contain zero.
+  uint64_t flags() const { return 0x0; }
 };
 
 } // namespace of mcld
