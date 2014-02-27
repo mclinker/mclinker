@@ -6,22 +6,35 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
+// FIXME: llvm::ELF doesn't define AArch64 dynamic relocation types
+enum {
+  R_AARCH64_COPY         = 1024,
+  R_AARCH64_GLOB_DAT     = 1025,
+  R_AARCH64_JUMP_SLOT    = 1026,
+  R_AARCH64_RELATIVE     = 1027,
+  R_AARCH64_TLS_DTPREL64 = 1028,
+  R_AARCH64_TLS_DTPMOD64 = 1029,
+  R_AARCH64_TLS_TPREL64  = 1030,
+  R_AARCH64_TLSDESC      = 1031,
+  R_AARCH64_IRELATIVE    = 1032
+};
 
-#define DECL_AArch64_APPLY_RELOC_FUNC(Name)                  \
+#define DECL_AARCH64_APPLY_RELOC_FUNC(Name)                  \
 static AArch64Relocator::Result Name    (Relocation& pEntry, \
                                          AArch64Relocator& pParent);
 
-#define DECL_AArch64_APPLY_RELOC_FUNCS          \
-DECL_AArch64_APPLY_RELOC_FUNC(none)             \
-DECL_AArch64_APPLY_RELOC_FUNC(unsupport)
+#define DECL_AARCH64_APPLY_RELOC_FUNCS          \
+DECL_AARCH64_APPLY_RELOC_FUNC(none)             \
+DECL_AARCH64_APPLY_RELOC_FUNC(rel)             \
+DECL_AARCH64_APPLY_RELOC_FUNC(unsupport)
 
-#define DECL_AArch64_APPLY_RELOC_FUNC_PTRS \
+#define DECL_AARCH64_APPLY_RELOC_FUNC_PTRS \
   { &none,           0x100, "R_AARCH64_NONE"                               },  \
   { &unsupport,      0x101, "R_AARCH64_ABS64"                              },  \
   { &unsupport,      0x102, "R_AARCH64_ABS32"                              },  \
   { &unsupport,      0x103, "R_AARCH64_ABS16"                              },  \
   { &unsupport,      0x104, "R_AARCH64_PREL64"                             },  \
-  { &unsupport,      0x105, "R_AARCH64_PREL32"                             },  \
+  { &rel,            0x105, "R_AARCH64_PREL32"                             },  \
   { &unsupport,      0x106, "R_AARCH64_PREL16"                             },  \
   { &unsupport,      0x107, "R_AARCH64_MOVW_UABS_G0"                       },  \
   { &unsupport,      0x108, "R_AARCH64_MOVW_UABS_G0_NC"                    },  \
@@ -88,4 +101,13 @@ DECL_AArch64_APPLY_RELOC_FUNC(unsupport)
   { &unsupport,      0x232, "R_AARCH64_TLSDESC_ADR_PAGE"                   },  \
   { &unsupport,      0x233, "R_AARCH64_TLSDESC_LD64_LO12_NC"               },  \
   { &unsupport,      0x234, "R_AARCH64_TLSDESC_ADD_LO12_NC"                },  \
-  { &unsupport,      0x239, "R_AARCH64_TLSDESC_CALL"                       }
+  { &unsupport,      0x239, "R_AARCH64_TLSDESC_CALL"                       },  \
+  { &unsupport,       1024,  "R_AARCH64_COPY"                             },  \
+  { &unsupport,       1025,  "R_AARCH64_GLOB_DAT"                         },  \
+  { &unsupport,       1026,  "R_AARCH64_JUMP_SLOT"                        },  \
+  { &unsupport,       1027,  "R_AARCH64_RELATIVE"                         },  \
+  { &unsupport,       1028,  "R_AARCH64_TLS_DTPREL64"                     },  \
+  { &unsupport,       1029,  "R_AARCH64_TLS_DTPMOD64"                     },  \
+  { &unsupport,       1030,  "R_AARCH64_TLS_TPREL64"                      },  \
+  { &unsupport,       1031,  "R_AARCH64_TLSDESC"                          },  \
+  { &unsupport,       1032,  "R_AARCH64_IRELATIVE"                        }

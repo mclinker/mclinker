@@ -17,6 +17,7 @@
 #include <mcld/LD/LDSymbol.h>
 #include <mcld/LD/ELFFileFormat.h>
 #include <mcld/Object/ObjectBuilder.h>
+
 #include "AArch64Relocator.h"
 #include "AArch64RelocationFunctions.h"
 
@@ -25,11 +26,25 @@ using namespace mcld;
 //=========================================//
 // Relocation helper function              //
 //=========================================//
+// Return true if overflow
+static bool
+helper_check_signed_overflow(AArch64Relocator::DWord pValue,
+                             unsigned bits)
+{
+  if (bits >= sizeof(int64_t) * 8)
+    return false;
+  int64_t signed_val = static_cast<int64_t>(pValue);
+  int64_t max = (1 << (bits - 1)) - 1;
+  int64_t min = -(1 << (bits - 1));
+  if (signed_val > max || signed_val < min)
+    return true;
+  return false;
+}
 
 //===--------------------------------------------------------------------===//
 // Relocation Functions and Tables
 //===--------------------------------------------------------------------===//
-DECL_AArch64_APPLY_RELOC_FUNCS
+DECL_AARCH64_APPLY_RELOC_FUNCS
 
 /// the prototype of applying function
 typedef Relocator::Result (*ApplyFunctionType)(Relocation& pReloc,
@@ -45,14 +60,14 @@ struct ApplyFunctionTriple
 
 // declare the table of applying functions
 static const ApplyFunctionTriple ApplyFunctions[] = {
-  DECL_AArch64_APPLY_RELOC_FUNC_PTRS
+  DECL_AARCH64_APPLY_RELOC_FUNC_PTRS
 };
 
 //===--------------------------------------------------------------------===//
 // AArch64Relocator
 //===--------------------------------------------------------------------===//
 AArch64Relocator::AArch64Relocator(AArch64GNULDBackend& pParent,
-                           const LinkerConfig& pConfig)
+                                   const LinkerConfig& pConfig)
   : Relocator(pConfig),
     m_Target(pParent) {
 }
@@ -65,7 +80,8 @@ Relocator::Result
 AArch64Relocator::applyRelocation(Relocation& pRelocation)
 {
   Relocation::Type type = pRelocation.type();
-  if (type < 0x100 || type > 0x239) { // valid types are 0x100-0x239
+  // valid types are 0x0, 0x100-0x239
+  if ((type < 0x100 || type > 0x239) && (type != 0x0)) {
     return Relocator::Unknown;
   }
 
@@ -84,9 +100,8 @@ Relocator::Size AArch64Relocator::getSize(Relocation::Type pType) const
 
 void AArch64Relocator::addCopyReloc(ResolveInfo& pSym)
 {
-  Relocation& rel_entry = *getTarget().getRelDyn().create();
-  // FIXME: llvm::ELF doesn't define AArch64 dynamic relocation type
-  rel_entry.setType(1024);
+  Relocation& rel_entry = *getTarget().getRelaDyn().create();
+  rel_entry.setType(R_AARCH64_COPY);
   assert(pSym.outSymbol()->hasFragRef());
   rel_entry.targetRef().assign(*pSym.outSymbol()->fragRef());
   rel_entry.setSymInfo(&pSym);
@@ -99,7 +114,7 @@ void AArch64Relocator::addCopyReloc(ResolveInfo& pSym)
 /// This is executed at scan relocation stage.
 LDSymbol&
 AArch64Relocator::defineSymbolforCopyReloc(IRBuilder& pBuilder,
-                                       const ResolveInfo& pSym)
+                                           const ResolveInfo& pSym)
 {
   // get or create corresponding BSS LDSection
   LDSection* bss_sect_hdr = NULL;
@@ -133,15 +148,15 @@ AArch64Relocator::defineSymbolforCopyReloc(IRBuilder& pBuilder,
     binding = ResolveInfo::Global;
 
   // Define the copy symbol in the bss section and resolve it
-  LDSymbol* cpy_sym = pBuilder.AddSymbol<IRBuilder::Force, IRBuilder::Resolve>(
-                      pSym.name(),
-                      (ResolveInfo::Type)pSym.type(),
-                      ResolveInfo::Define,
-                      binding,
-                      pSym.size(),  // size
-                      0x0,          // value
-                      FragmentRef::Create(*frag, 0x0),
-                      (ResolveInfo::Visibility)pSym.other());
+  ;LDSymbol* cpy_sym = pBuilder.AddSymbol<IRBuilder::Force, IRBuilder::Resolve>(
+                       pSym.name(),
+                       (ResolveInfo::Type)pSym.type(),
+                       ResolveInfo::Define,
+                       binding,
+                       pSym.size(),  // size
+                       0x0,          // value
+                       FragmentRef::Create(*frag, 0x0),
+                       (ResolveInfo::Visibility)pSym.other());
 
   return *cpy_sym;
 }
@@ -152,17 +167,31 @@ AArch64Relocator::scanLocalReloc(Relocation& pReloc, const LDSection& pSection)
 }
 
 void AArch64Relocator::scanGlobalReloc(Relocation& pReloc,
-                                   IRBuilder& pBuilder,
-                                   const LDSection& pSection)
+                                       IRBuilder& pBuilder,
+                                       const LDSection& pSection)
 {
+  // rsym - The relocation target symbol
+  switch(pReloc.type()) {
+    case llvm::ELF::R_AARCH64_PREL32:
+      return;
+    default:
+      break;
+  }
 }
 
 void AArch64Relocator::scanRelocation(Relocation& pReloc,
-                                  IRBuilder& pBuilder,
-                                  Module& pModule,
-                                  LDSection& pSection,
-                                  Input& pInput)
+                                      IRBuilder& pBuilder,
+                                      Module& pModule,
+                                      LDSection& pSection,
+                                      Input& pInput)
 {
+  // rsym - The relocation target symbol
+  switch(pReloc.type()) {
+    case llvm::ELF::R_AARCH64_PREL32:
+      return;
+    default:
+      break;
+  }
 }
 
 //=========================================//
@@ -180,3 +209,16 @@ AArch64Relocator::Result unsupport(Relocation& pReloc,
 {
   return AArch64Relocator::Unsupport;
 }
+
+// R_AARCH64_PREL32: S + A - P
+AArch64Relocator::Result rel(Relocation& pReloc,
+                             AArch64Relocator& pParent)
+{
+  AArch64Relocator::Address S = pReloc.symValue();
+  AArch64Relocator::DWord   A = pReloc.target() + pReloc.addend();
+  pReloc.target() = S + A - pReloc.place();
+
+  helper_check_signed_overflow(pReloc.target(), 32);
+  return AArch64Relocator::OK;
+}
+
