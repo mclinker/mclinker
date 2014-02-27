@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_TARGET_AARCH64_GNU_INFO_H
-#define MCLD_TARGET_AARCH64_GNU_INFO_H
+#ifndef TARGET_AARCH64_AARCH64GNUINFO_H
+#define TARGET_AARCH64_AARCH64GNUINFO_H
 #include <mcld/Target/GNUInfo.h>
 
 #include <llvm/Support/ELF.h>

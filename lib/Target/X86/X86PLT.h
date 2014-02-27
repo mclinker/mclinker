@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_TARGET_X86_PLT_H
-#define MCLD_TARGET_X86_PLT_H
+#ifndef TARGET_X86_X86PLT_H
+#define TARGET_X86_X86PLT_H
 
 #include <mcld/Target/PLT.h>
 

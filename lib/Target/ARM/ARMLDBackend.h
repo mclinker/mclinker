@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_ARM_LDBACKEND_H
-#define MCLD_ARM_LDBACKEND_H
+#ifndef TARGET_ARM_ARMLDBACKEND_H
+#define TARGET_ARM_ARMLDBACKEND_H
 
 #include "ARMELFDynamic.h"
 #include "ARMGOT.h"

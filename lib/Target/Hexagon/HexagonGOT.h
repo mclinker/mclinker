@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_TARGET_HEXAGON_GOT_H
-#define MCLD_TARGET_HEXAGON_GOT_H
+#ifndef TARGET_HEXAGON_HEXAGONGOT_H
+#define TARGET_HEXAGON_HEXAGONGOT_H
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif

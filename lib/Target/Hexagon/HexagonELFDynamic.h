@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_HEXAGON_ELFDYNAMIC_SECTION_H
-#define MCLD_HEXAGON_ELFDYNAMIC_SECTION_H
+#ifndef TARGET_HEXAGON_HEXAGONELFDYNAMIC_H
+#define TARGET_HEXAGON_HEXAGONELFDYNAMIC_H
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif

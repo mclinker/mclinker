@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_MIPS_H
-#define MCLD_MIPS_H
+#ifndef TARGET_MIPS_MIPS_H
+#define TARGET_MIPS_MIPS_H
 
 namespace mcld {
 

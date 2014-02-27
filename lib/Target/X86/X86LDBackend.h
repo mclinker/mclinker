@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef X86_LDBACKEND_H
-#define X86_LDBACKEND_H
+#ifndef TARGET_X86_X86LDBACKEND_H
+#define TARGET_X86_X86LDBACKEND_H
 
 #include "X86ELFDynamic.h"
 #include "X86GOT.h"

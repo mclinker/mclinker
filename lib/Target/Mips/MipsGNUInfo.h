@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_TARGET_MIPS_GNU_INFO_H
-#define MCLD_TARGET_MIPS_GNU_INFO_H
+#ifndef TARGET_MIPS_MIPSGNUINFO_H
+#define TARGET_MIPS_MIPSGNUINFO_H
 #include <llvm/Support/ELF.h>
 #include <mcld/Target/GNUInfo.h>
 

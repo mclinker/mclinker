@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_TARGET_AARCH64_H
-#define MCLD_TARGET_AARCH64_H
+#ifndef TARGET_AARCH64_AARCH64_H
+#define TARGET_AARCH64_AARCH64_H
 #include <string>
 
 namespace llvm {

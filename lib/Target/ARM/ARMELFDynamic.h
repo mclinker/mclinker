@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_ARM_ELFDYNAMIC_SECTION_H
-#define MCLD_ARM_ELFDYNAMIC_SECTION_H
+#ifndef TARGET_ARM_ARMELFDYNAMIC_H
+#define TARGET_ARM_ARMELFDYNAMIC_H
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif

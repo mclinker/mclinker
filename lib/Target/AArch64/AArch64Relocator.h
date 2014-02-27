@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef AARCH64_RELOCATION_FACTORY_H
-#define AARCH64_RELOCATION_FACTORY_H
+#ifndef TARGET_AARCH64_AARCH64RELOCATOR_H
+#define TARGET_AARCH64_AARCH64RELOCATOR_H
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif

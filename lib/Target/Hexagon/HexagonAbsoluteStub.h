@@ -7,8 +7,8 @@
 //
 //===----------------------------------------------------------------------===//
 
-#ifndef MCLD_HEXAGON_ABSOLUTE_STUB_H
-#define MCLD_HEXAGON_ABSOLUTE_STUB_H
+#ifndef TARGET_HEXAGON_HEXAGONABSOLUTESTUB_H
+#define TARGET_HEXAGON_HEXAGONABSOLUTESTUB_H
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif

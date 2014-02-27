@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_AARCH64_ELFDYNAMIC_SECTION_H
-#define MCLD_AARCH64_ELFDYNAMIC_SECTION_H
+#ifndef TARGET_AARCH64_AARCH64ELFDYNAMIC_H
+#define TARGET_AARCH64_AARCH64ELFDYNAMIC_H
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif

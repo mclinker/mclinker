@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef HEXAGON_RELOCATION_FACTORY_H
-#define HEXAGON_RELOCATION_FACTORY_H
+#ifndef TARGET_HEXAGON_HEXAGONRELOCATOR_H
+#define TARGET_HEXAGON_HEXAGONRELOCATOR_H
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif

@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_AARCH64_GOT_H
-#define MCLD_AARCH64_GOT_H
+#ifndef TARGET_AARCH64_AARCH64GOT_H
+#define TARGET_AARCH64_AARCH64GOT_H
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif

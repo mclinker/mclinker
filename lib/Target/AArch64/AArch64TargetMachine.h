@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_AARCH64_TARGET_MACHINE_H
-#define MCLD_AARCH64_TARGET_MACHINE_H
+#ifndef TARGET_AARCH64_AARCH64TARGETMACHINE_H
+#define TARGET_AARCH64_AARCH64TARGETMACHINE_H
 
 #include "AArch64.h"
 #include <mcld/CodeGen/TargetMachine.h>

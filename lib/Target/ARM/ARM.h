@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_TARGET_ARM_H
-#define MCLD_TARGET_ARM_H
+#ifndef TARGET_ARM_ARM_H
+#define TARGET_ARM_ARM_H
 #include <string>
 
 namespace llvm {

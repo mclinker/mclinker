@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_AARCH64_LDBACKEND_H
-#define MCLD_AARCH64_LDBACKEND_H
+#ifndef TARGET_AARCH64_AARCH64LDBACKEND_H
+#define TARGET_AARCH64_AARCH64LDBACKEND_H
 
 #include "AArch64ELFDynamic.h"
 #include "AArch64GOT.h"

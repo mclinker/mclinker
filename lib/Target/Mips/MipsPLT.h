@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_TARGET_MIPS_PLT_H
-#define MCLD_TARGET_MIPS_PLT_H
+#ifndef TARGET_MIPS_MIPSPLT_H
+#define TARGET_MIPS_MIPSPLT_H
 
 #include <mcld/Target/PLT.h>
 #include <mcld/Support/MemoryRegion.h>

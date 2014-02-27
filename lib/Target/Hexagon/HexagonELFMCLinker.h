@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef HEXAGON_ELFSECTLINKER_H
-#define HEXAGON_ELFSECTLINKER_H
+#ifndef TARGET_HEXAGON_HEXAGONELFMCLINKER_H
+#define TARGET_HEXAGON_HEXAGONELFMCLINKER_H
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif

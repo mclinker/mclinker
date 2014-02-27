@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_TARGET_HEXAGON_GNU_INFO_H
-#define MCLD_TARGET_HEXAGON_GNU_INFO_H
+#ifndef TARGET_HEXAGON_HEXAGONGNUINFO_H
+#define TARGET_HEXAGON_HEXAGONGNUINFO_H
 #include <mcld/Target/GNUInfo.h>
 #include <mcld/TargetOptions.h>
 

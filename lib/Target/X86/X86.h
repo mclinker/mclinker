@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_TARGET_X86_H
-#define MCLD_TARGET_X86_H
+#ifndef TARGET_X86_X86_H
+#define TARGET_X86_X86_H
 #include <string>
 
 namespace llvm {
