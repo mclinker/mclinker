@@ -83,11 +83,11 @@ public:
   AArch64PLT& getPLT();
   const AArch64PLT& getPLT() const;
 
-  OutputRelocSection& getRelDyn();
-  const OutputRelocSection& getRelDyn() const;
+  OutputRelocSection& getRelaDyn();
+  const OutputRelocSection& getRelaDyn() const;
 
-  OutputRelocSection& getRelPLT();
-  const OutputRelocSection& getRelPLT() const;
+  OutputRelocSection& getRelaPLT();
+  const OutputRelocSection& getRelaPLT() const;
 
   LDSymbol* getGOTSymbol()             { return m_pGOTSymbol; }
   const LDSymbol* getGOTSymbol() const { return m_pGOTSymbol; }
@@ -129,7 +129,7 @@ private:
 
   /// getRelEntrySize - the size in BYTE of rela type relocation
   size_t getRelaEntrySize()
-  { assert(0 && "AArch64 backend with Rela type relocation\n"); return 24; }
+  { return 24; }
 
   /// doCreateProgramHdrs - backend can implement this function to create the
   /// target-dependent segments
@@ -141,9 +141,9 @@ private:
   AArch64GOT* m_pGOT;
   AArch64PLT* m_pPLT;
   /// m_RelDyn - dynamic relocation table of .rel.dyn
-  OutputRelocSection* m_pRelDyn;
+  OutputRelocSection* m_pRelaDyn;
   /// m_RelPLT - dynamic relocation table of .rel.plt
-  OutputRelocSection* m_pRelPLT;
+  OutputRelocSection* m_pRelaPLT;
 
   /// m_pAttrData - attribute data in public ("aeabi") attribute subsection
   // AArch64ELFAttributeData* m_pAttrData;

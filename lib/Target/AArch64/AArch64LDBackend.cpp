@@ -25,8 +25,8 @@ AArch64GNULDBackend::AArch64GNULDBackend(const LinkerConfig& pConfig,
     m_pRelocator(NULL),
     m_pGOT(NULL),
     m_pPLT(NULL),
-    m_pRelDyn(NULL),
-    m_pRelPLT(NULL),
+    m_pRelaDyn(NULL),
+    m_pRelaPLT(NULL),
     // m_pAttrData(NULL),
     m_pDynamic(NULL),
     m_pGOTSymbol(NULL),
@@ -133,6 +133,54 @@ bool AArch64GNULDBackend::readSection(Input& pInput, SectionData& pSD)
 {
   // TODO
   return true;
+}
+
+AArch64GOT& AArch64GNULDBackend::getGOT()
+{
+  assert(NULL != m_pGOT && "GOT section not exist");
+  return *m_pGOT;
+}
+
+const AArch64GOT& AArch64GNULDBackend::getGOT() const
+{
+  assert(NULL != m_pGOT && "GOT section not exist");
+  return *m_pGOT;
+}
+
+AArch64PLT& AArch64GNULDBackend::getPLT()
+{
+  assert(NULL != m_pPLT && "PLT section not exist");
+  return *m_pPLT;
+}
+
+const AArch64PLT& AArch64GNULDBackend::getPLT() const
+{
+  assert(NULL != m_pPLT && "PLT section not exist");
+  return *m_pPLT;
+}
+
+OutputRelocSection& AArch64GNULDBackend::getRelaDyn()
+{
+  assert(NULL != m_pRelaDyn && ".rela.dyn section not exist");
+  return *m_pRelaDyn;
+}
+
+const OutputRelocSection& AArch64GNULDBackend::getRelaDyn() const
+{
+  assert(NULL != m_pRelaDyn && ".rela.dyn section not exist");
+  return *m_pRelaDyn;
+}
+
+OutputRelocSection& AArch64GNULDBackend::getRelaPLT()
+{
+  assert(NULL != m_pRelaPLT && ".rela.plt section not exist");
+  return *m_pRelaPLT;
+}
+
+const OutputRelocSection& AArch64GNULDBackend::getRelaPLT() const
+{
+  assert(NULL != m_pRelaPLT && ".rela.plt section not exist");
+  return *m_pRelaPLT;
 }
 
 namespace mcld {
