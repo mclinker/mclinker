@@ -3,8 +3,10 @@ add_mcld_library(MCLDAArch64LDBackend
   AArch64ELFDynamic.cpp
   AArch64ELFMCLinker.cpp
   AArch64Emulation.cpp
+  AArch64GOT.cpp
   AArch64LDBackend.cpp
   AArch64MCLinker.cpp
+  AArch64PLT.cpp
   AArch64Relocator.cpp
   AArch64TargetMachine.cpp
   )

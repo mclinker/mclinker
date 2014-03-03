@@ -10,10 +10,34 @@
 #include "AArch64GNUInfo.h"
 #include "AArch64LDBackend.h"
 
-#include <mcld/LinkerConfig.h>
-#include <mcld/Support/TargetRegistry.h>
+#include <cstring>
 
 #include <llvm/ADT/Triple.h>
+#include <llvm/ADT/Twine.h>
+#include <llvm/Support/ELF.h>
+#include <llvm/Support/Casting.h>
+
+#include <mcld/IRBuilder.h>
+#include <mcld/LinkerConfig.h>
+#include <mcld/Fragment/FillFragment.h>
+#include <mcld/Fragment/AlignFragment.h>
+#include <mcld/Fragment/RegionFragment.h>
+#include <mcld/Fragment/Stub.h>
+#include <mcld/Fragment/NullFragment.h>
+#include <mcld/Support/MemoryRegion.h>
+#include <mcld/Support/MemoryArea.h>
+#include <mcld/Support/MsgHandling.h>
+#include <mcld/Support/TargetRegistry.h>
+#include <mcld/LD/BranchIslandFactory.h>
+#include <mcld/LD/StubFactory.h>
+#include <mcld/LD/LDContext.h>
+#include <mcld/LD/ELFFileFormat.h>
+#include <mcld/LD/ELFSegmentFactory.h>
+#include <mcld/LD/ELFSegment.h>
+#include <mcld/Target/ELFAttribute.h>
+#include <mcld/Target/GNUInfo.h>
+#include <mcld/Object/ObjectBuilder.h>
+
 using namespace mcld;
 
 //===----------------------------------------------------------------------===//
@@ -41,9 +65,31 @@ void AArch64GNULDBackend::initTargetSections(Module& pModule,
                                              ObjectBuilder& pBuilder)
 {
   // TODO
+
+  if (LinkerConfig::Object != config().codeGenType()) {
+    ELFFileFormat* file_format = getOutputFormat();
+
+    // initialize .got
+    LDSection& got = file_format->getGOT();
+    m_pGOT = new AArch64GOT(got);
+
+    // initialize .plt
+    LDSection& plt = file_format->getPLT();
+    m_pPLT = new AArch64PLT(plt, *m_pGOT);
+
+    // initialize .rela.plt
+    LDSection& relaplt = file_format->getRelaPlt();
+    relaplt.setLink(&plt);
+    m_pRelaPLT = new OutputRelocSection(pModule, relaplt);
+
+    // initialize .rela.dyn
+    LDSection& reladyn = file_format->getRelaDyn();
+    m_pRelaDyn = new OutputRelocSection(pModule, reladyn);
+  }
 }
 
-void AArch64GNULDBackend::initTargetSymbols(IRBuilder& pBuilder, Module& pModule)
+void AArch64GNULDBackend::initTargetSymbols(IRBuilder& pBuilder,
+                                            Module& pModule)
 {
   // TODO
 }
