@@ -9,6 +9,7 @@
 #include "AArch64.h"
 #include "AArch64GNUInfo.h"
 #include "AArch64LDBackend.h"
+#include "AArch64Relocator.h"
 
 #include <cstring>
 
@@ -59,6 +60,8 @@ AArch64GNULDBackend::AArch64GNULDBackend(const LinkerConfig& pConfig,
 
 AArch64GNULDBackend::~AArch64GNULDBackend()
 {
+  if (m_pRelocator != NULL)
+    delete m_pRelocator;
 }
 
 void AArch64GNULDBackend::initTargetSections(Module& pModule,
@@ -96,7 +99,9 @@ void AArch64GNULDBackend::initTargetSymbols(IRBuilder& pBuilder,
 
 bool AArch64GNULDBackend::initRelocator()
 {
-  // TODO
+  if (NULL == m_pRelocator) {
+    m_pRelocator = new AArch64Relocator(*this, config());
+  }
   return true;
 }
 
