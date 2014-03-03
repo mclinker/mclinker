@@ -7,6 +7,7 @@
 //
 //===----------------------------------------------------------------------===//
 #include "AArch64.h"
+#include "AArch64ELFDynamic.h"
 #include "AArch64GNUInfo.h"
 #include "AArch64LDBackend.h"
 #include "AArch64Relocator.h"
@@ -70,6 +71,8 @@ AArch64GNULDBackend::~AArch64GNULDBackend()
     delete m_pRelaPLT;
   if (m_pRelaDyn != NULL);
     delete m_pRelaDyn;
+  if (m_pDynamic != NULL)
+    delete m_pDynamic;
 }
 
 void AArch64GNULDBackend::initTargetSections(Module& pModule,
@@ -121,7 +124,9 @@ Relocator* AArch64GNULDBackend::getRelocator()
 
 void AArch64GNULDBackend::doPreLayout(IRBuilder& pBuilder)
 {
-  // TODO
+  // initialize .dynamic data
+  if (!config().isCodeStatic() && NULL == m_pDynamic)
+    m_pDynamic = new AArch64ELFDynamic(*this, config());
 }
 
 void AArch64GNULDBackend::doPostLayout(Module& pModule, IRBuilder& pBuilder)
