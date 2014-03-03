@@ -62,6 +62,14 @@ AArch64GNULDBackend::~AArch64GNULDBackend()
 {
   if (m_pRelocator != NULL)
     delete m_pRelocator;
+  if (m_pGOT != NULL);
+    delete m_pGOT;
+  if (m_pPLT != NULL);
+    delete m_pPLT;
+  if (m_pRelaPLT != NULL);
+    delete m_pRelaPLT;
+  if (m_pRelaDyn != NULL);
+    delete m_pRelaDyn;
 }
 
 void AArch64GNULDBackend::initTargetSections(Module& pModule,
