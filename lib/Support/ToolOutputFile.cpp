@@ -69,6 +69,8 @@ ToolOutputFile::ToolOutputFile(const sys::fs::Path& pPath,
 
 ToolOutputFile::~ToolOutputFile()
 {
+  if (m_pFormattedOstream != NULL)
+    delete m_pFormattedOstream;
   if (m_pFdOstream != NULL)
     delete m_pFdOstream;
 }
