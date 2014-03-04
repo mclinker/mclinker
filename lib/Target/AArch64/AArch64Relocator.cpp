@@ -41,9 +41,9 @@ helper_check_signed_overflow(AArch64Relocator::DWord pValue,
   return false;
 }
 
-//===--------------------------------------------------------------------===//
+//===----------------------------------------------------------------------===//
 // Relocation Functions and Tables
-//===--------------------------------------------------------------------===//
+//===----------------------------------------------------------------------===//
 DECL_AARCH64_APPLY_RELOC_FUNCS
 
 /// the prototype of applying function
@@ -51,21 +51,21 @@ typedef Relocator::Result (*ApplyFunctionType)(Relocation& pReloc,
                                                AArch64Relocator& pParent);
 
 // the table entry of applying functions
-struct ApplyFunctionTriple
-{
-  ApplyFunctionType func;
-  unsigned int type;
-  const char* name;
+typedef std::pair<ApplyFunctionType, const char*> ApplyFunctionPair;
+typedef std::map<Relocator::Type, ApplyFunctionPair> ApplyFunctionMap;
+
+static const ApplyFunctionMap::value_type ApplyFunctionList[] = {
+  DECL_AARCH64_APPLY_RELOC_FUNC_PTRS(ApplyFunctionMap::value_type,
+                                     ApplyFunctionPair)
 };
 
 // declare the table of applying functions
-static const ApplyFunctionTriple ApplyFunctions[] = {
-  DECL_AARCH64_APPLY_RELOC_FUNC_PTRS
-};
+static ApplyFunctionMap ApplyFunctions(ApplyFunctionList,
+    ApplyFunctionList + sizeof(ApplyFunctionList)/sizeof(ApplyFunctionList[0]));
 
-//===--------------------------------------------------------------------===//
+//===----------------------------------------------------------------------===//
 // AArch64Relocator
-//===--------------------------------------------------------------------===//
+//===----------------------------------------------------------------------===//
 AArch64Relocator::AArch64Relocator(AArch64GNULDBackend& pParent,
                                    const LinkerConfig& pConfig)
   : Relocator(pConfig),
@@ -85,12 +85,12 @@ AArch64Relocator::applyRelocation(Relocation& pRelocation)
     return Relocator::Unknown;
   }
 
-  return ApplyFunctions[type].func(pRelocation, *this);
+  return ApplyFunctions[type].first(pRelocation, *this);
 }
 
 const char* AArch64Relocator::getName(Relocator::Type pType) const
 {
-  return ApplyFunctions[pType].name;
+  return ApplyFunctions[pType].second;
 }
 
 Relocator::Size AArch64Relocator::getSize(Relocation::Type pType) const
