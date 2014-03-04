@@ -50,6 +50,7 @@ AArch64GNULDBackend::AArch64GNULDBackend(const LinkerConfig& pConfig,
   : GNULDBackend(pConfig, pInfo),
     m_pRelocator(NULL),
     m_pGOT(NULL),
+    m_pGOTPLT(NULL),
     m_pPLT(NULL),
     m_pRelaDyn(NULL),
     m_pRelaPLT(NULL),
@@ -65,6 +66,8 @@ AArch64GNULDBackend::~AArch64GNULDBackend()
     delete m_pRelocator;
   if (m_pGOT != NULL);
     delete m_pGOT;
+  if (m_pGOTPLT != NULL);
+    delete m_pGOTPLT;
   if (m_pPLT != NULL);
     delete m_pPLT;
   if (m_pRelaPLT != NULL);
@@ -83,13 +86,20 @@ void AArch64GNULDBackend::initTargetSections(Module& pModule,
   if (LinkerConfig::Object != config().codeGenType()) {
     ELFFileFormat* file_format = getOutputFormat();
 
+    // TODO: here we seperate .got and .got.plt, while when the flag -z now and
+    // -z relro are given, these two sections should be merged into one .got
+    // section
     // initialize .got
     LDSection& got = file_format->getGOT();
-    m_pGOT = new AArch64GOT(got);
+    m_pGOT = new AArch64GOT(got, false);
+
+    // initialize .got.plt
+    LDSection& gotplt = file_format->getGOTPLT();
+    m_pGOTPLT = new AArch64GOT(gotplt, true);
 
     // initialize .plt
     LDSection& plt = file_format->getPLT();
-    m_pPLT = new AArch64PLT(plt, *m_pGOT);
+    m_pPLT = new AArch64PLT(plt, *m_pGOTPLT);
 
     // initialize .rela.plt
     LDSection& relaplt = file_format->getRelaPlt();

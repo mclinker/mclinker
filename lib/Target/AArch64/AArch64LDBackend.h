@@ -139,6 +139,7 @@ private:
   Relocator* m_pRelocator;
 
   AArch64GOT* m_pGOT;
+  AArch64GOT* m_pGOTPLT;
   AArch64PLT* m_pPLT;
   /// m_RelDyn - dynamic relocation table of .rel.dyn
   OutputRelocSection* m_pRelaDyn;

@@ -39,7 +39,9 @@ public:
  *
  *  AArch64 GOT integrates traditional .got.plt and .got sections into one.
  *  Traditional .got.plt is placed in the front part of GOT (PLTGOT), and
- *  traditional .got is placed in the rear part of GOT (GOT).
+ *  traditional .got is placed in the rear part of GOT (GOT). When -z now and
+ *  -z relro are given, the got section layout will be as below. Otherwise,
+ *  there will be two seperated sections, .got and .got.plt.
  *
  *  AArch64 .got
  *            +--------------+
@@ -54,7 +56,11 @@ public:
 class AArch64GOT : public GOT
 {
 public:
-  AArch64GOT(LDSection &pSection);
+  /// AArch64GOT - constructor of AArch64GOT
+  /// @param pHasGOT0 - GOT0 is the default entries of GOTPLT sectiion. If this
+  /// section contains only GOT entries (and does not have GOTPLT entries), then
+  /// pHasGOT0 should be false.
+  AArch64GOT(LDSection &pSection, bool pHasGOT0);
 
   ~AArch64GOT();
 
