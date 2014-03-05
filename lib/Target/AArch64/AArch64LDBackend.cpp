@@ -64,16 +64,21 @@ AArch64GNULDBackend::~AArch64GNULDBackend()
 {
   if (m_pRelocator != NULL)
     delete m_pRelocator;
-  if (m_pGOT != NULL);
-    delete m_pGOT;
-  if (m_pGOTPLT != NULL);
-    delete m_pGOTPLT;
-  if (m_pPLT != NULL);
+  if (m_pGOT == m_pGOTPLT) {
+    if (m_pGOT != NULL)
+      delete m_pGOT;
+  } else {
+    if (m_pGOT != NULL)
+      delete m_pGOT;
+    if (m_pGOTPLT != NULL)
+      delete m_pGOTPLT;
+  }
+  if (m_pPLT != NULL)
     delete m_pPLT;
-  if (m_pRelaPLT != NULL);
-    delete m_pRelaPLT;
-  if (m_pRelaDyn != NULL);
+  if (m_pRelaDyn != NULL)
     delete m_pRelaDyn;
+  if (m_pRelaPLT != NULL)
+    delete m_pRelaPLT;
   if (m_pDynamic != NULL)
     delete m_pDynamic;
 }
@@ -86,16 +91,23 @@ void AArch64GNULDBackend::initTargetSections(Module& pModule,
   if (LinkerConfig::Object != config().codeGenType()) {
     ELFFileFormat* file_format = getOutputFormat();
 
-    // TODO: here we seperate .got and .got.plt, while when the flag -z now and
-    // -z relro are given, these two sections should be merged into one .got
-    // section
-    // initialize .got
-    LDSection& got = file_format->getGOT();
-    m_pGOT = new AArch64GOT(got, false);
-
-    // initialize .got.plt
-    LDSection& gotplt = file_format->getGOTPLT();
-    m_pGOTPLT = new AArch64GOT(gotplt, true);
+    if (config().options().hasNow()) {
+      // when -z now is given, there will be only one .got section (contains
+      // both GOTPLT and normal GOT entries)
+      LDSection& got = file_format->getGOT();
+      m_pGOT = new AArch64GOT(got);
+      m_pGOT->createGOT0();
+      m_pGOTPLT = m_pGOT;
+    }
+    else {
+      // Otherwise, got should be seperated to two sections, .got and .got.plt
+      LDSection& got = file_format->getGOT();
+      m_pGOT = new AArch64GOT(got);
+      // initialize .got.plt
+      LDSection& gotplt = file_format->getGOTPLT();
+      m_pGOTPLT = new AArch64GOT(gotplt);
+      m_pGOTPLT->createGOT0();
+    }
 
     // initialize .plt
     LDSection& plt = file_format->getPLT();
@@ -219,6 +231,18 @@ const AArch64GOT& AArch64GNULDBackend::getGOT() const
 {
   assert(NULL != m_pGOT && "GOT section not exist");
   return *m_pGOT;
+}
+
+AArch64GOT& AArch64GNULDBackend::getGOTPLT()
+{
+  assert(NULL != m_pGOTPLT && "GOTPLT section not exist");
+  return *m_pGOTPLT;
+}
+
+const AArch64GOT& AArch64GNULDBackend::getGOTPLT() const
+{
+  assert(NULL != m_pGOTPLT && "GOTPLT section not exist");
+  return *m_pGOTPLT;
 }
 
 AArch64PLT& AArch64GNULDBackend::getPLT()

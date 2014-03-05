@@ -43,6 +43,9 @@ public:
  *  -z relro are given, the got section layout will be as below. Otherwise,
  *  there will be two seperated sections, .got and .got.plt.
  *
+ *  This class may be used as .got (with no GOTPLT entry), .got.plt (with only
+ *  GOTPLT entries) or .got (with GOTPLT and normal GOT entries)
+ *
  *  AArch64 .got
  *            +--------------+
  *            |    GOT0      |
@@ -56,13 +59,14 @@ public:
 class AArch64GOT : public GOT
 {
 public:
-  /// AArch64GOT - constructor of AArch64GOT
-  /// @param pHasGOT0 - GOT0 is the default entries of GOTPLT sectiion. If this
-  /// section contains only GOT entries (and does not have GOTPLT entries), then
-  /// pHasGOT0 should be false.
-  AArch64GOT(LDSection &pSection, bool pHasGOT0);
+  AArch64GOT(LDSection &pSection);
 
   ~AArch64GOT();
+
+  /// createGOT0 - create the defualt GOT0 entries. This function called when
+  /// it's a .got section (with GOTPLT entries and normal GOT entry) or it's a
+  /// .got.plt section
+  void createGOT0();
 
   AArch64GOTEntry* createGOT();
   AArch64GOTEntry* createGOTPLT();

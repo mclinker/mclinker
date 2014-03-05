@@ -80,6 +80,9 @@ public:
   AArch64GOT& getGOT();
   const AArch64GOT& getGOT() const;
 
+  AArch64GOT& getGOTPLT();
+  const AArch64GOT& getGOTPLT() const;
+
   AArch64PLT& getPLT();
   const AArch64PLT& getPLT() const;
 

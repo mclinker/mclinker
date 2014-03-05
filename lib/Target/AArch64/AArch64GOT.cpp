@@ -22,18 +22,20 @@ using namespace mcld;
 
 //===----------------------------------------------------------------------===//
 // AArch64GOT
-AArch64GOT::AArch64GOT(LDSection& pSection, bool pHasGOT0)
+AArch64GOT::AArch64GOT(LDSection& pSection)
   : GOT(pSection), m_pGOTPLTFront(NULL), m_pGOTFront(NULL)
 {
-  // create GOT0, and put them into m_SectionData immediately
-  if (pHasGOT0) {
-    for (unsigned int i = 0; i < AArch64GOT0Num; ++i)
-      new AArch64GOTEntry(0, m_SectionData);
-  }
 }
 
 AArch64GOT::~AArch64GOT()
 {
+}
+
+void AArch64GOT::createGOT0()
+{
+  // create GOT0, and put them into m_SectionData immediately
+  for (unsigned int i = 0; i < AArch64GOT0Num; ++i)
+    new AArch64GOTEntry(0, m_SectionData);
 }
 
 bool AArch64GOT::hasGOT1() const
