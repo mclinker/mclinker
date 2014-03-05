@@ -51,12 +51,20 @@ typedef Relocator::Result (*ApplyFunctionType)(Relocation& pReloc,
                                                AArch64Relocator& pParent);
 
 // the table entry of applying functions
-typedef std::pair<ApplyFunctionType, const char*> ApplyFunctionPair;
-typedef std::map<Relocator::Type, ApplyFunctionPair> ApplyFunctionMap;
+class ApplyFunctionEntry {
+public:
+  ApplyFunctionEntry() {}
+  ApplyFunctionEntry(ApplyFunctionType pFunc, const char* pName, size_t pSize = 0)
+      : func(pFunc), name(pName), size(pSize) { }
+  ApplyFunctionType func;
+  const char* name;
+  size_t size;
+};
+typedef std::map<Relocator::Type, ApplyFunctionEntry> ApplyFunctionMap;
 
 static const ApplyFunctionMap::value_type ApplyFunctionList[] = {
   DECL_AARCH64_APPLY_RELOC_FUNC_PTRS(ApplyFunctionMap::value_type,
-                                     ApplyFunctionPair)
+                                     ApplyFunctionEntry)
 };
 
 // declare the table of applying functions
@@ -84,13 +92,14 @@ AArch64Relocator::applyRelocation(Relocation& pRelocation)
   if ((type < 0x100 || type > 0x239) && (type != 0x0)) {
     return Relocator::Unknown;
   }
-
-  return ApplyFunctions[type].first(pRelocation, *this);
+  assert(ApplyFunctions.find(type) != ApplyFunctions.end());
+  return ApplyFunctions[type].func(pRelocation, *this);
 }
 
 const char* AArch64Relocator::getName(Relocator::Type pType) const
 {
-  return ApplyFunctions[pType].second;
+  assert(ApplyFunctions.find(pType) != ApplyFunctions.end());
+  return ApplyFunctions[pType].name;
 }
 
 Relocator::Size AArch64Relocator::getSize(Relocation::Type pType) const
