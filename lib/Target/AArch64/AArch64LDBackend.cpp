@@ -178,7 +178,20 @@ uint64_t AArch64GNULDBackend::emitSectionData(const LDSection& pSection,
 unsigned int
 AArch64GNULDBackend::getTargetSectionOrder(const LDSection& pSectHdr) const
 {
-  // TODO
+  const ELFFileFormat* file_format = getOutputFormat();
+
+  if (file_format->hasGOT() && (&pSectHdr == &file_format->getGOT())) {
+    if (config().options().hasNow())
+      return SHO_RELRO;
+    return SHO_RELRO_LAST;
+  }
+
+  if (file_format->hasGOTPLT() && (&pSectHdr == &file_format->getGOTPLT()))
+    return SHO_NON_RELRO_FIRST;
+
+  if (file_format->hasPLT() && (&pSectHdr == &file_format->getPLT()))
+    return SHO_PLT;
+
   return SHO_UNDEFINED;
 }
 
