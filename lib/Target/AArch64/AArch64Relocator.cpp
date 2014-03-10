@@ -50,6 +50,17 @@ static Relocator::Address helper_get_page_offset(Relocator::Address pValue)
   return (pValue & (Relocator::Address) 0xFFF);
 }
 
+static inline uint32_t get_mask(uint32_t pValue)
+{
+  return ((1u << (pValue)) - 1);
+}
+
+// Reencode the imm field of add immediate.
+static inline uint32_t reencode_add_imm(uint32_t pInst, uint32_t pImm)
+{
+  return (pInst & ~(get_mask(12) << 10)) | ((pImm & get_mask(12)) << 10);
+}
+
 //===----------------------------------------------------------------------===//
 // Relocation Functions and Tables
 //===----------------------------------------------------------------------===//
@@ -238,3 +249,15 @@ Relocator::Result rel(Relocation& pReloc, AArch64Relocator& pParent)
   return Relocator::OK;
 }
 
+// R_AARCH64_ADD_ABS_LO12_NC
+Relocator::Result add_abs_lo12(Relocation& pReloc, AArch64Relocator& pParent)
+{
+  AArch64Relocator::Address value = 0x0;
+  AArch64Relocator::Address S = pReloc.symValue();
+  AArch64Relocator::DWord   A = pReloc.target() + pReloc.addend();
+
+  value = helper_get_page_offset(S + A);
+  pReloc.target() = reencode_add_imm(pReloc.target(), value);
+
+  return Relocator::OK;
+}
