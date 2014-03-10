@@ -21,8 +21,7 @@ public:
 
   uint32_t machine() const { return llvm::ELF::EM_AARCH64; }
 
-  // FIXME: the default segment address
-  uint64_t defaultTextSegmentAddr() const { return 0x10000; }
+  uint64_t abiPageSize() const { return 0x10000; }
 
   // There are no processor-specific flags so this field shall contain zero.
   uint64_t flags() const { return 0x0; }
