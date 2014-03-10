@@ -63,7 +63,9 @@ typedef Relocator::Result (*ApplyFunctionType)(Relocation& pReloc,
 class ApplyFunctionEntry {
 public:
   ApplyFunctionEntry() {}
-  ApplyFunctionEntry(ApplyFunctionType pFunc, const char* pName, size_t pSize = 0)
+  ApplyFunctionEntry(ApplyFunctionType pFunc,
+                     const char* pName,
+                     size_t pSize = 0)
       : func(pFunc), name(pName), size(pSize) { }
   ApplyFunctionType func;
   const char* name;
@@ -93,8 +95,7 @@ AArch64Relocator::~AArch64Relocator()
 {
 }
 
-Relocator::Result
-AArch64Relocator::applyRelocation(Relocation& pRelocation)
+Relocator::Result AArch64Relocator::applyRelocation(Relocation& pRelocation)
 {
   Relocation::Type type = pRelocation.type();
   // valid types are 0x0, 0x100-0x239
@@ -130,9 +131,8 @@ void AArch64Relocator::addCopyReloc(ResolveInfo& pSym)
 /// section and all other reference to this symbol should refer to this
 /// copy.
 /// This is executed at scan relocation stage.
-LDSymbol&
-AArch64Relocator::defineSymbolforCopyReloc(IRBuilder& pBuilder,
-                                           const ResolveInfo& pSym)
+LDSymbol& AArch64Relocator::defineSymbolforCopyReloc(IRBuilder& pBuilder,
+                                                     const ResolveInfo& pSym)
 {
   // get or create corresponding BSS LDSection
   LDSection* bss_sect_hdr = NULL;
@@ -166,15 +166,15 @@ AArch64Relocator::defineSymbolforCopyReloc(IRBuilder& pBuilder,
     binding = ResolveInfo::Global;
 
   // Define the copy symbol in the bss section and resolve it
-  ;LDSymbol* cpy_sym = pBuilder.AddSymbol<IRBuilder::Force, IRBuilder::Resolve>(
-                       pSym.name(),
-                       (ResolveInfo::Type)pSym.type(),
-                       ResolveInfo::Define,
-                       binding,
-                       pSym.size(),  // size
-                       0x0,          // value
-                       FragmentRef::Create(*frag, 0x0),
-                       (ResolveInfo::Visibility)pSym.other());
+  LDSymbol* cpy_sym = pBuilder.AddSymbol<IRBuilder::Force, IRBuilder::Resolve>(
+                          pSym.name(),
+                          (ResolveInfo::Type)pSym.type(),
+                          ResolveInfo::Define,
+                          binding,
+                          pSym.size(),  // size
+                          0x0,          // value
+                          FragmentRef::Create(*frag, 0x0),
+                          (ResolveInfo::Visibility)pSym.other());
 
   return *cpy_sym;
 }
@@ -217,25 +217,24 @@ void AArch64Relocator::scanRelocation(Relocation& pReloc,
 //===----------------------------------------------------------------------===//
 
 // R_AARCH64_NONE
-AArch64Relocator::Result none(Relocation& pReloc, AArch64Relocator& pParent)
+Relocator::Result none(Relocation& pReloc, AArch64Relocator& pParent)
 {
-  return AArch64Relocator::OK;
+  return Relocator::OK;
 }
 
-AArch64Relocator::Result unsupport(Relocation& pReloc,
-                                   AArch64Relocator& pParent)
+Relocator::Result unsupport(Relocation& pReloc, AArch64Relocator& pParent)
 {
-  return AArch64Relocator::Unsupport;
+  return Relocator::Unsupport;
 }
 
 // R_AARCH64_PREL32: S + A - P
-AArch64Relocator::Result rel(Relocation& pReloc, AArch64Relocator& pParent)
+Relocator::Result rel(Relocation& pReloc, AArch64Relocator& pParent)
 {
   AArch64Relocator::Address S = pReloc.symValue();
   AArch64Relocator::DWord   A = pReloc.target() + pReloc.addend();
   pReloc.target() = S + A - pReloc.place();
 
   helper_check_signed_overflow(pReloc.target(), 32);
-  return AArch64Relocator::OK;
+  return Relocator::OK;
 }
 
