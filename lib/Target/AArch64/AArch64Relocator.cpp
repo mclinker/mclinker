@@ -181,7 +181,7 @@ const char* AArch64Relocator::getName(Relocator::Type pType) const
 
 Relocator::Size AArch64Relocator::getSize(Relocation::Type pType) const
 {
-  return 64;
+  return ApplyFunctions[pType].size;
 }
 
 void AArch64Relocator::addCopyReloc(ResolveInfo& pSym)
