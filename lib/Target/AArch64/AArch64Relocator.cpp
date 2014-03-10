@@ -423,7 +423,7 @@ Relocator::Result rel(Relocation& pReloc, AArch64Relocator& pParent)
   return AArch64Relocator::OK;
 }
 
-// R_AARCH64_ADD_ABS_LO12_NC
+// R_AARCH64_ADD_ABS_LO12_NC: S + A
 Relocator::Result add_abs_lo12(Relocation& pReloc, AArch64Relocator& pParent)
 {
   AArch64Relocator::Address value = 0x0;
