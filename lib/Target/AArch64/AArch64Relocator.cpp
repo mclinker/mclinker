@@ -303,9 +303,9 @@ Relocator::Result unsupport(Relocation& pReloc, AArch64Relocator& pParent)
 Relocator::Result rel(Relocation& pReloc, AArch64Relocator& pParent)
 {
   ResolveInfo* rsym = pReloc.symInfo();
-  AArch64Relocator::Address S = pReloc.symValue();
-  AArch64Relocator::DWord   A = pReloc.addend();
-  Relocator::DWord P = pReloc.place();
+  Relocator::Address S = pReloc.symValue();
+  Relocator::DWord   A = pReloc.addend();
+  Relocator::DWord   P = pReloc.place();
 
   if (llvm::ELF::R_AARCH64_PREL64 != pReloc.type())
     A +=  pReloc.target() & get_mask(pParent.getSize(pReloc.type()));
@@ -324,51 +324,51 @@ Relocator::Result rel(Relocation& pReloc, AArch64Relocator& pParent)
     }
   }
 
-  AArch64Relocator::DWord X = S + A - P;
+  Relocator::DWord X = S + A - P;
   pReloc.target() = X;
 
   if (llvm::ELF::R_AARCH64_PREL64 != pReloc.type() &&
       helper_check_signed_overflow(X, pParent.getSize(pReloc.type())))
-    return AArch64Relocator::Overflow;
-  return AArch64Relocator::OK;
+    return Relocator::Overflow;
+  return Relocator::OK;
 }
 
 // R_AARCH64_ADD_ABS_LO12_NC: S + A
 Relocator::Result add_abs_lo12(Relocation& pReloc, AArch64Relocator& pParent)
 {
-  AArch64Relocator::Address value = 0x0;
-  AArch64Relocator::Address S = pReloc.symValue();
-  AArch64Relocator::DWord   A = pReloc.target() + pReloc.addend();
+  Relocator::Address value = 0x0;
+  Relocator::Address S = pReloc.symValue();
+  Relocator::DWord   A = pReloc.target() + pReloc.addend();
 
   value = helper_get_page_offset(S + A);
-  pReloc.target() = reencode_add_imm(pReloc.target(), value);
+  pReloc.target() = helper_reencode_add_imm(pReloc.target(), value);
 
   return Relocator::OK;
 }
 
 // R_AARCH64_ADR_PREL_PG_HI21: ((PG(S + A) - PG(P)) >> 12) & 0x1fffff
 // R_AARCH64_ADR_PREL_PG_HI21_NC: ((PG(S + A) - PG(P)) >> 12) & 0x1fffff
-AArch64Relocator::Result adr_prel_pg_hi21(Relocation& pReloc,
-                                          AArch64Relocator& pParent)
+Relocator::Result
+adr_prel_pg_hi21(Relocation& pReloc, AArch64Relocator& pParent)
 {
   ResolveInfo* rsym = pReloc.symInfo();
-  AArch64Relocator::Address S = pReloc.symValue();
+  Relocator::Address S = pReloc.symValue();
   // if plt entry exists, the S value is the plt entry address
   if (rsym->reserved() & AArch64Relocator::ReservePLT) {
     S = helper_get_PLT_address(*rsym, pParent);
   }
-  AArch64Relocator::DWord   A = pReloc.addend();
-  AArch64Relocator::DWord   P = pReloc.place() ;
-  AArch64Relocator::DWord   X = helper_get_page_address(S + A) -
-                                helper_get_page_address(P);
+  Relocator::DWord A = pReloc.addend();
+  Relocator::DWord P = pReloc.place() ;
+  Relocator::DWord X = helper_get_page_address(S + A) -
+                       helper_get_page_address(P);
 
   // get 32 bit
-  AArch64Relocator::DWord content = helper_get_upper32(pReloc.target());
+  Relocator::DWord content = helper_get_upper32(pReloc.target());
   X >>= 12;
   content = helper_reencode_adr_imm(content, X);
   // put the content back
   helper_put_upper32(content, pReloc.target());
 
-  return AArch64Relocator::OK;
+  return Relocator::OK;
 }
 

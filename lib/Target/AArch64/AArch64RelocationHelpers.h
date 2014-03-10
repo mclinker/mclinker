@@ -48,14 +48,14 @@ static inline uint32_t get_mask(uint32_t pValue)
 }
 
 static inline uint32_t
-helper_reencode_adr_imm(uint32_t insn, uint32_t imm)
+helper_reencode_adr_imm(uint32_t pInst, uint32_t pImm)
 {
-  return (insn & ~((get_mask(2) << 29) | (get_mask(19) << 5)))
-     | ((imm & get_mask(2)) << 29) | ((imm & (get_mask(19) << 2)) << 3);
+  return (pInst & ~((get_mask(2) << 29) | (get_mask(19) << 5)))
+      | ((pImm & get_mask(2)) << 29) | ((pImm & (get_mask(19) << 2)) << 3);
 }
 
 // Reencode the imm field of add immediate.
-static inline uint32_t reencode_add_imm(uint32_t pInst, uint32_t pImm)
+static inline uint32_t helper_reencode_add_imm(uint32_t pInst, uint32_t pImm)
 {
   return (pInst & ~(get_mask(12) << 10)) | ((pImm & get_mask(12)) << 10);
 }
