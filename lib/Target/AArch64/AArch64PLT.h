@@ -15,7 +15,7 @@
 
 namespace {
 
-const uint32_t aarch64_plt0[] = {
+const uint8_t aarch64_plt0[] = {
   0xf0, 0x7b, 0xbf, 0xa9,	/* stp x16, x30, [sp, #-16]!  */
   0x10, 0x00, 0x00, 0x90,	/* adrp x16, (GOT+16)  */
   0x11, 0x0A, 0x40, 0xf9,	/* ldr x17, [x16, #PLT_GOT+0x10]  */
@@ -26,7 +26,7 @@ const uint32_t aarch64_plt0[] = {
   0x1f, 0x20, 0x03, 0xd5,	/* nop */
 };
 
-const uint32_t aarch64_plt1[] = {
+const uint8_t aarch64_plt1[] = {
   0x10, 0x00, 0x00, 0x90,	/* adrp x16, PLTGOT + n * 8  */
   0x11, 0x02, 0x40, 0xf9,	/* ldr x17, [x16, PLTGOT + n * 8] */
   0x10, 0x02, 0x00, 0x91,	/* add x16, x16, :lo12:PLTGOT + n * 8  */

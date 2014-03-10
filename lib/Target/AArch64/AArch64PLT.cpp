@@ -8,6 +8,7 @@
 //===----------------------------------------------------------------------===//
 #include "AArch64GOT.h"
 #include "AArch64PLT.h"
+#include "AArch64RelocationHelpers.h"
 
 #include <new>
 
@@ -65,10 +66,84 @@ AArch64PLT1* AArch64PLT::create()
 
 void AArch64PLT::applyPLT0()
 {
+  // malloc plt0
+  iterator first = m_SectionData->getFragmentList().begin();
+  assert(first != m_SectionData->getFragmentList().end() &&
+         "FragmentList is empty, applyPLT0 failed!");
+  AArch64PLT0* plt0 = &(llvm::cast<AArch64PLT0>(*first));
+  uint32_t* data = 0;
+  data = static_cast<uint32_t*>(malloc(AArch64PLT0::EntrySize));
+  if (!data)
+    fatal(diag::fail_allocate_memory_plt);
+  memcpy(data, aarch64_plt0, AArch64PLT0::EntrySize);
+
+  // apply plt0
+  uint64_t plt_base = m_Section.addr();
+  assert(plt_base && ".plt base address is NULL!");
+  uint64_t got_base = m_GOT.addr();
+  assert(got_base && ".got base address is NULL!");
+
+  // apply 2nd instruction
+  // get the address of got entry 2
+  uint64_t got_ent2_base = got_base + sizeof(AArch64GOTEntry::EntrySize) * 2;
+  // compute the immediate
+  AArch64Relocator::DWord imm = helper_get_page_address(got_ent2_base) -
+       helper_get_page_address(plt_base + (sizeof(AArch64PLT0::EntrySize) * 8));
+  data[1] = helper_reencode_adr_imm(data[1], imm >> 12);
+  // apply 3rd instruction
+  data[2] = reencode_add_imm(data[2],
+                                    helper_get_page_offset(got_ent2_base) >> 3);
+  // apply 4th instruction
+  data[3] = reencode_add_imm(data[3], helper_get_page_offset(got_ent2_base));
+  plt0->setValue(reinterpret_cast<unsigned char*>(data));
 }
 
 void AArch64PLT::applyPLT1()
 {
+  //TODO
+  uint64_t plt_base = m_Section.addr();
+  assert(plt_base && ".plt base address is NULL!");
+
+  uint64_t got_base = m_GOT.addr();
+  assert(got_base && ".got base address is NULL!");
+
+  AArch64PLT::iterator it = m_SectionData->begin();
+  AArch64PLT::iterator ie = m_SectionData->end();
+  assert(it != ie && "FragmentList is empty, applyPLT1 failed!");
+
+  uint32_t GOTEntrySize = AArch64GOTEntry::EntrySize;
+  // first gotplt1 address
+  uint32_t GOTEntryAddress = got_base +  GOTEntrySize * 3;
+  // first plt1 address
+  uint64_t PLTEntryAddress = plt_base + AArch64PLT0::EntrySize;
+
+  ++it; //skip PLT0
+  uint64_t PLT1EntrySize = AArch64PLT1::EntrySize;
+  AArch64PLT1* plt1 = NULL;
+
+  uint32_t* Out = NULL;
+  while (it != ie) {
+    plt1 = &(llvm::cast<AArch64PLT1>(*it));
+    Out = static_cast<uint32_t*>(malloc(AArch64PLT1::EntrySize));
+    memcpy(Out, aarch64_plt1, AArch64PLT1::EntrySize);
+    // apply 1st instruction
+    AArch64Relocator::DWord imm = helper_get_page_address(GOTEntryAddress) -
+                                       helper_get_page_address(PLTEntryAddress);
+    Out[0] = helper_reencode_adr_imm(Out[0], imm >> 12);
+    // apply 2nd instruction
+    Out[1] = reencode_add_imm(Out[1],
+                                  helper_get_page_offset(GOTEntryAddress) >> 3);
+    // apply 3rd instruction
+    Out[2] = reencode_add_imm(Out[2], helper_get_page_offset(GOTEntryAddress));
+
+    plt1->setValue(reinterpret_cast<unsigned char*>(Out));
+    ++it;
+
+    GOTEntryAddress += GOTEntrySize;
+    PLTEntryAddress += PLT1EntrySize;
+  }
+
+  m_GOT.applyGOTPLT(plt_base);
 }
 
 uint64_t AArch64PLT::emit(MemoryRegion& pRegion)
