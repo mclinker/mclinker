@@ -8,15 +8,18 @@
 //===----------------------------------------------------------------------===//
 // FIXME: llvm::ELF doesn't define AArch64 dynamic relocation types
 enum {
-  R_AARCH64_COPY         = 1024,
-  R_AARCH64_GLOB_DAT     = 1025,
-  R_AARCH64_JUMP_SLOT    = 1026,
-  R_AARCH64_RELATIVE     = 1027,
-  R_AARCH64_TLS_DTPREL64 = 1028,
-  R_AARCH64_TLS_DTPMOD64 = 1029,
-  R_AARCH64_TLS_TPREL64  = 1030,
-  R_AARCH64_TLSDESC      = 1031,
-  R_AARCH64_IRELATIVE    = 1032
+  // static relocations
+  R_AARCH64_ADR_PREL_PG_HI21_NC = 0x114,
+  // dyanmic rlocations
+  R_AARCH64_COPY                = 1024,
+  R_AARCH64_GLOB_DAT            = 1025,
+  R_AARCH64_JUMP_SLOT           = 1026,
+  R_AARCH64_RELATIVE            = 1027,
+  R_AARCH64_TLS_DTPREL64        = 1028,
+  R_AARCH64_TLS_DTPMOD64        = 1029,
+  R_AARCH64_TLS_TPREL64         = 1030,
+  R_AARCH64_TLSDESC             = 1031,
+  R_AARCH64_IRELATIVE           = 1032
 };
 
 #define DECL_AARCH64_APPLY_RELOC_FUNC(Name) \
@@ -25,6 +28,7 @@ static AArch64Relocator::Result Name (Relocation& pEntry, AArch64Relocator& pPar
 #define DECL_AARCH64_APPLY_RELOC_FUNCS \
 DECL_AARCH64_APPLY_RELOC_FUNC(none) \
 DECL_AARCH64_APPLY_RELOC_FUNC(rel) \
+DECL_AARCH64_APPLY_RELOC_FUNC(adr_prel_pg_hi21) \
 DECL_AARCH64_APPLY_RELOC_FUNC(add_abs_lo12) \
 DECL_AARCH64_APPLY_RELOC_FUNC(unsupport)
 
@@ -33,9 +37,9 @@ DECL_AARCH64_APPLY_RELOC_FUNC(unsupport)
   ValueType(0x101, MappedType(&unsupport, "R_AARCH64_ABS64")), \
   ValueType(0x102, MappedType(&unsupport, "R_AARCH64_ABS32")), \
   ValueType(0x103, MappedType(&unsupport, "R_AARCH64_ABS16")), \
-  ValueType(0x104, MappedType(&unsupport, "R_AARCH64_PREL64")), \
-  ValueType(0x105, MappedType(&rel, "R_AARCH64_PREL32")), \
-  ValueType(0x106, MappedType(&unsupport, "R_AARCH64_PREL16")), \
+  ValueType(0x104, MappedType(&unsupport, "R_AARCH64_PREL64", 64)), \
+  ValueType(0x105, MappedType(&rel, "R_AARCH64_PREL32", 32)), \
+  ValueType(0x106, MappedType(&unsupport, "R_AARCH64_PREL16", 16)), \
   ValueType(0x107, MappedType(&unsupport, "R_AARCH64_MOVW_UABS_G0")), \
   ValueType(0x108, MappedType(&unsupport, "R_AARCH64_MOVW_UABS_G0_NC")), \
   ValueType(0x109, MappedType(&unsupport, "R_AARCH64_MOVW_UABS_G1")), \
@@ -48,7 +52,8 @@ DECL_AARCH64_APPLY_RELOC_FUNC(unsupport)
   ValueType(0x110, MappedType(&unsupport, "R_AARCH64_MOVW_SABS_G2")), \
   ValueType(0x111, MappedType(&unsupport, "R_AARCH64_LD_PREL_LO19")), \
   ValueType(0x112, MappedType(&unsupport, "R_AARCH64_ADR_PREL_LO21")), \
-  ValueType(0x113, MappedType(&unsupport, "R_AARCH64_ADR_PREL_PG_HI21")), \
+  ValueType(0x113, MappedType(&adr_prel_pg_hi21, "R_AARCH64_ADR_PREL_PG_HI21", 32)), \
+  ValueType(0x114, MappedType(&adr_prel_pg_hi21, "R_AARCH64_ADR_PREL_PG_HI21_NC", 32)), \
   ValueType(0x115, MappedType(&add_abs_lo12, "R_AARCH64_ADD_ABS_LO12_NC")), \
   ValueType(0x116, MappedType(&unsupport, "R_AARCH64_LDST8_ABS_LO12_NC")), \
   ValueType(0x117, MappedType(&unsupport, "R_AARCH64_TSTBR14")), \
