@@ -45,27 +45,27 @@ Relocation* RelocationFactory::produce(RelocationFactory::Type pType,
   DWord target_data = 0;
 
   // byte swapping if the host and target have different endian
-  if(llvm::sys::IsLittleEndianHost != m_pConfig->targets().isLittleEndian()) {
-     uint32_t tmp_data;
+  if (llvm::sys::IsLittleEndianHost != m_pConfig->targets().isLittleEndian()) {
+    uint32_t tmp_data;
 
-     switch (m_pConfig->targets().bitclass()) {
-       case 32: {
-         pFragRef.memcpy(&tmp_data, 4);
-         tmp_data = mcld::bswap32(tmp_data);
-         target_data = tmp_data;
-         break;
-       }
-       case 64: {
-         pFragRef.memcpy(&target_data, 8);
-         target_data = mcld::bswap64(target_data);
-         break;
-       }
-       default: {
-         fatal(diag::unsupported_bitclass) << m_pConfig->targets().triple().str()
-                                         << m_pConfig->targets().bitclass();
-         return NULL;
-       }
-     } // end of switch
+    switch (m_pConfig->targets().bitclass()) {
+      case 32: {
+        pFragRef.memcpy(&tmp_data, 4);
+        tmp_data = mcld::bswap32(tmp_data);
+        target_data = tmp_data;
+        break;
+      }
+      case 64: {
+        pFragRef.memcpy(&target_data, 8);
+        target_data = mcld::bswap64(target_data);
+        break;
+      }
+      default: {
+        fatal(diag::unsupported_bitclass) << m_pConfig->targets().triple().str()
+                                          << m_pConfig->targets().bitclass();
+        return NULL;
+      }
+    } // end of switch
   }
   else {
     pFragRef.memcpy(&target_data, (m_pConfig->targets().bitclass()/8));
