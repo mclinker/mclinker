@@ -179,6 +179,7 @@ SOURCE = ${LIBDIR}/ADT/StringEntry.cpp \
 	${LIBDIR}/Target/AArch64/AArch64PLT.cpp \
 	${LIBDIR}/Target/AArch64/AArch64PLT.h \
 	${LIBDIR}/Target/AArch64/AArch64RelocationFunctions.h \
+	${LIBDIR}/Target/AArch64/AArch64RelocationHelpers.h \
 	${LIBDIR}/Target/AArch64/AArch64Relocator.cpp \
 	${LIBDIR}/Target/AArch64/AArch64Relocator.h \
 	${LIBDIR}/Target/AArch64/AArch64TargetMachine.cpp \
