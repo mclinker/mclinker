@@ -400,7 +400,9 @@ Relocator::Result rel(Relocation& pReloc, AArch64Relocator& pParent)
   Relocator::DWord P = pReloc.place();
 
   if (llvm::ELF::R_AARCH64_PREL64 != pReloc.type())
-    P = P & get_mask(pParent.getSize(pReloc.type()));
+    A +=  pReloc.target() & get_mask(pParent.getSize(pReloc.type()));
+  else
+    A += pReloc.target();
 
   LDSection& target_sect = pReloc.targetRef().frag()->getParent()->getSection();
   // If the flag of target section is not ALLOC, we will not scan this
@@ -414,11 +416,11 @@ Relocator::Result rel(Relocation& pReloc, AArch64Relocator& pParent)
     }
   }
 
-  pReloc.target() = S + A - P;
+  AArch64Relocator::DWord X = S + A - P;
+  pReloc.target() = X;
 
   if (llvm::ELF::R_AARCH64_PREL64 != pReloc.type() &&
-      helper_check_signed_overflow(pReloc.target(),
-                                   pParent.getSize(pReloc.type())))
+      helper_check_signed_overflow(X, pParent.getSize(pReloc.type())))
     return AArch64Relocator::Overflow;
   return AArch64Relocator::OK;
 }
