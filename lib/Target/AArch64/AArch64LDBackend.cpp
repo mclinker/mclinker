@@ -91,18 +91,18 @@ void AArch64GNULDBackend::initTargetSections(Module& pModule,
   if (LinkerConfig::Object != config().codeGenType()) {
     ELFFileFormat* file_format = getOutputFormat();
 
+    // initialize .got
+    LDSection& got = file_format->getGOT();
+    m_pGOT = new AArch64GOT(got);
     if (config().options().hasNow()) {
       // when -z now is given, there will be only one .got section (contains
-      // both GOTPLT and normal GOT entries)
-      LDSection& got = file_format->getGOT();
-      m_pGOT = new AArch64GOT(got);
+      // both GOTPLT and normal GOT entries), create GOT0 for .got section and
+      // set m_pGOTPLT to the same .got
       m_pGOT->createGOT0();
       m_pGOTPLT = m_pGOT;
     }
     else {
       // Otherwise, got should be seperated to two sections, .got and .got.plt
-      LDSection& got = file_format->getGOT();
-      m_pGOT = new AArch64GOT(got);
       // initialize .got.plt
       LDSection& gotplt = file_format->getGOTPLT();
       m_pGOTPLT = new AArch64GOT(gotplt);
@@ -127,6 +127,19 @@ void AArch64GNULDBackend::initTargetSections(Module& pModule,
 void AArch64GNULDBackend::initTargetSymbols(IRBuilder& pBuilder,
                                             Module& pModule)
 {
+  // Define the symbol _GLOBAL_OFFSET_TABLE_ if there is a symbol with the
+  // same name in input
+  if (LinkerConfig::Object != config().codeGenType()) {
+    m_pGOTSymbol = pBuilder.AddSymbol<IRBuilder::AsReferred, IRBuilder::Resolve>(
+                                                  "_GLOBAL_OFFSET_TABLE_",
+                                                  ResolveInfo::Object,
+                                                  ResolveInfo::Define,
+                                                  ResolveInfo::Local,
+                                                  0x0,  // size
+                                                  0x0,  // value
+                                                  FragmentRef::Null(),
+                                                  ResolveInfo::Hidden);
+  }
   // TODO
 }
 
@@ -144,16 +157,107 @@ Relocator* AArch64GNULDBackend::getRelocator()
   return m_pRelocator;
 }
 
+void AArch64GNULDBackend::defineGOTSymbol(IRBuilder& pBuilder)
+{
+  // define symbol _GLOBAL_OFFSET_TABLE_ when .got create
+  if (m_pGOTSymbol != NULL) {
+    pBuilder.AddSymbol<IRBuilder::Force, IRBuilder::Unresolve>(
+                     "_GLOBAL_OFFSET_TABLE_",
+                     ResolveInfo::Object,
+                     ResolveInfo::Define,
+                     ResolveInfo::Local,
+                     0x0, // size
+                     0x0, // value
+                     FragmentRef::Create(*(m_pGOTPLT->begin()), 0x0),
+                     ResolveInfo::Hidden);
+  }
+  else {
+    m_pGOTSymbol = pBuilder.AddSymbol<IRBuilder::Force, IRBuilder::Resolve>(
+                     "_GLOBAL_OFFSET_TABLE_",
+                     ResolveInfo::Object,
+                     ResolveInfo::Define,
+                     ResolveInfo::Local,
+                     0x0, // size
+                     0x0, // value
+                     FragmentRef::Create(*(m_pGOTPLT->begin()), 0x0),
+                     ResolveInfo::Hidden);
+  }
+}
+
 void AArch64GNULDBackend::doPreLayout(IRBuilder& pBuilder)
 {
   // initialize .dynamic data
   if (!config().isCodeStatic() && NULL == m_pDynamic)
     m_pDynamic = new AArch64ELFDynamic(*this, config());
+
+  if (LinkerConfig::Object != config().codeGenType()) {
+    // set .got size
+    if (config().options().hasNow()) {
+      // when building shared object, the GOTPLT section is must
+      if (LinkerConfig::DynObj == config().codeGenType() ||
+          m_pGOT->hasGOT1() ||
+          NULL != m_pGOTSymbol) {
+        m_pGOT->finalizeSectionSize();
+        defineGOTSymbol(pBuilder);
+      }
+    }
+    else {
+      // when building shared object, the GOTPLT section is must
+      if (LinkerConfig::DynObj == config().codeGenType() ||
+          m_pGOTPLT->hasGOT1() ||
+          NULL != m_pGOTSymbol) {
+        m_pGOTPLT->finalizeSectionSize();
+        defineGOTSymbol(pBuilder);
+      }
+      if (m_pGOT->hasGOT1())
+        m_pGOT->finalizeSectionSize();
+    }
+
+    // set .plt size
+    if (m_pPLT->hasPLT1())
+      m_pPLT->finalizeSectionSize();
+
+    ELFFileFormat* file_format = getOutputFormat();
+    // set .rela.dyn size
+    if (!m_pRelaDyn->empty()) {
+      assert(!config().isCodeStatic() &&
+            "static linkage should not result in a dynamic relocation section");
+      file_format->getRelaDyn().setSize(
+                                m_pRelaDyn->numOfRelocs() * getRelaEntrySize());
+    }
+
+    // set .rela.plt size
+    if (!m_pRelaPLT->empty()) {
+      assert(!config().isCodeStatic() &&
+            "static linkage should not result in a dynamic relocation section");
+      file_format->getRelaPlt().setSize(
+                                m_pRelaPLT->numOfRelocs() * getRelaEntrySize());
+    }
+  }
 }
 
 void AArch64GNULDBackend::doPostLayout(Module& pModule, IRBuilder& pBuilder)
 {
-  // TODO
+  const ELFFileFormat *file_format = getOutputFormat();
+
+  // apply PLT
+  if (file_format->hasPLT()) {
+    assert(NULL != m_pPLT);
+    m_pPLT->applyPLT0();
+    m_pPLT->applyPLT1();
+  }
+
+  // apply GOTPLT
+  if ((config().options().hasNow() && file_format->hasGOT()) ||
+       file_format->hasGOTPLT()) {
+    assert(NULL != m_pGOTPLT);
+    if (LinkerConfig::DynObj == config().codeGenType())
+      m_pGOTPLT->applyGOT0(file_format->getDynamic().addr());
+    else {
+      // executable file and object file? should fill with zero.
+      m_pGOTPLT->applyGOT0(0);
+    }
+  }
 }
 
 AArch64ELFDynamic& AArch64GNULDBackend::dynamic()
@@ -171,6 +275,25 @@ const AArch64ELFDynamic& AArch64GNULDBackend::dynamic() const
 uint64_t AArch64GNULDBackend::emitSectionData(const LDSection& pSection,
                                               MemoryRegion& pRegion) const
 {
+  assert(pRegion.size() && "Size of MemoryRegion is zero!");
+
+  const ELFFileFormat* file_format = getOutputFormat();
+
+  if (file_format->hasPLT() && (&pSection == &(file_format->getPLT()))) {
+    uint64_t result = m_pPLT->emit(pRegion);
+    return result;
+  }
+
+  if (file_format->hasGOT() && (&pSection == &(file_format->getGOT()))) {
+    uint64_t result = m_pGOT->emit(pRegion);
+    return result;
+  }
+
+  if (file_format->hasGOTPLT() && (&pSection == &(file_format->getGOTPLT()))) {
+    uint64_t result = m_pGOT->emit(pRegion);
+    return result;
+  }
+
   // TODO
   return pRegion.size();
 }
