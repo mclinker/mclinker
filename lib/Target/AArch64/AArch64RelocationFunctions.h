@@ -6,21 +6,6 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-// FIXME: llvm::ELF doesn't define AArch64 dynamic relocation types
-enum {
-  // static relocations
-  R_AARCH64_ADR_PREL_PG_HI21_NC = 0x114,
-  // dyanmic rlocations
-  R_AARCH64_COPY                = 1024,
-  R_AARCH64_GLOB_DAT            = 1025,
-  R_AARCH64_JUMP_SLOT           = 1026,
-  R_AARCH64_RELATIVE            = 1027,
-  R_AARCH64_TLS_DTPREL64        = 1028,
-  R_AARCH64_TLS_DTPMOD64        = 1029,
-  R_AARCH64_TLS_TPREL64         = 1030,
-  R_AARCH64_TLSDESC             = 1031,
-  R_AARCH64_IRELATIVE           = 1032
-};
 
 #define DECL_AARCH64_APPLY_RELOC_FUNC(Name) \
 static AArch64Relocator::Result Name (Relocation& pEntry, AArch64Relocator& pParent);

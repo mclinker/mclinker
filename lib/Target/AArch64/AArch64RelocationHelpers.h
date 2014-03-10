@@ -9,12 +9,15 @@
 #ifndef TARGET_AARCH64_AARCH64RELOCATIONHELPERS_H
 #define TARGET_AARCH64_AARCH64RELOCATIONHELPERS_H
 
+#include "AArch64Relocator.h"
+#include <llvm/Support/Host.h>
+
 namespace mcld {
 //===----------------------------------------------------------------------===//
 // Relocation helper functions
 //===----------------------------------------------------------------------===//
 // Return true if overflow
-static bool
+static inline bool
 helper_check_signed_overflow(AArch64Relocator::DWord pValue, unsigned bits)
 {
   if (bits >= sizeof(int64_t) * 8)
@@ -27,12 +30,14 @@ helper_check_signed_overflow(AArch64Relocator::DWord pValue, unsigned bits)
   return false;
 }
 
-static Relocator::Address helper_get_page_address(Relocator::Address pValue)
+static inline Relocator::Address
+helper_get_page_address(Relocator::Address pValue)
 {
   return (pValue & ~ (Relocator::Address) 0xFFF);
 }
 
-static Relocator::Address helper_get_page_offset(Relocator::Address pValue)
+static inline Relocator::Address
+helper_get_page_offset(Relocator::Address pValue)
 {
   return (pValue & (Relocator::Address) 0xFFF);
 }
@@ -42,7 +47,7 @@ static inline uint32_t get_mask(uint32_t pValue)
   return ((1u << (pValue)) - 1);
 }
 
-static uint32_t
+static inline uint32_t
 helper_reencode_adr_imm(uint32_t insn, uint32_t imm)
 {
   return (insn & ~((get_mask(2) << 29) | (get_mask(19) << 5)))
@@ -55,31 +60,29 @@ static inline uint32_t reencode_add_imm(uint32_t pInst, uint32_t pImm)
   return (pInst & ~(get_mask(12) << 10)) | ((pImm & get_mask(12)) << 10);
 }
 
-static uint32_t
-helper_get_upper32(AArch64Relocator::DWord pData)
+static inline uint32_t helper_get_upper32(AArch64Relocator::DWord pData)
 {
   if (llvm::sys::IsLittleEndianHost)
     return pData >> 32;
   return pData & 0xFFFFFFFF;
 }
 
-static void
+static inline void
 helper_put_upper32(uint32_t pData, AArch64Relocator::DWord& pDes)
 {
   *(reinterpret_cast<uint32_t*>(&pDes)) = pData;
 }
 
-static
-AArch64Relocator::Address helper_get_PLT_address(ResolveInfo& pSym,
-                                             AArch64Relocator& pParent)
+static inline AArch64Relocator::Address
+helper_get_PLT_address(ResolveInfo& pSym, AArch64Relocator& pParent)
 {
   PLTEntryBase* plt_entry = pParent.getSymPLTMap().lookUp(pSym);
   assert(NULL != plt_entry);
   return pParent.getTarget().getPLT().addr() + plt_entry->getOffset();
 }
 
-static
-AArch64PLT1& helper_PLT_init(Relocation& pReloc, AArch64Relocator& pParent)
+static inline AArch64PLT1&
+helper_PLT_init(Relocation& pReloc, AArch64Relocator& pParent)
 {
   // rsym - The relocation target symbol
   ResolveInfo* rsym = pReloc.symInfo();
@@ -105,4 +108,3 @@ AArch64PLT1& helper_PLT_init(Relocation& pReloc, AArch64Relocator& pParent)
 
 }
 #endif
-

@@ -39,6 +39,7 @@
 #include <mcld/Target/ELFAttribute.h>
 #include <mcld/Target/GNUInfo.h>
 #include <mcld/Object/ObjectBuilder.h>
+#include "AArch64RelocationHelpers.h"
 
 using namespace mcld;
 
