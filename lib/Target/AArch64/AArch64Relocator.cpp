@@ -23,13 +23,12 @@
 
 using namespace mcld;
 
-//=========================================//
-// Relocation helper function              //
-//=========================================//
+//===----------------------------------------------------------------------===//
+// Relocation helper functions
+//===----------------------------------------------------------------------===//
 // Return true if overflow
 static bool
-helper_check_signed_overflow(AArch64Relocator::DWord pValue,
-                             unsigned bits)
+helper_check_signed_overflow(AArch64Relocator::DWord pValue, unsigned bits)
 {
   if (bits >= sizeof(int64_t) * 8)
     return false;
@@ -39,6 +38,16 @@ helper_check_signed_overflow(AArch64Relocator::DWord pValue,
   if (signed_val > max || signed_val < min)
     return true;
   return false;
+}
+
+static Relocator::Address helper_get_page_address(Relocator::Address pValue)
+{
+  return (pValue & ~ (Relocator::Address) 0xFFF);
+}
+
+static Relocator::Address helper_get_page_offset(Relocator::Address pValue)
+{
+  return (pValue & (Relocator::Address) 0xFFF);
 }
 
 //===----------------------------------------------------------------------===//
@@ -203,9 +212,9 @@ void AArch64Relocator::scanRelocation(Relocation& pReloc,
   }
 }
 
-//=========================================//
-// Each relocation function implementation //
-//=========================================//
+//===----------------------------------------------------------------------===//
+// Each relocation function implementation
+//===----------------------------------------------------------------------===//
 
 // R_AARCH64_NONE
 AArch64Relocator::Result none(Relocation& pReloc, AArch64Relocator& pParent)
@@ -220,8 +229,7 @@ AArch64Relocator::Result unsupport(Relocation& pReloc,
 }
 
 // R_AARCH64_PREL32: S + A - P
-AArch64Relocator::Result rel(Relocation& pReloc,
-                             AArch64Relocator& pParent)
+AArch64Relocator::Result rel(Relocation& pReloc, AArch64Relocator& pParent)
 {
   AArch64Relocator::Address S = pReloc.symValue();
   AArch64Relocator::DWord   A = pReloc.target() + pReloc.addend();
