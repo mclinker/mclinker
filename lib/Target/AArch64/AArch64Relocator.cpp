@@ -130,9 +130,7 @@ LDSymbol& AArch64Relocator::defineSymbolforCopyReloc(IRBuilder& pBuilder,
 
   // allocate space in BSS for the copy symbol
   Fragment* frag = new FillFragment(0x0, 1, pSym.size());
-  uint64_t size = ObjectBuilder::AppendFragment(*frag,
-                                                *bss_data,
-                                                addralign);
+  uint64_t size = ObjectBuilder::AppendFragment(*frag, *bss_data, addralign);
   bss_sect_hdr->setSize(bss_sect_hdr->size() + size);
 
   // change symbol binding to Global if it's a weak symbol
@@ -188,11 +186,11 @@ void AArch64Relocator::scanGlobalReloc(Relocation& pReloc,
       // All other dynamic relocations may lead to run-time relocation
       // overflow.
       if (getTarget().isDynamicSymbol(*rsym) &&
-	        getTarget().symbolNeedsDynRel(*rsym,
+          getTarget().symbolNeedsDynRel(*rsym,
                                         (rsym->reserved() & ReservePLT),
                                         false) &&
           getTarget().symbolNeedsCopyReloc(pReloc, *rsym)) {
-   	    LDSymbol& cpy_sym = defineSymbolforCopyReloc(pBuilder, *rsym);
+        LDSymbol& cpy_sym = defineSymbolforCopyReloc(pBuilder, *rsym);
         addCopyReloc(*cpy_sym.resolveInfo());
       }
       return;
@@ -210,7 +208,7 @@ void AArch64Relocator::scanGlobalReloc(Relocation& pReloc,
       // if symbol is defined in the ouput file and it's not
       // preemptible, no need plt
       if (rsym->isDefine() && !rsym->isDyn() &&
-          !getTarget().isSymbolPreemptible(*rsym)) {
+         !getTarget().isSymbolPreemptible(*rsym)) {
         return;
       }
 
@@ -229,8 +227,8 @@ void AArch64Relocator::scanGlobalReloc(Relocation& pReloc,
                                         (rsym->reserved() & ReservePLT),
                                         false)) {
         if (getTarget().symbolNeedsCopyReloc(pReloc, *rsym)) {
-   	      LDSymbol& cpy_sym = defineSymbolforCopyReloc(pBuilder, *rsym);
-	        addCopyReloc(*cpy_sym.resolveInfo());
+          LDSymbol& cpy_sym = defineSymbolforCopyReloc(pBuilder, *rsym);
+	  addCopyReloc(*cpy_sym.resolveInfo());
         }
       }
       if (getTarget().symbolNeedsPLT(*rsym)) {
