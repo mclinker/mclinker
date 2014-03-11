@@ -65,7 +65,7 @@ helper_use_relative_reloc(const ResolveInfo& pSym,
 static
 X86_32GOTEntry& helper_GOT_init(Relocation& pReloc,
                                 bool pHasRel,
-					                      X86_32Relocator& pParent)
+                                X86_32Relocator& pParent)
 {
   // rsym - The relocation target symbol
   ResolveInfo* rsym = pReloc.symInfo();
@@ -135,8 +135,8 @@ PLTEntryBase& helper_PLT_init(Relocation& pReloc, X86_32Relocator& pParent)
   return *plt_entry;
 }
 
-static
-X86Relocator::Address helper_get_PLT_address(ResolveInfo& pSym, X86_32Relocator& pParent)
+static X86Relocator::Address
+helper_get_PLT_address(ResolveInfo& pSym, X86_32Relocator& pParent)
 {
   PLTEntryBase* plt_entry = pParent.getSymPLTMap().lookUp(pSym);
   assert(NULL != plt_entry);
@@ -150,7 +150,7 @@ DECL_X86_32_APPLY_RELOC_FUNCS
 
 /// the prototype of applying function
 typedef Relocator::Result (*X86_32ApplyFunctionType)(Relocation& pReloc,
-						     X86_32Relocator& pParent);
+                                                     X86_32Relocator& pParent);
 
 // the table entry of applying functions
 struct X86_32ApplyFunctionTriple
@@ -1248,7 +1248,7 @@ DECL_X86_64_APPLY_RELOC_FUNCS
 
 /// the prototype of applying function
 typedef Relocator::Result (*X86_64ApplyFunctionType)(Relocation& pReloc,
-						     X86_64Relocator& pParent);
+                                                     X86_64Relocator& pParent);
 
 // the table entry of applying functions
 struct X86_64ApplyFunctionTriple
@@ -1426,7 +1426,7 @@ void X86_64Relocator::scanGlobalReloc(Relocation& pReloc,
                                                    *this);
             getRelRelMap().record(pReloc, reloc);
           }
-	        getTarget().checkAndSetHasTextRel(*pSection.getLink());
+          getTarget().checkAndSetHasTextRel(*pSection.getLink());
         }
       }
       return;
@@ -1497,12 +1497,12 @@ void X86_64Relocator::scanGlobalReloc(Relocation& pReloc,
       // All other dynamic relocations may lead to run-time relocation
       // overflow.
       if (getTarget().isDynamicSymbol(*rsym) &&
-	        getTarget().symbolNeedsDynRel(*rsym,
+          getTarget().symbolNeedsDynRel(*rsym,
                                         (rsym->reserved() & ReservePLT),
                                         false) &&
-	        getTarget().symbolNeedsCopyReloc(pReloc, *rsym)) {
-   	    LDSymbol& cpy_sym = defineSymbolforCopyReloc(pBuilder, *rsym, getTarget());
-	      addCopyReloc(*cpy_sym.resolveInfo(), getTarget());
+        getTarget().symbolNeedsCopyReloc(pReloc, *rsym)) {
+        LDSymbol& cpy_sym = defineSymbolforCopyReloc(pBuilder, *rsym, getTarget());
+        addCopyReloc(*cpy_sym.resolveInfo(), getTarget());
       }
       return;
 
