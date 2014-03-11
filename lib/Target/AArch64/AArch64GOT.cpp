@@ -78,6 +78,7 @@ void AArch64GOT::finalizeSectionSize()
       entry->setParent(m_SectionData);
       entry->setOffset(offset);
       offset += entry->size();
+
     }
   }
   m_GOTPLT.clear();
@@ -126,13 +127,13 @@ void AArch64GOT::applyGOTPLT(uint64_t pPLTBase)
 
 uint64_t AArch64GOT::emit(MemoryRegion& pRegion)
 {
-  uint32_t* buffer = reinterpret_cast<uint32_t*>(pRegion.begin());
+  uint64_t* buffer = reinterpret_cast<uint64_t*>(pRegion.begin());
 
   AArch64GOTEntry* got = NULL;
   uint64_t result = 0x0;
   for (iterator it = begin(), ie = end(); it != ie; ++it, ++buffer) {
       got = &(llvm::cast<AArch64GOTEntry>((*it)));
-      *buffer = static_cast<uint32_t>(got->getValue());
+      *buffer = static_cast<uint64_t>(got->getValue());
       result += AArch64GOTEntry::EntrySize;
   }
   return result;
