@@ -16,6 +16,8 @@ DECL_AARCH64_APPLY_RELOC_FUNC(rel) \
 DECL_AARCH64_APPLY_RELOC_FUNC(call) \
 DECL_AARCH64_APPLY_RELOC_FUNC(adr_prel_pg_hi21) \
 DECL_AARCH64_APPLY_RELOC_FUNC(add_abs_lo12) \
+DECL_AARCH64_APPLY_RELOC_FUNC(adr_got_page) \
+DECL_AARCH64_APPLY_RELOC_FUNC(ld64_got_lo12) \
 DECL_AARCH64_APPLY_RELOC_FUNC(unsupport)
 
 #define DECL_AARCH64_APPLY_RELOC_FUNC_PTRS(ValueType, MappedType) \
@@ -51,8 +53,8 @@ DECL_AARCH64_APPLY_RELOC_FUNC(unsupport)
   ValueType(0x11d, MappedType(&unsupport, "R_AARCH64_LDST32_ABS_LO12_NC")), \
   ValueType(0x11e, MappedType(&unsupport, "R_AARCH64_LDST64_ABS_LO12_NC")), \
   ValueType(0x12b, MappedType(&unsupport, "R_AARCH64_LDST128_ABS_LO12_NC")), \
-  ValueType(0x137, MappedType(&unsupport, "R_AARCH64_ADR_GOT_PAGE")), \
-  ValueType(0x138, MappedType(&unsupport, "R_AARCH64_LD64_GOT_LO12_NC")), \
+  ValueType(0x137, MappedType(&adr_got_page, "R_AARCH64_ADR_GOT_PAGE", 32)), \
+  ValueType(0x138, MappedType(&ld64_got_lo12, "R_AARCH64_LD64_GOT_LO12_NC", 32)), \
   ValueType(0x20b, MappedType(&unsupport, "R_AARCH64_TLSLD_MOVW_DTPREL_G2")), \
   ValueType(0x20c, MappedType(&unsupport, "R_AARCH64_TLSLD_MOVW_DTPREL_G1")), \
   ValueType(0x20d, MappedType(&unsupport, "R_AARCH64_TLSLD_MOVW_DTPREL_G1_NC")), \

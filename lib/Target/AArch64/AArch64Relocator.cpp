@@ -246,6 +246,23 @@ void AArch64Relocator::scanGlobalReloc(Relocation& pReloc,
       }
       return;
 
+    case llvm::ELF::R_AARCH64_ADR_GOT_PAGE:
+    case llvm::ELF::R_AARCH64_LD64_GOT_LO12_NC: {
+      // Symbol needs GOT entry, reserve entry in .got
+      // return if we already create GOT for this symbol
+      if (rsym->reserved() & ReserveGOT)
+        return;
+      // if the symbol cannot be fully resolved at link time, then we need a
+      // dynamic relocation
+      if (!getTarget().symbolFinalValueIsKnown(*rsym))
+        helper_GOT_init(pReloc, true, *this);
+      else
+        helper_GOT_init(pReloc, false, *this);
+      // set GOT bit
+      rsym->setReserved(rsym->reserved() | ReserveGOT);
+      return;
+    }
+
     default:
       break;
   }
@@ -394,6 +411,60 @@ Relocator::Result call(Relocation& pReloc, AArch64Relocator& pParent)
   // TODO: check overflow..
 
   pReloc.target() = helper_reencode_branch_offset_26(pReloc.target(), X >> 2);
+
+  return Relocator::OK;
+}
+
+// R_AARCH64_ADR_GOT_PAGE: Page(G(GDAT(S+A))) - Page(P)
+Relocator::Result adr_got_page(Relocation& pReloc, AArch64Relocator& pParent)
+{
+  if (!(pReloc.symInfo()->reserved() & AArch64Relocator::ReserveGOT)) {
+    return Relocator::BadReloc;
+  }
+
+  Relocator::Address GOT_S = helper_get_GOT_address(*pReloc.symInfo(), pParent);
+  Relocator::DWord A = pReloc.addend();
+  Relocator::Address P = pReloc.place();
+  Relocator::DWord X = helper_get_page_address(GOT_S + A) -
+                       helper_get_page_address(P);
+
+  pReloc.target() = helper_reencode_adr_imm(pReloc.target(), (X >> 12));
+
+  // setup got entry value if needed
+  AArch64GOTEntry* got_entry = pParent.getSymGOTMap().lookUp(*pReloc.symInfo());
+  if (NULL != got_entry && AArch64Relocator::SymVal == got_entry->getValue())
+    got_entry->setValue(pReloc.symValue());
+  // setup relocation addend if needed
+  Relocation* dyn_rela = pParent.getRelRelMap().lookUp(pReloc);
+  if ((NULL != dyn_rela) && (AArch64Relocator::SymVal == dyn_rela->addend())) {
+    dyn_rela->setAddend(pReloc.symValue());
+  }
+  return Relocator::OK;
+}
+
+// R_AARCH64_LD64_GOT_LO12_NC: G(GDAT(S+A))
+Relocator::Result ld64_got_lo12(Relocation& pReloc, AArch64Relocator& pParent)
+{
+  if (!(pReloc.symInfo()->reserved() & AArch64Relocator::ReserveGOT)) {
+    return Relocator::BadReloc;
+  }
+
+  Relocator::Address GOT_S = helper_get_GOT_address(*pReloc.symInfo(), pParent);
+  Relocator::DWord A = pReloc.addend();
+  Relocator::DWord X = helper_get_page_offset(GOT_S + A);
+
+  pReloc.target() = helper_reencode_ldst_pos_imm(pReloc.target(), (X >> 3));
+
+  // setup got entry value if needed
+  AArch64GOTEntry* got_entry = pParent.getSymGOTMap().lookUp(*pReloc.symInfo());
+  if (NULL != got_entry && AArch64Relocator::SymVal == got_entry->getValue())
+    got_entry->setValue(pReloc.symValue());
+
+  // setup relocation addend if needed
+  Relocation* dyn_rela = pParent.getRelRelMap().lookUp(pReloc);
+  if ((NULL != dyn_rela) && (AArch64Relocator::SymVal == dyn_rela->addend())) {
+    dyn_rela->setAddend(pReloc.symValue());
+  }
 
   return Relocator::OK;
 }

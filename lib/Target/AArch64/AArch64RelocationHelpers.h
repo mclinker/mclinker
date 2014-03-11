@@ -67,6 +67,13 @@ helper_reencode_branch_offset_26(uint32_t pInst, uint32_t pOff)
   return (pInst & ~get_mask(26)) | (pOff & get_mask(26));
 }
 
+// Reencode the imm field of ld/st pos immediate.
+static inline uint32_t
+helper_reencode_ldst_pos_imm (uint32_t pInst, uint32_t pImm)
+{
+  return (pInst & ~(get_mask(12) << 10)) | ((pImm & get_mask(12)) << 10);
+}
+
 static inline uint32_t helper_get_upper32(Relocator::DWord pData)
 {
   if (llvm::sys::IsLittleEndianHost)
