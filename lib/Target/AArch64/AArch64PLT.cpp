@@ -30,7 +30,7 @@ AArch64PLT1::AArch64PLT1(SectionData& pParent)
 
 AArch64PLT::AArch64PLT(LDSection& pSection, AArch64GOT &pGOTPLT)
   : PLT(pSection), m_GOT(pGOTPLT) {
-  new AArch64PLT0(*m_SectionData);
+  new AArch64PLT0(*m_pSectionData);
 }
 
 AArch64PLT::~AArch64PLT()
@@ -39,18 +39,18 @@ AArch64PLT::~AArch64PLT()
 
 bool AArch64PLT::hasPLT1() const
 {
-  return (m_SectionData->size() > 1);
+  return (m_pSectionData->size() > 1);
 }
 
 void AArch64PLT::finalizeSectionSize()
 {
-  uint64_t size = (m_SectionData->size() - 1) * sizeof(aarch64_plt1) +
+  uint64_t size = (m_pSectionData->size() - 1) * sizeof(aarch64_plt1) +
                   sizeof(aarch64_plt0);
   m_Section.setSize(size);
 
   uint32_t offset = 0;
-  SectionData::iterator frag, fragEnd = m_SectionData->end();
-  for (frag = m_SectionData->begin(); frag != fragEnd; ++frag) {
+  SectionData::iterator frag, fragEnd = m_pSectionData->end();
+  for (frag = m_pSectionData->begin(); frag != fragEnd; ++frag) {
     frag->setOffset(offset);
     offset += frag->size();
   }
@@ -58,7 +58,7 @@ void AArch64PLT::finalizeSectionSize()
 
 AArch64PLT1* AArch64PLT::create()
 {
-  AArch64PLT1* plt1_entry = new (std::nothrow) AArch64PLT1(*m_SectionData);
+  AArch64PLT1* plt1_entry = new (std::nothrow) AArch64PLT1(*m_pSectionData);
   if (!plt1_entry)
     fatal(diag::fail_allocate_memory_plt);
   return plt1_entry;
@@ -67,8 +67,8 @@ AArch64PLT1* AArch64PLT::create()
 void AArch64PLT::applyPLT0()
 {
   // malloc plt0
-  iterator first = m_SectionData->getFragmentList().begin();
-  assert(first != m_SectionData->getFragmentList().end() &&
+  iterator first = m_pSectionData->getFragmentList().begin();
+  assert(first != m_pSectionData->getFragmentList().end() &&
          "FragmentList is empty, applyPLT0 failed!");
   AArch64PLT0* plt0 = &(llvm::cast<AArch64PLT0>(*first));
   uint32_t* data = NULL;
@@ -107,8 +107,8 @@ void AArch64PLT::applyPLT1()
   uint64_t got_base = m_GOT.addr();
   assert(got_base && ".got base address is NULL!");
 
-  AArch64PLT::iterator it = m_SectionData->begin();
-  AArch64PLT::iterator ie = m_SectionData->end();
+  AArch64PLT::iterator it = m_pSectionData->begin();
+  AArch64PLT::iterator ie = m_pSectionData->end();
   assert(it != ie && "FragmentList is empty, applyPLT1 failed!");
 
   uint32_t GOTEntrySize = AArch64GOTEntry::EntrySize;

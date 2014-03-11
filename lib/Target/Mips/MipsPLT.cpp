@@ -64,19 +64,19 @@ public:
 MipsPLT::MipsPLT(LDSection& pSection)
   : PLT(pSection)
 {
-  new MipsPLT0(*m_SectionData);
-  m_Last = m_SectionData->begin();
+  new MipsPLT0(*m_pSectionData);
+  m_Last = m_pSectionData->begin();
 }
 
 void MipsPLT::finalizeSectionSize()
 {
   uint64_t size = sizeof(PLT0) +
-                  (m_SectionData->size() - 1) * sizeof(PLTA);
+                  (m_pSectionData->size() - 1) * sizeof(PLTA);
   m_Section.setSize(size);
 
   uint32_t offset = 0;
-  SectionData::iterator frag, fragEnd = m_SectionData->end();
-  for (frag = m_SectionData->begin(); frag != fragEnd; ++frag) {
+  SectionData::iterator frag, fragEnd = m_pSectionData->end();
+  for (frag = m_pSectionData->begin(); frag != fragEnd; ++frag) {
     frag->setOffset(offset);
     offset += frag->size();
   }
@@ -84,7 +84,7 @@ void MipsPLT::finalizeSectionSize()
 
 bool MipsPLT::hasPLT1() const
 {
-  return m_SectionData->size() > 1;
+  return m_pSectionData->size() > 1;
 }
 
 uint64_t MipsPLT::emit(MemoryRegion& pRegion)
@@ -109,7 +109,7 @@ uint64_t MipsPLT::emit(MemoryRegion& pRegion)
 void MipsPLT::reserveEntry(size_t pNum)
 {
   for (size_t i = 0; i < pNum; ++i) {
-    Fragment* entry = new (std::nothrow) MipsPLTA(*m_SectionData);
+    Fragment* entry = new (std::nothrow) MipsPLTA(*m_pSectionData);
 
     if (NULL == entry)
       fatal(diag::fail_allocate_memory_plt);
@@ -119,7 +119,7 @@ void MipsPLT::reserveEntry(size_t pNum)
 Fragment* MipsPLT::consume()
 {
   ++m_Last;
-  assert(m_Last != m_SectionData->end() &&
+  assert(m_Last != m_pSectionData->end() &&
          "The number of PLT Entries and ResolveInfo doesn't match");
   return &(*m_Last);
 }
@@ -129,10 +129,10 @@ void MipsPLT::applyAllPLT(MipsGOTPLT& pGOTPLT)
   assert(m_Section.addr() && ".plt base address is NULL!");
 
   size_t count = 0;
-  for (iterator it = m_SectionData->begin(); it != m_SectionData->end(); ++it) {
+  for (iterator it = m_pSectionData->begin(); it != m_pSectionData->end(); ++it) {
     PLTEntryBase* plt = &(llvm::cast<PLTEntryBase>(*it));
 
-    if (it == m_SectionData->begin()) {
+    if (it == m_pSectionData->begin()) {
       uint32_t* data = static_cast<uint32_t*>(malloc(plt->size()));
 
       if (!data)
