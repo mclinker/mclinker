@@ -43,6 +43,7 @@ class AArch64Relocator : public Relocator
 public:
   typedef KeyEntryMap<ResolveInfo, AArch64GOTEntry> SymGOTMap;
   typedef KeyEntryMap<ResolveInfo, AArch64PLT1> SymPLTMap;
+  typedef KeyEntryMap<Relocation, Relocation> RelRelMap;
 
   /** \enum ReservedEntryType
    *  \brief The reserved entry type of reserved space in ResolveInfo.
@@ -104,6 +105,9 @@ public:
   const SymGOTMap& getSymGOTPLTMap() const { return m_SymGOTPLTMap; }
   SymGOTMap&       getSymGOTPLTMap()       { return m_SymGOTPLTMap; }
 
+  const RelRelMap& getRelRelMap() const { return m_RelRelMap; }
+  RelRelMap&       getRelRelMap()       { return m_RelRelMap; }
+
   /// scanRelocation - determine the empty entries are needed or not and create
   /// the empty entries if needed.
   /// For AArch64, following entries are check to create:
@@ -138,6 +142,7 @@ private:
   SymGOTMap m_SymGOTMap;
   SymPLTMap m_SymPLTMap;
   SymGOTMap m_SymGOTPLTMap;
+  RelRelMap m_RelRelMap;
 };
 
 } // namespace of mcld

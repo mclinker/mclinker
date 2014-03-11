@@ -18,7 +18,7 @@ namespace mcld {
 //===----------------------------------------------------------------------===//
 // Return true if overflow
 static inline bool
-helper_check_signed_overflow(AArch64Relocator::DWord pValue, unsigned bits)
+helper_check_signed_overflow(Relocator::DWord pValue, unsigned bits)
 {
   if (bits >= sizeof(int64_t) * 8)
     return false;
@@ -111,6 +111,87 @@ helper_PLT_init(Relocation& pReloc, AArch64Relocator& pParent)
   rel_entry.targetRef().assign(*gotplt_entry);
   rel_entry.setSymInfo(rsym);
   return *plt_entry;
+}
+
+/// helper_DynRel - Get an relocation entry in .rela.dyn
+static inline Relocation&
+helper_DynRela_init(ResolveInfo* pSym,
+                    Fragment& pFrag,
+                    uint64_t pOffset,
+                    AArch64Relocator::Type pType,
+                    AArch64Relocator& pParent)
+{
+  AArch64GNULDBackend& ld_backend = pParent.getTarget();
+  Relocation& rel_entry = *ld_backend.getRelaDyn().create();
+  rel_entry.setType(pType);
+  rel_entry.targetRef().assign(pFrag, pOffset);
+  if (pType == R_AARCH64_RELATIVE || NULL == pSym)
+    rel_entry.setSymInfo(NULL);
+  else
+    rel_entry.setSymInfo(pSym);
+
+  return rel_entry;
+}
+
+/// helper_use_relative_reloc - Check if symbol can use relocation
+/// R_AARCH64_RELATIVE
+static inline bool
+helper_use_relative_reloc(const ResolveInfo& pSym,
+                          const AArch64Relocator& pParent)
+
+{
+  // if symbol is dynamic or undefine or preemptible
+  if (pSym.isDyn() ||
+      pSym.isUndef() ||
+      pParent.getTarget().isSymbolPreemptible(pSym))
+    return false;
+  return true;
+}
+
+static inline Relocator::Address
+helper_get_GOT_address(ResolveInfo& pSym, AArch64Relocator& pParent)
+{
+  AArch64GOTEntry* got_entry = pParent.getSymGOTMap().lookUp(pSym);
+  assert(NULL != got_entry);
+  return pParent.getTarget().getGOT().addr() + got_entry->getOffset();
+}
+
+static inline Relocator::Address
+helper_GOT_ORG(AArch64Relocator& pParent)
+{
+  return pParent.getTarget().getGOT().addr();
+}
+
+static inline AArch64GOTEntry&
+helper_GOT_init(Relocation& pReloc, bool pHasRel, AArch64Relocator& pParent)
+{
+  // rsym - The relocation target symbol
+  ResolveInfo* rsym = pReloc.symInfo();
+  AArch64GNULDBackend& ld_backend = pParent.getTarget();
+  assert(NULL == pParent.getSymGOTMap().lookUp(*rsym));
+
+  AArch64GOTEntry* got_entry = ld_backend.getGOT().createGOT();
+  pParent.getSymGOTMap().record(*rsym, *got_entry);
+
+  // If we first get this GOT entry, we should initialize it.
+  if (!pHasRel) {
+    // No corresponding dynamic relocation, initialize to the symbol value.
+    got_entry->setValue(AArch64Relocator::SymVal);
+  }
+  else {
+    // Initialize got_entry content and the corresponding dynamic relocation.
+    if (helper_use_relative_reloc(*rsym, pParent)) {
+       Relocation& rel_entry = helper_DynRela_init(rsym, *got_entry, 0x0,
+                                                  R_AARCH64_RELATIVE, pParent);
+       rel_entry.setAddend(AArch64Relocator::SymVal);
+       pParent.getRelRelMap().record(pReloc, rel_entry);
+    }
+    else {
+       helper_DynRela_init(rsym, *got_entry, 0x0, R_AARCH64_GLOB_DAT, pParent);
+    }
+    got_entry->setValue(0);
+  }
+  return *got_entry;
 }
 
 }
