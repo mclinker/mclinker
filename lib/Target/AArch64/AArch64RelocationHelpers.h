@@ -67,20 +67,19 @@ helper_reencode_branch_offset_26(uint32_t pInst, uint32_t pOff)
   return (pInst & ~get_mask(26)) | (pOff & get_mask(26));
 }
 
-static inline uint32_t helper_get_upper32(AArch64Relocator::DWord pData)
+static inline uint32_t helper_get_upper32(Relocator::DWord pData)
 {
   if (llvm::sys::IsLittleEndianHost)
     return pData >> 32;
   return pData & 0xFFFFFFFF;
 }
 
-static inline void
-helper_put_upper32(uint32_t pData, AArch64Relocator::DWord& pDes)
+static inline void helper_put_upper32(uint32_t pData, Relocator::DWord& pDes)
 {
   *(reinterpret_cast<uint32_t*>(&pDes)) = pData;
 }
 
-static inline AArch64Relocator::Address
+static inline Relocator::Address
 helper_get_PLT_address(ResolveInfo& pSym, AArch64Relocator& pParent)
 {
   PLTEntryBase* plt_entry = pParent.getSymPLTMap().lookUp(pSym);
@@ -118,7 +117,7 @@ static inline Relocation&
 helper_DynRela_init(ResolveInfo* pSym,
                     Fragment& pFrag,
                     uint64_t pOffset,
-                    AArch64Relocator::Type pType,
+                    Relocator::Type pType,
                     AArch64Relocator& pParent)
 {
   AArch64GNULDBackend& ld_backend = pParent.getTarget();
