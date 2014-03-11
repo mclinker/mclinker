@@ -180,15 +180,16 @@ helper_GOT_init(Relocation& pReloc, bool pHasRel, AArch64Relocator& pParent)
   else {
     // Initialize got_entry content and the corresponding dynamic relocation.
     if (helper_use_relative_reloc(*rsym, pParent)) {
-       Relocation& rel_entry = helper_DynRela_init(rsym, *got_entry, 0x0,
+      got_entry->setValue(AArch64Relocator::SymVal);
+      Relocation& rel_entry = helper_DynRela_init(rsym, *got_entry, 0x0,
                                                   R_AARCH64_RELATIVE, pParent);
-       rel_entry.setAddend(AArch64Relocator::SymVal);
-       pParent.getRelRelMap().record(pReloc, rel_entry);
+      rel_entry.setAddend(AArch64Relocator::SymVal);
+      pParent.getRelRelMap().record(pReloc, rel_entry);
     }
     else {
-       helper_DynRela_init(rsym, *got_entry, 0x0, R_AARCH64_GLOB_DAT, pParent);
+      helper_DynRela_init(rsym, *got_entry, 0x0, R_AARCH64_GLOB_DAT, pParent);
+      got_entry->setValue(0);
     }
-    got_entry->setValue(0);
   }
   return *got_entry;
 }
