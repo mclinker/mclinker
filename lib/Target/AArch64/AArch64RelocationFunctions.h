@@ -19,13 +19,14 @@ DECL_AARCH64_APPLY_RELOC_FUNC(add_abs_lo12) \
 DECL_AARCH64_APPLY_RELOC_FUNC(unsupport)
 
 #define DECL_AARCH64_APPLY_RELOC_FUNC_PTRS(ValueType, MappedType) \
+  ValueType(0x0,   MappedType(&none, "R_AARCH64_NULL")), \
   ValueType(0x100, MappedType(&none, "R_AARCH64_NONE")), \
   ValueType(0x101, MappedType(&unsupport, "R_AARCH64_ABS64")), \
   ValueType(0x102, MappedType(&unsupport, "R_AARCH64_ABS32")), \
   ValueType(0x103, MappedType(&unsupport, "R_AARCH64_ABS16")), \
-  ValueType(0x104, MappedType(&unsupport, "R_AARCH64_PREL64", 64)), \
+  ValueType(0x104, MappedType(&rel, "R_AARCH64_PREL64", 64)), \
   ValueType(0x105, MappedType(&rel, "R_AARCH64_PREL32", 32)), \
-  ValueType(0x106, MappedType(&unsupport, "R_AARCH64_PREL16", 16)), \
+  ValueType(0x106, MappedType(&rel, "R_AARCH64_PREL16", 16)), \
   ValueType(0x107, MappedType(&unsupport, "R_AARCH64_MOVW_UABS_G0")), \
   ValueType(0x108, MappedType(&unsupport, "R_AARCH64_MOVW_UABS_G0_NC")), \
   ValueType(0x109, MappedType(&unsupport, "R_AARCH64_MOVW_UABS_G1")), \
