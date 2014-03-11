@@ -362,12 +362,7 @@ adr_prel_pg_hi21(Relocation& pReloc, AArch64Relocator& pParent)
   Relocator::DWord X = helper_get_page_address(S + A) -
                        helper_get_page_address(P);
 
-  // get 32 bit
-  Relocator::DWord content = helper_get_upper32(pReloc.target());
-  X >>= 12;
-  content = helper_reencode_adr_imm(content, X);
-  // put the content back
-  helper_put_upper32(content, pReloc.target());
+  pReloc.target() = helper_reencode_adr_imm(pReloc.target(), (X >> 12) & 0x1fffff);
 
   return Relocator::OK;
 }
