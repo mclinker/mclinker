@@ -32,7 +32,7 @@ void AArch64ELFDynamic::reserveTargetEntries(const ELFFileFormat& pFormat)
 void AArch64ELFDynamic::applyTargetEntries(const ELFFileFormat& pFormat)
 {
   // applyPLTGOT
-  if (pFormat.hasGOT())
-    applyOne(llvm::ELF::DT_PLTGOT, pFormat.getGOT().addr());
+  if (pFormat.hasGOTPLT())
+    applyOne(llvm::ELF::DT_PLTGOT, pFormat.getGOTPLT().addr());
 }
 
