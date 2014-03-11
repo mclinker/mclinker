@@ -341,7 +341,7 @@ Relocator::Result add_abs_lo12(Relocation& pReloc, AArch64Relocator& pParent)
   Relocator::DWord   A = pReloc.target() + pReloc.addend();
 
   value = helper_get_page_offset(S + A);
-  pReloc.target() = helper_reencode_add_imm(pReloc.target(), value);
+  pReloc.target() = helper_reencode_add_imm(pReloc.target(), value & 0xfff);
 
   return Relocator::OK;
 }

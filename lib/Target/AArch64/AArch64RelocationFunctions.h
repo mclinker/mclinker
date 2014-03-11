@@ -39,7 +39,7 @@ DECL_AARCH64_APPLY_RELOC_FUNC(unsupport)
   ValueType(0x112, MappedType(&unsupport, "R_AARCH64_ADR_PREL_LO21")), \
   ValueType(0x113, MappedType(&adr_prel_pg_hi21, "R_AARCH64_ADR_PREL_PG_HI21", 32)), \
   ValueType(0x114, MappedType(&adr_prel_pg_hi21, "R_AARCH64_ADR_PREL_PG_HI21_NC", 32)), \
-  ValueType(0x115, MappedType(&add_abs_lo12, "R_AARCH64_ADD_ABS_LO12_NC")), \
+  ValueType(0x115, MappedType(&add_abs_lo12, "R_AARCH64_ADD_ABS_LO12_NC", 32)), \
   ValueType(0x116, MappedType(&unsupport, "R_AARCH64_LDST8_ABS_LO12_NC")), \
   ValueType(0x117, MappedType(&unsupport, "R_AARCH64_TSTBR14")), \
   ValueType(0x118, MappedType(&unsupport, "R_AARCH64_CONDBR19")), \
