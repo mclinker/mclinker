@@ -13,6 +13,7 @@ static AArch64Relocator::Result Name (Relocation& pEntry, AArch64Relocator& pPar
 #define DECL_AARCH64_APPLY_RELOC_FUNCS \
 DECL_AARCH64_APPLY_RELOC_FUNC(none) \
 DECL_AARCH64_APPLY_RELOC_FUNC(rel) \
+DECL_AARCH64_APPLY_RELOC_FUNC(call) \
 DECL_AARCH64_APPLY_RELOC_FUNC(adr_prel_pg_hi21) \
 DECL_AARCH64_APPLY_RELOC_FUNC(add_abs_lo12) \
 DECL_AARCH64_APPLY_RELOC_FUNC(unsupport)
@@ -44,7 +45,7 @@ DECL_AARCH64_APPLY_RELOC_FUNC(unsupport)
   ValueType(0x117, MappedType(&unsupport, "R_AARCH64_TSTBR14")), \
   ValueType(0x118, MappedType(&unsupport, "R_AARCH64_CONDBR19")), \
   ValueType(0x11a, MappedType(&unsupport, "R_AARCH64_JUMP26")), \
-  ValueType(0x11b, MappedType(&unsupport, "R_AARCH64_CALL26")), \
+  ValueType(0x11b, MappedType(&call, "R_AARCH64_CALL26", 32)), \
   ValueType(0x11c, MappedType(&unsupport, "R_AARCH64_LDST16_ABS_LO12_NC")), \
   ValueType(0x11d, MappedType(&unsupport, "R_AARCH64_LDST32_ABS_LO12_NC")), \
   ValueType(0x11e, MappedType(&unsupport, "R_AARCH64_LDST64_ABS_LO12_NC")), \

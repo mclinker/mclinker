@@ -367,3 +367,33 @@ adr_prel_pg_hi21(Relocation& pReloc, AArch64Relocator& pParent)
   return Relocator::OK;
 }
 
+// R_AARCH64_CALL26: S + A - P
+Relocator::Result call(Relocation& pReloc, AArch64Relocator& pParent)
+{
+  // If target is undefined weak symbol, we only need to jump to the
+  // next instruction unless it has PLT entry. Rewrite instruction
+  // to NOP.
+  if (pReloc.symInfo()->isWeak() &&
+      pReloc.symInfo()->isUndef() &&
+      !pReloc.symInfo()->isDyn() &&
+      !(pReloc.symInfo()->reserved() & AArch64Relocator::ReservePLT)) {
+    // change target to NOP
+    pReloc.target() = 0xd503201f;
+    return Relocator::OK;
+  }
+
+  Relocator::Address S = pReloc.symValue();
+  Relocator::DWord   A = pReloc.addend();
+  Relocator::Address P = pReloc.place();
+
+  // S depends on PLT exists or not
+  if (pReloc.symInfo()->reserved() & AArch64Relocator::ReservePLT)
+    S = helper_get_PLT_address(*pReloc.symInfo(), pParent);
+
+  Relocator::DWord X = ((S + A - P) >> 2 ) & 0x3ffffff;
+  // TODO: check overflow..
+
+  pReloc.target() = helper_reencode_branch_offset_26(pReloc.target() , X);
+
+  return Relocator::OK;
+}

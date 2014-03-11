@@ -60,6 +60,13 @@ static inline uint32_t helper_reencode_add_imm(uint32_t pInst, uint32_t pImm)
   return (pInst & ~(get_mask(12) << 10)) | ((pImm & get_mask(12)) << 10);
 }
 
+// Encode the 26-bit offset of unconditional branch.
+static inline uint32_t
+helper_reencode_branch_offset_26(uint32_t pInst, uint32_t pOff)
+{
+  return (pInst & ~get_mask(26)) | (pOff & get_mask(26));
+}
+
 static inline uint32_t helper_get_upper32(AArch64Relocator::DWord pData)
 {
   if (llvm::sys::IsLittleEndianHost)
