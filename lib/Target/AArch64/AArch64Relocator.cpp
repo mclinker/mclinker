@@ -341,13 +341,13 @@ Relocator::Result add_abs_lo12(Relocation& pReloc, AArch64Relocator& pParent)
   Relocator::DWord   A = pReloc.addend();
 
   value = helper_get_page_offset(S + A);
-  pReloc.target() = helper_reencode_add_imm(pReloc.target(), value & 0xfff);
+  pReloc.target() = helper_reencode_add_imm(pReloc.target(), value);
 
   return Relocator::OK;
 }
 
-// R_AARCH64_ADR_PREL_PG_HI21: ((PG(S + A) - PG(P)) >> 12) & 0x1fffff
-// R_AARCH64_ADR_PREL_PG_HI21_NC: ((PG(S + A) - PG(P)) >> 12) & 0x1fffff
+// R_AARCH64_ADR_PREL_PG_HI21: ((PG(S + A) - PG(P)) >> 12)
+// R_AARCH64_ADR_PREL_PG_HI21_NC: ((PG(S + A) - PG(P)) >> 12)
 Relocator::Result
 adr_prel_pg_hi21(Relocation& pReloc, AArch64Relocator& pParent)
 {
@@ -362,7 +362,7 @@ adr_prel_pg_hi21(Relocation& pReloc, AArch64Relocator& pParent)
   Relocator::DWord X = helper_get_page_address(S + A) -
                        helper_get_page_address(P);
 
-  pReloc.target() = helper_reencode_adr_imm(pReloc.target(), (X >> 12) & 0x1fffff);
+  pReloc.target() = helper_reencode_adr_imm(pReloc.target(), (X >> 12));
 
   return Relocator::OK;
 }
@@ -390,10 +390,10 @@ Relocator::Result call(Relocation& pReloc, AArch64Relocator& pParent)
   if (pReloc.symInfo()->reserved() & AArch64Relocator::ReservePLT)
     S = helper_get_PLT_address(*pReloc.symInfo(), pParent);
 
-  Relocator::DWord X = ((S + A - P) >> 2 ) & 0x3ffffff;
+  Relocator::DWord X = S + A - P;
   // TODO: check overflow..
 
-  pReloc.target() = helper_reencode_branch_offset_26(pReloc.target() , X);
+  pReloc.target() = helper_reencode_branch_offset_26(pReloc.target(), X >> 2);
 
   return Relocator::OK;
 }
