@@ -155,6 +155,47 @@ LDSymbol& AArch64Relocator::defineSymbolforCopyReloc(IRBuilder& pBuilder,
 void
 AArch64Relocator::scanLocalReloc(Relocation& pReloc, const LDSection& pSection)
 {
+  // rsym - The relocation target symbol
+  ResolveInfo* rsym = pReloc.symInfo();
+  switch(pReloc.type()) {
+    case llvm::ELF::R_AARCH64_ABS64:
+      // If buiding PIC object (shared library or PIC executable),
+      // a dynamic relocations with RELATIVE type to this location is needed.
+      // Reserve an entry in .rel.dyn
+      if (config().isCodeIndep()) {
+        // set Rel bit
+        rsym->setReserved(rsym->reserved() | ReserveRel);
+        getTarget().checkAndSetHasTextRel(*pSection.getLink());
+        // set up the dyn rel directly
+        Relocation& reloc = helper_DynRela_init(rsym,
+                                                *pReloc.targetRef().frag(),
+                                                pReloc.targetRef().offset(),
+                                                R_AARCH64_RELATIVE,
+                                                *this);
+        getRelRelMap().record(pReloc, reloc);
+      }
+      return;
+
+    case llvm::ELF::R_AARCH64_ABS32:
+    case llvm::ELF::R_AARCH64_ABS16:
+      // If buiding PIC object (shared library or PIC executable),
+      // a dynamic relocations with RELATIVE type to this location is needed.
+      // Reserve an entry in .rel.dyn
+      if (config().isCodeIndep()) {
+        // set up the dyn rel directly
+        Relocation& reloc = helper_DynRela_init(rsym,
+                            *pReloc.targetRef().frag(),
+                            pReloc.targetRef().offset(), pReloc.type(), *this);
+        getRelRelMap().record(pReloc, reloc);
+        // set Rel bit
+        rsym->setReserved(rsym->reserved() | ReserveRel);
+        getTarget().checkAndSetHasTextRel(*pSection.getLink());
+      }
+      return;
+
+    default:
+      break;
+  }
 }
 
 void AArch64Relocator::scanGlobalReloc(Relocation& pReloc,
@@ -164,6 +205,51 @@ void AArch64Relocator::scanGlobalReloc(Relocation& pReloc,
   // rsym - The relocation target symbol
   ResolveInfo* rsym = pReloc.symInfo();
   switch(pReloc.type()) {
+    case llvm::ELF::R_AARCH64_ABS64:
+    case llvm::ELF::R_AARCH64_ABS32:
+    case llvm::ELF::R_AARCH64_ABS16:
+      // Absolute relocation type, symbol may needs PLT entry or
+      // dynamic relocation entry
+      if (getTarget().symbolNeedsPLT(*rsym)) {
+        // create plt for this symbol if it does not have one
+        if (!(rsym->reserved() & ReservePLT)){
+          // Symbol needs PLT entry, we need a PLT entry
+          // and the corresponding GOT and dynamic relocation entry
+          // in .got and .rel.plt.
+          helper_PLT_init(pReloc, *this);
+          // set PLT bit
+          rsym->setReserved(rsym->reserved() | ReservePLT);
+        }
+      }
+
+      if (getTarget().symbolNeedsDynRel(*rsym, (rsym->reserved() & ReservePLT),
+                                                                        true)) {
+        // symbol needs dynamic relocation entry, set up the dynrel entry
+        if (getTarget().symbolNeedsCopyReloc(pReloc, *rsym)) {
+          LDSymbol& cpy_sym = defineSymbolforCopyReloc(pBuilder, *rsym);
+          addCopyReloc(*cpy_sym.resolveInfo());
+        }
+        else {
+          // set Rel bit and the dyn rel
+          rsym->setReserved(rsym->reserved() | ReserveRel);
+          getTarget().checkAndSetHasTextRel(*pSection.getLink());
+          if (llvm::ELF::R_AARCH64_ABS64 == pReloc.type() &&
+              helper_use_relative_reloc(*rsym, *this))
+            helper_DynRela_init(rsym,
+                               *pReloc.targetRef().frag(),
+                               pReloc.targetRef().offset(),
+                               R_AARCH64_RELATIVE,
+                               *this);
+          else
+            helper_DynRela_init(rsym,
+                               *pReloc.targetRef().frag(),
+                               pReloc.targetRef().offset(),
+                               pReloc.type(),
+                               *this);
+        }
+      }
+      return;
+
     case llvm::ELF::R_AARCH64_PREL64:
     case llvm::ELF::R_AARCH64_PREL32:
     case llvm::ELF::R_AARCH64_PREL16:
@@ -310,6 +396,54 @@ Relocator::Result none(Relocation& pReloc, AArch64Relocator& pParent)
 Relocator::Result unsupport(Relocation& pReloc, AArch64Relocator& pParent)
 {
   return Relocator::Unsupport;
+}
+
+// R_AARCH64_ABS64: S + A
+// R_AARCH64_ABS32: S + A
+// R_AARCH64_ABS16: S + A
+Relocator::Result abs(Relocation& pReloc, AArch64Relocator& pParent)
+{
+  ResolveInfo* rsym = pReloc.symInfo();
+  Relocator::DWord A = pReloc.target() + pReloc.addend();
+  Relocator::DWord S = pReloc.symValue();
+  Relocation* dyn_rel = pParent.getRelRelMap().lookUp(pReloc);
+  bool has_dyn_rel = (NULL != dyn_rel);
+
+  LDSection& target_sect = pReloc.targetRef().frag()->getParent()->getSection();
+  // If the flag of target section is not ALLOC, we will not scan this
+  // relocation but perform static relocation. (e.g., applying .debug section)
+  if (0x0 == (llvm::ELF::SHF_ALLOC & target_sect.flag())) {
+    pReloc.target() = S + A;
+    return Relocator::OK;
+  }
+  // A local symbol may need RELATIVE Type dynamic relocation
+  if (rsym->isLocal() && has_dyn_rel) {
+    dyn_rel->setAddend(S + A);
+  }
+
+  // An external symbol may need PLT and dynamic relocation
+  if (!rsym->isLocal()) {
+    if (rsym->reserved() & AArch64Relocator::ReservePLT) {
+      S = helper_get_PLT_address(*rsym, pParent);
+    }
+    // If we generate a dynamic relocation (except R_AARCH64_64_RELATIVE)
+    // for a place, we should not perform static relocation on it
+    // in order to keep the addend store in the place correct.
+    if (has_dyn_rel) {
+      if (llvm::ELF::R_AARCH64_ABS64 == pReloc.type() &&
+          R_AARCH64_RELATIVE == dyn_rel->type()) {
+        dyn_rel->setAddend(S + A);
+      }
+      else {
+        dyn_rel->setAddend(A);
+        return Relocator::OK;
+      }
+    }
+  }
+
+  // perform static relocation
+  pReloc.target() = S + A;
+  return Relocator::OK;
 }
 
 // R_AARCH64_PREL64: S + A - P

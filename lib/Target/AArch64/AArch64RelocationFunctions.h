@@ -12,6 +12,7 @@ static AArch64Relocator::Result Name (Relocation& pEntry, AArch64Relocator& pPar
 
 #define DECL_AARCH64_APPLY_RELOC_FUNCS \
 DECL_AARCH64_APPLY_RELOC_FUNC(none) \
+DECL_AARCH64_APPLY_RELOC_FUNC(abs) \
 DECL_AARCH64_APPLY_RELOC_FUNC(rel) \
 DECL_AARCH64_APPLY_RELOC_FUNC(call) \
 DECL_AARCH64_APPLY_RELOC_FUNC(adr_prel_pg_hi21) \
@@ -23,9 +24,9 @@ DECL_AARCH64_APPLY_RELOC_FUNC(unsupport)
 #define DECL_AARCH64_APPLY_RELOC_FUNC_PTRS(ValueType, MappedType) \
   ValueType(0x0,   MappedType(&none, "R_AARCH64_NULL")), \
   ValueType(0x100, MappedType(&none, "R_AARCH64_NONE")), \
-  ValueType(0x101, MappedType(&unsupport, "R_AARCH64_ABS64")), \
-  ValueType(0x102, MappedType(&unsupport, "R_AARCH64_ABS32")), \
-  ValueType(0x103, MappedType(&unsupport, "R_AARCH64_ABS16")), \
+  ValueType(0x101, MappedType(&abs, "R_AARCH64_ABS64", 64)), \
+  ValueType(0x102, MappedType(&abs, "R_AARCH64_ABS32", 32)), \
+  ValueType(0x103, MappedType(&abs, "R_AARCH64_ABS16", 16)), \
   ValueType(0x104, MappedType(&rel, "R_AARCH64_PREL64", 64)), \
   ValueType(0x105, MappedType(&rel, "R_AARCH64_PREL32", 32)), \
   ValueType(0x106, MappedType(&rel, "R_AARCH64_PREL16", 16)), \
