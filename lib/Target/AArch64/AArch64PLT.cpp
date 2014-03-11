@@ -115,10 +115,10 @@ void AArch64PLT::applyPLT1()
   // first gotplt1 address
   uint32_t GOTEntryAddress = got_base + GOTEntrySize * 3;
   // first plt1 address
-  uint64_t PLTEntryAddress = plt_base + AArch64PLT0::EntrySize;
+  uint32_t PLTEntryAddress = plt_base + AArch64PLT0::EntrySize;
 
   ++it; //skip PLT0
-  uint64_t PLT1EntrySize = AArch64PLT1::EntrySize;
+  uint32_t PLT1EntrySize = AArch64PLT1::EntrySize;
   AArch64PLT1* plt1 = NULL;
 
   uint32_t* Out = NULL;
