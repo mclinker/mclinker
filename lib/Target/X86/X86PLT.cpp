@@ -54,9 +54,7 @@ X86_64PLT1::X86_64PLT1(SectionData& pParent)
 //===----------------------------------------------------------------------===//
 // X86PLT
 //===----------------------------------------------------------------------===//
-X86PLT::X86PLT(LDSection& pSection,
-	       const LinkerConfig& pConfig,
-	       int got_size)
+X86PLT::X86PLT(LDSection& pSection, const LinkerConfig& pConfig, int got_size)
   : PLT(pSection),
     m_Config(pConfig)
 {
@@ -150,8 +148,8 @@ PLTEntryBase* X86PLT::getPLT0() const
 // X86_32PLT
 //===----------------------------------------------------------------------===//
 X86_32PLT::X86_32PLT(LDSection& pSection,
-		     X86_32GOTPLT& pGOTPLT,
-		     const LinkerConfig& pConfig)
+                     X86_32GOTPLT& pGOTPLT,
+                     const LinkerConfig& pConfig)
   : X86PLT(pSection, pConfig, 32),
     m_GOTPLT(pGOTPLT) {
 }
@@ -236,8 +234,8 @@ void X86_32PLT::applyPLT1()
 // X86_64PLT
 //===----------------------------------------------------------------------===//
 X86_64PLT::X86_64PLT(LDSection& pSection,
-		     X86_64GOTPLT& pGOTPLT,
-		     const LinkerConfig& pConfig)
+                     X86_64GOTPLT& pGOTPLT,
+                     const LinkerConfig& pConfig)
   : X86PLT(pSection, pConfig, 64),
     m_GOTPLT(pGOTPLT) {
 }

@@ -34,8 +34,8 @@ using namespace mcld;
 // X86GNULDBackend
 //===----------------------------------------------------------------------===//
 X86GNULDBackend::X86GNULDBackend(const LinkerConfig& pConfig,
-				 GNUInfo* pInfo,
-				 Relocation::Type pCopyRel)
+                                 GNUInfo* pInfo,
+                                 Relocation::Type pCopyRel)
   : GNULDBackend(pConfig, pInfo),
     m_pRelocator(NULL),
     m_pPLT(NULL),
@@ -132,8 +132,7 @@ const X86ELFDynamic& X86GNULDBackend::dynamic() const
   return *m_pDynamic;
 }
 
-void X86GNULDBackend::defineGOTSymbol(IRBuilder& pBuilder,
-				      Fragment& pFrag)
+void X86GNULDBackend::defineGOTSymbol(IRBuilder& pBuilder, Fragment& pFrag)
 {
   // define symbol _GLOBAL_OFFSET_TABLE_
   if (m_pGOTSymbol != NULL) {
@@ -345,7 +344,7 @@ void X86GNULDBackend::doCreateProgramHdrs(Module& pModule)
 }
 
 X86_32GNULDBackend::X86_32GNULDBackend(const LinkerConfig& pConfig,
-				       GNUInfo* pInfo)
+                                       GNUInfo* pInfo)
   : X86GNULDBackend(pConfig, pInfo, llvm::ELF::R_386_COPY),
     m_pGOT (NULL),
     m_pGOTPLT (NULL) {
@@ -366,7 +365,7 @@ bool X86_32GNULDBackend::initRelocator()
 }
 
 void X86_32GNULDBackend::initTargetSections(Module& pModule,
-					    ObjectBuilder& pBuilder)
+                                            ObjectBuilder& pBuilder)
 {
   if (LinkerConfig::Object != config().codeGenType()) {
     ELFFileFormat* file_format = getOutputFormat();
@@ -381,9 +380,7 @@ void X86_32GNULDBackend::initTargetSections(Module& pModule,
     // initialize .plt
     LDSection& plt = file_format->getPLT();
     plt.setAlign(16u);
-    m_pPLT = new X86_32PLT(plt,
-			   *m_pGOTPLT,
-			   config());
+    m_pPLT = new X86_32PLT(plt, *m_pGOTPLT, config());
 
     // initialize .rel.plt
     LDSection& relplt = file_format->getRelPlt();
@@ -524,7 +521,7 @@ uint64_t X86_32GNULDBackend::emitGOTSectionData(MemoryRegion& pRegion) const
 }
 
 uint64_t X86_32GNULDBackend::emitGOTPLTSectionData(MemoryRegion& pRegion,
-						   const ELFFileFormat* FileFormat) const
+                                                   const ELFFileFormat* FileFormat) const
 {
   assert(m_pGOTPLT && "emitGOTPLTSectionData failed, m_pGOTPLT is NULL!");
   m_pGOTPLT->applyGOT0(FileFormat->getDynamic().addr());
@@ -547,7 +544,7 @@ uint64_t X86_32GNULDBackend::emitGOTPLTSectionData(MemoryRegion& pRegion,
 }
 
 X86_64GNULDBackend::X86_64GNULDBackend(const LinkerConfig& pConfig,
-				       GNUInfo* pInfo)
+                                       GNUInfo* pInfo)
   : X86GNULDBackend(pConfig, pInfo, llvm::ELF::R_X86_64_COPY),
     m_pGOT (NULL),
     m_pGOTPLT (NULL) {
@@ -659,7 +656,7 @@ void X86_64GNULDBackend::setRelPLTSize()
 }
 
 void X86_64GNULDBackend::initTargetSections(Module& pModule,
-					    ObjectBuilder& pBuilder)
+                                            ObjectBuilder& pBuilder)
 {
   if (LinkerConfig::Object != config().codeGenType()) {
     ELFFileFormat* file_format = getOutputFormat();
@@ -674,9 +671,7 @@ void X86_64GNULDBackend::initTargetSections(Module& pModule,
     // initialize .plt
     LDSection& plt = file_format->getPLT();
     plt.setAlign(16u);
-    m_pPLT = new X86_64PLT(plt,
-			   *m_pGOTPLT,
-			   config());
+    m_pPLT = new X86_64PLT(plt, *m_pGOTPLT, config());
 
     // initialize .rela.plt
     LDSection& relplt = file_format->getRelaPlt();
@@ -725,8 +720,9 @@ uint64_t X86_64GNULDBackend::emitGOTSectionData(MemoryRegion& pRegion) const
   return RegionSize;
 }
 
-uint64_t X86_64GNULDBackend::emitGOTPLTSectionData(MemoryRegion& pRegion,
-						   const ELFFileFormat* FileFormat) const
+uint64_t
+X86_64GNULDBackend::emitGOTPLTSectionData(MemoryRegion& pRegion,
+                                          const ELFFileFormat* FileFormat) const
 {
   assert(m_pGOTPLT && "emitGOTPLTSectionData failed, m_pGOTPLT is NULL!");
   m_pGOTPLT->applyGOT0(FileFormat->getDynamic().addr());
@@ -774,10 +770,10 @@ TargetLDBackend* createX86LDBackend(const LinkerConfig& pConfig)
   llvm::Triple::ArchType arch = pConfig.targets().triple().getArch();
   if (arch == llvm::Triple::x86)
     return new X86_32GNULDBackend(pConfig,
-				  new X86_32GNUInfo(pConfig.targets().triple()));
+                                  new X86_32GNUInfo(pConfig.targets().triple()));
   assert (arch == llvm::Triple::x86_64);
   return new X86_64GNULDBackend(pConfig,
-				new X86_64GNUInfo(pConfig.targets().triple()));
+                                new X86_64GNUInfo(pConfig.targets().triple()));
 }
 
 } // namespace of mcld

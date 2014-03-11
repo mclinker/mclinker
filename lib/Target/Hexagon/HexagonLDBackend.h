@@ -169,7 +169,7 @@ private:
   virtual uint64_t emitGOTSectionData(MemoryRegion& pRegion) const;
 
   virtual uint64_t emitGOTPLTSectionData(MemoryRegion& pRegion,
-					 const ELFFileFormat* FileFormat) const;
+                                         const ELFFileFormat* FileFormat) const;
 
   virtual void setRelaDynSize();
   virtual void setRelaPLTSize();

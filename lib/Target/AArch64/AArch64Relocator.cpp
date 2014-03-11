@@ -228,7 +228,7 @@ void AArch64Relocator::scanGlobalReloc(Relocation& pReloc,
                                         false)) {
         if (getTarget().symbolNeedsCopyReloc(pReloc, *rsym)) {
           LDSymbol& cpy_sym = defineSymbolforCopyReloc(pBuilder, *rsym);
-	  addCopyReloc(*cpy_sym.resolveInfo());
+          addCopyReloc(*cpy_sym.resolveInfo());
         }
       }
       if (getTarget().symbolNeedsPLT(*rsym)) {

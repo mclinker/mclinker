@@ -7,11 +7,11 @@
 //
 //===----------------------------------------------------------------------===//
 typedef struct {
-	const char *insnSyntax;
-	uint32_t insnMask;
-	uint32_t insnCmpMask;
-	uint32_t insnBitMask;
-        bool isDuplex;
+  const char *insnSyntax;
+  uint32_t insnMask;
+  uint32_t insnCmpMask;
+  uint32_t insnBitMask;
+  bool isDuplex;
 } Instruction;
 
 //===--------------------------------------------------------------------===//
