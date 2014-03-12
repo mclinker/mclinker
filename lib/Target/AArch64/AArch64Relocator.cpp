@@ -234,18 +234,22 @@ void AArch64Relocator::scanGlobalReloc(Relocation& pReloc,
           rsym->setReserved(rsym->reserved() | ReserveRel);
           getTarget().checkAndSetHasTextRel(*pSection.getLink());
           if (llvm::ELF::R_AARCH64_ABS64 == pReloc.type() &&
-              helper_use_relative_reloc(*rsym, *this))
-            helper_DynRela_init(rsym,
-                               *pReloc.targetRef().frag(),
-                               pReloc.targetRef().offset(),
-                               R_AARCH64_RELATIVE,
-                               *this);
-          else
-            helper_DynRela_init(rsym,
-                               *pReloc.targetRef().frag(),
-                               pReloc.targetRef().offset(),
-                               pReloc.type(),
-                               *this);
+              helper_use_relative_reloc(*rsym, *this)) {
+            Relocation& reloc = helper_DynRela_init(rsym,
+                                                    *pReloc.targetRef().frag(),
+                                                    pReloc.targetRef().offset(),
+                                                    R_AARCH64_RELATIVE,
+                                                    *this);
+            getRelRelMap().record(pReloc, reloc);
+          }
+          else {
+            Relocation& reloc = helper_DynRela_init(rsym,
+                                                    *pReloc.targetRef().frag(),
+                                                    pReloc.targetRef().offset(),
+                                                    pReloc.type(),
+                                                    *this);
+            getRelRelMap().record(pReloc, reloc);
+          }
         }
       }
       return;
