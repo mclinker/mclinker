@@ -185,6 +185,8 @@ protected:
 
   size_t symbolSize() const;
 
+  const LinkerConfig& config() const { return m_Config; }
+
 private:
   EntryListType m_EntryList;
   EntryListType m_NeedList;

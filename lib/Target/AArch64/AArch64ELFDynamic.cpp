@@ -9,6 +9,7 @@
 #include "AArch64ELFDynamic.h"
 
 #include <mcld/LD/ELFFileFormat.h>
+#include <mcld/LinkerConfig.h>
 
 using namespace mcld;
 
@@ -25,14 +26,26 @@ AArch64ELFDynamic::~AArch64ELFDynamic()
 void AArch64ELFDynamic::reserveTargetEntries(const ELFFileFormat& pFormat)
 {
   // reservePLTGOT
-  if (pFormat.hasGOT())
-    reserveOne(llvm::ELF::DT_PLTGOT);
+  if (config().options().hasNow()) {
+    if (pFormat.hasGOT())
+      reserveOne(llvm::ELF::DT_PLTGOT);
+  }
+  else {
+    if (pFormat.hasGOTPLT())
+      reserveOne(llvm::ELF::DT_PLTGOT);
+  }
 }
 
 void AArch64ELFDynamic::applyTargetEntries(const ELFFileFormat& pFormat)
 {
   // applyPLTGOT
-  if (pFormat.hasGOTPLT())
-    applyOne(llvm::ELF::DT_PLTGOT, pFormat.getGOTPLT().addr());
+  if (config().options().hasNow()) {
+    if (pFormat.hasGOT())
+      applyOne(llvm::ELF::DT_PLTGOT, pFormat.getGOT().addr());
+  }
+  else {
+    if (pFormat.hasGOTPLT())
+      applyOne(llvm::ELF::DT_PLTGOT, pFormat.getGOTPLT().addr());
+  }
 }
 
