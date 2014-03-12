@@ -63,8 +63,8 @@ ARMPLT1* ARMPLT::create()
   return plt1_entry;
 }
 
-void ARMPLT::applyPLT0() {
-
+void ARMPLT::applyPLT0()
+{
   uint64_t plt_base = m_Section.addr();
   assert(plt_base && ".plt base address is NULL!");
 
@@ -97,8 +97,8 @@ void ARMPLT::applyPLT0() {
   plt0->setValue(reinterpret_cast<unsigned char*>(data));
 }
 
-void ARMPLT::applyPLT1() {
-
+void ARMPLT::applyPLT1()
+{
   uint64_t plt_base = m_Section.addr();
   assert(plt_base && ".plt base address is NULL!");
 
