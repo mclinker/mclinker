@@ -19,6 +19,7 @@ DECL_AARCH64_APPLY_RELOC_FUNC(adr_prel_pg_hi21) \
 DECL_AARCH64_APPLY_RELOC_FUNC(add_abs_lo12) \
 DECL_AARCH64_APPLY_RELOC_FUNC(adr_got_page) \
 DECL_AARCH64_APPLY_RELOC_FUNC(ld64_got_lo12) \
+DECL_AARCH64_APPLY_RELOC_FUNC(ldst_abs_lo12) \
 DECL_AARCH64_APPLY_RELOC_FUNC(unsupport)
 
 #define DECL_AARCH64_APPLY_RELOC_FUNC_PTRS(ValueType, MappedType) \
@@ -45,15 +46,15 @@ DECL_AARCH64_APPLY_RELOC_FUNC(unsupport)
   ValueType(0x113, MappedType(&adr_prel_pg_hi21, "R_AARCH64_ADR_PREL_PG_HI21", 32)), \
   ValueType(0x114, MappedType(&adr_prel_pg_hi21, "R_AARCH64_ADR_PREL_PG_HI21_NC", 32)), \
   ValueType(0x115, MappedType(&add_abs_lo12, "R_AARCH64_ADD_ABS_LO12_NC", 32)), \
-  ValueType(0x116, MappedType(&unsupport, "R_AARCH64_LDST8_ABS_LO12_NC")), \
+  ValueType(0x116, MappedType(&ldst_abs_lo12, "R_AARCH64_LDST8_ABS_LO12_NC", 32)), \
   ValueType(0x117, MappedType(&unsupport, "R_AARCH64_TSTBR14")), \
   ValueType(0x118, MappedType(&unsupport, "R_AARCH64_CONDBR19")), \
   ValueType(0x11a, MappedType(&call, "R_AARCH64_JUMP26", 32)), \
   ValueType(0x11b, MappedType(&call, "R_AARCH64_CALL26", 32)), \
-  ValueType(0x11c, MappedType(&unsupport, "R_AARCH64_LDST16_ABS_LO12_NC")), \
-  ValueType(0x11d, MappedType(&unsupport, "R_AARCH64_LDST32_ABS_LO12_NC")), \
-  ValueType(0x11e, MappedType(&unsupport, "R_AARCH64_LDST64_ABS_LO12_NC")), \
-  ValueType(0x12b, MappedType(&unsupport, "R_AARCH64_LDST128_ABS_LO12_NC")), \
+  ValueType(0x11c, MappedType(&ldst_abs_lo12, "R_AARCH64_LDST16_ABS_LO12_NC", 32)), \
+  ValueType(0x11d, MappedType(&ldst_abs_lo12, "R_AARCH64_LDST32_ABS_LO12_NC", 32)), \
+  ValueType(0x11e, MappedType(&ldst_abs_lo12, "R_AARCH64_LDST64_ABS_LO12_NC", 32)), \
+  ValueType(0x12b, MappedType(&ldst_abs_lo12, "R_AARCH64_LDST128_ABS_LO12_NC", 32)), \
   ValueType(0x137, MappedType(&adr_got_page, "R_AARCH64_ADR_GOT_PAGE", 32)), \
   ValueType(0x138, MappedType(&ld64_got_lo12, "R_AARCH64_LD64_GOT_LO12_NC", 32)), \
   ValueType(0x20b, MappedType(&unsupport, "R_AARCH64_TLSLD_MOVW_DTPREL_G2")), \

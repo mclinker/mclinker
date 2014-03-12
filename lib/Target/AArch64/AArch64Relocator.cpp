@@ -604,3 +604,41 @@ Relocator::Result ld64_got_lo12(Relocation& pReloc, AArch64Relocator& pParent)
 
   return Relocator::OK;
 }
+
+// R_AARCH64_LDST8_ABS_LO12_NC: S + A
+// R_AARCH64_LDST16_ABS_LO12_NC: S + A
+// R_AARCH64_LDST32_ABS_LO12_NC: S + A
+// R_AARCH64_LDST64_ABS_LO12_NC: S + A
+// R_AARCH64_LDST128_ABS_LO12_NC: S + A
+Relocator::Result ldst_abs_lo12(Relocation& pReloc, AArch64Relocator& pParent)
+{
+  Relocator::Address S = pReloc.symValue();
+  Relocator::DWord A = pReloc.addend();
+  Relocator::DWord X = helper_get_page_offset(S + A);
+
+  switch(pReloc.type()) {
+     case llvm::ELF::R_AARCH64_LDST8_ABS_LO12_NC:
+       pReloc.target() = helper_reencode_ldst_pos_imm(pReloc.target(), X);
+       break;
+     case llvm::ELF::R_AARCH64_LDST16_ABS_LO12_NC:
+       pReloc.target() = helper_reencode_ldst_pos_imm(pReloc.target(),
+                                                      (X >> 1));
+       break;
+     case llvm::ELF::R_AARCH64_LDST32_ABS_LO12_NC:
+       pReloc.target() = helper_reencode_ldst_pos_imm(pReloc.target(),
+                                                      (X >> 2));
+       break;
+     case llvm::ELF::R_AARCH64_LDST64_ABS_LO12_NC:
+       pReloc.target() = helper_reencode_ldst_pos_imm(pReloc.target(),
+                                                      (X >> 3));
+       break;
+     case llvm::ELF::R_AARCH64_LDST128_ABS_LO12_NC:
+       pReloc.target() = helper_reencode_ldst_pos_imm(pReloc.target(),
+                                                      (X >> 4));
+       break;
+    default:
+       break;
+  }
+  return Relocator::OK;
+}
+
