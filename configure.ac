@@ -51,8 +51,8 @@ AC_PROG_CXX
 AC_PATH_PROG([FLEX],[flex])
 AX_PROG_FLEX_VERSION([2.5.35],[],[AC_MSG_ERROR([Require flex 2.5.35 or later])])
 AC_PATH_PROG([BISON],[bison])
-AX_PROG_BISON_VERSION([2.4.3],[3.0],[],
-                      [AC_MSG_ERROR([Require bison >= 2.4.3 and < 3.0])])
+AX_PROG_BISON_VERSION([2.4.3],[3.1],[],
+                      [AC_MSG_ERROR([Require bison >= 2.4.3 and < 3.1])])
 
 AC_LANG([C++])
 LT_INIT
