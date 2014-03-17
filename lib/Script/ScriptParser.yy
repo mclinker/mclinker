@@ -36,7 +36,6 @@ using namespace mcld;
 
 }
 
-%pure-parser
 %require "2.4"
 %skeleton "glr.cc"
 %defines "ScriptParser.h"
