@@ -67,6 +67,13 @@ helper_reencode_branch_offset_26(uint32_t pInst, uint32_t pOff)
   return (pInst & ~get_mask(26)) | (pOff & get_mask(26));
 }
 
+// Encode the 19-bit offset of conditional branch and compare & branch.
+static inline uint32_t
+helper_reencode_cond_branch_ofs_19(uint32_t pInst, uint32_t pOff)
+{
+  return (pInst & ~(get_mask(19) << 5)) | ((pOff & get_mask(19)) << 5);
+}
+
 // Reencode the imm field of ld/st pos immediate.
 static inline uint32_t
 helper_reencode_ldst_pos_imm (uint32_t pInst, uint32_t pImm)

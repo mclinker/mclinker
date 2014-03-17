@@ -285,6 +285,7 @@ void AArch64Relocator::scanGlobalReloc(Relocation& pReloc,
       }
       return;
 
+    case llvm::ELF::R_AARCH64_CONDBR19:
     case llvm::ELF::R_AARCH64_JUMP26:
     case llvm::ELF::R_AARCH64_CALL26: {
       // return if we already create plt for this symbol
@@ -521,6 +522,7 @@ adr_prel_pg_hi21(Relocation& pReloc, AArch64Relocator& pParent)
 }
 
 // R_AARCH64_CALL26: S + A - P
+// R_AARCH64_JUMP26: S + A - P
 Relocator::Result call(Relocation& pReloc, AArch64Relocator& pParent)
 {
   // If target is undefined weak symbol, we only need to jump to the
@@ -547,6 +549,37 @@ Relocator::Result call(Relocation& pReloc, AArch64Relocator& pParent)
   // TODO: check overflow..
 
   pReloc.target() = helper_reencode_branch_offset_26(pReloc.target(), X >> 2);
+
+  return Relocator::OK;
+}
+
+// R_AARCH64_CONDBR19: S + A - P
+Relocator::Result condbr(Relocation& pReloc, AArch64Relocator& pParent)
+{
+  // If target is undefined weak symbol, we only need to jump to the
+  // next instruction unless it has PLT entry. Rewrite instruction
+  // to NOP.
+  if (pReloc.symInfo()->isWeak() &&
+      pReloc.symInfo()->isUndef() &&
+      !pReloc.symInfo()->isDyn() &&
+      !(pReloc.symInfo()->reserved() & AArch64Relocator::ReservePLT)) {
+    // change target to NOP
+    pReloc.target() = 0xd503201f;
+    return Relocator::OK;
+  }
+
+  Relocator::Address S = pReloc.symValue();
+  Relocator::DWord   A = pReloc.addend();
+  Relocator::Address P = pReloc.place();
+
+  // S depends on PLT exists or not
+  if (pReloc.symInfo()->reserved() & AArch64Relocator::ReservePLT)
+    S = helper_get_PLT_address(*pReloc.symInfo(), pParent);
+
+  Relocator::DWord X = S + A - P;
+  // TODO: check overflow..
+
+  pReloc.target() = helper_reencode_cond_branch_ofs_19(pReloc.target(), X >> 2);
 
   return Relocator::OK;
 }
