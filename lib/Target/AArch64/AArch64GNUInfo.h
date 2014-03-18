@@ -23,6 +23,8 @@ public:
 
   uint64_t abiPageSize() const { return 0x10000; }
 
+  uint64_t defaultTextSegmentAddr() const { return 0x400000; }
+
   // There are no processor-specific flags so this field shall contain zero.
   uint64_t flags() const { return 0x0; }
 };
