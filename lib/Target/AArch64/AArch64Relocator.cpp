@@ -193,6 +193,23 @@ AArch64Relocator::scanLocalReloc(Relocation& pReloc, const LDSection& pSection)
       }
       return;
 
+    case llvm::ELF::R_AARCH64_ADR_GOT_PAGE:
+    case llvm::ELF::R_AARCH64_LD64_GOT_LO12_NC: {
+      // Symbol needs GOT entry, reserve entry in .got
+      // return if we already create GOT for this symbol
+      if (rsym->reserved() & ReserveGOT)
+        return;
+      // If building PIC object, a dynamic relocation with
+      // type RELATIVE is needed to relocate this GOT entry.
+      if (config().isCodeIndep())
+         helper_GOT_init(pReloc, true, *this);
+      else
+         helper_GOT_init(pReloc, false, *this);
+      // set GOT bit
+      rsym->setReserved(rsym->reserved() | ReserveGOT);
+      return;
+    }
+
     default:
       break;
   }
