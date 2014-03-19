@@ -49,7 +49,7 @@ DECL_AARCH64_APPLY_RELOC_FUNC(unsupport)
   ValueType(0x115, MappedType(&add_abs_lo12, "R_AARCH64_ADD_ABS_LO12_NC", 32)), \
   ValueType(0x116, MappedType(&ldst_abs_lo12, "R_AARCH64_LDST8_ABS_LO12_NC", 32)), \
   ValueType(0x117, MappedType(&unsupport, "R_AARCH64_TSTBR14")), \
-  ValueType(0x118, MappedType(&condbr, "R_AARCH64_CONDBR19")), \
+  ValueType(0x118, MappedType(&condbr, "R_AARCH64_CONDBR19", 32)), \
   ValueType(0x11a, MappedType(&call, "R_AARCH64_JUMP26", 32)), \
   ValueType(0x11b, MappedType(&call, "R_AARCH64_CALL26", 32)), \
   ValueType(0x11c, MappedType(&ldst_abs_lo12, "R_AARCH64_LDST16_ABS_LO12_NC", 32)), \
