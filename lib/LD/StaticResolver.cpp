@@ -118,7 +118,7 @@ bool StaticResolver::resolve(ResolveInfo& __restrict__ pOld,
         // We've seen a common symbol and now we see a definition.  The
         // definition overrides.
         //
-	// NOTE: m_Mesg uses 'name' instead of `name' for being compatible to GNU ld.
+        // NOTE: m_Mesg uses 'name' instead of `name' for being compatible to GNU ld.
         ignore(diag::redefine_common) << old->name();
         old->override(pNew);
         pOverride = true;

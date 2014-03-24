@@ -6,6 +6,7 @@ add_mcld_executable(ld.mcld
 
 target_link_libraries(ld.mcld
   MCLDADT
+  MCLDAArch64LDBackend
   MCLDARMLDBackend
   MCLDHexagonLDBackend
   MCLDMipsLDBackend

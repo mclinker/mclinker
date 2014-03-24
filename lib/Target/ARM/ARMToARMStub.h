@@ -7,8 +7,8 @@
 //
 //===----------------------------------------------------------------------===//
 
-#ifndef MCLD_ARM_ARMTOARMSTUB_H
-#define MCLD_ARM_ARMTOARMSTUB_H
+#ifndef TARGET_ARM_ARMTOARMSTUB_H
+#define TARGET_ARM_ARMTOARMSTUB_H
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif

@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_HEXAGON_TARGET_MACHINE_H
-#define MCLD_HEXAGON_TARGET_MACHINE_H
+#ifndef TARGET_HEXAGON_HEXAGONTARGETMACHINE_H
+#define TARGET_HEXAGON_HEXAGONTARGETMACHINE_H
 #include "Hexagon.h"
 #include <mcld/CodeGen/TargetMachine.h>
 

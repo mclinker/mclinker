@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_MIPS_LA25_STUB_H
-#define MCLD_MIPS_LA25_STUB_H
+#ifndef TARGET_MIPS_MIPSLA25STUB_H
+#define TARGET_MIPS_MIPSLA25STUB_H
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif

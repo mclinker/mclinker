@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef X86_LDBACKEND_H
-#define X86_LDBACKEND_H
+#ifndef TARGET_X86_X86LDBACKEND_H
+#define TARGET_X86_X86LDBACKEND_H
 
 #include "X86ELFDynamic.h"
 #include "X86GOT.h"
@@ -29,8 +29,8 @@ class X86GNULDBackend : public GNULDBackend
 {
 public:
   X86GNULDBackend(const LinkerConfig& pConfig,
-		  GNUInfo* pInfo,
-		  Relocation::Type pCopyRel);
+                  GNUInfo* pInfo,
+                  Relocation::Type pCopyRel);
 
   ~X86GNULDBackend();
 
@@ -124,8 +124,9 @@ private:
 
   virtual uint64_t emitGOTSectionData(MemoryRegion& pRegion) const = 0;
 
-  virtual uint64_t emitGOTPLTSectionData(MemoryRegion& pRegion,
-					 const ELFFileFormat* FileFormat) const = 0;
+  virtual uint64_t
+  emitGOTPLTSectionData(MemoryRegion& pRegion,
+                        const ELFFileFormat* FileFormat) const = 0;
 
   virtual void setRelDynSize() = 0;
   virtual void setRelPLTSize() = 0;
@@ -182,7 +183,7 @@ private:
   uint64_t emitGOTSectionData(MemoryRegion& pRegion) const;
 
   uint64_t emitGOTPLTSectionData(MemoryRegion& pRegion,
-				 const ELFFileFormat* FileFormat) const;
+                                 const ELFFileFormat* FileFormat) const;
 
   void setRelDynSize();
   void setRelPLTSize();
@@ -225,7 +226,7 @@ private:
   uint64_t emitGOTSectionData(MemoryRegion& pRegion) const;
 
   uint64_t emitGOTPLTSectionData(MemoryRegion& pRegion,
-				 const ELFFileFormat* FileFormat) const;
+                                 const ELFFileFormat* FileFormat) const;
 
   void setRelDynSize();
   void setRelPLTSize();

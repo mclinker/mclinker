@@ -86,14 +86,14 @@ public:
 
   uint64_t addr() const { return m_Section.addr(); }
 
-  const_iterator begin() const { return m_SectionData->begin(); }
-  iterator       begin()       { return m_SectionData->begin(); }
-  const_iterator end  () const { return m_SectionData->end();   }
-  iterator       end  ()       { return m_SectionData->end();   }
+  const_iterator begin() const { return m_pSectionData->begin(); }
+  iterator       begin()       { return m_pSectionData->begin(); }
+  const_iterator end  () const { return m_pSectionData->end();   }
+  iterator       end  ()       { return m_pSectionData->end();   }
 
 protected:
   LDSection& m_Section;
-  SectionData* m_SectionData;
+  SectionData* m_pSectionData;
 };
 
 } // namespace of mcld

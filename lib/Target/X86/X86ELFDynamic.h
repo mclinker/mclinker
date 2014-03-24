@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_X86_ELFDYNAMIC_SECTION_H
-#define MCLD_X86_ELFDYNAMIC_SECTION_H
+#ifndef TARGET_X86_X86ELFDYNAMIC_H
+#define TARGET_X86_X86ELFDYNAMIC_H
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif

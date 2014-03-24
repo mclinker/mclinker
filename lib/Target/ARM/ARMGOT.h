@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_ARM_GOT_H
-#define MCLD_ARM_GOT_H
+#ifndef TARGET_ARM_ARMGOT_H
+#define TARGET_ARM_ARMGOT_H
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif

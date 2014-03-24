@@ -76,6 +76,7 @@ set(MCLD_DEFAULT_TARGET_TRIPLE "${LLVM_HOST_TRIPLE}" CACHE STRING
   message(STATUS "MCLD version: " ${MCLD_VERSION})
 
 set(MCLD_ALL_TARGETS
+  AArch64
   ARM
   Hexagon
   Mips

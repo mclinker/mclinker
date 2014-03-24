@@ -20,7 +20,7 @@ class GOT;
 PLT::PLT(LDSection& pSection)
   :m_Section(pSection)
 {
-  m_SectionData = IRBuilder::CreateSectionData(pSection);
+  m_pSectionData = IRBuilder::CreateSectionData(pSection);
 }
 
 PLT::~PLT()

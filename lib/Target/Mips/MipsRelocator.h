@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MIPS_RELOCATION_FACTORY_H
-#define MIPS_RELOCATION_FACTORY_H
+#ifndef TARGET_MIPS_MIPSRELOCATOR_H
+#define TARGET_MIPS_MIPSRELOCATOR_H
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif

@@ -84,6 +84,7 @@ inline void
 ParseEmulation(llvm::Triple& pTriple, const std::string& pEmulation)
 {
   llvm::Triple triple = llvm::StringSwitch<llvm::Triple>(pEmulation)
+    .Case("aarch64linux",      llvm::Triple("aarch64", "", "linux", "gnu"))
     .Case("armelf_linux_eabi", llvm::Triple("arm", "", "linux", "gnueabi"))
     .Case("elf_i386",          llvm::Triple("i386", "", "", "gnu"))
     .Case("elf_x86_64",        llvm::Triple("x86_64", "", "", "gnu"))

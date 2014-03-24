@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_TARGET_HEXAGON_H
-#define MCLD_TARGET_HEXAGON_H
+#ifndef TARGET_HEXAGON_HEXAGON_H
+#define TARGET_HEXAGON_HEXAGON_H
 #include <string>
 
 namespace llvm {

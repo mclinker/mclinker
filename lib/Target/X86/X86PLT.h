@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_TARGET_X86_PLT_H
-#define MCLD_TARGET_X86_PLT_H
+#ifndef TARGET_X86_X86PLT_H
+#define TARGET_X86_X86PLT_H
 
 #include <mcld/Target/PLT.h>
 
@@ -110,7 +110,7 @@ class X86PLT : public PLT
 public:
   X86PLT(LDSection& pSection,
          const LinkerConfig& pConfig,
-	 int got_size);
+         int got_size);
   ~X86PLT();
 
   // finalizeSectionSize - set LDSection size
@@ -150,8 +150,8 @@ class X86_32PLT : public X86PLT
 {
 public:
   X86_32PLT(LDSection& pSection,
-	    X86_32GOTPLT& pGOTPLT,
-	    const LinkerConfig& pConfig);
+            X86_32GOTPLT& pGOTPLT,
+            const LinkerConfig& pConfig);
 
   void applyPLT0();
 
@@ -171,8 +171,8 @@ class X86_64PLT : public X86PLT
 {
 public:
   X86_64PLT(LDSection& pSection,
-	    X86_64GOTPLT& pGOTPLT,
-	    const LinkerConfig& pConfig);
+            X86_64GOTPLT& pGOTPLT,
+            const LinkerConfig& pConfig);
 
   void applyPLT0();
 

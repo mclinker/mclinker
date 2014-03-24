@@ -110,6 +110,11 @@ void ELFDynamic::reserveEntries(const ELFFileFormat& pFormat)
   if (pFormat.hasFini())
     reserveOne(llvm::ELF::DT_FINI); // DT_FINI
 
+  if (pFormat.hasPreInitArray()) {
+    reserveOne(llvm::ELF::DT_PREINIT_ARRAY); // DT_PREINIT_ARRAY
+    reserveOne(llvm::ELF::DT_PREINIT_ARRAYSZ); // DT_PREINIT_ARRAYSZ
+  }
+
   if (pFormat.hasInitArray()) {
     reserveOne(llvm::ELF::DT_INIT_ARRAY); // DT_INIT_ARRAY
     reserveOne(llvm::ELF::DT_INIT_ARRAYSZ); // DT_INIT_ARRAYSZ
@@ -207,6 +212,13 @@ void ELFDynamic::applyEntries(const ELFFileFormat& pFormat)
 
   if (pFormat.hasFini())
     applyOne(llvm::ELF::DT_FINI, pFormat.getFini().addr()); // DT_FINI
+
+  if (pFormat.hasPreInitArray()) {
+    // DT_PREINIT_ARRAY
+    applyOne(llvm::ELF::DT_PREINIT_ARRAY, pFormat.getPreInitArray().addr());
+    // DT_PREINIT_ARRAYSZ
+    applyOne(llvm::ELF::DT_PREINIT_ARRAYSZ, pFormat.getPreInitArray().size());
+  }
 
   if (pFormat.hasInitArray()) {
     // DT_INIT_ARRAY

@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_ARM_TARGET_MACHINE_H
-#define MCLD_ARM_TARGET_MACHINE_H
+#ifndef TARGET_ARM_ARMTARGETMACHINE_H
+#define TARGET_ARM_ARMTARGETMACHINE_H
 
 #include "ARM.h"
 #include <mcld/CodeGen/TargetMachine.h>

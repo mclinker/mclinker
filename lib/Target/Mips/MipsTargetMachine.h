@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MIPS_TARGET_MACHINE_H
-#define MIPS_TARGET_MACHINE_H
+#ifndef TARGET_MIPS_MIPSTARGETMACHINE_H
+#define TARGET_MIPS_MIPSTARGETMACHINE_H
 
 #include <mcld/CodeGen/TargetMachine.h>
 

@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef X86_RELOCATION_FACTORY_H
-#define X86_RELOCATION_FACTORY_H
+#ifndef TARGET_X86_X86RELOCATOR_H
+#define TARGET_X86_X86RELOCATOR_H
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif

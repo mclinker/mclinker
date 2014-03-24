@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MIPS_ELF_SECTION_LINKER_H
-#define MIPS_ELF_SECTION_LINKER_H
+#ifndef TARGET_MIPS_MIPSELFMCLINKER_H
+#define TARGET_MIPS_MIPSELFMCLINKER_H
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif

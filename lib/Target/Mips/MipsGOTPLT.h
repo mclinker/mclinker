@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_MIPS_GOTPLT_H
-#define MCLD_MIPS_GOTPLT_H
+#ifndef TARGET_MIPS_MIPSGOTPLT_H
+#define TARGET_MIPS_MIPSGOTPLT_H
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif

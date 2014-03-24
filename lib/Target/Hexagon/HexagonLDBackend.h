@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef HEXAGON_LDBACKEND_H
-#define HEXAGON_LDBACKEND_H
+#ifndef TARGET_HEXAGON_HEXAGONLDBACKEND_H
+#define TARGET_HEXAGON_HEXAGONLDBACKEND_H
 
 #include "HexagonELFDynamic.h"
 #include "HexagonGOT.h"
@@ -169,7 +169,7 @@ private:
   virtual uint64_t emitGOTSectionData(MemoryRegion& pRegion) const;
 
   virtual uint64_t emitGOTPLTSectionData(MemoryRegion& pRegion,
-					 const ELFFileFormat* FileFormat) const;
+                                         const ELFFileFormat* FileFormat) const;
 
   virtual void setRelaDynSize();
   virtual void setRelaPLTSize();

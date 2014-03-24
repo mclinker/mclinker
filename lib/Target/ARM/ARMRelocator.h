@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef ARM_RELOCATION_FACTORY_H
-#define ARM_RELOCATION_FACTORY_H
+#ifndef TARGET_ARM_ARMRELOCATOR_H
+#define TARGET_ARM_ARMRELOCATOR_H
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif

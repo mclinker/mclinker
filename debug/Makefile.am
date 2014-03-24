@@ -163,6 +163,28 @@ SOURCE = ${LIBDIR}/ADT/StringEntry.cpp \
 	${LIBDIR}/Target/OutputRelocSection.cpp \
 	${LIBDIR}/Target/PLT.cpp \
 	${LIBDIR}/Target/TargetLDBackend.cpp \
+	${LIBDIR}/Target/AArch64/AArch64Diagnostic.cpp \
+	${LIBDIR}/Target/AArch64/AArch64ELFDynamic.cpp \
+	${LIBDIR}/Target/AArch64/AArch64ELFDynamic.h \
+	${LIBDIR}/Target/AArch64/AArch64ELFMCLinker.cpp \
+	${LIBDIR}/Target/AArch64/AArch64ELFMCLinker.h \
+	${LIBDIR}/Target/AArch64/AArch64Emulation.cpp \
+	${LIBDIR}/Target/AArch64/AArch64GNUInfo.h \
+	${LIBDIR}/Target/AArch64/AArch64GOT.cpp \
+	${LIBDIR}/Target/AArch64/AArch64GOT.h \
+	${LIBDIR}/Target/AArch64/AArch64.h \
+	${LIBDIR}/Target/AArch64/AArch64LDBackend.cpp \
+	${LIBDIR}/Target/AArch64/AArch64LDBackend.h \
+	${LIBDIR}/Target/AArch64/AArch64MCLinker.cpp \
+	${LIBDIR}/Target/AArch64/AArch64PLT.cpp \
+	${LIBDIR}/Target/AArch64/AArch64PLT.h \
+	${LIBDIR}/Target/AArch64/AArch64RelocationFunctions.h \
+	${LIBDIR}/Target/AArch64/AArch64RelocationHelpers.h \
+	${LIBDIR}/Target/AArch64/AArch64Relocator.cpp \
+	${LIBDIR}/Target/AArch64/AArch64Relocator.h \
+	${LIBDIR}/Target/AArch64/AArch64TargetMachine.cpp \
+	${LIBDIR}/Target/AArch64/AArch64TargetMachine.h \
+	${LIBDIR}/Target/AArch64/TargetInfo/AArch64TargetInfo.cpp \
 	${LIBDIR}/Target/ARM/ARMDiagnostic.cpp \
 	${LIBDIR}/Target/ARM/ARMELFAttributeData.cpp \
 	${LIBDIR}/Target/ARM/ARMELFAttributeData.h \

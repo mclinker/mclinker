@@ -16,6 +16,7 @@ target_link_libraries(MCLDCore
   MCLDADT
   MCLDMC
   MCLDObject
+  MCLDAArch64LDBackend
   MCLDARMLDBackend
   MCLDHexagonLDBackend
   MCLDMipsLDBackend

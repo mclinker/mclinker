@@ -32,6 +32,6 @@ void HexagonELFDynamic::applyTargetEntries(const ELFFileFormat& pFormat)
 {
   // applyPLTGOT
   if (pFormat.hasGOTPLT())
-	  applyOne(llvm::ELF::DT_PLTGOT, pFormat.getGOTPLT().addr());
+    applyOne(llvm::ELF::DT_PLTGOT, pFormat.getGOTPLT().addr());
 }
 

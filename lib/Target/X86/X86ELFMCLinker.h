@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef X86_ELFSECTLINKER_H
-#define X86_ELFSECTLINKER_H
+#ifndef TARGET_X86_X86ELFMCLINKER_H
+#define TARGET_X86_X86ELFMCLINKER_H
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif

@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_TARGET_HEXAGON_PLT_H
-#define MCLD_TARGET_HEXAGON_PLT_H
+#ifndef TARGET_HEXAGON_HEXAGONPLT_H
+#define TARGET_HEXAGON_HEXAGONPLT_H
 
 #include "HexagonGOT.h"
 #include "HexagonGOTPLT.h"
@@ -29,14 +29,14 @@ const uint8_t hexagon_plt0[] = {
  0x00, 0x00, 0x00, 0x00,
  0x00, 0x00, 0x00, 0x00,
  0x00, 0x00, 0x00, 0x00,
- 0x00, 0x00, 0x00, 0x00,
+ 0x00, 0x00, 0x00, 0x00
 };
 
 const uint8_t hexagon_plt1[] = {
   0x00, 0x40, 0x00, 0x00, // { immext (#0)
   0x0e, 0xc0, 0x49, 0x6a, //   r14 = add (pc, ##GOTn@PCREL) } # address of GOTn
   0x1c, 0xc0, 0x8e, 0x91, // r28 = memw (r14)                 # contents of GOTn
-  0x00, 0xc0, 0x9c, 0x52, // jumpr r28                        # call it
+  0x00, 0xc0, 0x9c, 0x52  // jumpr r28                        # call it
 };
 
 } // anonymous namespace

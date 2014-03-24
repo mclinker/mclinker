@@ -1041,6 +1041,7 @@ static std::string ParseProgName(const char *progname)
 static Triple ParseEmulation(const std::string& pEmulation)
 {
   Triple result = StringSwitch<Triple>(pEmulation)
+    .Case("aarch64linux",      Triple("aarch64", "", "linux", "gnu"))
     .Case("armelf_linux_eabi", Triple("arm", "", "linux", "gnueabi"))
     .Case("elf_i386",          Triple("i386", "", "", "gnu"))
     .Case("elf_x86_64",        Triple("x86_64", "", "", "gnu"))
