@@ -795,7 +795,7 @@ void Mips64Relocator::setupRelDynEntry(FragmentRef& pFragRef, ResolveInfo* pSym)
 static
 MipsRelocator::Result none(MipsRelocationInfo& pReloc, MipsRelocator& pParent)
 {
-  return MipsRelocator::OK;
+  return Relocator::OK;
 }
 
 // R_MIPS_32: S + A
@@ -814,17 +814,17 @@ MipsRelocator::Result abs32(MipsRelocationInfo& pReloc, MipsRelocator& pParent)
   // but perform static relocation. (e.g., applying .debug section)
   if (0x0 == (llvm::ELF::SHF_ALLOC & target_sect.flag())) {
     pReloc.result() = S + A;
-    return MipsRelocator::OK;
+    return Relocator::OK;
   }
 
   if (rsym->reserved() & MipsRelocator::ReserveRel) {
     pParent.createDynRel(pReloc);
-    return MipsRelocator::OK;
+    return Relocator::OK;
   }
 
   pReloc.result() = S + A;
 
-  return MipsRelocator::OK;
+  return Relocator::OK;
 }
 
 // R_MIPS_26:
@@ -848,7 +848,7 @@ MipsRelocator::Result rel26(MipsRelocationInfo& pReloc, MipsRelocator& pParent)
 
   pReloc.result() = (pReloc.result() + S) >> 2;
 
-  return MipsRelocator::OK;
+  return Relocator::OK;
 }
 
 // R_MIPS_HI16:
@@ -872,7 +872,7 @@ MipsRelocator::Result hi16(MipsRelocationInfo& pReloc, MipsRelocator& pParent)
       pReloc.result() = ((AHL + S) - (int16_t)(AHL + S)) >> 16;
   }
 
-  return MipsRelocator::OK;
+  return Relocator::OK;
 }
 
 // R_MIPS_LO16:
@@ -898,7 +898,7 @@ MipsRelocator::Result lo16(MipsRelocationInfo& pReloc, MipsRelocator& pParent)
 
   pParent.applyPostponedRelocations(pReloc);
 
-  return MipsRelocator::OK;
+  return Relocator::OK;
 }
 
 // R_MIPS_GPREL16:
@@ -919,7 +919,7 @@ MipsRelocator::Result gprel16(MipsRelocationInfo& pReloc, MipsRelocator& pParent
   else
     pReloc.result() = A + S - GP;
 
-  return MipsRelocator::OK;
+  return Relocator::OK;
 }
 
 // R_MIPS_GOT16:
@@ -943,7 +943,7 @@ MipsRelocator::Result got16(MipsRelocationInfo& pReloc, MipsRelocator& pParent)
     pReloc.result() = pParent.getGOTOffset(pReloc);
   }
 
-  return MipsRelocator::OK;
+  return Relocator::OK;
 }
 
 // R_MIPS_GOTHI16:
@@ -956,7 +956,7 @@ MipsRelocator::Result gothi16(MipsRelocationInfo& pReloc, MipsRelocator& pParent
 
   pReloc.result() = (G - (int16_t)G) >> (16 + A);
 
-  return MipsRelocator::OK;
+  return Relocator::OK;
 }
 
 // R_MIPS_GOTLO16:
@@ -966,7 +966,7 @@ MipsRelocator::Result gotlo16(MipsRelocationInfo& pReloc, MipsRelocator& pParent
 {
   pReloc.result() = pParent.getGOTOffset(pReloc) & 0xffff;
 
-  return MipsRelocator::OK;
+  return Relocator::OK;
 }
 
 // R_MIPS_SUB:
@@ -979,7 +979,7 @@ MipsRelocator::Result sub(MipsRelocationInfo& pReloc, MipsRelocator& pParent)
 
   pReloc.result() = S - A;
 
-  return MipsRelocator::OK;
+  return Relocator::OK;
 }
 
 // R_MIPS_CALL16: G
@@ -988,7 +988,7 @@ MipsRelocator::Result call16(MipsRelocationInfo& pReloc, MipsRelocator& pParent)
 {
   pReloc.result() = pParent.getGOTOffset(pReloc);
 
-  return MipsRelocator::OK;
+  return Relocator::OK;
 }
 
 // R_MIPS_GPREL32: A + S + GP0 - GP
@@ -1003,7 +1003,7 @@ MipsRelocator::Result gprel32(MipsRelocationInfo& pReloc, MipsRelocator& pParent
 
   pReloc.result() = A + S + GP0 - GP;
 
-  return MipsRelocator::OK;
+  return Relocator::OK;
 }
 
 // R_MIPS_64: S + A
@@ -1024,17 +1024,17 @@ MipsRelocator::Result abs64(MipsRelocationInfo& pReloc, MipsRelocator& pParent)
   // but perform static relocation. (e.g., applying .debug section)
   if (0x0 == (llvm::ELF::SHF_ALLOC & target_sect.flag())) {
     pReloc.result() = S + A;
-    return MipsRelocator::OK;
+    return Relocator::OK;
   }
 
   if (rsym->reserved() & MipsRelocator::ReserveRel) {
     pParent.createDynRel(pReloc);
-    return MipsRelocator::OK;
+    return Relocator::OK;
   }
 
   pReloc.result() = S + A;
 
-  return MipsRelocator::OK;
+  return Relocator::OK;
 }
 
 // R_MIPS_GOT_DISP / R_MIPS_GOT_PAGE: G
@@ -1043,7 +1043,7 @@ MipsRelocator::Result gotdisp(MipsRelocationInfo& pReloc, MipsRelocator& pParent
 {
   pReloc.result() = pParent.getGOTOffset(pReloc);
 
-  return MipsRelocator::OK;
+  return Relocator::OK;
 }
 
 // R_MIPS_GOT_OFST:
@@ -1051,14 +1051,14 @@ static
 MipsRelocator::Result gotoff(MipsRelocationInfo& pReloc, MipsRelocator& pParent)
 {
   // FIXME (simon): Needs to be implemented.
-  return MipsRelocator::OK;
+  return Relocator::OK;
 }
 
 // R_MIPS_JALR:
 static
 MipsRelocator::Result jalr(MipsRelocationInfo& pReloc, MipsRelocator& pParent)
 {
-  return MipsRelocator::OK;
+  return Relocator::OK;
 }
 
 // R_MIPS_LA25_LUI
@@ -1069,7 +1069,7 @@ MipsRelocator::Result la25lui(MipsRelocationInfo& pReloc, MipsRelocator& pParent
 
   pReloc.result() = (S + 0x8000) >> 16;
 
-  return MipsRelocator::OK;
+  return Relocator::OK;
 }
 
 // R_MIPS_LA25_J
@@ -1080,7 +1080,7 @@ MipsRelocator::Result la25j(MipsRelocationInfo& pReloc, MipsRelocator& pParent)
 
   pReloc.result() = S >> 2;
 
-  return MipsRelocator::OK;
+  return Relocator::OK;
 }
 
 // R_MIPS_LA25_ADD
@@ -1089,18 +1089,18 @@ MipsRelocator::Result la25add(MipsRelocationInfo& pReloc, MipsRelocator& pParent
 {
   pReloc.result() = pReloc.S();
 
-  return MipsRelocator::OK;
+  return Relocator::OK;
 }
 
 // R_MIPS_PC32:
 static
 MipsRelocator::Result pc32(MipsRelocationInfo& pReloc, MipsRelocator& pParent)
 {
-  return MipsRelocator::OK;
+  return Relocator::OK;
 }
 
 static
 MipsRelocator::Result unsupport(MipsRelocationInfo& pReloc, MipsRelocator& pParent)
 {
-  return MipsRelocator::Unsupport;
+  return Relocator::Unsupport;
 }
