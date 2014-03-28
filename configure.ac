@@ -13,7 +13,7 @@ m4_include(m4/acx_pthread.m4)
 #  Autoconf/Automake Initialization
 
 dnl AC_INIT(PKG_NAME, BUILD_VERSION, BUG_REPORTER)
-AC_INIT([MCLinker],[Momo],[mclinker@googlegroups.com])
+AC_INIT([MCLinker],[dev],[mclinker@googlegroups.com])
 AC_PREREQ(2.59)
 
 AC_CONFIG_SRCDIR([./COPYING])
@@ -31,7 +31,7 @@ AM_INIT_AUTOMAKE([1.9 dist-bzip2 foreign])
 ####################
 #  Versioning, see VERSION
 MAJOR=2
-MINOR=7
+MINOR=8
 MICRO=0
 AGE=dev
 BUILD=
