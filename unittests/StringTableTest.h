@@ -21,9 +21,9 @@ namespace mcldtest
 {
 
 /** \class StringTableTest
- *  \brief 
+ *  \brief
  *
- *  \see StringTable 
+ *  \see StringTable
  */
 class StringTableTest : public ::testing::Test
 {

@@ -60,7 +60,7 @@ public:
   /// copy memory from the fragment to the pDesc.
   /// @pDest - the destination address
   /// @pNBytes - copies pNBytes from the fragment[offset()+pOffset]
-  /// @pOffset - additional offset. 
+  /// @pOffset - additional offset.
   ///            the start address offset from fragment[offset()]
   void memcpy(void* pDest, size_t pNBytes, Offset pOffset = 0) const;
 
@@ -86,7 +86,7 @@ private:
   FragmentRef();
 
   FragmentRef(Fragment& pFrag, Offset pOffset = 0);
-  
+
 private:
   Fragment* m_pFragment;
   Offset m_Offset;

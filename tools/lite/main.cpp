@@ -51,7 +51,7 @@ static inline bool ConfigLinker(int pArgc,
   mcld::TargetControlOptions  target_control;
   mcld::ScriptOptions         script;
   mcld::PositionalOptions     positional;
-  
+
   llvm::cl::ParseCommandLineOptions(pArgc, pArgv, pName);
 
   if (!preference.parse(pConfig))

@@ -24,7 +24,7 @@ namespace mcldtest
 /** \class MCRegionFragmentTest
  *  \brief The testcase of MCRegionFragment.
  *
- *  \see MCRegionFragment 
+ *  \see MCRegionFragment
  */
 class MCRegionFragmentTest : public ::testing::Test
 {

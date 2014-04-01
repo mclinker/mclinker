@@ -21,9 +21,9 @@ namespace mcldtest
 {
 
 /** \class SymbolTableTest
- *  \brief 
+ *  \brief
  *
- *  \see SymbolTable 
+ *  \see SymbolTable
  */
 class SymbolTableTest : public ::testing::Test
 {

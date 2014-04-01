@@ -13,7 +13,7 @@ llvm-mcld [B<options>] I<objfile> ...
 B<llvm-mcld> is a link editor as GNU linker ld or Google gold linker.
 
 B<llvm-mcld> combines several object files and libraries, ties up their symbol
-references, relocates their data, and produces an output file (executable, 
+references, relocates their data, and produces an output file (executable,
 dylib or another object file).
 
 B<llvm-mcld> is desinged for supporting multiple formats on multiple target
@@ -34,7 +34,7 @@ and incremental linking are not supported in this version.
 
 A frequent use of B<llvm-mcld> is to link standard Unix object files on a
 standard, supported Unix system. On such a system, to link a file "hello.o":
- 
+
 	llvm-mcld -filetype=dso -o <output> /lib/crt0.o ./hello.o -lc
 
 This tells B<llvm-mcld> to produce an output file called I<output> as the
@@ -193,7 +193,7 @@ generate non-relocatable code.
 
 =item I<pic>
 
-Emit position independent code (PIC) suitable for use in a shared library. 
+Emit position independent code (PIC) suitable for use in a shared library.
 
 =item I<dynamic-no-pic>
 

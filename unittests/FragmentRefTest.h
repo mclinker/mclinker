@@ -24,7 +24,7 @@ namespace mcldtest
 /** \class FragmentRefTest
  *  \brief Reference Test
  *
- *  \see FragmentRef 
+ *  \see FragmentRef
  */
 class FragmentRefTest : public ::testing::Test
 {

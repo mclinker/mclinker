@@ -23,7 +23,7 @@ class SearchPathOptions
 public:
   SearchPathOptions();
 
-  bool parse(LinkerConfig& pConfig, LinkerScript& pScript);  
+  bool parse(LinkerConfig& pConfig, LinkerScript& pScript);
 
 private:
   llvm::cl::opt<mcld::sys::fs::Path,

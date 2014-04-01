@@ -79,7 +79,7 @@ public:
 
   bool hasMultipleGOT() const;
 
-  /// Create GOT entries and reserve dynrel entries. 
+  /// Create GOT entries and reserve dynrel entries.
   void finalizeScanning(OutputRelocSection& pRelDyn);
 
   /// Compare two symbols to define order in the .dynsym.

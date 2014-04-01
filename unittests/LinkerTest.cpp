@@ -430,7 +430,7 @@ TEST_F( LinkerTest, plasma_object) {
   builder.AddSymbol(*input,
                     "Output/gotplt.bc", ResolveInfo::File,
                     ResolveInfo::Define, ResolveInfo::Local, 0);
-  /// 2: 00000000     0 SECTION LOCAL  DEFAULT    1 
+  /// 2: 00000000     0 SECTION LOCAL  DEFAULT    1
   builder.AddSymbol(*input,
                     ".text", ResolveInfo::Section,
                     ResolveInfo::Define, ResolveInfo::Local, 0, 0x0, text);
@@ -438,11 +438,11 @@ TEST_F( LinkerTest, plasma_object) {
   builder.AddSymbol(*input,
                     ".data", ResolveInfo::Section,
                     ResolveInfo::Define, ResolveInfo::Local, 0, 0x0, data);
-  /// 4: 00000000     0 SECTION LOCAL  DEFAULT    4 
+  /// 4: 00000000     0 SECTION LOCAL  DEFAULT    4
   builder.AddSymbol(*input,
                     ".bss", ResolveInfo::Section,
                     ResolveInfo::Define, ResolveInfo::Local, 0, 0x0, bss);
-  /// 5: 00000000     0 SECTION LOCAL  DEFAULT    5 
+  /// 5: 00000000     0 SECTION LOCAL  DEFAULT    5
   builder.AddSymbol(*input,
                     ".ARM.attributes", ResolveInfo::Section,
                     ResolveInfo::Define, ResolveInfo::Local, 0, 0x0, attr);

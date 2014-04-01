@@ -18,7 +18,7 @@ namespace mcldtest
 /** \class PathTest
  *  \brief a testcase for mcld::Path and its non-member funtions.
  *
- *  \see Path 
+ *  \see Path
  */
 class PathTest : public ::testing::Test
 {

@@ -67,7 +67,7 @@ TEST_F( StaticResolverTest, MDEF ) {
 TEST_F( StaticResolverTest, DynDefAfterDynUndef ) {
   ResolveInfo* old_sym = ResolveInfo::Create("abc");
   ResolveInfo* new_sym = ResolveInfo::Create("abc");
-  
+
   new_sym->setBinding(ResolveInfo::Global);
   old_sym->setBinding(ResolveInfo::Global);
   new_sym->setDesc(ResolveInfo::Undefined);
@@ -94,7 +94,7 @@ TEST_F( StaticResolverTest, DynDefAfterDynUndef ) {
 TEST_F( StaticResolverTest, DynDefAfterDynDef ) {
   ResolveInfo* old_sym = ResolveInfo::Create("abc");
   ResolveInfo* new_sym = ResolveInfo::Create("abc");
-  
+
   new_sym->setBinding(ResolveInfo::Global);
   old_sym->setBinding(ResolveInfo::Global);
   new_sym->setDesc(ResolveInfo::Define);
@@ -121,7 +121,7 @@ TEST_F( StaticResolverTest, DynDefAfterDynDef ) {
 TEST_F( StaticResolverTest, DynUndefAfterDynUndef ) {
   ResolveInfo* old_sym = ResolveInfo::Create("abc");
   ResolveInfo* new_sym = ResolveInfo::Create("abc");
-  
+
   new_sym->setBinding(ResolveInfo::Global);
   old_sym->setBinding(ResolveInfo::Global);
   new_sym->setDesc(ResolveInfo::Undefined);
@@ -149,7 +149,7 @@ TEST_F( StaticResolverTest, OverrideWeakByGlobal )
 {
   ResolveInfo* old_sym = ResolveInfo::Create("abc");
   ResolveInfo* new_sym = ResolveInfo::Create("abc");
-  
+
   new_sym->setBinding(ResolveInfo::Global);
   old_sym->setBinding(ResolveInfo::Weak);
   new_sym->setSize(0);
@@ -170,7 +170,7 @@ TEST_F( StaticResolverTest, OverrideWeakByGlobal )
 TEST_F( StaticResolverTest, DynWeakAfterDynDef ) {
   ResolveInfo* old_sym = ResolveInfo::Create("abc");
   ResolveInfo* new_sym = ResolveInfo::Create("abc");
-  
+
   old_sym->setBinding(ResolveInfo::Weak);
   new_sym->setBinding(ResolveInfo::Global);
 
@@ -200,7 +200,7 @@ TEST_F( StaticResolverTest, MarkByBiggerCommon )
 {
   ResolveInfo* old_sym = ResolveInfo::Create("abc");
   ResolveInfo* new_sym = ResolveInfo::Create("abc");
-  
+
   new_sym->setDesc(ResolveInfo::Common);
   old_sym->setDesc(ResolveInfo::Common);
   new_sym->setSize(999);
@@ -222,7 +222,7 @@ TEST_F( StaticResolverTest, OverrideByBiggerCommon )
 {
   ResolveInfo* old_sym = ResolveInfo::Create("abc");
   ResolveInfo* new_sym = ResolveInfo::Create("abc");
-  
+
   new_sym->setDesc(ResolveInfo::Common);
   old_sym->setDesc(ResolveInfo::Common);
   old_sym->setBinding(ResolveInfo::Weak);
@@ -247,7 +247,7 @@ TEST_F( StaticResolverTest, OverrideCommonByDefine)
 {
   ResolveInfo* old_sym = ResolveInfo::Create("abc");
   ResolveInfo* new_sym = ResolveInfo::Create("abc");
-  
+
   old_sym->setDesc(ResolveInfo::Common);
   old_sym->setSize(0);
 
@@ -270,7 +270,7 @@ TEST_F( StaticResolverTest, OverrideCommonByDefine)
 TEST_F( StaticResolverTest, SetUpDesc)
 {
   ResolveInfo* sym = ResolveInfo::Create("abc");
-  
+
   sym->setIsSymbol(true);
 
 //  ASSERT_FALSE( sym->isSymbol() );
@@ -370,7 +370,7 @@ TEST_F( StaticResolverTest, SetUpDesc)
 TEST_F( StaticResolverTest, SetUpBinding)
 {
   ResolveInfo* sym = ResolveInfo::Create("abc");
-  
+
   sym->setIsSymbol(true);
 
 //  ASSERT_FALSE( sym->isSymbol() );

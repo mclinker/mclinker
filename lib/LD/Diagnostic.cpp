@@ -29,7 +29,7 @@ Diagnostic::~Diagnostic()
 // arguments. The result is appended at on the pOutStr.
 void Diagnostic::format(std::string& pOutStr) const
 {
-  // we've not implemented DWARF LOC messages yet. So, keep pIsLoC false 
+  // we've not implemented DWARF LOC messages yet. So, keep pIsLoC false
   llvm::StringRef desc = m_Engine.infoMap().getDescription(getID(), false);
 
   format(desc.begin(), desc.end(), pOutStr);

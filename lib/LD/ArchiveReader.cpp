@@ -19,4 +19,3 @@ ArchiveReader::ArchiveReader()
 ArchiveReader::~ArchiveReader()
 {
 }
- 

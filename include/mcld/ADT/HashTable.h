@@ -63,7 +63,7 @@ public:
   // -----  constructor  ----- //
   explicit HashTable(size_type pSize=3);
   ~HashTable();
-  
+
   EntryFactoryTy& getEntryFactory()
   { return m_EntryFactory; }
 
@@ -88,7 +88,7 @@ public:
   const_iterator find(const key_type& pKey) const;
 
   size_type count(const key_type& pKey) const;
-  
+
   // -----  hash policy  ----- //
   float load_factor() const;
 

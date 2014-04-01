@@ -15,9 +15,9 @@ namespace mcldTEST
 {
 
 /** \class TargetMachineTest
- *  \brief 
+ *  \brief
  *
- *  \see TargetMachine 
+ *  \see TargetMachine
  */
 class TargetMachineTest : public ::testing::Test
 {

@@ -37,7 +37,7 @@ bool ContextAction::activate(InputBuilder& pBuilder) const
 }
 
 //===----------------------------------------------------------------------===//
-// MemoryAreaAction 
+// MemoryAreaAction
 //===----------------------------------------------------------------------===//
 MemoryAreaAction::MemoryAreaAction(unsigned int pPosition,
                                    FileHandle::OpenMode pMode,

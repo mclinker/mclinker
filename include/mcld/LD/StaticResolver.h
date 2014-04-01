@@ -75,7 +75,7 @@ private:
     w_D  = ResolveInfo::weak_flag   | ResolveInfo::regular_flag | ResolveInfo::define_flag,
     d_D  = ResolveInfo::global_flag | ResolveInfo::dynamic_flag | ResolveInfo::define_flag,
     wd_D = ResolveInfo::weak_flag   | ResolveInfo::dynamic_flag | ResolveInfo::define_flag,
-    C    = ResolveInfo::global_flag | ResolveInfo::regular_flag | ResolveInfo::common_flag, 
+    C    = ResolveInfo::global_flag | ResolveInfo::regular_flag | ResolveInfo::common_flag,
     w_C  = ResolveInfo::weak_flag   | ResolveInfo::regular_flag | ResolveInfo::common_flag,
     d_C  = ResolveInfo::global_flag | ResolveInfo::dynamic_flag | ResolveInfo::common_flag,
     wd_C = ResolveInfo::weak_flag   | ResolveInfo::dynamic_flag | ResolveInfo::common_flag,

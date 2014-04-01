@@ -25,7 +25,7 @@ namespace mcldtest
 /** \class BinTreeTest
  *  \brief Make sure the interface of BinTree , such as insert , traversal , etc..
  *
- *  \see BinTree 
+ *  \see BinTree
  */
 class BinTreeTest : public ::testing::Test
 {
