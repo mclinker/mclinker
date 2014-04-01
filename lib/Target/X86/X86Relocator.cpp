@@ -802,36 +802,37 @@ void X86_32Relocator::convertTLSIEtoLE(Relocation& pReloc,
   assert(pReloc.type() == llvm::ELF::R_386_TLS_IE);
   assert(NULL != pReloc.targetRef().frag());
 
-  // 1. create the fragment references and new relocs
-  uint64_t off = pReloc.targetRef().offset();
-  if (off >= 4)
-    off -= 4;
-  else
-    off = 0;
-
-  FragmentRef* fragref = FragmentRef::Create(*pReloc.targetRef().frag(), off);
-  Relocation* reloc = Relocation::Create(X86_32Relocator::R_386_TLS_OPT,
-                                         *fragref,
-                                         0x0);
+  // 1. create the new relocs
+  Relocation* reloc =
+    Relocation::Create(X86_32Relocator::R_386_TLS_OPT,
+                       *FragmentRef::Create(*pReloc.targetRef().frag(),
+                                            pReloc.targetRef().offset() - 1),
+                       0x0);
   // FIXME: should we create a special symbol for the tls opt instead?
   reloc->setSymInfo(pReloc.symInfo());
 
   // 2. modify the opcodes to the appropriate ones
   uint8_t* op =  (reinterpret_cast<uint8_t*>(&reloc->target()));
-  off = pReloc.targetRef().offset() - reloc->targetRef().offset() - 1;
-  if (op[off] == 0xa1) {
-    op[off] = 0xb8;
+  if (op[0] == 0xa1) {
+    op[0] = 0xb8;
   } else {
-    switch (op[off - 1]) {
+    // create the new reloc (move 1 byte forward).
+    reloc = Relocation::Create(X86_32Relocator::R_386_TLS_OPT,
+                               *FragmentRef::Create(*pReloc.targetRef().frag(),
+                                   pReloc.targetRef().offset() - 2),
+                               0x0);
+    reloc->setSymInfo(pReloc.symInfo());
+    op = (reinterpret_cast<uint8_t*>(&reloc->target()));
+    switch (op[0]) {
       case 0x8b:
-        assert((op[off] & 0xc7) == 0x05);
-        op[off - 1] = 0xc7;
-        op[off]     = 0xc0 | ((op[off] >> 3) & 7);
+        assert((op[1] & 0xc7) == 0x05);
+        op[0] = 0xc7;
+        op[1] = 0xc0 | ((op[1] >> 3) & 7);
         break;
       case 0x03:
-        assert((op[off] & 0xc7) == 0x05);
-        op[off - 1] = 0x81;
-        op[off]     = 0xc0 | ((op[off] >> 3) & 7);
+        assert((op[1] & 0xc7) == 0x05);
+        op[0] = 0x81;
+        op[1] = 0xc0 | ((op[1] >> 3) & 7);
         break;
       default:
         assert(0);
@@ -840,6 +841,7 @@ void X86_32Relocator::convertTLSIEtoLE(Relocation& pReloc,
   }
 
   // 3. insert the new relocs "BEFORE" the original reloc.
+  assert(reloc != NULL);
   pSection.getRelocData()->getRelocationList().insert(
     RelocData::iterator(pReloc), reloc);
 
