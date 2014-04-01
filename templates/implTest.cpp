@@ -36,7 +36,7 @@ void ${class_name}Test::TearDown()
 //===----------------------------------------------------------------------===//
 // Testcases
 //===----------------------------------------------------------------------===//
-/** 
+/**
 TEST_F( ${class_name}Test, name of  the testcase for ${class_name} ) {
 	Write you exercise here
 }

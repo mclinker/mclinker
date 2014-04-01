@@ -203,6 +203,6 @@ SearchDirs::find(const std::string& pNamespec, mcld::Input::Type pType) const
     default:
       break;
     } // end of switch
-  } // end of for 
+  } // end of for
   return NULL;
 }

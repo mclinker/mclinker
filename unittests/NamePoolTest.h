@@ -21,9 +21,9 @@ namespace mcldtest
 {
 
 /** \class NamePoolTest
- *  \brief 
+ *  \brief
  *
- *  \see NamePool 
+ *  \see NamePool
  */
 class NamePoolTest : public ::testing::Test
 {

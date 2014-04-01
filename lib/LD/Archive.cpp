@@ -52,13 +52,13 @@ const Input& Archive::getARFile() const
   return m_ArchiveFile;
 }
 
-/// inputs - get the input tree built from this archive 
+/// inputs - get the input tree built from this archive
 InputTree& Archive::inputs()
 {
   return *m_pInputTree;
 }
 
-/// inputs - get the input tree built from this archive 
+/// inputs - get the input tree built from this archive
 const InputTree& Archive::inputs() const
 {
   return *m_pInputTree;

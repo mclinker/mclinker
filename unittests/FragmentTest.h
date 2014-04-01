@@ -23,7 +23,7 @@ namespace mcldtest
 /** \class FragmentTest
  *  \brief Unit test for mcld::Fragment.
  *
- *  \see Fragment 
+ *  \see Fragment
  */
 class FragmentTest : public ::testing::Test
 {

@@ -27,7 +27,7 @@ public:
 public:
   PreferenceOptions();
 
-  bool parse(LinkerConfig& pConfig);  
+  bool parse(LinkerConfig& pConfig);
 
 private:
   llvm::cl::opt<bool>&  m_Trace;

@@ -23,7 +23,7 @@ namespace mcldtest
 /** \class PathSetTest
  *  \brief The testcase of PathSet
  *
- *  \see PathSet 
+ *  \see PathSet
  */
 class PathSetTest : public ::testing::Test
 {

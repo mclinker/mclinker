@@ -159,7 +159,7 @@ public:
 
   bool isStaticSystem() const
   { return m_Static; }
-  
+
   bool isLegal(const Attribute& pAttr) const;
 };
 
@@ -224,8 +224,8 @@ private:
 inline bool operator== (const Attribute& pLHS, const Attribute& pRHS)
 {
   return ((pLHS.isWholeArchive() == pRHS.isWholeArchive()) &&
-    (pLHS.isAsNeeded() == pRHS.isAsNeeded()) && 
-    (pLHS.isAddNeeded() == pRHS.isAddNeeded()) && 
+    (pLHS.isAsNeeded() == pRHS.isAsNeeded()) &&
+    (pLHS.isAddNeeded() == pRHS.isAddNeeded()) &&
     (pLHS.isStatic() == pRHS.isStatic()));
 }
 

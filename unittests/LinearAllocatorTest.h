@@ -18,7 +18,7 @@ namespace mcldtest
 /** \class LinearAllocatorTest
  *  \brief The testcase for LinearAllocator
  *
- *  \see LinearAllocator 
+ *  \see LinearAllocator
  */
 class LinearAllocatorTest : public ::testing::Test
 {

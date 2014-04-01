@@ -62,7 +62,7 @@ public:
 
   /// MergeSection - merge the pInput section to mcld::Module.
   /// This function moves all fragments in pInputSection to the corresponding
-  /// output section of mcld::Module. 
+  /// output section of mcld::Module.
   ///
   /// @see SectionMap
   /// @param [in] pInputSection The merged input section.

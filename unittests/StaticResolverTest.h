@@ -26,7 +26,7 @@ namespace mcldtest
 /** \class StaticResolverTest
  *  \brief The testcases for static resolver
  *
- *  \see StaticResolver 
+ *  \see StaticResolver
  */
 class StaticResolverTest : public ::testing::Test
 {

@@ -18,7 +18,7 @@ namespace mcldtest
 /** \class HashTableTest
  *  \brief Testcase for HashTable
  *
- *  \see HashTable 
+ *  \see HashTable
  */
 class HashTableTest : public ::testing::Test
 {

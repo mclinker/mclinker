@@ -18,7 +18,7 @@ namespace mcldtest
 /** \class FactoriesTest
  *  \brief Test cases for factories - NodeFactory and MCLDFileFactory.
  *
- *  \see Factories 
+ *  \see Factories
  */
 class FactoriesTest : public ::testing::Test
 {

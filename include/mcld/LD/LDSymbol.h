@@ -114,7 +114,7 @@ public:
   ResolveInfo* resolveInfo()
   { return m_pResolveInfo; }
 
-  const ResolveInfo* resolveInfo() const 
+  const ResolveInfo* resolveInfo() const
   { return m_pResolveInfo; }
 
   bool hasFragRef() const;
@@ -127,7 +127,7 @@ public:
 
   void setValue(ValueType pValue)
   { m_Value = pValue; }
- 
+
   void setFragmentRef(FragmentRef* pFragmentRef);
 
   void setResolveInfo(const ResolveInfo& pInfo);

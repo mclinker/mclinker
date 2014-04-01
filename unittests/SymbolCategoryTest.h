@@ -23,7 +23,7 @@ namespace mcldtest
 /** \class SymbolCategoryTest
  *  \brief The testcases of symbol category.
  *
- *  \see SymbolCategory 
+ *  \see SymbolCategory
  */
 class SymbolCategoryTest : public ::testing::Test
 {

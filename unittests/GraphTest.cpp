@@ -237,7 +237,7 @@ TEST_F(GraphTest, list_digraph_add_n_erase_arcs_1)
   ListDigraph::Arc* a3 = graph.addArc(*u3, *u1);
 
   graph.erase(*a2);
-  
+
   ASSERT_TRUE(u1 == a1->source && u2 == a1->target);
   ASSERT_TRUE(u3 == a3->source && u1 == a3->target);
 
@@ -265,7 +265,7 @@ TEST_F(GraphTest, list_digraph_add_n_erase_arcs_2)
   ListDigraph::Arc* a3 = graph.addArc(*u3, *u1);
 
   graph.erase(*a1);
-  
+
   ASSERT_TRUE(u2 == a2->source && u3 == a2->target);
   ASSERT_TRUE(u3 == a3->source && u1 == a3->target);
 
@@ -292,7 +292,7 @@ TEST_F(GraphTest, list_digraph_add_n_erase_arcs_3)
   ListDigraph::Arc* a3 = graph.addArc(*u3, *u1);
 
   graph.erase(*a3);
-  
+
   ASSERT_TRUE(u1 == a1->source && u2 == a1->target);
   ASSERT_TRUE(u2 == a2->source && u3 == a2->target);
 

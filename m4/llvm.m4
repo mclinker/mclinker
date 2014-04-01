@@ -14,7 +14,7 @@ AC_DEFUN([CHECK_LLVM],
 
 	AC_ARG_WITH(
 		[llvm-config],
-		[AS_HELP_STRING([--with-llvm-config[[=PATH]]], 
+		[AS_HELP_STRING([--with-llvm-config[[=PATH]]],
 			[path to llvm-config (by default, searching in $PATH)])],
 		[llvm_config_path="${withval}"],
 		[llvm_config_path="/usr/"])
@@ -54,14 +54,14 @@ AC_DEFUN([CHECK_LLVM],
 
 	if test "${tool_major}" -lt "${require_major}"; then
 		AC_MSG_RESULT([no])
-		AC_MSG_ERROR([*** The version of LLVM is too low! (${cur_version}<$1)]) 
+		AC_MSG_ERROR([*** The version of LLVM is too low! (${cur_version}<$1)])
 	elif test "${tool_major}" -eq "${require_major}"; then
 		if test "${tool_minor}" -lt "${require_minor}"; then
 			AC_MSG_RESULT([no])
-			AC_MSG_ERROR([*** The version of LLVM is too low! (${cur_version}<$1)]) 
+			AC_MSG_ERROR([*** The version of LLVM is too low! (${cur_version}<$1)])
 		fi
 	fi
-	AC_MSG_RESULT([yes]) 
+	AC_MSG_RESULT([yes])
 
 	LLVM_CFLAGS="`${LLVM_CONFIG_BIN} --cflags`"
 	LLVM_CPPFLAGS="`${LLVM_CONFIG_BIN} --cxxflags`"
@@ -69,7 +69,7 @@ AC_DEFUN([CHECK_LLVM],
 	LLVM_LDFLAGS="${LLVM_LDFLAGS} `${LLVM_CONFIG_BIN} --ldflags`"
 	LLVM_LDFLAGS="`echo ${LLVM_LDFLAGS} | sed 's/\n//g'`"
 	LLVM_LDFLAGS="`echo ${LLVM_LDFLAGS} | sed 's/-lgtest_main -lgtest//g'`"
-	
+
 	AC_SUBST(LLVM_CFLAGS)
 	AC_SUBST(LLVM_CPPFLAGS)
 	AC_SUBST(LLVM_LDFLAGS)

@@ -31,7 +31,7 @@ InputTreeTest::InputTreeTest()
   m_pAlloc  = new mcld::InputFactory(10, *m_pConfig);
   m_pBuilder = new mcld::InputBuilder(*m_pConfig,
                                       *m_pAlloc,
-                                      m_ContextFactory, 
+                                      m_ContextFactory,
                                       m_MemFactory,
                                       false);
   m_pTestee = new mcld::InputTree();
@@ -74,7 +74,7 @@ TEST_F( InputTreeTest, Basic_operation ) {
     (*action)->activate(*m_pBuilder);
     delete *action;
   }
-  
+
   InputTree::iterator node = m_pTestee->root();
   InputTree::const_iterator const_node = node;
   --node;
@@ -104,13 +104,13 @@ TEST_F( InputTreeTest, Basic_operation ) {
 TEST_F( InputTreeTest, forLoop_TEST ) {
   InputTree::iterator node = m_pTestee->root();
 
-  
+
   Input* input = m_pAlloc->produce("FileSpec", "path1");
   m_pTestee->insert<InputTree::Inclusive>(node, *input);
   InputTree::const_iterator const_node = node;
   --node;
 
-  for(int i=0 ; i<100 ; ++i) 
+  for(int i=0 ; i<100 ; ++i)
   {
     Input* input = m_pAlloc->produce("FileSpec", "path1");
     m_pTestee->insert<InputTree::Inclusive>(node, *input);
@@ -129,9 +129,9 @@ TEST_F( InputTreeTest, forLoop_TEST ) {
 }
 
 TEST_F( InputTreeTest, Nesting_Case ) {
-  InputTree::iterator node = m_pTestee->root(); 
+  InputTree::iterator node = m_pTestee->root();
 
-  for(int i=0 ; i<50 ; ++i) 
+  for(int i=0 ; i<50 ; ++i)
   {
     m_pTestee->enterGroup(node, InputTree::Downward);
     --node;
@@ -140,7 +140,7 @@ TEST_F( InputTreeTest, Nesting_Case ) {
     m_pTestee->insert(node, InputTree::Afterward, *input);
     ++node;
   }
-  
+
   ASSERT_FALSE(node.isRoot());
   ASSERT_FALSE(isGroup(node));
   ASSERT_FALSE(m_pAlloc->empty());
@@ -150,8 +150,8 @@ TEST_F( InputTreeTest, Nesting_Case ) {
 
 TEST_F( InputTreeTest, DFSIterator_BasicTraversal)
 {
-  
-  InputTree::iterator node = m_pTestee->root(); 
+
+  InputTree::iterator node = m_pTestee->root();
   Input* input = m_pAlloc->produce("111", "/");
   m_pTestee->insert<InputTree::Inclusive>(node, *input);
   node.move<InputTree::Inclusive>();
@@ -166,8 +166,8 @@ TEST_F( InputTreeTest, DFSIterator_BasicTraversal)
   input = m_pAlloc->produce("8", "/");
   m_pTestee->insert<InputTree::Positional>(node, *input);
 
-  InputTree::dfs_iterator dfs_it = m_pTestee->dfs_begin(); 
-  InputTree::dfs_iterator dfs_end = m_pTestee->dfs_end(); 
+  InputTree::dfs_iterator dfs_it = m_pTestee->dfs_begin();
+  InputTree::dfs_iterator dfs_end = m_pTestee->dfs_end();
   ASSERT_STREQ("111", (*dfs_it)->name().c_str());
   ++dfs_it;
   ASSERT_STREQ("7", (**dfs_it).name().c_str());

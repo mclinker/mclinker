@@ -65,7 +65,7 @@ public:
   Flags& operator^= (Flags pOther) {
     m_Data ^= pOther.m_Data;
     return *this;
-  } 
+  }
 
   Flags& operator^= (Enum pOther) {
     m_Data ^= pOther;

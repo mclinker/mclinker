@@ -28,12 +28,12 @@ bool mcld::sys::fs::is_directory(const Path &pPath)
   return (file_status.type() == mcld::sys::fs::DirectoryFile);
 }
 
-// Include the truly platform-specific parts. 
+// Include the truly platform-specific parts.
 #if defined(MCLD_ON_UNIX)
 #include "Unix/FileSystem.inc"
-#include "Unix/PathV3.inc" 
-#endif 
+#include "Unix/PathV3.inc"
+#endif
 #if defined(MCLD_ON_WIN32)
 #include "Windows/FileSystem.inc"
-#include "Windows/PathV3.inc" 
-#endif 
+#include "Windows/PathV3.inc"
+#endif

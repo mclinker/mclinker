@@ -21,9 +21,9 @@ namespace mcldtest
 {
 
 /** \class FileHandleTest
- *  \brief 
+ *  \brief
  *
- *  \see FileHandle 
+ *  \see FileHandle
  */
 class FileHandleTest : public ::testing::Test
 {

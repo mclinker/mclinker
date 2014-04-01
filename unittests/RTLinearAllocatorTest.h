@@ -16,9 +16,9 @@ namespace mcldtest
 {
 
 /** \class RTLinearAllocatorTest
- *  \brief 
+ *  \brief
  *
- *  \see RTLinearAllocator 
+ *  \see RTLinearAllocator
  */
 class RTLinearAllocatorTest : public ::testing::Test
 {

@@ -24,9 +24,9 @@ namespace mcldtest
 {
 
 /** \class DirIteratorTest
- *  \brief 
+ *  \brief
  *
- *  \see DirIterator 
+ *  \see DirIterator
  */
 class DirIteratorTest : public ::testing::Test
 {

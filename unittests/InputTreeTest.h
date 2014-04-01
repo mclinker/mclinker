@@ -23,9 +23,9 @@ class LinkerConfig;
 namespace test {
 
 /** \class InputTreeTest
- *  \brief 
+ *  \brief
  *
- *  \see InputTree 
+ *  \see InputTree
  */
 class InputTreeTest : public ::testing::Test
 {

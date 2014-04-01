@@ -17,7 +17,7 @@
 
 
 ; check relocation type
-; RUN: readelf -rW %t.exe | FileCheck %s 
+; RUN: readelf -rW %t.exe | FileCheck %s
 ; CHECK: R_386_TLS_DTPMOD32
 
 

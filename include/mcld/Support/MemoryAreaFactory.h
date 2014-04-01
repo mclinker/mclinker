@@ -24,7 +24,7 @@ namespace mcld
  *  \brief MemoryAreaFactory avoids creating duplicated MemoryAreas of the
  *   same file.
  *
- *  Users can give duplicated input files on the command line. In order to 
+ *  Users can give duplicated input files on the command line. In order to
  *  prevent opening the same file twice, and create redundant MemoryRegions,
  *  mcld::Input should not create MemoryArea directly. Instead, it should ask
  *  MemoryAreaFactory and get the unique MemoryArea.

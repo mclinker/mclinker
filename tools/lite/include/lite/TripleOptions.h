@@ -20,7 +20,7 @@ class TripleOptions
 public:
   TripleOptions();
 
-  bool parse(int pArgc, char* pArgv[], LinkerConfig& pConfig);  
+  bool parse(int pArgc, char* pArgv[], LinkerConfig& pConfig);
 
 private:
   llvm::cl::opt<std::string>&  m_TargetTriple;

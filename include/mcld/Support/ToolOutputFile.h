@@ -65,7 +65,7 @@ private:
 
   private:
     sys::fs::Path m_Path;
-  }; 
+  };
 
 private:
   FileHandle m_FileHandle;

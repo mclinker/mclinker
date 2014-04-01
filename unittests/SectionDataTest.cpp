@@ -39,14 +39,14 @@ void SectionDataTest::TearDown()
 //===----------------------------------------------------------------------===//
 // Testcases
 //===----------------------------------------------------------------------===//
- 
+
 TEST_F( SectionDataTest, constructor_and_trivial_func ) {
   LDSection* test = LDSection::Create("test", LDFileFormat::Null, 0, 0);
-  
+
   SectionData* s = SectionData::Create(*test);
   EXPECT_TRUE(s->getSection().name() == "test" && \
               s->getSection().kind() == LDFileFormat::Null);
-  
+
 
   LDSection::Destroy(test);
 }
