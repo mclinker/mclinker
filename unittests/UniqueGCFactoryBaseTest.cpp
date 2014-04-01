@@ -72,7 +72,7 @@ TEST_F( UniqueGCFactoryBaseTest, unique_produce2 ) {
 TEST_F( UniqueGCFactoryBaseTest, iterator )
 {
         sys::fs::Path path1(TOPDIR), path2(TOPDIR);
-	path1.append("unittests/test1.txt");
+	path1.append("unittests/test.txt");
 	path2.append("unittests/test2.txt");
 
 	MemoryAreaFactory* memFactory = new MemoryAreaFactory(10);
