@@ -76,6 +76,10 @@ public:
   /// UpdateSectionAlign - update alignment for input section
   static void UpdateSectionAlign(LDSection& pTo, const LDSection& pFrom);
 
+  /// UpdateSectionAlign - update alignment for the section
+  static void UpdateSectionAlign(LDSection& pSection,
+                                 uint32_t pAlignConstraint);
+
 /// @}
 /// @name Fragment Methods
 /// @{

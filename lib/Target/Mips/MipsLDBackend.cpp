@@ -548,6 +548,7 @@ bool MipsGNULDBackend::allocateCommonSymbols(Module& pModule)
         tbss_offset += ObjectBuilder::AppendFragment(*frag,
                                                      *tbss_sect_data,
                                                      (*com_sym)->value());
+        ObjectBuilder::UpdateSectionAlign(tbss_sect, (*com_sym)->value());
         (*com_sym)->setFragmentRef(FragmentRef::Create(*frag, 0));
       }
       // FIXME: how to identify small and large common symbols?
@@ -555,6 +556,7 @@ bool MipsGNULDBackend::allocateCommonSymbols(Module& pModule)
         bss_offset += ObjectBuilder::AppendFragment(*frag,
                                                     *bss_sect_data,
                                                     (*com_sym)->value());
+        ObjectBuilder::UpdateSectionAlign(bss_sect, (*com_sym)->value());
         (*com_sym)->setFragmentRef(FragmentRef::Create(*frag, 0));
       }
     }
@@ -576,6 +578,7 @@ bool MipsGNULDBackend::allocateCommonSymbols(Module& pModule)
       tbss_offset += ObjectBuilder::AppendFragment(*frag,
                                                    *tbss_sect_data,
                                                    (*com_sym)->value());
+      ObjectBuilder::UpdateSectionAlign(tbss_sect, (*com_sym)->value());
       (*com_sym)->setFragmentRef(FragmentRef::Create(*frag, 0));
     }
     // FIXME: how to identify small and large common symbols?
@@ -583,6 +586,7 @@ bool MipsGNULDBackend::allocateCommonSymbols(Module& pModule)
       bss_offset += ObjectBuilder::AppendFragment(*frag,
                                                   *bss_sect_data,
                                                   (*com_sym)->value());
+      ObjectBuilder::UpdateSectionAlign(bss_sect, (*com_sym)->value());
       (*com_sym)->setFragmentRef(FragmentRef::Create(*frag, 0));
     }
   }

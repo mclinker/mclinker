@@ -153,11 +153,19 @@ bool ObjectBuilder::MoveSectionData(SectionData& pFrom, SectionData& pTo)
   return true;
 }
 
-/// UpdateSectionFlags - update alignment for input section
+/// UpdateSectionAlign - update alignment for input section
 void ObjectBuilder::UpdateSectionAlign(LDSection& pTo, const LDSection& pFrom)
 {
   if (pFrom.align() > pTo.align())
     pTo.setAlign(pFrom.align());
+}
+
+/// UpdateSectionAlign - update alignment for input section
+void ObjectBuilder::UpdateSectionAlign(LDSection& pSection,
+                                       uint32_t pAlignConstraint)
+{
+  if (pSection.align() < pAlignConstraint)
+    pSection.setAlign(pAlignConstraint);
 }
 
 /// AppendFragment - To append pFrag to the given SectionData pSD.
