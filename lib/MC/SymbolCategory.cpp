@@ -120,19 +120,35 @@ SymbolCategory& SymbolCategory::arrange(LDSymbol& pSymbol,
   }
 
   assert(NULL != current);
-  assert(!current->empty());
-
-  // find the position of source
-  size_t pos = current->begin;
-  while (pos != current->end) {
-    if (m_OutputSymbols[pos] == &pSymbol)
-      break;
-    ++pos;
+  size_t pos = 0;
+  if (!current->empty()) {
+    // find the position of source
+    pos = current->begin;
+    while (pos != current->end) {
+      if (m_OutputSymbols[pos] == &pSymbol)
+        break;
+      ++pos;
+    }
   }
-
-  // if symbol is not in the given source category, then do nothing
-  if (current->end == pos)
-    return *this;
+  // FIXME: Try to search the symbol explicitly, if symbol is not in the given
+  // source category.
+  if (current->end == pos || current->empty()) {
+    current = m_pFile;
+    do {
+      pos = current->begin;
+      while (pos != current->end) {
+        if (m_OutputSymbols[pos] == &pSymbol) {
+          distance = pTarget - current->type;
+          break;
+        }
+        ++pos;
+      }
+      if (pos != current->end)
+        break;
+      current = current->next;
+    } while (current != NULL);
+    assert(current != NULL);
+  }
 
   // The distance is positive. It means we should bubble sort downward.
   if (distance > 0) {
