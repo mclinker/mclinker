@@ -131,7 +131,8 @@ SymbolCategory& SymbolCategory::arrange(LDSymbol& pSymbol,
     }
   }
   // FIXME: Try to search the symbol explicitly, if symbol is not in the given
-  // source category.
+  // source category. Or we need to add some logics like shouldForceLocal() in
+  // SymbolCategory::Category::categorize().
   if (current->end == pos || current->empty()) {
     current = m_pFile;
     do {
