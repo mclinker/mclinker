@@ -1,6 +1,7 @@
-2014-03-28 Chinyen Chou <petechou@gmail.com>
+2014-04-07 Chinyen Chou <petechou@gmail.com>
 	* Executive Summary:
 	1. Add AArch64 backend support.
+	2. Support FreeBSD buildworld and buildkernel linking for i386 target.
 
 	* Target Backends:
 	1. AArch64: Follow the behavior of bfd linker to emit .got/.got.plt sections.
@@ -12,6 +13,7 @@
 	   R_AARCH64_LDST32_ABS_LO12_NC, R_AARCH64_LDST64_ABS_LO12_NC,
 	   R_AARCH64_LDST128_ABS_LO12_NC, R_AARCH64_ADR_GOT_PAGE,
 	   R_AARCH64_LD64_GOT_LO12_NC
+	3. X86: Fix TLS IE to LE optimization issue.
 
 2013-12-30 Chinyen Chou <petechou@gmail.com>
 	* Executive Summary:
