@@ -230,9 +230,9 @@ OverrideStackAlignment("stack-alignment",
 // --script is an alias, but cl::alias doesn't work correctly with cl::list.
 static cl::list<std::string>
 ArgLinkerScript("T",
-             cl::ZeroOrMore,
-             cl::desc("Linker script"),
-             cl::value_desc("file"));
+                cl::ZeroOrMore,
+                cl::desc("Linker script"),
+                cl::value_desc("file"));
 
 static cl::opt<std::string>
 TrapFuncName("trap-func", cl::Hidden,
@@ -258,36 +258,41 @@ SegmentedStacks("segmented-stacks",
 //===----------------------------------------------------------------------===//
 // Bitcode Options
 //===----------------------------------------------------------------------===//
-static cl::opt<mcld::sys::fs::Path, false, llvm::cl::parser<mcld::sys::fs::Path> >
+static
+cl::opt<mcld::sys::fs::Path, false, llvm::cl::parser<mcld::sys::fs::Path> >
 ArgBitcodeFilename("dB",
-              cl::desc("set default bitcode"),
-              cl::value_desc("bitcode"));
+                   cl::desc("set default bitcode"),
+                   cl::value_desc("bitcode"));
 
 //===----------------------------------------------------------------------===//
 // General Options
 //===----------------------------------------------------------------------===//
-static cl::opt<mcld::sys::fs::Path, false, llvm::cl::parser<mcld::sys::fs::Path> >
+static
+cl::opt<mcld::sys::fs::Path, false, llvm::cl::parser<mcld::sys::fs::Path> >
 ArgOutputFilename("o",
-               cl::desc("Output filename"),
-               cl::value_desc("filename"));
+                  cl::desc("Output filename"),
+                  cl::value_desc("filename"));
 
 static cl::alias
 AliasOutputFilename("output",
                     cl::desc("alias for -o"),
                     cl::aliasopt(ArgOutputFilename));
 
-static cl::opt<mcld::sys::fs::Path, false, llvm::cl::parser<mcld::sys::fs::Path> >
+static
+cl::opt<mcld::sys::fs::Path, false, llvm::cl::parser<mcld::sys::fs::Path> >
 ArgSysRoot("sysroot",
-           cl::desc("Use directory as the location of the sysroot, overriding the configure-time default."),
+           cl::desc("Use directory as the location of the sysroot, overriding "
+                    "the configure-time default."),
            cl::value_desc("directory"),
            cl::ValueRequired);
 
 static cl::list<std::string, bool, llvm::cl::SearchDirParser>
 ArgSearchDirList("L",
-                 cl::ZeroOrMore,
-                 cl::desc("Add path searchdir to the list of paths that ld will search for archive libraries and ld control scripts."),
-                 cl::value_desc("searchdir"),
-                 cl::Prefix);
+  cl::ZeroOrMore,
+  cl::desc("Add path searchdir to the list of paths that ld will search for "
+           "archive libraries and ld control scripts."),
+  cl::value_desc("searchdir"),
+  cl::Prefix);
 
 static cl::alias
 ArgSearchDirListAlias("library-path",
@@ -306,7 +311,8 @@ ArgTraceAlias("trace",
 static cl::opt<int>
 ArgVerbose("verbose",
            cl::init(-1),
-           cl::desc("Display the version number for ld and list the linker emulations supported."));
+           cl::desc("Display the version number for ld and list the linker "
+                    "emulations supported."));
 
 static cl::opt<bool>
 ArgVersion("V",
@@ -325,7 +331,8 @@ ArgMaxWarnNum("warning-limit",
 
 static cl::opt<std::string>
 ArgEntry("e",
-         cl::desc("Use entry as the explicit symbol for beginning execution of your program."),
+         cl::desc("Use entry as the explicit symbol for beginning execution of "
+                  "your program."),
          cl::value_desc("entry"),
          cl::ValueRequired);
 
@@ -342,8 +349,8 @@ ArgBsymbolic("Bsymbolic",
 
 static cl::opt<bool>
 ArgBgroup("Bgroup",
-          cl::desc("Info the dynamic linker to perform lookups only inside the group."),
-          cl::init(false));
+  cl::desc("Info the dynamic linker to perform lookups only inside the group."),
+  cl::init(false));
 
 static cl::opt<std::string>
 ArgSOName("soname",
@@ -363,9 +370,10 @@ ArgAllowMulDefs("allow-multiple-definition",
 
 static cl::opt<bool>
 ArgEhFrameHdr("eh-frame-hdr",
-              cl::ZeroOrMore,
-              cl::desc("Request creation of \".eh_frame_hdr\" section and ELF \"PT_GNU_EH_FRAME\" segment header."),
-              cl::init(false));
+  cl::ZeroOrMore,
+  cl::desc("Request creation of \".eh_frame_hdr\" section and ELF \""
+           "PT_GNU_EH_FRAME\" segment header."),
+  cl::init(false));
 
 static cl::list<mcld::ZOption, bool, llvm::cl::parser<mcld::ZOption> >
 ArgZOptionList("z",
@@ -378,17 +386,17 @@ cl::opt<mcld::CodeGenFileType>
 ArgFileType("filetype", cl::init(mcld::CGFT_EXEFile),
   cl::desc("Choose a file type (not all types are supported by all targets):"),
   cl::values(
-       clEnumValN(mcld::CGFT_ASMFile, "asm",
-                  "Emit an assembly ('.s') file"),
-       clEnumValN(mcld::CGFT_OBJFile, "obj",
-                  "Emit a relocatable object ('.o') file"),
-       clEnumValN(mcld::CGFT_DSOFile, "dso",
-                  "Emit an dynamic shared object ('.so') file"),
-       clEnumValN(mcld::CGFT_EXEFile, "exe",
-                  "Emit a executable ('.exe') file"),
-       clEnumValN(mcld::CGFT_NULLFile, "null",
-                  "Emit nothing, for performance testing"),
-       clEnumValEnd));
+    clEnumValN(mcld::CGFT_ASMFile, "asm",
+               "Emit an assembly ('.s') file"),
+    clEnumValN(mcld::CGFT_OBJFile, "obj",
+               "Emit a relocatable object ('.o') file"),
+    clEnumValN(mcld::CGFT_DSOFile, "dso",
+               "Emit an dynamic shared object ('.so') file"),
+    clEnumValN(mcld::CGFT_EXEFile, "exe",
+               "Emit a executable ('.exe') file"),
+    clEnumValN(mcld::CGFT_NULLFile, "null",
+               "Emit nothing, for performance testing"),
+    clEnumValEnd));
 
 static cl::opt<bool>
 ArgShared("shared",
@@ -422,19 +430,19 @@ ArgRelocModel("relocation-model",
              cl::init(Reloc::Default),
              cl::values(
                clEnumValN(Reloc::Default, "default",
-                       "Target default relocation model"),
+                 "Target default relocation model"),
                clEnumValN(Reloc::Static, "static",
-                       "Non-relocatable code"),
+                 "Non-relocatable code"),
                clEnumValN(Reloc::PIC_, "pic",
-                       "Fully relocatable, position independent code"),
+                 "Fully relocatable, position independent code"),
                clEnumValN(Reloc::DynamicNoPIC, "dynamic-no-pic",
-                       "Relocatable external references, non-relocatable code"),
+                 "Relocatable external references, non-relocatable code"),
                clEnumValEnd));
 
 static cl::opt<bool>
 ArgFPIC("fPIC",
-        cl::desc("Set relocation model to pic. The same as -relocation-model=pic."),
-        cl::init(false));
+  cl::desc("Set relocation model to pic. The same as -relocation-model=pic."),
+  cl::init(false));
 
 static cl::opt<std::string>
 ArgDyld("dynamic-linker",
@@ -486,7 +494,7 @@ ArgDiscardAllAlias("x",
 
 static cl::opt<bool>
 ArgStripDebug("strip-debug",
-              cl::desc("Omit debugger symbol information from the output file."),
+              cl::desc("Omit debug symbol information from the output file."),
               cl::init(false));
 
 static cl::alias
@@ -546,21 +554,42 @@ ArgGenUnwindInfoFlag("ld-generated-unwind-info",
                               " generated code sections like PLT."),
                      cl::init(true),
                      cl::ValueDisallowed);
+
+static cl::opt<bool>
+ArgGCSections("gc-sections",
+  cl::ZeroOrMore,
+  cl::desc("Enable garbage collection of unused input sections."),
+  cl::init(false));
+
+static cl::opt<bool>
+ArgNoGCSections("no-gc-sections",
+  cl::ZeroOrMore,
+  cl::desc("disable garbage collection of unused input sections."),
+  cl::init(false));
+
+static cl::opt<std::string>
+ArgEmulation("m",
+             cl::ZeroOrMore,
+             cl::desc("Set GNU linker emulation"),
+             cl::value_desc("emulation"),
+             cl::Prefix);
+
+static cl::opt<mcld::GeneralOptions::HashStyle>
+ArgHashStyle("hash-style", cl::init(mcld::GeneralOptions::SystemV),
+  cl::desc("Set the type of linker's hash table(s)."),
+  cl::values(
+    clEnumValN(mcld::GeneralOptions::SystemV, "sysv",
+      "classic ELF .hash section"),
+    clEnumValN(mcld::GeneralOptions::GNU, "gnu",
+      "new style GNU .gnu.hash section"),
+    clEnumValN(mcld::GeneralOptions::Both, "both",
+      "both the classic ELF and new style GNU hash tables"),
+    clEnumValEnd));
+
 /// @{
 /// @{
 /// @name FIXME: begin of unsupported options
 /// @}
-static cl::opt<bool>
-ArgGCSections("gc-sections",
-              cl::ZeroOrMore,
-              cl::desc("Enable garbage collection of unused input sections."),
-              cl::init(false));
-
-static cl::opt<bool>
-ArgNoGCSections("no-gc-sections",
-                cl::ZeroOrMore,
-                cl::desc("disable garbage collection of unused input sections."),
-                cl::init(false));
 
 namespace icf {
 enum Mode {
@@ -572,17 +601,18 @@ enum Mode {
 
 static cl::opt<icf::Mode>
 ArgICF("icf",
-       cl::ZeroOrMore,
-       cl::desc("Identical Code Folding"),
-       cl::init(icf::None),
-       cl::values(
-         clEnumValN(icf::None, "none",
-           "do not perform cold folding"),
-         clEnumValN(icf::All, "all",
-           "always preform cold folding"),
-         clEnumValN(icf::Safe, "safe",
-           "Folds ctors, dtors and functions whose pointers are definitely not taken."),
-         clEnumValEnd));
+  cl::ZeroOrMore,
+  cl::desc("Identical Code Folding"),
+  cl::init(icf::None),
+  cl::values(
+    clEnumValN(icf::None, "none",
+      "do not perform cold folding"),
+    clEnumValN(icf::All, "all",
+      "always preform cold folding"),
+    clEnumValN(icf::Safe, "safe",
+      "Folds ctors, dtors and functions whose pointers are definitely not "
+      "taken."),
+    clEnumValEnd));
 
 // FIXME: add this to target options?
 static cl::opt<bool>
@@ -600,18 +630,11 @@ ArgExportDynamicAlias("E",
                       cl::desc("alias for --export-dynamic"),
                       cl::aliasopt(ArgExportDynamic));
 
-static cl::opt<std::string>
-ArgEmulation("m",
-             cl::ZeroOrMore,
-             cl::desc("Set GNU linker emulation"),
-             cl::value_desc("emulation"),
-             cl::Prefix);
-
 static cl::list<std::string, bool, llvm::cl::SearchDirParser>
 ArgRuntimePathLink("rpath-link",
-                   cl::ZeroOrMore,
-                   cl::desc("Add a directory to the link time library search path"),
-                   cl::value_desc("dir"));
+  cl::ZeroOrMore,
+  cl::desc("Add a directory to the link time library search path"),
+  cl::value_desc("dir"));
 
 static cl::list<std::string>
 ArgExcludeLIBS("exclude-libs",
@@ -621,9 +644,9 @@ ArgExcludeLIBS("exclude-libs",
 
 static cl::opt<std::string>
 ArgBuildID("build-id",
-           cl::desc("Request creation of \".note.gnu.build-id\" ELF note section."),
-           cl::value_desc("style"),
-           cl::ValueOptional);
+  cl::desc("Request creation of \".note.gnu.build-id\" ELF note section."),
+  cl::value_desc("style"),
+  cl::ValueOptional);
 
 static cl::opt<std::string>
 ArgForceUndefined("u",
@@ -644,18 +667,6 @@ static cl::opt<bool>
 ArgWarnCommon("warn-common",
               cl::desc("warn common symbol"),
               cl::init(false));
-
-static cl::opt<mcld::GeneralOptions::HashStyle>
-ArgHashStyle("hash-style", cl::init(mcld::GeneralOptions::SystemV),
-  cl::desc("Set the type of linker's hash table(s)."),
-  cl::values(
-       clEnumValN(mcld::GeneralOptions::SystemV, "sysv",
-                 "classic ELF .hash section"),
-       clEnumValN(mcld::GeneralOptions::GNU, "gnu",
-                 "new style GNU .gnu.hash section"),
-       clEnumValN(mcld::GeneralOptions::Both, "both",
-                 "both the classic ELF and new style GNU hash tables"),
-       clEnumValEnd));
 
 static cl::opt<std::string>
 ArgFilter("F",
@@ -680,28 +691,29 @@ ArgAuxiliaryAlias("auxiliary",
 
 static cl::opt<bool>
 ArgUseGold("use-gold",
-          cl::desc("GCC/collect2 compatibility: uses ld.gold.  Ignored"),
+          cl::desc("GCC/collect2 compatibility: uses ld.gold. Ignored"),
           cl::init(false));
 
 static cl::opt<bool>
 ArgUseMCLD("use-mcld",
-          cl::desc("GCC/collect2 compatibility: uses ld.mcld.  Ignored"),
+          cl::desc("GCC/collect2 compatibility: uses ld.mcld. Ignored"),
           cl::init(false));
 
 static cl::opt<bool>
 ArgUseLD("use-ld",
-          cl::desc("GCC/collect2 compatibility: uses ld.bfd.  Ignored"),
+          cl::desc("GCC/collect2 compatibility: uses ld.bfd. Ignored"),
           cl::init(false));
 
 static cl::opt<bool>
 ArgEB("EB",
-      cl::desc("Link big-endian objects. This affects the default output format."),
-      cl::init(false));
+  cl::desc("Link big-endian objects. This affects the default output format."),
+  cl::init(false));
 
 static cl::opt<bool>
 ArgEL("EL",
-      cl::desc("Link little-endian objects. This affects the default output format."),
-      cl::init(false));
+  cl::desc("Link little-endian objects. This affects the default output "
+           "format."),
+  cl::init(false));
 
 static cl::list<std::string>
 ArgPlugin("plugin",
@@ -715,8 +727,8 @@ ArgPluginOpt("plugin-opt",
 
 static cl::opt<bool>
 ArgSVR4Compatibility("Qy",
-                    cl::desc("This option is ignored for SVR4 compatibility"),
-                    cl::init(false));
+                     cl::desc("This option is ignored for SVR4 compatibility"),
+                     cl::init(false));
 
 static cl::list<std::string>
 ArgY("Y",
@@ -772,18 +784,18 @@ static bool ArgFatalWarnings;
 
 static cl::opt<bool, true, cl::FalseParser>
 ArgNoFatalWarnings("no-fatal-warnings",
-              cl::location(ArgFatalWarnings),
-              cl::desc("do not turn warnings into errors"),
-              cl::init(false),
-              cl::ValueDisallowed);
+                   cl::location(ArgFatalWarnings),
+                   cl::desc("do not turn warnings into errors"),
+                   cl::init(false),
+                   cl::ValueDisallowed);
 
 static cl::opt<bool, true>
 ArgFatalWarningsFlag("fatal-warnings",
-              cl::ZeroOrMore,
-              cl::location(ArgFatalWarnings),
-              cl::desc("turn all warnings into errors"),
-              cl::init(false),
-              cl::ValueDisallowed);
+                     cl::ZeroOrMore,
+                     cl::location(ArgFatalWarnings),
+                     cl::desc("turn all warnings into errors"),
+                     cl::init(false),
+                     cl::ValueDisallowed);
 
 static cl::opt<bool>
 ArgWarnSharedTextrel("warn-shared-textrel",
@@ -858,10 +870,10 @@ ArgPortList("portable",
 
 static cl::list<std::string>
 ArgAddressMapList("section-start",
-                  cl::ZeroOrMore,
-                  cl::desc("Locate a output section at the given absolute address"),
-                  cl::value_desc("Set address of section"),
-                  cl::Prefix);
+  cl::ZeroOrMore,
+  cl::desc("Locate a output section at the given absolute address"),
+  cl::value_desc("Set address of section"),
+  cl::Prefix);
 
 static cl::opt<unsigned long long>
 ArgBssSegAddr("Tbss",
@@ -887,11 +899,12 @@ ArgTextSegAddrAlias("Ttext-segment",
 // non-member functions
 //===----------------------------------------------------------------------===//
 /// GetOutputStream - get the output stream.
-static mcld::ToolOutputFile *GetOutputStream(const char* pTargetName,
-                                             Triple::OSType pOSType,
-                                             mcld::CodeGenFileType pFileType,
-                                             const mcld::sys::fs::Path& pInputFilename,
-                                             mcld::sys::fs::Path& pOutputFilename)
+static
+mcld::ToolOutputFile *GetOutputStream(const char* pTargetName,
+                                      Triple::OSType pOSType,
+                                      mcld::CodeGenFileType pFileType,
+                                      const mcld::sys::fs::Path& pInputFilename,
+                                      mcld::sys::fs::Path& pOutputFilename)
 {
   if (pOutputFilename.empty()) {
     if (0 == pInputFilename.native().compare("-"))
@@ -1079,7 +1092,7 @@ static bool ProcessLinkerOptionsFromCommand(mcld::LinkerScript& pScript,
     break;
     case color::Auto:
       bool color_option = ShouldColorize() &&
-                 llvm::sys::Process::FileDescriptorIsDisplayed(STDOUT_FILENO);
+        llvm::sys::Process::FileDescriptorIsDisplayed(STDOUT_FILENO);
       pConfig.options().setColor(color_option);
     break;
   }
@@ -1197,7 +1210,7 @@ static bool ProcessLinkerOptionsFromCommand(mcld::LinkerScript& pScript,
 
     // add wname -> __wrap_wname
     mcld::StringEntry<llvm::StringRef>* to_wrap =
-                                     pScript.renameMap().insert(*wname, exist);
+      pScript.renameMap().insert(*wname, exist);
 
     std::string to_wrap_str = "__wrap_" + *wname;
     to_wrap->setValue(to_wrap_str);
@@ -1208,7 +1221,7 @@ static bool ProcessLinkerOptionsFromCommand(mcld::LinkerScript& pScript,
     // add __real_wname -> wname
     std::string from_real_str = "__real_" + *wname;
     mcld::StringEntry<llvm::StringRef>* from_real =
-                              pScript.renameMap().insert(from_real_str, exist);
+      pScript.renameMap().insert(from_real_str, exist);
     from_real->setValue(*wname);
     if (exist)
       mcld::warning(mcld::diag::rewrap) << *wname << from_real_str;
@@ -1222,7 +1235,7 @@ static bool ProcessLinkerOptionsFromCommand(mcld::LinkerScript& pScript,
 
     // add pname -> pname_portable
     mcld::StringEntry<llvm::StringRef>* to_port =
-                                     pScript.renameMap().insert(*pname, exist);
+      pScript.renameMap().insert(*pname, exist);
 
     std::string to_port_str = *pname + "_portable";
     to_port->setValue(to_port_str);
@@ -1233,7 +1246,7 @@ static bool ProcessLinkerOptionsFromCommand(mcld::LinkerScript& pScript,
     // add __real_pname -> pname
     std::string from_real_str = "__real_" + *pname;
     mcld::StringEntry<llvm::StringRef>* from_real =
-                              pScript.renameMap().insert(from_real_str, exist);
+      pScript.renameMap().insert(from_real_str, exist);
 
     from_real->setValue(*pname);
     if (exist)
@@ -1267,21 +1280,21 @@ static bool ProcessLinkerOptionsFromCommand(mcld::LinkerScript& pScript,
   if (-1U != ArgTextSegAddr) {
     bool exist = false;
     mcld::StringEntry<uint64_t>* text_mapping =
-                                   pScript.addressMap().insert(".text", exist);
+      pScript.addressMap().insert(".text", exist);
     text_mapping->setValue(ArgTextSegAddr);
   }
   // -Tdata
   if (-1U != ArgDataSegAddr) {
     bool exist = false;
     mcld::StringEntry<uint64_t>* data_mapping =
-                                   pScript.addressMap().insert(".data", exist);
+      pScript.addressMap().insert(".data", exist);
     data_mapping->setValue(ArgDataSegAddr);
   }
   // -Tbss
   if (-1U != ArgBssSegAddr) {
     bool exist = false;
     mcld::StringEntry<uint64_t>* bss_mapping =
-                                    pScript.addressMap().insert(".bss", exist);
+      pScript.addressMap().insert(".bss", exist);
     bss_mapping->setValue(ArgBssSegAddr);
   }
   // --section-start SECTION=ADDRESS
@@ -1295,7 +1308,7 @@ static bool ProcessLinkerOptionsFromCommand(mcld::LinkerScript& pScript,
     script.substr(pos + 1).getAsInteger(0, address);
     bool exist = false;
     mcld::StringEntry<uint64_t>* addr_mapping =
-                     pScript.addressMap().insert(script.substr(0, pos), exist);
+      pScript.addressMap().insert(script.substr(0, pos), exist);
     addr_mapping->setValue(address);
   }
 
@@ -1428,8 +1441,8 @@ int main(int argc, char* argv[])
   // specified an architecture to compile for. If so we have to look it up by
   // name, because it might be a backend that has no mapping to a target triple.
   const mcld::Target *MCLDTarget = mcld::TargetRegistry::lookupTarget(MArch,
-                                                                     TheTriple,
-                                                                     error);
+                                                                      TheTriple,
+                                                                      error);
   if (NULL == MCLDTarget) {
     errs() << argv[0] << ": " << error;
     return 1;
@@ -1471,7 +1484,7 @@ int main(int argc, char* argv[])
   Options.NoInfsFPMath = EnableNoInfsFPMath;
   Options.NoNaNsFPMath = EnableNoNaNsFPMath;
   Options.HonorSignDependentRoundingFPMathOption =
-      EnableHonorSignDependentRoundingFPMath;
+    EnableHonorSignDependentRoundingFPMath;
   Options.UseSoftFloat = GenerateSoftFloatCalls;
   if (FloatABIForCalls != FloatABI::Default)
     Options.FloatABIType = FloatABIForCalls;
@@ -1488,10 +1501,10 @@ int main(int argc, char* argv[])
                                        MCPU, FeaturesStr, Options,
                                        ArgRelocModel, CMModel, OLvl));
 
-  std::auto_ptr<mcld::MCLDTargetMachine> target_machine(
-          MCLDTarget->createTargetMachine(TheTriple.getTriple(),
-                                        *LLVMTarget,
-                                        *TM.get()));
+  std::auto_ptr<mcld::MCLDTargetMachine>
+    target_machine(MCLDTarget->createTargetMachine(TheTriple.getTriple(),
+                                                   *LLVMTarget,
+                                                   *TM.get()));
 
   assert(target_machine.get() && "Could not allocate target machine!");
   mcld::MCLDTargetMachine &TheTargetMachine = *target_machine.get();
@@ -1506,7 +1519,7 @@ int main(int argc, char* argv[])
   // finish LineInfo's implementation.
   OwningPtr<mcld::DiagnosticLineInfo>
     diag_line_info(MCLDTarget->createDiagnosticLineInfo(*MCLDTarget,
-                                                       TheTriple.getTriple()));
+                                                        TheTriple.getTriple()));
 
   mcld::getDiagnosticEngine().setLineInfo(*diag_line_info.take());
 
