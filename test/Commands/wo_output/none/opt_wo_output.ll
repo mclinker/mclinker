@@ -1,9 +1,9 @@
 ; RUN: %LLC -mtriple="arm-none-linux-gnueabi" -march=arm \
 ; RUN: -filetype=obj -relocation-model=pic %s -o %t.o
 ; RUN: %MCLinker -mtriple="arm-none-linux-gnueabi" -march=arm \
-; RUN: %t.o
+; RUN: %t.o -pie
 ; RUN: test -f ./a.out
-; RUN: readelf -a ./a.out | grep Type | grep EXEC | grep "Executable file"
+; RUN: readelf -a ./a.out | grep Type | grep DYN | grep "Shared object file"
 
 define i32 @main(i32 %argc, i8** %argv) nounwind uwtable ssp {
 entry:

@@ -8,7 +8,7 @@
 ; RUN: %LLC -mtriple="arm-none-linux-gnueabi" -march=arm \
 ; RUN: -filetype=obj -relocation-model=pic %t.true_f.ll -o %t.3.o
 ; RUN: %MCLinker -mtriple="arm-none-linux-gnueabi" -march=arm \
-; RUN: %t.1.o %t.2.o %t.3.o -o %t.4.o --wrap f
+; RUN: %t.1.o %t.2.o %t.3.o -o %t.4.o --wrap f -pie
 
 ; RUN: rm %t.1.o %t.2.o %t.3.o %t.4.o
 ; RUN: rm %t.wrap_f.ll
