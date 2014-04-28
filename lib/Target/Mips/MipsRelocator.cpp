@@ -27,7 +27,6 @@ enum {
   R_MIPS_LA25_LUI = 200,
   R_MIPS_LA25_J   = 201,
   R_MIPS_LA25_ADD = 202,
-  R_MIPS_PC32     = 248,
 };
 
 } // end namespace ELF

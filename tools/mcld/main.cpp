@@ -26,12 +26,13 @@
 
 #include <llvm/PassManager.h>
 #include <llvm/Pass.h>
+#include <llvm/ADT/Triple.h>
+#include <llvm/ADT/OwningPtr.h>
+#include <llvm/ADT/StringSwitch.h>
 #include <llvm/IR/Module.h>
 #include <llvm/IR/DataLayout.h>
 #include <llvm/IR/LLVMContext.h>
 #include <llvm/IRReader/IRReader.h>
-#include <llvm/ADT/Triple.h>
-#include <llvm/ADT/StringSwitch.h>
 #include <llvm/MC/SubtargetFeature.h>
 #include <llvm/Support/CommandLine.h>
 #include <llvm/Support/Debug.h>
@@ -238,11 +239,6 @@ static cl::opt<std::string>
 TrapFuncName("trap-func", cl::Hidden,
   cl::desc("Emit a call to trap function rather than a trap instruction"),
   cl::init(""));
-
-static cl::opt<bool>
-SegmentedStacks("segmented-stacks",
-  cl::desc("Use segmented stacks if possible."),
-  cl::init(false));
 
 //===----------------------------------------------------------------------===//
 // Command Line Options
@@ -1494,7 +1490,6 @@ int main(int argc, char* argv[])
   Options.GuaranteedTailCallOpt = EnableGuaranteedTailCallOpt;
   Options.StackAlignmentOverride = OverrideStackAlignment;
   Options.TrapFuncName = TrapFuncName;
-  Options.EnableSegmentedStacks = SegmentedStacks;
 
   OwningPtr<llvm::TargetMachine>
     TM(LLVMTarget->createTargetMachine(TheTriple.getTriple(),
@@ -1512,7 +1507,6 @@ int main(int argc, char* argv[])
   LDConfig.targets().setTargetCPU(MCPU);
   LDConfig.targets().setTargetFeatureString(FeaturesStr);
 
-  TheTargetMachine.getTM().setMCUseLoc(false);
   TheTargetMachine.getTM().setMCUseCFI(false);
 
   // FIXME: Move the initialization of LineInfo to mcld::Linker when we
@@ -1540,9 +1534,9 @@ int main(int argc, char* argv[])
 
   // Add the data layout from the target machine, if it exists, or the module.
   if (const DataLayout *DL = TheTargetMachine.getTM().getDataLayout())
-    PM.add(new DataLayout(*DL));
-   else
-    PM.add(new DataLayout(&mod));
+    mod.setDataLayout(DL);
+
+  PM.add(new DataLayoutPass(&mod));
 
   // Override default to generate verbose assembly.
   TheTargetMachine.getTM().setAsmVerbosityDefault(true);

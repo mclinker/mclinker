@@ -17,14 +17,14 @@
 
 #include <llvm/ADT/OwningPtr.h>
 #include <llvm/Analysis/Passes.h>
-#include <llvm/Analysis/Verifier.h>
-#include <llvm/Assembly/PrintModulePass.h>
 #include <llvm/CodeGen/AsmPrinter.h>
 #include <llvm/CodeGen/MachineFunctionAnalysis.h>
 #include <llvm/CodeGen/MachineModuleInfo.h>
 #include <llvm/CodeGen/GCStrategy.h>
 #include <llvm/CodeGen/Passes.h>
 #include <llvm/IR/DataLayout.h>
+#include <llvm/IR/IRPrintingPasses.h>
+#include <llvm/IR/Verifier.h>
 #include <llvm/MC/MCAsmInfo.h>
 #include <llvm/MC/MCStreamer.h>
 #include <llvm/MC/MCInstrInfo.h>
@@ -131,7 +131,7 @@ static void addPassesToHandleExceptions(llvm::TargetMachine *TM,
     PM.add(createDwarfEHPass(TM));
     break;
   case llvm::ExceptionHandling::None:
-    PM.add(createLowerInvokePass(TM));
+    PM.add(createLowerInvokePass());
 
     // The lower invoke pass may create unreachable code. Remove it.
     PM.add(createUnreachableBlockEliminationPass());
@@ -303,7 +303,6 @@ mcld::MCLDTargetMachine::addCompilerPasses(llvm::legacy::PassManagerBase &pPM,
   OwningPtr<MCStreamer> AsmStreamer(
     m_pLLVMTarget->createAsmStreamer(*Context, pOutput,
                                      getVerboseAsm(),
-                                     getTM().hasMCUseLoc(),
                                      getTM().hasMCUseCFI(),
                                      getTM().hasMCUseDwarfDirectory(),
                                      InstPrinter,
@@ -341,7 +340,7 @@ mcld::MCLDTargetMachine::addAssemblerPasses(llvm::legacy::PassManagerBase &pPM,
 
   // now, we have MCCodeEmitter and MCAsmBackend, we can create AsmStreamer.
   OwningPtr<MCStreamer> AsmStreamer(m_pLLVMTarget->createMCObjectStreamer(
-    m_Triple, *Context, *MAB, pOutput, MCE, getTM().hasMCRelaxAll(),
+    m_Triple, *Context, *MAB, pOutput, MCE, STI, getTM().hasMCRelaxAll(),
     getTM().hasMCNoExecStack()));
 
   AsmStreamer.get()->InitSections();

@@ -37,7 +37,7 @@ ToolOutputFile::CleanupInstaller::~CleanupInstaller()
   // FIXME: In Windows, some path in CJK characters can not be removed by LLVM
   // llvm::sys::Path
   if (!Keep && "_" != m_Path.native()) {
-    bool Existed;
+    bool Existed = false;
     llvm::sys::fs::remove(m_Path.native(), Existed);
   }
 

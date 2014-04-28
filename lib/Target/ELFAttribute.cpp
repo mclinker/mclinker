@@ -241,7 +241,7 @@ bool ELFAttribute::Subsection::merge(const Input &pInput,
           ELFAttributeValue *out_attr;
           bool is_newly_created;
 
-          llvm::tie(out_attr, is_newly_created) =
+          std::tie(out_attr, is_newly_created) =
               m_AttrData.getOrCreateAttributeValue(tag);
 
           assert(out_attr != NULL);

@@ -66,6 +66,7 @@ AC_DEFUN([CHECK_LLVM],
 	LLVM_CFLAGS="`${LLVM_CONFIG_BIN} --cflags`"
 	LLVM_CPPFLAGS="`${LLVM_CONFIG_BIN} --cxxflags`"
 	LLVM_LDFLAGS="`${LLVM_CONFIG_BIN} --libs`"
+	LLVM_LDFLAGS="${LLVM_LDFLAGS} `${LLVM_CONFIG_BIN} --system-libs`"
 	LLVM_LDFLAGS="${LLVM_LDFLAGS} `${LLVM_CONFIG_BIN} --ldflags`"
 	LLVM_LDFLAGS="`echo ${LLVM_LDFLAGS} | sed 's/\n//g'`"
 	LLVM_LDFLAGS="`echo ${LLVM_LDFLAGS} | sed 's/-lgtest_main -lgtest//g'`"
