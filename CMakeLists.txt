@@ -196,7 +196,6 @@ macro(add_mcld_library name)
   target_link_libraries(${name} ${LLVM_USED_LIBS})
   llvm_config(${name} ${LLVM_LINK_COMPONENTS})
   target_link_libraries(${name} ${LLVM_COMMON_LIBS})
-  link_system_libs(${name})
 
   install(TARGETS ${name}
     LIBRARY DESTINATION lib${LLVM_LIBDIR_SUFFIX}
