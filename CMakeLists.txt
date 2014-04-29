@@ -189,6 +189,7 @@ macro(add_mcld_library name)
   endif()
 
   add_library(${name} ${libkind} ${srcs})
+  llvm_update_compile_flags(${name} ${srcs})
   if (LLVM_COMMON_DEPENDS)
     add_dependencies(${name} ${LLVM_COMMON_DEPENDS})
   endif()
