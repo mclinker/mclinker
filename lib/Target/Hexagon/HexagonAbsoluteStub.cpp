@@ -45,9 +45,9 @@ HexagonAbsoluteStub::HexagonAbsoluteStub(bool pIsOutputPIC)
 
 /// for doClone
 HexagonAbsoluteStub::HexagonAbsoluteStub(const uint32_t* pData,
-                           size_t pSize,
-                           const_fixup_iterator pBegin,
-                           const_fixup_iterator pEnd)
+                                         size_t pSize,
+                                         const_fixup_iterator pBegin,
+                                         const_fixup_iterator pEnd)
  : Stub(), m_Name("AbsVeneer"), m_pData(pData), m_Size(pSize)
 {
   for (const_fixup_iterator it = pBegin, ie = pEnd; it != ie; ++it)
@@ -59,8 +59,8 @@ HexagonAbsoluteStub::~HexagonAbsoluteStub()
 }
 
 bool HexagonAbsoluteStub::isMyDuty(const class Relocation& pReloc,
-                            uint64_t pSource,
-                            uint64_t pTargetSymValue) const
+                                   uint64_t pSource,
+                                   uint64_t pTargetSymValue) const
 {
   int nbits = 0;
   switch (pReloc.type()) {
