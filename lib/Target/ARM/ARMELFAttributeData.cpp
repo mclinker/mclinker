@@ -589,7 +589,8 @@ static const char* generic_cpu_name_table[] = {
 };
 
 static const char* get_generic_cpu_name(int cpu_arch) {
-  assert(cpu_arch < sizeof(generic_cpu_name_table) / sizeof(generic_cpu_name_table[0]));
+  assert(static_cast<size_t>(cpu_arch) <
+         (sizeof(generic_cpu_name_table) / sizeof(generic_cpu_name_table[0])));
   return generic_cpu_name_table[cpu_arch];
 }
 
@@ -664,7 +665,7 @@ static int calculate_fp_config_hash(const struct fp_config_data &pConfig)
 static int get_fp_arch_of_config(const struct fp_config_data &pConfig)
 {
   int hash = calculate_fp_config_hash(pConfig);
-  assert(hash < num_hash_table_entries);
+  assert(static_cast<size_t>(hash) < num_hash_table_entries);
   return fp_config_hash_table[hash];
 }
 
