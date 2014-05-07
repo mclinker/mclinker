@@ -11,6 +11,7 @@
 #include "HexagonLDBackend.h"
 
 #include <llvm/Support/ELF.h>
+#include <llvm/Support/MathExtras.h>
 #include <mcld/LD/ResolveInfo.h>
 #include <mcld/LD/LDSymbol.h>
 #include <mcld/Fragment/Relocation.h>
@@ -32,7 +33,7 @@ const uint32_t HexagonAbsoluteStub::TEMPLATE[] = {
 };
 
 #define FITS_IN_NBITS(D, B) \
-    ((int64_t) abs (D) < (~(~(int64_t) 0 << ((B) - 1)) & -(4 * 4)))
+    ( llvm::abs64(D) < (~(~(int64_t) 0 << ((B) - 1)) & -(4 * 4)))
 
 HexagonAbsoluteStub::HexagonAbsoluteStub(bool pIsOutputPIC)
  : Stub(), m_Name("HexagonTrampoline"), m_pData(NULL), m_Size(0x0)
