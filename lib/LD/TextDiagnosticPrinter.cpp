@@ -21,9 +21,6 @@ static const enum llvm::raw_ostream::Colors DebugColor       = llvm::raw_ostream
 static const enum llvm::raw_ostream::Colors NoteColor        = llvm::raw_ostream::GREEN;
 static const enum llvm::raw_ostream::Colors IgnoreColor      = llvm::raw_ostream::BLUE;
 
-// Used for changing only the bold attribute.
-static const enum llvm::raw_ostream::Colors SavedColor = llvm::raw_ostream::SAVEDCOLOR;
-
 //===----------------------------------------------------------------------===//
 // TextDiagnosticPrinter
 TextDiagnosticPrinter::TextDiagnosticPrinter(llvm::raw_ostream& pOStream,
