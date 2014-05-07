@@ -9,15 +9,12 @@
 #include <mcld/Object/ObjectBuilder.h>
 
 #include <mcld/Module.h>
-#include <mcld/LinkerConfig.h>
 #include <mcld/LinkerScript.h>
 #include <mcld/IRBuilder.h>
 #include <mcld/Object/SectionMap.h>
 #include <mcld/LD/LDSection.h>
 #include <mcld/LD/SectionData.h>
-#include <mcld/LD/RelocData.h>
 #include <mcld/LD/EhFrame.h>
-#include <mcld/Fragment/Relocation.h>
 #include <mcld/Fragment/AlignFragment.h>
 #include <mcld/Fragment/NullFragment.h>
 #include <mcld/Fragment/FillFragment.h>
@@ -29,8 +26,8 @@ using namespace mcld;
 //===----------------------------------------------------------------------===//
 // ObjectBuilder
 //===----------------------------------------------------------------------===//
-ObjectBuilder::ObjectBuilder(const LinkerConfig& pConfig, Module& pTheModule)
-  : m_Config(pConfig), m_Module(pTheModule) {
+ObjectBuilder::ObjectBuilder(Module& pTheModule)
+  : m_Module(pTheModule) {
 }
 
 /// CreateSection - create an output section.

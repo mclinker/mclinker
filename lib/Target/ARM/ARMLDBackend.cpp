@@ -422,7 +422,7 @@ bool ARMGNULDBackend::mergeSection(Module& pModule,
     }
     /** fall through **/
     default: {
-      ObjectBuilder builder(config(), pModule);
+      ObjectBuilder builder(pModule);
       builder.MergeSection(pInput, pSection);
       return true;
     }

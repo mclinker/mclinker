@@ -350,7 +350,6 @@ private:
   };
 
 private:
-  Input* m_pDefaultBitcode;
   std::string m_DefaultLDScript;
   std::string m_Dyld;
   std::string m_SOName;

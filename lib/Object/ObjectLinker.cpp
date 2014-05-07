@@ -99,7 +99,7 @@ bool ObjectLinker::initialize(Module& pModule, IRBuilder& pBuilder)
 /// initStdSections - initialize standard sections
 bool ObjectLinker::initStdSections()
 {
-  ObjectBuilder builder(m_Config, *m_pModule);
+  ObjectBuilder builder(*m_pModule);
 
   // initialize standard sections
   if (!m_LDBackend.initStdSections(builder))
@@ -260,7 +260,7 @@ bool ObjectLinker::readRelocations()
 /// mergeSections - put allinput sections into output sections
 bool ObjectLinker::mergeSections()
 {
-  ObjectBuilder builder(m_Config, *m_pModule);
+  ObjectBuilder builder(*m_pModule);
   Module::obj_iterator obj, objEnd = m_pModule->obj_end();
   for (obj = m_pModule->obj_begin(); obj != objEnd; ++obj) {
     LDContext::sect_iterator sect, sectEnd = (*obj)->context()->sectEnd();

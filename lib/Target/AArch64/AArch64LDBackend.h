@@ -156,10 +156,10 @@ private:
   LDSymbol* m_pGOTSymbol;
 
   //     variable name           :  ELF
-  LDSection* m_pAttributes;      // .ARM.attributes
-//  LDSection* m_pPreemptMap;      // .AArch64.preemptmap
-//  LDSection* m_pDebugOverlay;    // .AArch64.debug_overlay
-//  LDSection* m_pOverlayTable;    // .AArch64.overlay_table
+  // LDSection* m_pAttributes;      // .ARM.attributes
+  // LDSection* m_pPreemptMap;      // .AArch64.preemptmap
+  // LDSection* m_pDebugOverlay;    // .AArch64.debug_overlay
+  // LDSection* m_pOverlayTable;    // .AArch64.overlay_table
 };
 } // namespace of mcld
 

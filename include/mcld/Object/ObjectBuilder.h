@@ -20,13 +20,10 @@
 
 namespace mcld {
 
-class LinkerConfig;
 class Module;
 class LDSection;
 class SectionData;
-class RelocData;
 class Fragment;
-class Relocation;
 class Input;
 
 /** \class ObjectBuilder
@@ -35,8 +32,7 @@ class Input;
 class ObjectBuilder
 {
 public:
-  ObjectBuilder(const LinkerConfig& pConfig,
-                Module& pTheModule);
+  ObjectBuilder(Module& pTheModule);
 
 /// @}
 /// @name Section Methods
@@ -98,7 +94,6 @@ public:
                                  uint32_t pAlignConstraint = 1);
 
 private:
-  const LinkerConfig& m_Config;
   Module& m_Module;
 };
 

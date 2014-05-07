@@ -36,7 +36,7 @@ X86_32GOTEntry* X86_32GOT::create()
 // X86_64GOT
 //===----------------------------------------------------------------------===//
 X86_64GOT::X86_64GOT(LDSection& pSection)
-  : GOT(pSection), m_pLast(NULL)
+  : GOT(pSection)
 {
 }
 

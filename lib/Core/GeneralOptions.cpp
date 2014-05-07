@@ -16,8 +16,7 @@ using namespace mcld;
 // GeneralOptions
 //===----------------------------------------------------------------------===//
 GeneralOptions::GeneralOptions()
-  : m_pDefaultBitcode(NULL),
-    m_Verbose(-1),
+  : m_Verbose(-1),
     m_MaxErrorNum(-1),
     m_MaxWarnNum(-1),
     m_ExecStack(Unknown),

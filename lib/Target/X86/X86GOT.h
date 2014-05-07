@@ -67,9 +67,6 @@ public:
   ~X86_64GOT();
 
   X86_64GOTEntry* create();
-
-private:
-  X86_64GOTEntry* m_pLast; ///< the last consumed entry
 };
 
 } // namespace of mcld

@@ -704,7 +704,7 @@ bool HexagonLDBackend::mergeSection(Module& pModule,
     MoveSectionDataAndSort(*pInputSection.getSectionData(), *sd);
   }
   else {
-    ObjectBuilder builder(config(), pModule);
+    ObjectBuilder builder(pModule);
     builder.MergeSection(pInputFile, pInputSection);
   }
   return true;

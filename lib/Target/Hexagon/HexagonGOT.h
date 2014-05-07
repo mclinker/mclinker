@@ -42,9 +42,6 @@ public:
   ~HexagonGOT();
 
   HexagonGOTEntry* create();
-
-private:
-  HexagonGOTEntry* m_pLast; ///< the last consumed entry
 };
 
 } // namespace of mcld

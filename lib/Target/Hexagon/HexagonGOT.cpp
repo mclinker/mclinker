@@ -19,7 +19,7 @@ using namespace mcld;
 // HexagonGOT
 //===----------------------------------------------------------------------===//
 HexagonGOT::HexagonGOT(LDSection& pSection)
-  : GOT(pSection), m_pLast(NULL)
+  : GOT(pSection)
 {
 }
 
