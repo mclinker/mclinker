@@ -60,6 +60,13 @@ llvm::cl::opt<mcld::OptimizationOptions::ICF> ArgICF("icf",
       "Folds those whose pointers are definitely not taken."),
     clEnumValEnd));
 
+llvm::cl::opt<char> ArgOptLevel("O",
+  llvm::cl::desc("Optimization level. [-O0, -O1, -O2, or -O3] "
+                 "(default = '-O2')"),
+  llvm::cl::Prefix,
+  llvm::cl::ZeroOrMore,
+  llvm::cl::init(' '));
+
 llvm::cl::list<std::string> ArgPlugin("plugin",
   llvm::cl::desc("Load a plugin library."),
   llvm::cl::value_desc("plugin"));
@@ -79,6 +86,7 @@ OptimizationOptions::OptimizationOptions()
   : m_GCSections(ArgGCSections),
     m_GenUnwindInfo(ArgGenUnwindInfo),
     m_ICF(ArgICF),
+    m_OptLevel(ArgOptLevel),
     m_Plugin(ArgPlugin),
     m_PluginOpt(ArgPluginOpt) {
 }
