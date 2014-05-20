@@ -6,7 +6,7 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include <lite/SearchPathOptions.h>
+#include <mcld/SearchPathOptions.h>
 #include <mcld/LinkerConfig.h>
 #include <mcld/LinkerScript.h>
 #include <mcld/Support/raw_ostream.h>

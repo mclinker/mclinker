@@ -6,7 +6,7 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include <lite/ScriptOptions.h>
+#include <mcld/ScriptOptions.h>
 #include <mcld/LinkerScript.h>
 #include <mcld/ADT/StringEntry.h>
 #include <mcld/Support/MsgHandling.h>

@@ -214,8 +214,8 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 include_directories(BEFORE
   ${CMAKE_CURRENT_BINARY_DIR}/include
   ${CMAKE_CURRENT_SOURCE_DIR}/include
-  ${CMAKE_CURRENT_BINARY_DIR}/tools/ld.lite/include
-  ${CMAKE_CURRENT_SOURCE_DIR}/tools/ld.lite/include
+  ${CMAKE_CURRENT_BINARY_DIR}/tools/ld.mcld/include
+  ${CMAKE_CURRENT_SOURCE_DIR}/tools/ld.mcld/include
   )
 link_directories("${PATH_TO_LLVM_BUILD}/lib")
 

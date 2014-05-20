@@ -1,56 +1,31 @@
-MCLD_SOURCES = ${srcdir}/main.cpp
+INCDIR=${srcdir}/include/mcld
+LIBDIR=${srcdir}/lib
 
-if ENABLE_UNITTEST
-UNITTEST=${top_srcdir}/unittests
-
-MCLD_SOURCES += \
-	${UNITTEST}/BinTreeTest.cpp \
-	${UNITTEST}/BinTreeTest.h \
-	${UNITTEST}/DirIteratorTest.cpp \
-	${UNITTEST}/DirIteratorTest.h \
-	${UNITTEST}/ELFBinaryReaderTest.cpp \
-	${UNITTEST}/ELFBinaryReaderTest.h \
-	${UNITTEST}/ELFReaderTest.cpp \
-	${UNITTEST}/ELFReaderTest.h \
-	${UNITTEST}/FileHandleTest.cpp \
-	${UNITTEST}/FileHandleTest.h \
-	${UNITTEST}/FragmentRefTest.cpp \
-	${UNITTEST}/FragmentRefTest.h \
-	${UNITTEST}/FragmentTest.cpp \
-	${UNITTEST}/FragmentTest.h \
-	${UNITTEST}/GCFactoryListTraitsTest.cpp \
-	${UNITTEST}/GCFactoryListTraitsTest.h \
-	${UNITTEST}/HashTableTest.cpp \
-	${UNITTEST}/HashTableTest.h \
-	${UNITTEST}/InputTreeTest.cpp \
-	${UNITTEST}/InputTreeTest.h \
-	${UNITTEST}/LDSymbolTest.cpp \
-	${UNITTEST}/LDSymbolTest.h \
-	${UNITTEST}/LEB128Test.cpp \
-	${UNITTEST}/LEB128Test.h \
-	${UNITTEST}/LinearAllocatorTest.cpp \
-	${UNITTEST}/LinearAllocatorTest.h \
-	${UNITTEST}/LinkerTest.cpp \
-	${UNITTEST}/LinkerTest.h \
-	${UNITTEST}/PathTest.cpp \
-	${UNITTEST}/PathTest.h \
-	${UNITTEST}/RTLinearAllocatorTest.h \
-	${UNITTEST}/RTLinearAllocatorTest.cpp \
-	${UNITTEST}/SectionDataTest.cpp \
-	${UNITTEST}/SectionDataTest.h \
-	${UNITTEST}/StaticResolverTest.cpp \
-	${UNITTEST}/StaticResolverTest.h \
-	${UNITTEST}/SymbolCategoryTest.cpp \
-	${UNITTEST}/SymbolCategoryTest.h \
-	${UNITTEST}/SystemUtilsTest.cpp \
-	${UNITTEST}/SystemUtilsTest.h \
-	${UNITTEST}/UniqueGCFactoryBaseTest.cpp \
-	${UNITTEST}/UniqueGCFactoryBaseTest.h
-endif
+MCLD_SOURCES = ${srcdir}/main.cpp \
+	${INCDIR}/DynamicSectionOptions.h \
+	${LIBDIR}/DynamicSectionOptions.cpp \
+	${INCDIR}/OptimizationOptions.h \
+	${LIBDIR}/OptimizationOptions.cpp \
+	${INCDIR}/OutputFormatOptions.h \
+	${LIBDIR}/OutputFormatOptions.cpp \
+	${INCDIR}/PositionalOptions.h \
+	${LIBDIR}/PositionalOptions.cpp \
+	${INCDIR}/PreferenceOptions.h \
+	${LIBDIR}/PreferenceOptions.cpp \
+	${INCDIR}/ScriptOptions.h \
+	${LIBDIR}/ScriptOptions.cpp \
+	${INCDIR}/SearchPathOptions.h \
+	${LIBDIR}/SearchPathOptions.cpp \
+	${INCDIR}/SymbolOptions.h \
+	${LIBDIR}/SymbolOptions.cpp \
+	${INCDIR}/TargetControlOptions.h \
+	${LIBDIR}/TargetControlOptions.cpp \
+	${INCDIR}/TripleOptions.h \
+	${LIBDIR}/TripleOptions.cpp
 
 ANDROID_CPPFLAGS=-fno-rtti -fno-exceptions -Waddress -Wchar-subscripts -Wcomment -Wformat -Wparentheses -Wreorder -Wreturn-type -Wsequence-point -Wstrict-aliasing -Wstrict-overflow=1 -Wswitch -Wtrigraphs -Wuninitialized -Wunknown-pragmas -Wunused-function -Wunused-label -Wunused-value -Wunused-variable -Wvolatile-register-var
 
-MCLD_CPPFLAGS = -g -I${top_srcdir}/include -I${top_builddir}/include ${LLVM_CPPFLAGS} ${ANDROID_CPPFLAGS} -I${top_srcdir}/include/mcld/Script
+MCLD_CPPFLAGS = -g -I${top_srcdir}/include -I${top_builddir}/include ${LLVM_CPPFLAGS} ${ANDROID_CPPFLAGS} -I${top_srcdir}/include/mcld/Script -I${srcdir}/include
 
 if ENABLE_WERROR
 MCLD_CPPFLAGS+=-Werror

@@ -6,7 +6,7 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include <lite/TripleOptions.h>
+#include <mcld/TripleOptions.h>
 
 #include <mcld/LinkerConfig.h>
 #include <mcld/Support/Path.h>
@@ -49,8 +49,7 @@ inline std::string ParseProgName(const char *pProgName)
 {
   static const char *suffixes[] = {
     "ld",
-    "ld.mcld",
-    "ld.lite",
+    "ld.mcld"
   };
 
   std::string ProgName(mcld::sys::fs::Path(pProgName).stem().native());

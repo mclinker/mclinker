@@ -6,7 +6,7 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include <lite/DynamicSectionOptions.h>
+#include <mcld/DynamicSectionOptions.h>
 #include <mcld/LinkerConfig.h>
 #include <mcld/LinkerScript.h>
 #include <mcld/MC/ZOption.h>

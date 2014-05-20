@@ -6,7 +6,7 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include <lite/OutputFormatOptions.h>
+#include <mcld/OutputFormatOptions.h>
 #include <mcld/Module.h>
 #include <mcld/Support/MsgHandling.h>
 

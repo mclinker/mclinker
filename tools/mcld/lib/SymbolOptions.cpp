@@ -6,7 +6,7 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include <lite/SymbolOptions.h>
+#include <mcld/SymbolOptions.h>
 #include <mcld/LinkerConfig.h>
 
 namespace {

@@ -12,7 +12,7 @@ attributes #1 = { "less-precise-fpmad"="false" "no-frame-pointer-elim"="true" "n
 
 ; Check x86
 ; RUN: %LLC -relocation-model=pic -filetype=obj -march=x86 %s -o %t.o
-; RUN: %MCLinker -shared -fPIC -march=x86 %t.o -o %t.out
+; RUN: %MCLinker -shared -march=x86 %t.o -o %t.out
 
 ; RUN: readelf -S %t.out | grep '\ \.plt' \
 ; RUN: | awk '{print "PLT Addr "$5" Align "$12}' > %t.txt
@@ -35,7 +35,7 @@ attributes #1 = { "less-precise-fpmad"="false" "no-frame-pointer-elim"="true" "n
 
 ; Check x86-64
 ; RUN: %LLC -relocation-model=pic -filetype=obj -march=x86-64 %s -o %t.o
-; RUN: %MCLinker -shared -fPIC -march=x86-64 %t.o -o %t.out
+; RUN: %MCLinker -shared -march=x86-64 %t.o -o %t.out
 
 ; RUN: readelf -S %t.out | grep -A 1 '\ \.plt' | tr '\n' ' ' \
 ; RUN: | awk '{print "PLT Addr "$5" Align "$12}' > %t.txt
@@ -57,7 +57,7 @@ attributes #1 = { "less-precise-fpmad"="false" "no-frame-pointer-elim"="true" "n
 
 
 ; Check --no-ld-generated-unwind-info
-; RUN: %MCLinker -shared -fPIC -march=x86-64 %t.o -o %t.out --no-ld-generated-unwind-info
+; RUN: %MCLinker -shared -march=x86-64 %t.o -o %t.out --no-ld-generated-unwind-info
 ; RUN: readelf -w %t.out | grep 'pc=' | wc -l > %t.txt
 ; RUN: cat %t.txt | FileCheck %s --check-prefix=NO_GEN
 ; NO_GEN: 1

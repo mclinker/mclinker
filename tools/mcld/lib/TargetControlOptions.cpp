@@ -6,7 +6,7 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include <lite/TargetControlOptions.h>
+#include <mcld/TargetControlOptions.h>
 #include <mcld/LinkerConfig.h>
 #include <mcld/Support/MsgHandling.h>
 

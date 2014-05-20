@@ -6,7 +6,7 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include <lite/PreferenceOptions.h>
+#include <mcld/PreferenceOptions.h>
 #include <mcld/LinkerConfig.h>
 #include <mcld/Support/CommandLine.h>
 #include <mcld/Support/raw_ostream.h>
