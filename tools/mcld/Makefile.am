@@ -25,7 +25,13 @@ MCLD_SOURCES = ${srcdir}/main.cpp \
 
 ANDROID_CPPFLAGS=-fno-rtti -fno-exceptions -Waddress -Wchar-subscripts -Wcomment -Wformat -Wparentheses -Wreorder -Wreturn-type -Wsequence-point -Wstrict-aliasing -Wstrict-overflow=1 -Wswitch -Wtrigraphs -Wuninitialized -Wunknown-pragmas -Wunused-function -Wunused-label -Wunused-value -Wunused-variable -Wvolatile-register-var
 
-MCLD_CPPFLAGS = -g -I${top_srcdir}/include -I${top_builddir}/include ${LLVM_CPPFLAGS} ${ANDROID_CPPFLAGS} -I${top_srcdir}/include/mcld/Script -I${srcdir}/include
+MCLD_CPPFLAGS = -I${top_srcdir}/include -I${top_builddir}/include ${LLVM_CPPFLAGS} ${ANDROID_CPPFLAGS} -I${top_srcdir}/include/mcld/Script -I${srcdir}/include
+
+if ENABLE_OPTIMIZED
+MCLD_CPPFLAGS+=-O2
+else
+MCLD_CPPFLAGS+=-g
+endif
 
 if ENABLE_WERROR
 MCLD_CPPFLAGS+=-Werror
@@ -33,18 +39,13 @@ endif
 
 bin_PROGRAMS = ld.mcld
 
-if ENABLE_UNITTEST
-MCLD_CPPFLAGS += -DTOPDIR=\"${abs_top_srcdir}\" -DENABLE_UNITTEST -DMCLD_DEBUG -I${top_srcdir}/utils/gtest/include -I${top_srcdir}/unittests -DGTEST_HAS_RTTI=0
-endif
-
 AM_CPPFLAGS = ${MCLD_CPPFLAGS}
 
-if ENABLE_UNITTEST
-ld_mcld_LDFLAGS = -L${top_builddir}/utils/gtest/lib -lgtest ${LLVM_LDFLAGS}
-ld_mcld_LDADD = ${top_builddir}/debug/libmcld.a
-else
 ld_mcld_LDFLAGS = ${LLVM_LDFLAGS}
+if ENABLE_OPTIMIZED
 ld_mcld_LDADD = ${top_builddir}/optimized/libmcld.a
+else
+ld_mcld_LDADD = ${top_builddir}/debug/libmcld.a
 endif
 
 dist_ld_mcld_SOURCES = ${MCLD_SOURCES}

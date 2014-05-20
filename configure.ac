@@ -80,17 +80,17 @@ AC_SUBST(PTHREAD_CFLAGS)
 AC_SUBST(PTHREAD_LIBS)
 
 ####################
-# Configure Unit-test
-AC_ARG_ENABLE(unittest,
-            [AS_HELP_STRING([--enable-unittest],
+# Configure optimized build
+AC_ARG_ENABLE(optimized,
+            [AS_HELP_STRING([--enable-optimized],
                 [turn on unit-tests (default is no)])],
             [case "${enableval}" in
-              yes) unittest=true ;;
-              no)  unittest=false ;;
-              *) AC_MSG_ERROR(bad value ${enableval} for --enable-unittest) ;;
+              yes) optimized=true ;;
+              no)  optimized=false ;;
+              *) AC_MSG_ERROR(bad value ${enableval} for --enable-optimized) ;;
              esac],
-             [unittest=false])
-AM_CONDITIONAL([ENABLE_UNITTEST],[test "x${unittest}" == "xtrue" ])
+             [optimized=false])
+AM_CONDITIONAL([ENABLE_OPTIMIZED],[test "x${optimized}" == "xtrue" ])
 
 ####################
 # Configure compiler warnings
