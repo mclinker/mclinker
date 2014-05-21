@@ -8,9 +8,6 @@
 //===----------------------------------------------------------------------===//
 #ifndef MCLD_LD_LDREADER_H
 #define MCLD_LD_LDREADER_H
-#ifdef ENABLE_UNITTEST
-#include <gtest.h>
-#endif
 
 #include <llvm/Support/DataTypes.h>
 

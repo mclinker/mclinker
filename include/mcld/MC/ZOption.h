@@ -8,9 +8,6 @@
 //===----------------------------------------------------------------------===//
 #ifndef MCLD_MC_ZOPTION_H
 #define MCLD_MC_ZOPTION_H
-#ifdef ENABLE_UNITTEST
-#include <gtest.h>
-#endif
 
 #include <llvm/Support/DataTypes.h>
 

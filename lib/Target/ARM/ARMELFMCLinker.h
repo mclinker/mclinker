@@ -8,9 +8,6 @@
 //===----------------------------------------------------------------------===//
 #ifndef TARGET_ARM_ARMELFMCLINKER_H
 #define TARGET_ARM_ARMELFMCLINKER_H
-#ifdef ENABLE_UNITTEST
-#include <gtest.h>
-#endif
 #include <mcld/Target/ELFMCLinker.h>
 
 namespace mcld {

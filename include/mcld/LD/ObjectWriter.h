@@ -8,9 +8,6 @@
 //===----------------------------------------------------------------------===//
 #ifndef MCLD_LD_OBJECTWRITER_H
 #define MCLD_LD_OBJECTWRITER_H
-#ifdef ENABLE_UNITTEST
-#include <gtest.h>
-#endif
 #include <llvm/Support/system_error.h>
 
 namespace mcld {

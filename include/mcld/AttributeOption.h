@@ -8,9 +8,6 @@
 //===----------------------------------------------------------------------===//
 #ifndef MCLD_ATTRIBUTEOPTION_H
 #define MCLD_ATTRIBUTEOPTION_H
-#ifdef ENABLE_UNITTEST
-#include <gtest.h>
-#endif
 #include <mcld/MC/Attribute.h>
 
 namespace mcld {

@@ -8,9 +8,6 @@
 //===----------------------------------------------------------------------===//
 #ifndef TARGET_AARCH64_AARCH64RELOCATOR_H
 #define TARGET_AARCH64_AARCH64RELOCATOR_H
-#ifdef ENABLE_UNITTEST
-#include <gtest.h>
-#endif
 
 #include <mcld/LD/Relocator.h>
 #include <mcld/Target/GOT.h>

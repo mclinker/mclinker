@@ -12,9 +12,6 @@
 //===----------------------------------------------------------------------===//
 #ifndef MCLD_MODULE_H
 #define MCLD_MODULE_H
-#ifdef ENABLE_UNITTEST
-#include <gtest.h>
-#endif
 
 #include <mcld/InputTree.h>
 #include <mcld/LD/NamePool.h>

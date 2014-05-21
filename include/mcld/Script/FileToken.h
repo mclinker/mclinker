@@ -8,9 +8,6 @@
 //===----------------------------------------------------------------------===//
 #ifndef MCLD_SCRIPT_FILETOKEN_H
 #define MCLD_SCRIPT_FILETOKEN_H
-#ifdef ENABLE_UNITTEST
-#include <gtest.h>
-#endif
 
 #include <mcld/Script/InputToken.h>
 #include <mcld/Support/Allocators.h>

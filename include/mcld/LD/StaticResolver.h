@@ -8,9 +8,6 @@
 //===----------------------------------------------------------------------===//
 #ifndef MCLD_LD_STATICRESOLVER_H
 #define MCLD_LD_STATICRESOLVER_H
-#ifdef ENABLE_UNITTEST
-#include <gtest.h>
-#endif
 #include <string>
 #include <mcld/LD/Resolver.h>
 #include <mcld/LD/ResolveInfo.h>

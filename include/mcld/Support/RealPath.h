@@ -8,9 +8,6 @@
 //===----------------------------------------------------------------------===//
 #ifndef MCLD_SUPPORT_REALPATH_H
 #define MCLD_SUPPORT_REALPATH_H
-#ifdef ENABLE_UNITTEST
-#include <gtest.h>
-#endif
 #include "mcld/Support/Path.h"
 #include <string>
 

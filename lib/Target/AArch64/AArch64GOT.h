@@ -8,9 +8,6 @@
 //===----------------------------------------------------------------------===//
 #ifndef TARGET_AARCH64_AARCH64GOT_H
 #define TARGET_AARCH64_AARCH64GOT_H
-#ifdef ENABLE_UNITTEST
-#include <gtest.h>
-#endif
 
 #include <mcld/Support/MemoryRegion.h>
 #include <mcld/Target/GOT.h>

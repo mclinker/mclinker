@@ -8,9 +8,6 @@
 //===----------------------------------------------------------------------===//
 #ifndef MCLD_TARGET_OUTPUTRELOCSECTION_H
 #define MCLD_TARGET_OUTPUTRELOCSECTION_H
-#ifdef ENABLE_UNITTEST
-#include <gtest.h>
-#endif
 
 #include <mcld/LD/RelocData.h>
 

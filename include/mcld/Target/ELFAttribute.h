@@ -8,9 +8,6 @@
 //===----------------------------------------------------------------------===//
 #ifndef MCLD_TARGET_ELFATTRIBUTE_H
 #define MCLD_TARGET_ELFATTRIBUTE_H
-#ifdef ENABLE_UNITTEST
-#include <gtest.h>
-#endif
 
 #include <mcld/Support/MemoryRegion.h>
 #include <mcld/Target/ELFAttributeData.h>

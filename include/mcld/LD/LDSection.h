@@ -9,9 +9,6 @@
 
 #ifndef MCLD_LD_LDSECTION_H
 #define MCLD_LD_LDSECTION_H
-#ifdef ENABLE_UNITTEST
-#include <gtest.h>
-#endif
 
 #include <llvm/Support/DataTypes.h>
 #include <mcld/Support/Allocators.h>

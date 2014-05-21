@@ -8,9 +8,6 @@
 //===----------------------------------------------------------------------===//
 #ifndef MCLD_LD_RELOCATION_FACTORY_H
 #define MCLD_LD_RELOCATION_FACTORY_H
-#ifdef ENABLE_UNITTEST
-#include <gtest.h>
-#endif
 #include <mcld/Config/Config.h>
 #include <mcld/Support/GCFactory.h>
 #include <mcld/Fragment/Relocation.h>

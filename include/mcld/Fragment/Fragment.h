@@ -8,9 +8,6 @@
 //===----------------------------------------------------------------------===//
 #ifndef MCLD_FRAGMENT_FRAGMENT_H
 #define MCLD_FRAGMENT_FRAGMENT_H
-#ifdef ENABLE_UNITTEST
-#include <gtest.h>
-#endif
 
 #include <llvm/ADT/ilist_node.h>
 

@@ -8,9 +8,6 @@
 //===----------------------------------------------------------------------===//
 #ifndef MCLD_LD_BSDARCHIVEREADER_H
 #define MCLD_LD_BSDARCHIVEREADER_H
-#ifdef ENABLE_UNITTEST
-#include <gtest.h>
-#endif
 #include <mcld/LD/ArchiveReader.h>
 
 namespace mcld

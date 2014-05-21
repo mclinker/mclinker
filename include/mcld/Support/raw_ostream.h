@@ -8,9 +8,6 @@
 //===----------------------------------------------------------------------===//
 #ifndef MCLD_SUPPORT_RAWOSTREAM_H
 #define MCLD_SUPPORT_RAWOSTREAM_H
-#ifdef ENABLE_UNITTEST
-#include <gtest.h>
-#endif
 #include <string>
 #include <llvm/Support/raw_ostream.h>
 

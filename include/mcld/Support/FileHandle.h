@@ -8,9 +8,6 @@
 //===----------------------------------------------------------------------===//
 #ifndef MCLD_SUPPORT_FILEHANDLE_H
 #define MCLD_SUPPORT_FILEHANDLE_H
-#ifdef ENABLE_UNITTEST
-#include <gtest.h>
-#endif
 #include <mcld/Support/Path.h>
 #include <mcld/ADT/Flags.h>
 

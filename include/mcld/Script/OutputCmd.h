@@ -8,9 +8,6 @@
 //===----------------------------------------------------------------------===//
 #ifndef MCLD_SCRIPT_OUTPUTCMD_H
 #define MCLD_SCRIPT_OUTPUTCMD_H
-#ifdef ENABLE_UNITTEST
-#include <gtest.h>
-#endif
 
 #include <mcld/Script/ScriptCommand.h>
 #include <string>

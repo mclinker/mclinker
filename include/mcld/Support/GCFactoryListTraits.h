@@ -8,9 +8,6 @@
 //===----------------------------------------------------------------------===//
 #ifndef MCLD_SUPPORT_GCFACTORYLISTTRAITS_H
 #define MCLD_SUPPORT_GCFACTORYLISTTRAITS_H
-#ifdef ENABLE_UNITTEST
-#include <gtest.h>
-#endif
 
 #include <llvm/ADT/ilist_node.h>
 #include <llvm/ADT/ilist.h>

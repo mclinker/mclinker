@@ -8,9 +8,6 @@
 //===----------------------------------------------------------------------===//
 #ifndef TARGET_HEXAGON_HEXAGONGOT_H
 #define TARGET_HEXAGON_HEXAGONGOT_H
-#ifdef ENABLE_UNITTEST
-#include <gtest.h>
-#endif
 
 #include <mcld/Target/GOT.h>
 

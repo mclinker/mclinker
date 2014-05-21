@@ -8,9 +8,6 @@
 //===----------------------------------------------------------------------===//
 #ifndef MCLD_SCRIPT_OPERAND_H
 #define MCLD_SCRIPT_OPERAND_H
-#ifdef ENABLE_UNITTEST
-#include <gtest.h>
-#endif
 
 #include <mcld/Script/ExprToken.h>
 #include <mcld/Object/SectionMap.h>

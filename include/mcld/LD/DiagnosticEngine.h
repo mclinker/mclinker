@@ -8,9 +8,6 @@
 //===----------------------------------------------------------------------===//
 #ifndef MCLD_LD_DIAGNOSTICENGINE_H
 #define MCLD_LD_DIAGNOSTICENGINE_H
-#ifdef ENABLE_UNITTEST
-#include <gtest.h>
-#endif
 #include <string>
 #include <llvm/Support/DataTypes.h>
 #include <mcld/LD/DiagnosticInfos.h>

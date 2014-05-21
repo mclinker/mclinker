@@ -8,9 +8,6 @@
 //===----------------------------------------------------------------------===//
 #ifndef MCLD_LD_RESOLVER_H
 #define MCLD_LD_RESOLVER_H
-#ifdef ENABLE_UNITTEST
-#include <gtest.h>
-#endif
 #include <string>
 #include <utility>
 #include <mcld/LD/LDSymbol.h>

@@ -8,9 +8,6 @@
 //===----------------------------------------------------------------------===//
 #ifndef MCLD_LD_ELFDYNOBJREADER_H
 #define MCLD_LD_ELFDYNOBJREADER_H
-#ifdef ENABLE_UNITTEST
-#include <gtest.h>
-#endif
 #include <mcld/LD/DynObjReader.h>
 #include <llvm/Support/system_error.h>
 

@@ -13,9 +13,6 @@
 //===----------------------------------------------------------------------===//
 #ifndef MCLD_TARGET_ELFMCLINKER_H
 #define MCLD_TARGET_ELFMCLINKER_H
-#ifdef ENABLE_UNITTEST
-#include <gtest.h>
-#endif
 #include <mcld/CodeGen/MCLinker.h>
 
 namespace mcld {

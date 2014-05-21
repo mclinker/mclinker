@@ -8,9 +8,6 @@
 //===----------------------------------------------------------------------===//
 #ifndef MCLD_LD_BRANCHISLANDFACTORY_H
 #define MCLD_LD_BRANCHISLANDFACTORY_H
-#ifdef ENABLE_UNITTEST
-#include <gtest.h>
-#endif
 
 #include <llvm/Support/DataTypes.h>
 #include <mcld/Support/GCFactory.h>

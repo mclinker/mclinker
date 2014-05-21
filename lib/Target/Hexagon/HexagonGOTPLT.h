@@ -8,9 +8,6 @@
 //===----------------------------------------------------------------------===//
 #ifndef TARGET_HEXAGON_HEXAGONGOTPLT_H
 #define TARGET_HEXAGON_HEXAGONGOTPLT_H
-#ifdef ENABLE_UNITTEST
-#include <gtest.h>
-#endif
 
 #include <llvm/ADT/DenseMap.h>
 #include "HexagonGOT.h"

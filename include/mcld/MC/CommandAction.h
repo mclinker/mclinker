@@ -8,9 +8,6 @@
 //===----------------------------------------------------------------------===//
 #ifndef MCLD_MC_COMMANDACTION_H
 #define MCLD_MC_COMMANDACTION_H
-#ifdef ENABLE_UNITTEST
-#include <gtest.h>
-#endif
 
 #include <string>
 #include <mcld/Support/Path.h>

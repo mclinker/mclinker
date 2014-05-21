@@ -8,9 +8,6 @@
 //===----------------------------------------------------------------------===//
 #ifndef MCLD_LD_DIAGNOSTICLINEINFO_H
 #define MCLD_LD_DIAGNOSTICLINEINFO_H
-#ifdef ENABLE_UNITTEST
-#include <gtest.h>
-#endif
 
 namespace mcld
 {

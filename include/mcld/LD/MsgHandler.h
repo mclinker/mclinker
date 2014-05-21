@@ -8,9 +8,6 @@
 //===----------------------------------------------------------------------===//
 #ifndef MCLD_LD_MSGHANDLER_H
 #define MCLD_LD_MSGHANDLER_H
-#ifdef ENABLE_UNITTEST
-#include <gtest.h>
-#endif
 #include <string>
 #include <llvm/ADT/StringRef.h>
 #include <llvm/ADT/Twine.h>

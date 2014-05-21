@@ -8,9 +8,6 @@
 //===----------------------------------------------------------------------===//
 #ifndef MCLD_SCRIPT_INPUTTOKEN_H
 #define MCLD_SCRIPT_INPUTTOKEN_H
-#ifdef ENABLE_UNITTEST
-#include <gtest.h>
-#endif
 
 #include <mcld/Script/StrToken.h>
 

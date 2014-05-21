@@ -8,9 +8,6 @@
 //===----------------------------------------------------------------------===//
 #ifndef MCLD_ADT_STRINGHASH_H
 #define MCLD_ADT_STRINGHASH_H
-#ifdef ENABLE_UNITTEST
-#include <gtest.h>
-#endif
 #include <llvm/ADT/StringRef.h>
 #include <llvm/Support/DataTypes.h>
 #include <cctype>

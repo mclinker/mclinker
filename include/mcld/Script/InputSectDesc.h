@@ -8,9 +8,6 @@
 //===----------------------------------------------------------------------===//
 #ifndef MCLD_SCRIPT_INPUTSECTDESC_H
 #define MCLD_SCRIPT_INPUTSECTDESC_H
-#ifdef ENABLE_UNITTEST
-#include <gtest.h>
-#endif
 
 #include <mcld/Script/ScriptCommand.h>
 #include <mcld/Script/StringList.h>

@@ -8,9 +8,6 @@
 //===----------------------------------------------------------------------===//
 #ifndef MCLD_SUPPORT_TARGETSELECT_H
 #define MCLD_SUPPORT_TARGETSELECT_H
-#ifdef ENABLE_UNITTEST
-#include <gtest.h>
-#endif
 
 extern "C" {
   // Declare all of the target-initialization functions that are available.

@@ -8,9 +8,6 @@
 //===----------------------------------------------------------------------===//
 #ifndef MCLD_MC_ATTRIBUTESET_H
 #define MCLD_MC_ATTRIBUTESET_H
-#ifdef ENABLE_UNITTEST
-#include <gtest.h>
-#endif
 #include <mcld/ADT/Uncopyable.h>
 #include <vector>
 

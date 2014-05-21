@@ -8,9 +8,6 @@
 //===----------------------------------------------------------------------===//
 #ifndef MCLD_LD_ARCHIVEREADER_H
 #define MCLD_LD_ARCHIVEREADER_H
-#ifdef ENABLE_UNITTEST
-#include <gtest.h>
-#endif
 #include <mcld/LD/LDReader.h>
 
 namespace mcld

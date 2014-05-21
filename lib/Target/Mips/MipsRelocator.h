@@ -8,9 +8,6 @@
 //===----------------------------------------------------------------------===//
 #ifndef TARGET_MIPS_MIPSRELOCATOR_H
 #define TARGET_MIPS_MIPSRELOCATOR_H
-#ifdef ENABLE_UNITTEST
-#include <gtest.h>
-#endif
 
 #include <llvm/ADT/DenseMapInfo.h>
 #include <mcld/LD/Relocator.h>

@@ -8,9 +8,6 @@
 //===----------------------------------------------------------------------===//
 #ifndef MCLD_ADT_SIZETRAITS_H
 #define MCLD_ADT_SIZETRAITS_H
-#ifdef ENABLE_UNITTEST
-#include <gtest.h>
-#endif
 
 #include <llvm/Support/DataTypes.h>
 #include <llvm/Support/ELF.h>

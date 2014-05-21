@@ -8,9 +8,6 @@
 //===----------------------------------------------------------------------===//
 #ifndef MCLD_LD_DYNOBJFILEFORMAT_H
 #define MCLD_LD_DYNOBJFILEFORMAT_H
-#ifdef ENABLE_UNITTEST
-#include <gtest.h>
-#endif
 
 namespace mcld
 {

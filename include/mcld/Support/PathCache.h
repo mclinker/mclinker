@@ -8,9 +8,6 @@
 //===----------------------------------------------------------------------===//
 #ifndef MCLD_SUPPORT_PATHCACHE_H
 #define MCLD_SUPPORT_PATHCACHE_H
-#ifdef ENABLE_UNITTEST
-#include <gtest.h>
-#endif
 
 #include <mcld/ADT/HashEntry.h>
 #include <mcld/ADT/HashTable.h>

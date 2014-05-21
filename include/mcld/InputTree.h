@@ -8,9 +8,6 @@
 //===----------------------------------------------------------------------===//
 #ifndef MCLD_INPUTTREE_H
 #define MCLD_INPUTTREE_H
-#ifdef ENABLE_UNITTEST
-#include <gtest.h>
-#endif
 
 #include <mcld/ADT/BinTree.h>
 #include <mcld/ADT/TypeTraits.h>

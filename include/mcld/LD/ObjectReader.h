@@ -8,9 +8,6 @@
 //===----------------------------------------------------------------------===//
 #ifndef MCLD_LD_OBJECTREADER_H
 #define MCLD_LD_OBJECTREADER_H
-#ifdef ENABLE_UNITTEST
-#include <gtest.h>
-#endif
 #include "mcld/LD/LDReader.h"
 #include <llvm/Support/system_error.h>
 #include <mcld/ADT/HashTable.h>

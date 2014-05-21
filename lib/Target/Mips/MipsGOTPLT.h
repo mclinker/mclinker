@@ -8,9 +8,6 @@
 //===----------------------------------------------------------------------===//
 #ifndef TARGET_MIPS_MIPSGOTPLT_H
 #define TARGET_MIPS_MIPSGOTPLT_H
-#ifdef ENABLE_UNITTEST
-#include <gtest.h>
-#endif
 
 #include <mcld/Target/GOT.h>
 #include <mcld/Support/MemoryRegion.h>

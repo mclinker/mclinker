@@ -8,9 +8,6 @@
 //===----------------------------------------------------------------------===//
 #ifndef MCLD_SCRIPT_STRTOKEN_H
 #define MCLD_SCRIPT_STRTOKEN_H
-#ifdef ENABLE_UNITTEST
-#include <gtest.h>
-#endif
 
 #include <mcld/Support/Allocators.h>
 #include <mcld/Config/Config.h>

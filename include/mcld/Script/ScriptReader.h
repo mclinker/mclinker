@@ -8,9 +8,6 @@
 //===----------------------------------------------------------------------===//
 #ifndef MCLD_SCRIPT_SCRIPTREADER_H
 #define MCLD_SCRIPT_SCRIPTREADER_H
-#ifdef ENABLE_UNITTEST
-#include <gtest.h>
-#endif
 
 #include <mcld/LD/LDReader.h>
 

@@ -8,9 +8,6 @@
 //===----------------------------------------------------------------------===//
 #ifndef MCLD_TARGET_DARWINLDBACKEND_H
 #define MCLD_TARGET_DARWINLDBACKEND_H
-#ifdef ENABLE_UNITTEST
-#include <gtest.h>
-#endif
 
 namespace mcld
 {

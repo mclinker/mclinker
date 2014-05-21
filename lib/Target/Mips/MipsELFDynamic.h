@@ -8,9 +8,6 @@
 //===----------------------------------------------------------------------===//
 #ifndef TARGET_MIPS_MIPSELFDYNAMIC_H
 #define TARGET_MIPS_MIPSELFDYNAMIC_H
-#ifdef ENABLE_UNITTEST
-#include <gtest.h>
-#endif
 
 #include <mcld/Target/ELFDynamic.h>
 

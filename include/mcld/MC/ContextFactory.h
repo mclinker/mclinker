@@ -8,9 +8,6 @@
 //===----------------------------------------------------------------------===//
 #ifndef MCLD_MC_CONTEXTFACTORY_H
 #define MCLD_MC_CONTEXTFACTORY_H
-#ifdef ENABLE_UNITTEST
-#include <gtest.h>
-#endif
 
 #include <mcld/LD/LDContext.h>
 #include <mcld/Support/UniqueGCFactory.h>

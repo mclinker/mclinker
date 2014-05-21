@@ -8,9 +8,6 @@
 //===----------------------------------------------------------------------===//
 #ifndef MCLD_ADT_TREEALLOCATOR_H
 #define MCLD_ADT_TREEALLOCATOR_H
-#ifdef ENABLE_UNITTEST
-#include <gtest.h>
-#endif
 #include <set>
 #include <mcld/Support/GCFactory.h>
 

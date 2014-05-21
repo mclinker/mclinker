@@ -8,9 +8,6 @@
 //===----------------------------------------------------------------------===//
 #ifndef MCLD_LINKERSCRIPT_H
 #define MCLD_LINKERSCRIPT_H
-#ifdef ENABLE_UNITTEST
-#include <gtest.h>
-#endif
 #include <string>
 #include <vector>
 #include <llvm/ADT/StringRef.h>

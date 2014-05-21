@@ -8,9 +8,6 @@
 //===----------------------------------------------------------------------===//
 #ifndef MCLD_TARGET_ELFEMULATION_H
 #define MCLD_TARGET_ELFEMULATION_H
-#ifdef ENABLE_UNITTEST
-#include <gtest.h>
-#endif
 
 namespace mcld {
 

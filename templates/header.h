@@ -8,9 +8,6 @@
 //===----------------------------------------------------------------------===//
 #ifndef MCLD_${CLASS_NAME}_H
 #define MCLD_${CLASS_NAME}_H
-#ifdef ENABLE_UNITTEST
-#include <gtest.h>
-#endif
 
 namespace mcld
 {

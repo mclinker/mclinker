@@ -8,9 +8,6 @@
 //===----------------------------------------------------------------------===//
 #ifndef MCLD_FRAGMENT_FRAGMENTREF_H
 #define MCLD_FRAGMENT_FRAGMENTREF_H
-#ifdef ENABLE_UNITTEST
-#include <gtest.h>
-#endif
 
 #include <mcld/Config/Config.h>
 #include <mcld/ADT/SizeTraits.h>

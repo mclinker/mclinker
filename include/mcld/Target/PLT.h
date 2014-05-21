@@ -8,9 +8,6 @@
 //===----------------------------------------------------------------------===//
 #ifndef MCLD_TARGET_PLT_H
 #define MCLD_TARGET_PLT_H
-#ifdef ENABLE_UNITTEST
-#include <gtest.h>
-#endif
 
 #include <mcld/LD/LDSection.h>
 #include <mcld/LD/SectionData.h>

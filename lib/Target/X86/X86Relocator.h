@@ -8,9 +8,6 @@
 //===----------------------------------------------------------------------===//
 #ifndef TARGET_X86_X86RELOCATOR_H
 #define TARGET_X86_X86RELOCATOR_H
-#ifdef ENABLE_UNITTEST
-#include <gtest.h>
-#endif
 
 #include <mcld/LD/Relocator.h>
 #include <mcld/Target/GOT.h>

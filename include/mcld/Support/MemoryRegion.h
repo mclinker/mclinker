@@ -8,9 +8,6 @@
 //===----------------------------------------------------------------------===//
 #ifndef MCLD_SUPPORT_MEMORYREGION_H
 #define MCLD_SUPPORT_MEMORYREGION_H
-#ifdef ENABLE_UNITTEST
-#include <gtest.h>
-#endif
 
 #include <mcld/ADT/TypeTraits.h>
 #include <llvm/ADT/ArrayRef.h>

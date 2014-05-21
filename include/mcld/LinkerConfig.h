@@ -8,9 +8,6 @@
 //===----------------------------------------------------------------------===//
 #ifndef MCLD_LINKERCONFIG_H
 #define MCLD_LINKERCONFIG_H
-#ifdef ENABLE_UNITTEST
-#include <gtest.h>
-#endif
 
 #include <llvm/ADT/Triple.h>
 

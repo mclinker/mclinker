@@ -8,9 +8,6 @@
 //===----------------------------------------------------------------------===//
 #ifndef MCLD_SUPPORT_MSGHANDLING_H
 #define MCLD_SUPPORT_MSGHANDLING_H
-#ifdef ENABLE_UNITTEST
-#include <gtest.h>
-#endif
 #include <mcld/LD/MsgHandler.h>
 
 namespace mcld {

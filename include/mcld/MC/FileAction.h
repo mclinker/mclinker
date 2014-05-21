@@ -8,9 +8,6 @@
 //===----------------------------------------------------------------------===//
 #ifndef MCLD_MC_FILEACTION_H
 #define MCLD_MC_FILEACTION_H
-#ifdef ENABLE_UNITTEST
-#include <gtest.h>
-#endif
 #include <mcld/MC/InputAction.h>
 #include <mcld/Support/FileHandle.h>
 

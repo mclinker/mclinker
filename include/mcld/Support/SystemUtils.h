@@ -8,9 +8,6 @@
 //===----------------------------------------------------------------------===//
 #ifndef MCLD_SUPPORT_SYSTEMUTILS_H
 #define MCLD_SUPPORT_SYSTEMUTILS_H
-#ifdef ENABLE_UNITTEST
-#include <gtest.h>
-#endif
 
 #include <llvm/Support/DataTypes.h>
 #include <mcld/Config/Config.h>

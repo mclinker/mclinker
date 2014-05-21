@@ -8,9 +8,6 @@
 //===----------------------------------------------------------------------===//
 #ifndef MCLD_SUPPORT_COMMANDLINE_H
 #define MCLD_SUPPORT_COMMANDLINE_H
-#ifdef ENABLE_UNITTEST
-#include <gtest.h>
-#endif
 #include <mcld/Support/FileSystem.h>
 #include <mcld/MC/ZOption.h>
 

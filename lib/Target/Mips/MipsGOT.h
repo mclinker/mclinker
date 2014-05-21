@@ -11,9 +11,6 @@
 #include <map>
 #include <vector>
 
-#ifdef ENABLE_UNITTEST
-#include <gtest.h>
-#endif
 
 #include <mcld/ADT/SizeTraits.h>
 #include <mcld/Target/GOT.h>

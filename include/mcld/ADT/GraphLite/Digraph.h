@@ -8,9 +8,6 @@
 //===----------------------------------------------------------------------===//
 #ifndef MCLD_ADT_GRAPHLITE_DIGRAPH_H
 #define MCLD_ADT_GRAPHLITE_DIGRAPH_H
-#ifdef ENABLE_UNITTEST
-#include <gtest.h>
-#endif
 #include <mcld/ADT/Uncopyable.h>
 #include <mcld/ADT/GraphLite/GraphBasicTypes.h>
 #include <stdint.h>

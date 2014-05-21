@@ -8,9 +8,6 @@
 //===----------------------------------------------------------------------===//
 #ifndef MCLD_SUPPORT_UNIQUEGCFACTORY_H
 #define MCLD_SUPPORT_UNIQUEGCFACTORY_H
-#ifdef ENABLE_UNITTEST
-#include <gtest.h>
-#endif
 
 #include "mcld/Support/GCFactory.h"
 #include <map>

@@ -8,9 +8,6 @@
 //===----------------------------------------------------------------------===//
 #ifndef TARGET_HEXAGON_HEXAGONRELOCATOR_H
 #define TARGET_HEXAGON_HEXAGONRELOCATOR_H
-#ifdef ENABLE_UNITTEST
-#include <gtest.h>
-#endif
 
 #include <mcld/LD/Relocator.h>
 #include <mcld/Target/GOT.h>

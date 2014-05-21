@@ -8,9 +8,6 @@
 //===----------------------------------------------------------------------===//
 #ifndef MCLD_LD_DIAGNOSTIC_H
 #define MCLD_LD_DIAGNOSTIC_H
-#ifdef ENABLE_UNITTEST
-#include <gtest.h>
-#endif
 
 #include <string>
 #include <cassert>

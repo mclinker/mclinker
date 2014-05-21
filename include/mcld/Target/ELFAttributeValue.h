@@ -8,9 +8,6 @@
 //===----------------------------------------------------------------------===//
 #ifndef MCLD_TARGET_ELFATTRIBUTEVALUE_H
 #define MCLD_TARGET_ELFATTRIBUTEVALUE_H
-#ifdef ENABLE_UNITTEST
-#include <gtest.h>
-#endif
 
 #include <string>
 

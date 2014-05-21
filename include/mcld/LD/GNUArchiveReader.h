@@ -8,9 +8,6 @@
 //===----------------------------------------------------------------------===//
 #ifndef MCLD_LD_GNUARCHIVEREADER_H
 #define MCLD_LD_GNUARCHIVEREADER_H
-#ifdef ENABLE_UNITTEST
-#include <gtest.h>
-#endif
 
 #include <mcld/LD/ArchiveReader.h>
 #include <mcld/LD/Archive.h>

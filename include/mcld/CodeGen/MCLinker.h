@@ -13,9 +13,6 @@
 //===----------------------------------------------------------------------===//
 #ifndef MCLD_CODEGEN_MCLINKER_H
 #define MCLD_CODEGEN_MCLINKER_H
-#ifdef ENABLE_UNITTEST
-#include <gtest.h>
-#endif
 #include <llvm/CodeGen/MachineFunctionPass.h>
 
 namespace llvm {

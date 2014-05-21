@@ -8,9 +8,6 @@
 //===----------------------------------------------------------------------===//
 #ifndef MCLD_TARGET_KEYENTRYMAP_H
 #define MCLD_TARGET_KEYENTRYMAP_H
-#ifdef ENABLE_UNITTEST
-#include <gtest.h>
-#endif
 
 #include <vector>
 #include <list>

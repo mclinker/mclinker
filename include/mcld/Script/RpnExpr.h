@@ -8,9 +8,6 @@
 //===----------------------------------------------------------------------===//
 #ifndef MCLD_SCRIPT_RPNEXPR_H
 #define MCLD_SCRIPT_RPNEXPR_H
-#ifdef ENABLE_UNITTEST
-#include <gtest.h>
-#endif
 
 #include <mcld/Support/Allocators.h>
 #include <mcld/Config/Config.h>

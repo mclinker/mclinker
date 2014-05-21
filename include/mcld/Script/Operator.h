@@ -8,9 +8,6 @@
 //===----------------------------------------------------------------------===//
 #ifndef MCLD_SCRIPT_OPERATOR_INTERFACE_H
 #define MCLD_SCRIPT_OPERATOR_INTERFACE_H
-#ifdef ENABLE_UNITTEST
-#include <gtest.h>
-#endif
 
 #include <mcld/Script/ExprToken.h>
 #include <llvm/Support/DataTypes.h>

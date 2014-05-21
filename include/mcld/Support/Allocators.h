@@ -8,9 +8,6 @@
 //===----------------------------------------------------------------------===//
 #ifndef MCLD_SUPPORT_ALLOCATORS_H
 #define MCLD_SUPPORT_ALLOCATORS_H
-#ifdef ENABLE_UNITTEST
-#include <gtest.h>
-#endif
 #include <mcld/ADT/Uncopyable.h>
 #include <mcld/ADT/TypeTraits.h>
 

@@ -8,9 +8,6 @@
 //===----------------------------------------------------------------------===//
 #ifndef MCLD_SCRIPT_SCRIPTFILE_H
 #define MCLD_SCRIPT_SCRIPTFILE_H
-#ifdef ENABLE_UNITTEST
-#include <gtest.h>
-#endif
 
 #include <mcld/Script/Assignment.h>
 #include <mcld/Script/OutputSectDesc.h>

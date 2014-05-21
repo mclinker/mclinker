@@ -13,9 +13,6 @@
 
 #ifndef MCLD_SUPPORT_FILESYSTEM_H
 #define MCLD_SUPPORT_FILESYSTEM_H
-#ifdef ENABLE_UNITTEST
-#include <gtest.h>
-#endif
 
 #include "mcld/Support/PathCache.h"
 #include <mcld/Config/Config.h>

@@ -8,9 +8,6 @@
 //===----------------------------------------------------------------------===//
 #ifndef MCLD_OBJECT_OBJECTBUILDER_H
 #define MCLD_OBJECT_OBJECTBUILDER_H
-#ifdef ENABLE_UNITTEST
-#include <gtest.h>
-#endif
 #include <mcld/LD/LDFileFormat.h>
 #include <mcld/LD/EhFrame.h>
 

@@ -8,9 +8,6 @@
 //===----------------------------------------------------------------------===//
 #ifndef TARGET_ARM_ARMRELOCATOR_H
 #define TARGET_ARM_ARMRELOCATOR_H
-#ifdef ENABLE_UNITTEST
-#include <gtest.h>
-#endif
 
 #include <mcld/LD/Relocator.h>
 #include <mcld/Target/GOT.h>

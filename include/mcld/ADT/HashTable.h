@@ -8,9 +8,6 @@
 //===----------------------------------------------------------------------===//
 #ifndef MCLD_ADT_HASHTABLE_H
 #define MCLD_ADT_HASHTABLE_H
-#ifdef ENABLE_UNITTEST
-#include <gtest.h>
-#endif
 
 #include <mcld/ADT/HashBase.h>
 #include <mcld/ADT/HashIterator.h>

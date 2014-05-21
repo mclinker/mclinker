@@ -8,9 +8,6 @@
 //===----------------------------------------------------------------------===//
 #ifndef MCLD_SCRIPT_STRINGLIST_H
 #define MCLD_SCRIPT_STRINGLIST_H
-#ifdef ENABLE_UNITTEST
-#include <gtest.h>
-#endif
 
 #include <mcld/Config/Config.h>
 #include <mcld/Support/Allocators.h>

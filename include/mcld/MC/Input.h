@@ -12,9 +12,6 @@
 //===----------------------------------------------------------------------===//
 #ifndef MCLD_MC_INPUT_H
 #define MCLD_MC_INPUT_H
-#ifdef ENABLE_UNITTEST
-#include <gtest.h>
-#endif
 
 #include <mcld/Support/Path.h>
 

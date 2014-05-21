@@ -8,9 +8,6 @@
 //===----------------------------------------------------------------------===//
 #ifndef MCLD_LD_DWARFLINEINFO_H
 #define MCLD_LD_DWARFLINEINFO_H
-#ifdef ENABLE_UNITTEST
-#include <gtest.h>
-#endif
 #include <mcld/LD/DiagnosticLineInfo.h>
 
 namespace mcld

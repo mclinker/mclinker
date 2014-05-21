@@ -8,9 +8,6 @@
 //===----------------------------------------------------------------------===//
 #ifndef MCLD_LD_ELFDYNOBJFILEFROMAT_H
 #define MCLD_LD_ELFDYNOBJFILEFROMAT_H
-#ifdef ENABLE_UNITTEST
-#include <gtest.h>
-#endif
 #include <mcld/LD/ELFFileFormat.h>
 
 namespace mcld {

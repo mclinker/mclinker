@@ -8,9 +8,6 @@
 //===----------------------------------------------------------------------===//
 #ifndef TARGET_AARCH64_AARCH64ELFMCLINKER_H
 #define TARGET_AARCH64_AARCH64ELFMCLINKER_H
-#ifdef ENABLE_UNITTEST
-#include <gtest.h>
-#endif
 #include <mcld/Target/ELFMCLinker.h>
 
 namespace mcld {

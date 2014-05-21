@@ -8,9 +8,6 @@
 //===----------------------------------------------------------------------===//
 #ifndef TARGET_HEXAGON_HEXAGONELFDYNAMIC_H
 #define TARGET_HEXAGON_HEXAGONELFDYNAMIC_H
-#ifdef ENABLE_UNITTEST
-#include <gtest.h>
-#endif
 
 #include <mcld/Target/ELFDynamic.h>
 

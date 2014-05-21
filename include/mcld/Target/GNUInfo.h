@@ -8,9 +8,6 @@
 //===----------------------------------------------------------------------===//
 #ifndef MCLD_TARGET_GNUINFO_H
 #define MCLD_TARGET_GNUINFO_H
-#ifdef ENABLE_UNITTEST
-#include <gtest.h>
-#endif
 #include <llvm/ADT/Triple.h>
 #include <llvm/Support/ELF.h>
 

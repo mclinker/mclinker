@@ -12,9 +12,6 @@
 //===----------------------------------------------------------------------===//
 #ifndef MCLD_SUPPORT_PATH_H
 #define MCLD_SUPPORT_PATH_H
-#ifdef ENABLE_UNITTEST
-#include <gtest.h>
-#endif
 
 #include <llvm/Support/raw_ostream.h>
 #include <mcld/Config/Config.h>

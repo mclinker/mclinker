@@ -8,9 +8,6 @@
 //===----------------------------------------------------------------------===//
 #ifndef MCLD_SCRIPT_UNARYOP_H
 #define MCLD_SCRIPT_UNARYOP_H
-#ifdef ENABLE_UNITTEST
-#include <gtest.h>
-#endif
 
 #include <mcld/Script/Operator.h>
 #include <cstddef>

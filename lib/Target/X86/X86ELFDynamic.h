@@ -8,9 +8,6 @@
 //===----------------------------------------------------------------------===//
 #ifndef TARGET_X86_X86ELFDYNAMIC_H
 #define TARGET_X86_X86ELFDYNAMIC_H
-#ifdef ENABLE_UNITTEST
-#include <gtest.h>
-#endif
 
 #include <mcld/Target/ELFDynamic.h>
 

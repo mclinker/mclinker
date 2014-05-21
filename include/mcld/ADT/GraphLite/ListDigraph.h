@@ -8,9 +8,6 @@
 //===----------------------------------------------------------------------===//
 #ifndef MCLD_ADT_GRAPHLITE_LISTDIGRAPH_H
 #define MCLD_ADT_GRAPHLITE_LISTDIGRAPH_H
-#ifdef ENABLE_UNITTEST
-#include <gtest.h>
-#endif
 #include <mcld/Support/GCFactory.h>
 
 namespace mcld {

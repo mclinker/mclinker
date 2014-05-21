@@ -8,9 +8,6 @@
 //===----------------------------------------------------------------------===//
 #ifndef MCLD_ADT_BITREE_H
 #define MCLD_ADT_BITREE_H
-#ifdef ENABLE_UNITTEST
-#include <gtest.h>
-#endif
 
 #include <mcld/ADT/Uncopyable.h>
 #include <mcld/ADT/TreeBase.h>

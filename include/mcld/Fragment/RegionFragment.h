@@ -8,9 +8,6 @@
 //===----------------------------------------------------------------------===//
 #ifndef MCLD_FRAGMENT_REGIONFRAGMENT_H
 #define MCLD_FRAGMENT_REGIONFRAGMENT_H
-#ifdef ENABLE_UNITTEST
-#include <gtest.h>
-#endif
 
 #include <mcld/Fragment/Fragment.h>
 #include <llvm/ADT/StringRef.h>

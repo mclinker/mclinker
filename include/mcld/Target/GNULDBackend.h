@@ -8,9 +8,6 @@
 //===----------------------------------------------------------------------===//
 #ifndef MCLD_TARGET_GNULDBACKEND_H
 #define MCLD_TARGET_GNULDBACKEND_H
-#ifdef ENABLE_UNITTEST
-#include <gtest.h>
-#endif
 #include <mcld/Target/TargetLDBackend.h>
 
 #include <mcld/Module.h>

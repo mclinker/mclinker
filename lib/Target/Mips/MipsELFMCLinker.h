@@ -8,9 +8,6 @@
 //===----------------------------------------------------------------------===//
 #ifndef TARGET_MIPS_MIPSELFMCLINKER_H
 #define TARGET_MIPS_MIPSELFMCLINKER_H
-#ifdef ENABLE_UNITTEST
-#include <gtest.h>
-#endif
 #include <mcld/Target/ELFMCLinker.h>
 
 namespace mcld {

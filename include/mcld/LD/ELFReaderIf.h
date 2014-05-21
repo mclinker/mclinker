@@ -8,9 +8,6 @@
 //===----------------------------------------------------------------------===//
 #ifndef MCLD_LD_ELFREADERIF_H
 #define MCLD_LD_ELFREADERIF_H
-#ifdef ENABLE_UNITTEST
-#include <gtest.h>
-#endif
 
 #include <llvm/ADT/StringRef.h>
 #include <llvm/Support/ELF.h>

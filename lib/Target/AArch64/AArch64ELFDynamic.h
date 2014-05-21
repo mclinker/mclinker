@@ -8,9 +8,6 @@
 //===----------------------------------------------------------------------===//
 #ifndef TARGET_AARCH64_AARCH64ELFDYNAMIC_H
 #define TARGET_AARCH64_AARCH64ELFDYNAMIC_H
-#ifdef ENABLE_UNITTEST
-#include <gtest.h>
-#endif
 
 #include <mcld/Target/ELFDynamic.h>
 

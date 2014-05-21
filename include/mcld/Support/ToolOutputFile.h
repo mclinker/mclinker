@@ -8,9 +8,6 @@
 //===----------------------------------------------------------------------===//
 #ifndef MCLD_SUPPORT_TOOLOUTPUTFILE_H
 #define MCLD_SUPPORT_TOOLOUTPUTFILE_H
-#ifdef ENABLE_UNITTEST
-#include <gtest.h>
-#endif
 
 #include <string>
 #include <mcld/Support/FileHandle.h>

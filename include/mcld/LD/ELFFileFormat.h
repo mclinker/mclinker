@@ -8,9 +8,6 @@
 //===----------------------------------------------------------------------===//
 #ifndef MCLD_ELF_FILE_FORMAT_H
 #define MCLD_ELF_FILE_FORMAT_H
-#ifdef ENABLE_UNITTEST
-#include <gtest.h>
-#endif
 #include <mcld/LD/LDFileFormat.h>
 #include <mcld/LD/LDSection.h>
 

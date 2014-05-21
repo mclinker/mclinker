@@ -8,9 +8,6 @@
 //===----------------------------------------------------------------------===//
 #ifndef MCLD_FRAGMENT_RELOCATION_H
 #define MCLD_FRAGMENT_RELOCATION_H
-#ifdef ENABLE_UNITTEST
-#include <gtest.h>
-#endif
 #include <mcld/Config/Config.h>
 #include <mcld/Fragment/FragmentRef.h>
 #include <mcld/Support/GCFactoryListTraits.h>

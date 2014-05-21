@@ -8,9 +8,6 @@
 //===----------------------------------------------------------------------===//
 #ifndef MCLD_GENERALOPTIONS_H
 #define MCLD_GENERALOPTIONS_H
-#ifdef ENABLE_UNITTEST
-#include <gtest.h>
-#endif
 #include <string>
 #include <vector>
 #include <mcld/Support/RealPath.h>

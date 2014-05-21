@@ -8,9 +8,6 @@
 //===----------------------------------------------------------------------===//
 #ifndef MCLD_LD_ELFOBJWRITER_H
 #define MCLD_LD_ELFOBJWRITER_H
-#ifdef ENABLE_UNITTEST
-#include <gtest.h>
-#endif
 #include <mcld/LD/ObjectWriter.h>
 #include <cassert>
 

@@ -8,9 +8,6 @@
 //===----------------------------------------------------------------------===//
 #ifndef TARGET_MIPS_MIPSLA25STUB_H
 #define TARGET_MIPS_MIPSLA25STUB_H
-#ifdef ENABLE_UNITTEST
-#include <gtest.h>
-#endif
 
 #include <mcld/Fragment/Stub.h>
 

@@ -8,9 +8,6 @@
 //===----------------------------------------------------------------------===//
 #ifndef MCLD_SCRIPT_SCRIPTSCANNER_H
 #define MCLD_SCRIPT_SCRIPTSCANNER_H
-#ifdef ENABLE_UNITTEST
-#include <gtest.h>
-#endif
 
 #ifndef __FLEX_LEXER_H
 #include "FlexLexer.h"

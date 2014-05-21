@@ -8,9 +8,6 @@
 //===----------------------------------------------------------------------===//
 #ifndef MCLD_LD_EHFRAME_H
 #define MCLD_LD_EHFRAME_H
-#ifdef ENABLE_UNITTEST
-#include <gtest.h>
-#endif
 
 #include <mcld/Config/Config.h>
 #include <mcld/Fragment/RegionFragment.h>

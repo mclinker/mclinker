@@ -8,9 +8,6 @@
 //===----------------------------------------------------------------------===//
 #ifndef MCLD_SCRIPT_WILDCARDPATTERN_H
 #define MCLD_SCRIPT_WILDCARDPATTERN_H
-#ifdef ENABLE_UNITTEST
-#include <gtest.h>
-#endif
 
 #include <mcld/Script/StrToken.h>
 #include <mcld/Support/Allocators.h>

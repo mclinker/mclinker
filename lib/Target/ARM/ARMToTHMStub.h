@@ -9,9 +9,6 @@
 
 #ifndef TARGET_ARM_ARMTOTHMSTUB_H
 #define TARGET_ARM_ARMTOTHMSTUB_H
-#ifdef ENABLE_UNITTEST
-#include <gtest.h>
-#endif
 
 #include <llvm/Support/DataTypes.h>
 #include <mcld/Fragment/Stub.h>

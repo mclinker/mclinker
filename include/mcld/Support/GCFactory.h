@@ -8,9 +8,6 @@
 //===----------------------------------------------------------------------===//
 #ifndef MCLD_SUPPORT_GCFACTORY_H
 #define MCLD_SUPPORT_GCFACTORY_H
-#ifdef ENABLE_UNITTEST
-#include <gtest.h>
-#endif
 #include "mcld/ADT/TypeTraits.h"
 #include "mcld/Support/Allocators.h"
 

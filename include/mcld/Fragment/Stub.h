@@ -9,9 +9,6 @@
 
 #ifndef MCLD_FRAGMENT_STUB_H
 #define MCLD_FRAGMENT_STUB_H
-#ifdef ENABLE_UNITTEST
-#include <gtest.h>
-#endif
 
 #include <llvm/Support/DataTypes.h>
 #include <mcld/Fragment/Fragment.h>

@@ -8,9 +8,6 @@
 //===----------------------------------------------------------------------===//
 #ifndef MCLD_LD_TEXTDIAGNOSTICPRINTER_H
 #define MCLD_LD_TEXTDIAGNOSTICPRINTER_H
-#ifdef ENABLE_UNITTEST
-#include <gtest.h>
-#endif
 #include <mcld/LD/DiagnosticPrinter.h>
 #include <llvm/Support/raw_ostream.h>
 

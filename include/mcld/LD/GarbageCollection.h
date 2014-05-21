@@ -8,9 +8,6 @@
 //===----------------------------------------------------------------------===//
 #ifndef MCLD_LD_GARBAGECOLLECTION_H
 #define MCLD_LD_GARBAGECOLLECTION_H
-#ifdef ENABLE_UNITTEST
-#include <gtest.h>
-#endif
 
 #include <map>
 #include <set>

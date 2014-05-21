@@ -8,9 +8,6 @@
 //===----------------------------------------------------------------------===//
 #ifndef TARGET_X86_X86GOTPLT_H
 #define TARGET_X86_X86GOTPLT_H
-#ifdef ENABLE_UNITTEST
-#include <gtest.h>
-#endif
 
 #include <llvm/ADT/DenseMap.h>
 

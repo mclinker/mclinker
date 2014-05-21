@@ -8,9 +8,6 @@
 //===----------------------------------------------------------------------===//
 #ifndef MCLD_FRAGMENT_ALIGNFRAGMENT_H
 #define MCLD_FRAGMENT_ALIGNFRAGMENT_H
-#ifdef ENABLE_UNITTEST
-#include <gtest.h>
-#endif
 
 #include <mcld/Fragment/Fragment.h>
 

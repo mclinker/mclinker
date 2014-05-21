@@ -8,9 +8,6 @@
 //===----------------------------------------------------------------------===//
 #ifndef MCLD_TARGET_ELFDYNAMIC_H
 #define MCLD_TARGET_ELFDYNAMIC_H
-#ifdef ENABLE_UNITTEST
-#include <gtest.h>
-#endif
 
 #include <mcld/LD/LDSection.h>
 #include <mcld/Support/FileOutputBuffer.h>

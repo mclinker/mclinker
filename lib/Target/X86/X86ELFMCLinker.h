@@ -8,9 +8,6 @@
 //===----------------------------------------------------------------------===//
 #ifndef TARGET_X86_X86ELFMCLINKER_H
 #define TARGET_X86_X86ELFMCLINKER_H
-#ifdef ENABLE_UNITTEST
-#include <gtest.h>
-#endif
 #include <mcld/Target/ELFMCLinker.h>
 
 namespace mcld {

@@ -8,9 +8,6 @@
 //===----------------------------------------------------------------------===//
 #ifndef TARGET_ARM_ARMELFATTRIBUTEDATA_H
 #define TARGET_ARM_ARMELFATTRIBUTEDATA_H
-#ifdef ENABLE_UNITTEST
-#include <gtest.h>
-#endif
 
 #include <mcld/Target/ELFAttributeData.h>
 #include <mcld/Target/ELFAttributeValue.h>

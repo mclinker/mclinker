@@ -8,9 +8,6 @@
 //===----------------------------------------------------------------------===//
 #ifndef MCLD_LD_SECTIONSYMBOLSET_H
 #define MCLD_LD_SECTIONSYMBOLSET_H
-#ifdef ENABLE_UNITTEST
-#include <gtest.h>
-#endif
 
 #include <mcld/ADT/HashTable.h>
 #include <mcld/ADT/HashEntry.h>

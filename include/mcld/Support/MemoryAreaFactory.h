@@ -8,9 +8,6 @@
 //===----------------------------------------------------------------------===//
 #ifndef MCLD_SUPPORT_MEMORYAREAFACTORY_H
 #define MCLD_SUPPORT_MEMORYAREAFACTORY_H
-#ifdef ENABLE_UNITTEST
-#include <gtest.h>
-#endif
 #include <mcld/Support/GCFactory.h>
 #include <mcld/Support/MemoryArea.h>
 #include <mcld/Support/Path.h>

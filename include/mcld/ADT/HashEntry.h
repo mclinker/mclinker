@@ -9,9 +9,6 @@
 
 #ifndef MCLD_ADT_HASHENTRY_H
 #define MCLD_ADT_HASHENTRY_H
-#ifdef ENABLE_UNITTEST
-#include <gtest.h>
-#endif
 
 namespace mcld {
 

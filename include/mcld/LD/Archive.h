@@ -8,9 +8,6 @@
 //===----------------------------------------------------------------------===//
 #ifndef MCLD_LD_ARCHIVE_H
 #define MCLD_LD_ARCHIVE_H
-#ifdef ENABLE_UNITTEST
-#include <gtest.h>
-#endif
 
 #include <mcld/InputTree.h>
 #include <mcld/ADT/HashEntry.h>

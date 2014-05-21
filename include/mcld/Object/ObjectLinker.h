@@ -8,9 +8,6 @@
 //===----------------------------------------------------------------------===//
 #ifndef MCLD_OBJECT_OBJECTLINKER_H
 #define MCLD_OBJECT_OBJECTLINKER_H
-#ifdef ENABLE_UNITTEST
-#include <gtest.h>
-#endif
 #include <llvm/Support/DataTypes.h>
 
 namespace mcld {

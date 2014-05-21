@@ -8,9 +8,6 @@
 //===----------------------------------------------------------------------===//
 #ifndef MCLD_LD_EHFRAMEREADER_H
 #define MCLD_LD_EHFRAMEREADER_H
-#ifdef ENABLE_UNITTEST
-#include <gtest.h>
-#endif
 #include <mcld/LD/EhFrame.h>
 #include <llvm/ADT/StringRef.h>
 #include <llvm/Support/DataTypes.h>

@@ -8,9 +8,6 @@
 //===----------------------------------------------------------------------===//
 #ifndef MCLD_MC_SYMBOLCATEGORY_H
 #define MCLD_MC_SYMBOLCATEGORY_H
-#ifdef ENABLE_UNITTEST
-#include <gtest.h>
-#endif
 #include <cstddef>
 #include <vector>
 
