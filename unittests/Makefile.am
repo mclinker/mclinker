@@ -78,8 +78,10 @@ MCLD = $(top_builddir)/$(MCLD_DIR)/libmcld.a
 GTEST = $(top_builddir)/utils/gtest/obj/libgtest.la
 GTESTMAIN = $(top_builddir)/utils/gtestmain/libgtestmain.la
 
-unittests: $(MCLD) $(GTEST) $(GTESTMAIN) $(bin_PROGRAMS)
+unittests: $(bin_PROGRAMS)
 	$(abs_builddir)/$(bin_PROGRAMS)
+
+$(bin_PROGRAMS): $(MCLD) $(GTEST) $(GTESTMAIN)
 
 $(MCLD):
 	cd $(top_builddir)/$(MCLD_DIR) && $(MAKE) $(AM_MAKEFLAGS)
