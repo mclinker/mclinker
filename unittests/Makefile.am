@@ -61,18 +61,16 @@ bin_PROGRAMS = MCLDUnittests
 AM_CPPFLAGS = ${MCLD_CPPFLAGS}
 
 if ENABLE_OPTIMIZED
-MCLDUnittests_LDFLAGS = \
-	${top_builddir}/optimized/libmcld.a \
-	-L${top_builddir}/utils/gtest/lib -lgtest \
-	-L${top_builddir}/utils/gtestmain -lgtestmain \
-	${LLVM_LDFLAGS}
+MCLD_DIR = optimized
 else
+MCLD_DIR = debug
+endif
+
 MCLDUnittests_LDFLAGS = \
-	${top_builddir}/debug/libmcld.a \
+	${top_builddir}/${MCLD_DIR}/libmcld.a \
 	-L${top_builddir}/utils/gtest/lib -lgtest \
 	-L${top_builddir}/utils/gtestmain -lgtestmain \
 	${LLVM_LDFLAGS}
-endif
 
 dist_MCLDUnittests_SOURCES = ${SOURCES}
 

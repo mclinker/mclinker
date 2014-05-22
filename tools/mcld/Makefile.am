@@ -43,9 +43,10 @@ AM_CPPFLAGS = ${MCLD_CPPFLAGS}
 
 ld_mcld_LDFLAGS = ${LLVM_LDFLAGS}
 if ENABLE_OPTIMIZED
-ld_mcld_LDADD = ${top_builddir}/optimized/libmcld.a
+MCLD_DIR = optimized
 else
-ld_mcld_LDADD = ${top_builddir}/debug/libmcld.a
+MCLD_DIR = debug
 endif
+ld_mcld_LDADD = ${top_builddir}/${MCLD_DIR}/libmcld.a
 
 dist_ld_mcld_SOURCES = ${MCLD_SOURCES}

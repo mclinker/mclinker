@@ -3,10 +3,11 @@ ACLOCAL_AMFLAGS=-I m4
 AUTOMAKE_OPTIONS = foreign
 
 if ENABLE_OPTIMIZED
-SUBDIRS = optimized test tools include utils unittests
+MCLD = optimized
 else
-SUBDIRS = debug test tools include utils unittests
+MCLD = debug
 endif
+SUBDIRS = $(MCLD) test tools include utils unittests
 
 EXTRA_DIST = ./docs/MCLinker.dia ./autogen.sh
 
