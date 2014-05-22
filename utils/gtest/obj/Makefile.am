@@ -15,6 +15,5 @@ else
 endif
 
 # Build rules for libraries.
-noinst_LTLIBRARIES = ../lib/libgtest.la
-___lib_libgtest_la_SOURCES = ../src/gtest-all.cpp
-
+noinst_LTLIBRARIES = libgtest.la
+libgtest_la_SOURCES = ../src/gtest-all.cpp

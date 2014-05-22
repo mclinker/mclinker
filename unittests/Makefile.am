@@ -68,12 +68,24 @@ endif
 
 MCLDUnittests_LDFLAGS = \
 	${top_builddir}/${MCLD_DIR}/libmcld.a \
-	-L${top_builddir}/utils/gtest/lib -lgtest \
+	-L${top_builddir}/utils/gtest/obj -lgtest \
 	-L${top_builddir}/utils/gtestmain -lgtestmain \
 	${LLVM_LDFLAGS}
 
 dist_MCLDUnittests_SOURCES = ${SOURCES}
 
-# TODO: Fix dependencies..
-unittests: $(bin_PROGRAMS)
-	$(abs_builddir)/$(bin_PROGRAMS)
+MCLD = ${top_builddir}/${MCLD_DIR}/libmcld.a
+GTEST = ${top_builddir}/utils/gtest/obj/libgtest.la
+GTESTMAIN = ${top_builddir}/utils/gtestmain/libgtestmain.la
+
+unittests: ${MCLD} ${GTEST} ${GTESTMAIN} ${bin_PROGRAMS}
+	${abs_builddir}/${bin_PROGRAMS}
+
+${MCLD}:
+	cd ${top_builddir}/${MCLD_DIR} && ${MAKE} ${AM_MAKEFLAGS}
+
+${GTEST}:
+	cd ${top_builddir}/utils/gtest && ${MAKE} ${AM_MAKEFLAGS}
+
+${GTESTMAIN}:
+	cd ${top_builddir}/utils/gtestmain && ${MAKE} ${AM_MAKEFLAGS}
