@@ -13,4 +13,4 @@ EXTRA_DIST = ./docs/MCLinker.dia ./autogen.sh
 
 .PHONY: unittests
 unittests:
-	cd unittests && make unittests
+	cd unittests && $(MAKE) $(AM_MAKEFLAGS) unittests
