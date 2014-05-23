@@ -7,7 +7,7 @@ MCLD = optimized
 else
 MCLD = debug
 endif
-SUBDIRS = $(MCLD) test tools include utils unittests
+SUBDIRS = $(MCLD) include tools utils unittests test
 
 EXTRA_DIST = ./docs/MCLinker.dia ./autogen.sh
 
