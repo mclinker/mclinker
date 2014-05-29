@@ -77,10 +77,10 @@ ArgAsmVerbose("fverbose-asm",
                        generated assembly code to make it more readable."),
               cl::init(cl::BOU_UNSET));
 
-static bool getVerboseAsm() {
+static bool getVerboseAsm(TargetMachine &TM) {
   switch (ArgAsmVerbose) {
   default:
-  case cl::BOU_UNSET: return TargetMachine::getAsmVerbosityDefault();
+  case cl::BOU_UNSET: return TM.getAsmVerbosityDefault();
   case cl::BOU_TRUE:  return true;
   case cl::BOU_FALSE: return false;
   }
@@ -212,7 +212,7 @@ mcld::MCLDTargetMachine::addPassesToEmitFile(llvm::legacy::PassManagerBase &pPM,
   case CGFT_ASMFile: {
     assert(Context != 0 && "Failed to get MCContext");
 
-    if (getTM().hasMCSaveTempLabels())
+    if (getTM().Options.MCOptions.MCSaveTempLabels)
       Context->setAllowTemporaryLabels(false);
 
     if (addCompilerPasses(pPM,
@@ -224,7 +224,7 @@ mcld::MCLDTargetMachine::addPassesToEmitFile(llvm::legacy::PassManagerBase &pPM,
   case CGFT_OBJFile: {
     assert(Context != 0 && "Failed to get MCContext");
 
-    if (getTM().hasMCSaveTempLabels())
+    if (getTM().Options.MCOptions.MCSaveTempLabels)
       Context->setAllowTemporaryLabels(false);
     if (addAssemblerPasses(pPM,
                            pOutput.formatted_os(),
@@ -302,9 +302,8 @@ mcld::MCLDTargetMachine::addCompilerPasses(llvm::legacy::PassManagerBase &pPM,
   // now, we have MCCodeEmitter and MCAsmBackend, we can create AsmStreamer.
   OwningPtr<MCStreamer> AsmStreamer(
     m_pLLVMTarget->createAsmStreamer(*Context, pOutput,
-                                     getVerboseAsm(),
-                                     getTM().hasMCUseCFI(),
-                                     getTM().hasMCUseDwarfDirectory(),
+                                     getVerboseAsm(getTM()),
+                                     getTM().Options.MCOptions.MCUseDwarfDirectory,
                                      InstPrinter,
                                      MCE, MAB,
                                      ArgShowMCInst));
@@ -340,8 +339,8 @@ mcld::MCLDTargetMachine::addAssemblerPasses(llvm::legacy::PassManagerBase &pPM,
 
   // now, we have MCCodeEmitter and MCAsmBackend, we can create AsmStreamer.
   OwningPtr<MCStreamer> AsmStreamer(m_pLLVMTarget->createMCObjectStreamer(
-    m_Triple, *Context, *MAB, pOutput, MCE, STI, getTM().hasMCRelaxAll(),
-    getTM().hasMCNoExecStack()));
+    m_Triple, *Context, *MAB, pOutput, MCE, STI,
+    getTM().Options.MCOptions.MCRelaxAll, getTM().Options.MCOptions.MCNoExecStack));
 
   AsmStreamer.get()->InitSections();
   MachineFunctionPass *funcPass =

@@ -15,6 +15,7 @@
 #include <mcld/Support/SystemUtils.h>
 #include <mcld/Support/MsgHandling.h>
 
+#include <llvm/Support/FileUtilities.h>
 #include <llvm/Support/Signals.h>
 #include <llvm/Support/Path.h>
 #include <llvm/Support/FormattedStream.h>

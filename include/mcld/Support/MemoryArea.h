@@ -41,7 +41,7 @@ public:
   size_t size() const;
 
 private:
-  llvm::OwningPtr<llvm::MemoryBuffer> m_pMemoryBuffer;
+  std::unique_ptr<llvm::MemoryBuffer> m_pMemoryBuffer;
 };
 
 } // namespace of mcld

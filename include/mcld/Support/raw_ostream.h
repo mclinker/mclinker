@@ -9,6 +9,7 @@
 #ifndef MCLD_SUPPORT_RAWOSTREAM_H
 #define MCLD_SUPPORT_RAWOSTREAM_H
 #include <string>
+#include <llvm/Support/FileSystem.h>
 #include <llvm/Support/raw_ostream.h>
 
 namespace mcld {
