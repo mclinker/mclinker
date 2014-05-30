@@ -75,7 +75,7 @@ llvm::cl::opt<std::string> ArgFilter("F",
 
 llvm::cl::alias ArgFilterAlias("filter",
   llvm::cl::desc("alias for -F"),
-  llvm::cl::aliasopt(ArgFilterAlias));
+  llvm::cl::aliasopt(ArgFilter));
 
 // } Not supported yet
 
