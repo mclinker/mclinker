@@ -22,7 +22,7 @@ MemoryArea::MemoryArea(llvm::StringRef pFilename)
   llvm::error_code ec =
       llvm::MemoryBuffer::getFile(pFilename, m_pMemoryBuffer, /*FileSize*/ -1,
                                   /*RequiresNullTerminator*/ false);
-  if (ec != llvm::errc::success) {
+  if (ec != llvm::error_code()) {
     fatal(diag::fatal_cannot_read_input) << pFilename.str();
   }
 }

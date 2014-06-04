@@ -43,7 +43,7 @@ llvm::error_code FileOutputBuffer::create(FileHandle& pFileHandle,
   pResult.reset(new FileOutputBuffer(mapped_file.get(), pFileHandle));
   if (pResult)
     mapped_file.take();
-  return llvm::error_code::success();
+  return llvm::error_code();
 }
 
 MemoryRegion FileOutputBuffer::request(size_t pOffset, size_t pLength)

@@ -741,7 +741,7 @@ bool ObjectLinker::relocation()
 /// emitOutput - emit the output file.
 bool ObjectLinker::emitOutput(FileOutputBuffer& pOutput)
 {
-  return llvm::errc::success == getWriter()->writeObject(*m_pModule, pOutput);
+  return llvm::error_code() == getWriter()->writeObject(*m_pModule, pOutput);
 }
 
 

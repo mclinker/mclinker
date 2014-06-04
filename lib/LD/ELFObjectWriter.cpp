@@ -180,10 +180,10 @@ llvm::error_code ELFObjectWriter::writeObject(Module& pModule,
       emitSectionHeader<64>(pModule, m_Config, pOutput);
     }
     else
-      return make_error_code(errc::not_supported);
+      return llvm::make_error_code(llvm::errc::not_supported);
   }
 
-  return llvm::make_error_code(llvm::errc::success);
+  return llvm::error_code();
 }
 
 // getOutputSize - count the final output size
