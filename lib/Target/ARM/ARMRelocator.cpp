@@ -936,6 +936,25 @@ ARMRelocator::Result got_prel(Relocation& pReloc, ARMRelocator& pParent)
   return Relocator::OK;
 }
 
+// R_ARM_THM_JUMP8: S + A - P
+ARMRelocator::Result thm_jump8(Relocation& pReloc, ARMRelocator& pParent)
+{
+  Relocator::DWord P = pReloc.place();
+  Relocator::DWord A = helper_sign_extend((pReloc.target() & 0x00ff) << 1, 8) +
+                       pReloc.addend();
+  // S depends on PLT exists or not
+  Relocator::Address S = pReloc.symValue();
+  if (pReloc.symInfo()->reserved() & ARMRelocator::ReservePLT)
+    S = helper_get_PLT_address(*pReloc.symInfo(), pParent);
+
+  Relocator::DWord X = S + A - P;
+  if (helper_check_signed_overflow(X, 9))
+    return Relocator::Overflow;
+  //                    Make sure the Imm is 0.          Result Mask.
+  pReloc.target() = (pReloc.target() & 0xFFFFFF00u) | ((X & 0x01FEu) >> 1);
+  return Relocator::OK;
+}
+
 // R_ARM_THM_JUMP11: S + A - P
 ARMRelocator::Result thm_jump11(Relocation& pReloc, ARMRelocator& pParent)
 {

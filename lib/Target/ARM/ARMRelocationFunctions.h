@@ -32,6 +32,7 @@ DECL_ARM_APPLY_RELOC_FUNC(thm_movt_prel)    \
 DECL_ARM_APPLY_RELOC_FUNC(prel31)           \
 DECL_ARM_APPLY_RELOC_FUNC(got_prel)         \
 DECL_ARM_APPLY_RELOC_FUNC(tls)              \
+DECL_ARM_APPLY_RELOC_FUNC(thm_jump8)        \
 DECL_ARM_APPLY_RELOC_FUNC(thm_jump11)       \
 DECL_ARM_APPLY_RELOC_FUNC(thm_jump19)       \
 DECL_ARM_APPLY_RELOC_FUNC(unsupport)
@@ -141,7 +142,7 @@ DECL_ARM_APPLY_RELOC_FUNC(unsupport)
   { &unsupport,        100, "R_ARM_GNU_VTENTRY"       },  \
   { &unsupport,        101, "R_ARM_GNU_VTINERIT"      },  \
   { &thm_jump11,       102, "R_ARM_THM_JUMP11"        },  \
-  { &unsupport,        103, "R_ARM_THM_JUMP8"         },  \
+  { &thm_jump8,        103, "R_ARM_THM_JUMP8"         },  \
   { &tls,              104, "R_ARM_TLS_GD32"          },  \
   { &unsupport,        105, "R_ARM_TLS_LDM32"         },  \
   { &unsupport,        106, "R_ARM_TLS_LDO32"         },  \
