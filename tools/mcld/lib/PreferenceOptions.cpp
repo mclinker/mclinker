@@ -91,17 +91,9 @@ llvm::cl::opt<bool, true> ArgFatalWarningsFlag("fatal-warnings",
   llvm::cl::init(false),
   llvm::cl::ValueDisallowed);
 
-llvm::cl::opt<bool> ArgUseGold("use-gold",
-  llvm::cl::desc("GCC/collect2 compatibility: uses ld.gold.  Ignored"),
-  llvm::cl::init(false));
-
-llvm::cl::opt<bool> ArgUseMCLD("use-mcld",
-  llvm::cl::desc("GCC/collect2 compatibility: uses ld.mcld.  Ignored"),
-  llvm::cl::init(false));
-
-llvm::cl::opt<bool> ArgUseLD("use-ld",
-  llvm::cl::desc("GCC/collect2 compatibility: uses ld.bfd.  Ignored"),
-  llvm::cl::init(false));
+llvm::cl::opt<std::string> ArgUseLD("fuse-ld",
+  llvm::cl::desc("Ignored for GCC/collect2 linker compatibility."),
+  llvm::cl::init("mcld"));
 
 //===----------------------------------------------------------------------===//
 // Non-member functions
