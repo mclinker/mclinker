@@ -31,6 +31,7 @@ public:
 
 private:
   bool& m_GCSections;
+  bool& m_PrintGCSections;
   bool& m_GenUnwindInfo;
   llvm::cl::opt<ICF>& m_ICF;
   llvm::cl::opt<char>& m_OptLevel;

@@ -51,3 +51,4 @@ DIAG(err_invalid_emulation, DiagnosticEngine::Error, "Invalid target emulation: 
 DIAG(err_cannot_find_scriptfile, DiagnosticEngine::Fatal, "cannot open %0 file %1", "cannot open %0 file %1")
 DIAG(err_unsupported_archive, DiagnosticEngine::Error, "Unsupported archive type.", "Unsupported archive type.")
 DIAG(unexpected_frag_type, DiagnosticEngine::Unreachable, "Unexpected fragment type `%0' when constructing FG", "Unexpected fragment type `%0' when constructing FG")
+DIAG(debug_print_gc_sections, DiagnosticEngine::Debug, "removing unused section from '%0' in file '%1'", "removing unused section from '%0' in file '%1'")

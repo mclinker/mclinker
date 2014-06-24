@@ -153,6 +153,11 @@ bool DiagnosticInfos::process(DiagnosticEngine& pEngine) const
       }
       break;
     }
+    case diag::debug_print_gc_sections: {
+      if (!m_Config.options().getPrintGCSections())
+        severity = DiagnosticEngine::Ignore;
+      break;
+    }
     default:
       break;
   } // end of switch

@@ -18,6 +18,7 @@
 #include <mcld/LinkerConfig.h>
 #include <mcld/LinkerScript.h>
 #include <mcld/Module.h>
+#include <mcld/Support/MsgHandling.h>
 #include <mcld/Target/TargetLDBackend.h>
 
 #include <llvm/Support/Casting.h>
@@ -323,8 +324,11 @@ void GarbageCollection::stripSections()
       if (!mayProcessGC(*section))
         continue;
 
-      if (m_ReferencedSections.find(section) == m_ReferencedSections.end())
+      if (m_ReferencedSections.find(section) == m_ReferencedSections.end()) {
         section->setKind(LDFileFormat::Ignore);
+        debug(diag::debug_print_gc_sections) << section->name()
+                                             << (*obj)->name();
+      }
     }
   }
 

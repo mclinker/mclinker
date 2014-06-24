@@ -284,6 +284,13 @@ public:
   bool GCSections() const
   { return m_bGCSections; }
 
+  // --print-gc-sections
+  void setPrintGCSections(bool pEnable = true)
+  { m_bPrintGCSections = pEnable; }
+
+  bool getPrintGCSections() const
+  { return m_bPrintGCSections; }
+
   // --ld-generated-unwind-info
   void setGenUnwindInfo(bool pEnable = true)
   { m_bGenUnwindInfo = pEnable; }
@@ -389,6 +396,7 @@ private:
   bool m_bPrintMap: 1; // --print-map
   bool m_bWarnMismatch: 1; // --no-warn-mismatch
   bool m_bGCSections: 1; // --gc-sections
+  bool m_bPrintGCSections:1; // --print-gc-sections
   bool m_bGenUnwindInfo: 1; // --ld-generated-unwind-info
   uint32_t m_GPSize; // -G, --gpsize
   StripSymbolMode m_StripSymbols;

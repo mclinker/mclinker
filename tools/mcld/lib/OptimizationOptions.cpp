@@ -28,6 +28,20 @@ llvm::cl::opt<bool, true, llvm::cl::FalseParser> ArgNoGCSectionsFlag("no-gc-sect
   llvm::cl::desc("disable garbage collection of unused input sections."),
   llvm::cl::init(false));
 
+bool ArgPrintGCSections;
+
+llvm::cl::opt<bool, true> ArgPrintGCSectionsFlag("print-gc-sections",
+  llvm::cl::ZeroOrMore,
+  llvm::cl::location(ArgPrintGCSections),
+  llvm::cl::desc("List all sections removed by garbage collection."),
+  llvm::cl::init(false));
+
+llvm::cl::opt<bool, true, llvm::cl::FalseParser> ArgNoPrintGCSectionsFlag("no-print-gc-sections",
+  llvm::cl::ZeroOrMore,
+  llvm::cl::location(ArgPrintGCSections),
+  llvm::cl::desc("disable --print-gc-sections"),
+  llvm::cl::init(false));
+
 bool ArgGenUnwindInfo;
 
 llvm::cl::opt<bool, true, llvm::cl::FalseParser>
@@ -84,6 +98,7 @@ using namespace mcld;
 //===----------------------------------------------------------------------===//
 OptimizationOptions::OptimizationOptions()
   : m_GCSections(ArgGCSections),
+    m_PrintGCSections(ArgPrintGCSections),
     m_GenUnwindInfo(ArgGenUnwindInfo),
     m_ICF(ArgICF),
     m_OptLevel(ArgOptLevel),
@@ -96,6 +111,10 @@ bool OptimizationOptions::parse(LinkerConfig& pConfig)
   // set --gc-sections
   if (m_GCSections)
     pConfig.options().setGCSections();
+
+  // set --print-gc-sections
+  if (m_PrintGCSections)
+    pConfig.options().setPrintGCSections();
 
   // set --ld-generated-unwind-info (or not)
   pConfig.options().setGenUnwindInfo(m_GenUnwindInfo);
