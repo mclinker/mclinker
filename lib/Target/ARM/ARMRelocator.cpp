@@ -967,7 +967,7 @@ ARMRelocator::Result thm_jump11(Relocation& pReloc, ARMRelocator& pParent)
     S = helper_get_PLT_address(*pReloc.symInfo(), pParent);
 
   Relocator::DWord X = S + A - P;
-  if (helper_check_signed_overflow(X, 11))
+  if (helper_check_signed_overflow(X, 12))
     return Relocator::Overflow;
   //                    Make sure the Imm is 0.          Result Mask.
   pReloc.target() = (pReloc.target() & 0xFFFFF800u) | ((X & 0x0FFEu) >> 1);
