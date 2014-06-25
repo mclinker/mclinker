@@ -13,10 +13,12 @@ namespace {
 
 // Not supprted yet {
 llvm::cl::opt<std::string> ArgForceUndefined("u",
+  llvm::cl::ZeroOrMore,
   llvm::cl::desc("Force symbol to be undefined in the output file"),
   llvm::cl::value_desc("symbol"));
 
 llvm::cl::alias ArgForceUndefinedAlias("undefined",
+  llvm::cl::ZeroOrMore,
   llvm::cl::desc("alias for -u"),
   llvm::cl::aliasopt(ArgForceUndefined));
 
