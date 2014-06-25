@@ -401,6 +401,10 @@ size_t GNUArchiveReader::includeMember(const LinkerConfig& pConfig,
 
     if (m_ELFObjectReader.isMyFormat(*member, doContinue)) {
       member->setType(Input::Object);
+      // Set this object as no export if the archive is in the exclude libs.
+      if (pArchive.getARFile().noExport()) {
+        member->setNoExport();
+      }
       pArchive.addObjectMember(pFileOffset, parent->lastPos);
       m_ELFObjectReader.readHeader(*member);
       m_ELFObjectReader.readSections(*member);
@@ -468,4 +472,3 @@ bool GNUArchiveReader::includeAllMembers(const LinkerConfig& pConfig,
   }
   return true;
 }
-

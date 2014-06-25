@@ -21,6 +21,7 @@ Input::Input(llvm::StringRef pName)
     m_Path(),
     m_pAttr(NULL),
     m_bNeeded(false),
+    m_bNoExport(false),
     m_fileOffset(0),
     m_pMemArea(NULL),
     m_pContext(NULL) {
@@ -32,6 +33,7 @@ Input::Input(llvm::StringRef pName, const AttributeProxy& pProxy)
     m_Path(),
     m_pAttr(const_cast<Attribute*>(pProxy.attr())),
     m_bNeeded(false),
+    m_bNoExport(false),
     m_fileOffset(0),
     m_pMemArea(NULL),
     m_pContext(NULL) {
@@ -46,6 +48,7 @@ Input::Input(llvm::StringRef pName,
     m_Path(pPath),
     m_pAttr(NULL),
     m_bNeeded(false),
+    m_bNoExport(false),
     m_fileOffset(pFileOffset),
     m_pMemArea(NULL),
     m_pContext(NULL) {
@@ -61,6 +64,7 @@ Input::Input(llvm::StringRef pName,
     m_Path(pPath),
     m_pAttr(const_cast<Attribute*>(pProxy.attr())),
     m_bNeeded(false),
+    m_bNoExport(false),
     m_fileOffset(pFileOffset),
     m_pMemArea(NULL),
     m_pContext(NULL) {

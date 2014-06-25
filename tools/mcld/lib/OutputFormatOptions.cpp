@@ -228,6 +228,14 @@ bool OutputFormatOptions::parse(mcld::Module& pModule, LinkerConfig& pConfig)
   pConfig.options().setOMagic(m_OMagic);
   pConfig.options().setHashStyle(m_HashStyle);
   pConfig.options().setExportDynamic(m_ExportDynamic);
+
+  // --exclude-libs
+  llvm::cl::list<std::string>::iterator exclude,
+                                        excludeEnd = m_ExcludeLIBS.end();
+  for (exclude = m_ExcludeLIBS.begin(); exclude != excludeEnd; ++exclude) {
+    pConfig.options().excludeLIBS().insert(*exclude);
+  }
+
   if (m_NoWarnMismatch)
     pConfig.options().setWarnMismatch(false);
   else
@@ -299,5 +307,3 @@ bool OutputFormatOptions::parseOutput(Module& pModule, LinkerConfig& pConfig)
   pModule.setName(output_filename);
   return true;
 }
-
-

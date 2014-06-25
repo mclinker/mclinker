@@ -165,6 +165,9 @@ void ObjectLinker::normalize()
     // is an archive
     else if (doContinue && getArchiveReader()->isMyFormat(**input, doContinue)) {
       (*input)->setType(Input::Archive);
+      if (m_Config.options().isInExcludeLIBS(**input)) {
+        (*input)->setNoExport();
+      }
       Archive archive(**input, m_pBuilder->getInputBuilder());
       getArchiveReader()->readArchive(m_Config, archive);
       if(archive.numOfObjectMember() > 0) {

@@ -94,6 +94,12 @@ public:
   void setNeeded()
   { m_bNeeded = true; }
 
+  bool noExport() const
+  { return m_bNoExport; }
+
+  void setNoExport()
+  { m_bNoExport = true; }
+
   off_t fileOffset() const
   { return m_fileOffset; }
 
@@ -126,6 +132,7 @@ private:
   sys::fs::Path m_Path;
   Attribute *m_pAttr;
   bool m_bNeeded;
+  bool m_bNoExport;
   off_t m_fileOffset;
   MemoryArea* m_pMemArea;
   LDContext* m_pContext;

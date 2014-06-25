@@ -8,10 +8,11 @@
 //===----------------------------------------------------------------------===//
 #ifndef MCLD_GENERALOPTIONS_H
 #define MCLD_GENERALOPTIONS_H
-#include <string>
-#include <vector>
 #include <mcld/Support/RealPath.h>
 #include <mcld/Support/FileSystem.h>
+#include <string>
+#include <vector>
+#include <set>
 
 namespace mcld {
 
@@ -50,6 +51,8 @@ public:
   typedef std::vector<std::string> AuxiliaryList;
   typedef AuxiliaryList::iterator aux_iterator;
   typedef AuxiliaryList::const_iterator const_aux_iterator;
+
+  typedef std::set<std::string> ExcludeLIBS;
 
 public:
   GeneralOptions();
@@ -346,6 +349,13 @@ public:
   const_aux_iterator aux_end  () const { return m_AuxiliaryList.end();   }
   aux_iterator       aux_end  ()       { return m_AuxiliaryList.end();   }
 
+  // -----  exclude libs  ----- //
+  ExcludeLIBS& excludeLIBS()
+  { return m_ExcludeLIBS; }
+
+  bool isInExcludeLIBS(const Input& pInput) const;
+
+
 private:
   enum status {
     YES,
@@ -405,6 +415,7 @@ private:
   unsigned int m_HashStyle;
   std::string m_Filter;
   AuxiliaryList m_AuxiliaryList;
+  ExcludeLIBS m_ExcludeLIBS;
 };
 
 } // namespace of mcld

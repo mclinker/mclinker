@@ -9,6 +9,7 @@
 #include <mcld/GeneralOptions.h>
 #include <mcld/MC/Input.h>
 #include <mcld/MC/ZOption.h>
+#include <cassert>
 
 using namespace mcld;
 
@@ -144,4 +145,27 @@ void GeneralOptions::addZOption(const ZOption& pOption)
       assert(false && "Not a recognized -z option.");
       break;
   }
+}
+
+bool GeneralOptions::isInExcludeLIBS(const Input& pInput) const
+{
+  assert(pInput.type() == Input::Archive);
+
+  if (m_ExcludeLIBS.empty()) {
+    return false;
+  }
+
+  // Specifying "--exclude-libs ALL" excludes symbols in all archive libraries
+  // from automatic export.
+  if (m_ExcludeLIBS.count("ALL") != 0) {
+    return true;
+  }
+
+  std::string name(pInput.name());
+  name.append(".a");
+  if (m_ExcludeLIBS.count(name) != 0) {
+    return true;
+  }
+
+  return false;
 }

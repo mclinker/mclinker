@@ -423,6 +423,13 @@ LDSymbol* IRBuilder::AddSymbol(Input& pInput,
       name = renameSym.getEntry()->value();
   }
 
+  // Fix up the visibility if object has no export set.
+  if (pInput.noExport() && (pDesc != ResolveInfo::Undefined)) {
+    if ((pVis == ResolveInfo::Default) || (pVis == ResolveInfo::Protected)) {
+      pVis = ResolveInfo::Hidden;
+    }
+  }
+
   switch (pInput.type()) {
     case Input::Object: {
 
