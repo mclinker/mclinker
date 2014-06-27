@@ -137,6 +137,7 @@ HEADER = $(INCDIR)/AttributeOption.h \
          $(INCDIR)/Script/WildcardPattern.h \
          $(INCDIR)/Support/Allocators.h \
          $(INCDIR)/Support/CommandLine.h \
+         $(INCDIR)/Support/Demangle.h \
          $(INCDIR)/Support/Directory.h \
          $(INCDIR)/Support/ELF.h \
          $(INCDIR)/Support/FileHandle.h \

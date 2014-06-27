@@ -128,6 +128,7 @@ SOURCE = $(LIBDIR)/ADT/StringEntry.cpp \
 	$(LIBDIR)/Script/UnaryOp.cpp \
 	$(LIBDIR)/Script/WildcardPattern.cpp \
 	$(LIBDIR)/Support/CommandLine.cpp \
+	$(LIBDIR)/Support/Demangle.cpp \
 	$(LIBDIR)/Support/Directory.cpp \
 	$(LIBDIR)/Support/FileHandle.cpp \
 	$(LIBDIR)/Support/FileOutputBuffer.cpp \

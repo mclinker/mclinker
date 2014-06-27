@@ -1,5 +1,6 @@
 add_mcld_library(MCLDSupport
   CommandLine.cpp
+  Demangle.cpp
   Directory.cpp
   FileHandle.cpp
   FileOutputBuffer.cpp
