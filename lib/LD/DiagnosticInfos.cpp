@@ -141,12 +141,6 @@ bool DiagnosticInfos::process(DiagnosticEngine& pEngine) const
           else
             severity = DiagnosticEngine::Ignore;
           break;
-        case LinkerConfig::Exec:
-          if (m_Config.options().isNoUndefined())
-            severity = DiagnosticEngine::Error;
-          else
-            severity = DiagnosticEngine::Ignore;
-          break;
         default:
           severity = DiagnosticEngine::Error;
           break;
