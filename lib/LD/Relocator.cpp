@@ -6,7 +6,6 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include <mcld/Config/Config.h>
 #include <mcld/Fragment/Fragment.h>
 #include <mcld/LD/LDContext.h>
 #include <mcld/LD/LDSection.h>
@@ -61,8 +60,7 @@ void Relocator::issueUndefRef(Relocation& pReloc,
   sect_name = sect_name.substr(sect_name.find('.', /*pos=*/1));  // Drop .rel(a) prefix
 
   std::string reloc_sym(pReloc.symInfo()->name());
-  if (reloc_sym.substr(0, 2) == "_Z")
-    reloc_sym = demangleName(reloc_sym);
+  reloc_sym = demangleName(reloc_sym);
 
   std::stringstream ss;
   ss << "0x" << std::hex << undef_sym_pos;
@@ -93,8 +91,7 @@ void Relocator::issueUndefRef(Relocation& pReloc,
     }
   }
 
-  if (caller_func_name.substr(0, 2) == "_Z")
-    caller_func_name = demangleName(caller_func_name);
+  caller_func_name = demangleName(caller_func_name);
 
   fatal(diag::undefined_reference_text) << reloc_sym
                                         << pInput.path()

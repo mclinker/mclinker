@@ -6,6 +6,7 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
+#include <mcld/Config/Config.h>
 #include <mcld/Support/Demangle.h>
 
 #ifdef HAVE_CXXABI_H
@@ -14,23 +15,27 @@
 
 namespace mcld {
 
-std::string demangleName(const std::string& mangled_name) {
+std::string demangleName(const std::string& pName) {
 #ifdef HAVE_CXXABI_H
+  // Spoil names of symbols with C linkage, so use an heuristic approach to
+  // check if the name should be demangled.
+  if (pName.substr(0, 2) != "_Z")
+    return pName;
   // __cxa_demangle needs manually handle the memory release, so we wrap
   // it into this helper function.
   size_t output_leng;
   int status;
-  char* buffer = abi::__cxa_demangle(mangled_name.c_str(), /*buffer=*/0,
+  char* buffer = abi::__cxa_demangle(pName.c_str(), /*buffer=*/0,
                                      &output_leng, &status);
   if (status != 0) { // Failed
-    return mangled_name;
+    return pName;
   }
-  std::string demangled_name(buffer);
+  std::string result(buffer);
   free(buffer);
 
-  return demangled_name;
+  return result;
 #else
-  return mangled_name;
+  return pName;
 #endif
 }
 
