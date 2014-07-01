@@ -24,7 +24,7 @@ public:
 
 private:
   // not supported yet
-  llvm::cl::opt<std::string>& m_ForceUndefined;
+  llvm::cl::list<std::string>& m_ForceUndefined;
   llvm::cl::opt<std::string>& m_VersionScript;
   llvm::cl::opt<bool>& m_WarnCommon;
   llvm::cl::opt<bool>& m_DefineCommon;
