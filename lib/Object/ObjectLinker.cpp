@@ -118,15 +118,27 @@ void ObjectLinker::addUndefinedSymbols()
   GeneralOptions::const_undef_sym_iterator usymEnd =
                                              m_Config.options().undef_sym_end();
   for (usym = m_Config.options().undef_sym_begin(); usym != usymEnd; ++usym) {
-    m_pBuilder->AddSymbol<IRBuilder::Force,
-                          IRBuilder::Resolve>(*usym,
-                                              ResolveInfo::NoType,
-                                              ResolveInfo::Undefined,
-                                              ResolveInfo::Global,
-                                              0x0, // size
-                                              0x0, // value
-                                              FragmentRef::Null(),
-                                              ResolveInfo::Default);
+    Resolver::Result result;
+    m_pModule->getNamePool().insertSymbol(*usym, // name
+                                          false, // isDyn
+                                          ResolveInfo::NoType,
+                                          ResolveInfo::Undefined,
+                                          ResolveInfo::Global,
+                                          0x0, // size
+                                          0x0, // value
+                                          ResolveInfo::Default,
+                                          NULL,
+                                          result);
+
+    LDSymbol* output_sym = result.info->outSymbol();
+    bool has_output_sym = (NULL != output_sym);
+
+    // create the output symbol if it dose not have one
+    if (!result.existent || !has_output_sym) {
+      output_sym = LDSymbol::Create(*result.info);
+      result.info->setSymPtr(output_sym);
+      output_sym->setFragmentRef(FragmentRef::Null());
+    }
   }
 }
 
