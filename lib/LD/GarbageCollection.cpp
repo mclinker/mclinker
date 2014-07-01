@@ -271,6 +271,24 @@ void GarbageCollection::getEntrySections(SectionVecTy& pEntry)
       pEntry.push_back(sect);
     }
   }
+
+  // symbols set by -u should not be garbage collected. Set them entries.
+  GeneralOptions::const_undef_sym_iterator usym;
+  GeneralOptions::const_undef_sym_iterator usymEnd =
+                                             m_Config.options().undef_sym_end();
+  for (usym = m_Config.options().undef_sym_begin(); usym != usymEnd; ++usym) {
+    LDSymbol* sym = m_Module.getNamePool().findSymbol(*usym);
+    assert(sym);
+    ResolveInfo* info = sym->resolveInfo();
+    assert(info);
+    if (!info->isDefine() || !sym->hasFragRef())
+      continue;
+    // only the symbols defined in the concerned sections can be entries
+    const LDSection* sect = &sym->fragRef()->frag()->getParent()->getSection();
+    if (!mayProcessGC(*sect))
+      continue;
+    pEntry.push_back(sect);
+  }
 }
 
 void GarbageCollection::findReferencedSections(SectionVecTy& pEntry)
