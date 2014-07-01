@@ -111,6 +111,25 @@ bool ObjectLinker::initStdSections()
   return true;
 }
 
+void ObjectLinker::addUndefinedSymbols()
+{
+  // Add the symbol set by -u as an undefind global symbol into symbol pool
+  GeneralOptions::const_undef_sym_iterator usym;
+  GeneralOptions::const_undef_sym_iterator usymEnd =
+                                             m_Config.options().undef_sym_end();
+  for (usym = m_Config.options().undef_sym_begin(); usym != usymEnd; ++usym) {
+    m_pBuilder->AddSymbol<IRBuilder::Force,
+                          IRBuilder::Resolve>(*usym,
+                                              ResolveInfo::NoType,
+                                              ResolveInfo::Undefined,
+                                              ResolveInfo::Global,
+                                              0x0, // size
+                                              0x0, // value
+                                              FragmentRef::Null(),
+                                              ResolveInfo::Default);
+  }
+}
+
 void ObjectLinker::normalize()
 {
   // -----  set up inputs  ----- //

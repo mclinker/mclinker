@@ -52,6 +52,10 @@ public:
   typedef AuxiliaryList::iterator aux_iterator;
   typedef AuxiliaryList::const_iterator const_aux_iterator;
 
+  typedef std::vector<std::string> UndefSymList;
+  typedef UndefSymList::iterator undef_sym_iterator;
+  typedef UndefSymList::const_iterator const_undef_sym_iterator;
+
   typedef std::set<std::string> ExcludeLIBS;
 
 public:
@@ -331,6 +335,20 @@ public:
   const_script_iterator script_end  () const { return m_ScriptList.end();   }
   script_iterator       script_end  ()       { return m_ScriptList.end();   }
 
+  // -----  -u/--undefined, undefined symbols ----- //
+  const UndefSymList& getUndefSymList() const { return m_UndefSymList; }
+  UndefSymList&       getUndefSymList()       { return m_UndefSymList; }
+
+  const_undef_sym_iterator undef_sym_begin() const
+  { return m_UndefSymList.begin(); }
+  undef_sym_iterator undef_sym_begin()
+  { return m_UndefSymList.begin(); }
+
+  const_undef_sym_iterator undef_sym_end() const
+  { return m_UndefSymList.end(); }
+  undef_sym_iterator undef_sym_end()
+  { return m_UndefSymList.end(); }
+
   // -----  filter and auxiliary filter  ----- //
   void setFilter(const std::string& pFilter)
   { m_Filter = pFilter; }
@@ -412,6 +430,7 @@ private:
   StripSymbolMode m_StripSymbols;
   RpathList m_RpathList;
   ScriptList m_ScriptList;
+  UndefSymList m_UndefSymList; // -u [symbol], --undefined [symbol]
   unsigned int m_HashStyle;
   std::string m_Filter;
   AuxiliaryList m_AuxiliaryList;

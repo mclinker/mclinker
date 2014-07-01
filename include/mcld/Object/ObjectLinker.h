@@ -45,6 +45,9 @@ public:
   /// initStdSections - initialize standard sections of the output file.
   bool initStdSections();
 
+  /// addUndefinedSymbols - add symbols set by -u
+  void addUndefinedSymbols();
+
   /// normalize - normalize the input files
   void normalize();
 

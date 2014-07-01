@@ -66,6 +66,11 @@ bool SymbolOptions::parse(LinkerConfig& pConfig)
   // set -d
   pConfig.options().setDefineCommon(m_DefineCommon);
 
+  // set -u/--undefined symbols
+  llvm::cl::list<std::string>::iterator usym, usymEnd = m_ForceUndefined.end();
+  for (usym = m_ForceUndefined.begin(); usym != usymEnd; ++usym)
+    pConfig.options().getUndefSymList().push_back(*usym);
+
   return true;
 }
 
