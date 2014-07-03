@@ -19,6 +19,7 @@
 #include <mcld/MC/Input.h>
 #include <mcld/GeneralOptions.h>
 #include <mcld/Module.h>
+#include <mcld/Support/Demangle.h>
 #include <mcld/Support/MsgHandling.h>
 #include <mcld/Target/GNULDBackend.h>
 
@@ -31,22 +32,17 @@
 #include <set>
 
 #include <zlib.h>
-
 using namespace mcld;
 
 static bool isSymCtorOrDtor(const ResolveInfo& pSym)
 {
-  // FIXME: We can always fold ctors and dtors since accessing function pointer
-  // in C++ is forbidden. However, currently there is no quick hacks for ctors.
+  // We can always fold ctors and dtors since accessing function pointer in C++
+  // is forbidden.
   llvm::StringRef name(pSym.name(), pSym.nameSize());
-  if (name.startswith("_ZZ") || name.startswith("_ZN")) {
-    if ((name.rfind("D0Ev") != llvm::StringRef::npos) ||
-        (name.rfind("D1Ev") != llvm::StringRef::npos) ||
-        (name.rfind("D2Ev") != llvm::StringRef::npos)) {
-      return true;
-    }
+  if (!name.startswith("_ZZ") && !name.startswith("_ZN")) {
+    return false;
   }
-  return false;
+  return isCtorOrDtor(pSym.name(), pSym.nameSize());
 }
 
 IdenticalCodeFolding::IdenticalCodeFolding(const LinkerConfig& pConfig,
