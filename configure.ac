@@ -106,6 +106,7 @@ AC_MSG_RESULT([$NO_VARIADIC_MACROS $NO_COVERED_SWITCH_DEFAULT $NO_C99_EXTENSIONS
 AC_CHECK_HEADERS([fcntl.h unistd.h])
 AC_CHECK_HEADERS([sys/mman.h])
 AC_CHECK_HEADERS([cxxabi.h])
+AC_CHECK_HEADERS([zlib.h])
 
 ####################
 # Configure LLVM

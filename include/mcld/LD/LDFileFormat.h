@@ -25,7 +25,8 @@ class LDFileFormat
 public:
   enum Kind {
     Null,
-    Regular,
+    TEXT, // Executable regular sections
+    DATA, // Non-executable regular sections
     BSS,
     NamePool,
     Relocation,
@@ -41,7 +42,8 @@ public:
     LinkOnce,
     StackNote,
     Ignore,
-    Exclude
+    Exclude,
+    Folded
   };
 
 protected:

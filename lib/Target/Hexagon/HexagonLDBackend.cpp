@@ -72,6 +72,12 @@ bool HexagonLDBackend::initRelocator()
   return true;
 }
 
+const Relocator* HexagonLDBackend::getRelocator() const
+{
+  assert(NULL != m_pRelocator);
+  return m_pRelocator;
+}
+
 Relocator* HexagonLDBackend::getRelocator()
 {
   assert(NULL != m_pRelocator);

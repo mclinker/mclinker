@@ -72,6 +72,12 @@ X86GNULDBackend::~X86GNULDBackend()
   delete m_pDynamic;
 }
 
+const Relocator* X86GNULDBackend::getRelocator() const
+{
+  assert(NULL != m_pRelocator);
+  return m_pRelocator;
+}
+
 Relocator* X86GNULDBackend::getRelocator()
 {
   assert(NULL != m_pRelocator);

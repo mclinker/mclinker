@@ -76,6 +76,7 @@ public:
   virtual bool initRelocator() = 0;
 
   /// getRelocator - return relocator.
+  const Relocator* getRelocator() const;
   Relocator* getRelocator();
 
   virtual void initTargetSections(Module& pModule, ObjectBuilder& pBuilder) = 0;

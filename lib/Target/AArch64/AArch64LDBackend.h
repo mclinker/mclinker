@@ -41,8 +41,8 @@ public:
   bool initRelocator();
 
   /// getRelocator - return relocator.
+  const Relocator* getRelocator() const;
   Relocator* getRelocator();
-
 
   /// doPreLayout - Backend can do any needed modification before layout
   void doPreLayout(IRBuilder& pBuilder);

@@ -69,6 +69,7 @@ HEADER = $(INCDIR)/AttributeOption.h \
          $(INCDIR)/LD/GNUArchiveReader.h \
          $(INCDIR)/LD/Group.h \
          $(INCDIR)/LD/GroupReader.h \
+	 $(INCDIR)/LD/IdenticalCodeFolding.h \
          $(INCDIR)/LD/LDContext.h \
          $(INCDIR)/LD/LDFileFormat.h \
          $(INCDIR)/LD/LDReader.h \

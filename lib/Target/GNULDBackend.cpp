@@ -8,13 +8,6 @@
 //===----------------------------------------------------------------------===//
 #include <mcld/Target/GNULDBackend.h>
 
-#include <string>
-#include <cstring>
-#include <cassert>
-#include <vector>
-#include <algorithm>
-#include <map>
-
 #include <mcld/Module.h>
 #include <mcld/LinkerConfig.h>
 #include <mcld/LinkerScript.h>
@@ -49,7 +42,15 @@
 #include <mcld/Fragment/FillFragment.h>
 #include <mcld/MC/Attribute.h>
 
+#include <llvm/ADT/StringRef.h>
 #include <llvm/Support/Host.h>
+
+#include <algorithm>
+#include <cstring>
+#include <cassert>
+#include <map>
+#include <string>
+#include <vector>
 
 namespace {
 
@@ -1380,7 +1381,8 @@ unsigned int GNULDBackend::getSectionOrder(const LDSection& pSectHdr) const
   bool is_exec = (pSectHdr.flag() & llvm::ELF::SHF_EXECINSTR) != 0;
   // TODO: need to take care other possible output sections
   switch (pSectHdr.kind()) {
-    case LDFileFormat::Regular:
+    case LDFileFormat::TEXT:
+    case LDFileFormat::DATA:
       if (is_exec) {
         if (&pSectHdr == &file_format->getInit())
           return SHO_INIT;
@@ -2415,7 +2417,8 @@ void GNULDBackend::placeOutputSections(Module& pModule)
            config().codeGenType() == LinkerConfig::Object))
         wanted = true;
       break;
-    case LDFileFormat::Regular:
+    case LDFileFormat::TEXT:
+    case LDFileFormat::DATA:
     case LDFileFormat::Target:
     case LDFileFormat::MetaData:
     case LDFileFormat::BSS:
@@ -2578,6 +2581,19 @@ void GNULDBackend::createAndSizeEhFrameHdr(Module& pModule)
                                    format->getEhFrame());
     m_pEhFrameHdr->sizeOutput();
   }
+}
+
+/// mayHaveUnsafeFunctionPointerAccess - check if the section may have unsafe
+/// function pointer access
+bool GNULDBackend::mayHaveUnsafeFunctionPointerAccess(const LDSection& pSection)
+    const
+{
+  llvm::StringRef name(pSection.name());
+  return !name.startswith(".rodata._ZTV") &&
+         !name.startswith(".data.rel.ro._ZTV") &&
+         !name.startswith(".rodata._ZTC") &&
+         !name.startswith(".data.rel.ro._ZTC") &&
+         !name.startswith(".eh_frame");
 }
 
 /// preLayout - Backend can do any needed modification before layout

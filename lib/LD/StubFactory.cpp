@@ -73,7 +73,7 @@ Stub* StubFactory::create(Relocation& pReloc,
 
       // create LDSymbol for the stub
       LDSymbol* symbol =
-        pBuilder.AddSymbol<IRBuilder::Force, IRBuilder::Resolve>(
+        pBuilder.AddSymbol<IRBuilder::Force, IRBuilder::Unresolve>(
                                name,
                                ResolveInfo::Function,
                                ResolveInfo::Define,

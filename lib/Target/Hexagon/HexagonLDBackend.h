@@ -83,6 +83,7 @@ public:
   bool initRelocator();
 
   /// getRelocator - return relocator.
+  const Relocator* getRelocator() const;
   Relocator* getRelocator();
 
   ResolveInfo::Desc getSymDesc(uint16_t shndx) const

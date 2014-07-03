@@ -29,6 +29,7 @@ add_mcld_library(MCLDLD
   GarbageCollection.cpp
   GNUArchiveReader.cpp
   GroupReader.cpp
+  IdenticalCodeFolding.cpp
   LDContext.cpp
   LDFileFormat.cpp
   LDReader.cpp

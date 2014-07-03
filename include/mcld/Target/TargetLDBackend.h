@@ -35,6 +35,7 @@ class ObjectBuilder;
 class ObjectReader;
 class ObjectWriter;
 class Relocator;
+class ResolveInfo;
 class SectionData;
 class StubFactory;
 
@@ -62,6 +63,7 @@ public:
   virtual bool initRelocator() = 0;
 
   virtual Relocator* getRelocator() = 0;
+  virtual const Relocator* getRelocator() const = 0;
 
   // -----  format dependent  ----- //
   virtual ArchiveReader* createArchiveReader(Module&) = 0;
@@ -166,6 +168,15 @@ public:
   /// createAndSizeEhFrameHdr - This is seperated since we may add eh_frame
   /// entry in the middle
   virtual void createAndSizeEhFrameHdr(Module& pModule) = 0;
+
+  /// isSymbolPreemptible - whether the symbol can be preemted by other link
+  /// units
+  virtual bool isSymbolPreemptible(const ResolveInfo& pSym) const = 0;
+
+  /// mayHaveUnsafeFunctionPointerAccess - check if the section may have unsafe
+  /// function pointer access
+  virtual bool mayHaveUnsafeFunctionPointerAccess(const LDSection& pSection)
+      const = 0;
 
 protected:
   const LinkerConfig& config() const { return m_Config; }

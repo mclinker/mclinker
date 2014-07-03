@@ -61,7 +61,8 @@ void ELFObjectWriter::writeSection(Module& pModule,
     if (section->getSectionData() == NULL)
       return;
     // Fall through
-  case LDFileFormat::Regular:
+  case LDFileFormat::TEXT:
+  case LDFileFormat::DATA:
   case LDFileFormat::Relocation:
   case LDFileFormat::Target:
   case LDFileFormat::Debug:
@@ -94,7 +95,8 @@ void ELFObjectWriter::writeSection(Module& pModule,
   // Write out sections with data
   switch(section->kind()) {
   case LDFileFormat::GCCExceptTable:
-  case LDFileFormat::Regular:
+  case LDFileFormat::TEXT:
+  case LDFileFormat::DATA:
   case LDFileFormat::Debug:
   case LDFileFormat::Note:
     emitSectionData(*section, region);

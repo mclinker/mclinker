@@ -154,6 +154,12 @@ void MipsGNULDBackend::initTargetSymbols(IRBuilder& pBuilder, Module& pModule)
                    ResolveInfo::Default);
 }
 
+const Relocator* MipsGNULDBackend::getRelocator() const
+{
+  assert(NULL != m_pRelocator);
+  return m_pRelocator;
+}
+
 Relocator* MipsGNULDBackend::getRelocator()
 {
   assert(NULL != m_pRelocator);

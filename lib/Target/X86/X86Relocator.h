@@ -151,6 +151,10 @@ public:
 
   X86_32GOTEntry& getTLSModuleID();
 
+  /// mayHaveFunctionPointerAccess - check if the given reloc would possibly
+  /// access a function pointer.
+  virtual bool mayHaveFunctionPointerAccess(const Relocation& pReloc) const;
+
 private:
   void scanLocalReloc(Relocation& pReloc,
                       IRBuilder& pBuilder,
@@ -206,6 +210,10 @@ public:
 
   const RelRelMap& getRelRelMap() const { return m_RelRelMap; }
   RelRelMap&       getRelRelMap()       { return m_RelRelMap; }
+
+  /// mayHaveFunctionPointerAccess - check if the given reloc would possibly
+  /// access a function pointer.
+  virtual bool mayHaveFunctionPointerAccess(const Relocation& pReloc) const;
 
 private:
   void scanLocalReloc(Relocation& pReloc,

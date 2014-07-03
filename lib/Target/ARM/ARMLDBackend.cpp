@@ -17,13 +17,6 @@
 #include "THMToTHMStub.h"
 #include "THMToARMStub.h"
 
-#include <cstring>
-
-#include <llvm/ADT/Triple.h>
-#include <llvm/ADT/Twine.h>
-#include <llvm/Support/ELF.h>
-#include <llvm/Support/Casting.h>
-
 #include <mcld/IRBuilder.h>
 #include <mcld/LinkerConfig.h>
 #include <mcld/Fragment/FillFragment.h>
@@ -44,6 +37,14 @@
 #include <mcld/Target/ELFAttribute.h>
 #include <mcld/Target/GNUInfo.h>
 #include <mcld/Object/ObjectBuilder.h>
+
+#include <llvm/ADT/StringRef.h>
+#include <llvm/ADT/Triple.h>
+#include <llvm/ADT/Twine.h>
+#include <llvm/Support/ELF.h>
+#include <llvm/Support/Casting.h>
+
+#include <cstring>
 
 using namespace mcld;
 
@@ -203,6 +204,12 @@ bool ARMGNULDBackend::initRelocator()
     m_pRelocator = new ARMRelocator(*this, config());
   }
   return true;
+}
+
+const Relocator* ARMGNULDBackend::getRelocator() const
+{
+  assert(NULL != m_pRelocator);
+  return m_pRelocator;
 }
 
 Relocator* ARMGNULDBackend::getRelocator()
@@ -471,7 +478,8 @@ void ARMGNULDBackend::setUpReachedSectionsForGC(const Module& pModule,
           // the reference
           const LDSection* target_sect =
                 &sym->outSymbol()->fragRef()->frag()->getParent()->getSection();
-          if (target_sect->kind() != LDFileFormat::Regular &&
+          if (target_sect->kind() != LDFileFormat::TEXT &&
+              target_sect->kind() != LDFileFormat::DATA &&
               target_sect->kind() != LDFileFormat::BSS)
             continue;
 
@@ -734,6 +742,19 @@ void ARMGNULDBackend::doCreateProgramHdrs(Module& pModule)
      exidx_seg->append(m_pEXIDX);
    }
 }
+
+/// mayHaveUnsafeFunctionPointerAccess - check if the section may have unsafe
+/// function pointer access
+bool
+ARMGNULDBackend::mayHaveUnsafeFunctionPointerAccess(const LDSection& pSection)
+    const
+{
+  llvm::StringRef name(pSection.name());
+  return !name.startswith(".ARM.exidx") &&
+         !name.startswith(".ARM.extab") &&
+         GNULDBackend::mayHaveUnsafeFunctionPointerAccess(pSection);
+}
+
 
 namespace mcld {
 

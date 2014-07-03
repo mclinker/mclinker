@@ -13,7 +13,6 @@
 
 namespace {
 
-// Not supported yet
 bool ArgGCSections;
 
 llvm::cl::opt<bool, true> ArgGCSectionsFlag("gc-sections",
@@ -61,18 +60,26 @@ ArgGenUnwindInfoFlag("ld-generated-unwind-info",
                      llvm::cl::init(true),
                      llvm::cl::ValueDisallowed);
 
-llvm::cl::opt<mcld::OptimizationOptions::ICF> ArgICF("icf",
+llvm::cl::opt<mcld::GeneralOptions::ICF> ArgICF("icf",
   llvm::cl::ZeroOrMore,
   llvm::cl::desc("Identical Code Folding"),
-  llvm::cl::init(mcld::OptimizationOptions::ICF_None),
+  llvm::cl::init(mcld::GeneralOptions::ICF_None),
   llvm::cl::values(
-    clEnumValN(mcld::OptimizationOptions::ICF_None, "none",
+    clEnumValN(mcld::GeneralOptions::ICF_None, "none",
       "do not perform cold folding"),
-    clEnumValN(mcld::OptimizationOptions::ICF_All, "all",
+    clEnumValN(mcld::GeneralOptions::ICF_All, "all",
       "always preform cold folding"),
-    clEnumValN(mcld::OptimizationOptions::ICF_Safe, "safe",
+    clEnumValN(mcld::GeneralOptions::ICF_Safe, "safe",
       "Folds those whose pointers are definitely not taken."),
     clEnumValEnd));
+
+llvm::cl::opt<unsigned> ArgICFIterations("icf-iterations",
+  llvm::cl::desc("Number of iterations to do ICF."),
+  llvm::cl::init(2));
+
+llvm::cl::opt<bool> ArgPrintICFSections("print-icf-sections",
+  llvm::cl::desc("Print the folded identical sections."),
+  llvm::cl::init(false));
 
 llvm::cl::opt<char> ArgOptLevel("O",
   llvm::cl::desc("Optimization level. [-O0, -O1, -O2, or -O3] "
@@ -101,6 +108,8 @@ OptimizationOptions::OptimizationOptions()
     m_PrintGCSections(ArgPrintGCSections),
     m_GenUnwindInfo(ArgGenUnwindInfo),
     m_ICF(ArgICF),
+    m_ICFIterations(ArgICFIterations),
+    m_PrintICFSections(ArgPrintICFSections),
     m_OptLevel(ArgOptLevel),
     m_Plugin(ArgPlugin),
     m_PluginOpt(ArgPluginOpt) {
@@ -120,15 +129,9 @@ bool OptimizationOptions::parse(LinkerConfig& pConfig)
   pConfig.options().setGenUnwindInfo(m_GenUnwindInfo);
 
   // set --icf [mode]
-  switch (m_ICF) {
-    case ICF_None:
-      break;
-    case ICF_All:
-    case ICF_Safe:
-    default:
-      warning(mcld::diag::warn_unsupported_option) << m_ICF.ArgStr;
-      break;
-  }
+  pConfig.options().setICFMode(m_ICF);
+  pConfig.options().setICFIterations(m_ICFIterations);
+  pConfig.options().setPrintICFSections(m_PrintICFSections);
 
   return true;
 }

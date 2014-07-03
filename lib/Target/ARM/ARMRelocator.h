@@ -98,6 +98,11 @@ public:
                       LDSection& pSection,
                       Input& pInput);
 
+
+  /// mayHaveFunctionPointerAccess - check if the given reloc would possibly
+  /// access a function pointer.
+  virtual bool mayHaveFunctionPointerAccess(const Relocation& pReloc) const;
+
 private:
   void scanLocalReloc(Relocation& pReloc, const LDSection& pSection);
 

@@ -105,6 +105,9 @@ public:
   const FragmentRef* fragRef() const
   { return m_pFragRef; }
 
+  FragmentRef* fragRef()
+  { return m_pFragRef; }
+
   SizeType size() const
   { return m_pResolveInfo->size(); }
 

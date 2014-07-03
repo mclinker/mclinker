@@ -57,6 +57,9 @@ GeneralOptions::GeneralOptions()
     m_bGCSections(false),
     m_bPrintGCSections(false),
     m_bGenUnwindInfo(true),
+    m_bPrintICFSections(false),
+    m_ICF(ICF_None),
+    m_ICFIterations(0) ,
     m_GPSize(8),
     m_StripSymbols(KeepAllSymbols),
     m_HashStyle(SystemV) {

@@ -170,7 +170,10 @@ bool ELFObjectReader::readSections(Input& pInput)
                 fatal(diag::err_cannot_read_section) << (*section)->name();
             }
           } else {
-            (*section)->setKind(LDFileFormat::Regular);
+            if (((*section)->flag() & llvm::ELF::SHF_EXECINSTR) != 0)
+              (*section)->setKind(LDFileFormat::TEXT);
+            else
+              (*section)->setKind(LDFileFormat::DATA);
             SectionData* sd = IRBuilder::CreateSectionData(**section);
             if (!m_pELFReader->readRegularSection(pInput, *sd))
               fatal(diag::err_cannot_read_section) << (*section)->name();
@@ -199,7 +202,8 @@ bool ELFObjectReader::readSections(Input& pInput)
       // FIXME: support GCCExceptTable Kind
       case LDFileFormat::GCCExceptTable:
       /** Fall through **/
-      case LDFileFormat::Regular:
+      case LDFileFormat::TEXT:
+      case LDFileFormat::DATA:
       case LDFileFormat::Note:
       case LDFileFormat::MetaData: {
         SectionData* sd = IRBuilder::CreateSectionData(**section);

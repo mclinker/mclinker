@@ -41,12 +41,13 @@ bin_PROGRAMS = ld.mcld
 
 AM_CPPFLAGS = $(MCLD_CPPFLAGS)
 
-ld_mcld_LDFLAGS = $(LLVM_LDFLAGS)
+ld_mcld_LDFLAGS = $(top_builddir)/$(MCLD_DIR)/libmcld.a $(LLVM_LDFLAGS)
 if ENABLE_OPTIMIZED
 MCLD_DIR = optimized
 else
 MCLD_DIR = debug
 endif
-ld_mcld_LDADD = $(top_builddir)/$(MCLD_DIR)/libmcld.a
-
+#ld_mcld_LDADD = $(top_builddir)/$(MCLD_DIR)/libmcld.a
+MCLD = $(top_builddir)/$(MCLD_DIR)/libmcld.a
+$(bin_PROGRAMS): $(MCLD)
 dist_ld_mcld_SOURCES = $(MCLD_SOURCES)

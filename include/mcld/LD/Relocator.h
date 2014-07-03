@@ -115,6 +115,13 @@ public:
   /// getSize - get the size of a relocation in bit
   virtual Size getSize(Type pType) const = 0;
 
+  /// mayHaveFunctionPointerAccess - check if the given reloc would possibly
+  /// access a function pointer.
+  /// Note: Each target relocator should override this function, or be
+  /// conservative and return true to avoid getting folded.
+  virtual bool mayHaveFunctionPointerAccess(const Relocation& pReloc) const
+  { return true; }
+
 protected:
   const LinkerConfig& config() const { return m_Config; }
 

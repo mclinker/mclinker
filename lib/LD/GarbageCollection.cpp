@@ -64,7 +64,8 @@ static bool shouldKeep(const std::string& pName)
 /// shouldProcessGC - check if the section kind is handled in GC
 static bool mayProcessGC(const LDSection& pSection)
 {
-  if (pSection.kind() == LDFileFormat::Regular ||
+  if (pSection.kind() == LDFileFormat::TEXT ||
+      pSection.kind() == LDFileFormat::DATA ||
       pSection.kind() == LDFileFormat::BSS ||
       pSection.kind() == LDFileFormat::GCCExceptTable)
     return true;

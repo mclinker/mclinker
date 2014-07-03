@@ -8,6 +8,7 @@
 //===----------------------------------------------------------------------===//
 #ifndef MCLD_LDLITE_OPTIMIZATION_OPTIONS_H
 #define MCLD_LDLITE_OPTIMIZATION_OPTIONS_H
+#include <mcld/GeneralOptions.h>
 #include <llvm/Support/CommandLine.h>
 #include <string>
 
@@ -18,13 +19,6 @@ class LinkerConfig;
 class OptimizationOptions
 {
 public:
-  enum ICF {
-    ICF_None,
-    ICF_All,
-    ICF_Safe
-  };
-
-public:
   OptimizationOptions();
 
   bool parse(LinkerConfig& pConfig);
@@ -33,7 +27,9 @@ private:
   bool& m_GCSections;
   bool& m_PrintGCSections;
   bool& m_GenUnwindInfo;
-  llvm::cl::opt<ICF>& m_ICF;
+  llvm::cl::opt<mcld::GeneralOptions::ICF>& m_ICF;
+  llvm::cl::opt<unsigned>& m_ICFIterations;
+  llvm::cl::opt<bool>& m_PrintICFSections;
   llvm::cl::opt<char>& m_OptLevel;
   llvm::cl::list<std::string>& m_Plugin;
   llvm::cl::list<std::string>& m_PluginOpt;

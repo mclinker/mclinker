@@ -47,6 +47,7 @@ public:
   void initTargetSymbols(IRBuilder& pBuilder, Module& pModule);
 
   /// getRelocator - return relocator.
+  const Relocator* getRelocator() const;
   Relocator* getRelocator();
 
   /// preLayout - Backend can do any needed modification before layout

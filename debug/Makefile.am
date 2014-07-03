@@ -63,6 +63,7 @@ SOURCE = $(LIBDIR)/ADT/StringEntry.cpp \
 	$(LIBDIR)/LD/GarbageCollection.cpp \
 	$(LIBDIR)/LD/GNUArchiveReader.cpp \
 	$(LIBDIR)/LD/GroupReader.cpp \
+	$(LIBDIR)/LD/IdenticalCodeFolding.cpp \
 	$(LIBDIR)/LD/LDContext.cpp \
 	$(LIBDIR)/LD/LDFileFormat.cpp \
 	$(LIBDIR)/LD/LDReader.cpp \

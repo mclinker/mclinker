@@ -52,7 +52,7 @@ bool ELFBinaryReader::readBinary(Input& pInput)
   LDSection* data_sect =
     m_Builder.CreateELFHeader(pInput,
                               ".data",
-                              LDFileFormat::Regular,
+                              LDFileFormat::DATA,
                               llvm::ELF::SHF_WRITE | llvm::ELF::SHF_ALLOC,
                               0x1);
 

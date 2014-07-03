@@ -460,6 +460,29 @@ void ARMRelocator::checkValidReloc(Relocation& pReloc) const
   }
 }
 
+bool ARMRelocator::mayHaveFunctionPointerAccess(const Relocation& pReloc) const
+{
+  switch (pReloc.type()) {
+    case llvm::ELF::R_ARM_PC24:
+    case llvm::ELF::R_ARM_THM_CALL:
+    case llvm::ELF::R_ARM_PLT32:
+    case llvm::ELF::R_ARM_CALL:
+    case llvm::ELF::R_ARM_JUMP24:
+    case llvm::ELF::R_ARM_THM_JUMP24:
+    case llvm::ELF::R_ARM_SBREL31:
+    case llvm::ELF::R_ARM_PREL31:
+    case llvm::ELF::R_ARM_THM_JUMP19:
+    case llvm::ELF::R_ARM_THM_JUMP6:
+    case llvm::ELF::R_ARM_THM_JUMP11:
+    case llvm::ELF::R_ARM_THM_JUMP8: {
+      return false;
+    }
+    default: {
+      return true;
+    }
+  }
+}
+
 void
 ARMRelocator::scanLocalReloc(Relocation& pReloc, const LDSection& pSection)
 {

@@ -46,7 +46,7 @@ SectionMap::Input::Input(const std::string& pName,
     WildcardPattern::create(pName, WildcardPattern::SORT_NONE));
   m_Spec.m_pWildcardSections = sections;
 
-  m_pSection = LDSection::Create(pName, LDFileFormat::Regular, 0, 0);
+  m_pSection = LDSection::Create(pName, LDFileFormat::TEXT, 0, 0);
   SectionData* sd = SectionData::Create(*m_pSection);
   m_pSection->setSectionData(sd);
   new NullFragment(sd);
@@ -59,7 +59,7 @@ SectionMap::Input::Input(const InputSectDesc& pInputDesc)
   m_Spec.m_pWildcardFile = pInputDesc.spec().m_pWildcardFile;
   m_Spec.m_pExcludeFiles = pInputDesc.spec().m_pExcludeFiles;
   m_Spec.m_pWildcardSections = pInputDesc.spec().m_pWildcardSections;
-  m_pSection = LDSection::Create("", LDFileFormat::Regular, 0, 0);
+  m_pSection = LDSection::Create("", LDFileFormat::TEXT, 0, 0);
   SectionData* sd = SectionData::Create(*m_pSection);
   m_pSection->setSectionData(sd);
   new NullFragment(sd);
@@ -85,7 +85,7 @@ SectionMap::Output::Output(const std::string& pName)
   m_Epilog.m_pPhdrs = NULL;
   m_Epilog.m_pFillExp = NULL;
 
-  m_pSection = LDSection::Create(pName, LDFileFormat::Regular, 0, 0);
+  m_pSection = LDSection::Create(pName, LDFileFormat::TEXT, 0, 0);
   SectionData* sd = SectionData::Create(*m_pSection);
   m_pSection->setSectionData(sd);
 
@@ -98,7 +98,7 @@ SectionMap::Output::Output(const OutputSectDesc& pOutputDesc)
     m_Epilog(pOutputDesc.epilog()),
     m_Order(UINT_MAX)
 {
-  m_pSection = LDSection::Create(m_Name, LDFileFormat::Regular, 0, 0);
+  m_pSection = LDSection::Create(m_Name, LDFileFormat::TEXT, 0, 0);
   SectionData* sd = SectionData::Create(*m_pSection);
   m_pSection->setSectionData(sd);
 

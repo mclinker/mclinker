@@ -323,6 +323,23 @@ Relocator::Size X86_32Relocator::getSize(Relocation::Type pType) const
   return X86_32ApplyFunctions[pType].size;;
 }
 
+bool
+X86_32Relocator::mayHaveFunctionPointerAccess(const Relocation& pReloc) const
+{
+  switch (pReloc.type()) {
+    case llvm::ELF::R_386_32:
+    case llvm::ELF::R_386_16:
+    case llvm::ELF::R_386_8:
+    case llvm::ELF::R_386_GOTOFF:
+    case llvm::ELF::R_386_GOT32: {
+      return true;
+    }
+    default: {
+      return false;
+    }
+  }
+}
+
 void X86_32Relocator::scanLocalReloc(Relocation& pReloc,
                                      IRBuilder& pBuilder,
                                      Module& pModule,
@@ -1295,6 +1312,40 @@ const char* X86_64Relocator::getName(Relocation::Type pType) const
 Relocator::Size X86_64Relocator::getSize(Relocation::Type pType) const
 {
   return X86_64ApplyFunctions[pType].size;
+}
+
+bool
+X86_64Relocator::mayHaveFunctionPointerAccess(const Relocation& pReloc) const
+{
+  bool possible_funcptr_reloc = false;
+  switch (pReloc.type()) {
+    case llvm::ELF::R_X86_64_64:
+    case llvm::ELF::R_X86_64_32:
+    case llvm::ELF::R_X86_64_32S:
+    case llvm::ELF::R_X86_64_16:
+    case llvm::ELF::R_X86_64_8:
+    case llvm::ELF::R_X86_64_GOT64:
+    case llvm::ELF::R_X86_64_GOT32:
+    case llvm::ELF::R_X86_64_GOTPCREL64:
+    case llvm::ELF::R_X86_64_GOTPCREL:
+    case llvm::ELF::R_X86_64_GOTPLT64: {
+      possible_funcptr_reloc = true;
+      break;
+    }
+    default: {
+      possible_funcptr_reloc = false;
+      break;
+    }
+  }
+
+ if (pReloc.symInfo()->isGlobal()) {
+    return (config().codeGenType() == LinkerConfig::DynObj) &&
+           ((pReloc.symInfo()->visibility() != ResolveInfo::Default) ||
+            possible_funcptr_reloc);
+ } else {
+    return (config().codeGenType() == LinkerConfig::DynObj) ||
+           possible_funcptr_reloc;
+ }
 }
 
 void X86_64Relocator::scanLocalReloc(Relocation& pReloc,

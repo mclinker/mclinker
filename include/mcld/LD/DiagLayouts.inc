@@ -4,3 +4,5 @@ DIAG(err_section_not_laid_out, DiagnosticEngine::Unreachable, "section %0 has no
 DIAG(warn_duplicate_std_sectmap, DiagnosticEngine::Warning, "Duplicated definition of section map \"from %0 to %0\".", "Duplicated definition of section map \"from %0 to %0\".")
 DIAG(warn_rules_check_failed, DiagnosticEngine::Warning, "Illegal section mapping rule: %0 -> %1. (conflict with %2 -> %3)", "Illegal section mapping rule: %0 -> %1. (conflict with %2 -> %3)")
 DIAG(err_cannot_merge_section, DiagnosticEngine::Error, "Cannot merge section %0 of %1", "Cannot merge section %0 of %1")
+DIAG(debug_icf_iterations, DiagnosticEngine::Debug, "ICF converged after `%0' iteration(s).", "ICF converged after `%0' iteration(s).")
+DIAG(debug_icf_folded_section, DiagnosticEngine::Debug, "ICF folding section `%0' of `%1' into `%2' of `%3'", "ICF folding section `%0' of `%1' into `%2' of `%3'")

@@ -152,6 +152,12 @@ bool AArch64GNULDBackend::initRelocator()
   return true;
 }
 
+const Relocator* AArch64GNULDBackend::getRelocator() const
+{
+  assert(NULL != m_pRelocator);
+  return m_pRelocator;
+}
+
 Relocator* AArch64GNULDBackend::getRelocator()
 {
   assert(NULL != m_pRelocator);

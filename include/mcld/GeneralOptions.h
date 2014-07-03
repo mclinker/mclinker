@@ -40,6 +40,12 @@ public:
     Both    = 0x3
   };
 
+  enum ICF {
+    ICF_None,
+    ICF_All,
+    ICF_Safe
+  };
+
   typedef std::vector<std::string> RpathList;
   typedef RpathList::iterator rpath_iterator;
   typedef RpathList::const_iterator const_rpath_iterator;
@@ -317,6 +323,21 @@ public:
   void setHashStyle(unsigned int pStyle)
   { m_HashStyle = pStyle; }
 
+  ICF getICFMode() const { return m_ICF; }
+
+  void setICFMode(ICF pMode)
+  { m_ICF = pMode; }
+
+  size_t getICFIterations() const { return m_ICFIterations; }
+
+  void setICFIterations(size_t pNum)
+  { m_ICFIterations = pNum; }
+
+  bool printICFSections() const { return m_bPrintICFSections; }
+
+  void setPrintICFSections(bool pPrintICFSections)
+  { m_bPrintICFSections = pPrintICFSections; }
+
   // -----  link-in rpath  ----- //
   const RpathList& getRpathList() const { return m_RpathList; }
   RpathList&       getRpathList()       { return m_RpathList; }
@@ -426,6 +447,9 @@ private:
   bool m_bGCSections: 1; // --gc-sections
   bool m_bPrintGCSections:1; // --print-gc-sections
   bool m_bGenUnwindInfo: 1; // --ld-generated-unwind-info
+  bool m_bPrintICFSections: 1; // --print-icf-sections
+  ICF m_ICF;
+  size_t m_ICFIterations;
   uint32_t m_GPSize; // -G, --gpsize
   StripSymbolMode m_StripSymbols;
   RpathList m_RpathList;

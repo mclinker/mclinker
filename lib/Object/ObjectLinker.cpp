@@ -22,6 +22,7 @@
 #include <mcld/LD/GroupReader.h>
 #include <mcld/LD/BinaryReader.h>
 #include <mcld/LD/GarbageCollection.h>
+#include <mcld/LD/IdenticalCodeFolding.h>
 #include <mcld/LD/ObjectWriter.h>
 #include <mcld/LD/ResolveInfo.h>
 #include <mcld/LD/RelocData.h>
@@ -270,6 +271,12 @@ void ObjectLinker::dataStrippingOpt()
     GarbageCollection GC(m_Config, m_LDBackend, *m_pModule);
     GC.run();
   }
+
+  // Identical code folding
+  if (m_Config.options().getICFMode() != GeneralOptions::ICF_None) {
+    IdenticalCodeFolding icf(m_Config, m_LDBackend, *m_pModule);
+    icf.foldIdenticalCode();
+  }
   return;
 }
 
@@ -301,6 +308,7 @@ bool ObjectLinker::mergeSections()
     for (sect = (*obj)->context()->sectBegin(); sect != sectEnd; ++sect) {
       switch ((*sect)->kind()) {
         // Some *INPUT sections should not be merged.
+        case LDFileFormat::Folded:
         case LDFileFormat::Ignore:
         case LDFileFormat::Null:
         case LDFileFormat::NamePool:
@@ -312,7 +320,8 @@ bool ObjectLinker::mergeSections()
           if (!(*sect)->hasRelocData())
             continue; // skip
 
-          if ((*sect)->getLink()->kind() == LDFileFormat::Ignore)
+          if ((*sect)->getLink()->kind() == LDFileFormat::Ignore ||
+              (*sect)->getLink()->kind() == LDFileFormat::Folded)
             (*sect)->setKind(LDFileFormat::Ignore);
           break;
         }

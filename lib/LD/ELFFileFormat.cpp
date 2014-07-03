@@ -67,7 +67,7 @@ ELFFileFormat::ELFFileFormat()
 void ELFFileFormat::initStdSections(ObjectBuilder& pBuilder, unsigned int pBitClass)
 {
   f_pTextSection     = pBuilder.CreateSection(".text",
-                                              LDFileFormat::Regular,
+                                              LDFileFormat::TEXT,
                                               llvm::ELF::SHT_PROGBITS,
                                               llvm::ELF::SHF_ALLOC | llvm::ELF::SHF_EXECINSTR,
                                               0x1);
@@ -76,7 +76,7 @@ void ELFFileFormat::initStdSections(ObjectBuilder& pBuilder, unsigned int pBitCl
                                               llvm::ELF::SHT_NULL,
                                               0x0);
   f_pReadOnlySection = pBuilder.CreateSection(".rodata",
-                                              LDFileFormat::Regular,
+                                              LDFileFormat::TEXT,
                                               llvm::ELF::SHT_PROGBITS,
                                               llvm::ELF::SHF_ALLOC,
                                               0x1);
@@ -92,12 +92,12 @@ void ELFFileFormat::initStdSections(ObjectBuilder& pBuilder, unsigned int pBitCl
                                               0x0,
                                               0x1);
   f_pDataSection     = pBuilder.CreateSection(".data",
-                                              LDFileFormat::Regular,
+                                              LDFileFormat::DATA,
                                               llvm::ELF::SHT_PROGBITS,
                                               llvm::ELF::SHF_ALLOC | llvm::ELF::SHF_WRITE,
                                               0x1);
   f_pData1           = pBuilder.CreateSection(".data1",
-                                              LDFileFormat::Regular,
+                                              LDFileFormat::DATA,
                                               llvm::ELF::SHT_PROGBITS,
                                               llvm::ELF::SHF_ALLOC | llvm::ELF::SHF_WRITE,
                                               0x1);
@@ -107,22 +107,22 @@ void ELFFileFormat::initStdSections(ObjectBuilder& pBuilder, unsigned int pBitCl
                                               0x0,
                                               0x1);
   f_pInit            = pBuilder.CreateSection(".init",
-                                              LDFileFormat::Regular,
+                                              LDFileFormat::TEXT,
                                               llvm::ELF::SHT_PROGBITS,
                                               llvm::ELF::SHF_ALLOC | llvm::ELF::SHF_EXECINSTR,
                                               0x1);
   f_pInitArray       = pBuilder.CreateSection(".init_array",
-                                              LDFileFormat::Regular,
+                                              LDFileFormat::DATA,
                                               llvm::ELF::SHT_INIT_ARRAY,
                                               llvm::ELF::SHF_ALLOC | llvm::ELF::SHF_WRITE,
                                               0x1);
   f_pFini            = pBuilder.CreateSection(".fini",
-                                              LDFileFormat::Regular,
+                                              LDFileFormat::TEXT,
                                               llvm::ELF::SHT_PROGBITS,
                                               llvm::ELF::SHF_ALLOC | llvm::ELF::SHF_EXECINSTR,
                                               0x1);
   f_pFiniArray       = pBuilder.CreateSection(".fini_array",
-                                              LDFileFormat::Regular,
+                                              LDFileFormat::DATA,
                                               llvm::ELF::SHT_FINI_ARRAY,
                                               llvm::ELF::SHF_ALLOC | llvm::ELF::SHF_WRITE,
                                               0x1);
@@ -132,14 +132,14 @@ void ELFFileFormat::initStdSections(ObjectBuilder& pBuilder, unsigned int pBitCl
                                               0x0,
                                               0x1);
   f_pPreInitArray    = pBuilder.CreateSection(".preinit_array",
-                                              LDFileFormat::Regular,
+                                              LDFileFormat::DATA,
                                               llvm::ELF::SHT_PREINIT_ARRAY,
                                               llvm::ELF::SHF_ALLOC | llvm::ELF::SHF_WRITE,
                                               0x1);
   // the definition of SHF_XXX attributes of rodata in Linux Standard Base
   // conflicts with System V standard. We follow System V standard.
   f_pROData1         = pBuilder.CreateSection(".rodata1",
-                                              LDFileFormat::Regular,
+                                              LDFileFormat::TEXT,
                                               llvm::ELF::SHT_PROGBITS,
                                               llvm::ELF::SHF_ALLOC,
                                               0x1);
@@ -170,7 +170,7 @@ void ELFFileFormat::initStdSections(ObjectBuilder& pBuilder, unsigned int pBitCl
                                               llvm::ELF::SHF_TLS,
                                               0x1);
   f_pTData           = pBuilder.CreateSection(".tdata",
-                                              LDFileFormat::Regular,
+                                              LDFileFormat::DATA,
                                               llvm::ELF::SHT_PROGBITS,
                                               llvm::ELF::SHF_ALLOC |
                                               llvm::ELF::SHF_WRITE |
@@ -179,17 +179,17 @@ void ELFFileFormat::initStdSections(ObjectBuilder& pBuilder, unsigned int pBitCl
 
   /// @ref 10.3.1.2, ISO/IEC 23360, Part 1:2010(E), p. 24.
   f_pCtors           = pBuilder.CreateSection(".ctors",
-                                              LDFileFormat::Regular,
+                                              LDFileFormat::DATA,
                                               llvm::ELF::SHT_PROGBITS,
                                               llvm::ELF::SHF_ALLOC | llvm::ELF::SHF_WRITE,
                                               0x1);
   f_pDataRelRo       = pBuilder.CreateSection(".data.rel.ro",
-                                              LDFileFormat::Regular,
+                                              LDFileFormat::DATA,
                                               llvm::ELF::SHT_PROGBITS,
                                               llvm::ELF::SHF_ALLOC | llvm::ELF::SHF_WRITE,
                                               0x1);
   f_pDtors           = pBuilder.CreateSection(".dtors",
-                                              LDFileFormat::Regular,
+                                              LDFileFormat::DATA,
                                               llvm::ELF::SHT_PROGBITS,
                                               llvm::ELF::SHF_ALLOC | llvm::ELF::SHF_WRITE,
                                               0x1);
@@ -219,7 +219,7 @@ void ELFFileFormat::initStdSections(ObjectBuilder& pBuilder, unsigned int pBitCl
                                               llvm::ELF::SHF_ALLOC,
                                               0x1);
   f_pJCR             = pBuilder.CreateSection(".jcr",
-                                              LDFileFormat::Regular,
+                                              LDFileFormat::DATA,
                                               llvm::ELF::SHT_PROGBITS,
                                               llvm::ELF::SHF_ALLOC | llvm::ELF::SHF_WRITE,
                                               0x1);
@@ -241,7 +241,7 @@ void ELFFileFormat::initStdSections(ObjectBuilder& pBuilder, unsigned int pBitCl
 
   /// @ref GCC convention, see http://www.airs.com/blog/archives/189
   f_pDataRelRoLocal  = pBuilder.CreateSection(".data.rel.ro.local",
-                                              LDFileFormat::Regular,
+                                              LDFileFormat::DATA,
                                               llvm::ELF::SHT_PROGBITS,
                                               llvm::ELF::SHF_ALLOC | llvm::ELF::SHF_WRITE,
                                               0x1);
