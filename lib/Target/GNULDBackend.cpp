@@ -3030,7 +3030,8 @@ void GNULDBackend::sortRelocation(LDSection& pSection)
 bool GNULDBackend::initBRIslandFactory()
 {
   if (NULL == m_pBRIslandFactory) {
-    m_pBRIslandFactory = new BranchIslandFactory(maxBranchOffset());
+    m_pBRIslandFactory = new BranchIslandFactory(maxFwdBranchOffset(),
+                                                 maxBwdBranchOffset());
   }
   return true;
 }

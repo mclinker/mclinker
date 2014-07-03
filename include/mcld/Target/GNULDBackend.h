@@ -19,6 +19,8 @@
 
 #include <llvm/Support/ELF.h>
 
+#include <cstdint>
+
 namespace mcld {
 
 class Module;
@@ -309,9 +311,13 @@ public:
   /// getStubFactory
   StubFactory*         getStubFactory()     { return m_pStubFactory; }
 
-  /// maxBranchOffset - return the max (forward) branch offset of the backend.
+  /// maxFwdBranchOffset - return the max forward branch offset of the backend.
   /// Target can override this function if needed.
-  virtual uint64_t maxBranchOffset() { return (uint64_t)-1; }
+  virtual int64_t maxFwdBranchOffset() { return INT64_MAX; }
+
+  /// maxBwdBranchOffset - return the max backward branch offset of the backend.
+  /// Target can override this function if needed.
+  virtual int64_t maxBwdBranchOffset() { return 0; }
 
   /// checkAndSetHasTextRel - check pSection flag to set HasTextRel
   void checkAndSetHasTextRel(const LDSection& pSection);

@@ -163,7 +163,8 @@ private:
   /// target-dependent segments
   void doCreateProgramHdrs(Module& pModule);
 
-  uint64_t maxBranchOffset() { return ~(~0 << 6); }
+  /// maxFwdBranchOffset
+  int64_t maxFwdBranchOffset() { return ~(~0 << 6); }
 
   virtual void setGOTSectionSize(IRBuilder& pBuilder);
 

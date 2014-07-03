@@ -42,67 +42,78 @@ Stub* StubFactory::create(Relocation& pReloc,
                           BranchIslandFactory& pBRIslandFactory)
 {
   // find if there is a prototype stub for the input relocation
-  Stub* prototype = findPrototype(pReloc,
-                                  pReloc.place(),
-                                  pTargetSymValue);
-  if (NULL != prototype) {
-    // find the island for the input relocation
-    BranchIsland* island = pBRIslandFactory.find(*(pReloc.targetRef().frag()));
-    if (NULL == island) {
+  Stub* stub = NULL;
+  Stub* prototype = findPrototype(pReloc, pReloc.place(), pTargetSymValue);
+  if (prototype != NULL) {
+    const Fragment* frag = pReloc.targetRef().frag();
+    // find the islands for the input relocation
+    std::pair<BranchIsland*, BranchIsland*> islands =
+        pBRIslandFactory.getIslands(*frag);
+    if (islands.first == NULL) {
+      // early exit if we can not find the forward island.
       return NULL;
     }
 
-    // find if there is such a stub in the island already
-    Stub* stub = island->findStub(prototype, pReloc);
-    if (NULL != stub) {
+    // find if there is such a stub in the backward island first.
+    if (islands.second != NULL) {
+      stub = islands.second->findStub(prototype, pReloc);
+    }
+
+    if (stub != NULL) {
       // reset the branch target to the stub instead!
       pReloc.setSymInfo(stub->symInfo());
-    }
-    else {
-      // create a stub from the prototype
-      stub = prototype->clone();
+    } else {
+      // find if there is such a stub in the forward island.
+      stub = islands.first->findStub(prototype, pReloc);
+      if (stub != NULL) {
+        // reset the branch target to the stub instead!
+        pReloc.setSymInfo(stub->symInfo());
+      } else {
+        // create a stub from the prototype
+        stub = prototype->clone();
 
-      // build a name for stub symbol
-      std::string name("__");
-      name.append(pReloc.symInfo()->name());
-      name.append("_");
-      name.append(stub->name());
-      name.append("@");
-      name.append(island->name());
+        // build a name for stub symbol
+        std::string name("__");
+        name.append(pReloc.symInfo()->name())
+            .append("_")
+            .append(stub->name())
+            .append("@")
+            .append(islands.first->name());
 
-      // create LDSymbol for the stub
-      LDSymbol* symbol =
-        pBuilder.AddSymbol<IRBuilder::Force, IRBuilder::Unresolve>(
-                               name,
-                               ResolveInfo::Function,
-                               ResolveInfo::Define,
-                               ResolveInfo::Local,
-                               stub->size(), // size
-                               stub->initSymValue(), // value
-                               FragmentRef::Create(*stub, stub->initSymValue()),
-                               ResolveInfo::Default);
-      stub->setSymInfo(symbol->resolveInfo());
+        // create LDSymbol for the stub
+        LDSymbol* symbol =
+            pBuilder.AddSymbol<IRBuilder::Force, IRBuilder::Unresolve>(
+                name,
+                ResolveInfo::Function,
+                ResolveInfo::Define,
+                ResolveInfo::Local,
+                stub->size(), // size
+                stub->initSymValue(), // value
+                FragmentRef::Create(*stub, stub->initSymValue()),
+                ResolveInfo::Default);
+        stub->setSymInfo(symbol->resolveInfo());
 
-      // add relocations of this stub (i.e., set the branch target of the stub)
-      for (Stub::fixup_iterator it = stub->fixup_begin(),
+        // add relocations of this stub (i.e., set the branch target of the stub)
+        for (Stub::fixup_iterator it = stub->fixup_begin(),
              ie = stub->fixup_end(); it != ie; ++it) {
 
-        Relocation* reloc = Relocation::Create((*it)->type(),
+          Relocation* reloc =
+              Relocation::Create((*it)->type(),
                                  *(FragmentRef::Create(*stub, (*it)->offset())),
                                  (*it)->addend());
-        reloc->setSymInfo(pReloc.symInfo());
-        island->addRelocation(*reloc);
+          reloc->setSymInfo(pReloc.symInfo());
+          islands.first->addRelocation(*reloc);
+        }
+
+        // add stub to the forward branch island
+        islands.first->addStub(prototype, pReloc, *stub);
+
+        // reset the branch target of the input reloc to this stub instead!
+        pReloc.setSymInfo(stub->symInfo());
       }
-
-      // add stub to the branch island
-      island->addStub(prototype, pReloc, *stub);
-
-      // reset the branch target of the input reloc to this stub instead!
-      pReloc.setSymInfo(stub->symInfo());
-      return stub;
     }
   }
-  return NULL;
+  return stub;
 }
 
 /// findPrototype - find if there is a registered stub prototype for the given

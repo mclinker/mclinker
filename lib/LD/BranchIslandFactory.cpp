@@ -19,14 +19,16 @@ using namespace mcld;
 //===----------------------------------------------------------------------===//
 
 /// ctor
-/// @param pMaxBranchRange - the max branch range of the target backend
-/// @param pMaxIslandSize - a predifned value (1KB here) to decide the max
-///                         size of the island
-BranchIslandFactory::BranchIslandFactory(uint64_t pMaxBranchRange,
-                                         uint64_t pMaxIslandSize)
- : GCFactory<BranchIsland, 0>(1u), // magic number
-   m_MaxBranchRange(pMaxBranchRange - pMaxIslandSize),
-   m_MaxIslandSize(pMaxIslandSize)
+/// @param pMaxFwdBranchRange - the max forward branch range of the target
+/// @param pMaxBwdBranchRange - the max backward branch range of the target
+/// @param pMaxIslandSize - the predefined value for the max size of a island
+BranchIslandFactory::BranchIslandFactory(int64_t pMaxFwdBranchRange,
+                                         int64_t pMaxBwdBranchRange,
+                                         size_t pMaxIslandSize)
+    : GCFactory<BranchIsland, 0>(1u), // magic number
+      m_MaxFwdBranchRange(pMaxFwdBranchRange - pMaxIslandSize),
+      m_MaxBwdBranchRange(pMaxBwdBranchRange + pMaxIslandSize),
+      m_MaxIslandSize(pMaxIslandSize)
 {
 }
 
@@ -38,11 +40,11 @@ BranchIslandFactory::~BranchIslandFactory()
 /// @param pSectionData - the SectionData holds fragments need to be grouped
 void BranchIslandFactory::group(Module& pModule)
 {
-  /* Currently only support relaxing .text section! */
+  /* FIXME: Currently only support relaxing .text section! */
   LDSection* text = pModule.getSection(".text");
   if (text != NULL && text->hasSectionData()) {
     SectionData& sd = *text->getSectionData();
-    uint64_t group_end = m_MaxBranchRange - m_MaxIslandSize;
+    uint64_t group_end = m_MaxFwdBranchRange;
     for (SectionData::iterator it = sd.begin(), ie = sd.end(); it != ie; ++it) {
       if ((*it).getOffset() + (*it).size() > group_end) {
         Fragment* frag = (*it).getPrevNode();
@@ -51,11 +53,11 @@ void BranchIslandFactory::group(Module& pModule)
         }
         if (frag != NULL) {
           produce(*frag);
-          group_end = (*it).getOffset() + m_MaxBranchRange - m_MaxIslandSize;
+          group_end = (*it).getOffset() + m_MaxFwdBranchRange;
         }
       }
     }
-    if (find(sd.back()) == NULL)
+    if (getIslands(sd.back()).first == NULL)
       produce(sd.back());
   }
 }
@@ -71,17 +73,29 @@ BranchIsland* BranchIslandFactory::produce(Fragment& pFragment)
   return island;
 }
 
-/// find - find a island for the given fragment
-/// @param pFragment - the fragment needs a branch isladn
-BranchIsland* BranchIslandFactory::find(const Fragment& pFragment)
+/// getIsland - find fwd and bwd islands for the fragment
+/// @param pFragment - the fragment needs a branch island
+std::pair<BranchIsland*, BranchIsland*>
+BranchIslandFactory::getIslands(const Fragment& pFragment)
 {
-  // Currently we always find the island in a forward direction.
-  // TODO: If we can search backward, then we may reduce the number of stubs.
-  for (iterator it = begin(), ie = end(); it != ie; ++it) {
+  BranchIsland* fwd = NULL;
+  BranchIsland* bwd = NULL;
+  for (iterator it = begin(), ie = end(), prev = ie; it != ie;
+       prev = it, ++it) {
     if ((pFragment.getOffset() < (*it).offset()) &&
-        ((pFragment.getOffset() + m_MaxBranchRange) >= (*it).offset()))
-      return &(*it);
-  }
-  return NULL;
-}
+        ((pFragment.getOffset() + m_MaxFwdBranchRange) >= (*it).offset())) {
 
+      fwd = &*it;
+
+      if (prev != ie) {
+        int64_t bwd_off = (int64_t)pFragment.getOffset() + m_MaxBwdBranchRange;
+        if ((pFragment.getOffset() > (*prev).offset()) &&
+            (bwd_off <= (*prev).offset())) {
+          bwd = &*prev;
+        }
+      }
+      break;
+    }
+  }
+  return std::make_pair(fwd, bwd);
+}

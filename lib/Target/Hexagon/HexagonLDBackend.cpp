@@ -559,7 +559,9 @@ bool HexagonLDBackend::initTargetStubs()
 bool HexagonLDBackend::initBRIslandFactory()
 {
   if (NULL == m_pBRIslandFactory) {
-    m_pBRIslandFactory = new BranchIslandFactory(maxBranchOffset(), 0);
+    m_pBRIslandFactory = new BranchIslandFactory(maxFwdBranchOffset(),
+                                                 maxBwdBranchOffset(),
+                                                 0);
   }
   return true;
 }
