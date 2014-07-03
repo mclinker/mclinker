@@ -52,4 +52,5 @@ add_mcld_library(MCLDLD
 
 target_link_libraries(MCLDLD
   MCLDFragment
+  MCLDSupport
   )
