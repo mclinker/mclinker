@@ -1073,3 +1073,21 @@ size_t ARMELFAttributeData::emit(char *pBuf) const {
 
   return (buffer - pBuf);
 }
+
+bool ARMELFAttributeData::usingThumb() const
+{
+  int arch = m_Attrs[Tag_CPU_arch].getIntValue();
+  if ((arch == CPU_Arch_ARM_V6_M) || (arch == CPU_Arch_ARM_V6S_M))
+    return true;
+  if ((arch != CPU_Arch_ARM_V7) && (arch != CPU_Arch_ARM_V7E_M))
+    return false;
+
+  arch = m_Attrs[Tag_CPU_arch_profile].getIntValue();
+  return arch == Arch_Profile_Microcontroller;
+}
+
+bool ARMELFAttributeData::usingThumb2() const
+{
+  int arch = m_Attrs[Tag_CPU_arch].getIntValue();
+  return (arch == CPU_Arch_ARM_V6T2) || (arch == CPU_Arch_ARM_V7);
+}

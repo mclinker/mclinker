@@ -34,7 +34,7 @@ const uint32_t ARMToTHMStub::TEMPLATE[] = {
 };
 
 ARMToTHMStub::ARMToTHMStub(bool pIsOutputPIC)
- : Stub(), m_Name("A2T_prototype"), m_pData(NULL), m_Size(0x0)
+ : m_pData(NULL), m_Name("A2T_prototype"), m_Size(0x0)
 {
   if (pIsOutputPIC) {
     m_pData = PIC_TEMPLATE;
@@ -53,7 +53,7 @@ ARMToTHMStub::ARMToTHMStub(const uint32_t* pData,
                            size_t pSize,
                            const_fixup_iterator pBegin,
                            const_fixup_iterator pEnd)
- : Stub(), m_Name("A2T_veneer"), m_pData(pData), m_Size(pSize)
+ : m_pData(pData), m_Name("A2T_veneer"), m_Size(pSize)
 {
   for (const_fixup_iterator it = pBegin, ie = pEnd; it != ie; ++it)
     addFixup(**it);
@@ -121,4 +121,3 @@ Stub* ARMToTHMStub::doClone()
 {
   return new ARMToTHMStub(m_pData, m_Size, fixup_begin(), fixup_end());
 }
-

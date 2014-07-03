@@ -180,6 +180,10 @@ public:
 
   virtual size_t emit(char *pBuf) const;
 
+  virtual bool usingThumb() const;
+
+  virtual bool usingThumb2() const;
+
 private:
   /// GetAttributeValueType - obtain the value type of the indicated tag.
   static unsigned int GetAttributeValueType(TagType pTag);

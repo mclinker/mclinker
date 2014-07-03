@@ -61,10 +61,10 @@ private:
   Stub* doClone();
 
 private:
-  std::string m_Name;
   static const uint32_t PIC_TEMPLATE[];
   static const uint32_t TEMPLATE[];
   const uint32_t* m_pData;
+  std::string m_Name;
   size_t m_Size;
 };
 

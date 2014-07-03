@@ -724,11 +724,33 @@ bool ARMGNULDBackend::initTargetStubs()
   if (NULL != getStubFactory()) {
     getStubFactory()->addPrototype(new ARMToARMStub(config().isCodeIndep()));
     getStubFactory()->addPrototype(new ARMToTHMStub(config().isCodeIndep()));
-    getStubFactory()->addPrototype(new THMToTHMStub(config().isCodeIndep()));
-    getStubFactory()->addPrototype(new THMToARMStub(config().isCodeIndep()));
+    getStubFactory()->addPrototype(
+        new THMToTHMStub(config().isCodeIndep(), m_pAttrData->usingThumb2()));
+    getStubFactory()->addPrototype(
+        new THMToARMStub(config().isCodeIndep(), m_pAttrData->usingThumb2()));
     return true;
   }
   return false;
+}
+
+/// maxFwdBranchOffset
+int64_t ARMGNULDBackend::maxFwdBranchOffset()
+{
+  if (m_pAttrData->usingThumb2()) {
+    return THM2_MAX_FWD_BRANCH_OFFSET;
+  } else {
+    return THM_MAX_FWD_BRANCH_OFFSET;
+  }
+}
+
+/// maxBwdBranchOffset
+int64_t ARMGNULDBackend::maxBwdBranchOffset()
+{
+  if (m_pAttrData->usingThumb2()) {
+    return THM2_MAX_BWD_BRANCH_OFFSET;
+  } else {
+    return THM_MAX_BWD_BRANCH_OFFSET;
+  }
 }
 
 /// doCreateProgramHdrs - backend can implement this function to create the

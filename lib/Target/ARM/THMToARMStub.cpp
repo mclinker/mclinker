@@ -33,15 +33,17 @@ const uint32_t THMToARMStub::TEMPLATE[] = {
   0x0         // dcd   R_ARM_ABS32(X)
 };
 
-THMToARMStub::THMToARMStub(bool pIsOutputPIC)
- : Stub(), m_Name("T2A_prototype"), m_pData(NULL), m_Size(0x0)
+THMToARMStub::THMToARMStub(bool pIsOutputPIC, bool pUsingThumb2)
+ : m_pData(NULL),
+   m_Name("T2A_prototype"),
+   m_Size(0x0),
+   m_bUsingThumb2(pUsingThumb2)
 {
   if (pIsOutputPIC) {
     m_pData = PIC_TEMPLATE;
     m_Size = sizeof(PIC_TEMPLATE);
     addFixup(12u, -4, llvm::ELF::R_ARM_REL32);
-  }
-  else {
+  } else {
     m_pData = TEMPLATE;
     m_Size = sizeof(TEMPLATE);
     addFixup(8u, 0x0, llvm::ELF::R_ARM_ABS32);
@@ -52,8 +54,12 @@ THMToARMStub::THMToARMStub(bool pIsOutputPIC)
 THMToARMStub::THMToARMStub(const uint32_t* pData,
                            size_t pSize,
                            const_fixup_iterator pBegin,
-                           const_fixup_iterator pEnd)
- : Stub(), m_Name("T2A_veneer"), m_pData(pData), m_Size(pSize)
+                           const_fixup_iterator pEnd,
+                           bool pUsingThumb2)
+ : m_pData(pData),
+   m_Name("T2A_veneer"),
+   m_Size(pSize),
+   m_bUsingThumb2(pUsingThumb2)
 {
   for (const_fixup_iterator it = pBegin, ie = pEnd; it != ie; ++it)
     addFixup(**it);
@@ -76,9 +82,19 @@ bool THMToARMStub::isMyDuty(const class Relocation& pReloc,
         // then, we do not need a stub unless the branch target is too far.
         uint64_t dest = pTargetSymValue + pReloc.addend() + 4u;
         int64_t branch_offset = static_cast<int64_t>(dest) - pSource;
-        if ((branch_offset > ARMGNULDBackend::THM_MAX_FWD_BRANCH_OFFSET) ||
-            (branch_offset < ARMGNULDBackend::THM_MAX_BWD_BRANCH_OFFSET))
-          result = true;
+        if (m_bUsingThumb2) {
+          if ((branch_offset > ARMGNULDBackend::THM2_MAX_FWD_BRANCH_OFFSET) ||
+              (branch_offset < ARMGNULDBackend::THM2_MAX_BWD_BRANCH_OFFSET)) {
+            result = true;
+            break;
+          }
+        } else {
+          if ((branch_offset > ARMGNULDBackend::THM_MAX_FWD_BRANCH_OFFSET) ||
+              (branch_offset < ARMGNULDBackend::THM_MAX_BWD_BRANCH_OFFSET)) {
+            result = true;
+            break;
+          }
+        }
         break;
       }
       case llvm::ELF::R_ARM_THM_JUMP24: {
@@ -121,6 +137,9 @@ uint64_t THMToARMStub::initSymValue() const
 
 Stub* THMToARMStub::doClone()
 {
-  return new THMToARMStub(m_pData, m_Size, fixup_begin(), fixup_end());
+  return new THMToARMStub(m_pData,
+                          m_Size,
+                          fixup_begin(),
+                          fixup_end(),
+                          m_bUsingThumb2);
 }
-

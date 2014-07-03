@@ -32,7 +32,7 @@ const uint32_t ARMToARMStub::TEMPLATE[] = {
 };
 
 ARMToARMStub::ARMToARMStub(bool pIsOutputPIC)
- : Stub(), m_Name("A2A_prototype"), m_pData(NULL), m_Size(0x0)
+ : m_pData(NULL), m_Name("A2A_prototype"), m_Size(0x0)
 {
   if (pIsOutputPIC) {
     m_pData = PIC_TEMPLATE;
@@ -51,7 +51,7 @@ ARMToARMStub::ARMToARMStub(const uint32_t* pData,
                            size_t pSize,
                            const_fixup_iterator pBegin,
                            const_fixup_iterator pEnd)
- : Stub(), m_Name("A2A_veneer"), m_pData(pData), m_Size(pSize)
+ : m_pData(pData), m_Name("A2A_veneer"), m_Size(pSize)
 {
   for (const_fixup_iterator it = pBegin, ie = pEnd; it != ie; ++it)
     addFixup(**it);
@@ -113,4 +113,3 @@ Stub* ARMToARMStub::doClone()
 {
   return new ARMToARMStub(m_pData, m_Size, fixup_begin(), fixup_end());
 }
-

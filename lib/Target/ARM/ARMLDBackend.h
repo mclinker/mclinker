@@ -134,10 +134,9 @@ private:
   void defineGOTSymbol(IRBuilder& pBuilder);
 
   /// maxFwdBranchOffset
-  /// FIXME: if we can handle arm attributes, we may refine this!
-  int64_t maxFwdBranchOffset() { return THM_MAX_FWD_BRANCH_OFFSET; }
+  int64_t maxFwdBranchOffset();
   /// maxBwdBranchOffset
-  int64_t maxBwdBranchOffset() { return THM_MAX_BWD_BRANCH_OFFSET; }
+  int64_t maxBwdBranchOffset();
 
   /// mayRelax - Backends should override this function if they need relaxation
   bool mayRelax() { return true; }

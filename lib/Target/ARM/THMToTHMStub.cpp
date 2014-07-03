@@ -35,15 +35,17 @@ const uint32_t THMToTHMStub::TEMPLATE[] = {
   0x0         // dcd   R_ARM_ABS32(X)
 };
 
-THMToTHMStub::THMToTHMStub(bool pIsOutputPIC)
- : Stub(), m_Name("T2T_prototype"), m_pData(NULL), m_Size(0x0)
+THMToTHMStub::THMToTHMStub(bool pIsOutputPIC, bool pUsingThumb2)
+ : m_pData(NULL),
+   m_Name("T2T_prototype"),
+   m_Size(0x0),
+   m_bUsingThumb2(pUsingThumb2)
 {
   if (pIsOutputPIC) {
     m_pData = PIC_TEMPLATE;
     m_Size = sizeof(PIC_TEMPLATE);
     addFixup(16u, 0x0, llvm::ELF::R_ARM_REL32);
-  }
-  else {
+  } else {
     m_pData = TEMPLATE;
     m_Size = sizeof(TEMPLATE);
     addFixup(12u, 0x0, llvm::ELF::R_ARM_ABS32);
@@ -54,8 +56,12 @@ THMToTHMStub::THMToTHMStub(bool pIsOutputPIC)
 THMToTHMStub::THMToTHMStub(const uint32_t* pData,
                            size_t pSize,
                            const_fixup_iterator pBegin,
-                           const_fixup_iterator pEnd)
- : Stub(), m_Name("T2T_veneer"), m_pData(pData), m_Size(pSize)
+                           const_fixup_iterator pEnd,
+                           bool pUsingThumb2)
+ : m_pData(pData),
+   m_Name("T2T_veneer"),
+   m_Size(pSize),
+   m_bUsingThumb2(pUsingThumb2)
 {
   for (const_fixup_iterator it = pBegin, ie = pEnd; it != ie; ++it)
     addFixup(**it);
@@ -78,9 +84,19 @@ bool THMToTHMStub::isMyDuty(const class Relocation& pReloc,
         // Check if the branch target is too far
         uint64_t dest = pTargetSymValue + pReloc.addend() + 4u;
         int64_t branch_offset = static_cast<int64_t>(dest) - pSource;
-        if ((branch_offset > ARMGNULDBackend::THM_MAX_FWD_BRANCH_OFFSET) ||
-            (branch_offset < ARMGNULDBackend::THM_MAX_BWD_BRANCH_OFFSET))
-          result =  true;
+        if (m_bUsingThumb2) {
+           if ((branch_offset > ARMGNULDBackend::THM2_MAX_FWD_BRANCH_OFFSET) ||
+               (branch_offset < ARMGNULDBackend::THM2_MAX_BWD_BRANCH_OFFSET)) {
+             result = true;
+             break;
+           }
+        } else {
+          if ((branch_offset > ARMGNULDBackend::THM_MAX_FWD_BRANCH_OFFSET) ||
+              (branch_offset < ARMGNULDBackend::THM_MAX_BWD_BRANCH_OFFSET)) {
+            result = true;
+            break;
+          }
+        }
         break;
       }
       default:
@@ -117,6 +133,9 @@ uint64_t THMToTHMStub::initSymValue() const
 
 Stub* THMToTHMStub::doClone()
 {
-  return new THMToTHMStub(m_pData, m_Size, fixup_begin(), fixup_end());
+  return new THMToTHMStub(m_pData,
+                          m_Size,
+                          fixup_begin(),
+                          fixup_end(),
+                          m_bUsingThumb2);
 }
-

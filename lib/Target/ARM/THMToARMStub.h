@@ -13,7 +13,6 @@
 #include <llvm/Support/DataTypes.h>
 #include <mcld/Fragment/Stub.h>
 #include <string>
-#include <vector>
 
 namespace mcld
 {
@@ -28,7 +27,7 @@ class ResolveInfo;
 class THMToARMStub : public Stub
 {
 public:
-  THMToARMStub(bool pIsOutputPIC);
+  THMToARMStub(bool pIsOutputPIC, bool pUsingThumb2);
 
   ~THMToARMStub();
 
@@ -58,17 +57,19 @@ private:
   THMToARMStub(const uint32_t* pData,
                size_t pSize,
                const_fixup_iterator pBegin,
-               const_fixup_iterator pEnd);
+               const_fixup_iterator pEnd,
+               bool pUsingThumb2);
 
   /// doClone
   Stub* doClone();
 
 private:
-  std::string m_Name;
   static const uint32_t PIC_TEMPLATE[];
   static const uint32_t TEMPLATE[];
   const uint32_t* m_pData;
+  std::string m_Name;
   size_t m_Size;
+  bool m_bUsingThumb2;
 };
 
 } // namespace of mcld
