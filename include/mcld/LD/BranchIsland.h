@@ -9,14 +9,15 @@
 #ifndef MCLD_LD_BRANCHISLAND_H
 #define MCLD_LD_BRANCHISLAND_H
 
-#include <llvm/Support/DataTypes.h>
-#include <llvm/ADT/StringRef.h>
 #include <mcld/ADT/HashEntry.h>
 #include <mcld/ADT/HashTable.h>
 #include <mcld/ADT/StringHash.h>
 #include <mcld/LD/SectionData.h>
 #include <mcld/LD/LDSymbol.h>
+#include <mcld/Fragment/FragmentRef.h>
 #include <mcld/Fragment/Stub.h>
+#include <llvm/Support/DataTypes.h>
+#include <llvm/ADT/StringRef.h>
 #include <string>
 
 namespace mcld {
@@ -133,9 +134,25 @@ private:
     {
       bool operator() (const Key& KEY1, const Key& KEY2) const
       {
-        return (KEY1.prototype() == KEY2.prototype()) &&
-               (KEY1.symbol() == KEY2.symbol()) &&
-               (KEY1.addend() == KEY2.addend());
+        bool res = false;
+        if ((KEY1.prototype() == KEY2.prototype()) &&
+            (KEY1.addend() == KEY2.addend())) {
+
+          if (KEY1.symbol() == KEY2.symbol()) {
+            res = true;
+          } else {
+            // Folded symbols may use the existing stub.
+            if (KEY1.symbol()->hasFragRef() && KEY2.symbol()->hasFragRef()) {
+              const FragmentRef* ref1 = KEY1.symbol()->fragRef();
+              const FragmentRef* ref2 = KEY2.symbol()->fragRef();
+              if ((ref1->offset() == ref2->offset()) &&
+                  (ref1->frag()->getOffset() == ref2->frag()->getOffset())) {
+                res = true;
+              }
+            }
+          }
+        }
+        return res;
       }
     };
 

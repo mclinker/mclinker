@@ -14,7 +14,6 @@
 #include <mcld/LD/ResolveInfo.h>
 #include <mcld/Fragment/Stub.h>
 #include <mcld/Fragment/Relocation.h>
-#include <mcld/Fragment/FragmentRef.h>
 
 #include <string>
 
@@ -119,4 +118,3 @@ Stub* StubFactory::findPrototype(const Relocation& pReloc,
   }
   return NULL;
 }
-
