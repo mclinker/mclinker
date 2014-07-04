@@ -1,3 +1,36 @@
+2014-07-04 Chinyen Chou <petechou@gmail.com>
+	* Executive Summary:
+	1. Migrate to LLVM 3.5svn (r209960 or later).
+	2. Phase out the old `ld.mcld'.
+	3. Support identical code folding (ICF).
+	4. Improve relaxation design.
+
+	* Command Line Options and Building System:
+	1. Support `make unittests'.
+	2. Support --icf=[none|all|safe] and --print-icf-sections.
+	3. Support --print-gc-sections.
+	4. Support --exclude-libs.
+	5. Support -u/-undefined.
+
+	* Target Backends:
+	1. ARM: Support R_ARM_THM_JUMP8 relocation.
+	2. ARM: Add functions to check if linking Thumb only or Thumb2 objects,
+	   and support getting max branch offset from attribute data.
+
+	* Identical code folding:
+	1. Add class IdenticalCodeFolding to support --icf=[none|all|safe]
+	2. Support safe icf on ARM, X86, and X86_64 targets.
+	3. Separate LDFileFormat::TEXT from LDFileFormat::Regular for folding
+	   candidate collection.
+	4. Add LDFileFormat::Folded to represent the folded sections.
+	5. Add TargetLDBackend::isSymbolPreemptible for icf.
+	6. Add TargetLDBackend::mayHaveUnsafeFunctionPointerAccess and
+	   Relocator::mayHaveFunctionPointerAccess for safe icf.
+	7. Import cxa_demangle.cpp from libcxxabi for C++ ctors and dtors folding.
+
+	* Relaxation:
+	1. Support searching stub in a backward direction.
+
 2014-04-07 Chinyen Chou <petechou@gmail.com>
 	* Executive Summary:
 	1. Add AArch64 backend support.
