@@ -13,7 +13,7 @@ m4_include(m4/acx_pthread.m4)
 #  Autoconf/Automake Initialization
 
 dnl AC_INIT(PKG_NAME, BUILD_VERSION, BUG_REPORTER)
-AC_INIT([MCLinker],[dev],[mclinker@googlegroups.com])
+AC_INIT([MCLinker],[Cascades],[mclinker@googlegroups.com])
 AC_PREREQ(2.59)
 
 AC_CONFIG_SRCDIR([./COPYING])
@@ -33,8 +33,8 @@ AM_INIT_AUTOMAKE([1.9 dist-bzip2 foreign])
 MAJOR=2
 MINOR=8
 MICRO=0
-AGE=dev
-BUILD=
+AGE=rc
+BUILD=Cascades
 
 DEV_VERSION=$MAJOR.$MINOR.$MICRO.$AGE-$BUILD
 PKG_VERSION=$MAJOR.$MINOR.$MICRO-$BUILD
