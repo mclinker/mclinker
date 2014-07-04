@@ -56,7 +56,7 @@ if ENABLE_WERROR
 MCLD_CPPFLAGS+=-Werror
 endif
 
-bin_PROGRAMS = MCLDUnittests
+noinst_PROGRAMS = MCLDUnittests
 
 AM_CPPFLAGS = $(MCLD_CPPFLAGS)
 
@@ -78,8 +78,8 @@ MCLD = $(top_builddir)/$(MCLD_DIR)/libmcld.a
 GTEST = $(top_builddir)/utils/gtest/obj/libgtest.la
 GTESTMAIN = $(top_builddir)/utils/gtestmain/libgtestmain.la
 
-unittests: $(bin_PROGRAMS)
-	$(abs_builddir)/$(bin_PROGRAMS)
+unittests: $(noinst_PROGRAMS)
+	$(abs_builddir)/$(noinst_PROGRAMS)
 
 $(bin_PROGRAMS): $(MCLD) $(GTEST) $(GTESTMAIN)
 
