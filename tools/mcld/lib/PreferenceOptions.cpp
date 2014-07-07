@@ -95,6 +95,10 @@ llvm::cl::opt<std::string> ArgUseLD("fuse-ld",
   llvm::cl::desc("Ignored for GCC/collect2 linker compatibility."),
   llvm::cl::init("mcld"));
 
+llvm::cl::opt<std::string> ArgUseMCLD("use-mcld",
+  llvm::cl::desc("Ignored for GCC/collect2 linker compatibility."),
+  llvm::cl::init("mcld"));
+
 //===----------------------------------------------------------------------===//
 // Non-member functions
 //===----------------------------------------------------------------------===//
