@@ -8,9 +8,11 @@
 //===----------------------------------------------------------------------===//
 #include <mcld/Support/MemoryArea.h>
 #include <mcld/Support/MsgHandling.h>
-#include <llvm/Support/system_error.h>
+
+#include <llvm/Support/ErrorOr.h>
 
 #include <cassert>
+#include <system_error>
 
 using namespace mcld;
 
@@ -19,12 +21,13 @@ using namespace mcld;
 //===--------------------------------------------------------------------===//
 MemoryArea::MemoryArea(llvm::StringRef pFilename)
 {
-  llvm::error_code ec =
-      llvm::MemoryBuffer::getFile(pFilename, m_pMemoryBuffer, /*FileSize*/ -1,
+  llvm::ErrorOr<std::unique_ptr<llvm::MemoryBuffer>> buffer_or_error =
+      llvm::MemoryBuffer::getFile(pFilename, /*FileSize*/ -1,
                                   /*RequiresNullTerminator*/ false);
-  if (ec != llvm::error_code()) {
+  if (std::error_code ec = buffer_or_error.getError()) {
     fatal(diag::fatal_cannot_read_input) << pFilename.str();
   }
+  m_pMemoryBuffer = std::move(buffer_or_error.get());
 }
 
 MemoryArea::MemoryArea(const char* pMemBuffer, size_t pSize)

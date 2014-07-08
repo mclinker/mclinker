@@ -8,7 +8,7 @@
 //===----------------------------------------------------------------------===//
 #ifndef MCLD_LD_OBJECTWRITER_H
 #define MCLD_LD_OBJECTWRITER_H
-#include <llvm/Support/system_error.h>
+#include <system_error>
 
 namespace mcld {
 
@@ -26,8 +26,8 @@ protected:
 public:
   virtual ~ObjectWriter();
 
-  virtual llvm::error_code writeObject(Module& pModule,
-                                       FileOutputBuffer& pOutput) = 0;
+  virtual std::error_code writeObject(Module& pModule,
+                                      FileOutputBuffer& pOutput) = 0;
 
   virtual size_t getOutputSize(const Module& pModule) const = 0;
 };

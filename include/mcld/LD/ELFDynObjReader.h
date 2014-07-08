@@ -9,7 +9,6 @@
 #ifndef MCLD_LD_ELFDYNOBJREADER_H
 #define MCLD_LD_ELFDYNOBJREADER_H
 #include <mcld/LD/DynObjReader.h>
-#include <llvm/Support/system_error.h>
 
 namespace mcld {
 

@@ -29,8 +29,8 @@
 #include <mcld/LD/ELFFileFormat.h>
 #include <mcld/Target/GNUInfo.h>
 
+#include <llvm/Support/Errc.h>
 #include <llvm/Support/ErrorHandling.h>
-#include <llvm/Support/system_error.h>
 #include <llvm/Support/ELF.h>
 #include <llvm/Support/Casting.h>
 
@@ -118,8 +118,8 @@ void ELFObjectWriter::writeSection(Module& pModule,
   }
 }
 
-llvm::error_code ELFObjectWriter::writeObject(Module& pModule,
-                                              FileOutputBuffer& pOutput)
+std::error_code ELFObjectWriter::writeObject(Module& pModule,
+                                             FileOutputBuffer& pOutput)
 {
   bool is_dynobj = m_Config.codeGenType() == LinkerConfig::DynObj;
   bool is_exec = m_Config.codeGenType() == LinkerConfig::Exec;
@@ -182,10 +182,10 @@ llvm::error_code ELFObjectWriter::writeObject(Module& pModule,
       emitSectionHeader<64>(pModule, m_Config, pOutput);
     }
     else
-      return llvm::make_error_code(llvm::errc::not_supported);
+      return llvm::make_error_code(llvm::errc::function_not_supported);
   }
 
-  return llvm::error_code();
+  return std::error_code();
 }
 
 // getOutputSize - count the final output size
