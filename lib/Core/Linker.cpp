@@ -28,8 +28,6 @@
 #include <mcld/Fragment/Relocation.h>
 #include <mcld/Fragment/FragmentRef.h>
 
-#include <llvm/ADT/OwningPtr.h>
-
 #include <cassert>
 
 using namespace mcld;
@@ -284,7 +282,7 @@ bool Linker::emit(const Module& pModule, const std::string& pPath)
     return false;
   }
 
-  llvm::OwningPtr<FileOutputBuffer> output;
+  std::unique_ptr<FileOutputBuffer> output;
   FileOutputBuffer::create(file,
                            m_pObjLinker->getWriter()->getOutputSize(pModule),
                            output);
@@ -299,7 +297,7 @@ bool Linker::emit(const Module& pModule, int pFileDescriptor)
   FileHandle file;
   file.delegate(pFileDescriptor);
 
-  llvm::OwningPtr<FileOutputBuffer> output;
+  std::unique_ptr<FileOutputBuffer> output;
   FileOutputBuffer::create(file,
                            m_pObjLinker->getWriter()->getOutputSize(pModule),
                            output);

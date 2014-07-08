@@ -12,7 +12,6 @@
 #include <cassert>
 
 #include <mcld/Support/FileOutputBuffer.h>
-#include <llvm/Support/system_error.h>
 
 namespace mcld {
 
@@ -39,7 +38,7 @@ public:
 
   ~ELFObjectWriter();
 
-  llvm::error_code writeObject(Module& pModule, FileOutputBuffer& pOutput);
+  std::error_code writeObject(Module& pModule, FileOutputBuffer& pOutput);
 
   size_t getOutputSize(const Module& pModule) const;
 

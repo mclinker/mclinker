@@ -15,7 +15,6 @@
 #include <mcld/Support/ToolOutputFile.h>
 #include <mcld/Target/TargetLDBackend.h>
 
-#include <llvm/ADT/OwningPtr.h>
 #include <llvm/Analysis/Passes.h>
 #include <llvm/CodeGen/AsmPrinter.h>
 #include <llvm/CodeGen/MachineFunctionAnalysis.h>
@@ -127,7 +126,7 @@ static void addPassesToHandleExceptions(llvm::TargetMachine *TM,
     // FALLTHROUGH
   case llvm::ExceptionHandling::DwarfCFI:
   case llvm::ExceptionHandling::ARM:
-  case llvm::ExceptionHandling::Win64:
+  case llvm::ExceptionHandling::WinEH:
     PM.add(createDwarfEHPass(TM));
     break;
   case llvm::ExceptionHandling::None:
@@ -300,7 +299,7 @@ mcld::MCLDTargetMachine::addCompilerPasses(llvm::legacy::PassManagerBase &pPM,
 
 
   // now, we have MCCodeEmitter and MCAsmBackend, we can create AsmStreamer.
-  OwningPtr<MCStreamer> AsmStreamer(
+  std::unique_ptr<MCStreamer> AsmStreamer(
     m_pLLVMTarget->createAsmStreamer(*Context, pOutput,
                                      getVerboseAsm(getTM()),
                                      getTM().Options.MCOptions.MCUseDwarfDirectory,
@@ -314,7 +313,7 @@ mcld::MCLDTargetMachine::addCompilerPasses(llvm::legacy::PassManagerBase &pPM,
   if (funcPass == 0)
     return true;
   // If successful, createAsmPrinter took ownership of AsmStreamer
-  AsmStreamer.take();
+  AsmStreamer.release();
   pPM.add(funcPass);
   return false;
 }
@@ -338,7 +337,7 @@ mcld::MCLDTargetMachine::addAssemblerPasses(llvm::legacy::PassManagerBase &pPM,
     return true;
 
   // now, we have MCCodeEmitter and MCAsmBackend, we can create AsmStreamer.
-  OwningPtr<MCStreamer> AsmStreamer(m_pLLVMTarget->createMCObjectStreamer(
+  std::unique_ptr<MCStreamer> AsmStreamer(m_pLLVMTarget->createMCObjectStreamer(
     m_Triple, *Context, *MAB, pOutput, MCE, STI,
     getTM().Options.MCOptions.MCRelaxAll, getTM().Options.MCOptions.MCNoExecStack));
 
@@ -348,7 +347,7 @@ mcld::MCLDTargetMachine::addAssemblerPasses(llvm::legacy::PassManagerBase &pPM,
   if (funcPass == 0)
     return true;
   // If successful, createAsmPrinter took ownership of AsmStreamer
-  AsmStreamer.take();
+  AsmStreamer.release();
   pPM.add(funcPass);
   return false;
 }

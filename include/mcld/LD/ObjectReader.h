@@ -9,7 +9,6 @@
 #ifndef MCLD_LD_OBJECTREADER_H
 #define MCLD_LD_OBJECTREADER_H
 #include "mcld/LD/LDReader.h"
-#include <llvm/Support/system_error.h>
 #include <mcld/ADT/HashTable.h>
 #include <mcld/ADT/StringHash.h>
 #include <mcld/LD/ResolveInfo.h>

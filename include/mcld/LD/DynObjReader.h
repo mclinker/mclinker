@@ -9,7 +9,6 @@
 #ifndef MCLD_LD_DYNOBJREADER_H
 #define MCLD_LD_DYNOBJREADER_H
 #include "mcld/LD/LDReader.h"
-#include <llvm/Support/system_error.h>
 
 namespace mcld {
 

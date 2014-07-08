@@ -10,11 +10,10 @@
 #define MCLD_SUPPORT_FILEOUTPUTBUFFER_H
 
 #include <mcld/Support/MemoryRegion.h>
-#include <llvm/ADT/OwningPtr.h>
 #include <llvm/ADT/StringRef.h>
 #include <llvm/Support/DataTypes.h>
 #include <llvm/Support/FileSystem.h>
-#include <llvm/Support/system_error.h>
+#include <system_error>
 
 namespace mcld {
 
@@ -27,9 +26,9 @@ public:
   /// Factory method to create an OutputBuffer object which manages a read/write
   /// buffer of the specified size. When committed, the buffer will be written
   /// to the file at the specified path.
-  static llvm::error_code create(FileHandle& pFileHandle,
-                                 size_t pSize,
-                                 llvm::OwningPtr<FileOutputBuffer>& pResult);
+  static std::error_code create(FileHandle& pFileHandle,
+                                size_t pSize,
+                                std::unique_ptr<FileOutputBuffer>& pResult);
 
   /// Returns a pointer to the start of the buffer.
   uint8_t* getBufferStart() {
@@ -60,7 +59,7 @@ private:
   FileOutputBuffer(llvm::sys::fs::mapped_file_region* pRegion,
                    FileHandle& pFileHandle);
 
-  llvm::OwningPtr<llvm::sys::fs::mapped_file_region> m_pRegion;
+  std::unique_ptr<llvm::sys::fs::mapped_file_region> m_pRegion;
   FileHandle& m_FileHandle;
 };
 

@@ -17,7 +17,6 @@
 
 #include <llvm/ADT/StringRef.h>
 #include <llvm/ADT/Twine.h>
-#include <llvm/ADT/OwningPtr.h>
 #include <llvm/Support/ErrorHandling.h>
 
 #include <string>
