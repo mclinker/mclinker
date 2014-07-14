@@ -47,7 +47,6 @@ AH_TEMPLATE([MCLD_VERSION], [MCLINKER version])
 #  Languages
 AC_PROG_CC
 AC_PROG_CXX
-AC_PROG_RANLIB
 
 AC_PATH_PROG([FLEX],[flex])
 AX_PROG_FLEX_VERSION([2.5.35],[],[AC_MSG_ERROR([Require flex 2.5.35 or later])])
