@@ -56,6 +56,4 @@ configure.ac         - input of autoconf
 src/                 - source code of verification tool
 include/             - include file, exported interface
 lib/                 - source code of exported interface
-debug/               - placeholder of object files which are compiled for debugging
-optimized/           - placeholder of object files which are compiled for optimization
 test/                - placeholder of testcases
