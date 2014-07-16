@@ -26,7 +26,9 @@ dnl input objects into output. This needs to be done early because
 dnl following tests depend on it.
 AC_CANONICAL_TARGET
 
-AM_INIT_AUTOMAKE([1.9 dist-bzip2 foreign subdir-objects])
+AM_INIT_AUTOMAKE([1.9 dist-bzip2 foreign subdir-objects silent-rules])
+
+AM_SILENT_RULES([yes])
 
 ####################
 #  Versioning, see VERSION
