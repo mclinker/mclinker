@@ -60,31 +60,25 @@ noinst_PROGRAMS = MCLDUnittests
 
 AM_CPPFLAGS = $(MCLD_CPPFLAGS)
 
-if ENABLE_OPTIMIZED
-MCLD_DIR = optimized
-else
-MCLD_DIR = debug
-endif
-
 MCLDUnittests_LDFLAGS = \
-	$(top_builddir)/$(MCLD_DIR)/libmcld.a \
-	-L$(top_builddir)/utils/gtest/obj -lgtest \
+	$(top_builddir)/lib/libmcld.a \
+	-L$(top_builddir)/utils/gtest -lgtest \
 	-L$(top_builddir)/utils/gtestmain -lgtestmain \
 	$(LLVM_LDFLAGS)
 
 dist_MCLDUnittests_SOURCES = $(SOURCES)
 
-MCLD = $(top_builddir)/$(MCLD_DIR)/libmcld.a
-GTEST = $(top_builddir)/utils/gtest/obj/libgtest.la
+MCLD = $(top_builddir)/lib/libmcld.a
+GTEST = $(top_builddir)/utils/gtest/libgtest.la
 GTESTMAIN = $(top_builddir)/utils/gtestmain/libgtestmain.la
 
 unittests: $(noinst_PROGRAMS)
 	$(abs_builddir)/$(noinst_PROGRAMS)
 
-$(bin_PROGRAMS): $(MCLD) $(GTEST) $(GTESTMAIN)
+$(noinst_PROGRAMS): $(MCLD) $(GTEST) $(GTESTMAIN)
 
 $(MCLD):
-	cd $(top_builddir)/$(MCLD_DIR) && $(MAKE) $(AM_MAKEFLAGS)
+	cd $(top_builddir)/lib && $(MAKE) $(AM_MAKEFLAGS)
 
 $(GTEST):
 	cd $(top_builddir)/utils/gtest && $(MAKE) $(AM_MAKEFLAGS)
