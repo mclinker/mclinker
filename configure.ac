@@ -26,7 +26,7 @@ dnl input objects into output. This needs to be done early because
 dnl following tests depend on it.
 AC_CANONICAL_TARGET
 
-AM_INIT_AUTOMAKE([1.9 dist-bzip2 foreign])
+AM_INIT_AUTOMAKE([1.9 dist-bzip2 foreign subdir-objects])
 
 ####################
 #  Versioning, see VERSION
@@ -147,11 +147,9 @@ AH_BOTTOM([
 AC_CONFIG_FILES([VERSION])
 AC_CONFIG_FILES([Makefile])
 AC_CONFIG_FILES([include/Makefile])
-AC_CONFIG_FILES([debug/Makefile])
-AC_CONFIG_FILES([optimized/Makefile])
+AC_CONFIG_FILES([lib/Makefile])
 AC_CONFIG_FILES([utils/Makefile])
 AC_CONFIG_FILES([utils/gtest/Makefile])
-AC_CONFIG_FILES([utils/gtest/obj/Makefile])
 AC_CONFIG_FILES([utils/gtestmain/Makefile])
 AC_CONFIG_FILES([unittests/Makefile])
 AC_CONFIG_FILES([include/mcld/Config/Targets.def])
