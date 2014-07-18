@@ -1,6 +1,6 @@
-2014-07-04 Chinyen Chou <petechou@gmail.com>
+2014-07-18 Chinyen Chou <petechou@gmail.com>
 	* Executive Summary:
-	1. Migrate to LLVM 3.5svn (r209960 or later).
+	1. Migrate to LLVM 3.5svn (r212505 or later).
 	2. Phase out the old `ld.mcld'.
 	3. Support identical code folding (ICF).
 	4. Improve relaxation design.
