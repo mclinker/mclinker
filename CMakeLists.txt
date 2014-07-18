@@ -68,7 +68,7 @@ set(MCLD_DEFAULT_TARGET_TRIPLE "${LLVM_HOST_TRIPLE}" CACHE STRING
   set(MAJOR 2)
   set(MINOR 8)
   set(MICRO 0)
-  set(AGE rc)
+  set(AGE)
   set(BUILD Cascades)
   set(DEV_VERSION ${MAJOR}.${MINOR}.${MICRO}.${AGE}-${BUILD})
   set(PKG_VERSION ${MAJOR}.${MINOR}.${MICRO}-{$BUILD})
