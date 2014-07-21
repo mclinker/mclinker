@@ -420,7 +420,8 @@ bool ARMGNULDBackend::mergeSection(Module& pModule,
     }
     case llvm::ELF::SHT_ARM_EXIDX: {
       assert(NULL != pSection.getLink());
-      if (LDFileFormat::Ignore == pSection.getLink()->kind()) {
+      if ((pSection.getLink()->kind() == LDFileFormat::Ignore) ||
+          (pSection.getLink()->kind() == LDFileFormat::Folded)) {
         // if the target section of the .ARM.exidx is Ignore, then it should be
         // ignored as well
         pSection.setKind(LDFileFormat::Ignore);
