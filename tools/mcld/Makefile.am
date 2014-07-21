@@ -41,3 +41,7 @@ AM_CPPFLAGS = $(MCLD_CPPFLAGS)
 ld_mcld_SOURCES = $(MCLD_SOURCES)
 
 ld_mcld_LDFLAGS = $(top_builddir)/lib/libmcld.a $(LLVM_LDFLAGS)
+
+MCLD = $(top_builddir)/lib/libmcld.a
+
+$(bin_PROGRAMS): $(MCLD)
