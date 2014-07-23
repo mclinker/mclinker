@@ -834,7 +834,7 @@ MipsRelocator::Result rel26(MipsRelocationInfo& pReloc, MipsRelocator& pParent)
 {
   ResolveInfo* rsym = pReloc.parent().symInfo();
 
-  int32_t A = ((pReloc.parent().target() & 0x03FFFFFF) << 2);
+  int32_t A = pParent.isN64ABI() ? pReloc.A() : (pReloc.A() & 0x03FFFFFF) << 2;
   int32_t P = pReloc.P();
   int32_t S = rsym->reserved() & MipsRelocator::ReservePLT
                   ? pParent.getPLTAddress(*rsym)
