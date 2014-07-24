@@ -68,10 +68,9 @@ set(MCLD_DEFAULT_TARGET_TRIPLE "${LLVM_HOST_TRIPLE}" CACHE STRING
   set(MAJOR 2)
   set(MINOR 9)
   set(MICRO 0)
-  set(AGE dev)
-  set(BUILD )
-  set(DEV_VERSION ${MAJOR}.${MINOR}.${MICRO}.${AGE}-${BUILD})
-  set(PKG_VERSION ${MAJOR}.${MINOR}.${MICRO}-{$BUILD})
+  set(BUILD dev)
+  set(DEV_VERSION ${MAJOR}.${MINOR}.${MICRO}-${BUILD})
+  set(PKG_VERSION ${MAJOR}.${MINOR}.${MICRO}-${BUILD})
   set(MCLD_VERSION ${DEV_VERSION})
   message(STATUS "MCLD version: " ${MCLD_VERSION})
 
