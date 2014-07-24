@@ -24,7 +24,7 @@ MemoryArea::MemoryArea(llvm::StringRef pFilename)
   llvm::ErrorOr<std::unique_ptr<llvm::MemoryBuffer>> buffer_or_error =
       llvm::MemoryBuffer::getFile(pFilename, /*FileSize*/ -1,
                                   /*RequiresNullTerminator*/ false);
-  if (std::error_code ec = buffer_or_error.getError()) {
+  if (!buffer_or_error) {
     fatal(diag::fatal_cannot_read_input) << pFilename.str();
   }
   m_pMemoryBuffer = std::move(buffer_or_error.get());
