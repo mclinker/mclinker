@@ -95,7 +95,6 @@ AM_CONDITIONAL([ENABLE_OPTIMIZED],[test "x${optimized}" == "xtrue" ])
 
 ####################
 # Configure compiler warnings
-CHECK_WERROR_FLAGS
 AC_MSG_CHECKING([for optional compiler flags])
 CXX_FLAG_CHECK(NO_VARIADIC_MACROS, [-Wno-variadic-macros])
 CXX_FLAG_CHECK(NO_COVERED_SWITCH_DEFAULT, [-Wno-covered-switch-default])

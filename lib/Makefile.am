@@ -293,10 +293,6 @@ SOURCE = ADT/StringEntry.cpp \
 
 ANDROID_CPPFLAGS=-fno-rtti -fno-exceptions -Waddress -Wchar-subscripts -Wcomment -Wformat -Wparentheses -Wreorder -Wreturn-type -Wsequence-point -Wstrict-aliasing -Wstrict-overflow=1 -Wswitch -Wtrigraphs -Wuninitialized -Wunknown-pragmas -Wunused-function -Wunused-label -Wunused-value -Wunused-variable -Wvolatile-register-var -Wsign-compare -Werror
 
-if ENABLE_WERROR
-ANDROID_CPPFLAGS+=-Werror
-endif
-
 MCLD_INCLUDES = \
 	-I$(top_srcdir)/include \
 	-I$(top_builddir)/include \
