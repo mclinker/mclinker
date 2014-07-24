@@ -90,7 +90,7 @@ BranchIslandFactory::getIslands(const Fragment& pFragment)
       if (prev != ie) {
         int64_t bwd_off = (int64_t)pFragment.getOffset() + m_MaxBwdBranchRange;
         if ((pFragment.getOffset() > (*prev).offset()) &&
-            (bwd_off <= (*prev).offset())) {
+            (bwd_off <= (int64_t)(*prev).offset())) {
           bwd = &*prev;
         }
       }
