@@ -1,21 +1,18 @@
 @MCLD_VERSION@
 ==================
 Versioning Format:
-  [MAJOR].[MINOR].[MICRO].[AGE]-[PKG BUILD]
+  [MAJOR].[MINOR].[MICRO]-[PKG BUILD]
 
 [MAJOR]
   It is changed for marketing purposes.
 
 [MINOR]
+  For feature release.
+
+[MICRO]
   ALPHA - 0 for alpha
   BETA  - 1 for beta
   RC    - 2 for release candidate
   FR    - 3 for final release
   MA    - 4 for market acceptance
   GM    - 5 for golden model
-
-Making a release:
-  If any inputs/outputs have been changed, set AGE to 0.
-  If all inputs/outputs/ are not changed, but make a significant change, increase MICRO.
-  If backward compatiblity has been broken, then set both MICRO and AGE to 0, and increase MINOR.
-
