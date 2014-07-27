@@ -39,7 +39,6 @@ using namespace mcld;
 %require "2.4"
 %skeleton "glr.cc"
 %defines "ScriptParser.h"
-%debug
 %error-verbose
 %define namespace "mcld"
 %define "parser_class_name" "ScriptParser"
