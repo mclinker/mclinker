@@ -98,6 +98,11 @@ LDSection* ObjectBuilder::MergeSection(const Input& pInputFile,
       if (pair.first != NULL) {
         assert(pair.second != NULL);
         data = pair.second->getSection()->getSectionData();
+
+        // force input alignment from ldscript if any
+        if (pair.first->prolog().hasSubAlign()) {
+          pInputSection.setAlign(pair.second->getSection()->align());
+        }
       } else {
         // orphan section
         data = target->getSectionData();

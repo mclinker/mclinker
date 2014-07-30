@@ -302,6 +302,38 @@ bool ObjectLinker::readRelocations()
 /// mergeSections - put allinput sections into output sections
 bool ObjectLinker::mergeSections()
 {
+  // Set up input/output from ldscript requirement if any
+  {
+    RpnEvaluator evaluator(*m_pModule, m_LDBackend);
+    SectionMap::iterator out, outBegin, outEnd;
+    outBegin = m_pModule->getScript().sectionMap().begin();
+    outEnd = m_pModule->getScript().sectionMap().end();
+    for (out = outBegin; out != outEnd; ++out) {
+      uint64_t out_align = 0x0, in_align = 0x0;
+      LDSection* out_sect = (*out)->getSection();
+      SectionMap::Output::iterator in, inBegin, inEnd;
+      inBegin = (*out)->begin();
+      inEnd = (*out)->end();
+
+      // force input alignment from ldscript if any
+      if ((*out)->prolog().hasSubAlign()) {
+        evaluator.eval((*out)->prolog().subAlign(), in_align);
+      }
+
+      for (in = inBegin; in != inEnd; ++in) {
+        LDSection* in_sect = (*in)->getSection();
+        if ((*out)->prolog().hasSubAlign())
+          in_sect->setAlign(in_align);
+      } // for each input section description
+
+      // force output alignment from ldscript if any
+      if ((*out)->prolog().hasAlign()) {
+        evaluator.eval((*out)->prolog().align(), out_align);
+        out_sect->setAlign(out_align);
+      }
+    } // for each output section description
+  }
+
   ObjectBuilder builder(*m_pModule);
   Module::obj_iterator obj, objEnd = m_pModule->obj_end();
   for (obj = m_pModule->obj_begin(); obj != objEnd; ++obj) {
@@ -365,50 +397,36 @@ bool ObjectLinker::mergeSections()
     } // for each section
   } // for each obj
 
-  RpnEvaluator evaluator(*m_pModule, m_LDBackend);
-  SectionMap::iterator out, outBegin, outEnd;
-  outBegin = m_pModule->getScript().sectionMap().begin();
-  outEnd = m_pModule->getScript().sectionMap().end();
-  for (out = outBegin; out != outEnd; ++out) {
-    uint64_t out_align = 0x0, in_align = 0x0;
-    LDSection* out_sect = (*out)->getSection();
-    SectionMap::Output::iterator in, inBegin, inEnd;
-    inBegin = (*out)->begin();
-    inEnd = (*out)->end();
+  {
+    SectionMap::iterator out, outBegin, outEnd;
+    outBegin = m_pModule->getScript().sectionMap().begin();
+    outEnd = m_pModule->getScript().sectionMap().end();
+    for (out = outBegin; out != outEnd; ++out) {
+      LDSection* out_sect = (*out)->getSection();
+      SectionMap::Output::iterator in, inBegin, inEnd;
+      inBegin = (*out)->begin();
+      inEnd = (*out)->end();
 
-    // force input alignment from ldscript if any
-    if ((*out)->prolog().hasSubAlign()) {
-      evaluator.eval((*out)->prolog().subAlign(), in_align);
-    }
+      for (in = inBegin; in != inEnd; ++in) {
+        LDSection* in_sect = (*in)->getSection();
+        if (builder.MoveSectionData(*in_sect->getSectionData(),
+                                    *out_sect->getSectionData())) {
+          builder.UpdateSectionAlign(*out_sect, *in_sect);
+          m_LDBackend.updateSectionFlags(*out_sect, *in_sect);
+        }
+      } // for each input section description
 
-    for (in = inBegin; in != inEnd; ++in) {
-      LDSection* in_sect = (*in)->getSection();
-      if ((*out)->prolog().hasSubAlign())
-        in_sect->setAlign(in_align);
-
-      if (builder.MoveSectionData(*in_sect->getSectionData(),
-                                  *out_sect->getSectionData())) {
-        builder.UpdateSectionAlign(*out_sect, *in_sect);
-        m_LDBackend.updateSectionFlags(*out_sect, *in_sect);
+      if ((*out)->hasContent()) {
+        LDSection* target = m_pModule->getSection((*out)->name());
+        assert(target != NULL && target->hasSectionData());
+        if (builder.MoveSectionData(*out_sect->getSectionData(),
+                                    *target->getSectionData())) {
+          builder.UpdateSectionAlign(*target, *out_sect);
+          m_LDBackend.updateSectionFlags(*target, *out_sect);
+        }
       }
-    } // for each input section description
-
-    // force output alignment from ldscript if any
-    if ((*out)->prolog().hasAlign()) {
-      evaluator.eval((*out)->prolog().align(), out_align);
-      out_sect->setAlign(out_align);
-    }
-
-    if ((*out)->hasContent()) {
-      LDSection* target = m_pModule->getSection((*out)->name());
-      assert(target != NULL && target->hasSectionData());
-      if (builder.MoveSectionData(*out_sect->getSectionData(),
-                                  *target->getSectionData())) {
-        builder.UpdateSectionAlign(*target, *out_sect);
-        m_LDBackend.updateSectionFlags(*target, *out_sect);
-      }
-    }
-  } // for each output section description
+    } // for each output section description
+  }
 
   return true;
 }
