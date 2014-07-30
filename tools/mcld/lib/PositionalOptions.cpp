@@ -193,7 +193,7 @@ size_t PositionalOptions::numOfInputs() const
 }
 
 bool PositionalOptions::parse(std::vector<InputAction*>& pActions,
-                              const LinkerConfig& pConfig,
+                              LinkerConfig& pConfig,
                               const LinkerScript& pScript)
 {
   if (0 == numOfInputs()) {
@@ -208,10 +208,12 @@ bool PositionalOptions::parse(std::vector<InputAction*>& pActions,
   llvm::cl::list<std::string>::iterator sp;
   llvm::cl::list<std::string>::iterator spEnd = m_LinkerScript.end();
   for (sp = m_LinkerScript.begin(); sp != spEnd; ++sp) {
+    pConfig.options().getScriptList().push_back(*sp);
+
     pActions.push_back(new ScriptAction(0x0,
-                                       *sp,
-                                       ScriptFile::LDScript,
-                                       pScript.directories()));
+                                        *sp,
+                                        ScriptFile::LDScript,
+                                        pScript.directories()));
     pActions.push_back(new ContextAction(0x0));
     pActions.push_back(new MemoryAreaAction(0x0, FileHandle::ReadOnly));
   }

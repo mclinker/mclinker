@@ -41,7 +41,7 @@ public:
   size_t numOfInputs() const;
 
   bool parse(std::vector<InputAction*>& pActions,
-             const LinkerConfig& pConfig,
+             LinkerConfig& pConfig,
              const LinkerScript& pScript);
 
 private:
