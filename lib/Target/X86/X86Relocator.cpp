@@ -398,20 +398,14 @@ void X86_32Relocator::scanLocalReloc(Relocation& pReloc,
 
       // FIXME: check STT_GNU_IFUNC symbol
 
-      // If building shared object or the symbol is undefined, a dynamic
-      // relocation is needed to relocate this GOT entry. Reserve an
-      // entry in .rel.dyn
-      if (LinkerConfig::DynObj ==
-                   config().codeGenType() || rsym->isUndef() || rsym->isDyn()) {
+      // If building PIC object, a dynamic relocation with
+      // type RELATIVE is needed to relocate this GOT entry.
+      if (config().isCodeIndep())
         helper_GOT_init(pReloc, true, *this);
-        // set GOT bit
-        rsym->setReserved(rsym->reserved() | ReserveGOT);
-        return;
-      }
+      else
+        helper_GOT_init(pReloc, false, *this);
 
-      // elsewhere if the GOT is used in statically linked binaries,
-      // the GOT entry is enough and no relocation is needed.
-      helper_GOT_init(pReloc, false, *this);
+      // set GOT bit
       rsym->setReserved(rsym->reserved() | ReserveGOT);
       return;
 
@@ -638,11 +632,9 @@ void X86_32Relocator::scanGlobalReloc(Relocation& pReloc,
       // return if we already create GOT for this symbol
       if (rsym->reserved() & ReserveGOT)
         return;
-      // If building shared object or the symbol is undefined, a dynamic
-      // relocation is needed to relocate this GOT entry. Reserve an
-      // entry in .rel.dyn
-      if (LinkerConfig::DynObj ==
-                   config().codeGenType() || rsym->isUndef() || rsym->isDyn())
+      // if the symbol cannot be fully resolved at link time, then we need a
+      // dynamic relocation
+      if (!getTarget().symbolFinalValueIsKnown(*rsym))
         helper_GOT_init(pReloc, true, *this);
       else
         helper_GOT_init(pReloc, false, *this);
@@ -1405,11 +1397,9 @@ void X86_64Relocator::scanLocalReloc(Relocation& pReloc,
       if (rsym->reserved() & ReserveGOT)
         return;
 
-      // If building shared object or the symbol is undefined, a dynamic
-      // relocation is needed to relocate this GOT entry. Reserve an
-      // entry in .rela.dyn
-      if (LinkerConfig::DynObj ==
-                   config().codeGenType() || rsym->isUndef() || rsym->isDyn())
+      // If building PIC object, a dynamic relocation with
+      // type RELATIVE is needed to relocate this GOT entry.
+      if (config().isCodeIndep())
         helper_GOT_init(pReloc, true, *this);
       else
         helper_GOT_init(pReloc, false, *this);
@@ -1490,11 +1480,9 @@ void X86_64Relocator::scanGlobalReloc(Relocation& pReloc,
       if (rsym->reserved() & ReserveGOT)
         return;
 
-      // If building shared object or the symbol is undefined, a dynamic
-      // relocation is needed to relocate this GOT entry. Reserve an
-      // entry in .rela.dyn
-      if (LinkerConfig::DynObj ==
-                   config().codeGenType() || rsym->isUndef() || rsym->isDyn())
+      // if the symbol cannot be fully resolved at link time, then we need a
+      // dynamic relocation
+      if (!getTarget().symbolFinalValueIsKnown(*rsym))
         helper_GOT_init(pReloc, true, *this);
       else
         helper_GOT_init(pReloc, false, *this);
