@@ -4,7 +4,7 @@ MCLinker Release License
 University of Illinois/NCSA
 Open Source License
 
-Copyright (c) 2011-2013 MediaTek Inc.
+Copyright (c) 2011-2014 MediaTek Inc.
 All rights reserved.
 
 Developed by:
