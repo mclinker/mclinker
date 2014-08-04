@@ -59,4 +59,5 @@ licenses, and/or restrictions:
 
 Program             Directory
 -------             ---------
-Google Test         utils/gtest/
+Google Test         utils/gtest
+zlib                utils/zlib

@@ -36,8 +36,15 @@ AM_CPPFLAGS = $(MCLD_CPPFLAGS)
 
 ld_mcld_SOURCES = $(MCLD_SOURCES)
 
-ld_mcld_LDFLAGS = $(top_builddir)/lib/libmcld.a $(LLVM_LDFLAGS)
+ld_mcld_LDFLAGS = \
+	$(top_builddir)/lib/libmcld.a \
+	-L$(top_builddir)/utils/zlib -lcrc \
+	$(LLVM_LDFLAGS)
 
 MCLD = $(top_builddir)/lib/libmcld.a
+CRCLIB = $(top_builddir)/utils/gtest/libcrc.la
 
-$(bin_PROGRAMS): $(MCLD)
+$(bin_PROGRAMS): $(MCLD) $(CRCLIB)
+
+$(CRCLIB):
+	cd $(top_builddir)/utils/zlib && $(MAKE) $(AM_MAKEFLAGS)

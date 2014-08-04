@@ -6,4 +6,4 @@ Distributed with MCLinker Project
 Program             Directory
 -------             ---------
 Google Test         ${MCLinker}/utils/gtest
-
+zlib                ${MCLinker}/utils/zlib
