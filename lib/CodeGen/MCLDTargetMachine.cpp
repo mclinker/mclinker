@@ -160,9 +160,9 @@ addPassesToGenerateCode(llvm::LLVMTargetMachine *TM,
 
   // Install a MachineModuleInfo class, which is an immutable pass that holds
   // all the per-module stuff we're generating, including MCContext.
-  MachineModuleInfo *MMI =
-    new MachineModuleInfo(*TM->getMCAsmInfo(), *TM->getRegisterInfo(),
-                          &TM->getTargetLowering()->getObjFileLowering());
+  MachineModuleInfo *MMI = new MachineModuleInfo(*TM->getMCAsmInfo(),
+      *TM->getSubtargetImpl()->getRegisterInfo(),
+      &TM->getSubtargetImpl()->getTargetLowering()->getObjFileLowering());
   PM.add(MMI);
   MCContext *Context = &MMI->getContext(); // Return the MCContext by-ref.
 
@@ -281,8 +281,8 @@ mcld::MCLDTargetMachine::addCompilerPasses(llvm::legacy::PassManagerBase &pPM,
                                            llvm::MCContext *&Context)
 {
   const MCAsmInfo &MAI = *getTM().getMCAsmInfo();
-  const MCInstrInfo &MII = *getTM().getInstrInfo();
-  const MCRegisterInfo &MRI = *getTM().getRegisterInfo();
+  const MCInstrInfo &MII = *getTM().getSubtargetImpl()->getInstrInfo();
+  const MCRegisterInfo &MRI = *getTM().getSubtargetImpl()->getRegisterInfo();
   const MCSubtargetInfo &STI = getTM().getSubtarget<MCSubtargetInfo>();
 
   MCInstPrinter *InstPrinter =
@@ -324,8 +324,8 @@ mcld::MCLDTargetMachine::addAssemblerPasses(llvm::legacy::PassManagerBase &pPM,
                                             llvm::MCContext *&Context)
 {
   // MCCodeEmitter
-  const MCInstrInfo &MII = *getTM().getInstrInfo();
-  const MCRegisterInfo &MRI = *getTM().getRegisterInfo();
+  const MCInstrInfo &MII = *getTM().getSubtargetImpl()->getInstrInfo();
+  const MCRegisterInfo &MRI = *getTM().getSubtargetImpl()->getRegisterInfo();
   const MCSubtargetInfo &STI = getTM().getSubtarget<MCSubtargetInfo>();
   MCCodeEmitter* MCE =
     m_pLLVMTarget->createMCCodeEmitter(MII, MRI, STI, *Context);

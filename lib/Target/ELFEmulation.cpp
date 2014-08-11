@@ -94,7 +94,7 @@ bool mcld::MCLDEmulateELF(LinkerScript& pScript, LinkerConfig& pConfig)
       case llvm::Triple::NetBSD:
         pScript.directories().insert("=/usr/lib");
         break;
-      case llvm::Triple::MinGW32:
+      case llvm::Triple::Win32:
         pScript.directories().insert("=/mingw/lib");
         break;
       default:
