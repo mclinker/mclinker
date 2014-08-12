@@ -4,7 +4,6 @@ add_mcld_library(MCLDTarget
   ELFAttributeValue.cpp
   ELFDynamic.cpp
   ELFEmulation.cpp
-  ELFMCLinker.cpp
   GNUInfo.cpp
   GNULDBackend.cpp
   GOT.cpp
@@ -20,6 +19,5 @@ add_subdirectory(Mips)
 add_subdirectory(X86)
 
 target_link_libraries(MCLDTarget
-  MCLDCodeGen
   MCLDLD
   )

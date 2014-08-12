@@ -13,7 +13,6 @@
 
 #include <mcld/GeneralOptions.h>
 #include <mcld/TargetOptions.h>
-#include <mcld/BitcodeOption.h>
 #include <mcld/AttributeOption.h>
 #include <mcld/Support/Path.h>
 
@@ -75,9 +74,6 @@ public:
   const TargetOptions&  targets() const { return m_Targets; }
   TargetOptions&        targets()       { return m_Targets; }
 
-  const BitcodeOption&  bitcode() const { return m_Bitcode; }
-  BitcodeOption&        bitcode()       { return m_Bitcode; }
-
   const AttributeOption& attribute() const { return m_Attribute; }
   AttributeOption&       attribute()       { return m_Attribute; }
 
@@ -98,7 +94,6 @@ private:
   // -----  General Options  ----- //
   GeneralOptions m_Options;
   TargetOptions m_Targets;
-  BitcodeOption m_Bitcode;
   AttributeOption m_Attribute;
 
   CodeGenType m_CodeGenType;

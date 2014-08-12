@@ -1,5 +1,4 @@
 add_subdirectory(ADT)
-add_subdirectory(CodeGen)
 add_subdirectory(Core)
 add_subdirectory(Fragment)
 add_subdirectory(LD)

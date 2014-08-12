@@ -1,6 +1,5 @@
 add_mcld_library(MCLDCore
   AttributeOption.cpp
-  BitcodeOption.cpp
   Environment.cpp
   GeneralOptions.cpp
   InputTree.cpp

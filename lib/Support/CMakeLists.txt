@@ -15,7 +15,6 @@ add_mcld_library(MCLDSupport
   SystemUtils.cpp
   Target.cpp
   TargetRegistry.cpp
-  ToolOutputFile.cpp
   Unix/FileSystem.inc
   Unix/PathV3.inc
   Unix/System.inc

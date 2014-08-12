@@ -8,10 +8,7 @@ AM_YFLAGS = -d
 AM_LFLAGS = -olex.yy.c
 
 SOURCE = ADT/StringEntry.cpp \
-	CodeGen/MCLDTargetMachine.cpp \
-	CodeGen/MCLinker.cpp \
 	Core/AttributeOption.cpp \
-	Core/BitcodeOption.cpp \
 	Core/Environment.cpp \
 	Core/GeneralOptions.cpp \
 	Core/InputTree.cpp \
@@ -140,7 +137,6 @@ SOURCE = ADT/StringEntry.cpp \
 	Support/SystemUtils.cpp \
 	Support/Target.cpp \
 	Support/TargetRegistry.cpp \
-	Support/ToolOutputFile.cpp \
 	Support/Unix \
 	Support/Unix/FileSystem.inc \
 	Support/Unix/PathV3.inc \
@@ -154,7 +150,6 @@ SOURCE = ADT/StringEntry.cpp \
 	Target/ELFAttributeValue.cpp \
 	Target/ELFDynamic.cpp \
 	Target/ELFEmulation.cpp \
-	Target/ELFMCLinker.cpp \
 	Target/GNUInfo.cpp \
 	Target/GNULDBackend.cpp \
 	Target/GOT.cpp \
@@ -164,8 +159,6 @@ SOURCE = ADT/StringEntry.cpp \
 	Target/AArch64/AArch64Diagnostic.cpp \
 	Target/AArch64/AArch64ELFDynamic.cpp \
 	Target/AArch64/AArch64ELFDynamic.h \
-	Target/AArch64/AArch64ELFMCLinker.cpp \
-	Target/AArch64/AArch64ELFMCLinker.h \
 	Target/AArch64/AArch64Emulation.cpp \
 	Target/AArch64/AArch64GNUInfo.h \
 	Target/AArch64/AArch64GOT.cpp \
@@ -173,23 +166,18 @@ SOURCE = ADT/StringEntry.cpp \
 	Target/AArch64/AArch64.h \
 	Target/AArch64/AArch64LDBackend.cpp \
 	Target/AArch64/AArch64LDBackend.h \
-	Target/AArch64/AArch64MCLinker.cpp \
 	Target/AArch64/AArch64PLT.cpp \
 	Target/AArch64/AArch64PLT.h \
 	Target/AArch64/AArch64RelocationFunctions.h \
 	Target/AArch64/AArch64RelocationHelpers.h \
 	Target/AArch64/AArch64Relocator.cpp \
 	Target/AArch64/AArch64Relocator.h \
-	Target/AArch64/AArch64TargetMachine.cpp \
-	Target/AArch64/AArch64TargetMachine.h \
 	Target/AArch64/TargetInfo/AArch64TargetInfo.cpp \
 	Target/ARM/ARMDiagnostic.cpp \
 	Target/ARM/ARMELFAttributeData.cpp \
 	Target/ARM/ARMELFAttributeData.h \
 	Target/ARM/ARMELFDynamic.cpp \
 	Target/ARM/ARMELFDynamic.h \
-	Target/ARM/ARMELFMCLinker.cpp \
-	Target/ARM/ARMELFMCLinker.h \
 	Target/ARM/ARMEmulation.cpp \
 	Target/ARM/ARMGNUInfo.h \
 	Target/ARM/ARMGOT.cpp \
@@ -197,14 +185,11 @@ SOURCE = ADT/StringEntry.cpp \
 	Target/ARM/ARM.h \
 	Target/ARM/ARMLDBackend.cpp \
 	Target/ARM/ARMLDBackend.h \
-	Target/ARM/ARMMCLinker.cpp \
 	Target/ARM/ARMPLT.cpp \
 	Target/ARM/ARMPLT.h \
 	Target/ARM/ARMRelocationFunctions.h \
 	Target/ARM/ARMRelocator.cpp \
 	Target/ARM/ARMRelocator.h \
-	Target/ARM/ARMTargetMachine.cpp \
-	Target/ARM/ARMTargetMachine.h \
 	Target/ARM/ARMToARMStub.cpp \
 	Target/ARM/ARMToARMStub.h \
 	Target/ARM/ARMToTHMStub.cpp \
@@ -219,8 +204,6 @@ SOURCE = ADT/StringEntry.cpp \
 	Target/Hexagon/HexagonDiagnostic.cpp \
 	Target/Hexagon/HexagonELFDynamic.cpp \
 	Target/Hexagon/HexagonELFDynamic.h \
-	Target/Hexagon/HexagonELFMCLinker.cpp \
-	Target/Hexagon/HexagonELFMCLinker.h \
 	Target/Hexagon/HexagonEmulation.cpp \
 	Target/Hexagon/HexagonEncodings.h \
 	Target/Hexagon/HexagonGNUInfo.cpp \
@@ -232,20 +215,15 @@ SOURCE = ADT/StringEntry.cpp \
 	Target/Hexagon/Hexagon.h \
 	Target/Hexagon/HexagonLDBackend.cpp \
 	Target/Hexagon/HexagonLDBackend.h \
-	Target/Hexagon/HexagonMCLinker.cpp \
 	Target/Hexagon/HexagonPLT.cpp \
 	Target/Hexagon/HexagonPLT.h \
 	Target/Hexagon/HexagonRelocationFunctions.h \
 	Target/Hexagon/HexagonRelocator.cpp \
 	Target/Hexagon/HexagonRelocator.h \
-	Target/Hexagon/HexagonTargetMachine.cpp \
-	Target/Hexagon/HexagonTargetMachine.h \
 	Target/Hexagon/TargetInfo/HexagonTargetInfo.cpp \
 	Target/Mips/MipsDiagnostic.cpp \
 	Target/Mips/MipsELFDynamic.cpp \
 	Target/Mips/MipsELFDynamic.h \
-	Target/Mips/MipsELFMCLinker.cpp \
-	Target/Mips/MipsELFMCLinker.h \
 	Target/Mips/MipsEmulation.cpp \
 	Target/Mips/MipsGNUInfo.cpp \
 	Target/Mips/MipsGNUInfo.h \
@@ -258,21 +236,16 @@ SOURCE = ADT/StringEntry.cpp \
 	Target/Mips/MipsLA25Stub.h \
 	Target/Mips/MipsLDBackend.cpp \
 	Target/Mips/MipsLDBackend.h \
-	Target/Mips/MipsMCLinker.cpp \
 	Target/Mips/MipsPLT.cpp \
 	Target/Mips/MipsPLT.h \
 	Target/Mips/MipsRelocationFunctions.h \
 	Target/Mips/MipsRelocator.cpp \
 	Target/Mips/MipsRelocator.h \
-	Target/Mips/MipsTargetMachine.cpp \
-	Target/Mips/MipsTargetMachine.h \
 	Target/Mips/TargetInfo/MipsTargetInfo.cpp \
 	Target/X86/TargetInfo/X86TargetInfo.cpp \
 	Target/X86/X86Diagnostic.cpp \
 	Target/X86/X86ELFDynamic.cpp \
 	Target/X86/X86ELFDynamic.h \
-	Target/X86/X86ELFMCLinker.cpp \
-	Target/X86/X86ELFMCLinker.h \
 	Target/X86/X86Emulation.cpp \
 	Target/X86/X86GNUInfo.h \
 	Target/X86/X86GOT.cpp \
@@ -282,14 +255,11 @@ SOURCE = ADT/StringEntry.cpp \
 	Target/X86/X86.h \
 	Target/X86/X86LDBackend.cpp \
 	Target/X86/X86LDBackend.h \
-	Target/X86/X86MCLinker.cpp \
 	Target/X86/X86PLT.cpp \
 	Target/X86/X86PLT.h \
 	Target/X86/X86RelocationFunctions.h \
 	Target/X86/X86Relocator.cpp \
-	Target/X86/X86Relocator.h \
-	Target/X86/X86TargetMachine.cpp \
-	Target/X86/X86TargetMachine.h
+	Target/X86/X86Relocator.h
 
 ANDROID_CPPFLAGS=-fno-rtti -fno-exceptions -Waddress -Wchar-subscripts -Wcomment -Wformat -Wparentheses -Wreorder -Wreturn-type -Wsequence-point -Wstrict-aliasing -Wstrict-overflow=1 -Wswitch -Wtrigraphs -Wuninitialized -Wunknown-pragmas -Wunused-function -Wunused-label -Wunused-value -Wunused-variable -Wvolatile-register-var -Wsign-compare -Werror
 

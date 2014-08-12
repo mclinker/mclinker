@@ -19,7 +19,6 @@ using namespace mcld;
 LinkerConfig::LinkerConfig()
   : m_Options(),
     m_Targets(),
-    m_Bitcode(),
     m_Attribute(),
     m_CodeGenType(Unknown),
     m_CodePosition(Unset)
@@ -31,7 +30,6 @@ LinkerConfig::LinkerConfig()
 LinkerConfig::LinkerConfig(const std::string& pTripleString)
   : m_Options(),
     m_Targets(pTripleString),
-    m_Bitcode(),
     m_Attribute(),
     m_CodeGenType(Unknown),
     m_CodePosition(Unset)

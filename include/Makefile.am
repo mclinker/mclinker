@@ -1,7 +1,6 @@
 INCDIR = mcld
 
 HEADER = $(INCDIR)/AttributeOption.h \
-         $(INCDIR)/BitcodeOption.h \
          $(INCDIR)/Environment.h \
          $(INCDIR)/GeneralOptions.h \
          $(INCDIR)/InputTree.h \
@@ -25,8 +24,6 @@ HEADER = $(INCDIR)/AttributeOption.h \
          $(INCDIR)/ADT/TreeBase.h \
          $(INCDIR)/ADT/TypeTraits.h \
          $(INCDIR)/ADT/Uncopyable.h \
-         $(INCDIR)/CodeGen/MCLinker.h \
-         $(INCDIR)/CodeGen/TargetMachine.h \
          $(INCDIR)/Fragment/AlignFragment.h \
          $(INCDIR)/Fragment/FillFragment.h \
          $(INCDIR)/Fragment/Fragment.h \
@@ -160,7 +157,6 @@ HEADER = $(INCDIR)/AttributeOption.h \
          $(INCDIR)/Support/Target.h \
          $(INCDIR)/Support/TargetRegistry.h \
          $(INCDIR)/Support/TargetSelect.h \
-         $(INCDIR)/Support/ToolOutputFile.h \
          $(INCDIR)/Support/UniqueGCFactory.h \
          $(INCDIR)/Target/DarwinLDBackend.h \
          $(INCDIR)/Target/ELFAttribute.h \
@@ -169,7 +165,6 @@ HEADER = $(INCDIR)/AttributeOption.h \
          $(INCDIR)/Target/ELFDynamic.h \
          $(INCDIR)/Target/ELFDynamic.tcc \
          $(INCDIR)/Target/ELFEmulation.h \
-         $(INCDIR)/Target/ELFMCLinker.h \
          $(INCDIR)/Target/GNUInfo.h \
          $(INCDIR)/Target/GNULDBackend.h \
          $(INCDIR)/Target/GOT.h \

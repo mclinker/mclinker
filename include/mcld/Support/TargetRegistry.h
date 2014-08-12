@@ -54,35 +54,13 @@ public:
                              const char* pName,
                              Target::TripleMatchQualityFnTy pQualityFn);
 
-  /// RegisterTargetMachine - Register a TargetMachine implementation for the
-  /// given target.
-  ///
-  /// @param T - The target being registered.
-  /// @param Fn - A function to construct a TargetMachine for the target.
-  static void RegisterTargetMachine(mcld::Target &T, mcld::Target::TargetMachineCtorTy Fn)
-  {
-    // Ignore duplicate registration.
-    if (!T.TargetMachineCtorFn)
-      T.TargetMachineCtorFn = Fn;
-  }
-
-  /// RegisterMCLinker - Register a MCLinker implementation for the given
-  /// target.
-  ///
-  /// @param T - the target being registered
-  /// @param Fn - A function to create MCLinker for the target
-  static void RegisterMCLinker(mcld::Target &T, mcld::Target::MCLinkerCtorTy Fn)
-  {
-    if (!T.MCLinkerCtorFn)
-      T.MCLinkerCtorFn = Fn;
-  }
-
   /// RegisterEmulation - Register a emulation function for the target.
   /// target.
   ///
   /// @param T - the target being registered
   /// @param Fn - A emulation function
-  static void RegisterEmulation(mcld::Target &T, mcld::Target::EmulationFnTy Fn)
+  static void RegisterEmulation(mcld::Target &T,
+                                mcld::Target::EmulationFnTy Fn)
   {
     if (!T.EmulationFn)
       T.EmulationFn = Fn;
@@ -93,7 +71,8 @@ public:
   ///
   /// @param T - The target being registered
   /// @param Fn - A function to create TargetLDBackend for the target
-  static void RegisterTargetLDBackend(mcld::Target &T, mcld::Target::TargetLDBackendCtorTy Fn)
+  static void RegisterTargetLDBackend(mcld::Target &T,
+                                      mcld::Target::TargetLDBackendCtorTy Fn)
   {
     if (!T.TargetLDBackendCtorFn)
       T.TargetLDBackendCtorFn = Fn;
@@ -104,9 +83,9 @@ public:
   ///
   /// @param T - The target being registered
   /// @param Fn - A function to create DiagnosticLineInfo for the target
-  static void
-  RegisterDiagnosticLineInfo(mcld::Target &T,
-                             mcld::Target::DiagnosticLineInfoCtorTy Fn)
+  static
+  void RegisterDiagnosticLineInfo(mcld::Target &T,
+                                  mcld::Target::DiagnosticLineInfoCtorTy Fn)
   {
     if (!T.DiagnosticLineInfoCtorFn)
       T.DiagnosticLineInfoCtorFn = Fn;
@@ -162,31 +141,6 @@ public:
   }
 };
 
-/// RegisterTargetMachine - Helper template for registering a target machine
-/// implementation, for use in the target machine initialization
-/// function. Usage:
-///
-/// extern "C" void MCLDInitializeFooTarget() {
-///   extern mcld::Target TheFooTarget;
-///   RegisterTargetMachine<mcld::FooTargetMachine> X(TheFooTarget);
-/// }
-template<class TargetMachineImpl>
-struct RegisterTargetMachine
-{
-  RegisterTargetMachine(mcld::Target &T) {
-    TargetRegistry::RegisterTargetMachine(T, &Allocator);
-  }
-
-private:
-  static MCLDTargetMachine *Allocator(const llvm::Target& pLLVMTarget,
-                                      const mcld::Target& pMCLDTarget,
-                                      llvm::TargetMachine& pTM,
-                                      const std::string& pTriple) {
-    return new TargetMachineImpl(pTM, pLLVMTarget, pMCLDTarget, pTriple);
-  }
-};
-
 } //end namespace mcld
 
 #endif
-
