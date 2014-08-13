@@ -13,7 +13,7 @@ add_mcld_library(MCLDHexagonLDBackend
 
 add_subdirectory(TargetInfo)
 
-target_link_libraries(MCLDHexagonLDBackend
+target_link_libraries(MCLDHexagonLDBackend ${cmake_2_8_12_PRIVATE}
   MCLDHexagonTargetInfo
   MCLDCore
   MCLDFragment

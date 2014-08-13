@@ -11,7 +11,7 @@ add_mcld_library(MCLDX86LDBackend
 
 add_subdirectory(TargetInfo)
 
-target_link_libraries(MCLDX86LDBackend
+target_link_libraries(MCLDX86LDBackend ${cmake_2_8_12_PRIVATE}
   MCLDX86TargetInfo
   MCLDCore
   MCLDFragment

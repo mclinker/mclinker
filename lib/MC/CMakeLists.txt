@@ -14,6 +14,6 @@ add_mcld_library(MCLDMC
   ZOption.cpp
   )
 
-target_link_libraries(MCLDMC
+target_link_libraries(MCLDMC ${cmake_2_8_12_PRIVATE}
   MCLDSupport
   )

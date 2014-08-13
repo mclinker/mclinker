@@ -18,6 +18,6 @@ add_subdirectory(Hexagon)
 add_subdirectory(Mips)
 add_subdirectory(X86)
 
-target_link_libraries(MCLDTarget
+target_link_libraries(MCLDTarget ${cmake_2_8_12_PRIVATE}
   MCLDLD
   )

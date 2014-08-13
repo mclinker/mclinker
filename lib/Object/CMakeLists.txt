@@ -4,7 +4,7 @@ add_mcld_library(MCLDObject
   SectionMap.cpp
   )
 
-target_link_libraries(MCLDObject
+target_link_libraries(MCLDObject ${cmake_2_8_12_PRIVATE}
   MCLDFragment
   MCLDLD
   MCLDScript

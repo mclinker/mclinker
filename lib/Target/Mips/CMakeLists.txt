@@ -13,7 +13,7 @@ add_mcld_library(MCLDMipsLDBackend
 
 add_subdirectory(TargetInfo)
 
-target_link_libraries(MCLDMipsLDBackend
+target_link_libraries(MCLDMipsLDBackend ${cmake_2_8_12_PRIVATE}
   MCLDMipsTargetInfo
   MCLDCore
   MCLDFragment

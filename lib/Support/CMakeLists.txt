@@ -23,6 +23,6 @@ add_mcld_library(MCLDSupport
   Windows/System.inc
   )
 
-target_link_libraries(MCLDSupport
+target_link_libraries(MCLDSupport ${cmake_2_8_12_PRIVATE}
   MCLDLD
   )

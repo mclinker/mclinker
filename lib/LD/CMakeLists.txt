@@ -50,7 +50,7 @@ add_mcld_library(MCLDLD
   TextDiagnosticPrinter.cpp
   )
 
-target_link_libraries(MCLDLD
+target_link_libraries(MCLDLD ${cmake_2_8_12_PRIVATE}
   MCLDFragment
   MCLDSupport
   )

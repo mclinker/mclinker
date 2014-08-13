@@ -15,7 +15,7 @@ add_mcld_library(MCLDARMLDBackend
 
 add_subdirectory(TargetInfo)
 
-target_link_libraries(MCLDARMLDBackend
+target_link_libraries(MCLDARMLDBackend ${cmake_2_8_12_PRIVATE}
   MCLDARMTargetInfo
   MCLDCore
   MCLDFragment
