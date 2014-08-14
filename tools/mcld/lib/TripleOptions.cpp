@@ -91,6 +91,7 @@ ParseEmulation(llvm::Triple& pTriple, const std::string& pEmulation)
     .Case("elf_i386_fbsd",     llvm::Triple("i386", "", "freebsd", "gnu"))
     .Case("elf_x86_64_fbsd",   llvm::Triple("x86_64", "", "freebsd", "gnu"))
     .Case("elf32ltsmip",       llvm::Triple("mipsel", "", "", "gnu"))
+    .Case("elf64ltsmip",       llvm::Triple("mips64el", "", "", "gnu"))
     .Default(llvm::Triple());
 
   if (triple.getArch()        == llvm::Triple::UnknownArch &&
