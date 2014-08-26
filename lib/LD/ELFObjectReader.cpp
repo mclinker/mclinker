@@ -208,7 +208,8 @@ bool ELFObjectReader::readSections(Input& pInput) {
           fatal(diag::err_cannot_read_section) << (*section)->name();
         break;
       }
-      case LDFileFormat::Debug: {
+      case LDFileFormat::Debug:
+      case LDFileFormat::DebugString: {
         if (m_Config.options().stripDebug()) {
           (*section)->setKind(LDFileFormat::Ignore);
         } else {

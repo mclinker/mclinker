@@ -86,6 +86,15 @@ LDSection* ObjectBuilder::MergeSection(const Input& pInputFile,
       UpdateSectionAlign(*target, pInputSection);
       return target;
     }
+    case LDFileFormat::DebugString: {
+      if (m_Module.getDebugString().isSuccess()) {
+        if (m_Module.getDebugString().getSection() == NULL)
+          m_Module.getDebugString().setOutputSection(*target);
+        UpdateSectionAlign(*target, pInputSection);
+        return target;
+      }
+      // Fall through
+    }
     default: {
       if (!target->hasSectionData())
         IRBuilder::CreateSectionData(*target);

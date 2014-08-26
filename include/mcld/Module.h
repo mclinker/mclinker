@@ -14,6 +14,7 @@
 #define MCLD_MODULE_H_
 
 #include <mcld/InputTree.h>
+#include <mcld/LD/DebugString.h>
 #include <mcld/LD/NamePool.h>
 #include <mcld/LD/SectionSymbolSet.h>
 #include <mcld/MC/SymbolCategory.h>
@@ -152,6 +153,10 @@ class Module {
   const NamePool& getNamePool() const { return m_NamePool; }
   NamePool& getNamePool() { return m_NamePool; }
 
+  // ----- debug string ----- //
+  const DebugString& getDebugString() const { return m_DebugString; }
+  DebugString& getDebugString()             { return m_DebugString; }
+
   // -----  Aliases  ----- //
   // create an alias list for pSym, the aliases of pSym
   // can be added into the list by calling addAlias
@@ -170,6 +175,7 @@ class Module {
   SectionTable m_SectionTable;
   SymbolTable m_SymbolTable;
   NamePool m_NamePool;
+  DebugString m_DebugString;
   SectionSymbolSet m_SectSymbolSet;
   std::vector<AliasList*> m_AliasLists;
 };

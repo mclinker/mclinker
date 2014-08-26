@@ -62,6 +62,7 @@ void ELFObjectWriter::writeSection(Module& pModule,
     case LDFileFormat::Relocation:
     case LDFileFormat::Target:
     case LDFileFormat::Debug:
+    case LDFileFormat::DebugString:
     case LDFileFormat::GCCExceptTable:
     case LDFileFormat::EhFrame: {
       region = pOutput.request(section->offset(), section->size());
@@ -105,6 +106,12 @@ void ELFObjectWriter::writeSection(Module& pModule,
       break;
     case LDFileFormat::Target:
       target().emitSectionData(*section, region);
+      break;
+    case LDFileFormat::DebugString:
+      if (pModule.getDebugString().isSuccess())
+        pModule.getDebugString().emit(region);
+      else
+        emitSectionData(*section, region);
       break;
     default:
       llvm_unreachable("invalid section kind");

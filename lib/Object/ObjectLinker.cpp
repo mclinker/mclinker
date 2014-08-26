@@ -349,8 +349,14 @@ bool ObjectLinker::mergeSections() {
             continue;  // skip
 
           if ((*sect)->getLink()->kind() == LDFileFormat::Ignore ||
-              (*sect)->getLink()->kind() == LDFileFormat::Folded)
+              (*sect)->getLink()->kind() == LDFileFormat::Folded) {
             (*sect)->setKind(LDFileFormat::Ignore);
+            break;
+          }
+
+          // process the relocation which may refer to .debug_str
+          if ((*sect)->getLink()->kind() == LDFileFormat::Debug)
+            m_pModule->getDebugString().processRelocs(**sect);
           break;
         }
         case LDFileFormat::Target:
@@ -651,6 +657,9 @@ bool ObjectLinker::prelayout() {
     eh_frame_sect->getEhFrame()->computeOffsetSize();
   m_LDBackend.createAndSizeEhFrameHdr(*m_pModule);
 
+  // size debug string table
+  if (m_pModule->getDebugString().isSuccess())
+    m_pModule->getDebugString().sizeStringTable();
   return true;
 }
 
@@ -784,6 +793,10 @@ bool ObjectLinker::relocation() {
     for (iter = island.reloc_begin(); iter != iterEnd; ++iter)
       (*iter)->apply(*m_LDBackend.getRelocator());
   }
+
+  // apply the relocations against the .debug_str
+  if (m_pModule->getDebugString().isSuccess())
+    m_pModule->getDebugString().applyOffset();
   return true;
 }
 

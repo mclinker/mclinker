@@ -39,8 +39,11 @@ LDFileFormat::Kind GetELFSectionKind(uint32_t pType,
   // name rules
   llvm::StringRef name(pName);
   if (name.startswith(".debug") || name.startswith(".zdebug") ||
-      name.startswith(".line") || name.startswith(".stab"))
+      name.startswith(".line") || name.startswith(".stab")) {
+    if (name.startswith(".debug_str"))
+      return LDFileFormat::DebugString;
     return LDFileFormat::Debug;
+  }
   if (name.startswith(".comment"))
     return LDFileFormat::MetaData;
   if (name.startswith(".interp") || name.startswith(".dynamic"))
