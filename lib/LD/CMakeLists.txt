@@ -5,6 +5,7 @@ add_mcld_library(MCLDLD
   BranchIsland.cpp
   BranchIslandFactory.cpp
   BSDArchiveReader.cpp
+  DebugString.cpp
   Diagnostic.cpp
   DiagnosticEngine.cpp
   DiagnosticInfos.cpp
@@ -35,6 +36,7 @@ add_mcld_library(MCLDLD
   LDReader.cpp
   LDSection.cpp
   LDSymbol.cpp
+  MergedStringTable.cpp
   MsgHandler.cpp
   NamePool.cpp
   ObjectWriter.cpp

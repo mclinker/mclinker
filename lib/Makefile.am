@@ -32,6 +32,7 @@ SOURCE = ADT/StringEntry.cpp \
 	LD/BranchIsland.cpp \
 	LD/BranchIslandFactory.cpp \
 	LD/BSDArchiveReader.cpp \
+	LD/DebugString.cpp \
 	LD/Diagnostic.cpp \
 	LD/DiagnosticEngine.cpp \
 	LD/DiagnosticInfos.cpp \
@@ -62,6 +63,7 @@ SOURCE = ADT/StringEntry.cpp \
 	LD/LDReader.cpp \
 	LD/LDSection.cpp \
 	LD/LDSymbol.cpp \
+	LD/MergedStringTable.cpp \
 	LD/MsgHandler.cpp \
 	LD/NamePool.cpp \
 	LD/ObjectWriter.cpp \

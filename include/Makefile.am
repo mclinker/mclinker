@@ -38,6 +38,7 @@ HEADER = $(INCDIR)/AttributeOption.h \
          $(INCDIR)/LD/BranchIslandFactory.h \
          $(INCDIR)/LD/BranchIsland.h \
          $(INCDIR)/LD/BSDArchiveReader.h \
+         $(INCDIR)/LD/DebugString.h \
          $(INCDIR)/LD/DiagnosticEngine.h \
          $(INCDIR)/LD/Diagnostic.h \
          $(INCDIR)/LD/DiagnosticInfos.h \
@@ -71,6 +72,7 @@ HEADER = $(INCDIR)/AttributeOption.h \
          $(INCDIR)/LD/LDReader.h \
          $(INCDIR)/LD/LDSection.h \
          $(INCDIR)/LD/LDSymbol.h \
+         $(INCDIR)/LD/MergedStringTable.h \
          $(INCDIR)/LD/MsgHandler.h \
          $(INCDIR)/LD/NamePool.h \
          $(INCDIR)/LD/ObjectReader.h \
