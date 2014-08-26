@@ -11,6 +11,7 @@
 #include <mcld/LD/LDSymbol.h>
 #include <mcld/LD/RelocData.h>
 #include <mcld/LD/ResolveInfo.h>
+#include <mcld/LD/SectionData.h>
 #include <mcld/Fragment/Fragment.h>
 #include <mcld/Fragment/RegionFragment.h>
 #include <mcld/Fragment/Relocation.h>
@@ -44,53 +45,46 @@ void DebugString::processRelocs(LDSection& pSection,
   if (strcmp(pSection.getLink()->name().c_str(), ".debug_info") != 0)
     return;
 
+  // find the relocation against debug_str section. Add the referenced debug
+  // string into merged string table and record the relocation
   ResolveInfo* d_str_sym = NULL;
+  llvm::StringRef d_str;
   RelocData::iterator reloc, rend = pSection.getRelocData()->end();
   for (reloc = pSection.getRelocData()->begin(); reloc != rend; ++reloc) {
     Relocation* relocation = llvm::cast<Relocation>(reloc);
     ResolveInfo* info = relocation->symInfo();
-    assert(info->outSymbol()->hasFragRef());
-    // get the first relocation refer to the section .debug_str
-    if (strcmp(".debug_str", info->name()) == 0) {
-      d_str_sym = info;
-      break;
-    }
-  }
-
-  // return if no relocation refer to .debug_str
-  if (d_str_sym == NULL)
-    return;
-
-  assert(d_str_sym->outSymbol()->hasFragRef());
-  // section symbol should point to the first region fragment in the section
-  // get the input .debut_str region
-  llvm::StringRef d_str;
-  if (d_str_sym->outSymbol()->fragRef()->frag()->getKind() == Fragment::Region) {
-    RegionFragment* frag =
-          llvm::cast<RegionFragment>(d_str_sym->outSymbol()->fragRef()->frag());
-     d_str = frag->getRegion();
-  }
-  else {
-    m_Success = false;
-    return;
-  }
-
-  for (; reloc != rend; ++reloc) {
-    Relocation* relocation = llvm::cast<Relocation>(reloc);
-    ResolveInfo* info = relocation->symInfo();
-    assert(info->outSymbol()->hasFragRef());
-    // record the relocation refer to .debug_str, and also add the string to
-    // merged string table
-    if (info != d_str_sym)
+    if (!info->outSymbol()->hasFragRef())
       continue;
 
-    // get the string offset
+    if (info != d_str_sym) {
+      if (info->outSymbol()->fragRef()->frag()->getParent()->getSection().kind() !=
+          LDFileFormat::DebugString)
+        continue;
+      // in most of the cases, the relocation will refer to the same symbol,
+      // which is the section symbol of .debug_str. Record the symbol and the
+      // fragment region to speed up comparison
+      d_str_sym = info;
+      // the symbol should point to the first region fragment in the debug
+      // string section, get the input .debut_str region
+      if (info->outSymbol()->fragRef()->frag()->getKind() == Fragment::Region) {
+        RegionFragment* frag =
+            llvm::cast<RegionFragment>(info->outSymbol()->fragRef()->frag());
+        d_str = frag->getRegion();
+      }
+      else {
+        m_Success = false;
+        return;
+      }
+    }
+
+    // record the relocation refer to .debug_str, and also add the string to
+    // merged string table
     uint32_t offset = 0;
     if (!pBackend.getRelocator()->getDebugStringOffset(*relocation, offset)) {
       m_Success = false;
       return;
     }
-
+    // get the debug string
     const char* str = d_str.data() + offset;
     MergedStringTable::StringMapEntryTy& map_entry =
       m_StringTable.getOrCreateString(llvm::StringRef(str, string_length(str)));
