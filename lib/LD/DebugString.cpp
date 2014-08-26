@@ -14,6 +14,8 @@
 #include <mcld/Fragment/Fragment.h>
 #include <mcld/Fragment/RegionFragment.h>
 #include <mcld/Fragment/Relocation.h>
+#include <mcld/Target/TargetLDBackend.h>
+#include <mcld/LD/Relocator.h>
 
 #include <llvm/Support/Casting.h>
 
@@ -30,7 +32,8 @@ static inline size_t string_length(const char* pStr)
 
 //==========================
 // DebugString
-void DebugString::processRelocs(LDSection& pSection)
+void DebugString::processRelocs(LDSection& pSection,
+                                const TargetLDBackend& pBackend)
 {
   // if we've failed to processed a relocation section before, then the debug
   // string table is fail to merge. No need to process the others.
@@ -82,9 +85,12 @@ void DebugString::processRelocs(LDSection& pSection)
       continue;
 
     // get the string offset
-    // FIXME: Here we should ask backend to check the relocation type and get
-    // the string offset
-    uint32_t offset = relocation->target();
+    uint32_t offset = 0;
+    if (!pBackend.getRelocator()->getDebugStringOffset(*relocation, offset)) {
+      m_Success = false;
+      return;
+    }
+
     const char* str = d_str.data() + offset;
     MergedStringTable::StringMapEntryTy& map_entry =
       m_StringTable.getOrCreateString(llvm::StringRef(str, string_length(str)));
@@ -93,7 +99,7 @@ void DebugString::processRelocs(LDSection& pSection)
   }
 }
 
-void DebugString::applyOffset()
+void DebugString::applyOffset(TargetLDBackend& pBackend)
 {
   // traverse the recorded relocations and set the offset
   entry_iterator it, end = m_RelocStringList.end();
@@ -101,9 +107,7 @@ void DebugString::applyOffset()
     // get the string final offset
     size_t offset = m_StringTable.getOutputOffset((*it).second);
     // apply the offset to relocation target
-    // FIXME: we should ask beckend to check the relocation type and set the
-    // target data
-    (*it).first.target() = offset;
+    pBackend.getRelocator()->applyDebugStringOffset((*it).first, offset);
   }
 }
 

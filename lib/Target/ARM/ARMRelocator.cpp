@@ -757,6 +757,23 @@ void ARMRelocator::scanRelocation(Relocation& pReloc,
     issueUndefRef(pReloc, pSection, pInput);
 }
 
+bool ARMRelocator::getDebugStringOffset(Relocation& pReloc,
+                                        uint32_t& pOffset) const
+{
+  if (pReloc.type() != llvm::ELF::R_ARM_ABS32)
+    return false;
+  pOffset = pReloc.target();
+  return true;
+}
+
+bool ARMRelocator::applyDebugStringOffset(Relocation& pReloc, uint32_t pOffset)
+{
+  if (pReloc.type() != llvm::ELF::R_ARM_ABS32)
+    return false;
+  pReloc.target() = pOffset;
+  return true;
+}
+
 //=========================================//
 // Each relocation function implementation //
 //=========================================//

@@ -109,10 +109,23 @@ class Relocator {
     return true;
   }
 
- protected:
+  /// getDebugStringOffset - get the offset from the relocation target. This is
+  /// used to get the debug string offset.
+  /// @return true on success, false on fail.
+  virtual bool getDebugStringOffset(Relocation& pReloc,
+                                    uint32_t& pOffset) const
+  { return false; }
+
+  /// applyDebugStringOffset - apply the relocation target to specific offset.
+  /// This is used to set the debug string offset.
+  /// @return true on success, false on fail.
+  virtual bool applyDebugStringOffset(Relocation& pReloc, uint32_t pOffset)
+  { return false; }
+
+protected:
   const LinkerConfig& config() const { return m_Config; }
 
- private:
+private:
   const LinkerConfig& m_Config;
 };
 

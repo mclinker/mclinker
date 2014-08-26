@@ -133,10 +133,8 @@ void ObjectLinker::addUndefinedSymbols() {
                                           result);
 
     LDSymbol* output_sym = result.info->outSymbol();
-    bool has_output_sym = (output_sym != NULL);
-
     // create the output symbol if it dose not have one
-    if (!result.existent || !has_output_sym) {
+    if (!result.existent || (output_sym != NULL)) {
       output_sym = LDSymbol::Create(*result.info);
       result.info->setSymPtr(output_sym);
       output_sym->setFragmentRef(FragmentRef::Null());
@@ -356,7 +354,7 @@ bool ObjectLinker::mergeSections() {
 
           // process the relocation which may refer to .debug_str
           if ((*sect)->getLink()->kind() == LDFileFormat::Debug)
-            m_pModule->getDebugString().processRelocs(**sect);
+            m_pModule->getDebugString().processRelocs(**sect, m_LDBackend);
           break;
         }
         case LDFileFormat::Target:
@@ -796,7 +794,7 @@ bool ObjectLinker::relocation() {
 
   // apply the relocations against the .debug_str
   if (m_pModule->getDebugString().isSuccess())
-    m_pModule->getDebugString().applyOffset();
+    m_pModule->getDebugString().applyOffset(m_LDBackend);
   return true;
 }
 

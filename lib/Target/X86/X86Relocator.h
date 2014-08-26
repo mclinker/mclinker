@@ -148,7 +148,18 @@ class X86_32Relocator : public X86Relocator {
   /// access a function pointer.
   virtual bool mayHaveFunctionPointerAccess(const Relocation& pReloc) const;
 
- private:
+  /// getDebugStringOffset - get the offset from the relocation target. This is
+  /// used to get the debug string offset.
+  /// @return true on success, false on fail.
+  bool getDebugStringOffset(Relocation& pReloc,
+                            uint32_t& pOffset) const;
+
+  /// applyDebugStringOffset - apply the relocation target to specific offset.
+  /// This is used to set the debug string offset.
+  /// @return true on success, false on fail.
+  bool applyDebugStringOffset(Relocation& pReloc, uint32_t pOffset);
+
+private:
   void scanLocalReloc(Relocation& pReloc,
                       IRBuilder& pBuilder,
                       Module& pModule,
@@ -205,7 +216,22 @@ class X86_64Relocator : public X86Relocator {
   /// access a function pointer.
   virtual bool mayHaveFunctionPointerAccess(const Relocation& pReloc) const;
 
+<<<<<<< HEAD
  private:
+=======
+  /// getDebugStringOffset - get the offset from the relocation target. This is
+  /// used to get the debug string offset.
+  /// @return true on success, false on fail.
+  bool getDebugStringOffset(Relocation& pReloc,
+                            uint32_t& pOffset) const;
+
+  /// applyDebugStringOffset - apply the relocation target to specific offset.
+  /// This is used to set the debug string offset.
+  /// @return true on success, false on fail.
+  bool applyDebugStringOffset(Relocation& pReloc, uint32_t pOffset);
+
+private:
+>>>>>>> debug info: Get and apply debug string offset in backend relocator
   void scanLocalReloc(Relocation& pReloc,
                       IRBuilder& pBuilder,
                       Module& pModule,

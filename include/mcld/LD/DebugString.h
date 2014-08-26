@@ -17,6 +17,7 @@ namespace mcld {
 
 class LDSection;
 class Relocation;
+class TargetLDBackend;
 
 /** \class DebugString
  *  \brief DebugString represents the debug section .debug_str
@@ -30,7 +31,7 @@ public:
 
   /// processRelocs - process the relocation section. Get the strings used by
   /// the relcoations and add them into the merged string table.
-  void processRelocs(LDSection& pSection);
+  void processRelocs(LDSection& pSection, const TargetLDBackend& pBackend);
 
   /// sizeStringTable - set up the section size and determine the output offset
   /// of each strings.
@@ -38,7 +39,7 @@ public:
 
   /// applyOffset - apply the relocations those refer to debug string. This
   /// should be called after sizeStringTable.
-  void applyOffset();
+  void applyOffset(TargetLDBackend& pBackend);
 
   /// emit - emit the section .debug_str
   void emit(MemoryRegion& pRegion);

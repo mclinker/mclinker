@@ -830,6 +830,24 @@ void X86_32Relocator::convertTLSIEtoLE(Relocation& pReloc,
   pReloc.setType(llvm::ELF::R_386_TLS_LE);
 }
 
+bool X86_32Relocator::getDebugStringOffset(Relocation& pReloc,
+                                           uint32_t& pOffset) const
+{
+  if (pReloc.type() != llvm::ELF::R_386_32)
+    return false;
+  pOffset = pReloc.target();
+  return true;
+}
+
+bool X86_32Relocator::applyDebugStringOffset(Relocation& pReloc,
+                                             uint32_t pOffset)
+{
+  if (pReloc.type() != llvm::ELF::R_386_32)
+    return false;
+  pReloc.target() = pOffset;
+  return true;
+}
+
 //================================================//
 // X86_32 Each relocation function implementation //
 //================================================//
@@ -1482,6 +1500,27 @@ void X86_64Relocator::scanGlobalReloc(Relocation& pReloc,
   }  // end switch
 }
 
+bool X86_64Relocator::getDebugStringOffset(Relocation& pReloc,
+                                           uint32_t& pOffset) const
+{
+  if (pReloc.type() != llvm::ELF::R_X86_64_32)
+    return false;
+  pOffset = pReloc.target();
+  return true;
+}
+
+bool X86_64Relocator::applyDebugStringOffset(Relocation& pReloc,
+                                             uint32_t pOffset)
+{
+  if (pReloc.type() != llvm::ELF::R_X86_64_32)
+    return false;
+  pReloc.target() = pOffset;
+  return true;
+}
+
+//------------------------------------------------//
+// X86_64 Each relocation function implementation //
+//------------------------------------------------//
 // R_X86_64_NONE
 Relocator::Result none(Relocation& pReloc, X86_64Relocator& pParent) {
   return Relocator::OK;
