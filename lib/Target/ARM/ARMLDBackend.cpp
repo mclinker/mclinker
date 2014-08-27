@@ -641,13 +641,11 @@ ARMGNULDBackend::doRelax(Module& pModule, IRBuilder& pBuilder, bool& pFinished)
                 symbol->fragRef()->frag()->getParent()->getSection().addr();
               sym_value = addr + value;
             }
-            if (relocation->symInfo()->isGlobal() &&
-                (relocation->symInfo()->reserved() & ARMRelocator::ReservePLT) != 0x0) {
+            if ((relocation->symInfo()->reserved() & ARMRelocator::ReservePLT) != 0x0) {
               // FIXME: we need to find out the address of the specific plt entry
               assert(file_format->hasPLT());
               sym_value = file_format->getPLT().addr();
             }
-
             Stub* stub = getStubFactory()->create(*relocation, // relocation
                                                   sym_value, // symbol value
                                                   pBuilder,
