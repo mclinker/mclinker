@@ -835,7 +835,10 @@ bool X86_32Relocator::getDebugStringOffset(Relocation& pReloc,
 {
   if (pReloc.type() != llvm::ELF::R_386_32)
     return false;
-  pOffset = pReloc.target();
+  if (pReloc.symInfo()->type() == ResolveInfo::Section) {
+    pOffset = pReloc.target() + pReloc.addend();
+    return true;
+  }
   return true;
 }
 
@@ -1505,7 +1508,10 @@ bool X86_64Relocator::getDebugStringOffset(Relocation& pReloc,
 {
   if (pReloc.type() != llvm::ELF::R_X86_64_32)
     return false;
-  pOffset = pReloc.target();
+  if (pReloc.symInfo()->type() == ResolveInfo::Section) {
+    pOffset = pReloc.target() + pReloc.addend();
+    return true;
+  }
   return true;
 }
 

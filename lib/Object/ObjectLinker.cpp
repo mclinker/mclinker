@@ -656,8 +656,12 @@ bool ObjectLinker::prelayout() {
   m_LDBackend.createAndSizeEhFrameHdr(*m_pModule);
 
   // size debug string table
+  // we set the .debug_str size here so that there won't be a section symbol for
+  // .debug_str. While actually it doesn't matter that .debug_str has section
+  // symbol or not.
   if (m_pModule->getDebugString().isSuccess())
     m_pModule->getDebugString().sizeStringTable();
+
   return true;
 }
 

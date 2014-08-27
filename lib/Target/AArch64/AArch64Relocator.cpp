@@ -397,6 +397,27 @@ void AArch64Relocator::scanRelocation(Relocation& pReloc,
     issueUndefRef(pReloc, pSection, pInput);
 }
 
+bool AArch64Relocator::getDebugStringOffset(Relocation& pReloc,
+                                            uint32_t& pOffset) const
+{
+  if (pReloc.type() != llvm::ELF::R_AARCH64_ABS32)
+    return false;
+  if (pReloc.symInfo()->type() == ResolveInfo::Section) {
+    pOffset = pReloc.target() + pReloc.addend();
+    return true;
+  }
+  return false;
+}
+
+bool AArch64Relocator::applyDebugStringOffset(Relocation& pReloc,
+                                              uint32_t pOffset)
+{
+  if (pReloc.type() != llvm::ELF::R_AARCH64_ABS32)
+    return false;
+  pReloc.target() = pOffset;
+  return true;
+}
+
 //===----------------------------------------------------------------------===//
 // Each relocation function implementation
 //===----------------------------------------------------------------------===//

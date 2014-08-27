@@ -168,7 +168,17 @@ class Mips32Relocator : public MipsRelocator {
  public:
   Mips32Relocator(Mips32GNULDBackend& pParent, const LinkerConfig& pConfig);
 
- private:
+  /// getDebugStringOffset - get the offset from the relocation target. This is
+  /// used to get the debug string offset.
+  /// @return true on success, false on fail.
+  bool getDebugStringOffset(Relocation& pReloc, uint32_t& pOffset) const;
+
+  /// applyDebugStringOffset - apply the relocation target to specific offset.
+  /// This is used to set the debug string offset.
+  /// @return true on success, false on fail.
+  bool applyDebugStringOffset(Relocation& pReloc, uint32_t pOffset);
+
+private:
   // MipsRelocator
   void setupRelDynEntry(FragmentRef& pFragRef, ResolveInfo* pSym);
 };

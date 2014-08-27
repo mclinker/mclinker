@@ -698,6 +698,28 @@ void Mips32Relocator::setupRelDynEntry(FragmentRef& pFragRef,
   relEntry.setSymInfo(pSym);
 }
 
+bool Mips32Relocator::getDebugStringOffset(Relocation& pReloc,
+                                           uint32_t& pOffset) const
+{
+  if (pReloc.type() != llvm::ELF::R_MIPS_32)
+    return false;
+  if (pReloc.symInfo()->type() == ResolveInfo::Section) {
+    pOffset = pReloc.target() + pReloc.addend();
+    return true;
+  }
+  return false;
+}
+
+bool Mips32Relocator::applyDebugStringOffset(Relocation& pReloc,
+                                             uint32_t pOffset)
+{
+  if (pReloc.type() != llvm::ELF::R_MIPS_32)
+    return false;
+  pReloc.target() = pOffset;
+  return true;
+}
+
+
 //===----------------------------------------------------------------------===//
 // Mips64Relocator
 //===----------------------------------------------------------------------===//

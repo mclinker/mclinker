@@ -762,8 +762,11 @@ bool ARMRelocator::getDebugStringOffset(Relocation& pReloc,
 {
   if (pReloc.type() != llvm::ELF::R_ARM_ABS32)
     return false;
-  pOffset = pReloc.target();
-  return true;
+  if (pReloc.symInfo()->type() == ResolveInfo::Section) {
+    pOffset = pReloc.target();
+    return true;
+  }
+  return false;
 }
 
 bool ARMRelocator::applyDebugStringOffset(Relocation& pReloc, uint32_t pOffset)
