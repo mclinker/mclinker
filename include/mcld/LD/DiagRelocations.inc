@@ -16,9 +16,9 @@ DIAG(undefined_reference_text,
      "%1:%2: undefined reference to `%0'")
 DIAG(non_pic_relocation,
      DiagnosticEngine::Error,
-     "attempt to generate unsupported relocation type `%0' for symbol `%1', "
+     "attempt to generate unsupported relocation `%0' for symbol `%1', "
      "recompile with -fPIC",
-     "attempt to generate unsupported relocation type `%0' for symbol `%1, "
+     "attempt to generate unsupported relocation `%0' for symbol `%1, "
      "recompile with -fPIC")
 DIAG(base_relocation,
      DiagnosticEngine::Fatal,

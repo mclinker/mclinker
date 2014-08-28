@@ -399,7 +399,7 @@ void ARMRelocator::checkValidReloc(Relocation& pReloc) const {
       break;
 
     default:
-      error(diag::non_pic_relocation) << static_cast<int>(pReloc.type())
+      error(diag::non_pic_relocation) << getName(pReloc.type())
                                       << pReloc.symInfo()->name();
       break;
   }
@@ -462,7 +462,7 @@ void ARMRelocator::scanLocalReloc(Relocation& pReloc,
     case llvm::ELF::R_ARM_THM_MOVT_ABS: {
       // PIC code should not contain these kinds of relocation
       if (config().isCodeIndep()) {
-        error(diag::non_pic_relocation) << static_cast<int>(pReloc.type())
+        error(diag::non_pic_relocation) << getName(pReloc.type())
                                         << pReloc.symInfo()->name();
       }
       return;
