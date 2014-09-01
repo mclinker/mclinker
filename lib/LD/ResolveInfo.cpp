@@ -40,8 +40,8 @@ void ResolveInfo::override(const ResolveInfo& pFrom)
 
 void ResolveInfo::overrideAttributes(const ResolveInfo& pFrom)
 {
-  m_BitField &= ~RESOLVE_MASK;
-  m_BitField |= (pFrom.m_BitField & RESOLVE_MASK);
+  m_BitField &= ~RESOLVE_MASK | VISIBILITY_MASK;
+  m_BitField |= (pFrom.m_BitField & (RESOLVE_MASK & ~VISIBILITY_MASK));
 }
 
 /// overrideVisibility - override the visibility
