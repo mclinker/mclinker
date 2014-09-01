@@ -707,7 +707,7 @@ void ARMRelocator::scanGlobalReloc(Relocation& pReloc,
         else {
           checkValidReloc(pReloc);
           // set Rel bit
-          //helper_DynRel_init(pReloc, pReloc.type(), *this);
+          helper_DynRel_init(pReloc, pReloc.type(), *this);
           rsym->setReserved(rsym->reserved() | ReserveRel);
           getTarget().checkAndSetHasTextRel(*pSection.getLink());
         }
