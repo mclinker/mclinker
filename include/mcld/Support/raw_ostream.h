@@ -28,7 +28,7 @@ public:
   /// file descriptor when it is done (this is necessary to detect
   /// output errors).
   raw_fd_ostream(const char *pFilename,
-                 std::string &pErrorInfo,
+                 std::error_code &pErrorCode,
                  llvm::sys::fs::OpenFlags pFlags = llvm::sys::fs::F_None);
 
   /// raw_fd_ostream ctor - FD is the file descriptor that this writes to.  If
