@@ -12,6 +12,7 @@
 #include <mcld/MC/Input.h>
 #include <mcld/Support/LEB128.h>
 #include <mcld/Support/MsgHandling.h>
+#include <llvm/ADT/STLExtras.h>
 
 using namespace mcld;
 
@@ -652,9 +653,6 @@ static const uint8_t fp_config_hash_table[] =
 #undef UND
 };
 
-static const size_t num_hash_table_entries =
-    sizeof(fp_config_hash_table) / sizeof(fp_config_hash_table[0]);
-
 static int calculate_fp_config_hash(const struct fp_config_data &pConfig)
 {
   int x = pConfig.version;
@@ -665,7 +663,8 @@ static int calculate_fp_config_hash(const struct fp_config_data &pConfig)
 static int get_fp_arch_of_config(const struct fp_config_data &pConfig)
 {
   int hash = calculate_fp_config_hash(pConfig);
-  assert(static_cast<size_t>(hash) < num_hash_table_entries);
+  assert(static_cast<size_t>(hash) <
+            llvm::array_lengthof(fp_config_hash_table));
   return fp_config_hash_table[hash];
 }
 
