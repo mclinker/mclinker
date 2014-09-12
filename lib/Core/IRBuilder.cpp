@@ -6,13 +6,15 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
+#include <mcld/Fragment/FragmentRef.h>
 #include <mcld/IRBuilder.h>
 
 #include <mcld/Fragment/FragmentRef.h>
 #include <mcld/LinkerScript.h>
-#include <mcld/LD/LDContext.h>
+#include <mcld/LD/DebugString.h>
 #include <mcld/LD/EhFrame.h>
 #include <mcld/LD/ELFReader.h>
+#include <mcld/LD/LDContext.h>
 #include <mcld/LD/RelocData.h>
 #include <mcld/LD/SectionData.h>
 #include <mcld/Object/ObjectBuilder.h>
@@ -304,6 +306,16 @@ EhFrame* IRBuilder::CreateEhFrame(LDSection& pSection) {
   EhFrame* eh_frame = EhFrame::Create(pSection);
   pSection.setEhFrame(eh_frame);
   return eh_frame;
+}
+
+/// CreateDebugString - To create a DebugString for given pSection
+DebugString* IRBuilder::CreateDebugString(LDSection& pSection)
+{
+  assert(!pSection.hasDebugString() && "pSection already has debug_str.");
+
+  DebugString* debug_str = DebugString::Create(pSection);
+  pSection.setDebugString(debug_str);
+  return debug_str;
 }
 
 /// CreateBSS - To create a bss section for given pSection

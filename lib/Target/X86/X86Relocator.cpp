@@ -830,25 +830,22 @@ void X86_32Relocator::convertTLSIEtoLE(Relocation& pReloc,
   pReloc.setType(llvm::ELF::R_386_TLS_LE);
 }
 
-bool X86_32Relocator::getDebugStringOffset(Relocation& pReloc,
-                                           uint32_t& pOffset) const
+uint32_t X86_32Relocator::getDebugStringOffset(Relocation& pReloc) const
 {
   if (pReloc.type() != llvm::ELF::R_386_32)
-    return false;
-  if (pReloc.symInfo()->type() == ResolveInfo::Section) {
-    pOffset = pReloc.target() + pReloc.addend();
-    return true;
-  }
-  return true;
+    error(diag::unsupport_reloc_for_debug_string) << getName(pReloc.type())
+                                                  << "mclinker@googlegroups.com";
+  if (pReloc.symInfo()->type() == ResolveInfo::Section)
+    return pReloc.target();
+  else
+    return pReloc.symInfo()->outSymbol()->fragRef()->offset() +
+                                              pReloc.target() + pReloc.addend();
 }
 
-bool X86_32Relocator::applyDebugStringOffset(Relocation& pReloc,
+void X86_32Relocator::applyDebugStringOffset(Relocation& pReloc,
                                              uint32_t pOffset)
 {
-  if (pReloc.type() != llvm::ELF::R_386_32)
-    return false;
   pReloc.target() = pOffset;
-  return true;
 }
 
 //================================================//
@@ -1503,25 +1500,22 @@ void X86_64Relocator::scanGlobalReloc(Relocation& pReloc,
   }  // end switch
 }
 
-bool X86_64Relocator::getDebugStringOffset(Relocation& pReloc,
-                                           uint32_t& pOffset) const
+uint32_t X86_64Relocator::getDebugStringOffset(Relocation& pReloc) const
 {
   if (pReloc.type() != llvm::ELF::R_X86_64_32)
-    return false;
-  if (pReloc.symInfo()->type() == ResolveInfo::Section) {
-    pOffset = pReloc.target() + pReloc.addend();
-    return true;
-  }
-  return true;
+    error(diag::unsupport_reloc_for_debug_string) << getName(pReloc.type())
+                                                  << "mclinker@googlegroups.com";
+  if (pReloc.symInfo()->type() == ResolveInfo::Section)
+    return pReloc.target();
+  else
+    return pReloc.symInfo()->outSymbol()->fragRef()->offset() +
+                                              pReloc.target() + pReloc.addend();
 }
 
-bool X86_64Relocator::applyDebugStringOffset(Relocation& pReloc,
+void X86_64Relocator::applyDebugStringOffset(Relocation& pReloc,
                                              uint32_t pOffset)
 {
-  if (pReloc.type() != llvm::ELF::R_X86_64_32)
-    return false;
   pReloc.target() = pOffset;
-  return true;
 }
 
 //------------------------------------------------//

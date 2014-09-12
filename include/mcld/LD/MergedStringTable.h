@@ -47,6 +47,8 @@ public:
   /// be called after finalizeOffset.
   size_t getOutputOffset(StringMapEntryTy& pEntry);
 
+  size_t getOutputOffset(llvm::StringRef pStr);
+
 private:
   typedef StringMapTy::iterator string_map_iterator;
   typedef StringMapTy::const_iterator const_string_map_iterator;

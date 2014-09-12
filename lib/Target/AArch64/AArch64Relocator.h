@@ -113,13 +113,11 @@ class AArch64Relocator : public Relocator {
 
   /// getDebugStringOffset - get the offset from the relocation target. This is
   /// used to get the debug string offset.
-  /// @return true on success, false on fail.
-  bool getDebugStringOffset(Relocation& pReloc, uint32_t& pOffset) const;
+  uint32_t getDebugStringOffset(Relocation& pReloc) const;
 
   /// applyDebugStringOffset - apply the relocation target to specific offset.
   /// This is used to set the debug string offset.
-  /// @return true on success, false on fail.
-  bool applyDebugStringOffset(Relocation& pReloc, uint32_t pOffset);
+  void applyDebugStringOffset(Relocation& pReloc, uint32_t pOffset);
 
 private:
   void scanLocalReloc(Relocation& pReloc, const LDSection& pSection);

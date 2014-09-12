@@ -99,4 +99,8 @@ bool LDSection::hasEhFrame() const {
   return (m_Data.eh_frame != NULL);
 }
 
-}  // namespace mcld
+bool LDSection::hasDebugString() const
+{
+  assert(LDFileFormat::DebugString == kind());
+  return (NULL != m_Data.debug_string);
+}

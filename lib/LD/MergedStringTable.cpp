@@ -43,3 +43,9 @@ size_t MergedStringTable::getOutputOffset(MergedStringTable::StringMapEntryTy& p
   return pEntry.getValue();
 }
 
+size_t MergedStringTable::getOutputOffset(llvm::StringRef pStr)
+{
+  assert(m_StringMap.find(pStr) != m_StringMap.end());
+  return m_StringMap[pStr];
+}
+

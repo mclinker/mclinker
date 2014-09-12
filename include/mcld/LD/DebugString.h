@@ -20,26 +20,29 @@ class Relocation;
 class TargetLDBackend;
 
 /** \class DebugString
- *  \brief DebugString represents the debug section .debug_str
+ *  \brief DebugString represents the output debug section .debug_str
  */
 class DebugString
 {
 public:
   DebugString()
-   : m_pSection(NULL), m_Success(true)
+   : m_pSection(NULL)
   {}
 
-  /// processRelocs - process the relocation section. Get the strings used by
-  /// the relcoations and add them into the merged string table.
-  void processRelocs(LDSection& pSection, const TargetLDBackend& pBackend);
+  static DebugString* Create(LDSection& pSection);
 
-  /// sizeStringTable - set up the section size and determine the output offset
-  /// of each strings.
-  uint64_t sizeStringTable();
+  /// merge - process the strings in the given input .debug_str section and add
+  /// those strings into merged string map
+  void merge(LDSection& pSection);
 
-  /// applyOffset - apply the relocations those refer to debug string. This
-  /// should be called after sizeStringTable.
-  void applyOffset(TargetLDBackend& pBackend);
+  /// computeOffsetSize - set up the output offset of each strings and the
+  /// section size
+  /// @return string table size
+  size_t computeOffsetSize();
+
+  /// applyOffset - apply the relocation which refer to debug string. This
+  /// should be called after finalizeStringsOffset()
+  void applyOffset(Relocation& pReloc, TargetLDBackend& pBackend);
 
   /// emit - emit the section .debug_str
   void emit(MemoryRegion& pRegion);
@@ -51,29 +54,11 @@ public:
   const LDSection* getSection() const { return m_pSection; }
   LDSection*       getSection()       { return m_pSection; }
 
-  bool empty() const
-  { return m_RelocStringList.empty(); }
-
-  /// isSuccess - the mergeable debug strings are successfully proccessed or not
-  bool isSuccess() const
-  { return m_Success; }
-
-private:
-  typedef std::pair<Relocation&, MergedStringTable::StringMapEntryTy&> EntryTy;
-  typedef std::vector<EntryTy> EntryListTy;
-  typedef EntryListTy::iterator entry_iterator;
-  typedef EntryListTy::const_iterator const_entry_iterator;
-
 private:
   /// m_Section - the output LDSection of this .debug_str
   LDSection* m_pSection;
 
-  EntryListTy m_RelocStringList;
-
   MergedStringTable m_StringTable;
-
-  /// m_Success - the mergeable debug strings are successfully proccessed or not
-  bool m_Success;
 };
 
 } // namespace of mcld

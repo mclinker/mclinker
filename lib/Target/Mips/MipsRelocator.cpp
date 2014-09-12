@@ -682,6 +682,25 @@ uint64_t MipsRelocator::getPLTAddress(ResolveInfo& rsym) {
   return getTarget().getPLT().addr() + plt->getOffset();
 }
 
+uint32_t MipsRelocator::getDebugStringOffset(Relocation& pReloc) const
+{
+  if (pReloc.type() != llvm::ELF::R_MIPS_32)
+    error(diag::unsupport_reloc_for_debug_string) << getName(pReloc.type())
+                                                  << "mclinker@googlegroups.com";
+  if (pReloc.symInfo()->type() == ResolveInfo::Section)
+    return pReloc.target();
+  else
+    return pReloc.symInfo()->outSymbol()->fragRef()->offset() +
+                                              pReloc.target() + pReloc.addend();
+}
+
+void MipsRelocator::applyDebugStringOffset(Relocation& pReloc,
+                                             uint32_t pOffset)
+{
+  pReloc.target() = pOffset;
+}
+
+
 //===----------------------------------------------------------------------===//
 // Mips32Relocator
 //===----------------------------------------------------------------------===//
@@ -697,28 +716,6 @@ void Mips32Relocator::setupRelDynEntry(FragmentRef& pFragRef,
   relEntry.targetRef() = pFragRef;
   relEntry.setSymInfo(pSym);
 }
-
-bool Mips32Relocator::getDebugStringOffset(Relocation& pReloc,
-                                           uint32_t& pOffset) const
-{
-  if (pReloc.type() != llvm::ELF::R_MIPS_32)
-    return false;
-  if (pReloc.symInfo()->type() == ResolveInfo::Section) {
-    pOffset = pReloc.target() + pReloc.addend();
-    return true;
-  }
-  return false;
-}
-
-bool Mips32Relocator::applyDebugStringOffset(Relocation& pReloc,
-                                             uint32_t pOffset)
-{
-  if (pReloc.type() != llvm::ELF::R_MIPS_32)
-    return false;
-  pReloc.target() = pOffset;
-  return true;
-}
-
 
 //===----------------------------------------------------------------------===//
 // Mips64Relocator

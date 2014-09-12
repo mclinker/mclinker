@@ -106,7 +106,15 @@ class HexagonRelocator : public Relocator {
   const RelRelMap& getRelRelMap() const { return m_RelRelMap; }
   RelRelMap& getRelRelMap() { return m_RelRelMap; }
 
- protected:
+  /// getDebugStringOffset - get the offset from the relocation target. This is
+  /// used to get the debug string offset.
+  uint32_t getDebugStringOffset(Relocation& pReloc) const { return 0; }
+
+  /// applyDebugStringOffset - apply the relocation target to specific offset.
+  /// This is used to set the debug string offset.
+  void applyDebugStringOffset(Relocation& pReloc, uint32_t pOffset) {}
+
+protected:
   /// addCopyReloc - add a copy relocation into .rela.dyn for pSym
   /// @param pSym - A resolved copy symbol that defined in BSS section
   void addCopyReloc(ResolveInfo& pSym, HexagonLDBackend& pTarget);

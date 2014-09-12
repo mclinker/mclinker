@@ -252,6 +252,13 @@ class IRBuilder {
   ///         assertion occurs.
   static EhFrame* CreateEhFrame(LDSection& pSection);
 
+  /// CreateDebugString - To create a debug_str for given pSection
+  /// @param  pSection The given LDSection. It should be the output
+  ///         .debug_str section
+  ///         pSection.getDebugString() is set to a valid eh_frame.
+  /// @return The created DebugString
+  static DebugString* CreateDebugString(LDSection& pSection);
+
   /// CreateBSS - To create a bss section for given pSection
   /// @param [in, out] pSection The given LDSection. It can be in either an
   ///         input or the output.

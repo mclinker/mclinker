@@ -18,6 +18,7 @@
 #include <mcld/LD/ArchiveReader.h>
 #include <mcld/LD/BinaryReader.h>
 #include <mcld/LD/BranchIslandFactory.h>
+#include <mcld/LD/DebugString.h>
 #include <mcld/LD/DynObjReader.h>
 #include <mcld/LD/GarbageCollection.h>
 #include <mcld/LD/GroupReader.h>
@@ -347,15 +348,9 @@ bool ObjectLinker::mergeSections() {
             continue;  // skip
 
           if ((*sect)->getLink()->kind() == LDFileFormat::Ignore ||
-              (*sect)->getLink()->kind() == LDFileFormat::Folded) {
+              (*sect)->getLink()->kind() == LDFileFormat::Folded)
             (*sect)->setKind(LDFileFormat::Ignore);
             break;
-          }
-
-          // process the relocation which may refer to .debug_str
-          if ((*sect)->getLink()->kind() == LDFileFormat::Debug)
-            m_pModule->getDebugString().processRelocs(**sect, m_LDBackend);
-          break;
         }
         case LDFileFormat::Target:
           if (!m_LDBackend.mergeSection(*m_pModule, **obj, **sect)) {
@@ -438,8 +433,20 @@ void ObjectLinker::addSymbolToOutput(ResolveInfo& pInfo, Module& pModule) {
 
   // if the symbols defined in the Ignore sections (e.g. discared by GC), then
   // not to put them to output
+  // make sure that symbols defined in .debug_str won't add into output
+  // symbol table. Since these symbols has fragRef to input fragments, which
+  // will refer to input LDSection and has bad result when emitting their
+  // section index. However, .debug_str actually does not need symobl in
+  // shrad/executable objects, so it's fine to do so.
   if (pInfo.outSymbol()->hasFragRef() &&
       LDFileFormat::Ignore ==
+          pInfo.outSymbol()
+              ->fragRef()
+              ->frag()
+              ->getParent()
+              ->getSection()
+              .kind() ||
+      LDFileFormat::DebugString ==
           pInfo.outSymbol()
               ->fragRef()
               ->frag()
@@ -655,12 +662,13 @@ bool ObjectLinker::prelayout() {
     eh_frame_sect->getEhFrame()->computeOffsetSize();
   m_LDBackend.createAndSizeEhFrameHdr(*m_pModule);
 
-  // size debug string table
+  // size debug string table and set up the debug string offset
   // we set the .debug_str size here so that there won't be a section symbol for
   // .debug_str. While actually it doesn't matter that .debug_str has section
   // symbol or not.
-  if (m_pModule->getDebugString().isSuccess())
-    m_pModule->getDebugString().sizeStringTable();
+  LDSection* debug_str_sect = m_pModule->getSection(".debug_str");
+  if (debug_str_sect && debug_str_sect->hasDebugString())
+    debug_str_sect->getDebugString()->computeOffsetSize();
 
   return true;
 }
@@ -756,6 +764,8 @@ bool ObjectLinker::relocation() {
   if (LinkerConfig::Object == m_Config.codeGenType())
     return true;
 
+  LDSection* debug_str_sect = m_pModule->getSection(".debug_str");
+
   // apply all relocations of all inputs
   Module::obj_iterator input, inEnd = m_pModule->obj_end();
   for (input = m_pModule->obj_begin(); input != inEnd; ++input) {
@@ -780,6 +790,18 @@ bool ObjectLinker::relocation() {
             ResolveInfo::Undefined == info->desc())
           continue;
 
+        // apply the relocation aginst symbol on DebugString
+        if (info->outSymbol()->hasFragRef() &&
+            info->outSymbol()->fragRef()->frag()->getKind() == Fragment::Region &&
+            info->outSymbol()->fragRef()->frag()->getParent()->getSection().kind() ==
+             LDFileFormat::DebugString) {
+          assert(debug_str_sect != NULL);
+          assert(debug_str_sect->hasDebugString());
+          debug_str_sect->getDebugString()->applyOffset(*relocation,
+                                                        m_LDBackend);
+          continue;
+        }
+
         relocation->apply(*m_LDBackend.getRelocator());
       }  // for all relocations
     }    // for all relocation section
@@ -796,9 +818,6 @@ bool ObjectLinker::relocation() {
       (*iter)->apply(*m_LDBackend.getRelocator());
   }
 
-  // apply the relocations against the .debug_str
-  if (m_pModule->getDebugString().isSuccess())
-    m_pModule->getDebugString().applyOffset(m_LDBackend);
   return true;
 }
 

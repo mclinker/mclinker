@@ -61,6 +61,14 @@ class MipsRelocator : public Relocator {
 
   Result applyRelocation(Relocation& pReloc);
 
+  /// getDebugStringOffset - get the offset from the relocation target. This is
+  /// used to get the debug string offset.
+  uint32_t getDebugStringOffset(Relocation& pReloc) const;
+
+  /// applyDebugStringOffset - apply the relocation target to specific offset.
+  /// This is used to set the debug string offset.
+  void applyDebugStringOffset(Relocation& pReloc, uint32_t pOffset);
+
   const Input& getApplyingInput() const { return *m_pApplyingInput; }
 
   MipsGNULDBackend& getTarget() { return m_Target; }
@@ -167,16 +175,6 @@ class MipsRelocator : public Relocator {
 class Mips32Relocator : public MipsRelocator {
  public:
   Mips32Relocator(Mips32GNULDBackend& pParent, const LinkerConfig& pConfig);
-
-  /// getDebugStringOffset - get the offset from the relocation target. This is
-  /// used to get the debug string offset.
-  /// @return true on success, false on fail.
-  bool getDebugStringOffset(Relocation& pReloc, uint32_t& pOffset) const;
-
-  /// applyDebugStringOffset - apply the relocation target to specific offset.
-  /// This is used to set the debug string offset.
-  /// @return true on success, false on fail.
-  bool applyDebugStringOffset(Relocation& pReloc, uint32_t pOffset);
 
 private:
   // MipsRelocator
