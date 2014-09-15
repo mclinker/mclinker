@@ -119,7 +119,7 @@ void OutputSectDesc::dump() const
 
   if (m_Epilog.hasPhdrs()) {
     for (StringList::const_iterator it = m_Epilog.phdrs().begin(),
-      ie = m_Epilog.phdrs().end(); it != ie; ++it) {
+         ie = m_Epilog.phdrs().end(); it != ie; ++it) {
       assert((*it)->kind() == StrToken::String);
       mcld::outs() << ":" << (*it)->name() << " ";
     }
@@ -167,7 +167,7 @@ void OutputSectDesc::activate(Module& pModule)
       (*it)->activate(pModule);
 
       for (iterator assign = assignments.begin(), assignEnd = assignments.end();
-        assign != assignEnd; ++assign) {
+           assign != assignEnd; ++assign) {
         (*assign)->activate(pModule);
       }
       assignments.clear();
@@ -188,7 +188,7 @@ void OutputSectDesc::activate(Module& pModule)
     pModule.getScript().sectionMap().insert(inputDesc, *this);
 
     for (iterator assign = assignments.begin(), assignEnd = assignments.end();
-      assign != assignEnd; ++assign) {
+         assign != assignEnd; ++assign) {
       (*assign)->activate(pModule);
     }
     assignments.clear();

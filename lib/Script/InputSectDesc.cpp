@@ -49,7 +49,7 @@ void InputSectDesc::dump() const
     if (m_Spec.hasExcludeFiles()) {
       mcld::outs() << "EXCLUDE_FILE (";
       for (StringList::const_iterator it = m_Spec.excludeFiles().begin(),
-        ie = m_Spec.excludeFiles().end(); it != ie; ++it) {
+           ie = m_Spec.excludeFiles().end(); it != ie; ++it) {
         mcld::outs() << (*it)->name() << " ";
       }
       mcld::outs() << ")";
@@ -57,7 +57,7 @@ void InputSectDesc::dump() const
 
     if (m_Spec.hasSections()) {
       for (StringList::const_iterator it = m_Spec.sections().begin(),
-        ie = m_Spec.sections().end(); it != ie; ++it) {
+           ie = m_Spec.sections().end(); it != ie; ++it) {
         assert((*it)->kind() == StrToken::Wildcard);
         WildcardPattern* wildcard = llvm::cast<WildcardPattern>(*it);
 

@@ -129,4 +129,3 @@ IntOperand* BinaryOp<Operator::SEGMENT_START>::eval(const Module&,
 } // namespace of mcld
 
 #endif
-

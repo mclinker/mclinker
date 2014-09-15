@@ -225,4 +225,3 @@ Operator::create<Operator::DATA_SEGMENT_ALIGN>();
 } // namespace of mcld
 
 #endif
-

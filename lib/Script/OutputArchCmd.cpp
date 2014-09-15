@@ -33,4 +33,3 @@ void OutputArchCmd::activate(Module& pModule)
 {
   // TODO
 }
-

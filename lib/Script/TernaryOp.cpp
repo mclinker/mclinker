@@ -55,4 +55,3 @@ TernaryOp<Operator::DATA_SEGMENT_ALIGN>::eval(const Module& pModule,
     res->setValue(form2);
   return res;
 }
-

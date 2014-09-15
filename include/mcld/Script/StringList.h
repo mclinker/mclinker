@@ -66,4 +66,3 @@ private:
 } // namepsace of mcld
 
 #endif
-

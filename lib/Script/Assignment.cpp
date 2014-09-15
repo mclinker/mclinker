@@ -107,11 +107,12 @@ void Assignment::activate(Module& pModule)
         // substitute the rhs dot now.
         if (!isLhsDot || prevDotAssign.type() == DEFAULT) {
           for (RpnExpr::iterator it = m_RpnExpr.begin(), ie = m_RpnExpr.end();
-            it != ie; ++it) {
+               it != ie; ++it) {
             // substitute the rhs dot with the appropriate helper expr
             if ((*it)->kind() == ExprToken::OPERAND &&
-                llvm::cast<Operand>(*it)->isDot())
+                llvm::cast<Operand>(*it)->isDot()) {
               *it = &(prevDotAssign.symbol());
+            }
           } // for each expression token
         }
       }
@@ -132,8 +133,8 @@ void Assignment::activate(Module& pModule)
     if (hasDotInRhs) {
       if (in->dotAssignments().empty()) {
         // . = `frag'
-        RpnExpr* expr =
-          RpnExpr::buildHelperExpr(in->getSection()->getSectionData()->front());
+        RpnExpr* expr = RpnExpr::buildHelperExpr(
+            in->getSection()->getSectionData()->front());
         Assignment assign(INPUT_SECTION,
                           HIDDEN,
                           *SymOperand::create("."),
@@ -143,18 +144,18 @@ void Assignment::activate(Module& pModule)
 
       Assignment& prevDotAssign = in->dotAssignments().back().second;
       for (RpnExpr::iterator it = m_RpnExpr.begin(), ie = m_RpnExpr.end();
-        it != ie; ++it) {
+           it != ie; ++it) {
         // substitute the rhs dot with the appropriate helper expr
         if ((*it)->kind() == ExprToken::OPERAND &&
-            llvm::cast<Operand>(*it)->isDot())
+            llvm::cast<Operand>(*it)->isDot()) {
           *it = &(prevDotAssign.symbol());
+        }
       } // end of for
     }
 
     if (isLhsDot) {
-      in->dotAssignments().push_back(
-        std::make_pair(in->getSection()->getSectionData()->front().getNextNode(),
-                       *this));
+      in->dotAssignments().push_back(std::make_pair(
+          in->getSection()->getSectionData()->front().getNextNode(), *this));
     } else {
       script.assignments().push_back(std::make_pair((LDSymbol*)NULL, *this));
     }

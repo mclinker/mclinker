@@ -48,7 +48,7 @@ void GroupCmd::dump() const
   mcld::outs() << "GROUP ( ";
   bool prev = false, cur = false;
   for (StringList::const_iterator it = m_StringList.begin(),
-    ie = m_StringList.end(); it != ie; ++it) {
+       ie = m_StringList.end(); it != ie; ++it) {
     assert((*it)->kind() == StrToken::Input);
     InputToken* input = llvm::cast<InputToken>(*it);
     cur = input->asNeeded();
@@ -80,7 +80,7 @@ void GroupCmd::activate(Module& pModule)
   InputTree::iterator group = m_Builder.getCurrentNode();
 
   for (StringList::const_iterator it = m_StringList.begin(),
-    ie = m_StringList.end(); it != ie; ++it) {
+       ie = m_StringList.end(); it != ie; ++it) {
 
     assert((*it)->kind() == StrToken::Input);
     InputToken* token = llvm::cast<InputToken>(*it);
@@ -104,8 +104,8 @@ void GroupCmd::activate(Module& pModule)
         path.assign(token->name());
         if (!sys::fs::exists(path)) {
           // 3. Search through the library search path
-          sys::fs::Path* p =
-            script.directories().find(token->name(), Input::Script);
+          sys::fs::Path* p = script.directories().find(token->name(),
+                                                       Input::Script);
           if (p != NULL)
             path = *p;
         }
@@ -114,8 +114,9 @@ void GroupCmd::activate(Module& pModule)
       if (!sys::fs::exists(path))
         fatal(diag::err_cannot_open_input) << path.filename() << path;
 
-      m_Builder.createNode<InputTree::Positional>(
-        path.filename().native(), path, Input::Unknown);
+      m_Builder.createNode<InputTree::Positional>(path.filename().native(),
+                                                  path,
+                                                  Input::Unknown);
       break;
     }
     case InputToken::NameSpec: {
@@ -137,11 +138,12 @@ void GroupCmd::activate(Module& pModule)
         path = script.directories().find(token->name(), Input::Archive);
       }
 
-      if (NULL == path)
+      if (path == NULL)
         fatal(diag::err_cannot_find_namespec) << token->name();
 
-      m_Builder.createNode<InputTree::Positional>(
-        token->name(), *path, Input::Unknown);
+      m_Builder.createNode<InputTree::Positional>(token->name(),
+                                                  *path,
+                                                  Input::Unknown);
       break;
     }
     default:
@@ -162,4 +164,3 @@ void GroupCmd::activate(Module& pModule)
   // read the group
   m_GroupReader.readGroup(group, m_InputTree.end(), m_Builder, m_Config);
 }
-

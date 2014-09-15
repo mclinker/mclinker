@@ -55,4 +55,3 @@ bool ScriptReader::readScript(const LinkerConfig& pConfig,
 
   return result;
 }
-

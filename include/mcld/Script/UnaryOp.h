@@ -96,4 +96,3 @@ IntOperand* UnaryOp<Operator::SIZEOF>::eval(const Module&,
 } // namespace of mcld
 
 #endif
-

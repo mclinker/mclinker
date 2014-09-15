@@ -50,4 +50,3 @@ void OutputFormatCmd::activate(Module& pModule)
 {
   // TODO
 }
-

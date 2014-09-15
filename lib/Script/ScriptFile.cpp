@@ -67,7 +67,7 @@ ScriptFile::~ScriptFile()
     if (*it != NULL)
       delete *it;
   }
-  if (NULL != m_pInputTree)
+  if (m_pInputTree != NULL)
     delete m_pInputTree;
 }
 
@@ -146,7 +146,7 @@ void ScriptFile::addAssignment(const std::string& pSymbolName,
     if (m_bInOutputSectDesc) {
       assert(!sections->empty());
       OutputSectDesc* output_desc =
-        llvm::cast<OutputSectDesc>(sections->back());
+          llvm::cast<OutputSectDesc>(sections->back());
       output_desc->push_back(new Assignment(Assignment::INPUT_SECTION,
                                             pType,
                                             *(SymOperand::create(pSymbolName)),
@@ -240,8 +240,8 @@ const std::string& ScriptFile::createParserStr(const char* pText,
                                                size_t pLength)
 {
   bool exist = false;
-  ParserStrEntry* entry =
-    g_ParserStrPool->insert(std::string(pText, pLength), exist);
+  ParserStrEntry* entry = g_ParserStrPool->insert(std::string(pText, pLength),
+                                                  exist);
   return entry->key();
 }
 
@@ -249,4 +249,3 @@ void ScriptFile::clearParserStrPool()
 {
   g_ParserStrPool->clear();
 }
-

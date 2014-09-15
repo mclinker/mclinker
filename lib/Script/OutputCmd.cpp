@@ -38,4 +38,3 @@ void OutputCmd::activate(Module& pModule)
   // This option is to define a default name for the output file other than the
   // usual default of a.out.
 }
-

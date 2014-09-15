@@ -32,7 +32,7 @@ bool RpnEvaluator::eval(const RpnExpr& pExpr, uint64_t& pResult)
 {
   std::stack<Operand*> operandStack;
   for (RpnExpr::const_iterator it = pExpr.begin(), ie = pExpr.end(); it != ie;
-    ++it) {
+       ++it) {
     switch((*it)->kind()) {
     case ExprToken::OPERATOR: {
       Operator* op = llvm::cast<Operator>(*it);
@@ -84,7 +84,7 @@ bool RpnEvaluator::eval(const RpnExpr& pExpr, uint64_t& pResult)
         if (!opd->isDot()) {
           SymOperand* sym_opd = llvm::cast<SymOperand>(opd);
           const LDSymbol* symbol =
-            m_Module.getNamePool().findSymbol(sym_opd->name());
+              m_Module.getNamePool().findSymbol(sym_opd->name());
           if (symbol == NULL) {
             fatal(diag::fail_sym_resolution) << __FILE__ << __LINE__
                                              << "mclinker@googlegroups.com";
@@ -111,4 +111,3 @@ bool RpnEvaluator::eval(const RpnExpr& pExpr, uint64_t& pResult)
   pResult = operandStack.top()->value();
   return true;
 }
-

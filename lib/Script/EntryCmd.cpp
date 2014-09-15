@@ -37,4 +37,3 @@ void EntryCmd::activate(Module& pModule)
   if (!script.hasEntry())
     script.setEntry(m_Entry);
 }
-
