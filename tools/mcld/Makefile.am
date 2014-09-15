@@ -42,7 +42,7 @@ ld_mcld_LDFLAGS = \
 	$(LLVM_LDFLAGS)
 
 MCLD = $(top_builddir)/lib/libmcld.a
-CRCLIB = $(top_builddir)/utils/gtest/libcrc.la
+CRCLIB = $(top_builddir)/utils/zlib/libcrc.la
 
 $(bin_PROGRAMS): $(MCLD) $(CRCLIB)
 
