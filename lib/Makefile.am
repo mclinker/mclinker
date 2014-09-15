@@ -97,6 +97,7 @@ SOURCE = ADT/StringEntry.cpp \
 	Script/EntryCmd.cpp \
 	Script/FileToken.cpp \
 	Script/GroupCmd.cpp \
+	Script/InputCmd.cpp \
 	Script/InputSectDesc.cpp \
 	Script/InputToken.cpp \
 	Script/NameSpec.cpp \

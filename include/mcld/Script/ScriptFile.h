@@ -18,15 +18,18 @@
 namespace mcld
 {
 
-class ScriptCommand;
+class ArchiveReader;
+class DynObjReader;
+class GroupReader;
 class Input;
 class InputTree;
 class InputBuilder;
-class GroupReader;
 class LinkerConfig;
-class RpnExpr;
-class StringList;
 class Module;
+class ObjectReader;
+class ScriptCommand;
+class StringList;
+class RpnExpr;
 
 /** \class ScriptFile
  *  \brief This class defines the interfaces to a linker script file.
@@ -88,6 +91,14 @@ public:
   void addOutputFormatCmd(const std::string& pDefault,
                           const std::string& pBig,
                           const std::string& pLittle);
+
+  /// INPUT(file, file, ...)
+  /// INPUT(file file ...)
+  void addInputCmd(StringList& pStringList,
+                   ObjectReader& pObjectReader,
+                   ArchiveReader& pArchiveReader,
+                   DynObjReader& pDynObjReader,
+                   const LinkerConfig& pConfig);
 
   /// GROUP(file, file, ...)
   /// GROUP(file file ...)

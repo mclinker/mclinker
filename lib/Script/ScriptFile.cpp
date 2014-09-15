@@ -7,26 +7,28 @@
 //
 //===----------------------------------------------------------------------===//
 #include <mcld/Script/ScriptFile.h>
-#include <mcld/Script/StringList.h>
-#include <mcld/Script/ScriptCommand.h>
-#include <mcld/Script/EntryCmd.h>
-#include <mcld/Script/OutputFormatCmd.h>
-#include <mcld/Script/GroupCmd.h>
-#include <mcld/Script/OutputCmd.h>
-#include <mcld/Script/SearchDirCmd.h>
-#include <mcld/Script/OutputArchCmd.h>
+
+#include <mcld/ADT/HashEntry.h>
+#include <mcld/ADT/HashTable.h>
+#include <mcld/ADT/StringHash.h>
 #include <mcld/Script/AssertCmd.h>
-#include <mcld/Script/SectionsCmd.h>
-#include <mcld/Script/RpnExpr.h>
+#include <mcld/Script/EntryCmd.h>
+#include <mcld/Script/GroupCmd.h>
+#include <mcld/Script/InputCmd.h>
 #include <mcld/Script/Operand.h>
+#include <mcld/Script/OutputArchCmd.h>
+#include <mcld/Script/OutputCmd.h>
+#include <mcld/Script/OutputFormatCmd.h>
+#include <mcld/Script/RpnExpr.h>
+#include <mcld/Script/ScriptCommand.h>
+#include <mcld/Script/SearchDirCmd.h>
+#include <mcld/Script/SectionsCmd.h>
+#include <mcld/Script/StringList.h>
 #include <mcld/Script/StrToken.h>
 #include <mcld/MC/Input.h>
 #include <mcld/MC/InputBuilder.h>
 #include <mcld/Support/MemoryArea.h>
 #include <mcld/InputTree.h>
-#include <mcld/ADT/HashEntry.h>
-#include <mcld/ADT/HashTable.h>
-#include <mcld/ADT/StringHash.h>
 #include <llvm/Support/Casting.h>
 #include <llvm/Support/ManagedStatic.h>
 #include <cassert>
@@ -106,6 +108,16 @@ void ScriptFile::addOutputFormatCmd(const std::string& pDefault,
                                     const std::string& pLittle)
 {
   m_CommandQueue.push_back(new OutputFormatCmd(pDefault, pBig, pLittle));
+}
+
+void ScriptFile::addInputCmd(StringList& pStringList,
+                             ObjectReader& pObjectReader,
+                             ArchiveReader& pArchiveReader,
+                             DynObjReader& pDynObjReader,
+                             const LinkerConfig& pConfig) {
+  m_CommandQueue.push_back(new InputCmd(pStringList, *m_pInputTree, m_Builder,
+                                        pObjectReader, pArchiveReader,
+                                        pDynObjReader, pConfig));
 }
 
 void ScriptFile::addGroupCmd(StringList& pStringList,

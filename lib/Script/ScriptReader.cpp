@@ -19,8 +19,14 @@
 
 using namespace mcld;
 
-ScriptReader::ScriptReader(GroupReader& pGroupReader)
-  : m_GroupReader(pGroupReader)
+ScriptReader::ScriptReader(ObjectReader& pObjectReader,
+                           ArchiveReader& pArchiveReader,
+                           DynObjReader& pDynObjReader,
+                           GroupReader& pGroupReader)
+  : m_ObjectReader(pObjectReader),
+    m_ArchiveReader(pArchiveReader),
+    m_DynObjReader(pDynObjReader),
+    m_GroupReader(pGroupReader)
 {
 }
 
@@ -39,7 +45,6 @@ bool ScriptReader::isMyFormat(Input& input, bool &doContinue) const
 bool ScriptReader::readScript(const LinkerConfig& pConfig,
                               ScriptFile& pScriptFile)
 {
-  bool result = false;
   Input& input = pScriptFile.input();
   size_t size = input.memArea()->size();
   llvm::StringRef region = input.memArea()->request(input.fileOffset(), size);
@@ -47,11 +52,7 @@ bool ScriptReader::readScript(const LinkerConfig& pConfig,
 
   std::istream in(&buf);
   ScriptScanner scanner(&in);
-  ScriptParser parser(pConfig,
-                      pScriptFile,
-                      scanner,
-                      m_GroupReader);
-  result = (0 == parser.parse());;
-
-  return result;
+  ScriptParser parser(pConfig, pScriptFile, scanner, m_ObjectReader,
+                      m_ArchiveReader, m_DynObjReader, m_GroupReader);
+  return parser.parse() == 0;
 }

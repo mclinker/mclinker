@@ -20,17 +20,18 @@ class ScriptCommand
 {
 public:
   enum Kind {
-    ENTRY,
-    OUTPUT_FORMAT,
-    GROUP,
-    OUTPUT,
-    SEARCH_DIR,
-    OUTPUT_ARCH,
     ASSERT,
     ASSIGNMENT,
-    SECTIONS,
+    ENTRY,
+    GROUP,
+    INPUT,
+    INPUT_SECT_DESC,
+    OUTPUT,
+    OUTPUT_ARCH,
+    OUTPUT_FORMAT,
+    SEARCH_DIR,
     OUTPUT_SECT_DESC,
-    INPUT_SECT_DESC
+    SECTIONS
   };
 
 protected:

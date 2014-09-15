@@ -13,6 +13,7 @@ add_mcld_library(MCLDScript
   EntryCmd.cpp
   FileToken.cpp
   GroupCmd.cpp
+  InputCmd.cpp
   InputSectDesc.cpp
   InputToken.cpp
   NameSpec.cpp

@@ -13,18 +13,24 @@
 
 namespace mcld {
 
-class Module;
-class ScriptFile;
-class Input;
+class ArchiveReader;
+class DynObjReader;
 class GroupReader;
+class Input;
 class LinkerConfig;
 class LinkerScript;
+class Module;
+class ObjectReader;
+class ScriptFile;
 class TargetLDBackend;
 
 class ScriptReader : public LDReader
 {
 public:
-  ScriptReader(GroupReader& pGroupReader);
+  ScriptReader(ObjectReader& pObjectReader,
+               ArchiveReader& pArchiveReader,
+               DynObjReader& pDynObjReader,
+               GroupReader& pGroupReader);
 
   ~ScriptReader();
 
@@ -34,9 +40,10 @@ public:
   /// isMyFormat
   bool isMyFormat(Input& pInput, bool &pContinue) const;
 
-  GroupReader& getGroupReader() { return m_GroupReader; }
-
 private:
+  ObjectReader& m_ObjectReader;
+  ArchiveReader& m_ArchiveReader;
+  DynObjReader& m_DynObjReader;
   GroupReader& m_GroupReader;
 };
 

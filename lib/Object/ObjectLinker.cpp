@@ -89,7 +89,8 @@ bool ObjectLinker::initialize(Module& pModule, IRBuilder& pBuilder)
   m_pBinaryReader  = m_LDBackend.createBinaryReader(*m_pBuilder);
   m_pGroupReader   = new GroupReader(*m_pModule, *m_pObjectReader,
                          *m_pDynObjReader, *m_pArchiveReader, *m_pBinaryReader);
-  m_pScriptReader  = new ScriptReader(*m_pGroupReader);
+  m_pScriptReader  = new ScriptReader(*m_pObjectReader, *m_pArchiveReader,
+                                      *m_pDynObjReader, *m_pGroupReader);
   m_pWriter        = m_LDBackend.createWriter();
 
   // initialize Relocator
