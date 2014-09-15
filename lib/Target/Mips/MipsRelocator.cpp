@@ -695,7 +695,7 @@ uint32_t MipsRelocator::getDebugStringOffset(Relocation& pReloc) const
 }
 
 void MipsRelocator::applyDebugStringOffset(Relocation& pReloc,
-                                             uint32_t pOffset)
+                                           uint32_t pOffset)
 {
   pReloc.target() = pOffset;
 }

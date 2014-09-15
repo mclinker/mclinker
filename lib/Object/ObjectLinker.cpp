@@ -343,15 +343,14 @@ bool ObjectLinker::mergeSections() {
         case LDFileFormat::StackNote:
           // skip
           continue;
-        case LDFileFormat::Relocation: {
+        case LDFileFormat::Relocation:
           if (!(*sect)->hasRelocData())
             continue;  // skip
 
           if ((*sect)->getLink()->kind() == LDFileFormat::Ignore ||
               (*sect)->getLink()->kind() == LDFileFormat::Folded)
             (*sect)->setKind(LDFileFormat::Ignore);
-            break;
-        }
+          break;
         case LDFileFormat::Target:
           if (!m_LDBackend.mergeSection(*m_pModule, **obj, **sect)) {
             error(diag::err_cannot_merge_section) << (*sect)->name()
