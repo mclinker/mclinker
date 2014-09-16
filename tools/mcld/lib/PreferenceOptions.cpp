@@ -43,9 +43,13 @@ llvm::cl::opt<int> ArgVerbose("verbose",
   llvm::cl::desc("Display the version number for ld and list the\n"
                  "linker emulations supported."));
 
-llvm::cl::opt<bool> ArgVersion("V",
+llvm::cl::opt<bool> ArgVersion("Version",
   llvm::cl::init(false),
   llvm::cl::desc("Display the version number for MCLinker."));
+
+llvm::cl::alias ArgVersionAlias("v",
+  llvm::cl::desc("alias for -Version"),
+  llvm::cl::aliasopt(ArgVersion));
 
 llvm::cl::opt<int> ArgMaxErrorNum("error-limit",
   llvm::cl::init(-1),
@@ -157,6 +161,9 @@ bool PreferenceOptions::parse(LinkerConfig& pConfig)
 
   mcld::outs().setColor(pConfig.options().color());
   mcld::errs().setColor(pConfig.options().color());
+
+  if (m_Version)
+    mcld::outs() << pConfig.options().getVersionString() << "\n";
 
   return true;
 }

@@ -8,6 +8,7 @@
 //===----------------------------------------------------------------------===//
 #ifndef MCLD_GENERALOPTIONS_H
 #define MCLD_GENERALOPTIONS_H
+#include <mcld/Config/Config.h>
 #include <mcld/Support/RealPath.h>
 #include <mcld/Support/FileSystem.h>
 #include <string>
@@ -394,6 +395,8 @@ public:
 
   bool isInExcludeLIBS(const Input& pInput) const;
 
+  const char* getVersionString() const
+  { return PACKAGE_NAME " " MCLD_VERSION; }
 
 private:
   enum status {
