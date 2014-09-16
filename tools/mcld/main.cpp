@@ -30,6 +30,7 @@
 #include <llvm/Support/Signals.h>
 #include <string>
 #include <cassert>
+#include <cstdlib>
 
 /// configure linker
 static inline bool ConfigLinker(int pArgc,
@@ -125,36 +126,36 @@ int main(int argc, char* argv[])
                     input_actions)) {
     mcld::errs() << argv[0]
                  << ": failed to process linker options from command line!\n";
-    return 1;
+    return EXIT_FAILURE;
   }
 
   mcld::Linker linker;
   if (!linker.emulate(script, config)) {
     mcld::errs() << argv[0]
                  << ": failed to emulate target!\n";
-    return 1;
+    return EXIT_FAILURE;
   }
 
   // FIXME: is it possible to have a lightweight MCLinker pass?
   if (!InitializeInputs(builder, input_actions)) {
     mcld::errs() << argv[0]
                  << ": failed to initialize input tree!\n";
-    return 1;
+    return EXIT_FAILURE;
   }
 
   if (!linker.link(module, builder)) {
     mcld::errs() << argv[0]
                  << ": failed to link objects!\n";
-    return 1;
+    return EXIT_FAILURE;
   }
 
   if (!linker.emit(module, module.name())) {
     mcld::errs() << argv[0]
                  << ": failed to emit output!\n";
-    return 1;
+    return EXIT_FAILURE;
   }
 
   mcld::Finalize();
 
-  return 0;
+  return EXIT_SUCCESS;
 }
