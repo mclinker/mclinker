@@ -14,18 +14,6 @@ extern "C" {
 #define MCLD_TARGET(TargetName) void MCLDInitialize##TargetName##LDTargetInfo();
 #include "mcld/Config/Targets.def"
 
-  // Declare all of the target-dependent functions that are available.
-#define MCLD_TARGET(TargetName) void MCLDInitialize##TargetName##LDTarget();
-#include "mcld/Config/Targets.def"
-
-  // Declare all of the target-depedent linker information
-#define MCLD_LINKER(TargetName) void MCLDInitialize##TargetName##LDInfo();
-#include "mcld/Config/Linkers.def"
-
-  // Declare all of the available linker environment.
-#define MCLD_LINKER(TargetName) void MCLDInitialize##TargetName##MCLinker();
-#include "mcld/Config/Linkers.def"
-
   // Declare all of the available emulators.
 #define MCLD_TARGET(TargetName) void MCLDInitialize##TargetName##Emulation();
 #include "mcld/Config/Targets.def"
@@ -70,19 +58,6 @@ namespace mcld
   inline void InitializeAllEmulations() {
 #define MCLD_TARGET(TargetName) MCLDInitialize##TargetName##Emulation();
 #include "mcld/Config/Targets.def"
-  }
-
-  /// InitializeAllLinkers - The main program should call this function if it
-  /// wants all linkers that is configured to support, to make them
-  /// available via the TargetRegistry.
-  ///
-  /// It is legal for a client to make multiple calls to this function.
-  inline void InitializeAllLinkers() {
-#define MCLD_TARGET(TargetName) MCLDInitialize##TargetName##LDTarget();
-#include "mcld/Config/Targets.def"
-
-#define MCLD_LINKER(TargetName) MCLDInitialize##TargetName##MCLinker();
-#include "mcld/Config/Linkers.def"
   }
 
   /// InitializeMsgHandler - The main program should call this function if it
