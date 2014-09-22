@@ -8,39 +8,39 @@
 //===----------------------------------------------------------------------===//
 #include <mcld/Target/GNULDBackend.h>
 
-#include <mcld/Module.h>
-#include <mcld/LinkerConfig.h>
-#include <mcld/LinkerScript.h>
 #include <mcld/IRBuilder.h>
 #include <mcld/InputTree.h>
-#include <mcld/Config/Config.h>
+#include <mcld/LinkerConfig.h>
+#include <mcld/LinkerScript.h>
+#include <mcld/Module.h>
 #include <mcld/ADT/SizeTraits.h>
-#include <mcld/LD/LDSymbol.h>
-#include <mcld/LD/LDContext.h>
+#include <mcld/Config/Config.h>
+#include <mcld/Fragment/FillFragment.h>
+#include <mcld/LD/BranchIslandFactory.h>
 #include <mcld/LD/EhFrame.h>
 #include <mcld/LD/EhFrameHdr.h>
-#include <mcld/LD/RelocData.h>
-#include <mcld/LD/RelocationFactory.h>
-#include <mcld/LD/BranchIslandFactory.h>
-#include <mcld/LD/ELFSegmentFactory.h>
-#include <mcld/LD/ELFSegment.h>
-#include <mcld/LD/StubFactory.h>
-#include <mcld/LD/ELFFileFormat.h>
-#include <mcld/LD/ELFObjectFileFormat.h>
 #include <mcld/LD/ELFDynObjFileFormat.h>
 #include <mcld/LD/ELFExecFileFormat.h>
+#include <mcld/LD/ELFFileFormat.h>
+#include <mcld/LD/ELFObjectFileFormat.h>
+#include <mcld/LD/ELFSegment.h>
+#include <mcld/LD/ELFSegmentFactory.h>
+#include <mcld/LD/LDContext.h>
+#include <mcld/LD/LDSymbol.h>
+#include <mcld/LD/RelocData.h>
+#include <mcld/LD/RelocationFactory.h>
+#include <mcld/LD/StubFactory.h>
+#include <mcld/MC/Attribute.h>
+#include <mcld/Object/ObjectBuilder.h>
+#include <mcld/Object/SectionMap.h>
+#include <mcld/Script/Operand.h>
+#include <mcld/Script/OutputSectDesc.h>
+#include <mcld/Script/RpnEvaluator.h>
+#include <mcld/Support/FileOutputBuffer.h>
+#include <mcld/Support/MsgHandling.h>
 #include <mcld/Target/ELFAttribute.h>
 #include <mcld/Target/ELFDynamic.h>
 #include <mcld/Target/GNUInfo.h>
-#include <mcld/Support/FileOutputBuffer.h>
-#include <mcld/Support/MsgHandling.h>
-#include <mcld/Object/ObjectBuilder.h>
-#include <mcld/Object/SectionMap.h>
-#include <mcld/Script/RpnEvaluator.h>
-#include <mcld/Script/Operand.h>
-#include <mcld/Script/OutputSectDesc.h>
-#include <mcld/Fragment/FillFragment.h>
-#include <mcld/MC/Attribute.h>
 
 #include <llvm/ADT/StringRef.h>
 #include <llvm/Support/Host.h>
@@ -54,7 +54,7 @@
 
 namespace {
 
-//===--------------------------------------------------------------------===//
+//===----------------------------------------------------------------------===//
 // non-member functions
 //===----------------------------------------------------------------------===//
 static const std::string simple_c_identifier_allowed_chars =
@@ -163,7 +163,7 @@ uint64_t GNULDBackend::getSegmentStartAddr(const LinkerScript& pScript) const
 GNUArchiveReader*
 GNULDBackend::createArchiveReader(Module& pModule)
 {
-  assert(NULL != m_pObjectReader);
+  assert(m_pObjectReader != NULL);
   return new GNUArchiveReader(pModule, *m_pObjectReader);
 }
 
@@ -192,7 +192,7 @@ bool GNULDBackend::initStdSections(ObjectBuilder& pBuilder)
 {
   switch (config().codeGenType()) {
     case LinkerConfig::DynObj: {
-      if (NULL == m_pDynObjFileFormat)
+      if (m_pDynObjFileFormat == NULL)
         m_pDynObjFileFormat = new ELFDynObjFileFormat();
       m_pDynObjFileFormat->initStdSections(pBuilder,
                                            config().targets().bitclass());
@@ -200,14 +200,14 @@ bool GNULDBackend::initStdSections(ObjectBuilder& pBuilder)
     }
     case LinkerConfig::Exec:
     case LinkerConfig::Binary: {
-      if (NULL == m_pExecFileFormat)
+      if (m_pExecFileFormat == NULL)
         m_pExecFileFormat = new ELFExecFileFormat();
       m_pExecFileFormat->initStdSections(pBuilder,
                                          config().targets().bitclass());
       return true;
     }
     case LinkerConfig::Object: {
-      if (NULL == m_pObjectFileFormat)
+      if (m_pObjectFileFormat == NULL)
         m_pObjectFileFormat = new ELFObjectFileFormat();
       m_pObjectFileFormat->initStdSections(pBuilder,
                                            config().targets().bitclass());
@@ -221,15 +221,13 @@ bool GNULDBackend::initStdSections(ObjectBuilder& pBuilder)
 
 /// initStandardSymbols - define and initialize standard symbols.
 /// This function is called after section merging but before read relocations.
-bool GNULDBackend::initStandardSymbols(IRBuilder& pBuilder,
-                                       Module& pModule)
+bool GNULDBackend::initStandardSymbols(IRBuilder& pBuilder, Module& pModule)
 {
   if (LinkerConfig::Object == config().codeGenType())
     return true;
 
   // GNU extension: define __start and __stop symbols for the sections whose
   // name can be presented as C symbol
-  // ref: GNU gold, Layout::define_section_symbols
   Module::iterator iter, iterEnd = pModule.end();
   for (iter = pModule.begin(); iter != iterEnd; ++iter) {
     LDSection* section = *iter;
@@ -249,30 +247,32 @@ bool GNULDBackend::initStandardSymbols(IRBuilder& pBuilder,
 
     if (isCIdentifier(section->name())) {
       std::string start_name = "__start_" + section->name();
-      FragmentRef* start_fragref = FragmentRef::Create(
-                                       section->getSectionData()->front(), 0x0);
+      FragmentRef* start_fragref =
+          FragmentRef::Create(section->getSectionData()->front(), 0x0);
+
       pBuilder.AddSymbol<IRBuilder::AsReferred, IRBuilder::Resolve>(
-                                                    start_name,
-                                                    ResolveInfo::NoType,
-                                                    ResolveInfo::Define,
-                                                    ResolveInfo::Global,
-                                                    0x0, // size
-                                                    0x0, // value
-                                                    start_fragref, // FragRef
-                                                    ResolveInfo::Default);
+          start_name,
+          ResolveInfo::NoType,
+          ResolveInfo::Define,
+          ResolveInfo::Global,
+          0x0, // size
+          0x0, // value
+          start_fragref, // FragRef
+          ResolveInfo::Default);
 
       std::string stop_name = "__stop_" + section->name();
-      FragmentRef* stop_fragref = FragmentRef::Create(
-                           section->getSectionData()->front(), section->size());
+      FragmentRef* stop_fragref =
+          FragmentRef::Create(section->getSectionData()->front(),
+                              section->size());
       pBuilder.AddSymbol<IRBuilder::AsReferred, IRBuilder::Resolve>(
-                                                    stop_name,
-                                                    ResolveInfo::NoType,
-                                                    ResolveInfo::Define,
-                                                    ResolveInfo::Global,
-                                                    0x0, // size
-                                                    0x0, // value
-                                                    stop_fragref, // FragRef
-                                                    ResolveInfo::Default);
+          stop_name,
+          ResolveInfo::NoType,
+          ResolveInfo::Define,
+          ResolveInfo::Global,
+          0x0, // size
+          0x0, // value
+          stop_fragref, // FragRef
+          ResolveInfo::Default);
     }
   }
 
@@ -283,234 +283,230 @@ bool GNULDBackend::initStandardSymbols(IRBuilder& pBuilder,
   FragmentRef* preinit_array = NULL;
   if (file_format->hasPreInitArray()) {
     preinit_array = FragmentRef::Create(
-                   file_format->getPreInitArray().getSectionData()->front(),
-                   0x0);
-  }
-  else {
+                      file_format->getPreInitArray().getSectionData()->front(),
+                      0x0);
+  } else {
     preinit_array = FragmentRef::Null();
   }
+
   f_pPreInitArrayStart =
-     pBuilder.AddSymbol<IRBuilder::AsReferred, IRBuilder::Resolve>(
-                                             "__preinit_array_start",
-                                             ResolveInfo::NoType,
-                                             ResolveInfo::Define,
-                                             ResolveInfo::Global,
-                                             0x0, // size
-                                             0x0, // value
-                                             preinit_array, // FragRef
-                                             ResolveInfo::Hidden);
+      pBuilder.AddSymbol<IRBuilder::AsReferred, IRBuilder::Resolve>(
+          "__preinit_array_start",
+          ResolveInfo::NoType,
+          ResolveInfo::Define,
+          ResolveInfo::Global,
+          0x0, // size
+          0x0, // value
+          preinit_array, // FragRef
+          ResolveInfo::Hidden);
+
   f_pPreInitArrayEnd =
-     pBuilder.AddSymbol<IRBuilder::AsReferred, IRBuilder::Resolve>(
-                                             "__preinit_array_end",
-                                             ResolveInfo::NoType,
-                                             ResolveInfo::Define,
-                                             ResolveInfo::Global,
-                                             0x0, // size
-                                             0x0, // value
-                                             FragmentRef::Null(), // FragRef
-                                             ResolveInfo::Hidden);
+      pBuilder.AddSymbol<IRBuilder::AsReferred, IRBuilder::Resolve>(
+          "__preinit_array_end",
+          ResolveInfo::NoType,
+          ResolveInfo::Define,
+          ResolveInfo::Global,
+          0x0, // size
+          0x0, // value
+          FragmentRef::Null(), // FragRef
+          ResolveInfo::Hidden);
 
   // .init_array
   FragmentRef* init_array = NULL;
   if (file_format->hasInitArray()) {
     init_array = FragmentRef::Create(
-                      file_format->getInitArray().getSectionData()->front(),
-                      0x0);
-  }
-  else {
+                    file_format->getInitArray().getSectionData()->front(), 0x0);
+  } else {
     init_array = FragmentRef::Null();
   }
 
   f_pInitArrayStart =
-     pBuilder.AddSymbol<IRBuilder::AsReferred, IRBuilder::Resolve>(
-                                             "__init_array_start",
-                                             ResolveInfo::NoType,
-                                             ResolveInfo::Define,
-                                             ResolveInfo::Global,
-                                             0x0, // size
-                                             0x0, // value
-                                             init_array, // FragRef
-                                             ResolveInfo::Hidden);
+      pBuilder.AddSymbol<IRBuilder::AsReferred, IRBuilder::Resolve>(
+          "__init_array_start",
+          ResolveInfo::NoType,
+          ResolveInfo::Define,
+          ResolveInfo::Global,
+          0x0, // size
+          0x0, // value
+          init_array, // FragRef
+          ResolveInfo::Hidden);
+
   f_pInitArrayEnd =
-     pBuilder.AddSymbol<IRBuilder::AsReferred, IRBuilder::Resolve>(
-                                             "__init_array_end",
-                                             ResolveInfo::NoType,
-                                             ResolveInfo::Define,
-                                             ResolveInfo::Global,
-                                             0x0, // size
-                                             0x0, // value
-                                             init_array, // FragRef
-                                             ResolveInfo::Hidden);
+      pBuilder.AddSymbol<IRBuilder::AsReferred, IRBuilder::Resolve>(
+          "__init_array_end",
+          ResolveInfo::NoType,
+          ResolveInfo::Define,
+          ResolveInfo::Global,
+          0x0, // size
+          0x0, // value
+          init_array, // FragRef
+          ResolveInfo::Hidden);
 
   // .fini_array
   FragmentRef* fini_array = NULL;
   if (file_format->hasFiniArray()) {
     fini_array = FragmentRef::Create(
-                     file_format->getFiniArray().getSectionData()->front(),
-                     0x0);
-  }
-  else {
+                    file_format->getFiniArray().getSectionData()->front(), 0x0);
+  } else {
     fini_array = FragmentRef::Null();
   }
 
   f_pFiniArrayStart =
-     pBuilder.AddSymbol<IRBuilder::AsReferred, IRBuilder::Resolve>(
-                                             "__fini_array_start",
-                                             ResolveInfo::NoType,
-                                             ResolveInfo::Define,
-                                             ResolveInfo::Global,
-                                             0x0, // size
-                                             0x0, // value
-                                             fini_array, // FragRef
-                                             ResolveInfo::Hidden);
+      pBuilder.AddSymbol<IRBuilder::AsReferred, IRBuilder::Resolve>(
+          "__fini_array_start",
+          ResolveInfo::NoType,
+          ResolveInfo::Define,
+          ResolveInfo::Global,
+          0x0, // size
+          0x0, // value
+          fini_array, // FragRef
+          ResolveInfo::Hidden);
+
   f_pFiniArrayEnd =
-     pBuilder.AddSymbol<IRBuilder::AsReferred, IRBuilder::Resolve>(
-                                             "__fini_array_end",
-                                             ResolveInfo::NoType,
-                                             ResolveInfo::Define,
-                                             ResolveInfo::Global,
-                                             0x0, // size
-                                             0x0, // value
-                                             fini_array, // FragRef
-                                             ResolveInfo::Hidden);
+      pBuilder.AddSymbol<IRBuilder::AsReferred, IRBuilder::Resolve>(
+          "__fini_array_end",
+          ResolveInfo::NoType,
+          ResolveInfo::Define,
+          ResolveInfo::Global,
+          0x0, // size
+          0x0, // value
+          fini_array, // FragRef
+          ResolveInfo::Hidden);
 
   // .stack
   FragmentRef* stack = NULL;
   if (file_format->hasStack()) {
     stack = FragmentRef::Create(
-                          file_format->getStack().getSectionData()->front(),
-                          0x0);
-  }
-  else {
+              file_format->getStack().getSectionData()->front(), 0x0);
+  } else {
     stack = FragmentRef::Null();
   }
 
   f_pStack =
-     pBuilder.AddSymbol<IRBuilder::AsReferred, IRBuilder::Resolve>(
-                                             "__stack",
-                                             ResolveInfo::NoType,
-                                             ResolveInfo::Define,
-                                             ResolveInfo::Global,
-                                             0x0, // size
-                                             0x0, // value
-                                             stack, // FragRef
-                                             ResolveInfo::Hidden);
+      pBuilder.AddSymbol<IRBuilder::AsReferred, IRBuilder::Resolve>(
+          "__stack",
+          ResolveInfo::NoType,
+          ResolveInfo::Define,
+          ResolveInfo::Global,
+          0x0, // size
+          0x0, // value
+          stack, // FragRef
+          ResolveInfo::Hidden);
 
   // _DYNAMIC
   // TODO: add SectionData for .dynamic section, and then we can get the correct
   // symbol section index for _DYNAMIC. Now it will be ABS.
   f_pDynamic =
-     pBuilder.AddSymbol<IRBuilder::AsReferred, IRBuilder::Resolve>(
-                                                   "_DYNAMIC",
-                                                   ResolveInfo::Object,
-                                                   ResolveInfo::Define,
-                                                   ResolveInfo::Local,
-                                                   0x0, // size
-                                                   0x0, // value
-                                                   FragmentRef::Null(), // FragRef
-                                                   ResolveInfo::Hidden);
+      pBuilder.AddSymbol<IRBuilder::AsReferred, IRBuilder::Resolve>(
+          "_DYNAMIC",
+          ResolveInfo::Object,
+          ResolveInfo::Define,
+          ResolveInfo::Local,
+          0x0, // size
+          0x0, // value
+          FragmentRef::Null(), // FragRef
+          ResolveInfo::Hidden);
 
   // -----  segment symbols  ----- //
   f_pExecutableStart =
-     pBuilder.AddSymbol<IRBuilder::AsReferred, IRBuilder::Resolve>(
-                                             "__executable_start",
-                                             ResolveInfo::NoType,
-                                             ResolveInfo::Define,
-                                             ResolveInfo::Absolute,
-                                             0x0, // size
-                                             0x0, // value
-                                             FragmentRef::Null(), // FragRef
-                                             ResolveInfo::Default);
+      pBuilder.AddSymbol<IRBuilder::AsReferred, IRBuilder::Resolve>(
+          "__executable_start",
+          ResolveInfo::NoType,
+          ResolveInfo::Define,
+          ResolveInfo::Absolute,
+          0x0, // size
+          0x0, // value
+          FragmentRef::Null(), // FragRef
+          ResolveInfo::Default);
+
   f_pEText =
-     pBuilder.AddSymbol<IRBuilder::AsReferred, IRBuilder::Resolve>(
-                                             "etext",
-                                             ResolveInfo::NoType,
-                                             ResolveInfo::Define,
-                                             ResolveInfo::Absolute,
-                                             0x0, // size
-                                             0x0, // value
-                                             FragmentRef::Null(), // FragRef
-                                             ResolveInfo::Default);
+      pBuilder.AddSymbol<IRBuilder::AsReferred, IRBuilder::Resolve>(
+           "etext",
+           ResolveInfo::NoType,
+           ResolveInfo::Define,
+           ResolveInfo::Absolute,
+           0x0, // size
+           0x0, // value
+           FragmentRef::Null(), // FragRef
+           ResolveInfo::Default);
+
   f_p_EText =
-     pBuilder.AddSymbol<IRBuilder::AsReferred, IRBuilder::Resolve>(
-                                             "_etext",
-                                             ResolveInfo::NoType,
-                                             ResolveInfo::Define,
-                                             ResolveInfo::Absolute,
-                                             0x0, // size
-                                             0x0, // value
-                                             FragmentRef::Null(), // FragRef
-                                             ResolveInfo::Default);
+      pBuilder.AddSymbol<IRBuilder::AsReferred, IRBuilder::Resolve>(
+          "_etext",
+          ResolveInfo::NoType,
+          ResolveInfo::Define,
+          ResolveInfo::Absolute,
+          0x0, // size
+          0x0, // value
+          FragmentRef::Null(), // FragRef
+          ResolveInfo::Default);
   f_p__EText =
-     pBuilder.AddSymbol<IRBuilder::AsReferred, IRBuilder::Resolve>(
-                                             "__etext",
-                                             ResolveInfo::NoType,
-                                             ResolveInfo::Define,
-                                             ResolveInfo::Absolute,
-                                             0x0, // size
-                                             0x0, // value
-                                             FragmentRef::Null(), // FragRef
-                                             ResolveInfo::Default);
+      pBuilder.AddSymbol<IRBuilder::AsReferred, IRBuilder::Resolve>(
+          "__etext",
+          ResolveInfo::NoType,
+          ResolveInfo::Define,
+          ResolveInfo::Absolute,
+          0x0, // size
+          0x0, // value
+          FragmentRef::Null(), // FragRef
+          ResolveInfo::Default);
   f_pEData =
-     pBuilder.AddSymbol<IRBuilder::AsReferred, IRBuilder::Resolve>(
-                                             "edata",
-                                             ResolveInfo::NoType,
-                                             ResolveInfo::Define,
-                                             ResolveInfo::Absolute,
-                                             0x0, // size
-                                             0x0, // value
-                                             FragmentRef::Null(), // FragRef
-                                             ResolveInfo::Default);
+      pBuilder.AddSymbol<IRBuilder::AsReferred, IRBuilder::Resolve>(
+          "edata",
+          ResolveInfo::NoType,
+          ResolveInfo::Define,
+          ResolveInfo::Absolute,
+          0x0, // size
+          0x0, // value
+          FragmentRef::Null(), // FragRef
+          ResolveInfo::Default);
 
   f_pEnd =
-     pBuilder.AddSymbol<IRBuilder::AsReferred, IRBuilder::Resolve>(
-                                             "end",
-                                             ResolveInfo::NoType,
-                                             ResolveInfo::Define,
-                                             ResolveInfo::Absolute,
-                                             0x0, // size
-                                             0x0, // value
-                                             FragmentRef::Null(), // FragRef
-                                             ResolveInfo::Default);
+      pBuilder.AddSymbol<IRBuilder::AsReferred, IRBuilder::Resolve>(
+          "end",
+          ResolveInfo::NoType,
+          ResolveInfo::Define,
+          ResolveInfo::Absolute,
+          0x0, // size
+          0x0, // value
+          FragmentRef::Null(), // FragRef
+          ResolveInfo::Default);
 
   // _edata is defined forcefully.
-  // @ref Google gold linker: defstd.cc: 186
   f_p_EData =
-     pBuilder.AddSymbol<IRBuilder::Force, IRBuilder::Resolve>(
-                                             "_edata",
-                                             ResolveInfo::NoType,
-                                             ResolveInfo::Define,
-                                             ResolveInfo::Absolute,
-                                             0x0, // size
-                                             0x0, // value
-                                             FragmentRef::Null(), // FragRef
-                                             ResolveInfo::Default);
+      pBuilder.AddSymbol<IRBuilder::Force, IRBuilder::Resolve>(
+          "_edata",
+          ResolveInfo::NoType,
+          ResolveInfo::Define,
+          ResolveInfo::Absolute,
+          0x0, // size
+          0x0, // value
+          FragmentRef::Null(), // FragRef
+          ResolveInfo::Default);
 
   // __bss_start is defined forcefully.
-  // @ref Google gold linker: defstd.cc: 214
   f_pBSSStart =
-     pBuilder.AddSymbol<IRBuilder::Force, IRBuilder::Resolve>(
-                                             "__bss_start",
-                                             ResolveInfo::NoType,
-                                             ResolveInfo::Define,
-                                             ResolveInfo::Absolute,
-                                             0x0, // size
-                                             0x0, // value
-                                             FragmentRef::Null(), // FragRef
-                                             ResolveInfo::Default);
+      pBuilder.AddSymbol<IRBuilder::Force, IRBuilder::Resolve>(
+          "__bss_start",
+          ResolveInfo::NoType,
+          ResolveInfo::Define,
+          ResolveInfo::Absolute,
+          0x0, // size
+          0x0, // value
+          FragmentRef::Null(), // FragRef
+          ResolveInfo::Default);
 
   // _end is defined forcefully.
-  // @ref Google gold linker: defstd.cc: 228
   f_p_End =
-     pBuilder.AddSymbol<IRBuilder::Force, IRBuilder::Resolve>(
-                                             "_end",
-                                             ResolveInfo::NoType,
-                                             ResolveInfo::Define,
-                                             ResolveInfo::Absolute,
-                                             0x0, // size
-                                             0x0, // value
-                                             FragmentRef::Null(), // FragRef
-                                             ResolveInfo::Default);
+      pBuilder.AddSymbol<IRBuilder::Force, IRBuilder::Resolve>(
+          "_end",
+          ResolveInfo::NoType,
+          ResolveInfo::Define,
+          ResolveInfo::Absolute,
+          0x0, // size
+          0x0, // value
+          FragmentRef::Null(), // FragRef
+          ResolveInfo::Default);
 
   return true;
 }
@@ -523,75 +519,72 @@ bool GNULDBackend::finalizeStandardSymbols()
   ELFFileFormat* file_format = getOutputFormat();
 
   // -----  section symbols  ----- //
-  if (NULL != f_pPreInitArrayStart) {
+  if (f_pPreInitArrayStart != NULL) {
     if (!f_pPreInitArrayStart->hasFragRef()) {
       f_pPreInitArrayStart->resolveInfo()->setBinding(ResolveInfo::Absolute);
       f_pPreInitArrayStart->setValue(0x0);
     }
   }
 
-  if (NULL != f_pPreInitArrayEnd) {
+  if (f_pPreInitArrayEnd != NULL) {
     if (f_pPreInitArrayEnd->hasFragRef()) {
       f_pPreInitArrayEnd->setValue(f_pPreInitArrayEnd->value() +
                                    file_format->getPreInitArray().size());
-    }
-    else {
+    } else {
       f_pPreInitArrayEnd->resolveInfo()->setBinding(ResolveInfo::Absolute);
       f_pPreInitArrayEnd->setValue(0x0);
     }
   }
 
-  if (NULL != f_pInitArrayStart) {
+  if (f_pInitArrayStart != NULL) {
     if (!f_pInitArrayStart->hasFragRef()) {
       f_pInitArrayStart->resolveInfo()->setBinding(ResolveInfo::Absolute);
       f_pInitArrayStart->setValue(0x0);
     }
   }
 
-  if (NULL != f_pInitArrayEnd) {
+  if (f_pInitArrayEnd != NULL) {
     if (f_pInitArrayEnd->hasFragRef()) {
       f_pInitArrayEnd->setValue(f_pInitArrayEnd->value() +
                                 file_format->getInitArray().size());
-    }
-    else {
+    } else {
       f_pInitArrayEnd->resolveInfo()->setBinding(ResolveInfo::Absolute);
       f_pInitArrayEnd->setValue(0x0);
     }
   }
 
-  if (NULL != f_pFiniArrayStart) {
+  if (f_pFiniArrayStart != NULL) {
     if (!f_pFiniArrayStart->hasFragRef()) {
       f_pFiniArrayStart->resolveInfo()->setBinding(ResolveInfo::Absolute);
       f_pFiniArrayStart->setValue(0x0);
     }
   }
 
-  if (NULL != f_pFiniArrayEnd) {
+  if (f_pFiniArrayEnd != NULL) {
     if (f_pFiniArrayEnd->hasFragRef()) {
       f_pFiniArrayEnd->setValue(f_pFiniArrayEnd->value() +
                                 file_format->getFiniArray().size());
-    }
-    else {
+    } else {
       f_pFiniArrayEnd->resolveInfo()->setBinding(ResolveInfo::Absolute);
       f_pFiniArrayEnd->setValue(0x0);
     }
   }
 
-  if (NULL != f_pStack) {
+  if (f_pStack != NULL) {
     if (!f_pStack->hasFragRef()) {
       f_pStack->resolveInfo()->setBinding(ResolveInfo::Absolute);
       f_pStack->setValue(0x0);
     }
   }
 
-  if (NULL != f_pDynamic) {
+  if (f_pDynamic != NULL) {
     f_pDynamic->resolveInfo()->setBinding(ResolveInfo::Local);
     f_pDynamic->setValue(file_format->getDynamic().addr());
     f_pDynamic->setSize(file_format->getDynamic().size());
   }
 
   // -----  segment symbols  ----- //
-  if (NULL != f_pExecutableStart) {
+  if (f_pExecutableStart != NULL) {
     ELFSegmentFactory::const_iterator exec_start =
       elfSegmentTable().find(llvm::ELF::PT_LOAD, 0x0, 0x0);
     if (elfSegmentTable().end() != exec_start) {
@@ -599,86 +592,86 @@ bool GNULDBackend::finalizeStandardSymbols()
         f_pExecutableStart->setValue(f_pExecutableStart->value() +
                                      (*exec_start)->vaddr());
       }
-    }
-    else
+    } else {
       f_pExecutableStart->setValue(0x0);
+    }
   }
 
-  if (NULL != f_pEText || NULL != f_p_EText || NULL !=f_p__EText) {
+  if (f_pEText != NULL || f_p_EText != NULL || f_p__EText != NULL) {
     ELFSegmentFactory::const_iterator etext =
-      elfSegmentTable().find(llvm::ELF::PT_LOAD,
-                             llvm::ELF::PF_X,
-                             llvm::ELF::PF_W);
+        elfSegmentTable().find(llvm::ELF::PT_LOAD,
+                               llvm::ELF::PF_X,
+                               llvm::ELF::PF_W);
     if (elfSegmentTable().end() != etext) {
-      if (NULL != f_pEText && ResolveInfo::ThreadLocal != f_pEText->type()) {
+      if (f_pEText != NULL && ResolveInfo::ThreadLocal != f_pEText->type()) {
         f_pEText->setValue(f_pEText->value() +
                            (*etext)->vaddr() +
                            (*etext)->memsz());
       }
-      if (NULL != f_p_EText && ResolveInfo::ThreadLocal != f_p_EText->type()) {
+      if (f_p_EText != NULL && ResolveInfo::ThreadLocal != f_p_EText->type()) {
         f_p_EText->setValue(f_p_EText->value() +
                             (*etext)->vaddr() +
                             (*etext)->memsz());
       }
-      if (NULL != f_p__EText && ResolveInfo::ThreadLocal != f_p__EText->type()) {
+      if (f_p__EText != NULL &&
+          ResolveInfo::ThreadLocal != f_p__EText->type()) {
         f_p__EText->setValue(f_p__EText->value() +
-                            (*etext)->vaddr() +
-                            (*etext)->memsz());
+                             (*etext)->vaddr() +
+                             (*etext)->memsz());
       }
-    }
-    else {
-      if (NULL != f_pEText)
+    } else {
+      if (f_pEText != NULL)
         f_pEText->setValue(0x0);
-      if (NULL != f_p_EText)
+      if (f_p_EText != NULL)
         f_p_EText->setValue(0x0);
-      if (NULL != f_p__EText)
+      if (f_p__EText != NULL)
         f_p__EText->setValue(0x0);
     }
   }
 
-  if (NULL != f_pEData || NULL != f_p_EData || NULL != f_pBSSStart ||
-      NULL != f_pEnd || NULL != f_p_End) {
+  if (f_pEData != NULL || f_p_EData != NULL || f_pBSSStart != NULL ||
+      f_pEnd != NULL || f_p_End != NULL) {
     ELFSegmentFactory::const_iterator edata =
-      elfSegmentTable().find(llvm::ELF::PT_LOAD, llvm::ELF::PF_W, 0x0);
+        elfSegmentTable().find(llvm::ELF::PT_LOAD, llvm::ELF::PF_W, 0x0);
     if (elfSegmentTable().end() != edata) {
-      if (NULL != f_pEData && ResolveInfo::ThreadLocal != f_pEData->type()) {
+      if (f_pEData != NULL && ResolveInfo::ThreadLocal != f_pEData->type()) {
         f_pEData->setValue(f_pEData->value() +
                            (*edata)->vaddr() +
                            (*edata)->filesz());
       }
-      if (NULL != f_p_EData && ResolveInfo::ThreadLocal != f_p_EData->type()) {
+      if (f_p_EData != NULL && ResolveInfo::ThreadLocal != f_p_EData->type()) {
         f_p_EData->setValue(f_p_EData->value() +
                             (*edata)->vaddr() +
                             (*edata)->filesz());
       }
-      if (NULL != f_pBSSStart && ResolveInfo::ThreadLocal != f_pBSSStart->type()) {
+      if (f_pBSSStart != NULL
+          && ResolveInfo::ThreadLocal != f_pBSSStart->type()) {
         f_pBSSStart->setValue(f_pBSSStart->value() +
                               (*edata)->vaddr() +
                               (*edata)->filesz());
       }
 
-      if (NULL != f_pEnd && ResolveInfo::ThreadLocal != f_pEnd->type()) {
+      if (f_pEnd != NULL && ResolveInfo::ThreadLocal != f_pEnd->type()) {
         f_pEnd->setValue(f_pEnd->value() +
                          (*edata)->vaddr() +
                          (*edata)->memsz());
       }
-      if (NULL != f_p_End && ResolveInfo::ThreadLocal != f_p_End->type()) {
+      if (f_p_End != NULL && ResolveInfo::ThreadLocal != f_p_End->type()) {
         f_p_End->setValue(f_p_End->value() +
                           (*edata)->vaddr() +
                           (*edata)->memsz());
       }
-    }
-    else {
-      if (NULL != f_pEData)
+    } else {
+      if (f_pEData != NULL)
         f_pEData->setValue(0x0);
-      if (NULL != f_p_EData)
+      if (f_p_EData != NULL)
         f_p_EData->setValue(0x0);
-      if (NULL != f_pBSSStart)
+      if (f_pBSSStart != NULL)
         f_pBSSStart->setValue(0x0);
 
-      if (NULL != f_pEnd)
+      if (f_pEnd != NULL)
         f_pEnd->setValue(0x0);
-      if (NULL != f_p_End)
+      if (f_p_End != NULL)
         f_p_End->setValue(0x0);
     }
   }
@@ -694,7 +687,7 @@ bool GNULDBackend::finalizeTLSSymbol(LDSymbol& pSymbol)
 
   // the value of a TLS symbol is the offset to the TLS segment
   ELFSegmentFactory::iterator tls_seg =
-    elfSegmentTable().find(llvm::ELF::PT_TLS, llvm::ELF::PF_R, 0x0);
+      elfSegmentTable().find(llvm::ELF::PT_TLS, llvm::ELF::PF_R, 0x0);
   assert(tls_seg != elfSegmentTable().end());
   uint64_t value = pSymbol.fragRef()->getOutputOffset();
   uint64_t addr  = pSymbol.fragRef()->frag()->getParent()->getSection().addr();
@@ -706,14 +699,14 @@ ELFFileFormat* GNULDBackend::getOutputFormat()
 {
   switch (config().codeGenType()) {
     case LinkerConfig::DynObj:
-      assert(NULL != m_pDynObjFileFormat);
+      assert(m_pDynObjFileFormat != NULL);
       return m_pDynObjFileFormat;
     case LinkerConfig::Exec:
     case LinkerConfig::Binary:
-      assert(NULL != m_pExecFileFormat);
+      assert(m_pExecFileFormat != NULL);
       return m_pExecFileFormat;
     case LinkerConfig::Object:
-      assert(NULL != m_pObjectFileFormat);
+      assert(m_pObjectFileFormat != NULL);
       return m_pObjectFileFormat;
     default:
       fatal(diag::unrecognized_output_file) << config().codeGenType();
@@ -725,14 +718,14 @@ const ELFFileFormat* GNULDBackend::getOutputFormat() const
 {
   switch (config().codeGenType()) {
     case LinkerConfig::DynObj:
-      assert(NULL != m_pDynObjFileFormat);
+      assert(m_pDynObjFileFormat != NULL);
       return m_pDynObjFileFormat;
     case LinkerConfig::Exec:
     case LinkerConfig::Binary:
-      assert(NULL != m_pExecFileFormat);
+      assert(m_pExecFileFormat != NULL);
       return m_pExecFileFormat;
     case LinkerConfig::Object:
-      assert(NULL != m_pObjectFileFormat);
+      assert(m_pObjectFileFormat != NULL);
       return m_pObjectFileFormat;
     default:
       fatal(diag::unrecognized_output_file) << config().codeGenType();
@@ -863,8 +856,8 @@ void GNULDBackend::sizeNamePools(Module& pModule)
           dynamic().reserveNeedEntry();
           GeneralOptions::const_rpath_iterator rpath,
             rpathEnd = config().options().rpath_end();
-          for (rpath = config().options().rpath_begin();
-               rpath != rpathEnd; ++rpath)
+          for (rpath = config().options().rpath_begin(); rpath != rpathEnd;
+               ++rpath)
             dynstr += (*rpath).size() + 1;
         }
 
@@ -926,8 +919,7 @@ void GNULDBackend::emitSymbol32(llvm::ELF::Elf32_Sym& pSym,
    if (hasEntryInStrTab(pSymbol)) {
      pSym.st_name  = pStrtabsize;
      strcpy((pStrtab + pStrtabsize), pSymbol.name());
-   }
-   else {
+   } else {
      pSym.st_name  = 0;
    }
    pSym.st_value = pSymbol.value();
@@ -949,8 +941,7 @@ void GNULDBackend::emitSymbol64(llvm::ELF::Elf64_Sym& pSym,
    if (hasEntryInStrTab(pSymbol)) {
      pSym.st_name  = pStrtabsize;
      strcpy((pStrtab + pStrtabsize), pSymbol.name());
-   }
-   else {
+   } else {
      pSym.st_name  = 0;
    }
    pSym.st_value = pSymbol.value();
@@ -1052,8 +1043,7 @@ void GNULDBackend::emitDynNamePools(Module& pModule, FileOutputBuffer& pOutput)
                                                symtab_sect.size());
   MemoryRegion strtab_region = pOutput.request(strtab_sect.offset(),
                                                strtab_sect.size());
-  MemoryRegion dyn_region = pOutput.request(dyn_sect.offset(),
-                                            dyn_sect.size());
+  MemoryRegion dyn_region = pOutput.request(dyn_sect.offset(), dyn_sect.size());
   // set up symtab_region
   llvm::ELF::Elf32_Sym* symtab32 = NULL;
   llvm::ELF::Elf64_Sym* symtab64 = NULL;
@@ -1197,8 +1187,8 @@ void GNULDBackend::emitGNUHashTab(Module::SymbolTable& pSymtab,
     return;
 
   MemoryRegion gnuhash_region =
-    pOutput.request(file_format->getGNUHashTab().offset(),
-                    file_format->getGNUHashTab().size());
+      pOutput.request(file_format->getGNUHashTab().offset(),
+                      file_format->getGNUHashTab().size());
 
   uint32_t* word_array = (uint32_t*)gnuhash_region.begin();
   // fixed-length fields
@@ -1257,8 +1247,7 @@ void GNULDBackend::emitGNUHashTab(Module::SymbolTable& pSymtab,
   chain  = (bucket + nbucket);
 
   // build the gnu style hash table
-  typedef std::multimap<uint32_t,
-                        std::pair<LDSymbol*, uint32_t> > SymMapType;
+  typedef std::multimap<uint32_t, std::pair<LDSymbol*, uint32_t> > SymMapType;
   SymMapType symmap;
   symEnd = pSymtab.dynamicEnd();
   for (symbol = pSymtab.localDynBegin() + symidx - 1; symbol != symEnd;
@@ -1457,7 +1446,6 @@ unsigned int GNULDBackend::getSectionOrder(const LDSection& pSectHdr) const
 /// getSymbolSize
 uint64_t GNULDBackend::getSymbolSize(const LDSymbol& pSymbol) const
 {
-  // @ref Google gold linker: symtab.cc: 2780
   // undefined and dynamic symbols should have zero size.
   if (pSymbol.isDyn() || pSymbol.desc() == ResolveInfo::Undefined)
     return 0x0;
@@ -1482,7 +1470,7 @@ uint64_t GNULDBackend::getSymbolInfo(const LDSymbol& pSymbol) const
 
   if (config().codeGenType() != LinkerConfig::Object &&
       (pSymbol.visibility() == llvm::ELF::STV_INTERNAL ||
-      pSymbol.visibility() == llvm::ELF::STV_HIDDEN))
+       pSymbol.visibility() == llvm::ELF::STV_HIDDEN))
     bind = llvm::ELF::STB_LOCAL;
 
   uint32_t type = pSymbol.resolveInfo()->type();
@@ -1516,16 +1504,19 @@ GNULDBackend::getSymbolShndx(const LDSymbol& pSymbol) const
   if (pSymbol.resolveInfo()->isDefine() && !pSymbol.hasFragRef())
     return llvm::ELF::SHN_ABS;
 
-  assert(pSymbol.hasFragRef() && "symbols must have fragment reference to get its index");
+  assert(pSymbol.hasFragRef() &&
+         "symbols must have fragment reference to get its index");
   return pSymbol.fragRef()->frag()->getParent()->getSection().index();
 }
 
 /// getSymbolIdx - called by emitRelocation to get the ouput symbol table index
 size_t GNULDBackend::getSymbolIdx(const LDSymbol* pSymbol) const
 {
-   HashTableType::iterator entry = m_pSymIndexMap->find(const_cast<LDSymbol *>(pSymbol));
-   assert(entry != m_pSymIndexMap->end() && "symbol not found in the symbol table");
-   return entry.getEntry()->value();
+  HashTableType::iterator entry =
+      m_pSymIndexMap->find(const_cast<LDSymbol *>(pSymbol));
+  assert(entry != m_pSymIndexMap->end() &&
+         "symbol not found in the symbol table");
+  return entry.getEntry()->value();
 }
 
 /// isTemporary - Whether pSymbol is a local label.
@@ -1542,13 +1533,11 @@ bool GNULDBackend::isTemporary(const LDSymbol& pSymbol) const
     return true;
 
   // UnixWare 2.1 cc generate DWARF debugging symbols with `..' prefix.
-  // @ref Google gold linker, target.cc:39 @@ Target::do_is_local_label_name()
   if (name[0] == '.' && name[1] == '.')
     return true;
 
   // Work arround for gcc's bug
   // gcc sometimes generate symbols with '_.L_' prefix.
-  // @ref Google gold linker, target.cc:39 @@ Target::do_is_local_label_name()
   if (pSymbol.nameSize() < 4)
     return false;
 
@@ -1560,7 +1549,6 @@ bool GNULDBackend::isTemporary(const LDSymbol& pSymbol) const
 
 /// allocateCommonSymbols - allocate common symbols in the corresponding
 /// sections. This is executed at pre-layout stage.
-/// @refer Google gold linker: common.cc: 214
 bool
 GNULDBackend::allocateCommonSymbols(Module& pModule)
 {
@@ -1646,8 +1634,7 @@ GNULDBackend::allocateCommonSymbols(Module& pModule)
                                                    (*com_sym)->value());
       ObjectBuilder::UpdateSectionAlign(tbss_sect, (*com_sym)->value());
       (*com_sym)->setFragmentRef(FragmentRef::Create(*frag, 0));
-    }
-    else {
+    } else {
       bss_offset += ObjectBuilder::AppendFragment(*frag,
                                                   *bss_sect_data,
                                                   (*com_sym)->value());
@@ -1664,16 +1651,14 @@ GNULDBackend::allocateCommonSymbols(Module& pModule)
 
 /// updateSectionFlags - update pTo's flags when merging pFrom
 /// update the output section flags based on input section flags.
-/// @ref The Google gold linker:
-///      output.cc: 2809: Output_section::update_flags_for_input_section
 bool GNULDBackend::updateSectionFlags(LDSection& pTo, const LDSection& pFrom)
 {
   // union the flags from input
   uint32_t flags = pTo.flag();
   flags |= (pFrom.flag() &
-              (llvm::ELF::SHF_WRITE |
-               llvm::ELF::SHF_ALLOC |
-               llvm::ELF::SHF_EXECINSTR));
+            (llvm::ELF::SHF_WRITE |
+             llvm::ELF::SHF_ALLOC |
+             llvm::ELF::SHF_EXECINSTR));
 
   // if there is an input section is not SHF_MERGE, clean this flag
   if (0 == (pFrom.flag() & llvm::ELF::SHF_MERGE))
@@ -1697,8 +1682,7 @@ bool GNULDBackend::readRelocation(const llvm::ELF::Elf32_Rel& pRel,
   if (llvm::sys::IsLittleEndianHost) {
     pOffset = pRel.r_offset;
     r_info  = pRel.r_info;
-  }
-  else {
+  } else {
     pOffset = mcld::bswap32(pRel.r_offset);
     r_info  = mcld::bswap32(pRel.r_info);
   }
@@ -1720,8 +1704,7 @@ bool GNULDBackend::readRelocation(const llvm::ELF::Elf32_Rela& pRel,
     pOffset = pRel.r_offset;
     r_info  = pRel.r_info;
     pAddend = pRel.r_addend;
-  }
-  else {
+  } else {
     pOffset = mcld::bswap32(pRel.r_offset);
     r_info  = mcld::bswap32(pRel.r_info);
     pAddend = mcld::bswap32(pRel.r_addend);
@@ -1734,16 +1717,15 @@ bool GNULDBackend::readRelocation(const llvm::ELF::Elf32_Rela& pRel,
 
 /// readRelocation - read ELF64_Rel entry
 bool GNULDBackend::readRelocation(const llvm::ELF::Elf64_Rel& pRel,
-                              Relocation::Type& pType,
-                              uint32_t& pSymIdx,
-                              uint64_t& pOffset) const
+                                  Relocation::Type& pType,
+                                  uint32_t& pSymIdx,
+                                  uint64_t& pOffset) const
 {
   uint64_t r_info = 0x0;
   if (llvm::sys::IsLittleEndianHost) {
     pOffset = pRel.r_offset;
     r_info  = pRel.r_info;
-  }
-  else {
+  } else {
     pOffset = mcld::bswap64(pRel.r_offset);
     r_info  = mcld::bswap64(pRel.r_info);
   }
@@ -1755,18 +1737,17 @@ bool GNULDBackend::readRelocation(const llvm::ELF::Elf64_Rel& pRel,
 
 /// readRel - read ELF64_Rela entry
 bool GNULDBackend::readRelocation(const llvm::ELF::Elf64_Rela& pRel,
-                              Relocation::Type& pType,
-                              uint32_t& pSymIdx,
-                              uint64_t& pOffset,
-                              int64_t& pAddend) const
+                                  Relocation::Type& pType,
+                                  uint32_t& pSymIdx,
+                                  uint64_t& pOffset,
+                                  int64_t& pAddend) const
 {
   uint64_t r_info = 0x0;
   if (llvm::sys::IsLittleEndianHost) {
     pOffset = pRel.r_offset;
     r_info  = pRel.r_info;
     pAddend = pRel.r_addend;
-  }
-  else {
+  } else {
     pOffset = mcld::bswap64(pRel.r_offset);
     r_info  = mcld::bswap64(pRel.r_info);
     pAddend = mcld::bswap64(pRel.r_addend);
@@ -1860,28 +1841,24 @@ void GNULDBackend::createProgramHdrs(Module& pModule)
     if (LDFileFormat::Null == sect->kind()) {
       // 1. create text segment
       createPT_LOAD = true;
-    }
-    else if (!config().options().omagic() &&
-             (prev_flag & llvm::ELF::PF_W) ^ (cur_flag & llvm::ELF::PF_W)) {
+    } else if (!config().options().omagic() &&
+               (prev_flag & llvm::ELF::PF_W) ^ (cur_flag & llvm::ELF::PF_W)) {
       // 2. create data segment if w/o omagic set
       createPT_LOAD = true;
-    }
-    else if (sect->kind() == LDFileFormat::BSS &&
-             load_seg->isDataSegment() &&
-             addrEnd != ldscript.addressMap().find(".bss")) {
+    } else if (sect->kind() == LDFileFormat::BSS &&
+               load_seg->isDataSegment() &&
+               addrEnd != ldscript.addressMap().find(".bss")) {
       // 3. create bss segment if w/ -Tbss and there is a data segment
       createPT_LOAD = true;
-    }
-    else if ((sect != &(file_format->getText())) &&
-             (sect != &(file_format->getData())) &&
-             (sect != &(file_format->getBSS())) &&
-             (addrEnd != ldscript.addressMap().find(sect->name()))) {
+    } else if ((sect != &(file_format->getText())) &&
+               (sect != &(file_format->getData())) &&
+               (sect != &(file_format->getBSS())) &&
+               (addrEnd != ldscript.addressMap().find(sect->name()))) {
       // 4. create PT_LOAD for sections in address map except for text, data,
       // and bss
       createPT_LOAD = true;
-    }
-    else if (LDFileFormat::Null == (*prev)->getSection()->kind() &&
-             !config().options().getScriptList().empty()) {
+    } else if (LDFileFormat::Null == (*prev)->getSection()->kind() &&
+               !config().options().getScriptList().empty()) {
       // 5. create PT_LOAD to hold NULL section if there is a default ldscript
       createPT_LOAD = true;
     }
@@ -1893,7 +1870,7 @@ void GNULDBackend::createProgramHdrs(Module& pModule)
         load_seg->setAlign(abiPageSize());
     }
 
-    assert(NULL != load_seg);
+    assert(load_seg != NULL);
     load_seg->append(sect);
     if (cur_flag != prev_flag)
       load_seg->updateFlag(cur_flag);
@@ -1946,10 +1923,9 @@ void GNULDBackend::createProgramHdrs(Module& pModule)
 
   // make PT_GNU_STACK
   if (file_format->hasStackNote()) {
+    uint32_t flag = getSegmentFlag(file_format->getStackNote().flag());
     elfSegmentTable().produce(llvm::ELF::PT_GNU_STACK,
-                              llvm::ELF::PF_R |
-                              llvm::ELF::PF_W |
-                              getSegmentFlag(file_format->getStackNote().flag()));
+                              llvm::ELF::PF_R | llvm::ELF::PF_W | flag);
   }
 
   // make PT_NOTE
@@ -2027,7 +2003,7 @@ void GNULDBackend::setupProgramHdrs(const LinkerScript& pScript)
   // handle the case if text segment only has NULL section
   LDSection* null_sect = &getOutputFormat()->getNULLSection();
   ELFSegmentFactory::iterator null_seg =
-    elfSegmentTable().find(llvm::ELF::PT_LOAD, null_sect);
+      elfSegmentTable().find(llvm::ELF::PT_LOAD, null_sect);
 
   if ((*null_seg)->size() == 1) {
     // find 2nd PT_LOAD
@@ -2087,11 +2063,11 @@ void GNULDBackend::setupProgramHdrs(const LinkerScript& pScript)
 
   // set up PT_PHDR
   ELFSegmentFactory::iterator phdr =
-    elfSegmentTable().find(llvm::ELF::PT_PHDR, llvm::ELF::PF_R, 0x0);
+      elfSegmentTable().find(llvm::ELF::PT_PHDR, llvm::ELF::PF_R, 0x0);
 
   if (phdr != elfSegmentTable().end()) {
     ELFSegmentFactory::iterator null_seg =
-      elfSegmentTable().find(llvm::ELF::PT_LOAD, null_sect);
+        elfSegmentTable().find(llvm::ELF::PT_LOAD, null_sect);
     if (null_seg != elfSegmentTable().end()) {
       uint64_t offset = 0x0, phdr_size = 0x0;
       if (config().targets().is32Bits()) {
@@ -2128,7 +2104,6 @@ uint32_t GNULDBackend::getSegmentFlag(const uint32_t pSectionFlag)
 }
 
 /// setupGNUStackInfo - setup the section flag of .note.GNU-stack in output
-/// @ref gold linker: layout.cc:2608
 void GNULDBackend::setupGNUStackInfo(Module& pModule)
 {
   uint32_t flag = 0x0;
@@ -2136,8 +2111,7 @@ void GNULDBackend::setupGNUStackInfo(Module& pModule)
     // 1. check the command line option (-z execstack or -z noexecstack)
     if (config().options().hasExecStack())
       flag = llvm::ELF::SHF_EXECINSTR;
-  }
-  else {
+  } else {
     // 2. check the stack info from the input objects
     // FIXME: since we alway emit .note.GNU-stack in output now, we may be able
     // to check this from the output .note.GNU-stack directly after section
@@ -2147,7 +2121,7 @@ void GNULDBackend::setupGNUStackInfo(Module& pModule)
     for (obj = pModule.obj_begin(); obj != objEnd; ++obj) {
       ++object_count;
       const LDSection* sect = (*obj)->context()->getSection(".note.GNU-stack");
-      if (NULL != sect) {
+      if (sect != NULL) {
         ++stack_note_count;
         // 2.1 found a stack note that is set as executable
         if (0 != (llvm::ELF::SHF_EXECINSTR & sect->flag())) {
@@ -2395,7 +2369,7 @@ void GNULDBackend::placeOutputSections(Module& pModule)
   SectionMap& sectionMap = pModule.getScript().sectionMap();
 
   for (Module::iterator it = pModule.begin(), ie = pModule.end(); it != ie;
-    ++it) {
+       ++it) {
     bool wanted = false;
 
     switch ((*it)->kind()) {
@@ -2506,7 +2480,7 @@ void GNULDBackend::placeOutputSections(Module& pModule)
 
   // place orphan sections
   for (Orphans::iterator it = orphans.begin(), ie = orphans.end(); it != ie;
-    ++it) {
+       ++it) {
     size_t order = getSectionOrder(**it);
     SectionMap::iterator out, outBegin, outEnd;
     outBegin = sectionMap.begin();
@@ -2546,7 +2520,7 @@ void GNULDBackend::layout(Module& pModule)
   SectionMap& sectionMap = pModule.getScript().sectionMap();
   pModule.getSectionTable().clear();
   for (SectionMap::iterator out = sectionMap.begin(), outEnd = sectionMap.end();
-    out != outEnd; ++out) {
+       out != outEnd; ++out) {
     if ((*out)->hasContent() ||
         (*out)->getSection()->kind() == LDFileFormat::Null ||
         (*out)->getSection()->kind() == LDFileFormat::StackNote ||
@@ -2585,8 +2559,8 @@ void GNULDBackend::createAndSizeEhFrameHdr(Module& pModule)
 
 /// mayHaveUnsafeFunctionPointerAccess - check if the section may have unsafe
 /// function pointer access
-bool GNULDBackend::mayHaveUnsafeFunctionPointerAccess(const LDSection& pSection)
-    const
+bool GNULDBackend::mayHaveUnsafeFunctionPointerAccess(
+    const LDSection& pSection) const
 {
   llvm::StringRef name(pSection.name());
   return !name.startswith(".rodata._ZTV") &&
@@ -2603,10 +2577,10 @@ void GNULDBackend::preLayout(Module& pModule, IRBuilder& pBuilder)
   doPreLayout(pBuilder);
 
   // change .tbss and .tdata section symbol from Local to LocalDyn category
-  if (NULL != f_pTDATA)
+  if (f_pTDATA != NULL)
     pModule.getSymbolTable().changeToDynamic(*f_pTDATA);
 
-  if (NULL != f_pTBSS)
+  if (f_pTBSS != NULL)
     pModule.getSymbolTable().changeToDynamic(*f_pTBSS);
 
   // To merge input's relocation sections into output's relocation sections.
@@ -2621,7 +2595,7 @@ void GNULDBackend::preLayout(Module& pModule, IRBuilder& pBuilder)
 
         // get the output relocation LDSection with identical name.
         LDSection* output_sect = pModule.getSection((*rs)->name());
-        if (NULL == output_sect) {
+        if (output_sect == NULL) {
           output_sect = LDSection::Create((*rs)->name(),
                                           (*rs)->kind(),
                                           (*rs)->type(),
@@ -2633,11 +2607,11 @@ void GNULDBackend::preLayout(Module& pModule, IRBuilder& pBuilder)
 
         // set output relocation section link
         const LDSection* input_link = (*rs)->getLink();
-        assert(NULL != input_link && "Illegal input relocation section.");
+        assert(input_link != NULL && "Illegal input relocation section.");
 
         // get the linked output section
         LDSection* output_link = pModule.getSection(input_link->name());
-        assert(NULL != output_link);
+        assert(output_link != NULL);
 
         output_sect->setLink(output_link);
 
@@ -2649,9 +2623,9 @@ void GNULDBackend::preLayout(Module& pModule, IRBuilder& pBuilder)
 
         // move relocations from input's to output's RelcoationData
         RelocData::RelocationListType& out_list =
-                                             out_reloc_data->getRelocationList();
+            out_reloc_data->getRelocationList();
         RelocData::RelocationListType& in_list =
-                                      (*rs)->getRelocData()->getRelocationList();
+            (*rs)->getRelocData()->getRelocationList();
         out_list.splice(out_list.end(), in_list);
 
         // size output
@@ -2694,13 +2668,10 @@ void GNULDBackend::postProcessing(FileOutputBuffer& pOutput)
 }
 
 /// getHashBucketCount - calculate hash bucket count.
-/// @ref Google gold linker, dynobj.cc:791
 unsigned GNULDBackend::getHashBucketCount(unsigned pNumOfSymbols,
                                           bool pIsGNUStyle)
 {
-  // @ref Google gold, dynobj.cc:loc 791
-  static const unsigned int buckets[] =
-  {
+  static const unsigned int buckets[] = {
     1, 3, 17, 37, 67, 97, 131, 197, 263, 521, 1031, 2053, 4099, 8209,
     16411, 32771, 65537, 131101, 262147
   };
@@ -2720,7 +2691,6 @@ unsigned GNULDBackend::getHashBucketCount(unsigned pNumOfSymbols,
 }
 
 /// getGNUHashMaskbitslog2 - calculate the number of mask bits in log2
-/// @ref binutils gold, dynobj.cc:1165
 unsigned GNULDBackend::getGNUHashMaskbitslog2(unsigned pNumOfSymbols) const
 {
   uint32_t maskbitslog2 = 1;
@@ -2741,7 +2711,6 @@ unsigned GNULDBackend::getGNUHashMaskbitslog2(unsigned pNumOfSymbols) const
 }
 
 /// isDynamicSymbol
-/// @ref Google gold linker: symtab.cc:311
 bool GNULDBackend::isDynamicSymbol(const LDSymbol& pSymbol) const
 {
   // If a local symbol is in the LDContext's symbol table, it's a real local
@@ -2762,7 +2731,6 @@ bool GNULDBackend::isDynamicSymbol(const LDSymbol& pSymbol) const
 }
 
 /// isDynamicSymbol
-/// @ref Google gold linker: symtab.cc:311
 bool GNULDBackend::isDynamicSymbol(const ResolveInfo& pResolveInfo) const
 {
   // If a local symbol is in the LDContext's symbol table, it's a real local
@@ -2797,7 +2765,6 @@ const ELFSegmentFactory& GNULDBackend::elfSegmentTable() const
 }
 
 /// commonPageSize - the common page size of the target machine.
-/// @ref gold linker: target.h:135
 uint64_t GNULDBackend::commonPageSize() const
 {
   if (config().options().commPageSize() > 0)
@@ -2807,7 +2774,6 @@ uint64_t GNULDBackend::commonPageSize() const
 }
 
 /// abiPageSize - the abi page size of the target machine.
-/// @ref gold linker: target.h:125
 uint64_t GNULDBackend::abiPageSize() const
 {
   if (config().options().maxPageSize() > 0)
@@ -2818,7 +2784,6 @@ uint64_t GNULDBackend::abiPageSize() const
 
 /// isSymbolPreemtible - whether the symbol can be preemted by other
 /// link unit
-/// @ref Google gold linker, symtab.h:551
 bool GNULDBackend::isSymbolPreemptible(const ResolveInfo& pSym) const
 {
   if (pSym.other() != ResolveInfo::Default)
@@ -2846,7 +2811,6 @@ bool GNULDBackend::isSymbolPreemptible(const ResolveInfo& pSym) const
 }
 
 /// symbolNeedsDynRel - return whether the symbol needs a dynamic relocation
-/// @ref Google gold linker, symtab.h:645
 bool GNULDBackend::symbolNeedsDynRel(const ResolveInfo& pSym,
                                      bool pSymHasPLT,
                                      bool isAbsReloc) const
@@ -2879,7 +2843,6 @@ bool GNULDBackend::symbolNeedsDynRel(const ResolveInfo& pSym,
 }
 
 /// symbolNeedsPLT - return whether the symbol needs a PLT entry
-/// @ref Google gold linker, symtab.h:596
 bool GNULDBackend::symbolNeedsPLT(const ResolveInfo& pSym) const
 {
   if (pSym.isUndef() &&
@@ -2907,7 +2870,6 @@ bool GNULDBackend::symbolNeedsPLT(const ResolveInfo& pSym) const
 
 /// symbolHasFinalValue - return true if the symbol's value can be decided at
 /// link time
-/// @ref Google gold linker, Symbol::final_value_is_known
 bool GNULDBackend::symbolFinalValueIsKnown(const ResolveInfo& pSym) const
 {
   // if the output is pic code or if not executables, symbols' value may change
@@ -2960,25 +2922,25 @@ bool GNULDBackend::symbolNeedsCopyReloc(const Relocation& pReloc,
 
 LDSymbol& GNULDBackend::getTDATASymbol()
 {
-  assert(NULL != f_pTDATA);
+  assert(f_pTDATA != NULL);
   return *f_pTDATA;
 }
 
 const LDSymbol& GNULDBackend::getTDATASymbol() const
 {
-  assert(NULL != f_pTDATA);
+  assert(f_pTDATA != NULL);
   return *f_pTDATA;
 }
 
 LDSymbol& GNULDBackend::getTBSSSymbol()
 {
-  assert(NULL != f_pTBSS);
+  assert(f_pTBSS != NULL);
   return *f_pTBSS;
 }
 
 const LDSymbol& GNULDBackend::getTBSSSymbol() const
 {
-  assert(NULL != f_pTBSS);
+  assert(f_pTBSS != NULL);
   return *f_pTBSS;
 }
 
@@ -3029,7 +2991,7 @@ void GNULDBackend::sortRelocation(LDSection& pSection)
 /// initBRIslandFactory - initialize the branch island factory for relaxation
 bool GNULDBackend::initBRIslandFactory()
 {
-  if (NULL == m_pBRIslandFactory) {
+  if (m_pBRIslandFactory == NULL) {
     m_pBRIslandFactory = new BranchIslandFactory(maxFwdBranchOffset(),
                                                  maxBwdBranchOffset());
   }
@@ -3039,7 +3001,7 @@ bool GNULDBackend::initBRIslandFactory()
 /// initStubFactory - initialize the stub factory for relaxation
 bool GNULDBackend::initStubFactory()
 {
-  if (NULL == m_pStubFactory) {
+  if (m_pStubFactory == NULL) {
     m_pStubFactory = new StubFactory();
   }
   return true;

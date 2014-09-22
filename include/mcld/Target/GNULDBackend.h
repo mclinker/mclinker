@@ -8,7 +8,6 @@
 //===----------------------------------------------------------------------===//
 #ifndef MCLD_TARGET_GNULDBACKEND_H
 #define MCLD_TARGET_GNULDBACKEND_H
-#include <mcld/Target/TargetLDBackend.h>
 
 #include <mcld/Module.h>
 #include <mcld/LD/GNUArchiveReader.h>
@@ -16,6 +15,7 @@
 #include <mcld/LD/ELFBinaryReader.h>
 #include <mcld/LD/ELFObjectReader.h>
 #include <mcld/LD/ELFObjectWriter.h>
+#include <mcld/Target/TargetLDBackend.h>
 
 #include <llvm/Support/ELF.h>
 
@@ -23,23 +23,23 @@
 
 namespace mcld {
 
-class Module;
-class LinkerConfig;
-class IRBuilder;
-class Layout;
-class EhFrameHdr;
 class BranchIslandFactory;
-class StubFactory;
-class GNUInfo;
-class ELFFileFormat;
-class ELFSegmentFactory;
+class EhFrameHdr;
 class ELFAttribute;
 class ELFDynamic;
 class ELFDynObjFileFormat;
 class ELFExecFileFormat;
+class ELFFileFormat;
 class ELFObjectFileFormat;
+class ELFSegmentFactory;
+class GNUInfo;
+class IRBuilder;
+class Layout;
+class LinkerConfig;
 class LinkerScript;
+class Module;
 class Relocation;
+class StubFactory;
 
 /** \class GNULDBackend
  *  \brief GNULDBackend provides a common interface for all GNU Unix-OS
@@ -83,8 +83,7 @@ public:
   /// @return ture - if backend set the symbol value sucessfully
   /// @return false - if backend do not recognize the symbol
   bool finalizeSymbols() {
-    return (finalizeStandardSymbols() &&
-            finalizeTargetSymbols());
+    return (finalizeStandardSymbols() && finalizeTargetSymbols());
   }
 
   /// finalizeStandardSymbols - set the value of standard symbols
@@ -105,7 +104,7 @@ public:
 
   bool hasStaticTLS() const { return m_bHasStaticTLS; }
 
-  /// getSegmentStartAddr - this function returns the start address of the segment
+  /// getSegmentStartAddr - return the start address of the segment
   uint64_t getSegmentStartAddr(const LinkerScript& pScript) const;
 
   /// sizeShstrtab - compute the size of .shstrtab
@@ -121,7 +120,8 @@ public:
                                    MemoryRegion& pRegion) const = 0;
 
   /// emitRegNamePools - emit regular name pools - .symtab, .strtab
-  virtual void emitRegNamePools(const Module& pModule, FileOutputBuffer& pOutput);
+  virtual void emitRegNamePools(const Module& pModule,
+                                FileOutputBuffer& pOutput);
 
   /// emitNamePools - emit dynamic name pools - .dyntab, .dynstr, .hash
   virtual void emitDynNamePools(Module& pModule, FileOutputBuffer& pOutput);
@@ -247,7 +247,6 @@ public:
                               int64_t pAddend) const;
 
   /// symbolNeedsPLT - return whether the symbol needs a PLT entry
-  /// @ref Google gold linker, symtab.h:596
   bool symbolNeedsPLT(const ResolveInfo& pSym) const;
 
   /// symbolNeedsCopyReloc - return whether the symbol needs a copy relocation
@@ -255,14 +254,12 @@ public:
                             const ResolveInfo& pSym) const;
 
   /// symbolNeedsDynRel - return whether the symbol needs a dynamic relocation
-  /// @ref Google gold linker, symtab.h:645
   bool symbolNeedsDynRel(const ResolveInfo& pSym,
                          bool pSymHasPLT,
                          bool isAbsReloc) const;
 
   /// isSymbolPreemptible - whether the symbol can be preemted by other link
   /// units
-  /// @ref Google gold linker, symtab.h:551
   bool isSymbolPreemptible(const ResolveInfo& pSym) const;
 
   /// symbolHasFinalValue - return true if the symbol's value can be decided at
@@ -270,19 +267,17 @@ public:
   bool symbolFinalValueIsKnown(const ResolveInfo& pSym) const;
 
   /// isDynamicSymbol
-  /// @ref Google gold linker: symtab.cc:311
   bool isDynamicSymbol(const LDSymbol& pSymbol) const;
 
   /// isDynamicSymbol
-  /// @ref Google gold linker: symtab.cc:311
   bool isDynamicSymbol(const ResolveInfo& pResolveInfo) const;
 
   virtual ResolveInfo::Desc getSymDesc(uint16_t pShndx) const {
     return ResolveInfo::Define;
   }
 
-  bool hasTDATASymbol() const { return (NULL != f_pTDATA); }
-  bool hasTBSSSymbol()  const { return (NULL != f_pTBSS);  }
+  bool hasTDATASymbol() const { return (f_pTDATA != NULL); }
+  bool hasTBSSSymbol()  const { return (f_pTBSS != NULL);  }
 
   void setTDATASymbol(LDSymbol& pTDATA) { f_pTDATA = &pTDATA; }
   void setTBSSSymbol(LDSymbol& pTBSS)   { f_pTBSS  = &pTBSS;  }
@@ -359,11 +354,9 @@ protected:
   virtual bool isTemporary(const LDSymbol& pSymbol) const;
 
   /// getHashBucketCount - calculate hash bucket count.
-  /// @ref Google gold linker, dynobj.cc:791
   static unsigned getHashBucketCount(unsigned pNumOfSymbols, bool pIsGNUStyle);
 
   /// getGNUHashMaskbitslog2 - calculate the number of mask bits in log2
-  /// @ref binutils gold, dynobj.cc:1165
   unsigned getGNUHashMaskbitslog2(unsigned pNumOfSymbols) const;
 
   /// emitSymbol32 - emit an ELF32 symbol
@@ -446,8 +439,7 @@ private:
   { return false; }
 
 protected:
-  // Based on Kind in LDFileFormat to define basic section orders for ELF, and
-  // refer gold linker to add more enumerations to handle Regular and BSS kind
+  // Based on Kind in LDFileFormat to define basic section orders for ELF.
   enum SectionOrder {
     SHO_NULL = 0,        // NULL
     SHO_INTERP,          // .interp
@@ -584,4 +576,3 @@ protected:
 } // namespace of mcld
 
 #endif
-
