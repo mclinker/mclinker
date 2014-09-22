@@ -37,4 +37,3 @@ public:
 } // namespace of mcld
 
 #endif
-

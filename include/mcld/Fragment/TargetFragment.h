@@ -23,7 +23,7 @@ class TargetFragment : public Fragment
 {
 protected:
   TargetFragment(Fragment::Type pKind, SectionData* pSD = NULL)
-    : Fragment(pKind, pSD) {}
+      : Fragment(pKind, pSD) {}
 
 public:
   virtual ~TargetFragment() {}
@@ -38,4 +38,3 @@ public:
 } // namespace of mcld
 
 #endif
-

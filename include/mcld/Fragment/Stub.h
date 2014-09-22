@@ -10,11 +10,13 @@
 #ifndef MCLD_FRAGMENT_STUB_H
 #define MCLD_FRAGMENT_STUB_H
 
-#include <llvm/Support/DataTypes.h>
 #include <mcld/Fragment/Fragment.h>
 #include <mcld/Fragment/Relocation.h>
-#include <vector>
+
+#include <llvm/Support/DataTypes.h>
+
 #include <string>
+#include <vector>
 
 namespace mcld
 {
@@ -33,7 +35,7 @@ public:
   {
   public:
     Fixup(DWord pOffset, SWord pAddend, Type pType)
-     : m_Offset(pOffset), m_Addend(pAddend), m_Type(pType)
+       : m_Offset(pOffset), m_Addend(pAddend), m_Type(pType)
     { }
 
     ~Fixup()
@@ -128,4 +130,3 @@ private:
 } // namespace of mcld
 
 #endif
-

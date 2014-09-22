@@ -9,9 +9,9 @@
 #ifndef MCLD_FRAGMENT_FILLFRAGMENT_H
 #define MCLD_FRAGMENT_FILLFRAGMENT_H
 
-#include <llvm/Support/DataTypes.h>
-
 #include <mcld/Fragment/Fragment.h>
+
+#include <llvm/Support/DataTypes.h>
 
 namespace mcld {
 
@@ -20,7 +20,9 @@ class SectionData;
 class FillFragment : public Fragment
 {
 public:
-  FillFragment(int64_t pValue, unsigned int pValueSize, uint64_t pSize,
+  FillFragment(int64_t pValue,
+               unsigned int pValueSize,
+               uint64_t pSize,
                SectionData* pSD = NULL);
 
   int64_t getValue() const { return m_Value; }
@@ -49,4 +51,3 @@ private:
 } // namespace of mcld
 
 #endif
-

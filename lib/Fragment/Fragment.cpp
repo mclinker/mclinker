@@ -8,10 +8,9 @@
 //===----------------------------------------------------------------------===//
 
 #include <mcld/Fragment/Fragment.h>
+#include <mcld/LD/SectionData.h>
 
 #include <llvm/Support/DataTypes.h>
-
-#include <mcld/LD/SectionData.h>
 
 using namespace mcld;
 
@@ -19,12 +18,12 @@ using namespace mcld;
 // Fragment
 //===----------------------------------------------------------------------===//
 Fragment::Fragment()
-  : m_Kind(Type(~0)), m_pParent(NULL), m_Offset(~uint64_t(0)) {
+    : m_Kind(Type(~0)), m_pParent(NULL), m_Offset(~uint64_t(0)) {
 }
 
 Fragment::Fragment(Type pKind, SectionData *pParent)
-  : m_Kind(pKind), m_pParent(pParent), m_Offset(~uint64_t(0)) {
-  if (NULL != m_pParent)
+    : m_Kind(pKind), m_pParent(pParent), m_Offset(~uint64_t(0)) {
+  if (m_pParent != NULL)
     m_pParent->getFragmentList().push_back(this);
 }
 
@@ -42,4 +41,3 @@ bool Fragment::hasOffset() const
 {
   return (m_Offset != ~uint64_t(0));
 }
-

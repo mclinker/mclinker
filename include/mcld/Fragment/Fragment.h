@@ -10,11 +10,10 @@
 #define MCLD_FRAGMENT_FRAGMENT_H
 
 #include <llvm/ADT/ilist_node.h>
-
 #include <llvm/Support/DataTypes.h>
 
-#include <cstddef>
 #include <cassert>
+#include <cstddef>
 
 namespace mcld {
 
@@ -68,13 +67,12 @@ private:
 
 private:
   Type m_Kind;
+
   SectionData* m_pParent;
 
   uint64_t m_Offset;
-
 };
 
 } // namespace of mcld
 
 #endif
-

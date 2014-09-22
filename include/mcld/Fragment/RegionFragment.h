@@ -10,6 +10,7 @@
 #define MCLD_FRAGMENT_REGIONFRAGMENT_H
 
 #include <mcld/Fragment/Fragment.h>
+
 #include <llvm/ADT/StringRef.h>
 
 namespace mcld {
@@ -42,4 +43,3 @@ private:
 } // namespace of mcld
 
 #endif
-

@@ -9,9 +9,9 @@
 #ifndef MCLD_FRAGMENT_FRAGMENTREF_H
 #define MCLD_FRAGMENT_FRAGMENTREF_H
 
-#include <mcld/Config/Config.h>
 #include <mcld/ADT/SizeTraits.h>
 #include <mcld/ADT/TypeTraits.h>
+#include <mcld/Config/Config.h>
 #include <mcld/Support/Allocators.h>
 
 namespace mcld {
@@ -86,13 +86,12 @@ private:
 
 private:
   Fragment* m_pFragment;
+
   Offset m_Offset;
 
   static FragmentRef g_NullFragmentRef;
-
 };
 
 } // namespace of mcld
 
 #endif
-

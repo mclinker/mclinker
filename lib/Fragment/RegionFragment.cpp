@@ -14,7 +14,7 @@ using namespace mcld;
 // RegionFragment
 //===----------------------------------------------------------------------===//
 RegionFragment::RegionFragment(llvm::StringRef pRegion, SectionData* pSD)
-  : Fragment(Fragment::Region, pSD), m_Region(pRegion) {
+    : Fragment(Fragment::Region, pSD), m_Region(pRegion) {
 }
 
 RegionFragment::~RegionFragment()
@@ -25,4 +25,3 @@ size_t RegionFragment::size() const
 {
   return m_Region.size();
 }
-

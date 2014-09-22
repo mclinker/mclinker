@@ -9,12 +9,12 @@
 #include <mcld/Fragment/FragmentRef.h>
 
 #include <mcld/Fragment/Fragment.h>
-#include <mcld/LD/LDSection.h>
-#include <mcld/LD/SectionData.h>
-#include <mcld/LD/EhFrame.h>
-#include <mcld/Support/GCFactory.h>
 #include <mcld/Fragment/RegionFragment.h>
 #include <mcld/Fragment/Stub.h>
+#include <mcld/LD/EhFrame.h>
+#include <mcld/LD/LDSection.h>
+#include <mcld/LD/SectionData.h>
+#include <mcld/Support/GCFactory.h>
 
 #include <llvm/ADT/StringRef.h>
 #include <llvm/Support/Casting.h>
@@ -34,12 +34,11 @@ FragmentRef FragmentRef::g_NullFragmentRef;
 // FragmentRef
 //===----------------------------------------------------------------------===//
 FragmentRef::FragmentRef()
-  : m_pFragment(NULL), m_Offset(0) {
+    : m_pFragment(NULL), m_Offset(0) {
 }
 
-FragmentRef::FragmentRef(Fragment& pFrag,
-                         FragmentRef::Offset pOffset)
-  : m_pFragment(&pFrag), m_Offset(pOffset) {
+FragmentRef::FragmentRef(Fragment& pFrag, FragmentRef::Offset pOffset)
+    : m_pFragment(&pFrag), m_Offset(pOffset) {
 }
 
 /// Create - create a fragment reference for a given fragment.
@@ -54,7 +53,7 @@ FragmentRef* FragmentRef::Create(Fragment& pFrag, uint64_t pOffset)
   int64_t offset = pOffset;
   Fragment* frag = &pFrag;
 
-  while (NULL != frag) {
+  while (frag != NULL) {
     offset -= frag->size();
     if (offset <= 0)
       break;
@@ -67,7 +66,7 @@ FragmentRef* FragmentRef::Create(Fragment& pFrag, uint64_t pOffset)
       offset += frag->size();
   }
 
-  if (NULL == frag)
+  if (frag == NULL)
     return Null();
 
   FragmentRef* result = g_FragRefFactory->allocate();
@@ -92,7 +91,7 @@ FragmentRef* FragmentRef::Create(LDSection& pSection, uint64_t pOffset)
       break;
   }
 
-  if (NULL == data || data->empty()) {
+  if (data == NULL || data->empty()) {
     return Null();
   }
 
@@ -126,8 +125,9 @@ FragmentRef& FragmentRef::assign(Fragment& pFrag, FragmentRef::Offset pOffset)
 void FragmentRef::memcpy(void* pDest, size_t pNBytes, Offset pOffset) const
 {
   // check if the offset is still in a legal range.
-  if (NULL == m_pFragment)
+  if (m_pFragment == NULL)
     return;
+
   unsigned int total_offset = m_Offset + pOffset;
   switch(m_pFragment->getKind()) {
     case Fragment::Region: {
@@ -136,7 +136,9 @@ void FragmentRef::memcpy(void* pDest, size_t pNBytes, Offset pOffset) const
       if (total_length < (total_offset+pNBytes))
         pNBytes = total_length - total_offset;
 
-      std::memcpy(pDest, region_frag->getRegion().begin() + total_offset, pNBytes);
+      std::memcpy(pDest,
+                  region_frag->getRegion().begin() + total_offset,
+                  pNBytes);
       return;
     }
     case Fragment::Stub: {
@@ -157,7 +159,7 @@ void FragmentRef::memcpy(void* pDest, size_t pNBytes, Offset pOffset) const
 FragmentRef::Offset FragmentRef::getOutputOffset() const
 {
   Offset result = 0;
-  if (NULL != m_pFragment)
+  if (m_pFragment != NULL)
     result = m_pFragment->getOffset();
   return (result + m_Offset);
 }

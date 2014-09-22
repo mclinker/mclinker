@@ -7,13 +7,14 @@
 //
 //===----------------------------------------------------------------------===//
 #include <mcld/Fragment/Relocation.h>
+
+#include <mcld/LD/LDSection.h>
+#include <mcld/LD/LDSymbol.h>
+#include <mcld/LD/RelocationFactory.h>
 #include <mcld/LD/Relocator.h>
 #include <mcld/LD/ResolveInfo.h>
-#include <mcld/LD/LDSymbol.h>
-#include <mcld/LD/LDSection.h>
 #include <mcld/LD/SectionData.h>
 #include <mcld/Support/MsgHandling.h>
-#include <mcld/LD/RelocationFactory.h>
 
 #include <llvm/Support/ManagedStatic.h>
 
@@ -46,7 +47,9 @@ Relocation* Relocation::Create()
 /// @param pType    [in] the type of the relocation entry
 /// @param pFragRef [in] the place to apply the relocation
 /// @param pAddend  [in] the addend of the relocation entry
-Relocation* Relocation::Create(Type pType, FragmentRef& pFragRef, Address pAddend)
+Relocation* Relocation::Create(Type pType,
+                               FragmentRef& pFragRef,
+                               Address pAddend)
 {
   return g_RelocationFactory->produce(pType, pFragRef, pAddend);
 }
@@ -62,20 +65,20 @@ void Relocation::Destroy(Relocation*& pRelocation)
 // Relocation
 //===----------------------------------------------------------------------===//
 Relocation::Relocation()
-  : m_Type(0x0), m_TargetData(0x0), m_pSymInfo(NULL), m_Addend(0x0) {
+    : m_Type(0x0), m_TargetData(0x0), m_pSymInfo(NULL), m_Addend(0x0) {
 }
 
 Relocation::Relocation(Relocation::Type pType,
                        FragmentRef* pTargetRef,
                        Relocation::Address pAddend,
                        Relocation::DWord pTargetData)
-  : m_Type(pType),
-    m_TargetData(pTargetData),
-    m_pSymInfo(NULL),
-    m_Addend(pAddend)
+    : m_Type(pType),
+      m_TargetData(pTargetData),
+      m_pSymInfo(NULL),
+      m_Addend(pAddend)
 {
-  if(NULL != pTargetRef)
-     m_TargetAddress.assign(*pTargetRef->frag(), pTargetRef->offset()) ;
+  if (pTargetRef != NULL)
+    m_TargetAddress.assign(*pTargetRef->frag(), pTargetRef->offset()) ;
 }
 
 Relocation::~Relocation()

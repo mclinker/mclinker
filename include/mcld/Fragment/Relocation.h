@@ -8,6 +8,7 @@
 //===----------------------------------------------------------------------===//
 #ifndef MCLD_FRAGMENT_RELOCATION_H
 #define MCLD_FRAGMENT_RELOCATION_H
+
 #include <mcld/Config/Config.h>
 #include <mcld/Fragment/FragmentRef.h>
 #include <mcld/Support/GCFactoryListTraits.h>
@@ -58,7 +59,8 @@ public:
   /// @param pType    [in] the type of the relocation entry
   /// @param pFragRef [in] the place to apply the relocation
   /// @param pAddend  [in] the addend of the relocation entry
-  static Relocation* Create(Type pType, FragmentRef& pFragRef,
+  static Relocation* Create(Type pType,
+                            FragmentRef& pFragRef,
                             Address pAddend = 0);
 
   /// Destroy - destroy a relocation entry
@@ -126,4 +128,3 @@ private:
 } // namespace of mcld
 
 #endif
-

@@ -18,8 +18,11 @@ class SectionData;
 class AlignFragment : public Fragment
 {
 public:
-  AlignFragment(unsigned int pAlignment, int64_t pValue, unsigned int pValueSize,
-                unsigned int pMaxBytesToEmit, SectionData *pSD = NULL);
+  AlignFragment(unsigned int pAlignment,
+                int64_t pValue,
+                unsigned int pValueSize,
+                unsigned int pMaxBytesToEmit,
+                SectionData *pSD = NULL);
 
   unsigned int getAlignment() const { return m_Alignment; }
 
@@ -35,6 +38,7 @@ public:
 
   static bool classof(const Fragment *F)
   { return F->getKind() == Fragment::Alignment; }
+
   static bool classof(const AlignFragment *) { return true; }
 
   size_t size() const;
@@ -57,10 +61,8 @@ private:
   /// of using the provided value. The exact interpretation of this flag is
   /// target dependent.
   bool m_bEmitNops : 1;
-
 };
 
 } // namespace of mcld
 
 #endif
-

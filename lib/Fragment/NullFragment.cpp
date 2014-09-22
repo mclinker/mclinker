@@ -14,7 +14,6 @@ using namespace mcld;
 // NullFragment
 //===----------------------------------------------------------------------===//
 NullFragment::NullFragment(SectionData* pSD)
-  : Fragment(Fragment::Null, pSD)
+    : Fragment(Fragment::Null, pSD)
 {
 }
-

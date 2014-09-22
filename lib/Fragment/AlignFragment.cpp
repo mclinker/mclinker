@@ -7,9 +7,9 @@
 //
 //===----------------------------------------------------------------------===//
 #include <mcld/Fragment/AlignFragment.h>
+#include <mcld/LD/SectionData.h>
 
 #include <llvm/Support/MathExtras.h>
-#include <mcld/LD/SectionData.h>
 
 using namespace mcld;
 
@@ -21,18 +21,21 @@ AlignFragment::AlignFragment(unsigned int pAlignment,
                              unsigned int pValueSize,
                              unsigned int pMaxBytesToEmit,
                              SectionData *pSD)
-  : Fragment(Fragment::Alignment, pSD), m_Alignment(pAlignment),
-    m_Value(pValue), m_ValueSize(pValueSize), m_MaxBytesToEmit(pMaxBytesToEmit),
-    m_bEmitNops(false) {
+    : Fragment(Fragment::Alignment, pSD),
+      m_Alignment(pAlignment),
+      m_Value(pValue),
+      m_ValueSize(pValueSize),
+      m_MaxBytesToEmit(pMaxBytesToEmit),
+      m_bEmitNops(false) {
 }
 
 size_t AlignFragment::size() const
 {
-  assert(hasOffset() && "AlignFragment::size() should not be called before layout.");
+  assert(hasOffset() &&
+         "AlignFragment::size() should not be called before layout.");
   uint64_t size = llvm::OffsetToAlignment(getOffset(), m_Alignment);
   if (size > m_MaxBytesToEmit)
     return 0;
 
   return size;
 }
-
