@@ -7,16 +7,18 @@
 //
 //===----------------------------------------------------------------------===//
 #include <mcld/IRBuilder.h>
-#include <mcld/LinkerScript.h>
-#include <mcld/LD/ELFReader.h>
-#include <mcld/Object/ObjectBuilder.h>
-#include <mcld/LD/SectionData.h>
-#include <mcld/LD/EhFrame.h>
-#include <mcld/LD/RelocData.h>
-#include <mcld/Support/MsgHandling.h>
-#include <mcld/Support/MemoryArea.h>
-#include <mcld/Support/ELF.h>
+
 #include <mcld/Fragment/FragmentRef.h>
+#include <mcld/LinkerScript.h>
+#include <mcld/LD/EhFrame.h>
+#include <mcld/LD/ELFReader.h>
+#include <mcld/LD/RelocData.h>
+#include <mcld/LD/SectionData.h>
+#include <mcld/Object/ObjectBuilder.h>
+#include <mcld/Support/ELF.h>
+#include <mcld/Support/MemoryArea.h>
+#include <mcld/Support/MsgHandling.h>
+
 #include <llvm/ADT/StringRef.h>
 
 using namespace mcld;
@@ -24,7 +26,8 @@ using namespace mcld;
 //===----------------------------------------------------------------------===//
 // Helper Functions
 //===----------------------------------------------------------------------===//
-LDFileFormat::Kind GetELFSectionKind(uint32_t pType, const char* pName,
+LDFileFormat::Kind GetELFSectionKind(uint32_t pType,
+                                     const char* pName,
                                      uint32_t pFlag)
 {
   if (pFlag & mcld::ELF::SHF_EXCLUDE)
@@ -104,7 +107,7 @@ LDFileFormat::Kind GetELFSectionKind(uint32_t pType, const char* pName,
 // IRBuilder
 //===----------------------------------------------------------------------===//
 IRBuilder::IRBuilder(Module& pModule, const LinkerConfig& pConfig)
-  : m_Module(pModule), m_Config(pConfig), m_InputBuilder(pConfig) {
+    : m_Module(pModule), m_Config(pConfig), m_InputBuilder(pConfig) {
   m_InputBuilder.setCurrentTree(m_Module.getInputTree());
 
   // FIXME: where to set up Relocation?
@@ -159,19 +162,17 @@ Input* IRBuilder::ReadInput(const std::string& pNameSpec)
     if (m_InputBuilder.getAttributes().isStatic()) {
       // with --static, we must search an archive.
       path = m_Module.getScript().directories().find(pNameSpec, Input::Archive);
-    }
-    else {
+    } else {
       // otherwise, with --Bdynamic, we can find either an archive or a
       // shared object.
       path = m_Module.getScript().directories().find(pNameSpec, Input::DynObj);
     }
-  }
-  else {
+  } else {
     // In the system without shared object support, we only look for an archive
     path = m_Module.getScript().directories().find(pNameSpec, Input::Archive);
   }
 
-  if (NULL == path) {
+  if (path == NULL) {
     fatal(diag::err_cannot_find_namespec) << pNameSpec;
     return NULL;
   }
@@ -208,7 +209,8 @@ Input* IRBuilder::ReadInput(FileHandle& pFileHandle)
 }
 
 /// ReadInput - To read an input file and append it to the input tree.
-Input* IRBuilder::ReadInput(const std::string& pName, void* pRawMemory, size_t pSize)
+Input*
+IRBuilder::ReadInput(const std::string& pName, void* pRawMemory, size_t pSize)
 {
   m_InputBuilder.createNode<InputTree::Positional>(pName, "NAN");
   Input* input = *m_InputBuilder.getCurrentNode();
@@ -323,7 +325,8 @@ EhFrame* IRBuilder::CreateEhFrame(LDSection& pSection)
 SectionData* IRBuilder::CreateBSS(LDSection& pSection)
 {
   assert(!pSection.hasSectionData() && "pSection already has section data.");
-  assert((pSection.kind() == LDFileFormat::BSS) && "pSection is not a BSS section.");
+  assert((pSection.kind() == LDFileFormat::BSS) &&
+         "pSection is not a BSS section.");
 
   SectionData* sect_data = SectionData::Create(pSection);
   pSection.setSectionData(sect_data);
@@ -380,8 +383,8 @@ void IRBuilder::AppendRelocation(Relocation& pRelocation, RelocData& pRD)
 uint64_t IRBuilder::AppendEhFrame(Fragment& pFrag, EhFrame& pEhFrame)
 {
   uint64_t size = ObjectBuilder::AppendFragment(pFrag,
-                              *pEhFrame.getSectionData(),
-                              pEhFrame.getSection().align());
+                                                *pEhFrame.getSectionData(),
+                                                pEhFrame.getSection().align());
   pEhFrame.getSection().setSize(pEhFrame.getSection().size() + size);
   return size;
 }
@@ -422,7 +425,7 @@ LDSymbol* IRBuilder::AddSymbol(Input& pInput,
     // --wrap and --portable defines the symbol rename map.
     const LinkerScript& script = m_Module.getScript();
     LinkerScript::SymbolRenameMap::const_iterator renameSym =
-                                                script.renameMap().find(pName);
+        script.renameMap().find(pName);
     if (script.renameMap().end() != renameSym)
       name = renameSym.getEntry()->value();
   }
@@ -438,7 +441,7 @@ LDSymbol* IRBuilder::AddSymbol(Input& pInput,
     case Input::Object: {
 
       FragmentRef* frag = NULL;
-      if (NULL == pSection ||
+      if (pSection == NULL ||
           ResolveInfo::Undefined == pDesc ||
           ResolveInfo::Common    == pDesc ||
           ResolveInfo::Absolute  == pBind ||
@@ -448,12 +451,14 @@ LDSymbol* IRBuilder::AddSymbol(Input& pInput,
       else
         frag = FragmentRef::Create(*pSection, pValue);
 
-      LDSymbol* input_sym = addSymbolFromObject(name, pType, pDesc, pBind, pSize, pValue, frag, pVis);
+      LDSymbol* input_sym = addSymbolFromObject(name,pType, pDesc, pBind,
+                                                pSize, pValue, frag, pVis);
       pInput.context()->addSymbol(input_sym);
       return input_sym;
     }
     case Input::DynObj: {
-      return addSymbolFromDynObj(pInput, name, pType, pDesc, pBind, pSize, pValue, pVis);
+      return addSymbolFromDynObj(pInput, name, pType, pDesc, pBind, pSize,
+                                 pValue, pVis);
     }
     default: {
       return NULL;
@@ -480,20 +485,19 @@ LDSymbol* IRBuilder::addSymbolFromObject(const std::string& pName,
   if (pBinding == ResolveInfo::Local) {
     // if the symbol is a local symbol, create a LDSymbol for input, but do not
     // resolve them.
-    resolved_result.info     = m_Module.getNamePool().createSymbol(pName,
-                                                                   false,
-                                                                   pType,
-                                                                   pDesc,
-                                                                   pBinding,
-                                                                   pSize,
-                                                                   pVisibility);
+    resolved_result.info = m_Module.getNamePool().createSymbol(pName,
+                                                               false,
+                                                               pType,
+                                                               pDesc,
+                                                               pBinding,
+                                                               pSize,
+                                                               pVisibility);
 
     // No matter if there is a symbol with the same name, insert the symbol
     // into output symbol table. So, we let the existent false.
     resolved_result.existent  = false;
     resolved_result.overriden = true;
-  }
-  else {
+  } else {
     // if the symbol is not local, insert and resolve it immediately
     m_Module.getNamePool().insertSymbol(pName, false, pType, pDesc, pBinding,
                                         pSize, pValue, pVisibility,
@@ -501,7 +505,7 @@ LDSymbol* IRBuilder::addSymbolFromObject(const std::string& pName,
   }
 
   // the return ResolveInfo should not NULL
-  assert(NULL != resolved_result.info);
+  assert(resolved_result.info != NULL);
 
   /// Step 2. create an input LDSymbol.
   // create a LDSymbol for the input file.
@@ -511,16 +515,15 @@ LDSymbol* IRBuilder::addSymbolFromObject(const std::string& pName,
 
   // Step 3. Set up corresponding output LDSymbol
   LDSymbol* output_sym = resolved_result.info->outSymbol();
-  bool has_output_sym = (NULL != output_sym);
+  bool has_output_sym = (output_sym != NULL);
   if (!resolved_result.existent || !has_output_sym) {
     // it is a new symbol, the output_sym should be NULL.
-    assert(NULL == output_sym);
+    assert(output_sym == NULL);
 
     if (pType == ResolveInfo::Section) {
       // if it is a section symbol, its output LDSymbol is the input LDSymbol.
       output_sym = input_sym;
-    }
-    else {
+    } else {
       // if it is a new symbol, create a LDSymbol for the output
       output_sym = LDSymbol::Create(*resolved_result.info);
     }
@@ -571,7 +574,7 @@ LDSymbol* IRBuilder::addSymbolFromDynObj(Input& pInput,
                                       NULL, resolved_result);
 
   // the return ResolveInfo should not NULL
-  assert(NULL != resolved_result.info);
+  assert(resolved_result.info != NULL);
 
   if (resolved_result.overriden || !resolved_result.existent)
     pInput.setNeeded();
@@ -613,24 +616,24 @@ Relocation* IRBuilder::AddRelocation(LDSection& pSection,
 /// AddSymbol - define an output symbol and override it immediately
 template<> LDSymbol*
 IRBuilder::AddSymbol<IRBuilder::Force, IRBuilder::Unresolve>(
-                                           const llvm::StringRef& pName,
-                                           ResolveInfo::Type pType,
-                                           ResolveInfo::Desc pDesc,
-                                           ResolveInfo::Binding pBinding,
-                                           ResolveInfo::SizeType pSize,
-                                           LDSymbol::ValueType pValue,
-                                           FragmentRef* pFragmentRef,
-                                           ResolveInfo::Visibility pVisibility)
+    const llvm::StringRef& pName,
+    ResolveInfo::Type pType,
+    ResolveInfo::Desc pDesc,
+    ResolveInfo::Binding pBinding,
+    ResolveInfo::SizeType pSize,
+    LDSymbol::ValueType pValue,
+    FragmentRef* pFragmentRef,
+    ResolveInfo::Visibility pVisibility)
 {
   ResolveInfo* info = m_Module.getNamePool().findInfo(pName);
   LDSymbol* output_sym = NULL;
-  if (NULL == info) {
+  if (info == NULL) {
     // the symbol is not in the pool, create a new one.
     // create a ResolveInfo
     Resolver::Result result;
-    m_Module.getNamePool().insertSymbol(pName, false, pType, pDesc,
-                                        pBinding, pSize, pValue, pVisibility,
-                                        NULL, result);
+    m_Module.getNamePool().insertSymbol(pName, false, pType, pDesc, pBinding,
+                                        pSize, pValue, pVisibility, NULL,
+                                        result);
     assert(!result.existent);
 
     // create a output LDSymbol
@@ -641,8 +644,7 @@ IRBuilder::AddSymbol<IRBuilder::Force, IRBuilder::Unresolve>(
       m_Module.getSymbolTable().forceLocal(*output_sym);
     else
       m_Module.getSymbolTable().add(*output_sym);
-  }
-  else {
+  } else {
     // the symbol is already in the pool, override it
     ResolveInfo old_info;
     old_info.override(*info);
@@ -656,7 +658,7 @@ IRBuilder::AddSymbol<IRBuilder::Force, IRBuilder::Unresolve>(
     info->setSize(pSize);
 
     output_sym = info->outSymbol();
-    if (NULL != output_sym)
+    if (output_sym != NULL)
       m_Module.getSymbolTable().arrange(*output_sym, old_info);
     else {
       // create a output LDSymbol
@@ -667,7 +669,7 @@ IRBuilder::AddSymbol<IRBuilder::Force, IRBuilder::Unresolve>(
     }
   }
 
-  if (NULL != output_sym) {
+  if (output_sym != NULL) {
     output_sym->setFragmentRef(pFragmentRef);
     output_sym->setValue(pValue);
   }
@@ -678,18 +680,18 @@ IRBuilder::AddSymbol<IRBuilder::Force, IRBuilder::Unresolve>(
 /// AddSymbol - define an output symbol and override it immediately
 template<> LDSymbol*
 IRBuilder::AddSymbol<IRBuilder::AsReferred, IRBuilder::Unresolve>(
-                                           const llvm::StringRef& pName,
-                                           ResolveInfo::Type pType,
-                                           ResolveInfo::Desc pDesc,
-                                           ResolveInfo::Binding pBinding,
-                                           ResolveInfo::SizeType pSize,
-                                           LDSymbol::ValueType pValue,
-                                           FragmentRef* pFragmentRef,
-                                           ResolveInfo::Visibility pVisibility)
+    const llvm::StringRef& pName,
+    ResolveInfo::Type pType,
+    ResolveInfo::Desc pDesc,
+    ResolveInfo::Binding pBinding,
+    ResolveInfo::SizeType pSize,
+    LDSymbol::ValueType pValue,
+    FragmentRef* pFragmentRef,
+    ResolveInfo::Visibility pVisibility)
 {
   ResolveInfo* info = m_Module.getNamePool().findInfo(pName);
 
-  if (NULL == info || !(info->isUndef() || info->isDyn())) {
+  if (info == NULL || !(info->isUndef() || info->isDyn())) {
     // only undefined symbol and dynamic symbol can make a reference.
     return NULL;
   }
@@ -707,12 +709,11 @@ IRBuilder::AddSymbol<IRBuilder::AsReferred, IRBuilder::Unresolve>(
   info->setSize(pSize);
 
   LDSymbol* output_sym = info->outSymbol();
-  if (NULL != output_sym) {
+  if (output_sym != NULL) {
     output_sym->setFragmentRef(pFragmentRef);
     output_sym->setValue(pValue);
     m_Module.getSymbolTable().arrange(*output_sym, old_info);
-  }
-  else {
+  } else {
     // create a output LDSymbol
     output_sym = LDSymbol::Create(*info);
     info->setSymPtr(output_sym);
@@ -727,24 +728,24 @@ IRBuilder::AddSymbol<IRBuilder::AsReferred, IRBuilder::Unresolve>(
 /// immediately
 template<> LDSymbol*
 IRBuilder::AddSymbol<IRBuilder::Force, IRBuilder::Resolve>(
-                                             const llvm::StringRef& pName,
-                                             ResolveInfo::Type pType,
-                                             ResolveInfo::Desc pDesc,
-                                             ResolveInfo::Binding pBinding,
-                                             ResolveInfo::SizeType pSize,
-                                             LDSymbol::ValueType pValue,
-                                             FragmentRef* pFragmentRef,
-                                             ResolveInfo::Visibility pVisibility)
+    const llvm::StringRef& pName,
+    ResolveInfo::Type pType,
+    ResolveInfo::Desc pDesc,
+    ResolveInfo::Binding pBinding,
+    ResolveInfo::SizeType pSize,
+    LDSymbol::ValueType pValue,
+    FragmentRef* pFragmentRef,
+    ResolveInfo::Visibility pVisibility)
 {
   // Result is <info, existent, override>
   Resolver::Result result;
   ResolveInfo old_info;
   m_Module.getNamePool().insertSymbol(pName, false, pType, pDesc, pBinding,
-                                      pSize, pValue, pVisibility,
-                                      &old_info, result);
+                                      pSize, pValue, pVisibility, &old_info,
+                                      result);
 
   LDSymbol* output_sym = result.info->outSymbol();
-  bool has_output_sym = (NULL != output_sym);
+  bool has_output_sym = (output_sym != NULL);
 
   if (!result.existent || !has_output_sym) {
     output_sym = LDSymbol::Create(*result.info);
@@ -771,18 +772,18 @@ IRBuilder::AddSymbol<IRBuilder::Force, IRBuilder::Resolve>(
 /// defineSymbol - define an output symbol and resolve it immediately.
 template<> LDSymbol*
 IRBuilder::AddSymbol<IRBuilder::AsReferred, IRBuilder::Resolve>(
-                                            const llvm::StringRef& pName,
-                                            ResolveInfo::Type pType,
-                                            ResolveInfo::Desc pDesc,
-                                            ResolveInfo::Binding pBinding,
-                                            ResolveInfo::SizeType pSize,
-                                            LDSymbol::ValueType pValue,
-                                            FragmentRef* pFragmentRef,
-                                            ResolveInfo::Visibility pVisibility)
+    const llvm::StringRef& pName,
+    ResolveInfo::Type pType,
+    ResolveInfo::Desc pDesc,
+    ResolveInfo::Binding pBinding,
+    ResolveInfo::SizeType pSize,
+    LDSymbol::ValueType pValue,
+    FragmentRef* pFragmentRef,
+    ResolveInfo::Visibility pVisibility)
 {
   ResolveInfo* info = m_Module.getNamePool().findInfo(pName);
 
-  if (NULL == info || !(info->isUndef() || info->isDyn())) {
+  if (info == NULL || !(info->isUndef() || info->isDyn())) {
     // only undefined symbol and dynamic symbol can make a reference.
     return NULL;
   }
@@ -796,4 +797,3 @@ IRBuilder::AddSymbol<IRBuilder::AsReferred, IRBuilder::Resolve>(
                                    pFragmentRef,
                                    pVisibility);
 }
-

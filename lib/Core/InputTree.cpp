@@ -25,8 +25,7 @@ InputTree& InputTree::merge(TreeIteratorBase pRoot,
 
   if (!pTree.empty()) {
     pMover.connect(pRoot, pTree.m_Root.node.right);
-    BinaryTreeBase<Input>::m_Root.summon(
-        pTree.BinaryTreeBase<Input>::m_Root);
+    BinaryTreeBase<Input>::m_Root.summon(pTree.BinaryTreeBase<Input>::m_Root);
     BinaryTreeBase<Input>::m_Root.delegate(pTree.m_Root);
     pTree.m_Root.node.left = pTree.m_Root.node.right = &pTree.m_Root.node;
   }
@@ -83,4 +82,3 @@ bool mcld::isGroup(const InputTree::const_bfs_iterator& pos)
 {
   return !pos.hasData() && !pos.isRoot();
 }
-

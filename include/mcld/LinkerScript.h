@@ -8,16 +8,18 @@
 //===----------------------------------------------------------------------===//
 #ifndef MCLD_LINKERSCRIPT_H
 #define MCLD_LINKERSCRIPT_H
-#include <string>
-#include <vector>
+
+#include <mcld/ADT/HashTable.h>
 #include <llvm/ADT/StringRef.h>
 #include <mcld/ADT/StringEntry.h>
 #include <mcld/ADT/StringHash.h>
-#include <mcld/ADT/HashTable.h>
-#include <mcld/Object/SectionMap.h>
 #include <mcld/MC/SearchDirs.h>
-#include <mcld/Script/Assignment.h>
+#include <mcld/Object/SectionMap.h>
 #include <mcld/Script/AssertCmd.h>
+#include <mcld/Script/Assignment.h>
+
+#include <string>
+#include <vector>
 
 namespace mcld {
 
@@ -100,4 +102,3 @@ private:
 } // namespace of mcld
 
 #endif
-

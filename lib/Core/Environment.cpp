@@ -26,4 +26,3 @@ void mcld::Initialize()
 void mcld::Finalize()
 {
 }
-

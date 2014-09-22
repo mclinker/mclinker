@@ -13,18 +13,15 @@
 
 namespace mcld {
 
-class Module;
-class LinkerConfig;
-class LinkerScript;
-
-class Target;
-class TargetLDBackend;
-
-class IRBuilder;
-class ObjectLinker;
-
 class FileHandle;
 class FileOutputBuffer;
+class IRBuilder;
+class LinkerConfig;
+class LinkerScript;
+class Module;
+class ObjectLinker;
+class Target;
+class TargetLDBackend;
 
 /** \class Linker
 *  \brief Linker is a modular linker.
@@ -84,4 +81,3 @@ private:
 } // namespace of MC Linker
 
 #endif
-

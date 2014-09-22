@@ -14,27 +14,24 @@
 #ifndef MCLD_IRBUILDER_H
 #define MCLD_IRBUILDER_H
 
+#include <mcld/Fragment/FillFragment.h>
+#include <mcld/Fragment/Fragment.h>
+#include <mcld/Fragment/FragmentRef.h>
+#include <mcld/Fragment/RegionFragment.h>
+#include <mcld/Fragment/Relocation.h>
+#include <mcld/LD/EhFrame.h>
+#include <mcld/LD/LDSection.h>
+#include <mcld/LD/LDSymbol.h>
 #include <mcld/MC/Input.h>
 #include <mcld/MC/InputBuilder.h>
-
-#include <mcld/LD/LDSection.h>
-#include <mcld/LD/EhFrame.h>
-#include <mcld/LD/LDSymbol.h>
-
-#include <mcld/Fragment/Fragment.h>
-#include <mcld/Fragment/Relocation.h>
-#include <mcld/Fragment/RegionFragment.h>
-#include <mcld/Fragment/FillFragment.h>
-#include <mcld/Fragment/FragmentRef.h>
-
-#include <mcld/Support/Path.h>
 #include <mcld/Support/FileHandle.h>
+#include <mcld/Support/Path.h>
 
 namespace mcld {
 
-class Module;
-class LinkerConfig;
 class InputTree;
+class LinkerConfig;
+class Module;
 
 /** \class IRBuilder
  *  \brief IRBuilder provides an uniform API for creating sections and
@@ -488,47 +485,47 @@ private:
 
 template<> LDSymbol*
 IRBuilder::AddSymbol<IRBuilder::Force, IRBuilder::Unresolve>(
-                         const llvm::StringRef& pName,
-                         ResolveInfo::Type pType,
-                         ResolveInfo::Desc pDesc,
-                         ResolveInfo::Binding pBinding,
-                         ResolveInfo::SizeType pSize,
-                         LDSymbol::ValueType pValue,
-                         FragmentRef* pFragmentRef,
-                         ResolveInfo::Visibility pVisibility);
+    const llvm::StringRef& pName,
+    ResolveInfo::Type pType,
+    ResolveInfo::Desc pDesc,
+    ResolveInfo::Binding pBinding,
+    ResolveInfo::SizeType pSize,
+    LDSymbol::ValueType pValue,
+    FragmentRef* pFragmentRef,
+    ResolveInfo::Visibility pVisibility);
 
 template<> LDSymbol*
 IRBuilder::AddSymbol<IRBuilder::AsReferred, IRBuilder::Unresolve>(
-                         const llvm::StringRef& pName,
-                         ResolveInfo::Type pType,
-                         ResolveInfo::Desc pDesc,
-                         ResolveInfo::Binding pBinding,
-                         ResolveInfo::SizeType pSize,
-                         LDSymbol::ValueType pValue,
-                         FragmentRef* pFragmentRef,
-                         ResolveInfo::Visibility pVisibility);
+    const llvm::StringRef& pName,
+    ResolveInfo::Type pType,
+    ResolveInfo::Desc pDesc,
+    ResolveInfo::Binding pBinding,
+    ResolveInfo::SizeType pSize,
+    LDSymbol::ValueType pValue,
+    FragmentRef* pFragmentRef,
+    ResolveInfo::Visibility pVisibility);
 
 template<> LDSymbol*
 IRBuilder::AddSymbol<IRBuilder::Force, IRBuilder::Resolve>(
-                         const llvm::StringRef& pName,
-                         ResolveInfo::Type pType,
-                         ResolveInfo::Desc pDesc,
-                         ResolveInfo::Binding pBinding,
-                         ResolveInfo::SizeType pSize,
-                         LDSymbol::ValueType pValue,
-                         FragmentRef* pFragmentRef,
-                         ResolveInfo::Visibility pVisibility);
+    const llvm::StringRef& pName,
+    ResolveInfo::Type pType,
+    ResolveInfo::Desc pDesc,
+    ResolveInfo::Binding pBinding,
+    ResolveInfo::SizeType pSize,
+    LDSymbol::ValueType pValue,
+    FragmentRef* pFragmentRef,
+    ResolveInfo::Visibility pVisibility);
 
 template<> LDSymbol*
 IRBuilder::AddSymbol<IRBuilder::AsReferred, IRBuilder::Resolve>(
-                         const llvm::StringRef& pName,
-                         ResolveInfo::Type pType,
-                         ResolveInfo::Desc pDesc,
-                         ResolveInfo::Binding pBinding,
-                         ResolveInfo::SizeType pSize,
-                         LDSymbol::ValueType pValue,
-                         FragmentRef* pFragmentRef,
-                         ResolveInfo::Visibility pVisibility);
+    const llvm::StringRef& pName,
+    ResolveInfo::Type pType,
+    ResolveInfo::Desc pDesc,
+    ResolveInfo::Binding pBinding,
+    ResolveInfo::SizeType pSize,
+    LDSymbol::ValueType pValue,
+    FragmentRef* pFragmentRef,
+    ResolveInfo::Visibility pVisibility);
 
 } // end of namespace mcld
 

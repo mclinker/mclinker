@@ -23,13 +23,18 @@ namespace mcld {
  *  \brief PolicyIterator<mcld::Input> is a partially specific PolicyIterator
  */
 template<typename Traits, typename IteratorType>
-class PolicyIterator<mcld::Input, Traits, IteratorType> : public PolicyIteratorBase<Input, Traits, IteratorType>
+class PolicyIterator<mcld::Input, Traits, IteratorType> :
+    public PolicyIteratorBase<Input, Traits, IteratorType>
 {
 public:
   typedef PolicyIterator<Input, Traits, IteratorType> Self;
   typedef PolicyIteratorBase<Input, Traits, IteratorType> Base;
-  typedef PolicyIterator<Input, typename Traits::nonconst_traits, IteratorType> iterator;
-  typedef PolicyIterator<Input, typename Traits::const_traits, IteratorType>    const_iterator;
+  typedef PolicyIterator<Input,
+                         typename Traits::nonconst_traits,
+                         IteratorType> iterator;
+  typedef PolicyIterator<Input,
+                         typename Traits::const_traits,
+                         IteratorType> const_iterator;
 
 public:
   PolicyIterator()
@@ -80,10 +85,18 @@ public:
   typedef TreeIterator<value_type, NonConstTraits<value_type> > iterator;
   typedef TreeIterator<value_type, ConstTraits<value_type> >    const_iterator;
 
-  typedef PolicyIterator<value_type, NonConstTraits<value_type>, DFSIterator> dfs_iterator;
-  typedef PolicyIterator<value_type, ConstTraits<value_type>, DFSIterator>    const_dfs_iterator;
-  typedef PolicyIterator<value_type, NonConstTraits<value_type>, BFSIterator> bfs_iterator;
-  typedef PolicyIterator<value_type, ConstTraits<value_type>, BFSIterator>    const_bfs_iterator;
+  typedef PolicyIterator<value_type,
+                         NonConstTraits<value_type>,
+                         DFSIterator> dfs_iterator;
+  typedef PolicyIterator<value_type,
+                         ConstTraits<value_type>,
+                         DFSIterator> const_dfs_iterator;
+  typedef PolicyIterator<value_type,
+                         NonConstTraits<value_type>,
+                         BFSIterator> bfs_iterator;
+  typedef PolicyIterator<value_type,
+                         ConstTraits<value_type>,
+                         BFSIterator> const_bfs_iterator;
 
 protected:
   typedef Node<value_type> node_type;
@@ -111,11 +124,11 @@ public:
 
   const_bfs_iterator bfs_begin() const
   {
-     const_bfs_iterator it =
-                    const_bfs_iterator(BinaryTreeBase<Input>::m_Root.node.left);
-     if (it.isGroup())
-       ++it;
-     return it;
+    const_bfs_iterator it =
+        const_bfs_iterator(BinaryTreeBase<Input>::m_Root.node.left);
+    if (it.isGroup())
+      ++it;
+    return it;
   }
 
   const_bfs_iterator bfs_end() const
@@ -135,7 +148,7 @@ public:
   const_dfs_iterator dfs_begin() const
   {
     const_dfs_iterator it =
-                    const_dfs_iterator(BinaryTreeBase<Input>::m_Root.node.left);
+        const_dfs_iterator(BinaryTreeBase<Input>::m_Root.node.left);
     if (it.isGroup())
       ++it;
     return it;
@@ -152,7 +165,7 @@ public:
     // FIXME: provide the iterater constructors for constant NodeBase instead of
     // using const_cast
     return const_iterator(
-                    const_cast<NodeBase*>(&BinaryTreeBase<Input>::m_Root.node));
+        const_cast<NodeBase*>(&BinaryTreeBase<Input>::m_Root.node));
   }
 
   iterator begin()
@@ -165,10 +178,7 @@ public:
   { return iterator(BinaryTreeBase<Input>::m_Root.node.right); }
 
   const_iterator begin() const
-  {
-    const_iterator it = const_iterator(BinaryTreeBase<Input>::m_Root.node.left);
-    return it;
-  }
+  { return const_iterator(BinaryTreeBase<Input>::m_Root.node.left); }
 
   const_iterator end() const
   { return const_iterator(BinaryTreeBase<Input>::m_Root.node.right); }
@@ -204,8 +214,7 @@ public:
 
     if (!pTree.empty()) {
       pPosition.hook<DIRECT>(pTree.m_Root.node.left);
-      BinaryTreeBase<Input>::m_Root.summon(
-                                   pTree.BinaryTreeBase<Input>::m_Root);
+      BinaryTreeBase<Input>::m_Root.summon(pTree.BinaryTreeBase<Input>::m_Root);
       BinaryTreeBase<Input>::m_Root.delegate(pTree.m_Root);
       pTree.m_Root.node.left = pTree.m_Root.node.right = &pTree.m_Root.node;
     }
@@ -288,8 +297,7 @@ public:
   InputTree& enterGroup(TreeIteratorBase pRoot);
 
   template<size_t DIRECT>
-  InputTree& insert(TreeIteratorBase pRoot,
-                    Input& pInput);
+  InputTree& insert(TreeIteratorBase pRoot, Input& pInput);
 
   InputTree& merge(TreeIteratorBase pRoot,
                    const Mover& pMover,
@@ -299,8 +307,7 @@ public:
                     const Mover& pMover,
                     Input& pInput);
 
-  InputTree& enterGroup(TreeIteratorBase pRoot,
-                        const Mover& pMover);
+  InputTree& enterGroup(TreeIteratorBase pRoot, const Mover& pMover);
 
 };
 
@@ -317,8 +324,7 @@ bool isGroup(const InputTree::const_bfs_iterator& pos);
 // template member functions
 //===----------------------------------------------------------------------===//
 template<size_t DIRECT>
-mcld::InputTree&
-mcld::InputTree::enterGroup(mcld::TreeIteratorBase pRoot)
+mcld::InputTree& mcld::InputTree::enterGroup(mcld::TreeIteratorBase pRoot)
 {
   BinTreeTy::node_type* node = createNode();
 
@@ -346,4 +352,3 @@ mcld::InputTree& mcld::InputTree::insert(mcld::TreeIteratorBase pRoot,
 }
 
 #endif
-

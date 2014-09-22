@@ -8,27 +8,28 @@
 //===----------------------------------------------------------------------===//
 #include <mcld/Module.h>
 #include <mcld/Fragment/FragmentRef.h>
+#include <mcld/LD/EhFrame.h>
 #include <mcld/LD/LDSection.h>
 #include <mcld/LD/LDSymbol.h>
 #include <mcld/LD/NamePool.h>
 #include <mcld/LD/ResolveInfo.h>
 #include <mcld/LD/SectionData.h>
-#include <mcld/LD/EhFrame.h>
 #include <mcld/LD/StaticResolver.h>
 
 using namespace mcld;
 
-static GCFactory<Module::AliasList, MCLD_SECTIONS_PER_INPUT> gc_aliaslist_factory;
+static GCFactory<Module::AliasList,
+                 MCLD_SECTIONS_PER_INPUT> gc_aliaslist_factory;
 
 //===----------------------------------------------------------------------===//
 // Module
 //===----------------------------------------------------------------------===//
 Module::Module(LinkerScript& pScript)
-  : m_Script(pScript), m_NamePool(1024) {
+    : m_Script(pScript), m_NamePool(1024) {
 }
 
 Module::Module(const std::string& pName, LinkerScript& pScript)
-  : m_Name(pName), m_Script(pScript), m_NamePool(1024) {
+    : m_Name(pName), m_Script(pScript), m_NamePool(1024) {
 }
 
 Module::~Module()
@@ -66,23 +67,22 @@ void Module::CreateAliasList(const ResolveInfo& pSym)
 
 void Module::addAlias(const ResolveInfo& pAlias)
 {
-  assert(0!=m_AliasLists.size());
-  uint32_t last_pos = m_AliasLists.size()-1;
+  assert(m_AliasLists.size() != 0);
+  uint32_t last_pos = m_AliasLists.size() - 1;
   m_AliasLists[last_pos]->push_back(&pAlias);
 }
 
 Module::AliasList* Module::getAliasList(const ResolveInfo& pSym)
 {
-  std::vector<AliasList*>::iterator list_it, list_it_e=m_AliasLists.end();
-  for (list_it=m_AliasLists.begin(); list_it!=list_it_e; ++list_it) {
+  std::vector<AliasList*>::iterator list_it, list_it_e = m_AliasLists.end();
+  for (list_it = m_AliasLists.begin(); list_it != list_it_e; ++list_it) {
     AliasList& list = **list_it;
-    alias_iterator alias_it, alias_it_e=list.end();
-    for (alias_it=list.begin(); alias_it!=alias_it_e; ++alias_it) {
-      if ( 0==strcmp((*alias_it)->name(), pSym.name()) ) {
+    alias_iterator alias_it, alias_it_e = list.end();
+    for (alias_it = list.begin(); alias_it != alias_it_e; ++alias_it) {
+      if (strcmp((*alias_it)->name(), pSym.name()) == 0) {
         return &list;
       }
     }
   }
   return NULL;
 }
-
