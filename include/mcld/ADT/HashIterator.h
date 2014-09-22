@@ -27,11 +27,11 @@ public:
 
 public:
   ChainIteratorBase()
-  : m_pHashTable(0), m_Index(0), m_HashValue(0), m_EndIndex(0)
+      : m_pHashTable(NULL), m_Index(0), m_HashValue(0), m_EndIndex(0)
   { }
 
   ChainIteratorBase(HashTableImplTy* pTable, const key_type& pKey)
-  : m_pHashTable(pTable)
+      : m_pHashTable(pTable)
   {
     m_HashValue = pTable->hash()(pKey);
     m_EndIndex = m_Index = m_HashValue % m_pHashTable->m_NumOfBuckets;
@@ -40,8 +40,7 @@ public:
       bucket_type &bucket = m_pHashTable->m_Buckets[m_Index];
       if (bucket_type::getTombstone() == bucket.Entry) {
         // Ignore tombstones.
-      }
-      else if (m_HashValue == bucket.FullHashValue) {
+      } else if (m_HashValue == bucket.FullHashValue) {
         if (bucket.Entry->compare(pKey)) {
           m_EndIndex = m_Index;
           break;
@@ -59,10 +58,10 @@ public:
   }
 
   ChainIteratorBase(const ChainIteratorBase& pCopy)
-  : m_pHashTable(pCopy.m_pHashTable),
-    m_Index(pCopy.m_Index),
-    m_HashValue(pCopy.m_HashValue),
-    m_EndIndex(pCopy.m_EndIndex)
+      : m_pHashTable(pCopy.m_pHashTable),
+        m_Index(pCopy.m_Index),
+        m_HashValue(pCopy.m_HashValue),
+        m_EndIndex(pCopy.m_EndIndex)
   { }
 
   ChainIteratorBase& assign(const ChainIteratorBase& pCopy) {
@@ -74,38 +73,38 @@ public:
   }
 
   inline bucket_type* getBucket() {
-    if (0 == m_pHashTable)
-      return 0;
+    if (m_pHashTable == NULL)
+      return NULL;
     return &(m_pHashTable->m_Buckets[m_Index]);
   }
 
   inline const bucket_type* getBucket() const {
-    if (0 == m_pHashTable)
-      return 0;
+    if (m_pHashTable == NULL)
+      return NULL;
     return &(m_pHashTable->m_Buckets[m_Index]);
   }
 
   inline entry_type* getEntry() {
-    if (0 == m_pHashTable)
-      return 0;
+    if (m_pHashTable == NULL)
+      return NULL;
     return m_pHashTable->m_Buckets[m_Index].Entry;
   }
 
   inline const entry_type* getEntry() const {
-    if (0 == m_pHashTable)
-      return 0;
+    if (m_pHashTable == NULL)
+      return NULL;
     return m_pHashTable->m_Buckets[m_Index].Entry;
   }
 
   inline void reset() {
-    m_pHashTable = 0;
+    m_pHashTable = NULL;
     m_Index = 0;
     m_EndIndex = 0;
     m_HashValue = 0;
   }
 
   inline void advance() {
-    if (0 == m_pHashTable)
+    if (m_pHashTable == NULL)
       return;
     const unsigned int probe = 1;
     while(true) {
@@ -132,7 +131,7 @@ public:
 
   bool operator==(const ChainIteratorBase& pCopy) const {
     if (m_pHashTable == pCopy.m_pHashTable) {
-      if (0 == m_pHashTable)
+      if (m_pHashTable == NULL)
         return true;
       return ((m_HashValue == pCopy.m_HashValue) &&
               (m_EndIndex == pCopy.m_EndIndex) &&
@@ -166,16 +165,15 @@ public:
 
 public:
   EntryIteratorBase()
-  : m_pHashTable(0), m_Index(0)
+      : m_pHashTable(NULL), m_Index(0)
   { }
 
-  EntryIteratorBase(HashTableImplTy* pTable,
-                   unsigned int pIndex)
-  : m_pHashTable(pTable), m_Index(pIndex)
+  EntryIteratorBase(HashTableImplTy* pTable, unsigned int pIndex)
+      : m_pHashTable(pTable), m_Index(pIndex)
   { }
 
   EntryIteratorBase(const EntryIteratorBase& pCopy)
-  : m_pHashTable(pCopy.m_pHashTable), m_Index(pCopy.m_Index)
+      : m_pHashTable(pCopy.m_pHashTable), m_Index(pCopy.m_Index)
   { }
 
   EntryIteratorBase& assign(const EntryIteratorBase& pCopy) {
@@ -185,36 +183,36 @@ public:
   }
 
   inline bucket_type* getBucket() {
-    if (0 == m_pHashTable)
-      return 0;
+    if (m_pHashTable == NULL)
+      return NULL;
     return &(m_pHashTable->m_Buckets[m_Index]);
   }
 
   inline const bucket_type* getBucket() const {
-    if (0 == m_pHashTable)
-      return 0;
+    if (m_pHashTable == NULL)
+      return NULL;
     return &(m_pHashTable->m_Buckets[m_Index]);
   }
 
   inline entry_type* getEntry() {
-    if (0 == m_pHashTable)
-      return 0;
+    if (m_pHashTable == NULL)
+      return NULL;
     return m_pHashTable->m_Buckets[m_Index].Entry;
   }
 
   inline const entry_type* getEntry() const {
-    if (0 == m_pHashTable)
-      return 0;
+    if (m_pHashTable == NULL)
+      return NULL;
     return m_pHashTable->m_Buckets[m_Index].Entry;
   }
 
   inline void reset() {
-    m_pHashTable = 0;
+    m_pHashTable = NULL;
     m_Index = 0;
   }
 
   inline void advance() {
-    if (0 == m_pHashTable)
+    if (m_pHashTable == NULL)
       return;
     do {
       ++m_Index;
@@ -222,8 +220,10 @@ public:
         reset();
         return;
       }
-    } while(bucket_type::getEmptyBucket() == m_pHashTable->m_Buckets[m_Index].Entry ||
-            bucket_type::getTombstone() == m_pHashTable->m_Buckets[m_Index].Entry);
+    } while (bucket_type::getEmptyBucket() ==
+                m_pHashTable->m_Buckets[m_Index].Entry ||
+             bucket_type::getTombstone() ==
+                m_pHashTable->m_Buckets[m_Index].Entry);
   }
 
   bool operator==(const EntryIteratorBase& pCopy) const
@@ -276,23 +276,23 @@ public:
 
 public:
   HashIterator()
-  : IteratorBase()
+      : IteratorBase()
   { }
 
   /// HashIterator - constructor for EntryIterator
   HashIterator(typename IteratorBase::hash_table* pTable, unsigned int pIndex)
-  : IteratorBase(pTable, pIndex)
+      : IteratorBase(pTable, pIndex)
   { }
 
   /// HashIterator - constructor for ChainIterator
   explicit HashIterator(typename IteratorBase::hash_table* pTable,
                         const typename IteratorBase::key_type& pKey,
                         int)
-  : IteratorBase(pTable, pKey)
+      : IteratorBase(pTable, pKey)
   { }
 
   HashIterator(const HashIterator& pCopy)
-  : IteratorBase(pCopy)
+      : IteratorBase(pCopy)
   { }
 
   ~HashIterator()
@@ -319,4 +319,3 @@ public:
 } // namespace of mcld
 
 #endif
-

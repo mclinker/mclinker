@@ -8,8 +8,11 @@
 //===----------------------------------------------------------------------===//
 #ifndef MCLD_ADT_TREEALLOCATOR_H
 #define MCLD_ADT_TREEALLOCATOR_H
-#include <set>
+
+#include <mcld/ADT/TreeBase.h>
 #include <mcld/Support/GCFactory.h>
+
+#include <set>
 
 namespace mcld {
 
@@ -90,4 +93,3 @@ private:
 } // namespace of mcld
 
 #endif
-

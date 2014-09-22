@@ -10,11 +10,12 @@
 #define MCLD_ADT_HASHTABLE_H
 
 #include <mcld/ADT/HashBase.h>
-#include <mcld/ADT/HashIterator.h>
 #include <mcld/ADT/HashEntryFactory.h>
-#include <mcld/ADT/Uncopyable.h>
+#include <mcld/ADT/HashIterator.h>
 #include <mcld/ADT/TypeTraits.h>
+#include <mcld/ADT/Uncopyable.h>
 #include <mcld/Support/Allocators.h>
+
 #include <utility>
 
 namespace mcld {
@@ -111,7 +112,6 @@ public:
 
 private:
   EntryFactoryTy m_EntryFactory;
-
 };
 
 #include "HashTable.tcc"
@@ -119,4 +119,3 @@ private:
 } // namespace of mcld
 
 #endif
-

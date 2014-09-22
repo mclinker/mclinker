@@ -8,11 +8,13 @@
 //===----------------------------------------------------------------------===//
 #ifndef MCLD_ADT_STRINGENTRY_H
 #define MCLD_ADT_STRINGENTRY_H
+
 #include <llvm/ADT/StringRef.h>
 #include <llvm/Support/DataTypes.h>
+
+#include <cassert>
 #include <cstdlib>
 #include <cstring>
-#include <cassert>
 
 namespace mcld
 {
@@ -26,7 +28,7 @@ template<typename DataType>
 class StringEntry
 {
 public:
-  typedef llvm::StringRef   key_type;
+  typedef llvm::StringRef key_type;
   typedef DataType value_type;
 
 public:
@@ -52,10 +54,10 @@ public:
   { m_Value = pVal; }
 
   bool compare(const llvm::StringRef& pX)
-  { return (0 == key().compare(pX)); }
+  { return key().equals(pX); }
 
   bool compare(const llvm::StringRef& pX) const
-  { return (0 == key().compare(pX)); }
+  { return key().equals(pX); }
 
 private:
   StringEntry();
@@ -103,13 +105,13 @@ public:
 
   void setValue(const char* pVal);
 
-  void setValue(llvm::StringRef& pVal);
+  void setValue(llvm::StringRef pVal);
 
-  bool compare(const llvm::StringRef& pX)
-  { return (0 == key().compare(pX)); }
+  bool compare(const llvm::StringRef pX)
+  { return key().equals(pX); }
 
-  bool compare(const llvm::StringRef& pX) const
-  { return (0 == key().compare(pX)); }
+  bool compare(const llvm::StringRef pX) const
+  { return key().equals(pX); }
 
 private:
   StringEntry();
@@ -129,7 +131,7 @@ template<typename DataType>
 class StringEntryFactory
 {
 public:
-  typedef StringEntry<DataType>             entry_type;
+  typedef StringEntry<DataType> entry_type;
   typedef typename StringEntry<DataType>::key_type   key_type;
   typedef typename StringEntry<DataType>::value_type value_type;
 
@@ -146,4 +148,3 @@ public:
 } // namespace of mcld
 
 #endif
-

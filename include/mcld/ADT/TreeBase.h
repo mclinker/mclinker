@@ -8,10 +8,11 @@
 //===----------------------------------------------------------------------===//
 #ifndef MCLD_ADT_TREEBASE_H
 #define MCLD_ADT_TREEBASE_H
+
 #include <mcld/ADT/TypeTraits.h>
 
-#include <cstddef>
 #include <cassert>
+#include <cstddef>
 #include <iterator>
 
 namespace mcld {
@@ -24,7 +25,7 @@ public:
 
 public:
   NodeBase()
-  : left(0), right(0)
+      : left(NULL), right(NULL)
   { }
 };
 
@@ -36,8 +37,8 @@ public:
     Rightward
   };
 
-  typedef size_t                          size_type;
-  typedef ptrdiff_t                       difference_type;
+  typedef size_t size_type;
+  typedef ptrdiff_t difference_type;
   typedef std::bidirectional_iterator_tag iterator_category;
 
 public:
@@ -45,11 +46,11 @@ public:
 
 public:
   TreeIteratorBase()
-  : m_pNode(0)
+      : m_pNode(NULL)
   { }
 
   TreeIteratorBase(NodeBase *X)
-  : m_pNode(X)
+      : m_pNode(X)
   { }
 
   virtual ~TreeIteratorBase(){};
@@ -104,18 +105,18 @@ template<typename DataType>
 class Node : public NodeBase
 {
 public:
-  typedef DataType        value_type;
+  typedef DataType value_type;
 
 public:
   value_type* data;
 
 public:
   Node()
-  : NodeBase(), data(0)
+      : NodeBase(), data(NULL)
   { }
 
   Node(const value_type& pValue)
-  : NodeBase(), data(&pValue)
+      : NodeBase(), data(&pValue)
   { }
 
 };
@@ -123,4 +124,3 @@ public:
 } // namespace of mcld
 
 #endif
-

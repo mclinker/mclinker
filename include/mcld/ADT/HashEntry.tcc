@@ -11,7 +11,7 @@
 // template implementation of HashEntry
 template <typename KeyType, typename ValueType, typename KeyCompare>
 HashEntry<KeyType, ValueType, KeyCompare>::HashEntry(const KeyType& pKey)
-  : m_Key(pKey) {
+    : m_Key(pKey) {
 }
 
 template <typename KeyType, typename ValueType, typename KeyCompare>
@@ -45,9 +45,8 @@ void EntryFactory<HashEntryTy>::destroy(HashEntryTy* pEntry)
 }
 
 template <typename HashEntryTy>
-HashEntryTy*
-EntryFactory<HashEntryTy>::produce(const typename EntryFactory<HashEntryTy>::key_type& pKey)
+HashEntryTy* EntryFactory<HashEntryTy>::produce(
+    const typename EntryFactory<HashEntryTy>::key_type& pKey)
 {
   return new HashEntryTy(pKey);
 }
-

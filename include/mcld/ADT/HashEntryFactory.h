@@ -19,7 +19,7 @@ template<typename HashEntryTy>
 class HashEntryFactory
 {
 public:
-  typedef HashEntryTy           entry_type;
+  typedef HashEntryTy entry_type;
   typedef typename HashEntryTy::key_type key_type;
 
 public:
@@ -33,4 +33,3 @@ public:
 } // namespace of mcld
 
 #endif
-

@@ -8,10 +8,12 @@
 //===----------------------------------------------------------------------===//
 #ifndef MCLD_ADT_STRINGHASH_H
 #define MCLD_ADT_STRINGHASH_H
+
 #include <llvm/ADT/StringRef.h>
 #include <llvm/Support/DataTypes.h>
-#include <cctype>
+
 #include <cassert>
+#include <cctype>
 #include <functional>
 
 namespace mcld {
@@ -36,9 +38,9 @@ enum Type {
  *  \brief the template StringHash class, for specification
  */
 template<uint32_t TYPE>
-struct StringHash : public std::unary_function<const llvm::StringRef&, uint32_t>
+struct StringHash : public std::unary_function<const llvm::StringRef, uint32_t>
 {
-  uint32_t operator()(const llvm::StringRef& pKey) const
+  uint32_t operator()(const llvm::StringRef pKey) const
   {
     assert(false && "Undefined StringHash function.\n");
     return 0;
@@ -49,15 +51,16 @@ struct StringHash : public std::unary_function<const llvm::StringRef&, uint32_t>
  *  \brief RS StringHash funciton
  */
 template<>
-struct StringHash<RS> : public std::unary_function<const llvm::StringRef&, uint32_t>
+struct StringHash<RS> : public std::unary_function<const llvm::StringRef,
+                                                   uint32_t>
 {
-  uint32_t operator()(const llvm::StringRef& pKey) const
+  uint32_t operator()(const llvm::StringRef pKey) const
   {
     const unsigned int b = 378551;
     uint32_t a = 63689;
     uint32_t hash_val = 0;
 
-    for(unsigned int i = 0; i < pKey.size(); ++i) {
+    for (unsigned int i = 0; i < pKey.size(); ++i) {
       hash_val = hash_val * a + pKey[i];
       a = a * b;
     }
@@ -69,14 +72,15 @@ struct StringHash<RS> : public std::unary_function<const llvm::StringRef&, uint3
  *  \brief JS hash funciton
  */
 template<>
-struct StringHash<JS> : public std::unary_function<const llvm::StringRef&, uint32_t>
+struct StringHash<JS> : public std::unary_function<const llvm::StringRef,
+                                                   uint32_t>
 {
-  uint32_t operator()(const llvm::StringRef& pKey) const
+  uint32_t operator()(const llvm::StringRef pKey) const
   {
     uint32_t hash_val = 1315423911;
 
-    for(unsigned int i = 0; i < pKey.size(); ++i) {
-       hash_val ^= ((hash_val << 5) + pKey[i] + (hash_val >> 2));
+    for (unsigned int i = 0; i < pKey.size(); ++i) {
+      hash_val ^= ((hash_val << 5) + pKey[i] + (hash_val >> 2));
     }
     return hash_val;
   }
@@ -86,18 +90,22 @@ struct StringHash<JS> : public std::unary_function<const llvm::StringRef&, uint3
  *  \brief P.J. Weinberger hash function
  */
 template<>
-struct StringHash<PJW> : public std::unary_function<const llvm::StringRef&, uint32_t>
+struct StringHash<PJW> : public std::unary_function<const llvm::StringRef,
+                                                    uint32_t>
 {
-  uint32_t operator()(const llvm::StringRef& pKey) const
+  uint32_t operator()(const llvm::StringRef pKey) const
   {
-    const unsigned int BitsInUnsignedInt = (unsigned int)(sizeof(unsigned int) * 8);
-    const unsigned int ThreeQuarters     = (unsigned int)((BitsInUnsignedInt  * 3) / 4);
-    const unsigned int OneEighth         = (unsigned int)(BitsInUnsignedInt / 8);
-    const unsigned int HighBits          = (unsigned int)(0xFFFFFFFF) << (BitsInUnsignedInt - OneEighth);
+    const unsigned int BitsInUnsignedInt =
+        (unsigned int)(sizeof(unsigned int) * 8);
+    const unsigned int ThreeQuarters =
+        (unsigned int)((BitsInUnsignedInt  * 3) / 4);
+    const unsigned int OneEighth = (unsigned int)(BitsInUnsignedInt / 8);
+    const unsigned int HighBits =
+        (unsigned int)(0xFFFFFFFF) << (BitsInUnsignedInt - OneEighth);
     uint32_t hash_val = 0;
     uint32_t test = 0;
 
-    for(unsigned int i = 0; i < pKey.size(); ++i) {
+    for (unsigned int i = 0; i < pKey.size(); ++i) {
       hash_val = (hash_val << OneEighth) + pKey[i];
 
       if((test = hash_val & HighBits) != 0) {
@@ -112,9 +120,10 @@ struct StringHash<PJW> : public std::unary_function<const llvm::StringRef&, uint
  *  \brief ELF hash function.
  */
 template<>
-struct StringHash<ELF> : public std::unary_function<const llvm::StringRef&, uint32_t>
+struct StringHash<ELF> : public std::unary_function<const llvm::StringRef,
+                                                    uint32_t>
 {
-  uint32_t operator()(const llvm::StringRef& pKey) const
+  uint32_t operator()(const llvm::StringRef pKey) const
   {
     uint32_t hash_val = 0;
     uint32_t x = 0;
@@ -133,14 +142,15 @@ struct StringHash<ELF> : public std::unary_function<const llvm::StringRef&, uint
  *  \brief BKDR hash function
  */
 template<>
-struct StringHash<BKDR> : public std::unary_function<const llvm::StringRef&, uint32_t>
+struct StringHash<BKDR> : public std::unary_function<const llvm::StringRef,
+                                                     uint32_t>
 {
-  uint32_t operator()(const llvm::StringRef& pKey) const
+  uint32_t operator()(const llvm::StringRef pKey) const
   {
     const uint32_t seed = 131;
     uint32_t hash_val = 0;
 
-    for(uint32_t i = 0; i < pKey.size(); ++i)
+    for (uint32_t i = 0; i < pKey.size(); ++i)
       hash_val = (hash_val * seed) + pKey[i];
     return hash_val;
   }
@@ -152,13 +162,14 @@ struct StringHash<BKDR> : public std::unary_function<const llvm::StringRef&, uin
  *  0.049s in 100000 test
  */
 template<>
-struct StringHash<SDBM> : public std::unary_function<const llvm::StringRef&, uint32_t>
+struct StringHash<SDBM> : public std::unary_function<const llvm::StringRef,
+                                                     uint32_t>
 {
-  uint32_t operator()(const llvm::StringRef& pKey) const
+  uint32_t operator()(const llvm::StringRef pKey) const
   {
     uint32_t hash_val = 0;
 
-    for(uint32_t i = 0; i < pKey.size(); ++i)
+    for (uint32_t i = 0; i < pKey.size(); ++i)
       hash_val = pKey[i] + (hash_val << 6) + (hash_val << 16) - hash_val;
     return hash_val;
   }
@@ -169,13 +180,14 @@ struct StringHash<SDBM> : public std::unary_function<const llvm::StringRef&, uin
  *  0.057s in 100000 test
  */
 template<>
-struct StringHash<DJB> : public std::unary_function<const llvm::StringRef&, uint32_t>
+struct StringHash<DJB> : public std::unary_function<const llvm::StringRef,
+                                                    uint32_t>
 {
-  uint32_t operator()(const llvm::StringRef& pKey) const
+  uint32_t operator()(const llvm::StringRef pKey) const
   {
     uint32_t hash_val = 5381;
 
-    for(uint32_t i = 0; i < pKey.size(); ++i)
+    for (uint32_t i = 0; i < pKey.size(); ++i)
       hash_val = ((hash_val << 5) + hash_val) + pKey[i];
 
     return hash_val;
@@ -187,13 +199,14 @@ struct StringHash<DJB> : public std::unary_function<const llvm::StringRef&, uint
  *  0.60s
  */
 template<>
-struct StringHash<DEK> : public std::unary_function<const llvm::StringRef&, uint32_t>
+struct StringHash<DEK> : public std::unary_function<const llvm::StringRef,
+                                                    uint32_t>
 {
-  uint32_t operator()(const llvm::StringRef& pKey) const
+  uint32_t operator()(const llvm::StringRef pKey) const
   {
     uint32_t hash_val = pKey.size();
 
-    for(uint32_t i = 0; i < pKey.size(); ++i)
+    for (uint32_t i = 0; i < pKey.size(); ++i)
       hash_val = ((hash_val << 5) ^ (hash_val >> 27)) ^ pKey[i];
 
     return hash_val;
@@ -205,12 +218,13 @@ struct StringHash<DEK> : public std::unary_function<const llvm::StringRef&, uint
  *  0.057s
  */
 template<>
-struct StringHash<BP> : public std::unary_function<const llvm::StringRef&, uint32_t>
+struct StringHash<BP> : public std::unary_function<const llvm::StringRef,
+                                                   uint32_t>
 {
-  uint32_t operator()(const llvm::StringRef& pKey) const
+  uint32_t operator()(const llvm::StringRef pKey) const
   {
     uint32_t hash_val = 0;
-    for(uint32_t i = 0; i < pKey.size(); ++i)
+    for (uint32_t i = 0; i < pKey.size(); ++i)
       hash_val = hash_val << 7 ^ pKey[i];
 
     return hash_val;
@@ -222,13 +236,14 @@ struct StringHash<BP> : public std::unary_function<const llvm::StringRef&, uint3
  *  0.058s
  */
 template<>
-struct StringHash<FNV> : public std::unary_function<const llvm::StringRef&, uint32_t>
+struct StringHash<FNV> : public std::unary_function<const llvm::StringRef,
+                                                    uint32_t>
 {
-  uint32_t operator()(const llvm::StringRef& pKey) const
+  uint32_t operator()(const llvm::StringRef pKey) const
   {
     const uint32_t fnv_prime = 0x811C9DC5;
     uint32_t hash_val = 0;
-    for(uint32_t i = 0; i < pKey.size(); ++i) {
+    for (uint32_t i = 0; i < pKey.size(); ++i) {
       hash_val *= fnv_prime;
       hash_val ^= pKey[i];
     }
@@ -242,16 +257,17 @@ struct StringHash<FNV> : public std::unary_function<const llvm::StringRef&, uint
  *  0.060s
  */
 template<>
-struct StringHash<AP> : public std::unary_function<const llvm::StringRef&, uint32_t>
+struct StringHash<AP> : public std::unary_function<const llvm::StringRef,
+                                                   uint32_t>
 {
-  uint32_t operator()(const llvm::StringRef& pKey) const
+  uint32_t operator()(const llvm::StringRef pKey) const
   {
     unsigned int hash_val = 0xAAAAAAAA;
 
-    for(uint32_t i = 0; i < pKey.size(); ++i) {
-      hash_val ^= ((i & 1) == 0)?
-                          ((hash_val <<  7) ^ pKey[i] * (hash_val >> 3)):
-                          (~((hash_val << 11) + (pKey[i] ^ (hash_val >> 5))));
+    for (uint32_t i = 0; i < pKey.size(); ++i) {
+      hash_val ^= ((i & 1) == 0) ?
+                    ((hash_val <<  7) ^ pKey[i] * (hash_val >> 3)) :
+                    (~((hash_val << 11) + (pKey[i] ^ (hash_val >> 5))));
     }
 
     return hash_val;
@@ -273,9 +289,10 @@ struct StringHash<AP> : public std::unary_function<const llvm::StringRef&, uint3
  *                  Bit 24 is set only if ...                   'b' or 'B', ...
  */
 template<>
-struct StringHash<ES> : public std::unary_function<const llvm::StringRef&, uint32_t>
+struct StringHash<ES> : public std::unary_function<const llvm::StringRef,
+                                                   uint32_t>
 {
-  uint32_t operator()(const llvm::StringRef& pString) const
+  uint32_t operator()(const llvm::StringRef pString) const
   {
     uint32_t result = 0x0;
     unsigned int dot = 0;
@@ -338,28 +355,33 @@ struct StringHash<ES> : public std::unary_function<const llvm::StringRef&, uint3
  *  \brief the template StringCompare class, for specification
  */
 template<typename STRING_TYPE>
-struct StringCompare : public std::binary_function<const STRING_TYPE&, const STRING_TYPE&, bool>
+struct StringCompare : public std::binary_function<const STRING_TYPE&,
+                                                   const STRING_TYPE&,
+                                                   bool>
 {
   bool operator()(const STRING_TYPE& X, const STRING_TYPE& Y) const
   { return X == Y; }
 };
 
 template<>
-struct StringCompare<const char*> : public std::binary_function<const char*, const char*, bool>
+struct StringCompare<const char*> : public std::binary_function<const char*,
+                                                                const char*,
+                                                                bool>
 {
   bool operator()(const char* X, const char* Y) const
-  { return (0 == std::strcmp(X, Y)); }
+  { return (std::strcmp(X, Y) == 0); }
 };
 
 template<>
-struct StringCompare<char*> : public std::binary_function<const char*, const char*, bool>
+struct StringCompare<char*> : public std::binary_function<const char*,
+                                                          const char*,
+                                                          bool>
 {
   bool operator()(const char* X, const char* Y) const
-  { return (0 == std::strcmp(X, Y)); }
+  { return (std::strcmp(X, Y) == 0); }
 };
 
 } // namespace of hash
 } // namespace of mcld
 
 #endif
-

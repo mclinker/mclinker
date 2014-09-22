@@ -20,13 +20,13 @@ public:
 
 public:
   Flags(const Flags& pOther)
-  : m_Data(pOther.m_Data) {}
+      : m_Data(pOther.m_Data) { }
 
   Flags(Enum pFlag)
-  : m_Data(pFlag) {}
+      : m_Data(pFlag) { }
 
   Flags(unsigned int pFlag = 0x0)
-  : m_Data(pFlag) {}
+      : m_Data(pFlag) { }
 
   operator unsigned int () const
   { return m_Data; }
@@ -95,4 +95,3 @@ private:
 } // namespace of mcld
 
 #endif
-

@@ -8,7 +8,9 @@
 //===----------------------------------------------------------------------===//
 #ifndef MCLD_ADT_HASHBASE_H
 #define MCLD_ADT_HASHBASE_H
+
 #include <llvm/ADT/StringRef.h>
+
 #include <cstdlib>
 
 namespace mcld {
@@ -113,7 +115,8 @@ protected:
   /// mayRehash - check the load_factor, compute the new size, and then doRehash
   void mayRehash();
 
-  /// doRehash - re-new the hash table, and rehash all elements into the new buckets
+  /// doRehash - re-new the hash table, and rehash all elements into the new
+  /// buckets
   void doRehash(unsigned int pNewSize);
 
 friend class ChainIteratorBase<Self>;
@@ -135,4 +138,3 @@ protected:
 } // namespace of mcld
 
 #endif
-
