@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include <mcld/Support/TargetRegistry.h>
 #include <mcld/LD/DWARFLineInfo.h>
+#include <mcld/Support/TargetRegistry.h>
 #include "ARM.h"
 
 using namespace mcld;
@@ -17,19 +17,20 @@ namespace mcld {
 // createARMDiagnostic - the help function to create corresponding ARMDiagnostic
 //===----------------------------------------------------------------------===//
 DiagnosticLineInfo* createARMDiagLineInfo(const mcld::Target& pTarget,
-                                          const std::string &pTriple)
+                                          const std::string& pTriple)
 {
   return new DWARFLineInfo();
 }
 
-} // namespace of mcld
+} // namespace mcld
 
 //===----------------------------------------------------------------------===//
 // InitializeARMDiagnostic
 //===----------------------------------------------------------------------===//
 extern "C" void MCLDInitializeARMDiagnosticLineInfo() {
   // Register the linker frontend
-  mcld::TargetRegistry::RegisterDiagnosticLineInfo(TheARMTarget, createARMDiagLineInfo);
-  mcld::TargetRegistry::RegisterDiagnosticLineInfo(TheThumbTarget, createARMDiagLineInfo);
+  mcld::TargetRegistry::RegisterDiagnosticLineInfo(TheARMTarget,
+                                                   createARMDiagLineInfo);
+  mcld::TargetRegistry::RegisterDiagnosticLineInfo(TheThumbTarget,
+                                                   createARMDiagLineInfo);
 }
-

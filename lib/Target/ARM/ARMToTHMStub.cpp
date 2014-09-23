@@ -10,10 +10,11 @@
 #include "ARMToTHMStub.h"
 #include "ARMLDBackend.h"
 
-#include <llvm/Support/ELF.h>
-#include <mcld/LD/ResolveInfo.h>
-#include <mcld/LD/LDSymbol.h>
 #include <mcld/Fragment/Relocation.h>
+#include <mcld/LD/LDSymbol.h>
+#include <mcld/LD/ResolveInfo.h>
+
+#include <llvm/Support/ELF.h>
 
 using namespace mcld;
 
@@ -34,14 +35,13 @@ const uint32_t ARMToTHMStub::TEMPLATE[] = {
 };
 
 ARMToTHMStub::ARMToTHMStub(bool pIsOutputPIC)
- : m_pData(NULL), m_Name("A2T_prototype"), m_Size(0x0)
+    : m_pData(NULL), m_Name("A2T_prototype"), m_Size(0x0)
 {
   if (pIsOutputPIC) {
     m_pData = PIC_TEMPLATE;
     m_Size = sizeof(PIC_TEMPLATE);
     addFixup(12u, 0x0, llvm::ELF::R_ARM_REL32);
-  }
-  else {
+  } else {
     m_pData = TEMPLATE;
     m_Size = sizeof(TEMPLATE);
     addFixup(8u, 0x0, llvm::ELF::R_ARM_ABS32);
@@ -53,7 +53,7 @@ ARMToTHMStub::ARMToTHMStub(const uint32_t* pData,
                            size_t pSize,
                            const_fixup_iterator pBegin,
                            const_fixup_iterator pEnd)
- : m_pData(pData), m_Name("A2T_veneer"), m_Size(pSize)
+    : m_pData(pData), m_Name("A2T_veneer"), m_Size(pSize)
 {
   for (const_fixup_iterator it = pBegin, ie = pEnd; it != ie; ++it)
     addFixup(**it);

@@ -10,20 +10,22 @@
 #include "AArch64PLT.h"
 #include "AArch64RelocationHelpers.h"
 
-#include <new>
+#include <mcld/LD/LDSection.h>
+#include <mcld/Support/MsgHandling.h>
 
 #include <llvm/Support/Casting.h>
 
-#include <mcld/LD/LDSection.h>
-#include <mcld/Support/MsgHandling.h>
+#include <new>
 
 using namespace mcld;
 
 AArch64PLT0::AArch64PLT0(SectionData& pParent)
-  : PLT::Entry<sizeof(aarch64_plt0)>(pParent) {}
+    : PLT::Entry<sizeof(aarch64_plt0)>(pParent) {
+}
 
 AArch64PLT1::AArch64PLT1(SectionData& pParent)
-  : PLT::Entry<sizeof(aarch64_plt1)>(pParent) {}
+    : PLT::Entry<sizeof(aarch64_plt1)>(pParent) {
+}
 
 //===----------------------------------------------------------------------===//
 // AArch64PLT
@@ -87,8 +89,9 @@ void AArch64PLT::applyPLT0()
   // get the address of got entry 2
   uint64_t got_ent2_base = got_base + sizeof(AArch64GOTEntry::EntrySize) * 2;
   // compute the immediate
-  AArch64Relocator::DWord imm = helper_get_page_address(got_ent2_base) -
-       helper_get_page_address(plt_base + (sizeof(AArch64PLT0::EntrySize) * 8));
+  AArch64Relocator::DWord imm =
+      helper_get_page_address(got_ent2_base) -
+      helper_get_page_address(plt_base + (sizeof(AArch64PLT0::EntrySize) * 8));
   data[1] = helper_reencode_adr_imm(data[1], imm >> 12);
   // apply 3rd instruction
   data[2] = helper_reencode_add_imm(data[2],
@@ -131,11 +134,12 @@ void AArch64PLT::applyPLT1()
                                   helper_get_page_address(PLTEntryAddress);
     Out[0] = helper_reencode_adr_imm(Out[0], imm >> 12);
     // apply 2nd instruction
-    Out[1] = helper_reencode_add_imm(
-        Out[1], helper_get_page_offset(GOTEntryAddress) >> 3);
+    Out[1] =
+        helper_reencode_add_imm(Out[1],
+                                helper_get_page_offset(GOTEntryAddress) >> 3);
     // apply 3rd instruction
-    Out[2] = helper_reencode_add_imm(
-        Out[2], helper_get_page_offset(GOTEntryAddress));
+    Out[2] = helper_reencode_add_imm(Out[2],
+                                     helper_get_page_offset(GOTEntryAddress));
 
     plt1->setValue(reinterpret_cast<unsigned char*>(Out));
     ++it;
@@ -154,7 +158,7 @@ uint64_t AArch64PLT::emit(MemoryRegion& pRegion)
 
   unsigned char* buffer = pRegion.begin();
   memcpy(buffer, llvm::cast<AArch64PLT0>((*it)).getValue(),
-                                                        AArch64PLT0::EntrySize);
+         AArch64PLT0::EntrySize);
   result += AArch64PLT0::EntrySize;
   ++it;
 
@@ -168,4 +172,3 @@ uint64_t AArch64PLT::emit(MemoryRegion& pRegion)
   }
   return result;
 }
-

@@ -76,7 +76,6 @@ private:
   ARMGOT& m_GOT;
 };
 
-} // namespace of mcld
+} // namespace mcld
 
 #endif
-

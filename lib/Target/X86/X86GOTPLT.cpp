@@ -9,11 +9,11 @@
 #include "X86GOTPLT.h"
 #include "X86PLT.h"
 
-#include <llvm/Support/Casting.h>
-
 #include <mcld/LD/LDSection.h>
 #include <mcld/LD/LDFileFormat.h>
 #include <mcld/Support/MsgHandling.h>
+
+#include <llvm/Support/Casting.h>
 
 namespace mcld {
 
@@ -21,7 +21,7 @@ namespace mcld {
 // X86_32GOTPLT
 //===----------------------------------------------------------------------===//
 X86_32GOTPLT::X86_32GOTPLT(LDSection& pSection)
-  : X86_32GOT(pSection)
+    : X86_32GOT(pSection)
 {
   // create GOT0 entries
   for (size_t i = 0; i < X86GOTPLT0Num; ++i)
@@ -40,7 +40,7 @@ bool X86_32GOTPLT::hasGOT1() const
 void X86_32GOTPLT::applyGOT0(uint64_t pAddress)
 {
   llvm::cast<X86_32GOTEntry>
-    (*(m_SectionData->getFragmentList().begin())).setValue(pAddress);
+      (*(m_SectionData->getFragmentList().begin())).setValue(pAddress);
 }
 
 void X86_32GOTPLT::applyAllGOTPLT(const X86PLT& pPLT)
@@ -61,7 +61,7 @@ void X86_32GOTPLT::applyAllGOTPLT(const X86PLT& pPLT)
 // X86_64GOTPLT
 //===----------------------------------------------------------------------===//
 X86_64GOTPLT::X86_64GOTPLT(LDSection& pSection)
-  : X86_64GOT(pSection)
+    : X86_64GOT(pSection)
 {
   for (size_t i = 0; i < X86GOTPLT0Num; ++i)
     create();
@@ -79,7 +79,7 @@ bool X86_64GOTPLT::hasGOT1() const
 void X86_64GOTPLT::applyGOT0(uint64_t pAddress)
 {
   llvm::cast<X86_64GOTEntry>
-    (*(m_SectionData->getFragmentList().begin())).setValue(pAddress);
+      (*(m_SectionData->getFragmentList().begin())).setValue(pAddress);
 }
 
 void X86_64GOTPLT::applyAllGOTPLT(const X86PLT& pPLT)
@@ -96,4 +96,4 @@ void X86_64GOTPLT::applyAllGOTPLT(const X86PLT& pPLT)
   }
 }
 
-} //end mcld namespace
+} // mcld namespace

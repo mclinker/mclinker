@@ -8,11 +8,11 @@
 //===----------------------------------------------------------------------===//
 #include "ARMGOT.h"
 
-#include <llvm/Support/Casting.h>
-
 #include <mcld/LD/LDSection.h>
 #include <mcld/LD/LDFileFormat.h>
 #include <mcld/Support/MsgHandling.h>
+
+#include <llvm/Support/Casting.h>
 
 namespace {
   const unsigned int ARMGOT0Num = 3;
@@ -23,7 +23,7 @@ using namespace mcld;
 //===----------------------------------------------------------------------===//
 // ARMGOT
 ARMGOT::ARMGOT(LDSection& pSection)
-  : GOT(pSection), m_pGOTPLTFront(NULL), m_pGOTFront(NULL)
+    : GOT(pSection), m_pGOTPLTFront(NULL), m_pGOTFront(NULL)
 {
   // create GOT0, and put them into m_SectionData immediately
   for (unsigned int i = 0; i < ARMGOT0Num; ++i)
@@ -104,12 +104,12 @@ void ARMGOT::applyGOT0(uint64_t pAddress)
 
 void ARMGOT::applyGOTPLT(uint64_t pPLTBase)
 {
-  if (NULL == m_pGOTPLTFront)
+  if (m_pGOTPLTFront == NULL)
     return;
 
   SectionData::iterator entry(m_pGOTPLTFront);
   SectionData::iterator e_end;
-  if (NULL == m_pGOTFront)
+  if (m_pGOTFront == NULL)
     e_end = m_SectionData->end();
   else
     e_end = SectionData::iterator(m_pGOTFront);
@@ -127,10 +127,9 @@ uint64_t ARMGOT::emit(MemoryRegion& pRegion)
   ARMGOTEntry* got = NULL;
   uint64_t result = 0x0;
   for (iterator it = begin(), ie = end(); it != ie; ++it, ++buffer) {
-      got = &(llvm::cast<ARMGOTEntry>((*it)));
-      *buffer = static_cast<uint32_t>(got->getValue());
-      result += ARMGOTEntry::EntrySize;
+    got = &(llvm::cast<ARMGOTEntry>((*it)));
+    *buffer = static_cast<uint32_t>(got->getValue());
+    result += ARMGOTEntry::EntrySize;
   }
   return result;
 }
-

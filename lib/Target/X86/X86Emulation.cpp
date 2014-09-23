@@ -9,8 +9,8 @@
 #include "X86.h"
 #include <mcld/LinkerConfig.h>
 #include <mcld/LinkerScript.h>
-#include <mcld/Target/ELFEmulation.h>
 #include <mcld/Support/TargetRegistry.h>
+#include <mcld/Target/ELFEmulation.h>
 
 namespace mcld {
 
@@ -27,8 +27,7 @@ static bool MCLDEmulateX86ELF(LinkerScript& pScript, LinkerConfig& pConfig)
   if (arch == llvm::Triple::x86 ||
       pConfig.targets().triple().getEnvironment() == llvm::Triple::GNUX32) {
     bitclass = 32;
-  }
-  else {
+  } else {
     bitclass = 64;
   }
   pConfig.targets().setBitClass(bitclass);
@@ -62,14 +61,15 @@ bool emulateX86LD(LinkerScript& pScript, LinkerConfig& pConfig)
   return MCLDEmulateX86ELF(pScript, pConfig);
 }
 
-} // namespace of mcld
+} // namespace mcld
 
 //===----------------------------------------------------------------------===//
 // X86Emulation
 //===----------------------------------------------------------------------===//
 extern "C" void MCLDInitializeX86Emulation() {
   // Register the emulation
-  mcld::TargetRegistry::RegisterEmulation(mcld::TheX86_32Target, mcld::emulateX86LD);
-  mcld::TargetRegistry::RegisterEmulation(mcld::TheX86_64Target, mcld::emulateX86LD);
+  mcld::TargetRegistry::RegisterEmulation(mcld::TheX86_32Target,
+                                          mcld::emulateX86LD);
+  mcld::TargetRegistry::RegisterEmulation(mcld::TheX86_64Target,
+                                          mcld::emulateX86LD);
 }
-

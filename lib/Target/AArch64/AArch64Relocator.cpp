@@ -14,14 +14,14 @@
 #include <mcld/LD/ELFFileFormat.h>
 #include <mcld/Object/ObjectBuilder.h>
 
+#include "AArch64Relocator.h"
+#include "AArch64RelocationFunctions.h"
+#include "AArch64RelocationHelpers.h"
+
 #include <llvm/ADT/Twine.h>
 #include <llvm/Support/DataTypes.h>
 #include <llvm/Support/ELF.h>
 #include <llvm/Support/Host.h>
-
-#include "AArch64Relocator.h"
-#include "AArch64RelocationFunctions.h"
-#include "AArch64RelocationHelpers.h"
 
 using namespace mcld;
 
@@ -62,8 +62,8 @@ static ApplyFunctionMap ApplyFunctions(ApplyFunctionList,
 //===----------------------------------------------------------------------===//
 AArch64Relocator::AArch64Relocator(AArch64GNULDBackend& pParent,
                                    const LinkerConfig& pConfig)
-  : Relocator(pConfig),
-    m_Target(pParent) {
+    : Relocator(pConfig),
+      m_Target(pParent) {
 }
 
 AArch64Relocator::~AArch64Relocator()
@@ -245,8 +245,7 @@ void AArch64Relocator::scanGlobalReloc(Relocation& pReloc,
         if (getTarget().symbolNeedsCopyReloc(pReloc, *rsym)) {
           LDSymbol& cpy_sym = defineSymbolforCopyReloc(pBuilder, *rsym);
           addCopyReloc(*cpy_sym.resolveInfo());
-        }
-        else {
+        } else {
           // set Rel bit and the dyn rel
           rsym->setReserved(rsym->reserved() | ReserveRel);
           getTarget().checkAndSetHasTextRel(*pSection.getLink());
@@ -258,8 +257,7 @@ void AArch64Relocator::scanGlobalReloc(Relocation& pReloc,
                                                     R_AARCH64_RELATIVE,
                                                     *this);
             getRelRelMap().record(pReloc, reloc);
-          }
-          else {
+          } else {
             Relocation& reloc = helper_DynRela_init(rsym,
                                                     *pReloc.targetRef().frag(),
                                                     pReloc.targetRef().offset(),
@@ -381,11 +379,11 @@ void AArch64Relocator::scanRelocation(Relocation& pReloc,
                                       Input& pInput)
 {
   ResolveInfo* rsym = pReloc.symInfo();
-  assert(NULL != rsym &&
+  assert(rsym != NULL &&
          "ResolveInfo of relocation not set while scanRelocation");
 
-  assert(NULL != pSection.getLink());
-  if (0 == (pSection.getLink()->flag() & llvm::ELF::SHF_ALLOC))
+  assert(pSection.getLink() != NULL);
+  if ((pSection.getLink()->flag() & llvm::ELF::SHF_ALLOC) == 0)
     return;
 
   // Scan relocation type to determine if an GOT/PLT/Dynamic Relocation
@@ -429,7 +427,7 @@ Relocator::Result abs(Relocation& pReloc, AArch64Relocator& pParent)
   Relocator::DWord A = pReloc.target() + pReloc.addend();
   Relocator::DWord S = pReloc.symValue();
   Relocation* dyn_rel = pParent.getRelRelMap().lookUp(pReloc);
-  bool has_dyn_rel = (NULL != dyn_rel);
+  bool has_dyn_rel = (dyn_rel != NULL);
 
   LDSection& target_sect = pReloc.targetRef().frag()->getParent()->getSection();
   // If the flag of target section is not ALLOC, we will not scan this
@@ -455,8 +453,7 @@ Relocator::Result abs(Relocation& pReloc, AArch64Relocator& pParent)
       if (llvm::ELF::R_AARCH64_ABS64 == pReloc.type() &&
           R_AARCH64_RELATIVE == dyn_rel->type()) {
         dyn_rel->setAddend(S + A);
-      }
-      else {
+      } else {
         dyn_rel->setAddend(A);
         return Relocator::OK;
       }
@@ -618,11 +615,11 @@ Relocator::Result adr_got_page(Relocation& pReloc, AArch64Relocator& pParent)
 
   // setup got entry value if needed
   AArch64GOTEntry* got_entry = pParent.getSymGOTMap().lookUp(*pReloc.symInfo());
-  if (NULL != got_entry && AArch64Relocator::SymVal == got_entry->getValue())
+  if (got_entry != NULL && AArch64Relocator::SymVal == got_entry->getValue())
     got_entry->setValue(pReloc.symValue());
   // setup relocation addend if needed
   Relocation* dyn_rela = pParent.getRelRelMap().lookUp(pReloc);
-  if ((NULL != dyn_rela) && (AArch64Relocator::SymVal == dyn_rela->addend())) {
+  if ((dyn_rela != NULL) && (AArch64Relocator::SymVal == dyn_rela->addend())) {
     dyn_rela->setAddend(pReloc.symValue());
   }
   return Relocator::OK;
@@ -643,12 +640,12 @@ Relocator::Result ld64_got_lo12(Relocation& pReloc, AArch64Relocator& pParent)
 
   // setup got entry value if needed
   AArch64GOTEntry* got_entry = pParent.getSymGOTMap().lookUp(*pReloc.symInfo());
-  if (NULL != got_entry && AArch64Relocator::SymVal == got_entry->getValue())
+  if (got_entry != NULL && AArch64Relocator::SymVal == got_entry->getValue())
     got_entry->setValue(pReloc.symValue());
 
   // setup relocation addend if needed
   Relocation* dyn_rela = pParent.getRelRelMap().lookUp(pReloc);
-  if ((NULL != dyn_rela) && (AArch64Relocator::SymVal == dyn_rela->addend())) {
+  if ((dyn_rela != NULL) && (AArch64Relocator::SymVal == dyn_rela->addend())) {
     dyn_rela->setAddend(pReloc.symValue());
   }
 
@@ -667,28 +664,27 @@ Relocator::Result ldst_abs_lo12(Relocation& pReloc, AArch64Relocator& pParent)
   Relocator::DWord X = helper_get_page_offset(S + A);
 
   switch(pReloc.type()) {
-     case llvm::ELF::R_AARCH64_LDST8_ABS_LO12_NC:
-       pReloc.target() = helper_reencode_ldst_pos_imm(pReloc.target(), X);
-       break;
-     case llvm::ELF::R_AARCH64_LDST16_ABS_LO12_NC:
-       pReloc.target() = helper_reencode_ldst_pos_imm(pReloc.target(),
-                                                      (X >> 1));
-       break;
-     case llvm::ELF::R_AARCH64_LDST32_ABS_LO12_NC:
-       pReloc.target() = helper_reencode_ldst_pos_imm(pReloc.target(),
-                                                      (X >> 2));
-       break;
-     case llvm::ELF::R_AARCH64_LDST64_ABS_LO12_NC:
-       pReloc.target() = helper_reencode_ldst_pos_imm(pReloc.target(),
-                                                      (X >> 3));
-       break;
-     case llvm::ELF::R_AARCH64_LDST128_ABS_LO12_NC:
-       pReloc.target() = helper_reencode_ldst_pos_imm(pReloc.target(),
-                                                      (X >> 4));
-       break;
+    case llvm::ELF::R_AARCH64_LDST8_ABS_LO12_NC:
+      pReloc.target() = helper_reencode_ldst_pos_imm(pReloc.target(), X);
+      break;
+    case llvm::ELF::R_AARCH64_LDST16_ABS_LO12_NC:
+      pReloc.target() = helper_reencode_ldst_pos_imm(pReloc.target(),
+                                                     (X >> 1));
+      break;
+    case llvm::ELF::R_AARCH64_LDST32_ABS_LO12_NC:
+      pReloc.target() = helper_reencode_ldst_pos_imm(pReloc.target(),
+                                                     (X >> 2));
+      break;
+    case llvm::ELF::R_AARCH64_LDST64_ABS_LO12_NC:
+      pReloc.target() = helper_reencode_ldst_pos_imm(pReloc.target(),
+                                                     (X >> 3));
+      break;
+    case llvm::ELF::R_AARCH64_LDST128_ABS_LO12_NC:
+      pReloc.target() = helper_reencode_ldst_pos_imm(pReloc.target(),
+                                                     (X >> 4));
+      break;
     default:
        break;
   }
   return Relocator::OK;
 }
-

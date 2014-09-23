@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include <mcld/Support/TargetRegistry.h>
 #include <mcld/Support/Target.h>
+#include <mcld/Support/TargetRegistry.h>
 
 namespace mcld {
 
@@ -18,5 +18,4 @@ extern "C" void MCLDInitializeAArch64LDTargetInfo() {
   mcld::RegisterTarget<llvm::Triple::aarch64> X(TheAArch64Target, "aarch64");
 }
 
-} // namespace of mcld
-
+} // namespace mcld

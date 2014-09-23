@@ -12,7 +12,7 @@
 
 namespace llvm {
 class Target;
-} // namespace of llvm
+} // namespace llvm
 
 namespace mcld {
 
@@ -21,10 +21,9 @@ class TargetLDBackend;
 
 extern mcld::Target TheAArch64Target;
 
-TargetLDBackend *createAArch64LDBackend(const llvm::Target&,
+TargetLDBackend* createAArch64LDBackend(const llvm::Target&,
                                         const std::string&);
 
-} // namespace of mcld
+} // namespace mcld
 
 #endif
-

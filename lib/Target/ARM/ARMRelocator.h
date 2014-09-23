@@ -129,7 +129,6 @@ private:
   SymGOTMap m_SymGOTPLTMap;
 };
 
-} // namespace of mcld
+} // namespace mcld
 
 #endif
-

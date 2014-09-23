@@ -10,8 +10,8 @@
 #ifndef TARGET_ARM_ARMTOTHMSTUB_H
 #define TARGET_ARM_ARMTOTHMSTUB_H
 
-#include <llvm/Support/DataTypes.h>
 #include <mcld/Fragment/Stub.h>
+#include <llvm/Support/DataTypes.h>
 #include <string>
 #include <vector>
 
@@ -68,6 +68,6 @@ private:
   size_t m_Size;
 };
 
-} // namespace of mcld
+} // namespace mcld
 
 #endif

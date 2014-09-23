@@ -19,8 +19,8 @@
 namespace mcld {
 
 class ARMELFAttributeData;
-class LinkerConfig;
 class GNUInfo;
+class LinkerConfig;
 
 //===----------------------------------------------------------------------===//
 /// ARMGNULDBackend - linker backend of ARM target of GNU ELF format
@@ -188,7 +188,6 @@ private:
 //  LDSection* m_pDebugOverlay;    // .ARM.debug_overlay
 //  LDSection* m_pOverlayTable;    // .ARM.overlay_table
 };
-} // namespace of mcld
+} // namespace mcld
 
 #endif
-

@@ -23,8 +23,8 @@ class X86_32GOTEntry : public GOT::Entry<4>
 {
 public:
   X86_32GOTEntry(uint64_t pContent, SectionData* pParent)
-   : GOT::Entry<4>(pContent, pParent)
-  {}
+      : GOT::Entry<4>(pContent, pParent)
+  { }
 };
 
 /** \class X86_32GOT
@@ -48,8 +48,8 @@ class X86_64GOTEntry : public GOT::Entry<8>
 {
 public:
   X86_64GOTEntry(uint64_t pContent, SectionData* pParent)
-   : GOT::Entry<8>(pContent, pParent)
-  {}
+      : GOT::Entry<8>(pContent, pParent)
+  { }
 };
 
 /** \class X86_64GOT
@@ -66,7 +66,6 @@ public:
   X86_64GOTEntry* create();
 };
 
-} // namespace of mcld
+} // namespace mcld
 
 #endif
-

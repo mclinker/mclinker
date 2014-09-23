@@ -29,7 +29,6 @@ public:
   uint64_t flags() const { return 0x0; }
 };
 
-} // namespace of mcld
+} // namespace mcld
 
 #endif
-

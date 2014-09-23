@@ -13,6 +13,7 @@
 #include "X86GOT.h"
 #include "X86GOTPLT.h"
 #include "X86PLT.h"
+
 #include <mcld/LD/LDSection.h>
 #include <mcld/Target/GNULDBackend.h>
 #include <mcld/Target/OutputRelocSection.h>
@@ -239,7 +240,7 @@ private:
   X86_64GOT* m_pGOT;
   X86_64GOTPLT* m_pGOTPLT;
 };
-} // namespace of mcld
+
+} // namespace mcld
 
 #endif
-

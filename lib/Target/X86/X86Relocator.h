@@ -17,8 +17,8 @@
 
 namespace mcld {
 
-class ResolveInfo;
 class LinkerConfig;
+class ResolveInfo;
 
 /** \class X86Relocator
  *  \brief X86Relocator creates and destroys the X86 relocations.
@@ -233,7 +233,6 @@ private:
   RelRelMap m_RelRelMap;
 };
 
-} // namespace of mcld
+} // namespace mcld
 
 #endif
-

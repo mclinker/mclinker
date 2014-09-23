@@ -9,8 +9,8 @@
 #ifndef TARGET_ARM_ARMGOT_H
 #define TARGET_ARM_ARMGOT_H
 
-#include <mcld/Target/GOT.h>
 #include <mcld/Support/MemoryRegion.h>
+#include <mcld/Target/GOT.h>
 #include <llvm/ADT/DenseMap.h>
 #include <vector>
 
@@ -25,8 +25,8 @@ class ARMGOTEntry : public GOT::Entry<4>
 {
 public:
   ARMGOTEntry(uint64_t pContent, SectionData* pParent)
-   : GOT::Entry<4>(pContent, pParent)
-  {}
+      : GOT::Entry<4>(pContent, pParent)
+  { }
 };
 
 /** \class ARMGOT
@@ -49,7 +49,7 @@ public:
 class ARMGOT : public GOT
 {
 public:
-  ARMGOT(LDSection &pSection);
+  ARMGOT(LDSection& pSection);
 
   ~ARMGOT();
 
@@ -82,7 +82,6 @@ private:
   EntryListType m_GOT;
 };
 
-} // namespace of mcld
+} // namespace mcld
 
 #endif
-

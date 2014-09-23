@@ -27,8 +27,8 @@ class AArch64GOTEntry : public GOT::Entry<8>
 {
 public:
   AArch64GOTEntry(uint64_t pContent, SectionData* pParent)
-   : GOT::Entry<8>(pContent, pParent)
-  {}
+      : GOT::Entry<8>(pContent, pParent)
+  { }
 };
 
 /** \class AArch64GOT
@@ -94,7 +94,6 @@ private:
   EntryListType m_GOT;
 };
 
-} // namespace of mcld
+} // namespace mcld
 
 #endif
-

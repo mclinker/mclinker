@@ -14,7 +14,7 @@ using namespace mcld;
 
 ARMELFDynamic::ARMELFDynamic(const GNULDBackend& pParent,
                              const LinkerConfig& pConfig)
-  : ELFDynamic(pParent, pConfig)
+    : ELFDynamic(pParent, pConfig)
 {
 }
 
@@ -35,4 +35,3 @@ void ARMELFDynamic::applyTargetEntries(const ELFFileFormat& pFormat)
   if (pFormat.hasGOT())
     applyOne(llvm::ELF::DT_PLTGOT, pFormat.getGOT().addr());
 }
-

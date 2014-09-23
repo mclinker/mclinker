@@ -60,14 +60,15 @@ bool emulateARMLD(LinkerScript& pScript, LinkerConfig& pConfig)
   return MCLDEmulateARMELF(pScript, pConfig);
 }
 
-} // namespace of mcld
+} // namespace mcld
 
 //===----------------------------------------------------------------------===//
 // ARMEmulation
 //===----------------------------------------------------------------------===//
 extern "C" void MCLDInitializeARMEmulation() {
   // Register the emulation
-  mcld::TargetRegistry::RegisterEmulation(mcld::TheARMTarget, mcld::emulateARMLD);
-  mcld::TargetRegistry::RegisterEmulation(mcld::TheThumbTarget, mcld::emulateARMLD);
+  mcld::TargetRegistry::RegisterEmulation(mcld::TheARMTarget,
+                                          mcld::emulateARMLD);
+  mcld::TargetRegistry::RegisterEmulation(mcld::TheThumbTarget,
+                                          mcld::emulateARMLD);
 }
-

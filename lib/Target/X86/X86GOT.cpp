@@ -48,4 +48,3 @@ X86_64GOTEntry* X86_64GOT::create()
 {
   return new X86_64GOTEntry(0, m_SectionData);
 }
-

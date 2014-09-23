@@ -16,11 +16,8 @@ mcld::Target TheX86_64Target;
 
 extern "C" void MCLDInitializeX86LDTargetInfo() {
   // register into mcld::TargetRegistry
-  mcld::RegisterTarget<llvm::Triple::x86>
-                       X(TheX86_32Target, "x86");
-  mcld::RegisterTarget<llvm::Triple::x86_64>
-                       Y(TheX86_64Target, "x86-64");
+  mcld::RegisterTarget<llvm::Triple::x86> X(TheX86_32Target, "x86");
+  mcld::RegisterTarget<llvm::Triple::x86_64> Y(TheX86_64Target, "x86-64");
 }
 
-} // namespace of mcld
-
+} // namespace mcld

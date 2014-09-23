@@ -10,10 +10,11 @@
 #include "THMToTHMStub.h"
 #include "ARMLDBackend.h"
 
-#include <llvm/Support/ELF.h>
-#include <mcld/LD/ResolveInfo.h>
-#include <mcld/LD/LDSymbol.h>
 #include <mcld/Fragment/Relocation.h>
+#include <mcld/LD/LDSymbol.h>
+#include <mcld/LD/ResolveInfo.h>
+
+#include <llvm/Support/ELF.h>
 
 using namespace mcld;
 
@@ -36,10 +37,10 @@ const uint32_t THMToTHMStub::TEMPLATE[] = {
 };
 
 THMToTHMStub::THMToTHMStub(bool pIsOutputPIC, bool pUsingThumb2)
- : m_pData(NULL),
-   m_Name("T2T_prototype"),
-   m_Size(0x0),
-   m_bUsingThumb2(pUsingThumb2)
+    : m_pData(NULL),
+      m_Name("T2T_prototype"),
+      m_Size(0x0),
+      m_bUsingThumb2(pUsingThumb2)
 {
   if (pIsOutputPIC) {
     m_pData = PIC_TEMPLATE;
@@ -58,10 +59,10 @@ THMToTHMStub::THMToTHMStub(const uint32_t* pData,
                            const_fixup_iterator pBegin,
                            const_fixup_iterator pEnd,
                            bool pUsingThumb2)
- : m_pData(pData),
-   m_Name("T2T_veneer"),
-   m_Size(pSize),
-   m_bUsingThumb2(pUsingThumb2)
+    : m_pData(pData),
+      m_Name("T2T_veneer"),
+      m_Size(pSize),
+      m_bUsingThumb2(pUsingThumb2)
 {
   for (const_fixup_iterator it = pBegin, ie = pEnd; it != ie; ++it)
     addFixup(**it);

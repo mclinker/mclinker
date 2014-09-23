@@ -8,11 +8,11 @@
 //===----------------------------------------------------------------------===//
 #include "AArch64GOT.h"
 
-#include <llvm/Support/Casting.h>
-
 #include <mcld/LD/LDSection.h>
 #include <mcld/LD/LDFileFormat.h>
 #include <mcld/Support/MsgHandling.h>
+
+#include <llvm/Support/Casting.h>
 
 namespace {
   const unsigned int AArch64GOT0Num = 3;
@@ -23,7 +23,7 @@ using namespace mcld;
 //===----------------------------------------------------------------------===//
 // AArch64GOT
 AArch64GOT::AArch64GOT(LDSection& pSection)
-  : GOT(pSection), m_pGOTPLTFront(NULL), m_pGOTFront(NULL)
+    : GOT(pSection), m_pGOTPLTFront(NULL), m_pGOTFront(NULL)
 {
 }
 
@@ -104,17 +104,17 @@ void AArch64GOT::finalizeSectionSize()
 void AArch64GOT::applyGOT0(uint64_t pAddress)
 {
   llvm::cast<AArch64GOTEntry>
-    (*(m_SectionData->getFragmentList().begin())).setValue(pAddress);
+      (*(m_SectionData->getFragmentList().begin())).setValue(pAddress);
 }
 
 void AArch64GOT::applyGOTPLT(uint64_t pPLTBase)
 {
-  if (NULL == m_pGOTPLTFront)
+  if (m_pGOTPLTFront == NULL)
     return;
 
   SectionData::iterator entry(m_pGOTPLTFront);
   SectionData::iterator e_end;
-  if (NULL == m_pGOTFront)
+  if (m_pGOTFront == NULL)
     e_end = m_SectionData->end();
   else
     e_end = SectionData::iterator(m_pGOTFront);
@@ -132,10 +132,9 @@ uint64_t AArch64GOT::emit(MemoryRegion& pRegion)
   AArch64GOTEntry* got = NULL;
   uint64_t result = 0x0;
   for (iterator it = begin(), ie = end(); it != ie; ++it, ++buffer) {
-      got = &(llvm::cast<AArch64GOTEntry>((*it)));
-      *buffer = static_cast<uint64_t>(got->getValue());
-      result += AArch64GOTEntry::EntrySize;
+    got = &(llvm::cast<AArch64GOTEntry>((*it)));
+    *buffer = static_cast<uint64_t>(got->getValue());
+    result += AArch64GOTEntry::EntrySize;
   }
   return result;
 }
-

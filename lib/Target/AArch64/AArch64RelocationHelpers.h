@@ -97,7 +97,7 @@ static inline Relocator::Address
 helper_get_PLT_address(ResolveInfo& pSym, AArch64Relocator& pParent)
 {
   PLTEntryBase* plt_entry = pParent.getSymPLTMap().lookUp(pSym);
-  assert(NULL != plt_entry);
+  assert(plt_entry != NULL);
   return pParent.getTarget().getPLT().addr() + plt_entry->getOffset();
 }
 
@@ -107,13 +107,13 @@ helper_PLT_init(Relocation& pReloc, AArch64Relocator& pParent)
   // rsym - The relocation target symbol
   ResolveInfo* rsym = pReloc.symInfo();
   AArch64GNULDBackend& ld_backend = pParent.getTarget();
-  assert(NULL == pParent.getSymPLTMap().lookUp(*rsym));
+  assert(pParent.getSymPLTMap().lookUp(*rsym) == NULL);
 
   AArch64PLT1* plt_entry = ld_backend.getPLT().create();
   pParent.getSymPLTMap().record(*rsym, *plt_entry);
 
   // initialize plt and the corresponding gotplt and dyn rel entry.
-  assert(NULL == pParent.getSymGOTPLTMap().lookUp(*rsym) &&
+  assert(pParent.getSymGOTPLTMap().lookUp(*rsym) == NULL &&
          "PLT entry not exist, but DynRel entry exist!");
   AArch64GOTEntry* gotplt_entry = ld_backend.getGOTPLT().createGOTPLT();
   pParent.getSymGOTPLTMap().record(*rsym, *gotplt_entry);
@@ -127,18 +127,17 @@ helper_PLT_init(Relocation& pReloc, AArch64Relocator& pParent)
 }
 
 /// helper_DynRel - Get an relocation entry in .rela.dyn
-static inline Relocation&
-helper_DynRela_init(ResolveInfo* pSym,
-                    Fragment& pFrag,
-                    uint64_t pOffset,
-                    Relocator::Type pType,
-                    AArch64Relocator& pParent)
+static inline Relocation& helper_DynRela_init(ResolveInfo* pSym,
+                                              Fragment& pFrag,
+                                              uint64_t pOffset,
+                                              Relocator::Type pType,
+                                              AArch64Relocator& pParent)
 {
   AArch64GNULDBackend& ld_backend = pParent.getTarget();
   Relocation& rel_entry = *ld_backend.getRelaDyn().create();
   rel_entry.setType(pType);
   rel_entry.targetRef().assign(pFrag, pOffset);
-  if (pType == R_AARCH64_RELATIVE || NULL == pSym)
+  if (pType == R_AARCH64_RELATIVE || pSym == NULL)
     rel_entry.setSymInfo(NULL);
   else
     rel_entry.setSymInfo(pSym);
@@ -148,9 +147,8 @@ helper_DynRela_init(ResolveInfo* pSym,
 
 /// helper_use_relative_reloc - Check if symbol can use relocation
 /// R_AARCH64_RELATIVE
-static inline bool
-helper_use_relative_reloc(const ResolveInfo& pSym,
-                          const AArch64Relocator& pParent)
+static inline bool helper_use_relative_reloc(const ResolveInfo& pSym,
+                                             const AArch64Relocator& pParent)
 
 {
   // if symbol is dynamic or undefine or preemptible
@@ -165,12 +163,11 @@ static inline Relocator::Address
 helper_get_GOT_address(ResolveInfo& pSym, AArch64Relocator& pParent)
 {
   AArch64GOTEntry* got_entry = pParent.getSymGOTMap().lookUp(pSym);
-  assert(NULL != got_entry);
+  assert(got_entry != NULL);
   return pParent.getTarget().getGOT().addr() + got_entry->getOffset();
 }
 
-static inline Relocator::Address
-helper_GOT_ORG(AArch64Relocator& pParent)
+static inline Relocator::Address helper_GOT_ORG(AArch64Relocator& pParent)
 {
   return pParent.getTarget().getGOT().addr();
 }
@@ -181,7 +178,7 @@ helper_GOT_init(Relocation& pReloc, bool pHasRel, AArch64Relocator& pParent)
   // rsym - The relocation target symbol
   ResolveInfo* rsym = pReloc.symInfo();
   AArch64GNULDBackend& ld_backend = pParent.getTarget();
-  assert(NULL == pParent.getSymGOTMap().lookUp(*rsym));
+  assert(pParent.getSymGOTMap().lookUp(*rsym) == NULL);
 
   AArch64GOTEntry* got_entry = ld_backend.getGOT().createGOT();
   pParent.getSymGOTMap().record(*rsym, *got_entry);
@@ -190,8 +187,7 @@ helper_GOT_init(Relocation& pReloc, bool pHasRel, AArch64Relocator& pParent)
   if (!pHasRel) {
     // No corresponding dynamic relocation, initialize to the symbol value.
     got_entry->setValue(AArch64Relocator::SymVal);
-  }
-  else {
+  } else {
     // Initialize got_entry content and the corresponding dynamic relocation.
     if (helper_use_relative_reloc(*rsym, pParent)) {
       got_entry->setValue(AArch64Relocator::SymVal);
@@ -199,8 +195,7 @@ helper_GOT_init(Relocation& pReloc, bool pHasRel, AArch64Relocator& pParent)
                                                   R_AARCH64_RELATIVE, pParent);
       rel_entry.setAddend(AArch64Relocator::SymVal);
       pParent.getRelRelMap().record(pReloc, rel_entry);
-    }
-    else {
+    } else {
       helper_DynRela_init(rsym, *got_entry, 0x0, R_AARCH64_GLOB_DAT, pParent);
       got_entry->setValue(0);
     }

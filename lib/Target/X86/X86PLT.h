@@ -182,7 +182,6 @@ private:
   X86_64GOTPLT& m_GOTPLT;
 };
 
-} // namespace of mcld
+} // namespace mcld
 
 #endif
-

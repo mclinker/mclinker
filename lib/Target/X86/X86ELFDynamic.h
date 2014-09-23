@@ -24,6 +24,6 @@ private:
   void applyTargetEntries(const ELFFileFormat& pFormat);
 };
 
-} // namespace of mcld
+} // namespace mcld
 
 #endif

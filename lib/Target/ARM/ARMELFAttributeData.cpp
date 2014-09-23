@@ -16,10 +16,11 @@
 
 using namespace mcld;
 
-const ELFAttributeValue *ARMELFAttributeData::getAttributeValue(TagType pTag) const
+const ELFAttributeValue*
+ARMELFAttributeData::getAttributeValue(TagType pTag) const
 {
   if (pTag <= Tag_Max) {
-    const ELFAttributeValue &attr_value = m_Attrs[pTag];
+    const ELFAttributeValue& attr_value = m_Attrs[pTag];
 
     if (attr_value.isInitialized()) {
       return &attr_value;
@@ -98,7 +99,7 @@ namespace {
  * @ref ARM [ABI-addenda], 2.3.7.3
  */
 static int
-decode_secondary_compatibility_attribute(const ELFAttributeValue &pValue)
+decode_secondary_compatibility_attribute(const ELFAttributeValue& pValue)
 {
   // The encoding of Tag_also_compatible_with is:
   //
@@ -112,7 +113,7 @@ decode_secondary_compatibility_attribute(const ELFAttributeValue &pValue)
   assert((pValue.type() == ELFAttributeValue::String) &&
          "Value of Tag_also_compatible_with must be a string!");
 
-  const std::string &data = pValue.getStringValue();
+  const std::string& data = pValue.getStringValue();
 
   // Though the integer is in LEB128 format, but they occupy only 1 byte in
   // currently defined value.
@@ -145,14 +146,14 @@ static const int value_ordering_120[] = { 0, 2, 1 };
 //===--------------------------------------------------------------------===//
 
 bool ARMELFAttributeData::merge(const LinkerConfig& pConfig,
-                                const Input &pInput, TagType pTag,
+                                const Input& pInput, TagType pTag,
                                 const ELFAttributeValue& pInAttr)
 {
   // Pre-condition
   //  1. The out_attr must be initailized and has value of the same type as
   //     pInAttr.
   //  2. The value helf by out_attr and pInAttr must be different.
-  ELFAttributeValue &out_attr = m_Attrs[pTag];
+  ELFAttributeValue& out_attr = m_Attrs[pTag];
 
   // Attribute in the output must have value assigned.
   assert(out_attr.isInitialized() && "No output attribute to be merged!");
@@ -476,7 +477,7 @@ namespace {
  * @ref ARM [ABI-addenda], 2.3.7.3
  */
 static void
-encode_secondary_compatibility_attribute(ELFAttributeValue &pValue, int pArch)
+encode_secondary_compatibility_attribute(ELFAttributeValue& pValue, int pArch)
 {
   if ((pArch < 0) || (pArch > ARMELFAttributeData::CPU_Arch_Max)) {
     pValue.setStringValue("");
@@ -653,14 +654,14 @@ static const uint8_t fp_config_hash_table[] =
 #undef UND
 };
 
-static int calculate_fp_config_hash(const struct fp_config_data &pConfig)
+static int calculate_fp_config_hash(const struct fp_config_data& pConfig)
 {
   int x = pConfig.version;
   int y = pConfig.regs;
   return (x * (y >> 4) + (y >> 5));
 }
 
-static int get_fp_arch_of_config(const struct fp_config_data &pConfig)
+static int get_fp_arch_of_config(const struct fp_config_data& pConfig)
 {
   int hash = calculate_fp_config_hash(pConfig);
   assert(static_cast<size_t>(hash) <
@@ -701,12 +702,12 @@ static bool is_allowed_use_of_div(int cpu_arch, int cpu_arch_profile,
 //===--------------------------------------------------------------------===//
 
 bool ARMELFAttributeData::postMerge(const LinkerConfig& pConfig,
-                                    const Input &pInput)
+                                    const Input& pInput)
 {
   // Process Tag_CPU_arch, Tag_CPU_name, Tag_CPU_raw_name, and
   // Tag_also_compatible_with.
-  ELFAttributeValue &out_cpu_arch_attr = m_Attrs[Tag_CPU_arch];
-  ELFAttributeValue &out_secondary_compatibility_attr =
+  ELFAttributeValue& out_cpu_arch_attr = m_Attrs[Tag_CPU_arch];
+  ELFAttributeValue& out_secondary_compatibility_attr =
       m_Attrs[Tag_also_compatible_with];
 
   if ((m_CurrentCPUArch < 0) && out_cpu_arch_attr.isInitialized()) {
@@ -753,8 +754,8 @@ bool ARMELFAttributeData::postMerge(const LinkerConfig& pConfig,
               out_secondary_compatibility_attr, -1);
         }
 
-        ELFAttributeValue &out_cpu_name = m_Attrs[Tag_CPU_name];
-        ELFAttributeValue &out_cpu_raw_name = m_Attrs[Tag_CPU_raw_name];
+        ELFAttributeValue& out_cpu_name = m_Attrs[Tag_CPU_name];
+        ELFAttributeValue& out_cpu_raw_name = m_Attrs[Tag_CPU_raw_name];
 
         if (m_CurrentCPUArch != in_cpu_arch) {
           // Unable to guess the Tag_CPU_name. Use the generic name.
@@ -768,13 +769,13 @@ bool ARMELFAttributeData::postMerge(const LinkerConfig& pConfig,
         } else {
           // Use the value of Tag_CPU_name and Tag_CPU_raw_name from the input.
           if (!m_CPUName.empty()) {
-            ELFAttributeValue &out_cpu_name = m_Attrs[Tag_CPU_name];
+            ELFAttributeValue& out_cpu_name = m_Attrs[Tag_CPU_name];
             assert(out_cpu_name.isInitialized() && "CPU name has never set!");
             out_cpu_name.setStringValue(m_CPUName);
           }
 
           if (!m_CPURawName.empty()) {
-            ELFAttributeValue &out_cpu_raw_name = m_Attrs[Tag_CPU_raw_name];
+            ELFAttributeValue& out_cpu_raw_name = m_Attrs[Tag_CPU_raw_name];
             assert(out_cpu_raw_name.isInitialized() &&
                    "CPU raw name has never set!");
             out_cpu_raw_name.setStringValue(m_CPURawName);
@@ -786,8 +787,8 @@ bool ARMELFAttributeData::postMerge(const LinkerConfig& pConfig,
 
   // Process Tag_ABI_VFP_args.
   if (m_VFPArgs >= 0) {
-    ELFAttributeValue &out_attr = m_Attrs[Tag_ABI_VFP_args];
-    ELFAttributeValue &out_float_number_model_attr =
+    ELFAttributeValue& out_attr = m_Attrs[Tag_ABI_VFP_args];
+    ELFAttributeValue& out_float_number_model_attr =
         m_Attrs[Tag_ABI_FP_number_model];
 
     assert(out_attr.isInitialized() && "VFP args has never set!");
@@ -805,7 +806,7 @@ bool ARMELFAttributeData::postMerge(const LinkerConfig& pConfig,
   }
 
   // Process Tag_FP_arch.
-  ELFAttributeValue &out_fp_arch_attr = m_Attrs[Tag_FP_arch];
+  ELFAttributeValue& out_fp_arch_attr = m_Attrs[Tag_FP_arch];
   if (m_FPArch >= 0) {
     assert(out_fp_arch_attr.isInitialized() && "FP arch has never set!");
 
@@ -836,9 +837,9 @@ bool ARMELFAttributeData::postMerge(const LinkerConfig& pConfig,
         }
       } else {
         if (out_fp_arch_attr.getIntValue() < num_fp_configs) {
-          const struct fp_config_data &input_fp_config = fp_configs[ m_FPArch ];
+          const struct fp_config_data& input_fp_config = fp_configs[ m_FPArch ];
 
-          const struct fp_config_data &output_fp_config =
+          const struct fp_config_data& output_fp_config =
               fp_configs[ out_fp_arch_attr.getIntValue() ];
 
           const struct fp_config_data result_fp_config = {
@@ -855,7 +856,7 @@ bool ARMELFAttributeData::postMerge(const LinkerConfig& pConfig,
   } // (m_FPArch >= 0)
 
   // Process Tag_ABI_HardFP_use.
-  ELFAttributeValue &out_hardfp_use_attr = m_Attrs[Tag_ABI_HardFP_use];
+  ELFAttributeValue& out_hardfp_use_attr = m_Attrs[Tag_ABI_HardFP_use];
 
   if (!m_HardFPUseInitialized && out_hardfp_use_attr.isInitialized()) {
     m_HardFPUse = out_hardfp_use_attr.getIntValue();
@@ -881,10 +882,10 @@ bool ARMELFAttributeData::postMerge(const LinkerConfig& pConfig,
   }
 
   // Move the value of Tag_MPextension_use_legacy to Tag_MPextension_use.
-  ELFAttributeValue &out_mpextension_use_legacy =
+  ELFAttributeValue& out_mpextension_use_legacy =
       m_Attrs[Tag_MPextension_use_legacy];
 
-  ELFAttributeValue &out_mpextension_use = m_Attrs[Tag_MPextension_use];
+  ELFAttributeValue& out_mpextension_use = m_Attrs[Tag_MPextension_use];
 
   // If Tag_MPextension_use_legacy has value, it must be introduced by current
   // input since it is reset every time after the merge completed.
@@ -934,7 +935,7 @@ bool ARMELFAttributeData::postMerge(const LinkerConfig& pConfig,
   }
 
   // Process Tag_DIV_use.
-  ELFAttributeValue &out_div_use_attr = m_Attrs[Tag_DIV_use];
+  ELFAttributeValue& out_div_use_attr = m_Attrs[Tag_DIV_use];
 
   if (!m_DIVUseInitialized && out_div_use_attr.isInitialized()) {
     // Perform the merge by reverting value of Tag_DIV_use and setup m_DIVUse.
@@ -946,7 +947,7 @@ bool ARMELFAttributeData::postMerge(const LinkerConfig& pConfig,
   if (m_DIVUse >= 0) {
     assert(out_div_use_attr.isInitialized());
 
-    const ELFAttributeValue &out_cpu_arch_profile_attr =
+    const ELFAttributeValue& out_cpu_arch_profile_attr =
         m_Attrs[Tag_CPU_arch_profile];
 
     int out_cpu_arch_profile = Arch_Profile_None;
@@ -983,7 +984,7 @@ size_t ARMELFAttributeData::sizeOutput() const {
   // Size contributed by known attributes
   for (unsigned i = 0; i <= Tag_Max; ++i) {
     TagType tag = static_cast<TagType>(i);
-    const ELFAttributeValue &value = m_Attrs[tag];
+    const ELFAttributeValue& value = m_Attrs[tag];
 
     if (value.shouldEmit()) {
       result += leb128::size(static_cast<uint32_t>(tag));
@@ -996,7 +997,7 @@ size_t ARMELFAttributeData::sizeOutput() const {
           unknown_attr_end = m_UnknownAttrs.end();
        unknown_attr_it != unknown_attr_end; ++unknown_attr_it) {
     TagType tag = unknown_attr_it->first;
-    const ELFAttributeValue &value = unknown_attr_it->second;
+    const ELFAttributeValue& value = unknown_attr_it->second;
 
     if (value.shouldEmit()) {
       result += leb128::size(static_cast<uint32_t>(tag));
@@ -1014,7 +1015,7 @@ size_t ARMELFAttributeData::emit(char *pBuf) const {
   // the first public subsection of the attribute section."
   //
   // See ARM [ABI-addenda], 2.3.7.4 Conformance tag
-  const ELFAttributeValue &attr_conformance = m_Attrs[Tag_conformance];
+  const ELFAttributeValue& attr_conformance = m_Attrs[Tag_conformance];
 
   if (attr_conformance.shouldEmit()) {
     if (!ELFAttributeData::WriteAttribute(Tag_conformance,  attr_conformance,
@@ -1027,7 +1028,7 @@ size_t ARMELFAttributeData::emit(char *pBuf) const {
   // subsection other that the conformance tag"
   //
   // See ARM [ABI-addenda], 2.3.7.5 No defaults tag
-  const ELFAttributeValue &attr_nodefaults = m_Attrs[Tag_nodefaults];
+  const ELFAttributeValue& attr_nodefaults = m_Attrs[Tag_nodefaults];
 
   if (attr_nodefaults.shouldEmit()) {
     if (!ELFAttributeData::WriteAttribute(Tag_nodefaults,  attr_nodefaults,
@@ -1040,7 +1041,7 @@ size_t ARMELFAttributeData::emit(char *pBuf) const {
   // Tag_nodefaults (=64)
   for (unsigned i = 0; i < Tag_nodefaults; ++i) {
     TagType tag = static_cast<TagType>(i);
-    const ELFAttributeValue &value = m_Attrs[tag];
+    const ELFAttributeValue& value = m_Attrs[tag];
 
     if (value.shouldEmit() &&
         !ELFAttributeData::WriteAttribute(tag, value, buffer)) {
@@ -1050,7 +1051,7 @@ size_t ARMELFAttributeData::emit(char *pBuf) const {
 
   for (unsigned i = (Tag_nodefaults + 1); i <= Tag_Max; ++i) {
     TagType tag = static_cast<TagType>(i);
-    const ELFAttributeValue &value = m_Attrs[tag];
+    const ELFAttributeValue& value = m_Attrs[tag];
 
     if (value.shouldEmit() && (i != Tag_conformance) &&
         !ELFAttributeData::WriteAttribute(tag, value, buffer)) {
@@ -1062,7 +1063,7 @@ size_t ARMELFAttributeData::emit(char *pBuf) const {
           unknown_attr_end = m_UnknownAttrs.end();
        unknown_attr_it != unknown_attr_end; ++unknown_attr_it) {
     TagType tag = unknown_attr_it->first;
-    const ELFAttributeValue &value = unknown_attr_it->second;
+    const ELFAttributeValue& value = unknown_attr_it->second;
 
     if (value.shouldEmit() &&
         !ELFAttributeData::WriteAttribute(tag, value, buffer)) {

@@ -9,14 +9,14 @@
 #ifndef TARGET_X86_X86GOTPLT_H
 #define TARGET_X86_X86GOTPLT_H
 
-#include <llvm/ADT/DenseMap.h>
-
 #include "X86GOT.h"
+
+#include <llvm/ADT/DenseMap.h>
 
 namespace mcld {
 
-class X86PLT;
 class LDSection;
+class X86PLT;
 
 const unsigned int X86GOTPLT0Num = 3;
 
@@ -56,7 +56,6 @@ public:
   void applyAllGOTPLT(const X86PLT& pPLT);
 };
 
-} // namespace of mcld
+} // namespace mcld
 
 #endif
-

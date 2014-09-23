@@ -14,7 +14,7 @@ using namespace mcld;
 
 X86ELFDynamic::X86ELFDynamic(const GNULDBackend& pParent,
                              const LinkerConfig& pConfig)
-  : ELFDynamic(pParent, pConfig)
+    : ELFDynamic(pParent, pConfig)
 {
 }
 

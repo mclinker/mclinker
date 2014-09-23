@@ -142,7 +142,6 @@ private:
   RelRelMap m_RelRelMap;
 };
 
-} // namespace of mcld
+} // namespace mcld
 
 #endif
-

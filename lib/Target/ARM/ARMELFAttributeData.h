@@ -156,7 +156,7 @@ public:
   virtual std::pair<ELFAttributeValue*, bool>
       getOrCreateAttributeValue(TagType pTag);
 
-  virtual bool preMerge(const Input &pInput)
+  virtual bool preMerge(const Input& pInput)
   {
     // Reset states.
     m_CPUArch = -1;
@@ -171,10 +171,10 @@ public:
     return true;
   }
 
-  virtual bool merge(const LinkerConfig& pConfig, const Input &pInput,
+  virtual bool merge(const LinkerConfig& pConfig, const Input& pInput,
                      TagType pTag, const ELFAttributeValue& pInAttr);
 
-  virtual bool postMerge(const LinkerConfig& pConfig, const Input &pInput);
+  virtual bool postMerge(const LinkerConfig& pConfig, const Input& pInput);
 
   virtual size_t sizeOutput() const;
 
@@ -238,6 +238,6 @@ private:
   int m_DIVUse;
 };
 
-} // namespace of mcld
+} // namespace mcld
 
 #endif

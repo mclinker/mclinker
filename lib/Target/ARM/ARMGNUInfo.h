@@ -26,7 +26,6 @@ public:
   uint64_t flags() const { return llvm::ELF::EF_ARM_EABI_VER5; }
 };
 
-} // namespace of mcld
+} // namespace mcld
 
 #endif
-

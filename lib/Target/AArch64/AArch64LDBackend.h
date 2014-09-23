@@ -164,7 +164,7 @@ private:
   // LDSection* m_pDebugOverlay;    // .AArch64.debug_overlay
   // LDSection* m_pOverlayTable;    // .AArch64.overlay_table
 };
-} // namespace of mcld
+
+} // namespace mcld
 
 #endif
-

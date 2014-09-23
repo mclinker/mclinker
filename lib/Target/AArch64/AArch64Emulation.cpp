@@ -9,8 +9,8 @@
 #include "AArch64.h"
 #include <mcld/LinkerConfig.h>
 #include <mcld/LinkerScript.h>
-#include <mcld/Target/ELFEmulation.h>
 #include <mcld/Support/TargetRegistry.h>
+#include <mcld/Target/ELFEmulation.h>
 
 namespace mcld {
 
@@ -58,7 +58,7 @@ bool emulateAArch64LD(LinkerScript& pScript, LinkerConfig& pConfig)
   return MCLDEmulateAArch64ELF(pScript, pConfig);
 }
 
-} // namespace of mcld
+} // namespace mcld
 
 //===----------------------------------------------------------------------===//
 // AArch64Emulation
@@ -68,4 +68,3 @@ extern "C" void MCLDInitializeAArch64Emulation() {
   mcld::TargetRegistry::RegisterEmulation(mcld::TheAArch64Target,
                                           mcld::emulateAArch64LD);
 }
-

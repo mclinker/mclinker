@@ -9,12 +9,12 @@
 #include "X86GOTPLT.h"
 #include "X86PLT.h"
 
-#include <llvm/Support/ELF.h>
-#include <llvm/Support/Casting.h>
-
 #include <mcld/LD/LDSection.h>
 #include <mcld/LinkerConfig.h>
 #include <mcld/Support/MsgHandling.h>
+
+#include <llvm/Support/ELF.h>
+#include <llvm/Support/Casting.h>
 
 using namespace mcld;
 
@@ -22,32 +22,32 @@ using namespace mcld;
 // PLT entry data
 //===----------------------------------------------------------------------===//
 X86_32DynPLT0::X86_32DynPLT0(SectionData& pParent)
-  : PLT::Entry<sizeof(x86_32_dyn_plt0)>(pParent)
+    : PLT::Entry<sizeof(x86_32_dyn_plt0)>(pParent)
 {
 }
 
 X86_32DynPLT1::X86_32DynPLT1(SectionData& pParent)
-  : PLT::Entry<sizeof(x86_32_dyn_plt1)>(pParent)
+    : PLT::Entry<sizeof(x86_32_dyn_plt1)>(pParent)
 {
 }
 
 X86_32ExecPLT0::X86_32ExecPLT0(SectionData& pParent)
-  : PLT::Entry<sizeof(x86_32_exec_plt0)>(pParent)
+    : PLT::Entry<sizeof(x86_32_exec_plt0)>(pParent)
 {
 }
 
 X86_32ExecPLT1::X86_32ExecPLT1(SectionData& pParent)
-  : PLT::Entry<sizeof(x86_32_exec_plt1)>(pParent)
+    : PLT::Entry<sizeof(x86_32_exec_plt1)>(pParent)
 {
 }
 
 X86_64PLT0::X86_64PLT0(SectionData& pParent)
-  : PLT::Entry<sizeof(x86_64_plt0)>(pParent)
+    : PLT::Entry<sizeof(x86_64_plt0)>(pParent)
 {
 }
 
 X86_64PLT1::X86_64PLT1(SectionData& pParent)
-  : PLT::Entry<sizeof(x86_64_plt1)>(pParent)
+    : PLT::Entry<sizeof(x86_64_plt1)>(pParent)
 {
 }
 
@@ -55,8 +55,8 @@ X86_64PLT1::X86_64PLT1(SectionData& pParent)
 // X86PLT
 //===----------------------------------------------------------------------===//
 X86PLT::X86PLT(LDSection& pSection, const LinkerConfig& pConfig, int got_size)
-  : PLT(pSection),
-    m_Config(pConfig)
+    : PLT(pSection),
+      m_Config(pConfig)
 {
   assert(LinkerConfig::DynObj == m_Config.codeGenType() ||
          LinkerConfig::Exec   == m_Config.codeGenType() ||
@@ -70,8 +70,7 @@ X86PLT::X86PLT(LDSection& pSection, const LinkerConfig& pConfig, int got_size)
       m_PLT1Size = sizeof (x86_32_dyn_plt1);
       // create PLT0
       new X86_32DynPLT0(*m_pSectionData);
-    }
-    else {
+    } else {
       m_PLT0 = x86_32_exec_plt0;
       m_PLT1 = x86_32_exec_plt1;
       m_PLT0Size = sizeof (x86_32_exec_plt0);
@@ -79,8 +78,7 @@ X86PLT::X86PLT(LDSection& pSection, const LinkerConfig& pConfig, int got_size)
       // create PLT0
       new X86_32ExecPLT0(*m_pSectionData);
     }
-  }
-  else {
+  } else {
     assert(got_size == 64);
     m_PLT0 = x86_64_plt0;
     m_PLT1 = x86_64_plt1;
@@ -150,8 +148,8 @@ PLTEntryBase* X86PLT::getPLT0() const
 X86_32PLT::X86_32PLT(LDSection& pSection,
                      X86_32GOTPLT& pGOTPLT,
                      const LinkerConfig& pConfig)
-  : X86PLT(pSection, pConfig, 32),
-    m_GOTPLT(pGOTPLT) {
+    : X86PLT(pSection, pConfig, 32),
+      m_GOTPLT(pGOTPLT) {
 }
 
 // FIXME: It only works on little endian machine.
@@ -236,8 +234,8 @@ void X86_32PLT::applyPLT1()
 X86_64PLT::X86_64PLT(LDSection& pSection,
                      X86_64GOTPLT& pGOTPLT,
                      const LinkerConfig& pConfig)
-  : X86PLT(pSection, pConfig, 64),
-    m_GOTPLT(pGOTPLT) {
+    : X86PLT(pSection, pConfig, 64),
+      m_GOTPLT(pGOTPLT) {
 }
 
 // FIXME: It only works on little endian machine.
@@ -322,4 +320,3 @@ void X86_64PLT::applyPLT1()
     ++it;
   }
 }
-

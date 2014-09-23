@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include <mcld/Support/TargetRegistry.h>
 #include <mcld/Support/Target.h>
+#include <mcld/Support/TargetRegistry.h>
 
 namespace mcld {
 
@@ -20,5 +20,4 @@ extern "C" void MCLDInitializeARMLDTargetInfo() {
   mcld::RegisterTarget<llvm::Triple::thumb> Y(TheThumbTarget, "thumb");
 }
 
-} // namespace of mcld
-
+} // namespace mcld

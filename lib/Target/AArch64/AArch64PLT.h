@@ -9,9 +9,9 @@
 #ifndef TARGET_AARCH64_AARCH64PLT_H
 #define TARGET_AARCH64_AARCH64PLT_H
 
+#include <mcld/Support/MemoryRegion.h>
 #include <mcld/Target/GOT.h>
 #include <mcld/Target/PLT.h>
-#include <mcld/Support/MemoryRegion.h>
 
 namespace {
 
@@ -80,7 +80,6 @@ private:
   AArch64GOT& m_GOT;
 };
 
-} // namespace of mcld
+} // namespace mcld
 
 #endif
-

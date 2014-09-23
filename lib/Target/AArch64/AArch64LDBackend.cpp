@@ -12,33 +12,33 @@
 #include "AArch64LDBackend.h"
 #include "AArch64Relocator.h"
 
-#include <cstring>
-
-#include <llvm/ADT/Triple.h>
-#include <llvm/ADT/Twine.h>
-#include <llvm/Support/ELF.h>
-#include <llvm/Support/Casting.h>
-
 #include <mcld/IRBuilder.h>
 #include <mcld/LinkerConfig.h>
-#include <mcld/Fragment/FillFragment.h>
 #include <mcld/Fragment/AlignFragment.h>
+#include <mcld/Fragment/FillFragment.h>
+#include <mcld/Fragment/NullFragment.h>
 #include <mcld/Fragment/RegionFragment.h>
 #include <mcld/Fragment/Stub.h>
-#include <mcld/Fragment/NullFragment.h>
+#include <mcld/LD/BranchIslandFactory.h>
+#include <mcld/LD/ELFFileFormat.h>
+#include <mcld/LD/ELFSegment.h>
+#include <mcld/LD/ELFSegmentFactory.h>
+#include <mcld/LD/LDContext.h>
+#include <mcld/LD/StubFactory.h>
 #include <mcld/Support/MemoryRegion.h>
 #include <mcld/Support/MemoryArea.h>
 #include <mcld/Support/MsgHandling.h>
 #include <mcld/Support/TargetRegistry.h>
-#include <mcld/LD/BranchIslandFactory.h>
-#include <mcld/LD/StubFactory.h>
-#include <mcld/LD/LDContext.h>
-#include <mcld/LD/ELFFileFormat.h>
-#include <mcld/LD/ELFSegmentFactory.h>
-#include <mcld/LD/ELFSegment.h>
 #include <mcld/Target/ELFAttribute.h>
 #include <mcld/Target/GNUInfo.h>
 #include <mcld/Object/ObjectBuilder.h>
+
+#include <llvm/ADT/Triple.h>
+#include <llvm/ADT/Twine.h>
+#include <llvm/Support/Casting.h>
+#include <llvm/Support/ELF.h>
+
+#include <cstring>
 
 using namespace mcld;
 
@@ -47,17 +47,17 @@ using namespace mcld;
 //===----------------------------------------------------------------------===//
 AArch64GNULDBackend::AArch64GNULDBackend(const LinkerConfig& pConfig,
                                          GNUInfo* pInfo)
-  : GNULDBackend(pConfig, pInfo),
-    m_pRelocator(NULL),
-    m_pGOT(NULL),
-    m_pGOTPLT(NULL),
-    m_pPLT(NULL),
-    m_pRelaDyn(NULL),
-    m_pRelaPLT(NULL),
-    // m_pAttrData(NULL),
-    m_pDynamic(NULL),
-    m_pGOTSymbol(NULL)
-    // m_pAttributes(NULL)
+    : GNULDBackend(pConfig, pInfo),
+      m_pRelocator(NULL),
+      m_pGOT(NULL),
+      m_pGOTPLT(NULL),
+      m_pPLT(NULL),
+      m_pRelaDyn(NULL),
+      m_pRelaPLT(NULL),
+      // m_pAttrData(NULL),
+      m_pDynamic(NULL),
+      m_pGOTSymbol(NULL)
+      // m_pAttributes(NULL)
 {
 }
 
@@ -87,8 +87,6 @@ AArch64GNULDBackend::~AArch64GNULDBackend()
 void AArch64GNULDBackend::initTargetSections(Module& pModule,
                                              ObjectBuilder& pBuilder)
 {
-  // TODO
-
   if (LinkerConfig::Object != config().codeGenType()) {
     ELFFileFormat* file_format = getOutputFormat();
 
@@ -101,8 +99,7 @@ void AArch64GNULDBackend::initTargetSections(Module& pModule,
       // set m_pGOTPLT to the same .got
       m_pGOT->createGOT0();
       m_pGOTPLT = m_pGOT;
-    }
-    else {
+    } else {
       // Otherwise, got should be seperated to two sections, .got and .got.plt
       // initialize .got.plt
       LDSection& gotplt = file_format->getGOTPLT();
@@ -132,21 +129,20 @@ void AArch64GNULDBackend::initTargetSymbols(IRBuilder& pBuilder,
   // same name in input
   if (LinkerConfig::Object != config().codeGenType()) {
     m_pGOTSymbol = pBuilder.AddSymbol<IRBuilder::AsReferred, IRBuilder::Resolve>(
-                                                  "_GLOBAL_OFFSET_TABLE_",
-                                                  ResolveInfo::Object,
-                                                  ResolveInfo::Define,
-                                                  ResolveInfo::Local,
-                                                  0x0,  // size
-                                                  0x0,  // value
-                                                  FragmentRef::Null(),
-                                                  ResolveInfo::Hidden);
+                      "_GLOBAL_OFFSET_TABLE_",
+                      ResolveInfo::Object,
+                      ResolveInfo::Define,
+                      ResolveInfo::Local,
+                      0x0,  // size
+                      0x0,  // value
+                      FragmentRef::Null(),
+                      ResolveInfo::Hidden);
   }
-  // TODO
 }
 
 bool AArch64GNULDBackend::initRelocator()
 {
-  if (NULL == m_pRelocator) {
+  if (m_pRelocator == NULL) {
     m_pRelocator = new AArch64Relocator(*this, config());
   }
   return true;
@@ -154,13 +150,13 @@ bool AArch64GNULDBackend::initRelocator()
 
 const Relocator* AArch64GNULDBackend::getRelocator() const
 {
-  assert(NULL != m_pRelocator);
+  assert(m_pRelocator != NULL);
   return m_pRelocator;
 }
 
 Relocator* AArch64GNULDBackend::getRelocator()
 {
-  assert(NULL != m_pRelocator);
+  assert(m_pRelocator != NULL);
   return m_pRelocator;
 }
 
@@ -169,32 +165,31 @@ void AArch64GNULDBackend::defineGOTSymbol(IRBuilder& pBuilder)
   // define symbol _GLOBAL_OFFSET_TABLE_ when .got create
   if (m_pGOTSymbol != NULL) {
     pBuilder.AddSymbol<IRBuilder::Force, IRBuilder::Unresolve>(
-                     "_GLOBAL_OFFSET_TABLE_",
-                     ResolveInfo::Object,
-                     ResolveInfo::Define,
-                     ResolveInfo::Local,
-                     0x0, // size
-                     0x0, // value
-                     FragmentRef::Create(*(m_pGOTPLT->begin()), 0x0),
-                     ResolveInfo::Hidden);
-  }
-  else {
+        "_GLOBAL_OFFSET_TABLE_",
+        ResolveInfo::Object,
+        ResolveInfo::Define,
+        ResolveInfo::Local,
+        0x0, // size
+        0x0, // value
+        FragmentRef::Create(*(m_pGOTPLT->begin()), 0x0),
+        ResolveInfo::Hidden);
+  } else {
     m_pGOTSymbol = pBuilder.AddSymbol<IRBuilder::Force, IRBuilder::Resolve>(
-                     "_GLOBAL_OFFSET_TABLE_",
-                     ResolveInfo::Object,
-                     ResolveInfo::Define,
-                     ResolveInfo::Local,
-                     0x0, // size
-                     0x0, // value
-                     FragmentRef::Create(*(m_pGOTPLT->begin()), 0x0),
-                     ResolveInfo::Hidden);
+                      "_GLOBAL_OFFSET_TABLE_",
+                      ResolveInfo::Object,
+                      ResolveInfo::Define,
+                      ResolveInfo::Local,
+                      0x0, // size
+                      0x0, // value
+                      FragmentRef::Create(*(m_pGOTPLT->begin()), 0x0),
+                      ResolveInfo::Hidden);
   }
 }
 
 void AArch64GNULDBackend::doPreLayout(IRBuilder& pBuilder)
 {
   // initialize .dynamic data
-  if (!config().isCodeStatic() && NULL == m_pDynamic)
+  if (!config().isCodeStatic() && m_pDynamic == NULL)
     m_pDynamic = new AArch64ELFDynamic(*this, config());
 
   if (LinkerConfig::Object != config().codeGenType()) {
@@ -203,16 +198,15 @@ void AArch64GNULDBackend::doPreLayout(IRBuilder& pBuilder)
       // when building shared object, the GOTPLT section is must
       if (LinkerConfig::DynObj == config().codeGenType() ||
           m_pGOT->hasGOT1() ||
-          NULL != m_pGOTSymbol) {
+          m_pGOTSymbol != NULL) {
         m_pGOT->finalizeSectionSize();
         defineGOTSymbol(pBuilder);
       }
-    }
-    else {
+    } else {
       // when building shared object, the GOTPLT section is must
       if (LinkerConfig::DynObj == config().codeGenType() ||
           m_pGOTPLT->hasGOT1() ||
-          NULL != m_pGOTSymbol) {
+          m_pGOTSymbol != NULL) {
         m_pGOTPLT->finalizeSectionSize();
         defineGOTSymbol(pBuilder);
       }
@@ -230,7 +224,7 @@ void AArch64GNULDBackend::doPreLayout(IRBuilder& pBuilder)
       assert(!config().isCodeStatic() &&
             "static linkage should not result in a dynamic relocation section");
       file_format->getRelaDyn().setSize(
-                                m_pRelaDyn->numOfRelocs() * getRelaEntrySize());
+          m_pRelaDyn->numOfRelocs() * getRelaEntrySize());
     }
 
     // set .rela.plt size
@@ -238,7 +232,7 @@ void AArch64GNULDBackend::doPreLayout(IRBuilder& pBuilder)
       assert(!config().isCodeStatic() &&
             "static linkage should not result in a dynamic relocation section");
       file_format->getRelaPlt().setSize(
-                                m_pRelaPLT->numOfRelocs() * getRelaEntrySize());
+          m_pRelaPLT->numOfRelocs() * getRelaEntrySize());
     }
   }
 }
@@ -249,7 +243,7 @@ void AArch64GNULDBackend::doPostLayout(Module& pModule, IRBuilder& pBuilder)
 
   // apply PLT
   if (file_format->hasPLT()) {
-    assert(NULL != m_pPLT);
+    assert(m_pPLT != NULL);
     m_pPLT->applyPLT0();
     m_pPLT->applyPLT1();
   }
@@ -257,7 +251,7 @@ void AArch64GNULDBackend::doPostLayout(Module& pModule, IRBuilder& pBuilder)
   // apply GOTPLT
   if ((config().options().hasNow() && file_format->hasGOT()) ||
        file_format->hasGOTPLT()) {
-    assert(NULL != m_pGOTPLT);
+    assert(m_pGOTPLT != NULL);
     if (LinkerConfig::DynObj == config().codeGenType())
       m_pGOTPLT->applyGOT0(file_format->getDynamic().addr());
     else {
@@ -269,13 +263,13 @@ void AArch64GNULDBackend::doPostLayout(Module& pModule, IRBuilder& pBuilder)
 
 AArch64ELFDynamic& AArch64GNULDBackend::dynamic()
 {
-  assert(NULL != m_pDynamic);
+  assert(m_pDynamic != NULL);
   return *m_pDynamic;
 }
 
 const AArch64ELFDynamic& AArch64GNULDBackend::dynamic() const
 {
-  assert(NULL != m_pDynamic);
+  assert(m_pDynamic != NULL);
   return *m_pDynamic;
 }
 
@@ -366,61 +360,61 @@ bool AArch64GNULDBackend::readSection(Input& pInput, SectionData& pSD)
 
 AArch64GOT& AArch64GNULDBackend::getGOT()
 {
-  assert(NULL != m_pGOT && "GOT section not exist");
+  assert(m_pGOT != NULL && "GOT section not exist");
   return *m_pGOT;
 }
 
 const AArch64GOT& AArch64GNULDBackend::getGOT() const
 {
-  assert(NULL != m_pGOT && "GOT section not exist");
+  assert(m_pGOT != NULL && "GOT section not exist");
   return *m_pGOT;
 }
 
 AArch64GOT& AArch64GNULDBackend::getGOTPLT()
 {
-  assert(NULL != m_pGOTPLT && "GOTPLT section not exist");
+  assert(m_pGOTPLT != NULL && "GOTPLT section not exist");
   return *m_pGOTPLT;
 }
 
 const AArch64GOT& AArch64GNULDBackend::getGOTPLT() const
 {
-  assert(NULL != m_pGOTPLT && "GOTPLT section not exist");
+  assert(m_pGOTPLT != NULL && "GOTPLT section not exist");
   return *m_pGOTPLT;
 }
 
 AArch64PLT& AArch64GNULDBackend::getPLT()
 {
-  assert(NULL != m_pPLT && "PLT section not exist");
+  assert(m_pPLT != NULL && "PLT section not exist");
   return *m_pPLT;
 }
 
 const AArch64PLT& AArch64GNULDBackend::getPLT() const
 {
-  assert(NULL != m_pPLT && "PLT section not exist");
+  assert(m_pPLT != NULL && "PLT section not exist");
   return *m_pPLT;
 }
 
 OutputRelocSection& AArch64GNULDBackend::getRelaDyn()
 {
-  assert(NULL != m_pRelaDyn && ".rela.dyn section not exist");
+  assert(m_pRelaDyn != NULL && ".rela.dyn section not exist");
   return *m_pRelaDyn;
 }
 
 const OutputRelocSection& AArch64GNULDBackend::getRelaDyn() const
 {
-  assert(NULL != m_pRelaDyn && ".rela.dyn section not exist");
+  assert(m_pRelaDyn != NULL && ".rela.dyn section not exist");
   return *m_pRelaDyn;
 }
 
 OutputRelocSection& AArch64GNULDBackend::getRelaPLT()
 {
-  assert(NULL != m_pRelaPLT && ".rela.plt section not exist");
+  assert(m_pRelaPLT != NULL && ".rela.plt section not exist");
   return *m_pRelaPLT;
 }
 
 const OutputRelocSection& AArch64GNULDBackend::getRelaPLT() const
 {
-  assert(NULL != m_pRelaPLT && ".rela.plt section not exist");
+  assert(m_pRelaPLT != NULL && ".rela.plt section not exist");
   return *m_pRelaPLT;
 }
 
@@ -449,10 +443,10 @@ TargetLDBackend* createAArch64LDBackend(const LinkerConfig& pConfig)
     **/
   }
   return new AArch64GNULDBackend(pConfig,
-     new AArch64GNUInfo(pConfig.targets().triple()));
+             new AArch64GNUInfo(pConfig.targets().triple()));
 }
 
-} // namespace of mcld
+} // namespace mcld
 
 //===----------------------------------------------------------------------===//
 // Force static initialization.
@@ -462,4 +456,3 @@ extern "C" void MCLDInitializeAArch64LDBackend() {
   mcld::TargetRegistry::RegisterTargetLDBackend(TheAArch64Target,
                                                 createAArch64LDBackend);
 }
-

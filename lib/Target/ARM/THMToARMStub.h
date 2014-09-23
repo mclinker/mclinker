@@ -10,8 +10,8 @@
 #ifndef TARGET_ARM_THMTOARMSTUB_H
 #define TARGET_ARM_THMTOARMSTUB_H
 
-#include <llvm/Support/DataTypes.h>
 #include <mcld/Fragment/Stub.h>
+#include <llvm/Support/DataTypes.h>
 #include <string>
 
 namespace mcld
@@ -72,6 +72,6 @@ private:
   bool m_bUsingThumb2;
 };
 
-} // namespace of mcld
+} // namespace mcld
 
 #endif
