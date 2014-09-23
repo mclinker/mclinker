@@ -7,6 +7,7 @@
 //
 //===----------------------------------------------------------------------===//
 #include <mcld/Script/SearchDirCmd.h>
+
 #include <mcld/Support/raw_ostream.h>
 #include <mcld/LinkerScript.h>
 #include <mcld/Module.h>
@@ -17,8 +18,8 @@ using namespace mcld;
 // SearchDirCmd
 //===----------------------------------------------------------------------===//
 SearchDirCmd::SearchDirCmd(const std::string& pPath)
-  : ScriptCommand(ScriptCommand::SEARCH_DIR),
-    m_Path(pPath)
+    : ScriptCommand(ScriptCommand::SEARCH_DIR),
+      m_Path(pPath)
 {
 }
 

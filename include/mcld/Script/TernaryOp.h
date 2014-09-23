@@ -10,14 +10,15 @@
 #define MCLD_SCRIPT_TERNARYOP_H
 
 #include <mcld/Script/Operator.h>
+
 #include <cstddef>
 
 namespace mcld
 {
 
-class Operand;
 class IntOperand;
 class Module;
+class Operand;
 class TargetLDBackend;
 
 /** \class TernaryOP
@@ -31,14 +32,14 @@ private:
   friend class Operator;
 
   TernaryOp()
-    : Operator(Operator::TERNARY, TYPE)
+      : Operator(Operator::TERNARY, TYPE)
   {
     m_pOperand[0] = m_pOperand[1] = m_pOperand[2] = NULL;
   }
 
 public:
   ~TernaryOp()
-  {}
+  { }
 
   IntOperand* eval(const Module& pModule, const TargetLDBackend& pBackend);
 
@@ -63,6 +64,6 @@ IntOperand*
 TernaryOp<Operator::DATA_SEGMENT_ALIGN>::eval(const Module&,
                                               const TargetLDBackend&);
 
-} // namespace of mcld
+} // namespace mcld
 
 #endif

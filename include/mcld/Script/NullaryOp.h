@@ -10,6 +10,7 @@
 #define MCLD_SCRIPT_NULLOP_H
 
 #include <mcld/Script/Operator.h>
+
 #include <cassert>
 
 namespace mcld
@@ -32,11 +33,11 @@ private:
 
   NullaryOp()
     : Operator(Operator::NULLARY, TYPE)
-  {}
+  { }
 
 public:
   ~NullaryOp()
-  {}
+  { }
 
   IntOperand* eval(const Module& pModule, const TargetLDBackend& pBackend);
 
@@ -57,6 +58,6 @@ template<>
 IntOperand* NullaryOp<Operator::COMMONPAGESIZE>::eval(const Module&,
                                                       const TargetLDBackend&);
 
-} // namespace of mcld
+} // namespace mcld
 
 #endif

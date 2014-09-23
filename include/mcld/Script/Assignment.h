@@ -15,9 +15,9 @@ namespace mcld
 {
 
 class Module;
+class RpnEvaluator;
 class RpnExpr;
 class SymOperand;
-class RpnEvaluator;
 
 /** \class Assignment
  *  \brief This class defines the interfaces to assignment command.
@@ -78,6 +78,6 @@ private:
   RpnExpr& m_RpnExpr;
 };
 
-} // namespace of mcld
+} // namespace mcld
 
 #endif

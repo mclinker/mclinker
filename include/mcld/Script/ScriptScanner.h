@@ -53,6 +53,6 @@ private:
   std::stack<ScriptFile::Kind> m_StateStack;
 };
 
-} // namespace of mcld
+} // namespace mcld
 
 #endif

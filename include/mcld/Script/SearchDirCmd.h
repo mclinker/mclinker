@@ -10,6 +10,7 @@
 #define MCLD_SCRIPT_SEARCHDIRCMD_H
 
 #include <mcld/Script/ScriptCommand.h>
+
 #include <string>
 
 namespace mcld
@@ -40,6 +41,6 @@ private:
   std::string m_Path;
 };
 
-} // namespace of mcld
+} // namespace mcld
 
 #endif

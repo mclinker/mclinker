@@ -7,7 +7,9 @@
 //
 //===----------------------------------------------------------------------===//
 #include <mcld/Script/FileToken.h>
+
 #include <mcld/Support/GCFactory.h>
+
 #include <llvm/Support/ManagedStatic.h>
 
 using namespace mcld;
@@ -23,7 +25,7 @@ FileToken::FileToken()
 }
 
 FileToken::FileToken(const std::string& pName, bool pAsNeeded)
-  : InputToken(InputToken::File, pName, pAsNeeded)
+    : InputToken(InputToken::File, pName, pAsNeeded)
 {
 }
 

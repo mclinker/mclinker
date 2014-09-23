@@ -47,6 +47,6 @@ private:
   GroupReader& m_GroupReader;
 };
 
-} // namespace of mcld
+} // namespace mcld
 
 #endif

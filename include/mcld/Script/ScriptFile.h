@@ -10,10 +10,11 @@
 #define MCLD_SCRIPT_SCRIPTFILE_H
 
 #include <mcld/Script/Assignment.h>
-#include <mcld/Script/OutputSectDesc.h>
 #include <mcld/Script/InputSectDesc.h>
-#include <vector>
+#include <mcld/Script/OutputSectDesc.h>
+
 #include <string>
+#include <vector>
 
 namespace mcld
 {
@@ -22,8 +23,8 @@ class ArchiveReader;
 class DynObjReader;
 class GroupReader;
 class Input;
-class InputTree;
 class InputBuilder;
+class InputTree;
 class LinkerConfig;
 class Module;
 class ObjectReader;
@@ -167,6 +168,6 @@ private:
   bool m_bAsNeeded;
 };
 
-} // namespace of mcld
+} // namespace mcld
 
 #endif

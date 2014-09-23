@@ -7,9 +7,10 @@
 //
 //===----------------------------------------------------------------------===//
 #include <mcld/Script/ScriptReader.h>
-#include <mcld/Script/ScriptScanner.h>
-#include <mcld/Script/ScriptFile.h>
+
 #include <mcld/MC/Input.h>
+#include <mcld/Script/ScriptFile.h>
+#include <mcld/Script/ScriptScanner.h>
 #include <mcld/Support/MemoryArea.h>
 
 #include <llvm/ADT/StringRef.h>
@@ -23,10 +24,10 @@ ScriptReader::ScriptReader(ObjectReader& pObjectReader,
                            ArchiveReader& pArchiveReader,
                            DynObjReader& pDynObjReader,
                            GroupReader& pGroupReader)
-  : m_ObjectReader(pObjectReader),
-    m_ArchiveReader(pArchiveReader),
-    m_DynObjReader(pDynObjReader),
-    m_GroupReader(pGroupReader)
+    : m_ObjectReader(pObjectReader),
+      m_ArchiveReader(pArchiveReader),
+      m_DynObjReader(pDynObjReader),
+      m_GroupReader(pGroupReader)
 {
 }
 

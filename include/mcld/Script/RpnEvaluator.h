@@ -9,10 +9,12 @@
 #ifndef MCLD_SCRIPT_RPNEVALUATOR_H
 #define MCLD_SCRIPT_RPNEVALUATOR_H
 
+#include <cstdint>
+
 namespace mcld {
 
-class RpnExpr;
 class Module;
+class RpnExpr;
 class TargetLDBackend;
 
 /** \class RpnEvaluator
@@ -31,6 +33,6 @@ private:
   const TargetLDBackend& m_Backend;
 };
 
-} // mcld
+} // namespace mcld
 
 #endif

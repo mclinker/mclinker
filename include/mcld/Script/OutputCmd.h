@@ -10,6 +10,7 @@
 #define MCLD_SCRIPT_OUTPUTCMD_H
 
 #include <mcld/Script/ScriptCommand.h>
+
 #include <string>
 
 namespace mcld
@@ -41,6 +42,6 @@ private:
   std::string m_OutputFile;
 };
 
-} // namespace of mcld
+} // namespace mcld
 
 #endif

@@ -48,6 +48,6 @@ private:
   bool m_bAsNeeded;
 };
 
-} // namepsace of mcld
+} // namepsace mcld
 
 #endif

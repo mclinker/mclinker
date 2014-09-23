@@ -10,8 +10,10 @@
 #define MCLD_SCRIPT_OUTPUTSECTDESC_H
 
 #include <mcld/Script/ScriptCommand.h>
-#include <vector>
+
 #include <string>
+#include <vector>
+
 #include <cassert>
 
 namespace mcld
@@ -206,6 +208,6 @@ private:
   Epilog m_Epilog;
 };
 
-} // namespace of mcld
+} // namespace mcld
 
 #endif

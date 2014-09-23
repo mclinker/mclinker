@@ -7,11 +7,14 @@
 //
 //===----------------------------------------------------------------------===//
 #include <mcld/Script/UnaryOp.h>
-#include <mcld/Script/Operand.h>
-#include <mcld/Object/SectionMap.h>
+
 #include <mcld/LD/LDSection.h>
+#include <mcld/Object/SectionMap.h>
+#include <mcld/Script/Operand.h>
 #include <mcld/Module.h>
+
 #include <llvm/Support/Casting.h>
+
 #include <cassert>
 
 using namespace mcld;
@@ -73,15 +76,16 @@ IntOperand* UnaryOp<Operator::ADDR>::eval(const Module& pModule,
   IntOperand* res = result();
   const LDSection* sect = NULL;
   switch (m_pOperand->type()) {
-  case Operand::SECTION:
-    sect = pModule.getSection(llvm::cast<SectOperand>(m_pOperand)->name());
-    break;
-  case Operand::SECTION_DESC:
-    sect = llvm::cast<SectDescOperand>(m_pOperand)->outputDesc()->getSection();
-    break;
-  default:
-    assert(0);
-    break;
+    case Operand::SECTION:
+      sect = pModule.getSection(llvm::cast<SectOperand>(m_pOperand)->name());
+      break;
+    case Operand::SECTION_DESC:
+      sect =
+          llvm::cast<SectDescOperand>(m_pOperand)->outputDesc()->getSection();
+      break;
+    default:
+      assert(0);
+      break;
   }
   assert(sect != NULL);
   res->setValue(sect->addr());
@@ -95,15 +99,16 @@ IntOperand* UnaryOp<Operator::ALIGNOF>::eval(const Module& pModule,
   IntOperand* res = result();
   const LDSection* sect = NULL;
   switch (m_pOperand->type()) {
-  case Operand::SECTION:
-    sect = pModule.getSection(llvm::cast<SectOperand>(m_pOperand)->name());
-    break;
-  case Operand::SECTION_DESC:
-    sect = llvm::cast<SectDescOperand>(m_pOperand)->outputDesc()->getSection();
-    break;
-  default:
-    assert(0);
-    break;
+    case Operand::SECTION:
+      sect = pModule.getSection(llvm::cast<SectOperand>(m_pOperand)->name());
+      break;
+    case Operand::SECTION_DESC:
+      sect =
+          llvm::cast<SectDescOperand>(m_pOperand)->outputDesc()->getSection();
+      break;
+    default:
+      assert(0);
+      break;
   }
   assert(sect != NULL);
   res->setValue(sect->align());
@@ -172,15 +177,16 @@ IntOperand* UnaryOp<Operator::SIZEOF>::eval(const Module& pModule,
   IntOperand* res = result();
   const LDSection* sect = NULL;
   switch (m_pOperand->type()) {
-  case Operand::SECTION:
-    sect = pModule.getSection(llvm::cast<SectOperand>(m_pOperand)->name());
-    break;
-  case Operand::SECTION_DESC:
-    sect = llvm::cast<SectDescOperand>(m_pOperand)->outputDesc()->getSection();
-    break;
-  default:
-    assert(0);
-    break;
+    case Operand::SECTION:
+      sect = pModule.getSection(llvm::cast<SectOperand>(m_pOperand)->name());
+      break;
+    case Operand::SECTION_DESC:
+      sect =
+          llvm::cast<SectDescOperand>(m_pOperand)->outputDesc()->getSection();
+      break;
+    default:
+      assert(0);
+      break;
   }
   assert(sect != NULL);
   res->setValue(sect->size());

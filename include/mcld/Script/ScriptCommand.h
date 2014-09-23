@@ -36,8 +36,8 @@ public:
 
 protected:
   ScriptCommand(Kind pKind)
-    : m_Kind(pKind)
-  {}
+      : m_Kind(pKind)
+  { }
 
 public:
   virtual ~ScriptCommand() = 0;
@@ -52,6 +52,6 @@ private:
   Kind m_Kind;
 };
 
-} // namespace of mcld
+} // namespace mcld
 
 #endif

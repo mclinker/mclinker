@@ -26,12 +26,12 @@ public:
 
 protected:
   ExprToken(Kind pKind)
-    : m_Kind(pKind)
-  {}
+      : m_Kind(pKind)
+  { }
 
 public:
   virtual ~ExprToken()
-  {}
+  { }
 
   virtual void dump() const = 0;
 
@@ -41,6 +41,6 @@ private:
   Kind m_Kind;
 };
 
-} // namespace of mcld
+} // namespace mcld
 
 #endif

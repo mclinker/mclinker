@@ -29,8 +29,10 @@
 #include <mcld/MC/InputBuilder.h>
 #include <mcld/Support/MemoryArea.h>
 #include <mcld/InputTree.h>
+
 #include <llvm/Support/Casting.h>
 #include <llvm/Support/ManagedStatic.h>
+
 #include <cassert>
 
 using namespace mcld;
@@ -47,17 +49,17 @@ static llvm::ManagedStatic<ParserStrPool> g_ParserStrPool;
 // ScriptFile
 //===----------------------------------------------------------------------===//
 ScriptFile::ScriptFile(Kind pKind, Input& pInput, InputBuilder& pBuilder)
-  : m_Kind(pKind),
-    m_Input(pInput),
-    m_Name(pInput.path().native()),
-    m_pInputTree(NULL),
-    m_Builder(pBuilder),
-    m_bHasSectionsCmd(false),
-    m_bInSectionsCmd(false),
-    m_bInOutputSectDesc(false),
-    m_pRpnExpr(NULL),
-    m_pStringList(NULL),
-    m_bAsNeeded(false)
+    : m_Kind(pKind),
+      m_Input(pInput),
+      m_Name(pInput.path().native()),
+      m_pInputTree(NULL),
+      m_Builder(pBuilder),
+      m_bHasSectionsCmd(false),
+      m_bInSectionsCmd(false),
+      m_bInOutputSectDesc(false),
+      m_pRpnExpr(NULL),
+      m_pStringList(NULL),
+      m_bAsNeeded(false)
 {
   // FIXME: move creation of input tree out of ScriptFile.
   m_pInputTree = new InputTree();
@@ -124,8 +126,11 @@ void ScriptFile::addGroupCmd(StringList& pStringList,
                              GroupReader& pGroupReader,
                              const LinkerConfig& pConfig)
 {
-  m_CommandQueue.push_back(
-    new GroupCmd(pStringList, *m_pInputTree, m_Builder, pGroupReader, pConfig));
+  m_CommandQueue.push_back(new GroupCmd(pStringList,
+                                        *m_pInputTree,
+                                        m_Builder,
+                                        pGroupReader,
+                                        pConfig));
 }
 
 void ScriptFile::addOutputCmd(const std::string& pFileName)

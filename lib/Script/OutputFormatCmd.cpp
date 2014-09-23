@@ -15,7 +15,7 @@ using namespace mcld;
 // OutputFormatCmd
 //===----------------------------------------------------------------------===//
 OutputFormatCmd::OutputFormatCmd(const std::string& pFormat)
-  : ScriptCommand(ScriptCommand::OUTPUT_FORMAT)
+    : ScriptCommand(ScriptCommand::OUTPUT_FORMAT)
 {
   m_FormatList.push_back(pFormat);
 }
@@ -23,7 +23,7 @@ OutputFormatCmd::OutputFormatCmd(const std::string& pFormat)
 OutputFormatCmd::OutputFormatCmd(const std::string& pDefault,
                                  const std::string& pBig,
                                  const std::string& pLittle)
-  : ScriptCommand(ScriptCommand::OUTPUT_FORMAT)
+    : ScriptCommand(ScriptCommand::OUTPUT_FORMAT)
 {
   m_FormatList.push_back(pDefault);
   m_FormatList.push_back(pBig);

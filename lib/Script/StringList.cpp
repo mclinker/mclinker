@@ -7,9 +7,11 @@
 //
 //===----------------------------------------------------------------------===//
 #include <mcld/Script/StringList.h>
+
 #include <mcld/Script/StrToken.h>
-#include <mcld/Support/raw_ostream.h>
 #include <mcld/Support/GCFactory.h>
+#include <mcld/Support/raw_ostream.h>
+
 #include <llvm/Support/ManagedStatic.h>
 
 using namespace mcld;

@@ -7,8 +7,10 @@
 //
 //===----------------------------------------------------------------------===//
 #include <mcld/Script/WildcardPattern.h>
-#include <mcld/Support/raw_ostream.h>
+
 #include <mcld/Support/GCFactory.h>
+#include <mcld/Support/raw_ostream.h>
+
 #include <llvm/Support/ManagedStatic.h>
 #include <cassert>
 
@@ -22,13 +24,13 @@ static llvm::ManagedStatic<WildcardPatternFactory> g_WildcardPatternFactory;
 // WildcardPattern
 //===----------------------------------------------------------------------===//
 WildcardPattern::WildcardPattern()
-  : m_bIsPrefix(false)
+    : m_bIsPrefix(false)
 {
 }
 
 WildcardPattern::WildcardPattern(const std::string& pPattern,
                                  SortPolicy pPolicy)
-  : StrToken(StrToken::Wildcard, pPattern), m_SortPolicy(pPolicy)
+    : StrToken(StrToken::Wildcard, pPattern), m_SortPolicy(pPolicy)
 {
   if (pPattern.find_first_of('*') == (pPattern.size() - 1))
     m_bIsPrefix = true;

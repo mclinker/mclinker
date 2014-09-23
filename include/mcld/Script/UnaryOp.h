@@ -10,14 +10,15 @@
 #define MCLD_SCRIPT_UNARYOP_H
 
 #include <mcld/Script/Operator.h>
+
 #include <cstddef>
 
 namespace mcld
 {
 
-class Operand;
 class IntOperand;
 class Module;
+class Operand;
 class TargetLDBackend;
 
 /** \class UnaryOp
@@ -31,12 +32,12 @@ private:
   friend class Operator;
 
   UnaryOp()
-    : Operator(Operator::UNARY, TYPE), m_pOperand(NULL)
-  {}
+      : Operator(Operator::UNARY, TYPE), m_pOperand(NULL)
+  { }
 
 public:
   ~UnaryOp()
-  {}
+  { }
 
   IntOperand* eval(const Module& pModule, const TargetLDBackend& pBackend);
 
@@ -93,6 +94,6 @@ template<>
 IntOperand* UnaryOp<Operator::SIZEOF>::eval(const Module&,
                                             const TargetLDBackend&);
 
-} // namespace of mcld
+} // namespace mcld
 
 #endif

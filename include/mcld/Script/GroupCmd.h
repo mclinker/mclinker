@@ -14,11 +14,11 @@
 namespace mcld
 {
 
-class StringList;
 class InputTree;
 class InputBuilder;
 class GroupReader;
 class LinkerConfig;
+class StringList;
 
 /** \class GroupCmd
  *  \brief This class defines the interfaces to Group command.
@@ -51,6 +51,6 @@ private:
   const LinkerConfig& m_Config;
 };
 
-} // namespace of mcld
+} // namespace mcld
 
 #endif

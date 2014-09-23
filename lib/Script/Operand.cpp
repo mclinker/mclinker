@@ -7,11 +7,13 @@
 //
 //===----------------------------------------------------------------------===//
 #include <mcld/Script/Operand.h>
-#include <mcld/Support/raw_ostream.h>
-#include <mcld/Support/GCFactory.h>
+
+#include <mcld/Fragment/Fragment.h>
 #include <mcld/LD/LDSection.h>
 #include <mcld/LD/SectionData.h>
-#include <mcld/Fragment/Fragment.h>
+#include <mcld/Support/GCFactory.h>
+#include <mcld/Support/raw_ostream.h>
+
 #include <llvm/Support/ManagedStatic.h>
 
 using namespace mcld;
@@ -20,7 +22,7 @@ using namespace mcld;
 // Operand
 //===----------------------------------------------------------------------===//
 Operand::Operand(Type pType)
-  : ExprToken(ExprToken::OPERAND), m_Type(pType)
+    : ExprToken(ExprToken::OPERAND), m_Type(pType)
 {
 }
 
@@ -35,12 +37,12 @@ typedef GCFactory<SymOperand, MCLD_SYMBOLS_PER_INPUT> SymOperandFactory;
 static llvm::ManagedStatic<SymOperandFactory> g_SymOperandFactory;
 
 SymOperand::SymOperand()
-  : Operand(Operand::SYMBOL), m_Value(0)
+    : Operand(Operand::SYMBOL), m_Value(0)
 {
 }
 
 SymOperand::SymOperand(const std::string& pName)
-  : Operand(Operand::SYMBOL), m_Name(pName), m_Value(0)
+    : Operand(Operand::SYMBOL), m_Name(pName), m_Value(0)
 {
 }
 
@@ -81,12 +83,12 @@ typedef GCFactory<IntOperand, MCLD_SYMBOLS_PER_INPUT> IntOperandFactory;
 static llvm::ManagedStatic<IntOperandFactory> g_IntOperandFactory;
 
 IntOperand::IntOperand()
-  : Operand(Operand::INTEGER), m_Value(0)
+    : Operand(Operand::INTEGER), m_Value(0)
 {
 }
 
 IntOperand::IntOperand(uint64_t pValue)
-  : Operand(Operand::INTEGER), m_Value(pValue)
+    : Operand(Operand::INTEGER), m_Value(pValue)
 {
 }
 
@@ -120,12 +122,12 @@ void IntOperand::clear()
 typedef GCFactory<SectOperand, MCLD_SECTIONS_PER_INPUT> SectOperandFactory;
 static llvm::ManagedStatic<SectOperandFactory> g_SectOperandFactory;
 SectOperand::SectOperand()
-  : Operand(Operand::SECTION)
+    : Operand(Operand::SECTION)
 {
 }
 
 SectOperand::SectOperand(const std::string& pName)
-  : Operand(Operand::SECTION), m_Name(pName)
+    : Operand(Operand::SECTION), m_Name(pName)
 {
 }
 
@@ -160,12 +162,12 @@ typedef GCFactory<SectDescOperand,
                   MCLD_SECTIONS_PER_INPUT> SectDescOperandFactory;
 static llvm::ManagedStatic<SectDescOperandFactory> g_SectDescOperandFactory;
 SectDescOperand::SectDescOperand()
-  : Operand(Operand::SECTION_DESC), m_pOutputDesc(NULL)
+    : Operand(Operand::SECTION_DESC), m_pOutputDesc(NULL)
 {
 }
 
 SectDescOperand::SectDescOperand(const SectionMap::Output* pOutputDesc)
-  : Operand(Operand::SECTION_DESC), m_pOutputDesc(pOutputDesc)
+    : Operand(Operand::SECTION_DESC), m_pOutputDesc(pOutputDesc)
 {
 }
 
@@ -201,12 +203,12 @@ typedef GCFactory<FragOperand, MCLD_SYMBOLS_PER_INPUT> FragOperandFactory;
 static llvm::ManagedStatic<FragOperandFactory> g_FragOperandFactory;
 
 FragOperand::FragOperand()
-  : Operand(Operand::FRAGMENT), m_pFragment(NULL)
+    : Operand(Operand::FRAGMENT), m_pFragment(NULL)
 {
 }
 
 FragOperand::FragOperand(Fragment& pFragment)
-  : Operand(Operand::FRAGMENT), m_pFragment(&pFragment)
+    : Operand(Operand::FRAGMENT), m_pFragment(&pFragment)
 {
 }
 

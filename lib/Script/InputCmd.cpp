@@ -7,22 +7,25 @@
 //
 //===----------------------------------------------------------------------===//
 #include <mcld/Script/InputCmd.h>
-#include <mcld/Script/StringList.h>
-#include <mcld/Script/InputToken.h>
-#include <mcld/MC/InputBuilder.h>
-#include <mcld/MC/Attribute.h>
-#include <mcld/Support/Path.h>
-#include <mcld/Support/raw_ostream.h>
-#include <mcld/Support/MsgHandling.h>
-#include <mcld/InputTree.h>
-#include <mcld/LinkerScript.h>
+
 #include <mcld/LD/Archive.h>
 #include <mcld/LD/ArchiveReader.h>
 #include <mcld/LD/DynObjReader.h>
 #include <mcld/LD/ObjectReader.h>
+#include <mcld/MC/Attribute.h>
+#include <mcld/MC/InputBuilder.h>
+#include <mcld/Script/InputToken.h>
+#include <mcld/Script/StringList.h>
+#include <mcld/Support/MsgHandling.h>
+#include <mcld/Support/Path.h>
+#include <mcld/Support/raw_ostream.h>
+#include <mcld/InputTree.h>
+#include <mcld/LinkerScript.h>
 #include <mcld/LinkerConfig.h>
 #include <mcld/Module.h>
+
 #include <llvm/Support/Casting.h>
+
 #include <cassert>
 #include <iostream>
 
@@ -38,14 +41,14 @@ InputCmd::InputCmd(StringList& pStringList,
                    ArchiveReader& pArchiveReader,
                    DynObjReader& pDynObjReader,
                    const LinkerConfig& pConfig)
-  : ScriptCommand(ScriptCommand::INPUT),
-    m_StringList(pStringList),
-    m_InputTree(pInputTree),
-    m_Builder(pBuilder),
-    m_ObjectReader(pObjectReader),
-    m_ArchiveReader(pArchiveReader),
-    m_DynObjReader(pDynObjReader),
-    m_Config(pConfig)
+    : ScriptCommand(ScriptCommand::INPUT),
+      m_StringList(pStringList),
+      m_InputTree(pInputTree),
+      m_Builder(pBuilder),
+      m_ObjectReader(pObjectReader),
+      m_ArchiveReader(pArchiveReader),
+      m_DynObjReader(pDynObjReader),
+      m_Config(pConfig)
 {
 }
 
@@ -100,65 +103,66 @@ void InputCmd::activate(Module& pModule)
       m_Builder.getAttributes().unsetAsNeeded();
 
     switch (token->type()) {
-    case InputToken::File: {
-      sys::fs::Path path;
+      case InputToken::File: {
+        sys::fs::Path path;
 
-      // 1. Looking for file in the sysroot prefix, if a sysroot prefix is
-      // configured and the filename starts with '/'
-      if (script.hasSysroot() &&
-          (token->name().size() > 0 && token->name()[0] == '/')) {
-          path = script.sysroot();
-          path.append(token->name());
-      } else {
-        // 2. Try to open the file in CWD
-        path.assign(token->name());
-        if (!sys::fs::exists(path)) {
-          // 3. Search through the library search path
-          sys::fs::Path* p = script.directories().find(token->name(),
-                                                       Input::Script);
-          if (p != NULL)
-            path = *p;
-        }
-      }
-
-      if (!sys::fs::exists(path))
-        fatal(diag::err_cannot_open_input) << path.filename() << path;
-
-      m_Builder.createNode<InputTree::Positional>(path.filename().native(),
-                                                  path,
-                                                  Input::Unknown);
-      break;
-    }
-    case InputToken::NameSpec: {
-      const sys::fs::Path* path = NULL;
-      // find out the real path of the namespec.
-      if (m_Builder.getConstraint().isSharedSystem()) {
-        // In the system with shared object support, we can find both archive
-        // and shared object.
-        if (m_Builder.getAttributes().isStatic()) {
-          // with --static, we must search an archive.
-          path = script.directories().find(token->name(), Input::Archive);
+        // 1. Looking for file in the sysroot prefix, if a sysroot prefix is
+        // configured and the filename starts with '/'
+        if (script.hasSysroot() &&
+            (token->name().size() > 0 && token->name()[0] == '/')) {
+            path = script.sysroot();
+            path.append(token->name());
         } else {
-          // otherwise, with --Bdynamic, we can find either an archive or a
-          // shared object.
-          path = script.directories().find(token->name(), Input::DynObj);
+          // 2. Try to open the file in CWD
+          path.assign(token->name());
+          if (!sys::fs::exists(path)) {
+            // 3. Search through the library search path
+            sys::fs::Path* p = script.directories().find(token->name(),
+                                                         Input::Script);
+            if (p != NULL)
+              path = *p;
+          }
         }
-      } else {
-        // In the system without shared object support, only look for an archive
-        path = script.directories().find(token->name(), Input::Archive);
+
+        if (!sys::fs::exists(path))
+          fatal(diag::err_cannot_open_input) << path.filename() << path;
+
+        m_Builder.createNode<InputTree::Positional>(path.filename().native(),
+                                                    path,
+                                                    Input::Unknown);
+        break;
       }
+      case InputToken::NameSpec: {
+        const sys::fs::Path* path = NULL;
+        // find out the real path of the namespec.
+        if (m_Builder.getConstraint().isSharedSystem()) {
+          // In the system with shared object support, we can find both archive
+          // and shared object.
+          if (m_Builder.getAttributes().isStatic()) {
+            // with --static, we must search an archive.
+            path = script.directories().find(token->name(), Input::Archive);
+          } else {
+            // otherwise, with --Bdynamic, we can find either an archive or a
+            // shared object.
+            path = script.directories().find(token->name(), Input::DynObj);
+          }
+        } else {
+          // In the system without shared object support, only look for an
+          // archive
+          path = script.directories().find(token->name(), Input::Archive);
+        }
 
-      if (path == NULL)
-        fatal(diag::err_cannot_find_namespec) << token->name();
+        if (path == NULL)
+          fatal(diag::err_cannot_find_namespec) << token->name();
 
-      m_Builder.createNode<InputTree::Positional>(token->name(),
-                                                  *path,
-                                                  Input::Unknown);
-      break;
-    }
-    default:
-      assert(0 && "Invalid script token in INPUT!");
-      break;
+        m_Builder.createNode<InputTree::Positional>(token->name(),
+                                                    *path,
+                                                    Input::Unknown);
+        break;
+      }
+      default:
+        assert(0 && "Invalid script token in INPUT!");
+        break;
     } // end of switch
 
     InputTree::iterator input = m_Builder.getCurrentNode();

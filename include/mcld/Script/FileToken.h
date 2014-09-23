@@ -9,9 +9,9 @@
 #ifndef MCLD_SCRIPT_FILETOKEN_H
 #define MCLD_SCRIPT_FILETOKEN_H
 
+#include <mcld/Config/Config.h>
 #include <mcld/Script/InputToken.h>
 #include <mcld/Support/Allocators.h>
-#include <mcld/Config/Config.h>
 
 namespace mcld
 {
@@ -42,6 +42,6 @@ public:
   static void clear();
 };
 
-} // namepsace of mcld
+} // namepsace mcld
 
 #endif

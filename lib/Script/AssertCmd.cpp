@@ -7,10 +7,11 @@
 //
 //===----------------------------------------------------------------------===//
 #include <mcld/Script/AssertCmd.h>
+
+#include <mcld/LinkerScript.h>
+#include <mcld/Module.h>
 #include <mcld/Script/RpnExpr.h>
 #include <mcld/Support/raw_ostream.h>
-#include <mcld/Module.h>
-#include <mcld/LinkerScript.h>
 
 using namespace mcld;
 
@@ -18,9 +19,9 @@ using namespace mcld;
 // AssertCmd
 //===----------------------------------------------------------------------===//
 AssertCmd::AssertCmd(RpnExpr& pRpnExpr, const std::string& pMessage)
-  : ScriptCommand(ScriptCommand::ASSERT),
-    m_RpnExpr(pRpnExpr),
-    m_Message(pMessage)
+    : ScriptCommand(ScriptCommand::ASSERT),
+      m_RpnExpr(pRpnExpr),
+      m_Message(pMessage)
 {
 }
 

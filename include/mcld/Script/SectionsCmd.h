@@ -10,7 +10,9 @@
 #define MCLD_SCRIPT_SECTIONSCMD_H
 
 #include <mcld/Script/ScriptCommand.h>
+
 #include <llvm/Support/DataTypes.h>
+
 #include <vector>
 
 namespace mcld
@@ -64,6 +66,6 @@ private:
   SectionCommands m_SectionCommands;
 };
 
-} // namespace of mcld
+} // namespace mcld
 
 #endif

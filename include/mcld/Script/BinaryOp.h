@@ -10,6 +10,7 @@
 #define MCLD_SCRIPT_BINARYOP_H
 
 #include <mcld/Script/Operator.h>
+
 #include <cstddef>
 
 namespace mcld
@@ -31,14 +32,14 @@ private:
   friend class Operator;
 
   BinaryOp()
-    : Operator(Operator::BINARY, TYPE), m_Size(0)
+      : Operator(Operator::BINARY, TYPE), m_Size(0)
   {
     m_pOperand[0] = m_pOperand[1] = NULL;
   }
 
 public:
   ~BinaryOp()
-  {}
+  { }
 
   IntOperand* eval(const Module& pModule, const TargetLDBackend& pBackend);
 
@@ -126,6 +127,6 @@ template<>
 IntOperand* BinaryOp<Operator::SEGMENT_START>::eval(const Module&,
                                                     const TargetLDBackend&);
 
-} // namespace of mcld
+} // namespace mcld
 
 #endif

@@ -7,7 +7,9 @@
 //
 //===----------------------------------------------------------------------===//
 #include <mcld/Script/StrToken.h>
+
 #include <mcld/Support/GCFactory.h>
+
 #include <llvm/Support/ManagedStatic.h>
 
 using namespace mcld;
@@ -19,12 +21,12 @@ static llvm::ManagedStatic<StrTokenFactory> g_StrTokenFactory;
 // StrToken
 //===----------------------------------------------------------------------===//
 StrToken::StrToken()
-  : m_Kind(Unknown)
+    : m_Kind(Unknown)
 {
 }
 
 StrToken::StrToken(Kind pKind, const std::string& pString)
-  : m_Kind(pKind), m_Name(pString)
+    : m_Kind(pKind), m_Name(pString)
 {
 }
 

@@ -7,7 +7,9 @@
 //
 //===----------------------------------------------------------------------===//
 #include <mcld/Script/NameSpec.h>
+
 #include <mcld/Support/GCFactory.h>
+
 #include <llvm/Support/ManagedStatic.h>
 
 using namespace mcld;
@@ -23,7 +25,7 @@ NameSpec::NameSpec()
 }
 
 NameSpec::NameSpec(const std::string& pName, bool pAsNeeded)
-  : InputToken(InputToken::NameSpec, pName, pAsNeeded)
+    : InputToken(InputToken::NameSpec, pName, pAsNeeded)
 {
 }
 

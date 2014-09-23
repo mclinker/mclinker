@@ -10,6 +10,7 @@
 #define MCLD_SCRIPT_ASSERTCMD_H
 
 #include <mcld/Script/ScriptCommand.h>
+
 #include <string>
 
 namespace mcld
@@ -50,6 +51,6 @@ private:
   std::string m_Message;
 };
 
-} // namespace of mcld
+} // namespace mcld
 
 #endif

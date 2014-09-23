@@ -16,8 +16,8 @@ namespace mcld
 
 class ArchiveReader;
 class DynObjReader;
-class InputTree;
 class InputBuilder;
+class InputTree;
 class LinkerConfig;
 class ObjectReader;
 class StringList;
@@ -57,6 +57,6 @@ private:
   const LinkerConfig& m_Config;
 };
 
-} // namespace of mcld
+} // namespace mcld
 
 #endif

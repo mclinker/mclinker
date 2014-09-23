@@ -9,12 +9,15 @@
 #ifndef MCLD_SCRIPT_OPERAND_H
 #define MCLD_SCRIPT_OPERAND_H
 
-#include <mcld/Script/ExprToken.h>
-#include <mcld/Object/SectionMap.h>
-#include <mcld/Support/Allocators.h>
 #include <mcld/Config/Config.h>
+#include <mcld/Object/SectionMap.h>
+#include <mcld/Script/ExprToken.h>
+#include <mcld/Support/Allocators.h>
+
 #include <llvm/Support/DataTypes.h>
+
 #include <string>
+
 #include <cassert>
 
 namespace mcld
@@ -232,6 +235,6 @@ private:
   Fragment* m_pFragment;
 };
 
-} // namespace of mcld
+} // namespace mcld
 
 #endif

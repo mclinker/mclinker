@@ -10,6 +10,7 @@
 #define MCLD_SCRIPT_OUTPUTFORMATCMD_H
 
 #include <mcld/Script/ScriptCommand.h>
+
 #include <string>
 #include <vector>
 
@@ -54,6 +55,6 @@ private:
   FormatList m_FormatList;
 };
 
-} // namespace of mcld
+} // namespace mcld
 
 #endif

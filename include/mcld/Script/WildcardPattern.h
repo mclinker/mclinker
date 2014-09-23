@@ -9,9 +9,10 @@
 #ifndef MCLD_SCRIPT_WILDCARDPATTERN_H
 #define MCLD_SCRIPT_WILDCARDPATTERN_H
 
+#include <mcld/Config/Config.h>
 #include <mcld/Script/StrToken.h>
 #include <mcld/Support/Allocators.h>
-#include <mcld/Config/Config.h>
+
 #include <llvm/ADT/StringRef.h>
 
 namespace mcld
@@ -63,6 +64,6 @@ private:
   bool m_bIsPrefix;
 };
 
-} // namepsace of mcld
+} // namepsace mcld
 
 #endif

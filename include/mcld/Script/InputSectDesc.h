@@ -11,13 +11,14 @@
 
 #include <mcld/Script/ScriptCommand.h>
 #include <mcld/Script/StringList.h>
+
 #include <cassert>
 
 namespace mcld
 {
 
-class WildcardPattern;
 class OutputSectDesc;
+class WildcardPattern;
 
 /** \class InputSectDesc
  *  \brief This class defines the interfaces to input section description.
@@ -97,6 +98,6 @@ private:
   const OutputSectDesc& m_OutputSectDesc;
 };
 
-} // namespace of mcld
+} // namespace mcld
 
 #endif

@@ -11,6 +11,7 @@
 
 #include <mcld/Config/Config.h>
 #include <mcld/Support/Allocators.h>
+
 #include <vector>
 
 namespace mcld
@@ -63,6 +64,6 @@ private:
   Tokens m_Tokens;
 };
 
-} // namepsace of mcld
+} // namepsace mcld
 
 #endif

@@ -15,9 +15,9 @@
 namespace mcld
 {
 
-class Operand;
 class IntOperand;
 class Module;
+class Operand;
 class TargetLDBackend;
 
 /** \class Operator
@@ -222,6 +222,6 @@ Operator& Operator::create<Operator::TERNARY_IF>();
 template<>
 Operator&
 Operator::create<Operator::DATA_SEGMENT_ALIGN>();
-} // namespace of mcld
+} // namespace mcld
 
 #endif

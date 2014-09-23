@@ -9,8 +9,9 @@
 #ifndef MCLD_SCRIPT_STRTOKEN_H
 #define MCLD_SCRIPT_STRTOKEN_H
 
-#include <mcld/Support/Allocators.h>
 #include <mcld/Config/Config.h>
+#include <mcld/Support/Allocators.h>
+
 #include <string>
 
 namespace mcld
@@ -59,6 +60,6 @@ private:
   std::string m_Name;
 };
 
-} // namepsace of mcld
+} // namepsace mcld
 
 #endif

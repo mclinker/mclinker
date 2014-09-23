@@ -7,7 +7,9 @@
 //
 //===----------------------------------------------------------------------===//
 #include <mcld/Script/SectionsCmd.h>
+
 #include <mcld/Support/raw_ostream.h>
+
 #include <cassert>
 
 using namespace mcld;
@@ -16,7 +18,7 @@ using namespace mcld;
 // SectionsCmd
 //===----------------------------------------------------------------------===//
 SectionsCmd::SectionsCmd()
-  : ScriptCommand(ScriptCommand::SECTIONS)
+    : ScriptCommand(ScriptCommand::SECTIONS)
 {
 }
 
@@ -34,15 +36,15 @@ void SectionsCmd::dump() const
 
   for (const_iterator it = begin(), ie = end(); it != ie; ++it) {
     switch ((*it)->getKind()) {
-    case ScriptCommand::ENTRY:
-    case ScriptCommand::ASSIGNMENT:
-    case ScriptCommand::OUTPUT_SECT_DESC:
-      mcld::outs() << "\t";
-      (*it)->dump();
-      break;
-    default:
-      assert(0);
-      break;
+      case ScriptCommand::ENTRY:
+      case ScriptCommand::ASSIGNMENT:
+      case ScriptCommand::OUTPUT_SECT_DESC:
+        mcld::outs() << "\t";
+        (*it)->dump();
+        break;
+      default:
+        assert(0);
+        break;
     }
   }
 
@@ -52,14 +54,14 @@ void SectionsCmd::dump() const
 void SectionsCmd::push_back(ScriptCommand* pCommand)
 {
   switch (pCommand->getKind()) {
-  case ScriptCommand::ENTRY:
-  case ScriptCommand::ASSIGNMENT:
-  case ScriptCommand::OUTPUT_SECT_DESC:
-    m_SectionCommands.push_back(pCommand);
-    break;
-  default:
-    assert(0);
-    break;
+    case ScriptCommand::ENTRY:
+    case ScriptCommand::ASSIGNMENT:
+    case ScriptCommand::OUTPUT_SECT_DESC:
+      m_SectionCommands.push_back(pCommand);
+      break;
+    default:
+      assert(0);
+      break;
   }
 }
 
@@ -70,25 +72,25 @@ void SectionsCmd::activate(Module& pModule)
 
   for (const_iterator it = begin(), ie = end(); it != ie; ++it) {
     switch ((*it)->getKind()) {
-    case ScriptCommand::ENTRY:
-      (*it)->activate(pModule);
-      break;
-    case ScriptCommand::ASSIGNMENT:
-      assignments.push_back(*it);
-      break;
-    case ScriptCommand::OUTPUT_SECT_DESC: {
-      (*it)->activate(pModule);
+      case ScriptCommand::ENTRY:
+        (*it)->activate(pModule);
+        break;
+      case ScriptCommand::ASSIGNMENT:
+        assignments.push_back(*it);
+        break;
+      case ScriptCommand::OUTPUT_SECT_DESC: {
+        (*it)->activate(pModule);
 
-      iterator assign, assignEnd = assignments.end();
-      for (assign = assignments.begin(); assign != assignEnd; ++assign)
-        (*assign)->activate(pModule);
-      assignments.clear();
+        iterator assign, assignEnd = assignments.end();
+        for (assign = assignments.begin(); assign != assignEnd; ++assign)
+          (*assign)->activate(pModule);
+        assignments.clear();
 
-      break;
-    }
-    default:
-      assert(0);
-      break;
+        break;
+      }
+      default:
+        assert(0);
+        break;
     }
   }
 }
