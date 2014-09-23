@@ -30,6 +30,6 @@ public:
   { HashEntryTy::Destroy(pEntry); }
 };
 
-} // namespace of mcld
+} // namespace mcld
 
 #endif

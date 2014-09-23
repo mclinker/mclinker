@@ -99,6 +99,6 @@ private:
   std::string m_OutputFile;
 };
 
-} // namespace of mcld
+} // namespace mcld
 
 #endif

@@ -38,15 +38,15 @@ public:
 
 public:
   PolicyIterator()
-    : Base() {}
+      : Base() { }
 
-  PolicyIterator(const iterator &X)
-    : Base(X.m_pNode) {}
+  PolicyIterator(const iterator& X)
+      : Base(X.m_pNode) { }
 
   explicit PolicyIterator(NodeBase* X)
-    : Base(X) {}
+      : Base(X) { }
 
-  virtual ~PolicyIterator() {}
+  virtual ~PolicyIterator() { }
 
   bool isGroup() const
   { return !Base::hasData() && !Base::isRoot(); }
@@ -104,7 +104,7 @@ protected:
 public:
   // -----  constructors and destructor  ----- //
   BinaryTree()
-  : BinaryTreeBase<Input>()
+      : BinaryTreeBase<Input>()
   { }
 
   ~BinaryTree() {
@@ -318,7 +318,7 @@ bool isGroup(const InputTree::const_dfs_iterator& pos);
 bool isGroup(const InputTree::bfs_iterator& pos);
 bool isGroup(const InputTree::const_bfs_iterator& pos);
 
-} // namespace of mcld
+} // namespace mcld
 
 //===----------------------------------------------------------------------===//
 // template member functions

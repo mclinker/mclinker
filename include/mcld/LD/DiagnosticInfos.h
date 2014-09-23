@@ -27,7 +27,7 @@ namespace diag {
 #undef DIAG
     NUM_OF_BUILDIN_DIAGNOSTIC_INFO
   };
-} // namespace of diag
+} // namespace diag
 
 class DiagnosticEngine;
 class LinkerConfig;

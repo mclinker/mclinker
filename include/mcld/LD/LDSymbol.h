@@ -21,7 +21,7 @@ namespace llvm {
 // forware declaration
 template<class T> void* object_creator();
 
-} // namespace of llvm
+} // namespace llvm
 
 namespace mcld {
 

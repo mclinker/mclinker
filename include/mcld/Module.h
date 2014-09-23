@@ -173,6 +173,6 @@ private:
   std::vector<AliasList*> m_AliasLists;
 };
 
-} // namespace of mcld
+} // namespace mcld
 
 #endif

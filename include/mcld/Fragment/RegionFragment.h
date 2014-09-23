@@ -28,10 +28,10 @@ public:
   const llvm::StringRef getRegion() const { return m_Region; }
   llvm::StringRef       getRegion()       { return m_Region; }
 
-  static bool classof(const Fragment *F)
+  static bool classof(const Fragment* F)
   { return F->getKind() == Fragment::Region; }
 
-  static bool classof(const RegionFragment *)
+  static bool classof(const RegionFragment*)
   { return true; }
 
   size_t size() const;
@@ -40,6 +40,6 @@ private:
   llvm::StringRef m_Region;
 };
 
-} // namespace of mcld
+} // namespace mcld
 
 #endif

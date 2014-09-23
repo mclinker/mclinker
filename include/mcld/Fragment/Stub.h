@@ -105,7 +105,7 @@ public:
   void setSymInfo(ResolveInfo* pSymInfo);
 
   // Stub is a kind of Fragment with type of Stub
-  static bool classof(const Fragment *F)
+  static bool classof(const Fragment* F)
   { return F->getKind() == Fragment::Stub; }
 
   static bool classof(const Stub *)
@@ -127,6 +127,6 @@ private:
   FixupListType m_FixupList;
 };
 
-} // namespace of mcld
+} // namespace mcld
 
 #endif

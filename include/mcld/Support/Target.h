@@ -14,7 +14,7 @@ namespace llvm {
   class Target;
   class Triple;
   class TargetMachine;
-} // namespace of llvm
+} // namespace llvm
 
 namespace mcld {
 

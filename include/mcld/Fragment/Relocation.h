@@ -125,6 +125,6 @@ private:
   Address m_Addend;
 };
 
-} // namespace of mcld
+} // namespace mcld
 
 #endif

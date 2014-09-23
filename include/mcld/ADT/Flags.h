@@ -92,6 +92,6 @@ private:
   unsigned int m_Data;
 };
 
-} // namespace of mcld
+} // namespace mcld
 
 #endif

@@ -37,7 +37,7 @@ public:
 public:
   Fragment();
 
-  Fragment(Type pKind, SectionData *pParent = NULL);
+  Fragment(Type pKind, SectionData* pParent = NULL);
 
   virtual ~Fragment();
 
@@ -46,7 +46,7 @@ public:
   const SectionData* getParent() const { return m_pParent; }
   SectionData*       getParent()       { return m_pParent; }
 
-  void setParent(SectionData *pValue) { m_pParent = pValue; }
+  void setParent(SectionData* pValue) { m_pParent = pValue; }
 
   uint64_t getOffset() const;
 
@@ -54,7 +54,7 @@ public:
 
   bool hasOffset() const;
 
-  static bool classof(const Fragment *O) { return true; }
+  static bool classof(const Fragment* O) { return true; }
 
   virtual size_t size() const {
     assert(false && "Can not call abstract Fragment::size()!");
@@ -62,8 +62,8 @@ public:
   }
 
 private:
-  Fragment(const Fragment& );            // DO NOT IMPLEMENT
-  Fragment& operator=(const Fragment& ); // DO NOT IMPLEMENT
+  Fragment(const Fragment&);            // DO NOT IMPLEMENT
+  Fragment& operator=(const Fragment&); // DO NOT IMPLEMENT
 
 private:
   Type m_Kind;
@@ -73,6 +73,6 @@ private:
   uint64_t m_Offset;
 };
 
-} // namespace of mcld
+} // namespace mcld
 
 #endif

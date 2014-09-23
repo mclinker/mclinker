@@ -27,13 +27,13 @@ public:
   /// size -
   size_t size() const { return 0x0; }
 
-  static bool classof(const Fragment *F)
+  static bool classof(const Fragment* F)
   { return F->getKind() == Fragment::Null; }
 
-  static bool classof(const NullFragment *)
+  static bool classof(const NullFragment*)
   { return true; }
 };
 
-} // namespace of mcld
+} // namespace mcld
 
 #endif

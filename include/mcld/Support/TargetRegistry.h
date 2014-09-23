@@ -16,11 +16,11 @@
 #include <string>
 
 namespace llvm {
-class TargetMachine;
-class MCCodeEmitter;
-class MCContext;
-class AsmPrinter;
-} // namespace of llvm
+  class TargetMachine;
+  class MCCodeEmitter;
+  class MCContext;
+  class AsmPrinter;
+} // namespace llvm
 
 namespace mcld {
 

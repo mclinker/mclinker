@@ -464,6 +464,6 @@ private:
   ExcludeLIBS m_ExcludeLIBS;
 };
 
-} // namespace of mcld
+} // namespace mcld
 
 #endif

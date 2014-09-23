@@ -15,6 +15,6 @@ void Initialize();
 
 void Finalize();
 
-} // namespace of mcld
+} // namespace mcld
 
 #endif

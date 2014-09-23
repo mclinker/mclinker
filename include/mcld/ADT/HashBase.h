@@ -130,11 +130,10 @@ protected:
   unsigned int m_NumOfEntries;
   unsigned int m_NumOfTombstones;
   hasher m_Hasher;
-
 };
 
 #include "HashBase.tcc"
 
-} // namespace of mcld
+} // namespace mcld
 
 #endif

@@ -78,6 +78,6 @@ private:
   ObjectLinker* m_pObjLinker;
 };
 
-} // namespace of MC Linker
+} // namespace MC Linker
 
 #endif

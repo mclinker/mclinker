@@ -22,7 +22,7 @@ enum SHF {
   SHF_MIPS_GPREL = 0x10000000
 }; // enum SHF
 
-} // namespace of ELF
-} // namespace of mcld
+} // namespace ELF
+} // namespace mcld
 
 #endif

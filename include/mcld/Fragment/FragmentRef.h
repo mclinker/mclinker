@@ -92,6 +92,6 @@ private:
   static FragmentRef g_NullFragmentRef;
 };
 
-} // namespace of mcld
+} // namespace mcld
 
 #endif

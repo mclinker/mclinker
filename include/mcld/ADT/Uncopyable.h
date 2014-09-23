@@ -27,6 +27,6 @@ private:
   Uncopyable& operator=(const Uncopyable&); /// NOT TO IMPLEMENT
 };
 
-} // namespace of mcld
+} // namespace mcld
 
 #endif

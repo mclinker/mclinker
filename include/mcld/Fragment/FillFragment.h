@@ -29,10 +29,10 @@ public:
 
   unsigned getValueSize() const { return m_ValueSize; }
 
-  static bool classof(const Fragment *F)
+  static bool classof(const Fragment* F)
   { return F->getKind() == Fragment::Fillment; }
 
-  static bool classof(const FillFragment *) { return true; }
+  static bool classof(const FillFragment*) { return true; }
 
   size_t size() const { return m_Size; }
 
@@ -48,6 +48,6 @@ private:
   uint64_t m_Size;
 };
 
-} // namespace of mcld
+} // namespace mcld
 
 #endif

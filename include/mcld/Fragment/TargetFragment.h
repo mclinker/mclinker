@@ -28,13 +28,13 @@ protected:
 public:
   virtual ~TargetFragment() {}
 
-  static bool classof(const Fragment *F)
+  static bool classof(const Fragment* F)
   { return F->getKind() == Fragment::Target; }
 
-  static bool classof(const TargetFragment *)
+  static bool classof(const TargetFragment*)
   { return true; }
 };
 
-} // namespace of mcld
+} // namespace mcld
 
 #endif

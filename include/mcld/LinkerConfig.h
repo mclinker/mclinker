@@ -100,6 +100,6 @@ private:
   CodePosition m_CodePosition;
 };
 
-} // namespace of mcld
+} // namespace mcld
 
 #endif

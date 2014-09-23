@@ -94,7 +94,7 @@ public:
   virtual void anchor();
 };
 
-} // namespace of cl
-} // namespace of llvm
+} // namespace cl
+} // namespace llvm
 
 #endif

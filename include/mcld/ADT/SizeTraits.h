@@ -191,6 +191,6 @@ public:
 
 #define STR_SIZE(str, fieldTy) StringSizerHelper<sizeof(str)-1, fieldTy>::Size
 
-} // namespace of mcld
+} // namespace mcld
 
 #endif

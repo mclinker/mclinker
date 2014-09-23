@@ -22,7 +22,7 @@ public:
                 int64_t pValue,
                 unsigned int pValueSize,
                 unsigned int pMaxBytesToEmit,
-                SectionData *pSD = NULL);
+                SectionData* pSD = NULL);
 
   unsigned int getAlignment() const { return m_Alignment; }
 
@@ -36,10 +36,10 @@ public:
 
   void setEmitNops(bool pValue) { m_bEmitNops = pValue; }
 
-  static bool classof(const Fragment *F)
+  static bool classof(const Fragment* F)
   { return F->getKind() == Fragment::Alignment; }
 
-  static bool classof(const AlignFragment *) { return true; }
+  static bool classof(const AlignFragment*) { return true; }
 
   size_t size() const;
 
@@ -63,6 +63,6 @@ private:
   bool m_bEmitNops : 1;
 };
 
-} // namespace of mcld
+} // namespace mcld
 
 #endif

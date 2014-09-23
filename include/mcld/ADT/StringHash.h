@@ -381,7 +381,7 @@ struct StringCompare<char*> : public std::binary_function<const char*,
   { return (std::strcmp(X, Y) == 0); }
 };
 
-} // namespace of hash
-} // namespace of mcld
+} // namespace hash
+} // namespace mcld
 
 #endif

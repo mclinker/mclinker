@@ -62,6 +62,6 @@ struct NonConstIteratorTraits
   typedef typename DataType::iterator iterator;
 };
 
-} // namespace of mcld
+} // namespace mcld
 
 #endif
