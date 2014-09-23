@@ -9,10 +9,11 @@
 #ifndef MCLD_MC_COMMANDACTION_H
 #define MCLD_MC_COMMANDACTION_H
 
-#include <string>
-#include <mcld/Support/Path.h>
 #include <mcld/MC/InputAction.h>
 #include <mcld/Script/ScriptFile.h>
+#include <mcld/Support/Path.h>
+
+#include <string>
 
 namespace mcld {
 
@@ -193,7 +194,6 @@ private:
   const SearchDirs& m_SearchDirs;
 };
 
-} // end of namespace mcld
+} // namespace mcld
 
 #endif
-

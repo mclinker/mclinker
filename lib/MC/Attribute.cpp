@@ -7,6 +7,7 @@
 //
 //===----------------------------------------------------------------------===//
 #include <mcld/MC/Attribute.h>
+
 #include <mcld/MC/AttributeSet.h>
 #include <mcld/Support/MsgHandling.h>
 
@@ -51,7 +52,7 @@ bool AttrConstraint::isLegal(const Attribute& pAttr) const
 AttributeProxy::AttributeProxy(AttributeSet& pParent,
                                const Attribute& pBase,
                                const AttrConstraint& pConstraint)
-  : m_AttrPool(pParent), m_pBase(&pBase), m_Constraint(pConstraint) {
+    : m_AttrPool(pParent), m_pBase(&pBase), m_Constraint(pConstraint) {
 }
 
 AttributeProxy::~AttributeProxy()
@@ -103,11 +104,10 @@ static inline void ReplaceOrRecord(AttributeSet& pParent,
                                    Attribute *&pCopy)
 {
   Attribute *result = pParent.exists(*pCopy);
-  if (NULL == result) { // can not find
+  if (result == NULL) { // can not find
     pParent.record(*pCopy);
     pBase = pCopy;
-  }
-  else { // find
+  } else { // find
     delete pCopy;
     pBase = result;
   }
@@ -174,4 +174,3 @@ AttributeProxy& AttributeProxy::assign(Attribute* pBase)
   m_pBase = pBase;
   return *this;
 }
-

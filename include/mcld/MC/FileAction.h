@@ -43,7 +43,6 @@ private:
   FileHandle::Permission m_Permission;
 };
 
-} // end of namespace mcld
+} // namespace mcld
 
 #endif
-

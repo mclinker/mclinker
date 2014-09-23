@@ -8,9 +8,11 @@
 //===----------------------------------------------------------------------===//
 #ifndef MCLD_MC_MCLDDIRECTORY_H
 #define MCLD_MC_MCLDDIRECTORY_H
-#include "mcld/Support/Directory.h"
-#include "mcld/Support/FileSystem.h"
+#include <mcld/Support/Directory.h>
+#include <mcld/Support/FileSystem.h>
+
 #include <llvm/ADT/StringRef.h>
+
 #include <string>
 
 namespace mcld
@@ -44,7 +46,6 @@ private:
   bool m_bInSysroot;
 };
 
-} // namespace of mcld
+} // namespace mcld
 
 #endif
-

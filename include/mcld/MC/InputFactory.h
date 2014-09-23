@@ -8,14 +8,14 @@
 //===----------------------------------------------------------------------===//
 #ifndef MCLD_MC_INPUTFACTORY_H
 #define MCLD_MC_INPUTFACTORY_H
-#include <mcld/Support/GCFactory.h>
 #include <mcld/MC/Input.h>
+#include <mcld/Support/GCFactory.h>
 
 namespace mcld {
 
-class LinkerConfig;
 class AttributeProxy;
 class AttributeSet;
+class LinkerConfig;
 
 /** \class InputFactory
  *  \brief InputFactory controls the production and destruction of
@@ -52,7 +52,6 @@ private:
   AttributeSet* m_pAttrSet;
 };
 
-} // namespace of mcld
+} // namespace mcld
 
 #endif
-

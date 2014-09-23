@@ -17,11 +17,11 @@
 
 namespace mcld {
 
-class MemoryArea;
 class AttributeProxy;
 class Attribute;
 class InputFactory;
 class LDContext;
+class MemoryArea;
 
 /** \class Input
  *  \brief Input provides the information of a input file.
@@ -83,7 +83,7 @@ public:
   { return (m_Type != Unknown); }
 
   bool hasAttribute() const
-  { return (NULL != m_pAttr); }
+  { return (m_pAttr != NULL); }
 
   const Attribute* attribute() const
   { return m_pAttr; }
@@ -111,7 +111,7 @@ public:
   { m_pMemArea = pMemArea; }
 
   bool hasMemArea() const
-  { return (NULL != m_pMemArea); }
+  { return (m_pMemArea != NULL); }
 
   const MemoryArea* memArea() const { return m_pMemArea; }
   MemoryArea*       memArea()       { return m_pMemArea; }
@@ -121,7 +121,7 @@ public:
   { m_pContext = pContext; }
 
   bool hasContext() const
-  { return (NULL != m_pContext); }
+  { return (m_pContext != NULL); }
 
   const LDContext* context() const { return m_pContext; }
   LDContext*       context()       { return m_pContext; }
@@ -138,7 +138,6 @@ private:
   LDContext* m_pContext;
 };
 
-} // namespace of mcld
+} // namespace mcld
 
 #endif
-

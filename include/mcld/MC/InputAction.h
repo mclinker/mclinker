@@ -44,7 +44,6 @@ private:
   unsigned int m_Position;
 };
 
-} // namespace of mcld
+} // namespace mcld
 
 #endif
-

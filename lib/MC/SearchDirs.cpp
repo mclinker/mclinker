@@ -7,6 +7,7 @@
 //
 //===----------------------------------------------------------------------===//
 #include <mcld/MC/SearchDirs.h>
+
 #include <mcld/MC/MCLDDirectory.h>
 #include <mcld/Support/FileSystem.h>
 
@@ -32,7 +33,7 @@ SearchDirs::SearchDirs()
 }
 
 SearchDirs::SearchDirs(const sys::fs::Path& pSysRoot)
-  : m_SysRoot(pSysRoot) {
+    : m_SysRoot(pSysRoot) {
   // a magic number 8, no why.
   // please prove it or change it
   m_DirList.reserve(8);
@@ -55,8 +56,7 @@ bool SearchDirs::insert(const std::string& pPath)
   if (exists(dir->path()) && is_directory(dir->path())) {
     m_DirList.push_back(dir);
     return true;
-  }
-  else {
+  } else {
     delete dir;
     return false;
   }

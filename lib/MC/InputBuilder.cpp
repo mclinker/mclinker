@@ -10,21 +10,22 @@
 
 #include <mcld/LinkerConfig.h>
 #include <mcld/Config/Config.h>
-#include <mcld/Support/Path.h>
-#include <mcld/MC/InputFactory.h>
 #include <mcld/MC/ContextFactory.h>
+#include <mcld/MC/InputFactory.h>
 #include <mcld/Support/MemoryAreaFactory.h>
+#include <mcld/Support/Path.h>
 
 using namespace mcld;
 
 InputBuilder::InputBuilder(const LinkerConfig& pConfig)
-  : m_Config(pConfig),
-    m_pCurrentTree(NULL), m_pMove(NULL), m_Root(),
-    m_bOwnFactory(true) {
-
-    m_pInputFactory = new InputFactory(MCLD_NUM_OF_INPUTS, pConfig);
-    m_pContextFactory = new ContextFactory(MCLD_NUM_OF_INPUTS);
-    m_pMemFactory = new MemoryAreaFactory(MCLD_NUM_OF_INPUTS);
+    : m_Config(pConfig),
+      m_pCurrentTree(NULL),
+      m_pMove(NULL),
+      m_Root(),
+      m_bOwnFactory(true) {
+  m_pInputFactory = new InputFactory(MCLD_NUM_OF_INPUTS, pConfig);
+  m_pContextFactory = new ContextFactory(MCLD_NUM_OF_INPUTS);
+  m_pMemFactory = new MemoryAreaFactory(MCLD_NUM_OF_INPUTS);
 }
 
 InputBuilder::InputBuilder(const LinkerConfig& pConfig,
@@ -32,13 +33,14 @@ InputBuilder::InputBuilder(const LinkerConfig& pConfig,
                            ContextFactory& pContextFactory,
                            MemoryAreaFactory& pMemoryFactory,
                            bool pDelegate)
-  : m_Config(pConfig),
-    m_pInputFactory(&pInputFactory),
-    m_pMemFactory(&pMemoryFactory),
-    m_pContextFactory(&pContextFactory),
-    m_pCurrentTree(NULL), m_pMove(NULL), m_Root(),
-    m_bOwnFactory(pDelegate) {
-
+    : m_Config(pConfig),
+      m_pInputFactory(&pInputFactory),
+      m_pMemFactory(&pMemoryFactory),
+      m_pContextFactory(&pContextFactory),
+      m_pCurrentTree(NULL),
+      m_pMove(NULL),
+      m_Root(),
+      m_bOwnFactory(pDelegate) {
 }
 
 InputBuilder::~InputBuilder()
@@ -60,7 +62,7 @@ Input* InputBuilder::createInput(const std::string& pName,
 
 InputTree& InputBuilder::enterGroup()
 {
-  assert(NULL != m_pCurrentTree && NULL != m_pMove);
+  assert(m_pCurrentTree != NULL && m_pMove != NULL);
 
   m_pCurrentTree->enterGroup(m_Root, *m_pMove);
   m_pMove->move(m_Root);
@@ -72,7 +74,7 @@ InputTree& InputBuilder::enterGroup()
 
 InputTree& InputBuilder::exitGroup()
 {
-  assert(NULL != m_pCurrentTree && NULL != m_pMove);
+  assert(m_pCurrentTree != NULL && m_pMove != NULL);
 
   m_Root = m_ReturnStack.top();
   m_ReturnStack.pop();
@@ -88,13 +90,13 @@ bool InputBuilder::isInGroup() const
 
 const InputTree& InputBuilder::getCurrentTree() const
 {
-  assert(NULL != m_pCurrentTree && NULL != m_pMove);
+  assert(m_pCurrentTree != NULL && m_pMove != NULL);
   return *m_pCurrentTree;
 }
 
 InputTree& InputBuilder::getCurrentTree()
 {
-  assert(NULL != m_pCurrentTree && NULL != m_pMove);
+  assert(m_pCurrentTree != NULL && m_pMove != NULL);
   return *m_pCurrentTree;
 }
 
@@ -111,12 +113,11 @@ bool InputBuilder::setContext(Input& pInput, bool pCheck)
   // archive needs a individual context. We identify the object files in an
   // archive by its file offset. Their file offsets are not zero.
   LDContext* context = NULL;
-  if (0 != pInput.fileOffset() || !pCheck) {
+  if (pInput.fileOffset() != 0 || !pCheck) {
     // pInput is an object in an archive file. Produce a new context in this
     // case.
     context = m_pContextFactory->produce();
-  }
-  else {
+  } else {
     // Using pInput.path() to avoid from creating context for identical file
     // twice.
     context = m_pContextFactory->produce(pInput.path());
@@ -156,4 +157,3 @@ AttributeProxy& InputBuilder::getAttributes()
 {
   return m_pInputFactory->attr();
 }
-

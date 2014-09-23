@@ -9,20 +9,20 @@
 #ifndef MCLD_MC_INPUTBUILDER_H
 #define MCLD_MC_INPUTBUILDER_H
 
-#include <string>
-#include <stack>
-
 #include <mcld/InputTree.h>
 #include <mcld/MC/Input.h>
 #include <mcld/Support/FileHandle.h>
 
+#include <stack>
+#include <string>
+
 namespace mcld {
 
-class LinkerConfig;
-class InputFactory;
-class ContextFactory;
-class MemoryAreaFactory;
 class AttrConstraint;
+class ContextFactory;
+class InputFactory;
+class LinkerConfig;
+class MemoryAreaFactory;
 
 /** \class InputBuilder
  *  \brief InputBuilder recieves InputActions and build the InputTree.
@@ -106,7 +106,7 @@ InputBuilder::createNode<InputTree::Inclusive>(const std::string& pName,
                                                const sys::fs::Path& pPath,
                                                unsigned int pType)
 {
-  assert(NULL != m_pCurrentTree && NULL != m_pMove);
+  assert(m_pCurrentTree != NULL && m_pMove != NULL);
 
   Input* input = createInput(pName, pPath, pType);
   m_pCurrentTree->insert(m_Root, *m_pMove, *input);
@@ -121,7 +121,7 @@ InputBuilder::createNode<InputTree::Positional>(const std::string& pName,
                                                const sys::fs::Path& pPath,
                                                unsigned int pType)
 {
-  assert(NULL != m_pCurrentTree && NULL != m_pMove);
+  assert(m_pCurrentTree != NULL && m_pMove != NULL);
 
   Input* input = createInput(pName, pPath, pType);
   m_pCurrentTree->insert(m_Root, *m_pMove, *input);
@@ -131,7 +131,6 @@ InputBuilder::createNode<InputTree::Positional>(const std::string& pName,
   return *m_pCurrentTree;
 }
 
-} // end of namespace mcld
+} // namespace mcld
 
 #endif
-

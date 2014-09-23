@@ -7,12 +7,13 @@
 //
 //===----------------------------------------------------------------------===//
 #include <mcld/MC/CommandAction.h>
+
+#include <mcld/LinkerConfig.h>
+#include <mcld/MC/Attribute.h>
 #include <mcld/MC/InputBuilder.h>
 #include <mcld/MC/SearchDirs.h>
-#include <mcld/MC/Attribute.h>
 #include <mcld/Support/MsgHandling.h>
 #include <mcld/Support/FileSystem.h>
-#include <mcld/LinkerConfig.h>
 
 using namespace mcld;
 
@@ -23,7 +24,7 @@ using namespace mcld;
 //===----------------------------------------------------------------------===//
 InputFileAction::InputFileAction(unsigned int pPosition,
                                  const sys::fs::Path &pPath)
-  : InputAction(pPosition), m_Path(pPath) {
+    : InputAction(pPosition), m_Path(pPath) {
 }
 
 bool InputFileAction::activate(InputBuilder& pBuilder) const
@@ -38,7 +39,7 @@ bool InputFileAction::activate(InputBuilder& pBuilder) const
 NamespecAction::NamespecAction(unsigned int pPosition,
                                const std::string &pNamespec,
                                const SearchDirs& pSearchDirs)
-  : InputAction(pPosition), m_Namespec(pNamespec), m_SearchDirs(pSearchDirs) {
+    : InputAction(pPosition), m_Namespec(pNamespec), m_SearchDirs(pSearchDirs) {
 }
 
 bool NamespecAction::activate(InputBuilder& pBuilder) const
@@ -52,19 +53,17 @@ bool NamespecAction::activate(InputBuilder& pBuilder) const
     if (pBuilder.getAttributes().isStatic()) {
       // with --static, we must search an archive.
       path = m_SearchDirs.find(namespec(), Input::Archive);
-    }
-    else {
+    } else {
       // otherwise, with --Bdynamic, we can find either an archive or a
       // shared object.
       path = m_SearchDirs.find(namespec(), Input::DynObj);
     }
-  }
-  else {
+  } else {
     // In the system without shared object support, we only look for an archive
     path = m_SearchDirs.find(namespec(), Input::Archive);
   }
 
-  if (NULL == path) {
+  if (path == NULL) {
     fatal(diag::err_cannot_find_namespec) << namespec();
     return false;
   }
@@ -77,7 +76,7 @@ bool NamespecAction::activate(InputBuilder& pBuilder) const
 // BitcodeAction
 //===----------------------------------------------------------------------===//
 BitcodeAction::BitcodeAction(unsigned int pPosition, const sys::fs::Path &pPath)
-  : InputAction(pPosition), m_Path(pPath) {
+    : InputAction(pPosition), m_Path(pPath) {
 }
 
 bool BitcodeAction::activate(InputBuilder& pBuilder) const
@@ -90,7 +89,7 @@ bool BitcodeAction::activate(InputBuilder& pBuilder) const
 // StartGroupAction
 //===----------------------------------------------------------------------===//
 StartGroupAction::StartGroupAction(unsigned int pPosition)
-  : InputAction(pPosition) {
+    : InputAction(pPosition) {
 }
 
 bool StartGroupAction::activate(InputBuilder& pBuilder) const
@@ -107,7 +106,7 @@ bool StartGroupAction::activate(InputBuilder& pBuilder) const
 // EndGroupAction
 //===----------------------------------------------------------------------===//
 EndGroupAction::EndGroupAction(unsigned int pPosition)
-  : InputAction(pPosition) {
+    : InputAction(pPosition) {
 }
 
 bool EndGroupAction::activate(InputBuilder& pBuilder) const
@@ -120,7 +119,7 @@ bool EndGroupAction::activate(InputBuilder& pBuilder) const
 // WholeArchiveAction
 //===----------------------------------------------------------------------===//
 WholeArchiveAction::WholeArchiveAction(unsigned int pPosition)
-  : InputAction(pPosition) {
+    : InputAction(pPosition) {
 }
 
 bool WholeArchiveAction::activate(InputBuilder& pBuilder) const
@@ -133,7 +132,7 @@ bool WholeArchiveAction::activate(InputBuilder& pBuilder) const
 // NoWholeArchiveAction
 //===----------------------------------------------------------------------===//
 NoWholeArchiveAction::NoWholeArchiveAction(unsigned int pPosition)
-  : InputAction(pPosition) {
+    : InputAction(pPosition) {
 }
 
 bool NoWholeArchiveAction::activate(InputBuilder& pBuilder) const
@@ -146,7 +145,7 @@ bool NoWholeArchiveAction::activate(InputBuilder& pBuilder) const
 // AsNeededAction
 //===----------------------------------------------------------------------===//
 AsNeededAction::AsNeededAction(unsigned int pPosition)
-  : InputAction(pPosition) {
+    : InputAction(pPosition) {
 }
 
 bool AsNeededAction::activate(InputBuilder& pBuilder) const
@@ -159,7 +158,7 @@ bool AsNeededAction::activate(InputBuilder& pBuilder) const
 // NoAsNeededAction
 //===----------------------------------------------------------------------===//
 NoAsNeededAction::NoAsNeededAction(unsigned int pPosition)
-  : InputAction(pPosition) {
+    : InputAction(pPosition) {
 }
 
 bool NoAsNeededAction::activate(InputBuilder& pBuilder) const
@@ -172,7 +171,7 @@ bool NoAsNeededAction::activate(InputBuilder& pBuilder) const
 // AddNeededAction
 //===----------------------------------------------------------------------===//
 AddNeededAction::AddNeededAction(unsigned int pPosition)
-  : InputAction(pPosition) {
+    : InputAction(pPosition) {
 }
 
 bool AddNeededAction::activate(InputBuilder& pBuilder) const
@@ -185,7 +184,7 @@ bool AddNeededAction::activate(InputBuilder& pBuilder) const
 // NoAddNeededAction
 //===----------------------------------------------------------------------===//
 NoAddNeededAction::NoAddNeededAction(unsigned int pPosition)
-  : InputAction(pPosition) {
+    : InputAction(pPosition) {
 }
 
 bool NoAddNeededAction::activate(InputBuilder& pBuilder) const
@@ -198,7 +197,7 @@ bool NoAddNeededAction::activate(InputBuilder& pBuilder) const
 // BDynamicAction
 //===----------------------------------------------------------------------===//
 BDynamicAction::BDynamicAction(unsigned int pPosition)
-  : InputAction(pPosition) {
+    : InputAction(pPosition) {
 }
 
 bool BDynamicAction::activate(InputBuilder& pBuilder) const
@@ -211,7 +210,7 @@ bool BDynamicAction::activate(InputBuilder& pBuilder) const
 // BStaticAction
 //===----------------------------------------------------------------------===//
 BStaticAction::BStaticAction(unsigned int pPosition)
-  : InputAction(pPosition) {
+    : InputAction(pPosition) {
 }
 
 bool BStaticAction::activate(InputBuilder& pBuilder) const
@@ -224,7 +223,7 @@ bool BStaticAction::activate(InputBuilder& pBuilder) const
 // DefSymAction
 //===----------------------------------------------------------------------===//
 DefSymAction::DefSymAction(unsigned int pPosition, std::string& pAssignment)
-  : InputAction(pPosition), m_Assignment(pAssignment) {
+    : InputAction(pPosition), m_Assignment(pAssignment) {
 }
 
 bool DefSymAction::activate(InputBuilder& pBuilder) const
@@ -245,10 +244,10 @@ ScriptAction::ScriptAction(unsigned int pPosition,
                            const std::string& pFileName,
                            ScriptFile::Kind pKind,
                            const SearchDirs& pSearchDirs)
-  : InputAction(pPosition),
-    m_FileName(pFileName),
-    m_Kind(pKind),
-    m_SearchDirs(pSearchDirs) {
+    : InputAction(pPosition),
+      m_FileName(pFileName),
+      m_Kind(pKind),
+      m_SearchDirs(pSearchDirs) {
 }
 
 bool ScriptAction::activate(InputBuilder& pBuilder) const

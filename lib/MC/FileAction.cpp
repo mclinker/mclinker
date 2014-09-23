@@ -7,6 +7,7 @@
 //
 //===----------------------------------------------------------------------===//
 #include <mcld/MC/FileAction.h>
+
 #include <mcld/MC/Input.h>
 #include <mcld/MC/InputBuilder.h>
 
@@ -16,7 +17,7 @@ using namespace mcld;
 // ContextAction
 //===----------------------------------------------------------------------===//
 ContextAction::ContextAction(unsigned int pPosition)
-  : InputAction(pPosition) {
+    : InputAction(pPosition) {
 }
 
 bool ContextAction::activate(InputBuilder& pBuilder) const
@@ -29,7 +30,7 @@ bool ContextAction::activate(InputBuilder& pBuilder) const
   // already got type - for example, bitcode
   if (input->type() == Input::Script ||
       input->type() == Input::Object ||
-      input->type() == Input::DynObj  ||
+      input->type() == Input::DynObj ||
       input->type() == Input::Archive)
     return false;
 
@@ -42,7 +43,7 @@ bool ContextAction::activate(InputBuilder& pBuilder) const
 MemoryAreaAction::MemoryAreaAction(unsigned int pPosition,
                                    FileHandle::OpenMode pMode,
                                    FileHandle::Permission pPerm)
-  : InputAction(pPosition), m_Mode(pMode), m_Permission(pPerm) {
+    : InputAction(pPosition), m_Mode(pMode), m_Permission(pPerm) {
 }
 
 bool MemoryAreaAction::activate(InputBuilder& pBuilder) const
@@ -55,10 +56,9 @@ bool MemoryAreaAction::activate(InputBuilder& pBuilder) const
   // already got type - for example, bitcode
   if (input->type() == Input::Script ||
       input->type() == Input::Object ||
-      input->type() == Input::DynObj  ||
+      input->type() == Input::DynObj ||
       input->type() == Input::Archive)
     return false;
 
   return pBuilder.setMemory(*input, m_Mode, m_Permission);
 }
-

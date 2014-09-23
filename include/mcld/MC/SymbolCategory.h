@@ -146,11 +146,11 @@ private:
 
   public:
     Category(Type pType)
-      : type(pType),
-        begin(0),
-        end(0),
-        prev(NULL),
-        next(NULL) {
+        : type(pType),
+          begin(0),
+          end(0),
+          prev(NULL),
+          next(NULL) {
     }
 
     size_t size() const
@@ -160,10 +160,10 @@ private:
     { return (begin == end); }
 
     bool isFirst() const
-    { return (NULL == prev); }
+    { return (prev == NULL); }
 
     bool isLast() const
-    { return (NULL == next); }
+    { return (next == NULL); }
 
     static Type categorize(const ResolveInfo& pInfo);
   };
@@ -186,7 +186,6 @@ private:
   Category* m_pRegular;
 };
 
-} // namespace of mcld
+} // namespace mcld
 
 #endif
-

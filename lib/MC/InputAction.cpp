@@ -14,10 +14,9 @@ using namespace mcld;
 // Base Positional Option
 //===----------------------------------------------------------------------===//
 InputAction::InputAction(unsigned int pPosition)
-  : m_Position(pPosition) {
+    : m_Position(pPosition) {
 }
 
 InputAction::~InputAction()
 {
 }
-

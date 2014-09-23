@@ -39,7 +39,6 @@ public:
   LDContext* produce(const sys::fs::Path& pPath);
 };
 
-} // namespace of mcld
+} // namespace mcld
 
 #endif
-

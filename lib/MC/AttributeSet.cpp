@@ -6,8 +6,10 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include <mcld/MC/Attribute.h>
 #include <mcld/MC/AttributeSet.h>
+
+#include <mcld/MC/Attribute.h>
+
 #include <cstddef>
 
 using namespace mcld;
@@ -16,8 +18,9 @@ using namespace mcld;
 // AttributeSet
 //===----------------------------------------------------------------------===//
 AttributeSet::AttributeSet(unsigned int pNum, const Attribute& pPredefined)
-  : m_AttrSet(), m_Predefined(pPredefined) {
-  m_AttrSet.reserve(pNum);
+    : m_AttrSet(),
+      m_Predefined(pPredefined) {
+      m_AttrSet.reserve(pNum);
 }
 
 AttributeSet::~AttributeSet()
@@ -51,4 +54,3 @@ void AttributeSet::record(mcld::Attribute &pAttr)
 {
   m_AttrSet.push_back(&pAttr);
 }
-

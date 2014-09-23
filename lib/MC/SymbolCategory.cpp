@@ -7,8 +7,10 @@
 //
 //===----------------------------------------------------------------------===//
 #include <mcld/MC/SymbolCategory.h>
+
 #include <mcld/LD/LDSymbol.h>
 #include <mcld/LD/ResolveInfo.h>
+
 #include <algorithm>
 #include <cassert>
 
@@ -58,7 +60,7 @@ SymbolCategory::SymbolCategory()
 SymbolCategory::~SymbolCategory()
 {
   Category* current = m_pFile;
-  while (NULL != current) {
+  while (current != NULL) {
     Category* tmp = current;
     current = current->next;
     delete tmp;
@@ -71,12 +73,11 @@ SymbolCategory& SymbolCategory::add(LDSymbol& pSymbol, Category::Type pTarget)
   m_OutputSymbols.push_back(&pSymbol);
 
   // use non-stable bubble sort to arrange the order of symbols.
-  while (NULL != current) {
+  while (current != NULL) {
     if (current->type == pTarget) {
       current->end++;
       break;
-    }
-    else {
+    } else {
       if (!current->empty()) {
         std::swap(m_OutputSymbols[current->begin],
                   m_OutputSymbols[current->end]);
@@ -91,7 +92,7 @@ SymbolCategory& SymbolCategory::add(LDSymbol& pSymbol, Category::Type pTarget)
 
 SymbolCategory& SymbolCategory::add(LDSymbol& pSymbol)
 {
-  assert(NULL != pSymbol.resolveInfo());
+  assert(pSymbol.resolveInfo() != NULL);
   return add(pSymbol, Category::categorize(*pSymbol.resolveInfo()));
 }
 
@@ -105,7 +106,7 @@ SymbolCategory& SymbolCategory::arrange(LDSymbol& pSymbol,
                                         Category::Type pTarget)
 {
   int distance = pTarget - pSource;
-  if (0 == distance) {
+  if (distance == 0) {
     // in the same category, do not need to re-arrange
     return *this;
   }
@@ -113,13 +114,13 @@ SymbolCategory& SymbolCategory::arrange(LDSymbol& pSymbol,
   // source and target are not in the same category
   // find the category of source
   Category* current = m_pFile;
-  while(NULL != current) {
+  while(current != NULL) {
     if (pSource == current->type)
       break;
     current = current->next;
   }
 
-  assert(NULL != current);
+  assert(current != NULL);
   size_t pos = 0;
   if (!current->empty()) {
     // find the position of source
@@ -158,8 +159,7 @@ SymbolCategory& SymbolCategory::arrange(LDSymbol& pSymbol,
     do {
       if (current->type == pTarget) {
         break;
-      }
-      else {
+      } else {
         assert(!current->isLast() && "target category is wrong.");
         rear = current->end - 1;
         std::swap(m_OutputSymbols[pos], m_OutputSymbols[rear]);
@@ -168,14 +168,13 @@ SymbolCategory& SymbolCategory::arrange(LDSymbol& pSymbol,
         current->end--;
       }
       current = current->next;
-    } while(NULL != current);
+    } while(current != NULL);
 
     return *this;
   } // downward
 
   // The distance is negative. It means we should bubble sort upward.
   if (distance < 0) {
-
     // upward
     do {
       if (current->type == pTarget) {
@@ -189,7 +188,7 @@ SymbolCategory& SymbolCategory::arrange(LDSymbol& pSymbol,
         current->prev->end++;
       }
       current = current->prev;
-    } while(NULL != current);
+    } while(current != NULL);
 
     return *this;
   } // upward
@@ -199,7 +198,7 @@ SymbolCategory& SymbolCategory::arrange(LDSymbol& pSymbol,
 SymbolCategory& SymbolCategory::arrange(LDSymbol& pSymbol,
                                         const ResolveInfo& pSourceInfo)
 {
-  assert(NULL != pSymbol.resolveInfo());
+  assert(pSymbol.resolveInfo() != NULL);
   return arrange(pSymbol,
                  Category::categorize(pSourceInfo),
                  Category::categorize(*pSymbol.resolveInfo()));
@@ -211,20 +210,20 @@ SymbolCategory& SymbolCategory::changeCommonsToGlobal()
   while (!emptyCommons()) {
     size_t pos = m_pCommon->end - 1;
     switch (Category::categorize(*(m_OutputSymbols[pos]->resolveInfo()))) {
-    case Category::Dynamic:
-      m_pCommon->end--;
-      m_pDynamic->begin--;
-      break;
-    case Category::Regular:
-      std::swap(m_OutputSymbols[pos], m_OutputSymbols[m_pDynamic->end - 1]);
-      m_pCommon->end--;
-      m_pDynamic->begin--;
-      m_pDynamic->end--;
-      m_pRegular->begin--;
-      break;
-    default:
-      assert(0);
-      break;
+      case Category::Dynamic:
+        m_pCommon->end--;
+        m_pDynamic->begin--;
+        break;
+      case Category::Regular:
+        std::swap(m_OutputSymbols[pos], m_OutputSymbols[m_pDynamic->end - 1]);
+        m_pCommon->end--;
+        m_pDynamic->begin--;
+        m_pDynamic->end--;
+        m_pRegular->begin--;
+        break;
+      default:
+        assert(0);
+        break;
     }
   }
   return *this;
@@ -232,7 +231,7 @@ SymbolCategory& SymbolCategory::changeCommonsToGlobal()
 
 SymbolCategory& SymbolCategory::changeToDynamic(LDSymbol& pSymbol)
 {
-  assert(NULL != pSymbol.resolveInfo());
+  assert(pSymbol.resolveInfo() != NULL);
   return arrange(pSymbol,
                  Category::categorize(*pSymbol.resolveInfo()),
                  Category::LocalDyn);
@@ -467,4 +466,3 @@ SymbolCategory::const_iterator SymbolCategory::regularEnd() const
 {
   return m_OutputSymbols.end();
 }
-

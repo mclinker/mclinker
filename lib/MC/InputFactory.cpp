@@ -7,9 +7,10 @@
 //
 //===----------------------------------------------------------------------===//
 #include <mcld/MC/InputFactory.h>
+
 #include <mcld/LinkerConfig.h>
-#include <mcld/MC/AttributeSet.h>
 #include <mcld/AttributeOption.h>
+#include <mcld/MC/AttributeSet.h>
 
 using namespace mcld;
 
@@ -17,7 +18,7 @@ using namespace mcld;
 // InputFactory
 //===----------------------------------------------------------------------===//
 InputFactory::InputFactory(size_t pNum, const LinkerConfig& pConfig)
-  : GCFactory<Input,0>(pNum) {
+    : GCFactory<Input,0>(pNum) {
 
   m_pAttrSet = new AttributeSet(16, pConfig.attribute().predefined());
   m_pLast = new AttributeProxy(*m_pAttrSet,
@@ -40,4 +41,3 @@ Input* InputFactory::produce(llvm::StringRef pName,
   new (result) Input(pName, pPath, *m_pLast, pType, pFileOffset);
   return result;
 }
-

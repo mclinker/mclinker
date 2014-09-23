@@ -9,6 +9,7 @@
 #ifndef MCLD_MC_ATTRIBUTESET_H
 #define MCLD_MC_ATTRIBUTESET_H
 #include <mcld/ADT/Uncopyable.h>
+
 #include <vector>
 
 namespace mcld {
@@ -53,7 +54,6 @@ private:
   const Attribute& m_Predefined;
 };
 
-} // namespace of mcld
+} // namespace mcld
 
 #endif
-

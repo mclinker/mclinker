@@ -60,7 +60,6 @@ private:
   uint64_t m_PageSize;
 };
 
-} // namespace of mcld
+} // namespace mcld
 
 #endif
-

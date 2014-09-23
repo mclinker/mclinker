@@ -32,17 +32,17 @@ class AttributeBase
 {
 public:
   AttributeBase()
-  : m_WholeArchive(false),
-    m_AsNeeded(false),
-    m_AddNeeded(true),
-    m_Static(false)
+      : m_WholeArchive(false),
+        m_AsNeeded(false),
+        m_AddNeeded(true),
+        m_Static(false)
   { }
 
   AttributeBase(const AttributeBase& pBase)
-  : m_WholeArchive(pBase.m_WholeArchive),
-    m_AsNeeded(pBase.m_AsNeeded),
-    m_AddNeeded(pBase.m_AddNeeded),
-    m_Static(pBase.m_Static)
+      : m_WholeArchive(pBase.m_WholeArchive),
+        m_AsNeeded(pBase.m_AsNeeded),
+        m_AddNeeded(pBase.m_AddNeeded),
+        m_Static(pBase.m_Static)
   { }
 
   virtual ~AttributeBase()
@@ -221,9 +221,9 @@ private:
 inline bool operator== (const Attribute& pLHS, const Attribute& pRHS)
 {
   return ((pLHS.isWholeArchive() == pRHS.isWholeArchive()) &&
-    (pLHS.isAsNeeded() == pRHS.isAsNeeded()) &&
-    (pLHS.isAddNeeded() == pRHS.isAddNeeded()) &&
-    (pLHS.isStatic() == pRHS.isStatic()));
+          (pLHS.isAsNeeded() == pRHS.isAsNeeded()) &&
+          (pLHS.isAddNeeded() == pRHS.isAddNeeded()) &&
+          (pLHS.isStatic() == pRHS.isStatic()));
 }
 
 inline bool operator!= (const Attribute& pLHS, const Attribute& pRHS)
@@ -231,7 +231,6 @@ inline bool operator!= (const Attribute& pLHS, const Attribute& pRHS)
   return !(pLHS == pRHS);
 }
 
-} // namespace of mcld
+} // namespace mcld
 
 #endif
-
