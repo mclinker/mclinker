@@ -151,9 +151,9 @@ void get_pwd(Path& pPWD)
   free(pwd);
 }
 
-} // namespace of detail
-} // namespace of fs
-} // namespace of sys
+} // namespace detail
+} // namespace fs
+} // namespace sys
 
 //===----------------------------------------------------------------------===//
 // FileHandler
@@ -215,4 +215,4 @@ bool FileHandle::munmap(void* pMemBuffer, size_t pLength)
   return true;
 }
 
-} // namespace of mcld
+} // namespace mcld

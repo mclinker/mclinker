@@ -375,7 +375,7 @@ void ScriptScanner::popLexState()
   }
 }
 
-} /* namespace of mcld */
+} /* namespace mcld */
 
 #ifdef yylex
 #undef yylex

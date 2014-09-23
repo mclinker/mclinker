@@ -27,7 +27,7 @@ bool is_symlink(FileStatus f)
 const Path dot_path(".");
 const Path dot_dot_path("..");
 
-} // namespace of anonymous
+} // anonymous namespace
 
 //===----------------------------------------------------------------------===//
 // Directory

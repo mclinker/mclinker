@@ -150,9 +150,9 @@ void get_pwd(Path& pPWD)
   free(pwd);
 }
 
-} // namespace of detail
-} // namespace of fs
-} // namespace of sys
+} // namespace detail
+} // namespace fs
+} // namespace sys
 
 //===----------------------------------------------------------------------===//
 // FileHandle
