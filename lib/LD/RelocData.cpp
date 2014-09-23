@@ -7,6 +7,7 @@
 //
 //===----------------------------------------------------------------------===//
 #include <mcld/LD/RelocData.h>
+
 #include <mcld/Support/GCFactory.h>
 
 #include <llvm/Support/ManagedStatic.h>
@@ -21,11 +22,11 @@ static llvm::ManagedStatic<RelocDataFactory> g_RelocDataFactory;
 // RelocData
 //===----------------------------------------------------------------------===//
 RelocData::RelocData()
-  : m_pSection(NULL) {
+    : m_pSection(NULL) {
 }
 
 RelocData::RelocData(LDSection &pSection)
-  : m_pSection(&pSection) {
+    : m_pSection(&pSection) {
 }
 
 RelocData* RelocData::Create(LDSection& pSection)

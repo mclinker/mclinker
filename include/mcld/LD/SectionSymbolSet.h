@@ -72,7 +72,6 @@ private:
   SectHashTableType* m_pSectionSymbolMap;
 };
 
-} // namespace of mcld
+} // namespace mcld
 
 #endif
-

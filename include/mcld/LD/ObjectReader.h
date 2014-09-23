@@ -8,15 +8,15 @@
 //===----------------------------------------------------------------------===//
 #ifndef MCLD_LD_OBJECTREADER_H
 #define MCLD_LD_OBJECTREADER_H
-#include "mcld/LD/LDReader.h"
 #include <mcld/ADT/HashTable.h>
 #include <mcld/ADT/StringHash.h>
+#include <mcld/LD/LDReader.h>
 #include <mcld/LD/ResolveInfo.h>
 
 namespace mcld {
 
-class Module;
 class Input;
+class Module;
 
 /** \class ObjectReader
  *  \brief ObjectReader provides an common interface for different object
@@ -25,7 +25,8 @@ class Input;
 class ObjectReader : public LDReader
 {
 protected:
-  typedef HashTable<ResolveInfo, hash::StringHash<hash::DJB> > GroupSignatureMap;
+  typedef HashTable<ResolveInfo,
+                    hash::StringHash<hash::DJB> > GroupSignatureMap;
 
 protected:
   ObjectReader()
@@ -53,10 +54,8 @@ public:
 
 protected:
   GroupSignatureMap f_GroupSignatureMap;
-
 };
 
-} // namespace of mcld
+} // namespace mcld
 
 #endif
-

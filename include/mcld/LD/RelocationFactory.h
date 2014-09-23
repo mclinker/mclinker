@@ -9,8 +9,8 @@
 #ifndef MCLD_LD_RELOCATION_FACTORY_H
 #define MCLD_LD_RELOCATION_FACTORY_H
 #include <mcld/Config/Config.h>
-#include <mcld/Support/GCFactory.h>
 #include <mcld/Fragment/Relocation.h>
+#include <mcld/Support/GCFactory.h>
 
 namespace mcld {
 
@@ -54,7 +54,6 @@ private:
   const LinkerConfig* m_pConfig;
 };
 
-} // namespace of mcld
+} // namespace mcld
 
 #endif
-

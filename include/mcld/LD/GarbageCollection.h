@@ -36,7 +36,7 @@ public:
   class SectionReachedListMap
   {
   public:
-    SectionReachedListMap() {}
+    SectionReachedListMap() { }
 
     /// addReference - add a reference from pFrom to pTo
     void addReference(const LDSection& pFrom, const LDSection& pTo);
@@ -85,7 +85,6 @@ private:
   Module& m_Module;
 };
 
-} // namespace of mcld
+} // namespace mcld
 
 #endif
-

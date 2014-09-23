@@ -6,8 +6,9 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include <mcld/Fragment/Relocation.h>
 #include <mcld/LD/EhFrame.h>
+
+#include <mcld/Fragment/Relocation.h>
 #include <mcld/LD/LDContext.h>
 #include <mcld/LD/LDSection.h>
 #include <mcld/LD/LDSymbol.h>
@@ -30,7 +31,7 @@ static llvm::ManagedStatic<EhFrameFactory> g_EhFrameFactory;
 // EhFrame::Record
 //===----------------------------------------------------------------------===//
 EhFrame::Record::Record(llvm::StringRef pRegion)
-  : RegionFragment(pRegion) {
+    : RegionFragment(pRegion) {
 }
 
 EhFrame::Record::~Record()
@@ -42,8 +43,11 @@ EhFrame::Record::~Record()
 // EhFrame::CIE
 //===----------------------------------------------------------------------===//
 EhFrame::CIE::CIE(llvm::StringRef pRegion)
-  : EhFrame::Record(pRegion),
-    m_FDEEncode(0u), m_Mergeable(false), m_pReloc(0), m_PersonalityOffset(0) {
+    : EhFrame::Record(pRegion),
+      m_FDEEncode(0u),
+      m_Mergeable(false),
+      m_pReloc(0),
+      m_PersonalityOffset(0) {
 }
 
 EhFrame::CIE::~CIE()
@@ -54,7 +58,7 @@ EhFrame::CIE::~CIE()
 // EhFrame::FDE
 //===----------------------------------------------------------------------===//
 EhFrame::FDE::FDE(llvm::StringRef pRegion, EhFrame::CIE& pCIE)
-  : EhFrame::Record(pRegion), m_pCIE(&pCIE) {
+    : EhFrame::Record(pRegion), m_pCIE(&pCIE) {
 }
 
 EhFrame::FDE::~FDE()
@@ -71,7 +75,7 @@ void EhFrame::FDE::setCIE(EhFrame::CIE& pCIE)
 // EhFrame::GeneratedCIE
 //===----------------------------------------------------------------------===//
 EhFrame::GeneratedCIE::GeneratedCIE(llvm::StringRef pRegion)
-  : EhFrame::CIE(pRegion) {
+    : EhFrame::CIE(pRegion) {
 }
 
 EhFrame::GeneratedCIE::~GeneratedCIE()
@@ -82,7 +86,7 @@ EhFrame::GeneratedCIE::~GeneratedCIE()
 // EhFrame::GeneratedFDE
 //===----------------------------------------------------------------------===//
 EhFrame::GeneratedFDE::GeneratedFDE(llvm::StringRef pRegion, CIE &pCIE)
-  : EhFrame::FDE(pRegion, pCIE) {
+    : EhFrame::FDE(pRegion, pCIE) {
 }
 
 EhFrame::GeneratedFDE::~GeneratedFDE()
@@ -93,12 +97,12 @@ EhFrame::GeneratedFDE::~GeneratedFDE()
 // EhFrame
 //===----------------------------------------------------------------------===//
 EhFrame::EhFrame()
-  : m_pSection(NULL), m_pSectionData(NULL) {
+    : m_pSection(NULL), m_pSectionData(NULL) {
 }
 
 EhFrame::EhFrame(LDSection& pSection)
-  : m_pSection(&pSection),
-    m_pSectionData(NULL) {
+    : m_pSection(&pSection),
+      m_pSectionData(NULL) {
   m_pSectionData = SectionData::Create(pSection);
 }
 
@@ -127,13 +131,13 @@ void EhFrame::Clear()
 
 const LDSection& EhFrame::getSection() const
 {
-  assert(NULL != m_pSection);
+  assert(m_pSection != NULL);
   return *m_pSection;
 }
 
 LDSection& EhFrame::getSection()
 {
-  assert(NULL != m_pSection);
+  assert(m_pSection != NULL);
   return *m_pSection;
 }
 
@@ -282,7 +286,7 @@ void EhFrame::removeDiscardedFDE(CIE& pCIE, const LDSection* pRelocSect)
   }
 
   for (FDERemoveList::iterator i = to_be_removed_fdes.begin(),
-       e = to_be_removed_fdes.end(); i != e; ++i) {
+          e = to_be_removed_fdes.end(); i != e; ++i) {
     FDE& fde = **i;
     fde.getCIE().remove(fde);
 
@@ -291,7 +295,7 @@ void EhFrame::removeDiscardedFDE(CIE& pCIE, const LDSection* pRelocSect)
     // order, so we can bookkeep the previously found relocation for next use.
     // Note: We must ensure FDE order is ordered.
     for (RelocData::const_iterator ri = reloc_data->begin(),
-         re = reloc_data->end(); ri != re; ) {
+            re = reloc_data->end(); ri != re; ) {
       Relocation& rel = const_cast<Relocation&>(*ri++);
       if (rel.targetRef().getOutputOffset() >= fde.getOffset() &&
           rel.targetRef().getOutputOffset() < fde.getOffset() + fde.size()) {

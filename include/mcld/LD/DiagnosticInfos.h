@@ -8,6 +8,7 @@
 //===----------------------------------------------------------------------===//
 #ifndef MCLD_LD_DIAGNOSTICINFORMATION_H
 #define MCLD_LD_DIAGNOSTICINFORMATION_H
+
 #include <llvm/ADT/StringRef.h>
 
 namespace mcld {
@@ -28,8 +29,8 @@ namespace diag {
   };
 } // namespace of diag
 
-class LinkerConfig;
 class DiagnosticEngine;
+class LinkerConfig;
 
 /** \class DiagnosticInfos
  *  \brief DiagnosticInfos caches run-time information of DiagnosticInfo.
@@ -49,7 +50,6 @@ private:
   const LinkerConfig& m_Config;
 };
 
-} // namespace of mcld
+} // namespace mcld
 
 #endif
-

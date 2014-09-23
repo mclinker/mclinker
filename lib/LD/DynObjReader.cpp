@@ -6,9 +6,10 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include "mcld/LD/DynObjReader.h"
-#include "mcld/Target/TargetLDBackend.h"
-#include "mcld/MC/Input.h"
+#include <mcld/LD/DynObjReader.h>
+
+#include <mcld/MC/Input.h>
+#include <mcld/Target/TargetLDBackend.h>
 
 using namespace mcld;
 

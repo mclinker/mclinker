@@ -6,21 +6,22 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-
 #ifndef MCLD_LD_LDSECTION_H
 #define MCLD_LD_LDSECTION_H
 
-#include <llvm/Support/DataTypes.h>
-#include <mcld/Support/Allocators.h>
 #include <mcld/Config/Config.h>
 #include <mcld/LD/LDFileFormat.h>
+#include <mcld/Support/Allocators.h>
+
+#include <llvm/Support/DataTypes.h>
+
 #include <string>
 
 namespace mcld {
 
-class SectionData;
-class RelocData;
 class EhFrame;
+class RelocData;
+class SectionData;
 
 /** \class LDSection
  *  \brief LDSection represents a section header entry. It is a unified
@@ -210,10 +211,8 @@ private:
 
   /// m_Index - the index of the file
   size_t m_Index;
-
 }; // end of LDSection
 
-} // end namespace mcld
+} // namespace mcld
 
 #endif
-

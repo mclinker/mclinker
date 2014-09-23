@@ -10,6 +10,7 @@
 
 #include <mcld/Fragment/FragmentRef.h>
 #include <mcld/LinkerScript.h>
+#include <mcld/LD/LDContext.h>
 #include <mcld/LD/EhFrame.h>
 #include <mcld/LD/ELFReader.h>
 #include <mcld/LD/RelocData.h>

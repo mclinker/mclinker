@@ -9,9 +9,10 @@
 #ifndef MCLD_LD_DIAGNOSTIC_H
 #define MCLD_LD_DIAGNOSTIC_H
 
-#include <string>
-#include <cassert>
 #include <mcld/LD/DiagnosticEngine.h>
+
+#include <cassert>
+#include <string>
 
 namespace mcld {
 
@@ -93,7 +94,6 @@ private:
   DiagnosticEngine& m_Engine;
 };
 
-} // namespace of mcld
+} // namespace mcld
 
 #endif
-

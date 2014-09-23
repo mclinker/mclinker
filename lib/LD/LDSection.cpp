@@ -22,17 +22,17 @@ static llvm::ManagedStatic<SectionFactory> g_SectFactory;
 // LDSection
 //===----------------------------------------------------------------------===//
 LDSection::LDSection()
-  : m_Name(),
-    m_Kind(LDFileFormat::Ignore),
-    m_Type(0x0),
-    m_Flag(0x0),
-    m_Size(0),
-    m_Offset(~uint64_t(0)),
-    m_Addr(0x0),
-    m_Align(0),
-    m_Info(0),
-    m_pLink(NULL),
-    m_Index(0) {
+    : m_Name(),
+      m_Kind(LDFileFormat::Ignore),
+      m_Type(0x0),
+      m_Flag(0x0),
+      m_Size(0),
+      m_Offset(~uint64_t(0)),
+      m_Addr(0x0),
+      m_Align(0),
+      m_Info(0),
+      m_pLink(NULL),
+      m_Index(0) {
   m_Data.sect_data = NULL;
 }
 
@@ -42,17 +42,17 @@ LDSection::LDSection(const std::string& pName,
                      uint32_t pFlag,
                      uint64_t pSize,
                      uint64_t pAddr)
-  : m_Name(pName),
-    m_Kind(pKind),
-    m_Type(pType),
-    m_Flag(pFlag),
-    m_Size(pSize),
-    m_Offset(~uint64_t(0)),
-    m_Addr(pAddr),
-    m_Align(0),
-    m_Info(0),
-    m_pLink(NULL),
-    m_Index(0) {
+    : m_Name(pName),
+      m_Kind(pKind),
+      m_Type(pType),
+      m_Flag(pFlag),
+      m_Size(pSize),
+      m_Offset(~uint64_t(0)),
+      m_Addr(pAddr),
+      m_Align(0),
+      m_Info(0),
+      m_pLink(NULL),
+      m_Index(0) {
   m_Data.sect_data = NULL;
 }
 
@@ -92,18 +92,18 @@ void LDSection::Clear()
 bool LDSection::hasSectionData() const
 {
   assert(LDFileFormat::Relocation != kind() && LDFileFormat::EhFrame != kind());
-  return (NULL != m_Data.sect_data);
+  return (m_Data.sect_data != NULL);
 }
 
 bool LDSection::hasRelocData() const
 {
   assert(LDFileFormat::Relocation == kind());
-  return (NULL != m_Data.reloc_data);
+  return (m_Data.reloc_data != NULL);
 }
 
 bool LDSection::hasEhFrame() const
 {
   assert(LDFileFormat::EhFrame == kind());
-  return (NULL != m_Data.eh_frame);
+  return (m_Data.eh_frame != NULL);
 }
 

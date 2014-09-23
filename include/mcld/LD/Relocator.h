@@ -14,11 +14,10 @@
 namespace mcld
 {
 
-class FragmentLinker;
-class TargetLDBackend;
+class Input;
 class IRBuilder;
 class Module;
-class Input;
+class TargetLDBackend;
 
 /** \class Relocator
  *  \brief Relocator provides the interface of performing relocations
@@ -43,8 +42,8 @@ public:
 
 public:
   Relocator(const LinkerConfig& pConfig)
-    : m_Config(pConfig)
-  {}
+      : m_Config(pConfig)
+  { }
 
   virtual ~Relocator() = 0;
 
@@ -129,7 +128,6 @@ private:
   const LinkerConfig& m_Config;
 };
 
-} // namespace of mcld
+} // namespace mcld
 
 #endif
-

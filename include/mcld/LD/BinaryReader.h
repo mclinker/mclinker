@@ -8,11 +8,10 @@
 //===----------------------------------------------------------------------===//
 #ifndef MCLD_LD_BINARYREADER_H
 #define MCLD_LD_BINARYREADER_H
-#include "mcld/LD/LDReader.h"
+#include <mcld/LD/LDReader.h>
 
 namespace mcld {
 
-class Module;
 class Input;
 
 /** \class BinaryReader
@@ -24,13 +23,15 @@ class BinaryReader : public LDReader
 public:
   virtual ~BinaryReader() = 0;
 
-  virtual bool isMyFormat(Input& pInput, bool &pContinue) const
-  { pContinue = true; return false; }
+  virtual bool isMyFormat(Input& pInput, bool& pContinue) const
+  {
+    pContinue = true;
+    return false;
+  }
 
   virtual bool readBinary(Input& pFile) = 0;
 };
 
-} // namespace of mcld
+} // namespace mcld
 
 #endif
-

@@ -9,8 +9,6 @@
 #ifndef MCLD_LD_LDREADER_H
 #define MCLD_LD_LDREADER_H
 
-#include <llvm/Support/DataTypes.h>
-
 namespace mcld
 {
 
@@ -34,11 +32,9 @@ protected:
 public:
   virtual ~LDReader() { }
 
-  virtual bool isMyFormat(Input& pInput, bool &pContinue) const = 0;
-
+  virtual bool isMyFormat(Input& pInput, bool& pContinue) const = 0;
 };
 
-} // namespace of mcld
+} // namespace mcld
 
 #endif
-

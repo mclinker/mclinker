@@ -9,13 +9,13 @@
 #ifndef MCLD_LD_SECTIONDATA_H
 #define MCLD_LD_SECTIONDATA_H
 
+#include <mcld/Config/Config.h>
+#include <mcld/Fragment/Fragment.h>
+#include <mcld/Support/Allocators.h>
+
 #include <llvm/ADT/ilist.h>
 #include <llvm/ADT/ilist_node.h>
 #include <llvm/Support/DataTypes.h>
-
-#include <mcld/Config/Config.h>
-#include <mcld/Support/Allocators.h>
-#include <mcld/Fragment/Fragment.h>
 
 namespace mcld {
 
@@ -30,10 +30,10 @@ private:
   friend class Chunk<SectionData, MCLD_SECTIONS_PER_INPUT>;
 
   SectionData();
-  explicit SectionData(LDSection &pSection);
+  explicit SectionData(LDSection& pSection);
 
-  SectionData(const SectionData &);            // DO NOT IMPLEMENT
-  SectionData& operator=(const SectionData &); // DO NOT IMPLEMENT
+  SectionData(const SectionData&);            // DO NOT IMPLEMENT
+  SectionData& operator=(const SectionData&); // DO NOT IMPLEMENT
 
 public:
   typedef llvm::iplist<Fragment> FragmentListType;
@@ -57,8 +57,8 @@ public:
   const LDSection& getSection() const { return *m_pSection; }
   LDSection&       getSection()       { return *m_pSection; }
 
-  FragmentListType &getFragmentList() { return m_Fragments; }
-  const FragmentListType &getFragmentList() const { return m_Fragments; }
+  const FragmentListType& getFragmentList() const { return m_Fragments; }
+  FragmentListType&       getFragmentList()       { return m_Fragments; }
 
   size_t size() const { return m_Fragments.size(); }
 
@@ -81,10 +81,8 @@ public:
 private:
   FragmentListType m_Fragments;
   LDSection* m_pSection;
-
 };
 
-} // namespace of mcld
+} // namespace mcld
 
 #endif
-

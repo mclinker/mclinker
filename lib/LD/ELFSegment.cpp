@@ -7,10 +7,13 @@
 //
 //===----------------------------------------------------------------------===//
 #include <mcld/LD/ELFSegment.h>
+
+#include <mcld/Config/Config.h>
 #include <mcld/LD/LDSection.h>
 #include <mcld/Support/GCFactory.h>
-#include <mcld/Config/Config.h>
+
 #include <llvm/Support/ManagedStatic.h>
+
 #include <cassert>
 
 using namespace mcld;
@@ -22,28 +25,28 @@ static llvm::ManagedStatic<ELFSegmentFactory> g_ELFSegmentFactory;
 // ELFSegment
 //===----------------------------------------------------------------------===//
 ELFSegment::ELFSegment()
-  : m_Type(llvm::ELF::PT_NULL),
-    m_Flag(llvm::ELF::PF_R),
-    m_Offset(0x0),
-    m_Vaddr(0x0),
-    m_Paddr(0x0),
-    m_Filesz(0x0),
-    m_Memsz(0x0),
-    m_Align(0x0),
-    m_MaxSectionAlign(0x0)
+    : m_Type(llvm::ELF::PT_NULL),
+      m_Flag(llvm::ELF::PF_R),
+      m_Offset(0x0),
+      m_Vaddr(0x0),
+      m_Paddr(0x0),
+      m_Filesz(0x0),
+      m_Memsz(0x0),
+      m_Align(0x0),
+      m_MaxSectionAlign(0x0)
 {
 }
 
 ELFSegment::ELFSegment(uint32_t pType, uint32_t pFlag)
-  : m_Type(pType),
-    m_Flag(pFlag),
-    m_Offset(0x0),
-    m_Vaddr(0x0),
-    m_Paddr(0x0),
-    m_Filesz(0x0),
-    m_Memsz(0x0),
-    m_Align(0x0),
-    m_MaxSectionAlign(0x0)
+    : m_Type(pType),
+      m_Flag(pFlag),
+      m_Offset(0x0),
+      m_Vaddr(0x0),
+      m_Paddr(0x0),
+      m_Filesz(0x0),
+      m_Memsz(0x0),
+      m_Align(0x0),
+      m_MaxSectionAlign(0x0)
 {
 }
 
@@ -80,7 +83,7 @@ ELFSegment::iterator ELFSegment::insert(ELFSegment::iterator pPos,
 
 void ELFSegment::append(LDSection* pSection)
 {
-  assert(NULL != pSection);
+  assert(pSection != NULL);
   if (pSection->align() > m_MaxSectionAlign)
     m_MaxSectionAlign = pSection->align();
   m_SectionList.push_back(pSection);

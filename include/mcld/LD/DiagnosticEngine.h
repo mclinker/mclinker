@@ -8,17 +8,19 @@
 //===----------------------------------------------------------------------===//
 #ifndef MCLD_LD_DIAGNOSTICENGINE_H
 #define MCLD_LD_DIAGNOSTICENGINE_H
-#include <string>
-#include <llvm/Support/DataTypes.h>
 #include <mcld/LD/DiagnosticInfos.h>
+
+#include <llvm/Support/DataTypes.h>
+
+#include <string>
 
 namespace mcld {
 
+class DiagnosticLineInfo;
+class DiagnosticPrinter;
 class Input;
 class LinkerConfig;
 class MsgHandler;
-class DiagnosticPrinter;
-class DiagnosticLineInfo;
 
 /** \class DiagnosticEngine
  *  \brief DiagnosticEngine is used to report problems and issues.
@@ -125,12 +127,12 @@ private:
   { return m_State; }
 
   DiagnosticInfos& infoMap() {
-    assert(NULL != m_pInfoMap && "DiagnosticEngine was not initialized!");
+    assert(m_pInfoMap != NULL && "DiagnosticEngine was not initialized!");
     return *m_pInfoMap;
   }
 
   const DiagnosticInfos& infoMap() const {
-    assert(NULL != m_pInfoMap && "DiagnosticEngine was not initialized!");
+    assert(m_pInfoMap != NULL && "DiagnosticEngine was not initialized!");
     return *m_pInfoMap;
   }
 
@@ -144,7 +146,6 @@ private:
   State m_State;
 };
 
-} // namespace of mcld
+} // namespace mcld
 
 #endif
-

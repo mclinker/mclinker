@@ -13,17 +13,19 @@
 #include <mcld/ADT/HashTable.h>
 #include <mcld/ADT/StringHash.h>
 #include <mcld/LD/SectionData.h>
-#include <mcld/LD/LDSymbol.h>
 #include <mcld/Fragment/FragmentRef.h>
 #include <mcld/Fragment/Stub.h>
+#include <mcld/LD/LDSymbol.h>
+
 #include <llvm/Support/DataTypes.h>
 #include <llvm/ADT/StringRef.h>
+
 #include <string>
 
 namespace mcld {
 
-class Stub;
 class Relocation;
+class Stub;
 
 /** \class BranchIsland
  *  \brief BranchIsland is a collection of stubs
@@ -106,7 +108,7 @@ private:
   {
   public:
     Key(const Stub* pPrototype, const LDSymbol* pSymbol, Stub::SWord pAddend)
-    : m_pPrototype(pPrototype), m_pSymbol(pSymbol), m_Addend(pAddend)
+        : m_pPrototype(pPrototype), m_pSymbol(pSymbol), m_Addend(pAddend)
     { }
 
     ~Key()
@@ -178,7 +180,6 @@ private:
   RelocationListType m_Relocations;
 };
 
-} // namespace of mcld
+} // namespace mcld
 
 #endif
-

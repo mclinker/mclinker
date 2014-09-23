@@ -7,12 +7,13 @@
 //
 //===----------------------------------------------------------------------===//
 #include <mcld/LD/MsgHandler.h>
+
 #include <mcld/LD/DiagnosticEngine.h>
 
 using namespace mcld;
 
 MsgHandler::MsgHandler(DiagnosticEngine& pEngine)
- : m_Engine(pEngine), m_NumArgs(0) {
+    : m_Engine(pEngine), m_NumArgs(0) {
 }
 
 MsgHandler::~MsgHandler()
@@ -42,11 +43,11 @@ void MsgHandler::addString(const std::string& pStr) const
   m_Engine.state().ArgumentStrs[m_NumArgs++] = pStr;
 }
 
-void MsgHandler::addTaggedVal(intptr_t pValue, DiagnosticEngine::ArgumentKind pKind) const
+void MsgHandler::addTaggedVal(intptr_t pValue,
+                              DiagnosticEngine::ArgumentKind pKind) const
 {
   assert(m_NumArgs < DiagnosticEngine::MaxArguments &&
          "Too many arguments to diagnostic!");
   m_Engine.state().ArgumentKinds[m_NumArgs] = pKind;
   m_Engine.state().ArgumentVals[m_NumArgs++] = pValue;
 }
-

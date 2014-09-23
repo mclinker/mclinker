@@ -7,10 +7,11 @@
 //
 //===----------------------------------------------------------------------===//
 #include <mcld/LD/DiagnosticEngine.h>
-#include <mcld/LD/DiagnosticPrinter.h>
-#include <mcld/LD/DiagnosticLineInfo.h>
-#include <mcld/LD/MsgHandler.h>
+
 #include <mcld/LinkerConfig.h>
+#include <mcld/LD/DiagnosticLineInfo.h>
+#include <mcld/LD/DiagnosticPrinter.h>
+#include <mcld/LD/MsgHandler.h>
 
 #include <cassert>
 
@@ -20,8 +21,11 @@ using namespace mcld;
 // DiagnosticEngine
 //===----------------------------------------------------------------------===//
 DiagnosticEngine::DiagnosticEngine()
-  : m_pConfig(NULL), m_pLineInfo(NULL), m_pPrinter(NULL),
-    m_pInfoMap(NULL), m_OwnPrinter(false) {
+    : m_pConfig(NULL),
+      m_pLineInfo(NULL),
+      m_pPrinter(NULL),
+      m_pInfoMap(NULL),
+      m_OwnPrinter(false) {
 }
 
 DiagnosticEngine::~DiagnosticEngine()
@@ -51,7 +55,7 @@ void DiagnosticEngine::setLineInfo(DiagnosticLineInfo& pLineInfo)
 void DiagnosticEngine::setPrinter(DiagnosticPrinter& pPrinter,
                                   bool pShouldOwnPrinter)
 {
-  if (m_OwnPrinter && NULL != m_pPrinter)
+  if (m_OwnPrinter && m_pPrinter != NULL)
     delete m_pPrinter;
   m_pPrinter = &pPrinter;
   m_OwnPrinter = pShouldOwnPrinter;
@@ -60,7 +64,7 @@ void DiagnosticEngine::setPrinter(DiagnosticPrinter& pPrinter,
 // emit - process current diagnostic.
 bool DiagnosticEngine::emit()
 {
-  assert(NULL != m_pInfoMap);
+  assert(m_pInfoMap != NULL);
   bool emitted = m_pInfoMap->process(*this);
   m_State.reset();
   return emitted;
@@ -75,4 +79,3 @@ DiagnosticEngine::report(uint16_t pID, DiagnosticEngine::Severity pSeverity)
   MsgHandler result(*this);
   return result;
 }
-

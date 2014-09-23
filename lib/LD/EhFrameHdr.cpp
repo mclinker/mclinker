@@ -62,13 +62,12 @@ void EhFrameHdr::emitOutput<32>(FileOutputBuffer& pOutput)
   else
     *fde_count = 0;
 
-  if (0 == *fde_count) {
+  if (*fde_count == 0) {
     // fde_count_enc
     data[2] = DW_EH_PE_omit;
     // table_enc
     data[3] = DW_EH_PE_omit;
-  }
-  else {
+  } else {
     // fde_count_enc
     data[2] = DW_EH_PE_udata4;
     // table_enc
@@ -79,7 +78,7 @@ void EhFrameHdr::emitOutput<32>(FileOutputBuffer& pOutput)
     SearchTableType search_table;
 
     for (EhFrame::const_cie_iterator i = m_EhFrame.getEhFrame()->cie_begin(),
-         e = m_EhFrame.getEhFrame()->cie_end(); i != e; ++i) {
+            e = m_EhFrame.getEhFrame()->cie_end(); i != e; ++i) {
       EhFrame::CIE& cie = **i;
       for (EhFrame::const_fde_iterator fi = cie.begin(), fe = cie.end();
            fi != fe; ++fi) {
@@ -112,7 +111,7 @@ void EhFrameHdr::emitOutput<32>(FileOutputBuffer& pOutput)
 //===----------------------------------------------------------------------===//
 
 EhFrameHdr::EhFrameHdr(LDSection& pEhFrameHdr, const LDSection& pEhFrame)
-  : m_EhFrameHdr(pEhFrameHdr), m_EhFrame(pEhFrame) {
+    : m_EhFrameHdr(pEhFrameHdr), m_EhFrame(pEhFrame) {
 }
 
 EhFrameHdr::~EhFrameHdr()

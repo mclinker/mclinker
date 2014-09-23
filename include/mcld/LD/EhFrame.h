@@ -15,17 +15,15 @@
 #include <mcld/Support/Allocators.h>
 
 #include <llvm/ADT/StringRef.h>
+
 #include <list>
 #include <map>
-#include <set>
 #include <vector>
 
 namespace mcld {
 
 class Input;
-class Module;
 class LDSection;
-class ObjectLinker;
 class Relocation;
 
 /** \class EhFrame
@@ -252,7 +250,6 @@ private:
 
 bool operator==(const EhFrame::CIE&, const EhFrame::CIE&);
 
-} // namespace of mcld
+} // namespace mcld
 
 #endif
-

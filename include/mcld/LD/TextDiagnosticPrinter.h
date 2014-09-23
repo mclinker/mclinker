@@ -9,6 +9,7 @@
 #ifndef MCLD_LD_TEXTDIAGNOSTICPRINTER_H
 #define MCLD_LD_TEXTDIAGNOSTICPRINTER_H
 #include <mcld/LD/DiagnosticPrinter.h>
+
 #include <llvm/Support/raw_ostream.h>
 
 namespace mcld
@@ -22,7 +23,8 @@ class LinkerConfig;
 class TextDiagnosticPrinter : public DiagnosticPrinter
 {
 public:
-  TextDiagnosticPrinter(llvm::raw_ostream& pOStream, const LinkerConfig& pConfig);
+  TextDiagnosticPrinter(llvm::raw_ostream& pOStream,
+                        const LinkerConfig& pConfig);
 
   virtual ~TextDiagnosticPrinter();
 
@@ -41,7 +43,6 @@ private:
   const Input* m_pInput;
 };
 
-} // namespace of mcld
+} // namespace mcld
 
 #endif
-

@@ -9,8 +9,8 @@
 #ifndef MCLD_LD_RESOLVEINFO_H
 #define MCLD_LD_RESOLVEINFO_H
 
-#include <llvm/Support/DataTypes.h>
 #include <llvm/ADT/StringRef.h>
+#include <llvm/Support/DataTypes.h>
 
 namespace mcld {
 
@@ -46,16 +46,16 @@ public:
    *  MachO does not need this, and can not jump between Thumb and ARM code.
    */
   enum Type {
-    NoType        = 0,
-    Object        = 1,
-    Function      = 2,
-    Section       = 3,
-    File          = 4,
-    CommonBlock   = 5,
-    ThreadLocal   = 6,
-    IndirectFunc  = 10,
-    LoProc        = 13,
-    HiProc        = 15
+    NoType       = 0,
+    Object       = 1,
+    Function     = 2,
+    Section      = 3,
+    File         = 4,
+    CommonBlock  = 5,
+    ThreadLocal  = 6,
+    IndirectFunc = 10,
+    LoProc       = 13,
+    HiProc       = 15
   };
 
   /** \enum Desc
@@ -65,26 +65,26 @@ public:
    *   In ELF, is a part of st_shndx
    */
   enum Desc {
-    Undefined    = 0,
-    Define       = 1,
-    Common       = 2,
-    Indirect     = 3,
+    Undefined = 0,
+    Define    = 1,
+    Common    = 2,
+    Indirect  = 3,
     NoneDesc
   };
 
   enum Binding {
-    Global       = 0,
-    Weak         = 1,
-    Local        = 2,
-    Absolute     = 3,
+    Global      = 0,
+    Weak        = 1,
+    Local       = 2,
+    Absolute    = 3,
     NoneBinding
   };
 
   enum Visibility {
-    Default      = 0,
-    Internal     = 1,
-    Hidden       = 2,
-    Protected    = 3
+    Default   = 0,
+    Internal  = 1,
+    Hidden    = 2,
+    Protected = 3
   };
 
   // -----  For HashTable  ----- //
@@ -257,23 +257,23 @@ private:
   };
 
 public:
-  static const uint32_t global_flag    = 0        << GLOBAL_OFFSET;
-  static const uint32_t weak_flag      = 1        << GLOBAL_OFFSET;
-  static const uint32_t regular_flag   = 0        << DYN_OFFSET;
-  static const uint32_t dynamic_flag   = 1        << DYN_OFFSET;
-  static const uint32_t undefine_flag  = 0        << DESC_OFFSET;
-  static const uint32_t define_flag    = 1        << DESC_OFFSET;
-  static const uint32_t common_flag    = 2        << DESC_OFFSET;
-  static const uint32_t indirect_flag  = 3        << DESC_OFFSET;
-  static const uint32_t local_flag     = 1        << LOCAL_OFFSET;
-  static const uint32_t absolute_flag  = BINDING_MASK;
-  static const uint32_t object_flag    = Object   << TYPE_OFFSET;
-  static const uint32_t function_flag  = Function << TYPE_OFFSET;
-  static const uint32_t section_flag   = Section  << TYPE_OFFSET;
-  static const uint32_t file_flag      = File     << TYPE_OFFSET;
-  static const uint32_t string_flag    = 0        << SYMBOL_OFFSET;
-  static const uint32_t symbol_flag    = 1        << SYMBOL_OFFSET;
-  static const uint32_t indyn_flag     = 1        << IN_DYN_OFFSET;
+  static const uint32_t global_flag   = 0        << GLOBAL_OFFSET;
+  static const uint32_t weak_flag     = 1        << GLOBAL_OFFSET;
+  static const uint32_t regular_flag  = 0        << DYN_OFFSET;
+  static const uint32_t dynamic_flag  = 1        << DYN_OFFSET;
+  static const uint32_t undefine_flag = 0        << DESC_OFFSET;
+  static const uint32_t define_flag   = 1        << DESC_OFFSET;
+  static const uint32_t common_flag   = 2        << DESC_OFFSET;
+  static const uint32_t indirect_flag = 3        << DESC_OFFSET;
+  static const uint32_t local_flag    = 1        << LOCAL_OFFSET;
+  static const uint32_t absolute_flag = BINDING_MASK;
+  static const uint32_t object_flag   = Object   << TYPE_OFFSET;
+  static const uint32_t function_flag = Function << TYPE_OFFSET;
+  static const uint32_t section_flag  = Section  << TYPE_OFFSET;
+  static const uint32_t file_flag     = File     << TYPE_OFFSET;
+  static const uint32_t string_flag   = 0        << SYMBOL_OFFSET;
+  static const uint32_t symbol_flag   = 1        << SYMBOL_OFFSET;
+  static const uint32_t indyn_flag    = 1        << IN_DYN_OFFSET;
 
 private:
   ResolveInfo();
@@ -293,7 +293,6 @@ private:
   char m_Name[];
 };
 
-} // namespace of mcld
+} // namespace mcld
 
 #endif
-

@@ -9,6 +9,7 @@
 #ifndef MCLD_LD_EHFRAMEREADER_H
 #define MCLD_LD_EHFRAMEREADER_H
 #include <mcld/LD/EhFrame.h>
+
 #include <llvm/ADT/StringRef.h>
 #include <llvm/Support/DataTypes.h>
 
@@ -101,7 +102,6 @@ EhFrameReader::scan<true>(ConstAddress pHandler,
                           uint64_t pOffset,
                           llvm::StringRef pData) const;
 
-} // namespace of mcld
+} // namespace mcld
 
 #endif
-

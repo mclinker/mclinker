@@ -8,9 +8,10 @@
 //===----------------------------------------------------------------------===//
 #ifndef MCLD_LD_STATICRESOLVER_H
 #define MCLD_LD_STATICRESOLVER_H
-#include <string>
-#include <mcld/LD/Resolver.h>
 #include <mcld/LD/ResolveInfo.h>
+#include <mcld/LD/Resolver.h>
+
+#include <string>
 
 namespace mcld
 {
@@ -28,28 +29,28 @@ public:
    */
   enum LinkAction
   {
-    FAIL,         /* abort.  */
-    NOACT,        /* no action.  */
-    UND,          /* override by symbol undefined symbol.  */
-    WEAK,         /* override by symbol weak undefined.  */
-    DEF,          /* override by symbol defined.  */
-    DEFW,         /* override by symbol weak defined.  */
-    DEFD,         /* override by symbol dynamic defined.  */
-    DEFWD,        /* override by symbol dynamic weak defined.  */
-    MDEFD,        /* mark symbol dynamic defined.  */
-    MDEFWD,       /* mark symbol dynamic weak defined.  */
-    DUND,         /* override dynamic defined symbol by undefined one.  */
-    DUNDW,        /* oevrride dynamic defined symbol by weak undefined one.  */
-    COM,          /* override by symbol common.  */
-    CREF,         /* Possibly warn about common reference to defined symbol.  */
-    CDEF,         /* redefine existing common symbol.  */
-    BIG,          /* override by symbol common using largest size.  */
-    MBIG,         /* mark common symbol by larger size.  */
-    IND,          /* override by indirect symbol.  */
-    CIND,         /* mark indirect symbol from existing common symbol.  */
-    MDEF,         /* multiple definition error.  */
-    MIND,         /* multiple indirect symbols.  */
-    REFC          /* Mark indirect symbol referenced and then CYCLE.  */
+    FAIL,   // abort.
+    NOACT,  // no action.
+    UND,    // override by symbol undefined symbol.
+    WEAK,   // override by symbol weak undefined.
+    DEF,    // override by symbol defined.
+    DEFW,   // override by symbol weak defined.
+    DEFD,   // override by symbol dynamic defined.
+    DEFWD,  // override by symbol dynamic weak defined.
+    MDEFD,  // mark symbol dynamic defined.
+    MDEFWD, // mark symbol dynamic weak defined.
+    DUND,   // override dynamic defined symbol by undefined one.
+    DUNDW,  // oevrride dynamic defined symbol by weak undefined one.
+    COM,    // override by symbol common.
+    CREF,   // Possibly warn about common reference to defined symbol.
+    CDEF,   // redefine existing common symbol.
+    BIG,    // override by symbol common using largest size.
+    MBIG,   // mark common symbol by larger size.
+    IND,    // override by indirect symbol.
+    CIND,   // mark indirect symbol from existing common symbol.
+    MDEF,   // multiple definition error.
+    MIND,   // multiple indirect symbols.
+    REFC    // Mark indirect symbol referenced and then CYCLE.
   };
 
 private:
@@ -106,8 +107,8 @@ public:
   /// @return successfully resolved, return true; otherwise, return false.
   /// @param pOld the symbol which may be overridden.
   /// @param pNew the symbol which is used to replace pOld
-  virtual bool resolve(ResolveInfo & __restrict__ pOld,
-                       const ResolveInfo & __restrict__ pNew,
+  virtual bool resolve(ResolveInfo& __restrict__ pOld,
+                       const ResolveInfo& __restrict__ pNew,
                        bool &pOverride, LDSymbol::ValueType pValue) const;
 
 private:
@@ -128,7 +129,6 @@ private:
   }
 };
 
-} // namespace of mcld
+} // namespace mcld
 
 #endif
-

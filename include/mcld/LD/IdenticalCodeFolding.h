@@ -10,10 +10,12 @@
 #define MCLD_LD_IDENTICALCODEFOLDING_H
 
 #include <llvm/ADT/MapVector.h>
+
 #include <string>
 #include <vector>
 
 namespace mcld {
+
 class Input;
 class LDSection;
 class LinkerConfig;
@@ -74,6 +76,6 @@ private:
   KeptSections m_KeptSections;
 };
 
-} // namespace of mcld
+} // namespace mcld
 
 #endif

@@ -13,8 +13,8 @@
 namespace mcld
 {
 
-class Input;
 class Archive;
+class Input;
 class LinkerConfig;
 
 /** \class BSDArchiveReader
@@ -31,7 +31,6 @@ public:
   bool isMyFormat(Input& pInput, bool &pContinue) const;
 };
 
-} // namespace of mcld
+} // namespace mcld
 
 #endif
-

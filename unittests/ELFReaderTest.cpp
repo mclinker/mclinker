@@ -6,20 +6,22 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include <cstdio>
+#include "ELFReaderTest.h"
 
-#include <llvm/ADT/StringRef.h>
-#include <llvm/Support/ELF.h>
 #include <mcld/IRBuilder.h>
 #include <mcld/TargetOptions.h>
 #include <mcld/LD/ELFReader.h>
+#include <mcld/LD/LDContext.h>
 #include <mcld/MC/Input.h>
 #include <mcld/Support/Path.h>
 #include <mcld/Support/MemoryArea.h>
 #include <../lib/Target/X86/X86LDBackend.h>
 #include <../lib/Target/X86/X86GNUInfo.h>
 
-#include "ELFReaderTest.h"
+#include <llvm/ADT/StringRef.h>
+#include <llvm/Support/ELF.h>
+
+#include <cstdio>
 
 using namespace mcld;
 using namespace mcld::sys::fs;

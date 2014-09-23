@@ -7,6 +7,7 @@
 //
 //===----------------------------------------------------------------------===//
 #include <mcld/LD/BranchIslandFactory.h>
+
 #include <mcld/Fragment/Fragment.h>
 #include <mcld/LD/LDSection.h>
 #include <mcld/LD/SectionData.h>

@@ -6,14 +6,15 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
+#include <mcld/LD/DiagnosticInfos.h>
+
+#include <mcld/LinkerConfig.h>
+#include <mcld/ADT/SizeTraits.h>
+#include <mcld/LD/Diagnostic.h>
+#include <mcld/LD/DiagnosticPrinter.h>
+
 #include <llvm/ADT/StringRef.h>
 #include <llvm/Support/DataTypes.h>
-
-#include <mcld/ADT/SizeTraits.h>
-#include <mcld/LinkerConfig.h>
-#include <mcld/LD/Diagnostic.h>
-#include <mcld/LD/DiagnosticInfos.h>
-#include <mcld/LD/DiagnosticPrinter.h>
 
 #include <algorithm>
 
@@ -55,7 +56,7 @@ static const DiagStaticInfo DiagCommonInfo[] = {
 };
 
 static const unsigned int DiagCommonInfoSize =
-  sizeof(DiagCommonInfo)/sizeof(DiagCommonInfo[0])-1;
+    sizeof(DiagCommonInfo) / sizeof(DiagCommonInfo[0])-1;
 
 static const DiagStaticInfo DiagLoCInfo[] = {
 #define DIAG(ENUM, CLASS, ADDRDESC, LOCDESC) \
@@ -73,16 +74,23 @@ static const DiagStaticInfo DiagLoCInfo[] = {
 };
 
 static const unsigned int DiagLoCInfoSize =
-  sizeof(DiagLoCInfo)/sizeof(DiagLoCInfo[0])-1;
+    sizeof(DiagLoCInfo) / sizeof(DiagLoCInfo[0])-1;
 
 
 static const DiagStaticInfo* getDiagInfo(unsigned int pID, bool pInLoC = false)
 {
   const DiagStaticInfo* static_info = (pInLoC)?DiagLoCInfo:DiagCommonInfo;
-  unsigned int info_size = (pInLoC)?DiagLoCInfoSize:DiagCommonInfoSize;
+  unsigned int info_size = (pInLoC) ? DiagLoCInfoSize : DiagCommonInfoSize;
 
-  DiagStaticInfo key = { static_cast<uint16_t>(pID), DiagnosticEngine::None, 0, 0 };
-  const DiagStaticInfo *result = std::lower_bound(static_info, static_info + info_size, key);
+  DiagStaticInfo key = {
+    static_cast<uint16_t>(pID),
+    DiagnosticEngine::None,
+    0,
+    0
+  };
+
+  const DiagStaticInfo* result =
+      std::lower_bound(static_info, static_info + info_size, key);
 
   if (result == (static_info + info_size) || result->ID != pID)
     return NULL;
@@ -94,14 +102,15 @@ static const DiagStaticInfo* getDiagInfo(unsigned int pID, bool pInLoC = false)
 //  DiagnosticInfos
 //===----------------------------------------------------------------------===//
 DiagnosticInfos::DiagnosticInfos(const LinkerConfig& pConfig)
-  : m_Config(pConfig) {
+    : m_Config(pConfig) {
 }
 
 DiagnosticInfos::~DiagnosticInfos()
 {
 }
 
-llvm::StringRef DiagnosticInfos::getDescription(unsigned int pID, bool pInLoC) const
+llvm::StringRef DiagnosticInfos::getDescription(unsigned int pID,
+                                                bool pInLoC) const
 {
   return getDiagInfo(pID, pInLoC)->getDescription();
 }
@@ -127,7 +136,8 @@ bool DiagnosticInfos::process(DiagnosticEngine& pEngine) const
     case diag::undefined_reference:
     case diag::undefined_reference_text: {
       // we have not implement --unresolved-symbols=method yet. So far, MCLinker
-      // provides the easier --allow-shlib-undefined and --no-undefined (i.e. -z defs)
+      // provides the easier --allow-shlib-undefined and --no-undefined (i.e.
+      // -z defs)
       switch(m_Config.codeGenType()) {
         case LinkerConfig::Object:
           if (m_Config.options().isNoUndefined())
@@ -168,4 +178,3 @@ bool DiagnosticInfos::process(DiagnosticEngine& pEngine) const
   pEngine.getPrinter()->handleDiagnostic(severity, info);
   return true;
 }
-

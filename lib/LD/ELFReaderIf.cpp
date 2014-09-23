@@ -11,15 +11,16 @@
 #include <mcld/IRBuilder.h>
 #include <mcld/Fragment/FillFragment.h>
 #include <mcld/LD/EhFrame.h>
+#include <mcld/LD/LDContext.h>
 #include <mcld/LD/SectionData.h>
 #include <mcld/Target/GNULDBackend.h>
-
-#include <cstring>
 
 #include <llvm/ADT/StringRef.h>
 #include <llvm/ADT/Twine.h>
 #include <llvm/Support/ELF.h>
 #include <llvm/Support/Host.h>
+
+#include <cstring>
 
 using namespace mcld;
 
@@ -30,7 +31,7 @@ using namespace mcld;
 ResolveInfo::Type ELFReaderIF::getSymType(uint8_t pInfo, uint16_t pShndx) const
 {
   ResolveInfo::Type result = static_cast<ResolveInfo::Type>(pInfo & 0xF);
-  if (llvm::ELF::SHN_ABS == pShndx && ResolveInfo::Section == result) {
+  if (pShndx == llvm::ELF::SHN_ABS && result == ResolveInfo::Section) {
     // In Mips, __gp_disp is a special section symbol. Its name comes from
     // .strtab, not .shstrtab. However, it is unique. Only it is also a ABS
     // symbol. So here is a tricky to identify __gp_disp and convert it to
@@ -42,7 +43,8 @@ ResolveInfo::Type ELFReaderIF::getSymType(uint8_t pInfo, uint16_t pShndx) const
 }
 
 /// getSymDesc
-ResolveInfo::Desc ELFReaderIF::getSymDesc(uint16_t pShndx, const Input& pInput) const
+ResolveInfo::Desc ELFReaderIF::getSymDesc(uint16_t pShndx,
+                                          const Input& pInput) const
 {
   if (pShndx == llvm::ELF::SHN_UNDEF)
     return ResolveInfo::Undefined;
@@ -50,8 +52,7 @@ ResolveInfo::Desc ELFReaderIF::getSymDesc(uint16_t pShndx, const Input& pInput) 
   if (pShndx < llvm::ELF::SHN_LORESERVE) {
     // an ELF symbol defined in a section which we are not including
     // must be treated as an Undefined.
-    // @ref Google gold linker: symtab.cc: 1086
-    if (NULL == pInput.context()->getSection(pShndx) ||
+    if (pInput.context()->getSection(pShndx) == NULL ||
         LDFileFormat::Ignore == pInput.context()->getSection(pShndx)->kind())
       return ResolveInfo::Undefined;
     return ResolveInfo::Define;
@@ -75,7 +76,6 @@ ResolveInfo::Desc ELFReaderIF::getSymDesc(uint16_t pShndx, const Input& pInput) 
 ResolveInfo::Binding
 ELFReaderIF::getSymBinding(uint8_t pBinding, uint16_t pShndx, uint8_t pVis) const
 {
-
   // TODO:
   // if --just-symbols option is enabled, the symbol must covert to Absolute
 
@@ -94,13 +94,12 @@ ELFReaderIF::getSymBinding(uint8_t pBinding, uint16_t pShndx, uint8_t pVis) cons
 }
 
 /// getSymFragmentRef
-FragmentRef*
-ELFReaderIF::getSymFragmentRef(Input& pInput,
-                               uint16_t pShndx,
-                               uint32_t pOffset) const
+FragmentRef* ELFReaderIF::getSymFragmentRef(Input& pInput,
+                                            uint16_t pShndx,
+                                            uint32_t pOffset) const
 {
 
-  if (Input::DynObj == pInput.type())
+  if (pInput.type() == Input::DynObj)
     return FragmentRef::Null();
 
   if (pShndx == llvm::ELF::SHN_UNDEF)
@@ -111,22 +110,21 @@ ELFReaderIF::getSymFragmentRef(Input& pInput,
 
   LDSection* sect_hdr = pInput.context()->getSection(pShndx);
 
-  if (NULL == sect_hdr)
+  if (sect_hdr == NULL)
     unreachable(diag::unreachable_invalid_section_idx) << pShndx
-                                                       << pInput.path().native();
+        << pInput.path().native();
 
-  if (LDFileFormat::Ignore == sect_hdr->kind())
+  if (sect_hdr->kind() == LDFileFormat::Ignore)
     return FragmentRef::Null();
 
-  if (LDFileFormat::Group == sect_hdr->kind())
+  if (sect_hdr->kind() == LDFileFormat::Group)
     return FragmentRef::Null();
 
   return FragmentRef::Create(*sect_hdr, pOffset);
 }
 
 /// getSymVisibility
-ResolveInfo::Visibility
-ELFReaderIF::getSymVisibility(uint8_t pVis) const
+ResolveInfo::Visibility ELFReaderIF::getSymVisibility(uint8_t pVis) const
 {
   return static_cast<ResolveInfo::Visibility>(pVis);
 }
@@ -136,7 +134,7 @@ uint64_t ELFReaderIF::getSymValue(uint64_t pValue,
                                   uint16_t pShndx,
                                   const Input& pInput) const
 {
-  if (Input::Object == pInput.type()) {
+  if (pInput.type() == Input::Object) {
     // In relocatable files, st_value holds alignment constraints for a symbol
     // whose section index is SHN_COMMON
     if (pShndx == llvm::ELF::SHN_COMMON || pShndx == llvm::ELF::SHN_ABS) {
@@ -156,4 +154,3 @@ uint64_t ELFReaderIF::getSymValue(uint64_t pValue,
   // the virtual address is needed for alias identification.
   return pValue;
 }
-

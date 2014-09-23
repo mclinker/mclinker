@@ -9,12 +9,12 @@
 #ifndef MCLD_LD_LDSYMBOL_H
 #define MCLD_LD_LDSYMBOL_H
 
-#include <cassert>
-
-#include <mcld/Config/Config.h>
 #include <mcld/ADT/Uncopyable.h>
+#include <mcld/Config/Config.h>
 #include <mcld/LD/ResolveInfo.h>
 #include <mcld/Support/Allocators.h>
+
+#include <cassert>
 
 namespace llvm {
 
@@ -57,71 +57,65 @@ public:
   bool isNull() const;
 
   const char* name() const {
-    assert(NULL != m_pResolveInfo);
+    assert(m_pResolveInfo != NULL);
     return m_pResolveInfo->name();
   }
 
   unsigned int nameSize() const {
-    assert(NULL != m_pResolveInfo);
+    assert(m_pResolveInfo != NULL);
     return m_pResolveInfo->nameSize();
   }
 
   llvm::StringRef str() const {
-    assert(NULL != m_pResolveInfo);
+    assert(m_pResolveInfo != NULL);
     return llvm::StringRef(m_pResolveInfo->name(), m_pResolveInfo->nameSize());
   }
 
   bool isDyn() const {
-    assert(NULL != m_pResolveInfo);
+    assert(m_pResolveInfo != NULL);
     return m_pResolveInfo->isDyn();
   }
 
   unsigned int type() const {
-    assert(NULL != m_pResolveInfo);
+    assert(m_pResolveInfo != NULL);
     return m_pResolveInfo->type();
   }
  unsigned int desc() const {
-    assert(NULL != m_pResolveInfo);
+    assert(m_pResolveInfo != NULL);
     return m_pResolveInfo->desc();
   }
   unsigned int binding() const {
-    assert(NULL != m_pResolveInfo);
+    assert(m_pResolveInfo != NULL);
     return m_pResolveInfo->binding();
   }
 
   uint8_t other() const {
-    assert(NULL != m_pResolveInfo);
+    assert(m_pResolveInfo != NULL);
     return m_pResolveInfo->other();
   }
 
   uint8_t visibility() const {
-    assert(NULL != m_pResolveInfo);
+    assert(m_pResolveInfo != NULL);
     return m_pResolveInfo->other();
   }
 
   ValueType value() const
   { return m_Value; }
 
-  const FragmentRef* fragRef() const
-  { return m_pFragRef; }
-
-  FragmentRef* fragRef()
-  { return m_pFragRef; }
+  const FragmentRef* fragRef() const { return m_pFragRef; }
+  FragmentRef*       fragRef()       { return m_pFragRef; }
 
   SizeType size() const
   { return m_pResolveInfo->size(); }
 
-  ResolveInfo* resolveInfo()
-  { return m_pResolveInfo; }
-
-  const ResolveInfo* resolveInfo() const
-  { return m_pResolveInfo; }
+  const ResolveInfo* resolveInfo() const { return m_pResolveInfo; }
+  ResolveInfo*       resolveInfo()       { return m_pResolveInfo; }
 
   bool hasFragRef() const;
 
   // -----  modifiers  ----- //
   void setSize(SizeType pSize) {
-    assert(NULL != m_pResolveInfo);
+    assert(m_pResolveInfo != NULL);
     m_pResolveInfo->setSize(pSize);
   }
 
@@ -145,10 +139,8 @@ private:
   ResolveInfo* m_pResolveInfo;
   FragmentRef* m_pFragRef;
   ValueType m_Value;
-
 };
 
 } // namespace mcld
 
 #endif
-

@@ -7,8 +7,11 @@
 //
 //===----------------------------------------------------------------------===//
 #include <mcld/LD/TextDiagnosticPrinter.h>
+
 #include <mcld/LinkerConfig.h>
+
 #include <llvm/Support/Signals.h>
+
 #include <string>
 
 using namespace mcld;
@@ -25,7 +28,7 @@ static const enum llvm::raw_ostream::Colors IgnoreColor      = llvm::raw_ostream
 // TextDiagnosticPrinter
 TextDiagnosticPrinter::TextDiagnosticPrinter(llvm::raw_ostream& pOStream,
                                              const LinkerConfig& pConfig)
-  : m_OStream(pOStream), m_Config(pConfig), m_pInput(NULL) {
+    : m_OStream(pOStream), m_Config(pConfig), m_pInput(NULL) {
 }
 
 TextDiagnosticPrinter::~TextDiagnosticPrinter()
@@ -74,7 +77,7 @@ TextDiagnosticPrinter::handleDiagnostic(DiagnosticEngine::Severity pSeverity,
     }
     case DiagnosticEngine::Debug: {
       // show debug message only if verbose >= 0
-      if (0 <= m_Config.options().verbose()) {
+      if (m_Config.options().verbose() >= 0) {
         m_OStream.changeColor(DebugColor, true);
         m_OStream << "Debug: ";
         m_OStream.resetColor();
@@ -84,7 +87,7 @@ TextDiagnosticPrinter::handleDiagnostic(DiagnosticEngine::Severity pSeverity,
     }
     case DiagnosticEngine::Note: {
       // show ignored message only if verbose >= 1
-      if (1 <= m_Config.options().verbose()) {
+      if (m_Config.options().verbose() >= 1) {
         m_OStream.changeColor(NoteColor, true);
         m_OStream << "Note: ";
         m_OStream.resetColor();
@@ -94,7 +97,7 @@ TextDiagnosticPrinter::handleDiagnostic(DiagnosticEngine::Severity pSeverity,
     }
     case DiagnosticEngine::Ignore: {
       // show ignored message only if verbose >= 2
-      if (2 <= m_Config.options().verbose()) {
+      if (m_Config.options().verbose() >= 2) {
         m_OStream.changeColor(IgnoreColor, true);
         m_OStream << "Ignore: ";
         m_OStream.resetColor();

@@ -9,22 +9,19 @@
 #ifndef MCLD_LD_ELFOBJWRITER_H
 #define MCLD_LD_ELFOBJWRITER_H
 #include <mcld/LD/ObjectWriter.h>
-#include <cassert>
-
 #include <mcld/Support/FileOutputBuffer.h>
+
+#include <cassert>
 
 namespace mcld {
 
 class EhFrame;
-class Module;
-class LinkerConfig;
 class GNULDBackend;
-class FragmentLinker;
-class Relocation;
 class LDSection;
-class SectionData;
+class LinkerConfig;
+class Module;
 class RelocData;
-class Output;
+class SectionData;
 
 /** \class ELFObjectWriter
  *  \brief ELFObjectWriter writes the target-independent parts of object files.
@@ -44,11 +41,11 @@ public:
 
 private:
   void writeSection(Module& pModule,
-                    FileOutputBuffer& pOutput, LDSection *section);
-
-  GNULDBackend&       target()        { return m_Backend; }
+                    FileOutputBuffer& pOutput,
+                    LDSection *section);
 
   const GNULDBackend& target() const  { return m_Backend; }
+  GNULDBackend&       target()        { return m_Backend; }
 
   // writeELFHeader - emit ElfXX_Ehdr
   template<size_t SIZE>
@@ -77,7 +74,8 @@ private:
   void emitSectionData(const LDSection& pSection, MemoryRegion& pRegion) const;
 
   void emitEhFrame(Module& pModule,
-                   EhFrame& pFrame, MemoryRegion& pRegion) const;
+                   EhFrame& pFrame,
+                   MemoryRegion& pRegion) const;
 
   void emitRelocation(const LinkerConfig& pConfig,
                       const LDSection& pSection,
@@ -127,7 +125,6 @@ uint64_t ELFObjectWriter::getLastStartOffset<32>(const Module& pModule) const;
 template<>
 uint64_t ELFObjectWriter::getLastStartOffset<64>(const Module& pModule) const;
 
-} // namespace of mcld
+} // namespace mcld
 
 #endif
-

@@ -7,6 +7,7 @@
 //
 //===----------------------------------------------------------------------===//
 #include <mcld/LD/StaticResolver.h>
+
 #include <mcld/LD/LDSymbol.h>
 #include <mcld/Support/Demangle.h>
 #include <mcld/Support/MsgHandling.h>
@@ -21,7 +22,8 @@ StaticResolver::~StaticResolver()
 
 bool StaticResolver::resolve(ResolveInfo& __restrict__ pOld,
                              const ResolveInfo& __restrict__ pNew,
-                             bool &pOverride, LDSymbol::ValueType pValue) const
+                             bool &pOverride,
+                             LDSymbol::ValueType pValue) const
 {
 
   /* The state table itself.
@@ -145,7 +147,7 @@ bool StaticResolver::resolve(ResolveInfo& __restrict__ pOld,
       }
       /* Fall through */
       case IND: {        /* override by indirect symbol.  */
-        if (NULL == pNew.link()) {
+        if (pNew.link() == NULL) {
           fatal(diag::indirect_refer_to_inexist) << pNew.name();
           break;
         }
@@ -191,7 +193,7 @@ bool StaticResolver::resolve(ResolveInfo& __restrict__ pOld,
         break;
       }
       case REFC: {       /* Mark indirect symbol referenced and then CYCLE.  */
-        if (NULL == old->link()) {
+        if (old->link() == NULL) {
           fatal(diag::indirect_refer_to_inexist) << old->name();
           break;
         }
@@ -209,4 +211,3 @@ bool StaticResolver::resolve(ResolveInfo& __restrict__ pOld,
   } while(cycle);
   return true;
 }
-

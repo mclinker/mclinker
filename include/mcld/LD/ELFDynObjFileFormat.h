@@ -24,7 +24,6 @@ class ELFDynObjFileFormat : public ELFFileFormat
   void initObjectFormat(ObjectBuilder& pBuilder, unsigned int pBitClass);
 };
 
-} // namespace of mcld
+} // namespace mcld
 
 #endif
-

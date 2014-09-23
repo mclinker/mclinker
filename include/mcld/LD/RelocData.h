@@ -36,10 +36,10 @@ private:
   friend class Chunk<RelocData, MCLD_SECTIONS_PER_INPUT>;
 
   RelocData();
-  explicit RelocData(LDSection &pSection);
+  explicit RelocData(LDSection& pSection);
 
-  RelocData(const RelocData &);            // DO NOT IMPLEMENT
-  RelocData& operator=(const RelocData &); // DO NOT IMPLEMENT
+  RelocData(const RelocData&);            // DO NOT IMPLEMENT
+  RelocData& operator=(const RelocData&); // DO NOT IMPLEMENT
 
 public:
   typedef llvm::iplist<Relocation,
@@ -74,10 +74,10 @@ public:
   RelocData& append(Relocation& pRelocation);
   Relocation& remove(Relocation& pRelocation);
 
-  reference              front ()       { return m_Relocations.front();  }
   const_reference        front () const { return m_Relocations.front();  }
-  reference              back  ()       { return m_Relocations.back();   }
+  reference              front ()       { return m_Relocations.front();  }
   const_reference        back  () const { return m_Relocations.back();   }
+  reference              back  ()       { return m_Relocations.back();   }
 
   const_iterator         begin () const { return m_Relocations.begin();  }
   iterator               begin ()       { return m_Relocations.begin();  }
@@ -96,17 +96,16 @@ public:
     relocs.sort(pComparator);
     m_Relocations.clear();
     for (std::list<Relocation*>::iterator it = relocs.begin(),
-      ie = relocs.end(); it != ie; ++it)
+            ie = relocs.end(); it != ie; ++it) {
       m_Relocations.push_back(*it);
+    }
   }
 
 private:
   RelocationListType m_Relocations;
   LDSection* m_pSection;
-
 };
 
-} // namespace of mcld
+} // namespace mcld
 
 #endif
-

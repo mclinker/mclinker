@@ -9,23 +9,19 @@
 #ifndef MCLD_LD_NAMEPOOL_H
 #define MCLD_LD_NAMEPOOL_H
 
-#include <mcld/Config/Config.h>
 #include <mcld/ADT/HashTable.h>
 #include <mcld/ADT/StringHash.h>
 #include <mcld/ADT/Uncopyable.h>
-#include <mcld/LD/Resolver.h>
+#include <mcld/Config/Config.h>
 #include <mcld/LD/ResolveInfo.h>
+#include <mcld/LD/Resolver.h>
 #include <mcld/Support/GCFactory.h>
-
-#include <utility>
 
 #include <llvm/ADT/StringRef.h>
 
-namespace mcld {
+#include <utility>
 
-class StringTable;
-class SymbolTableIF;
-class SectionData;
+namespace mcld {
 
 /** \class NamePool
  *  \brief Store symbol and search symbol by name. Can help symbol resolution.
@@ -53,13 +49,14 @@ public:
   // -----  modifiers  ----- //
   /// createSymbol - create a symbol but do not insert into the pool.
   /// The created symbol did not go through the path of symbol resolution.
-  ResolveInfo* createSymbol(const llvm::StringRef& pName,
-                            bool pIsDyn,
-                            ResolveInfo::Type pType,
-                            ResolveInfo::Desc pDesc,
-                            ResolveInfo::Binding pBinding,
-                            ResolveInfo::SizeType pSize,
-                            ResolveInfo::Visibility pVisibility = ResolveInfo::Default);
+  ResolveInfo*
+  createSymbol(const llvm::StringRef& pName,
+               bool pIsDyn,
+               ResolveInfo::Type pType,
+               ResolveInfo::Desc pDesc,
+               ResolveInfo::Binding pBinding,
+               ResolveInfo::SizeType pSize,
+               ResolveInfo::Visibility pVisibility = ResolveInfo::Default);
 
   /// insertSymbol - insert a symbol and resolve the symbol immediately
   /// @param pOldInfo - if pOldInfo is not NULL, the old ResolveInfo being
@@ -136,7 +133,6 @@ private:
   FreeInfoSet m_FreeInfoSet;
 };
 
-} // namespace of mcld
+} // namespace mcld
 
 #endif
-

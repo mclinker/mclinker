@@ -6,16 +6,18 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
+#include <mcld/LD/Relocator.h>
+
+#include <mcld/Module.h>
 #include <mcld/Fragment/Fragment.h>
 #include <mcld/LD/LDContext.h>
 #include <mcld/LD/LDSection.h>
 #include <mcld/LD/LDSymbol.h>
-#include <mcld/LD/Relocator.h>
 #include <mcld/LD/ResolveInfo.h>
 #include <mcld/LD/SectionData.h>
 #include <mcld/Support/Demangle.h>
 #include <mcld/Support/MsgHandling.h>
-#include <mcld/Module.h>
+
 #include <sstream>
 
 using namespace mcld;
@@ -43,9 +45,9 @@ void Relocator::partialScanRelocation(Relocation& pReloc,
     // 2. get output section symbol
     // get the output LDSection which the symbol defined in
     const LDSection& out_sect =
-                        input_sym->fragRef()->frag()->getParent()->getSection();
+        input_sym->fragRef()->frag()->getParent()->getSection();
     ResolveInfo* sym_info =
-                     pModule.getSectionSymbolSet().get(out_sect)->resolveInfo();
+        pModule.getSectionSymbolSet().get(out_sect)->resolveInfo();
     // set relocation target symbol to the output section symbol's resolveInfo
     pReloc.setSymInfo(sym_info);
   }
@@ -57,7 +59,8 @@ void Relocator::issueUndefRef(Relocation& pReloc,
 {
   FragmentRef::Offset undef_sym_pos = pReloc.targetRef().offset();
   std::string sect_name(pSection.name());
-  sect_name = sect_name.substr(sect_name.find('.', /*pos=*/1));  // Drop .rel(a) prefix
+  // Drop .rel(a) prefix
+  sect_name = sect_name.substr(sect_name.find('.', /*pos=*/1));
 
   std::string reloc_sym(pReloc.symInfo()->name());
   reloc_sym = demangleName(reloc_sym);
@@ -78,7 +81,7 @@ void Relocator::issueUndefRef(Relocation& pReloc,
   std::string caller_file_name;
   std::string caller_func_name;
   for (LDContext::sym_iterator i = pInput.context()->symTabBegin(),
-       e = pInput.context()->symTabEnd(); i != e; ++i) {
+          e = pInput.context()->symTabEnd(); i != e; ++i) {
     LDSymbol& sym = **i;
     if (sym.resolveInfo()->type() == ResolveInfo::File)
       caller_file_name = sym.resolveInfo()->name();

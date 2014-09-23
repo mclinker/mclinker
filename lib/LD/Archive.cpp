@@ -7,10 +7,11 @@
 //
 //===----------------------------------------------------------------------===//
 #include <mcld/LD/Archive.h>
-#include <mcld/MC/InputBuilder.h>
 #include <mcld/MC/Input.h>
-#include <llvm/ADT/StringRef.h>
+#include <mcld/MC/InputBuilder.h>
 #include <mcld/Support/MsgHandling.h>
+
+#include <llvm/ADT/StringRef.h>
 
 using namespace mcld;
 
@@ -26,10 +27,10 @@ const char   Archive::PAD[]              = "\n";
 const char   Archive::MEMBER_MAGIC[]     = "`\n";
 
 Archive::Archive(Input& pInputFile, InputBuilder& pBuilder)
- : m_ArchiveFile(pInputFile),
-   m_pInputTree(NULL),
-   m_SymbolFactory(32),
-   m_Builder(pBuilder)
+    : m_ArchiveFile(pInputFile),
+      m_pInputTree(NULL),
+      m_SymbolFactory(32),
+      m_Builder(pBuilder)
 {
   // FIXME: move creation of input tree out of Archive.
   m_pInputTree = new InputTree();
@@ -272,4 +273,3 @@ Input* Archive::getMemberFile(Input& pArchiveFile,
   }
   return member;
 }
-

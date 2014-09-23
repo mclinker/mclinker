@@ -9,8 +9,8 @@
 #ifndef MCLD_LD_LDFILEFORMAT_H
 #define MCLD_LD_LDFILEFORMAT_H
 
-#include <cstdio>
 #include <cassert>
+#include <cstddef>
 
 namespace mcld {
 
@@ -60,44 +60,45 @@ public:
 
   // -----  access functions  ----- //
   LDSection& getText() {
-    assert(NULL != f_pTextSection);
+    assert(f_pTextSection != NULL);
     return *f_pTextSection;
   }
 
   const LDSection& getText() const {
-    assert(NULL != f_pTextSection);
+    assert(f_pTextSection != NULL);
     return *f_pTextSection;
   }
 
   LDSection& getData() {
-    assert(NULL != f_pDataSection);
+    assert(f_pDataSection != NULL);
     return *f_pDataSection;
   }
 
   const LDSection& getData() const {
-    assert(NULL != f_pDataSection);
+    assert(f_pDataSection != NULL);
     return *f_pDataSection;
   }
 
   LDSection& getBSS() {
-    assert(NULL != f_pBSSSection);
+    assert(f_pBSSSection != NULL);
     return *f_pBSSSection;
   }
 
   const LDSection& getBSS() const {
-    assert(NULL != f_pBSSSection);
+    assert(f_pBSSSection != NULL);
     return *f_pBSSSection;
   }
 
   LDSection& getReadOnly() {
-    assert(NULL != f_pReadOnlySection);
+    assert(f_pReadOnlySection != NULL);
     return *f_pReadOnlySection;
   }
 
   const LDSection& getReadOnly() const {
-    assert(NULL != f_pReadOnlySection);
+    assert(f_pReadOnlySection != NULL);
     return *f_pReadOnlySection;
   }
+
 protected:
   //         variable name         :  ELF               MachO
   LDSection* f_pTextSection;       // .text             __text
@@ -106,7 +107,6 @@ protected:
   LDSection* f_pReadOnlySection;   // .rodata           __const
 };
 
-} // namespace of mcld
+} // namespace mcld
 
 #endif
-

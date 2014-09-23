@@ -19,4 +19,3 @@ ObjectWriter::ObjectWriter()
 ObjectWriter::~ObjectWriter()
 {
 }
-

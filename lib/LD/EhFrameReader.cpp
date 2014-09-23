@@ -32,7 +32,7 @@ static bool
 skip_LEB128(EhFrameReader::ConstAddress* pp, EhFrameReader::ConstAddress pend)
 {
   for (EhFrameReader::ConstAddress p = *pp; p < pend; ++p) {
-    if (0x0 == (*p & 0x80)) {
+    if ((*p & 0x80) == 0x0) {
       *pp = p + 1;
       return true;
     }
@@ -56,7 +56,7 @@ EhFrameReader::scan<true>(ConstAddress pHandler,
 
   // Length Field
   uint32_t length = data[cur_idx++];
-  if (0x0 == length) {
+  if (length == 0x0) {
     // terminator
     result.kind = Terminator;
     result.data_off = 4;
@@ -66,7 +66,7 @@ EhFrameReader::scan<true>(ConstAddress pHandler,
 
   // Extended Field
   uint64_t extended = 0x0;
-  if (0xFFFFFFFF == length) {
+  if (length == 0xFFFFFFFF) {
     extended = data[cur_idx++];
     extended <<= 32;
     extended |= data[cur_idx++];
@@ -74,15 +74,14 @@ EhFrameReader::scan<true>(ConstAddress pHandler,
     result.data_off = 16;
     // 64-bit obj file still uses 32-bit eh_frame.
     assert (false && "We don't support 64-bit eh_frame.");
-  }
-  else {
+  } else {
     result.size = length + 4;
     result.data_off = 8;
   }
 
   // ID Field
   uint32_t ID = data[cur_idx++];
-  if (0x0 == ID)
+  if (ID == 0x0)
     result.kind = CIE;
   else
     result.kind = FDE;
@@ -140,7 +139,8 @@ bool EhFrameReader::read<32, true>(Input& pInput, EhFrame& pEhFrame)
   while (Reject != cur_state && Accept != cur_state) {
 
     Token token = scan<true>(handler, file_off, sect_reg);
-    llvm::StringRef entry = pInput.memArea()->request(token.file_off, token.size);
+    llvm::StringRef entry = pInput.memArea()->request(token.file_off,
+                                                      token.size);
 
     if (!transition[cur_state][token.kind](pEhFrame, entry, token)) {
       // fail to scan
@@ -151,13 +151,13 @@ bool EhFrameReader::read<32, true>(Input& pInput, EhFrame& pEhFrame)
     file_off += token.size;
     handler += token.size;
 
-    if (handler == sect_reg.end())
+    if (handler == sect_reg.end()) {
       cur_state = Accept;
-    else if (handler > sect_reg.end()) {
+    } else if (handler > sect_reg.end()) {
       cur_state = Reject;
-    }
-    else
+    } else {
       cur_state = autometa[cur_state][token.kind];
+    }
   } // end of while
 
   if (Reject == cur_state) {
@@ -180,15 +180,17 @@ bool EhFrameReader::addCIE(EhFrame& pEhFrame,
 
   // the version should be 1 or 3
   uint8_t version = *handler++;
-  if (1 != version && 3 != version) {
+  if (version != 1 && version != 3) {
     return false;
   }
 
   // Set up the Augumentation String
   ConstAddress aug_str_front = handler;
-  ConstAddress aug_str_back  = static_cast<ConstAddress>(
-                         memchr(aug_str_front, '\0', cie_end - aug_str_front));
-  if (NULL == aug_str_back) {
+  ConstAddress aug_str_back  =
+     static_cast<ConstAddress>(memchr(aug_str_front,
+                                      '\0',
+                                      cie_end - aug_str_front));
+  if (aug_str_back == NULL) {
     return false;
   }
 
@@ -212,7 +214,7 @@ bool EhFrameReader::addCIE(EhFrame& pEhFrame,
   llvm::StringRef augment((const char*)aug_str_front);
 
   // we discard this CIE if the augumentation string is '\0'
-  if (0 == augment.size()) {
+  if (augment.size() == 0) {
     EhFrame::CIE* cie = new EhFrame::CIE(pRegion);
     cie->setFDEEncode(llvm::dwarf::DW_EH_PE_absptr);
     pEhFrame.addCIE(*cie);
@@ -230,7 +232,7 @@ bool EhFrameReader::addCIE(EhFrame& pEhFrame,
   uint8_t fde_encoding = llvm::dwarf::DW_EH_PE_absptr;
   std::string augdata;
   std::string pr_ptr_data;
-  if ('z' == augment[0]) {
+  if (augment[0] == 'z') {
     unsigned offset;
     size_t augdata_size = llvm::decodeULEB128((const uint8_t*)handler, &offset);
     handler += offset;
@@ -259,7 +261,7 @@ bool EhFrameReader::addCIE(EhFrame& pEhFrame,
           ++handler;
           // get the length of the second argument
           uint32_t per_length = 0;
-          if (0x60 == (per_encode & 0x60)) {
+          if ((per_encode & 0x60) == 0x60) {
             return false;
           }
           switch (per_encode & 7) {

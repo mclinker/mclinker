@@ -12,11 +12,11 @@
 
 namespace mcld {
 
-class Input;
-class LinkerConfig;
-class IRBuilder;
-class GNULDBackend;
 class ELFReaderIF;
+class GNULDBackend;
+class Input;
+class IRBuilder;
+class LinkerConfig;
 
 /** \class ELFDynObjReader
  *  \brief ELFDynObjReader reads ELF dynamic shared objects.
@@ -31,7 +31,7 @@ public:
   ~ELFDynObjReader();
 
   // -----  observers  ----- //
-  bool isMyFormat(Input &pFile, bool &pContinue) const;
+  bool isMyFormat(Input& pFile, bool& pContinue) const;
 
   // -----  readers  ----- //
   bool readHeader(Input& pFile);
@@ -39,11 +39,10 @@ public:
   bool readSymbols(Input& pInput);
 
 private:
-  ELFReaderIF *m_pELFReader;
+  ELFReaderIF* m_pELFReader;
   IRBuilder& m_Builder;
 };
 
-} // namespace of mcld
+} // namespace mcld
 
 #endif
-

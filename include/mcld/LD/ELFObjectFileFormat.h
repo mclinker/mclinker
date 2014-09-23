@@ -25,7 +25,6 @@ class ELFObjectFileFormat : public ELFFileFormat
   }
 };
 
-} // namespace of mcld
+} // namespace mcld
 
 #endif
-

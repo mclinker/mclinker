@@ -7,10 +7,13 @@
 //
 //===----------------------------------------------------------------------===//
 #include <mcld/LD/ResolveInfo.h>
-#include <mcld/LD/LDSection.h>
+
 #include <mcld/LinkerConfig.h>
+#include <mcld/LD/LDSection.h>
 #include <mcld/Support/GCFactory.h>
+
 #include <llvm/Support/ManagedStatic.h>
+
 #include <cstdlib>
 #include <cstring>
 
@@ -23,7 +26,7 @@ static ResolveInfo* g_NullResolveInfo = NULL;
 // ResolveInfo
 //===----------------------------------------------------------------------===//
 ResolveInfo::ResolveInfo()
-  : m_Size(0), m_BitField(0) {
+    : m_Size(0), m_BitField(0) {
   m_Ptr.sym_ptr = 0;
 }
 
@@ -65,8 +68,8 @@ void ResolveInfo::overrideVisibility(const ResolveInfo& pFrom)
 
   Visibility from_vis = pFrom.visibility();
   Visibility cur_vis = visibility();
-  if (0 != from_vis ) {
-    if (0 == cur_vis)
+  if (from_vis != 0) {
+    if (cur_vis == 0)
       setVisibility(from_vis);
     else if (cur_vis > from_vis)
       setVisibility(from_vis);
@@ -239,7 +242,8 @@ uint32_t ResolveInfo::reserved() const
 
 ResolveInfo::Visibility ResolveInfo::visibility() const
 {
-  return static_cast<ResolveInfo::Visibility>((m_BitField & VISIBILITY_MASK) >> VISIBILITY_OFFSET);
+  return static_cast<ResolveInfo::Visibility>(
+            (m_BitField & VISIBILITY_MASK) >> VISIBILITY_OFFSET);
 }
 
 bool ResolveInfo::compare(const ResolveInfo::key_type& pKey)
@@ -247,7 +251,7 @@ bool ResolveInfo::compare(const ResolveInfo::key_type& pKey)
   size_t length = nameSize();
   if (length != pKey.size())
     return false;
-  return (0 == std::memcmp(m_Name, pKey.data(), length));
+  return (std::memcmp(m_Name, pKey.data(), length) == 0);
 }
 
 bool ResolveInfo::shouldForceLocal(const LinkerConfig& pConfig)
@@ -272,7 +276,7 @@ ResolveInfo* ResolveInfo::Create(const ResolveInfo::key_type& pKey)
 {
   ResolveInfo* info = static_cast<ResolveInfo*>(
                           malloc(sizeof(ResolveInfo)+pKey.size()+1));
-  if (NULL == info)
+  if (info == NULL)
     return NULL;
 
   new (info) ResolveInfo(); // call constructor at the `result` address.
@@ -288,7 +292,7 @@ void ResolveInfo::Destroy(ResolveInfo*& pInfo)
   if (pInfo->isNull())
     return;
 
-  if (NULL != pInfo) {
+  if (pInfo != NULL) {
     pInfo->~ResolveInfo();
     free(pInfo);
   }
@@ -298,7 +302,7 @@ void ResolveInfo::Destroy(ResolveInfo*& pInfo)
 
 ResolveInfo* ResolveInfo::Null()
 {
-  if (NULL == g_NullResolveInfo) {
+  if (g_NullResolveInfo == NULL) {
     g_NullResolveInfo = static_cast<ResolveInfo*>(
                           malloc(sizeof(ResolveInfo) + 1));
     new (g_NullResolveInfo) ResolveInfo();
@@ -308,5 +312,3 @@ ResolveInfo* ResolveInfo::Null()
   }
   return g_NullResolveInfo;
 }
-
-

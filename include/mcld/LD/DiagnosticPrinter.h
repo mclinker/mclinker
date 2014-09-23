@@ -8,8 +8,9 @@
 //===----------------------------------------------------------------------===//
 #ifndef MCLD_LD_DIAGNOSTICPRINTER_H
 #define MCLD_LD_DIAGNOSTICPRINTER_H
-#include <mcld/LD/DiagnosticEngine.h>
+
 #include <mcld/LD/Diagnostic.h>
+#include <mcld/LD/DiagnosticEngine.h>
 
 namespace mcld
 {
@@ -47,7 +48,6 @@ protected:
   unsigned int m_NumWarnings;
 };
 
-} // namespace of mcld
+} // namespace mcld
 
 #endif
-

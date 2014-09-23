@@ -9,23 +9,20 @@
 #ifndef MCLD_LD_ELFREADERIF_H
 #define MCLD_LD_ELFREADERIF_H
 
+#include <mcld/LinkerConfig.h>
+#include <mcld/Support/MsgHandling.h>
+#include <mcld/Target/GNULDBackend.h>
+
 #include <llvm/ADT/StringRef.h>
 #include <llvm/Support/ELF.h>
 #include <llvm/Support/Host.h>
 
-#include <mcld/Module.h>
-#include <mcld/LinkerConfig.h>
-#include <mcld/LD/LDContext.h>
-#include <mcld/Target/GNULDBackend.h>
-#include <mcld/Support/MsgHandling.h>
-
 namespace mcld {
 
-class Module;
 class IRBuilder;
 class FragmentRef;
-class SectionData;
 class LDSection;
+class SectionData;
 
 /** \class ELFReaderIF
  *  \brief ELFReaderIF provides common interface for all kind of ELF readers.
@@ -34,7 +31,7 @@ class ELFReaderIF
 {
 public:
   ELFReaderIF(GNULDBackend& pBackend)
-    : m_Backend(pBackend)
+      : m_Backend(pBackend)
   { }
 
   virtual ~ELFReaderIF() { }
@@ -124,7 +121,6 @@ protected:
   GNULDBackend& m_Backend;
 };
 
-} // namespace of mcld
+} // namespace mcld
 
 #endif
-

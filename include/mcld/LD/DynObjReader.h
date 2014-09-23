@@ -34,7 +34,6 @@ public:
 
 };
 
-} // namespace of mcld
+} // namespace mcld
 
 #endif
-

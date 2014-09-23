@@ -9,21 +9,20 @@
 #ifndef MCLD_LD_ELFREADER_H
 #define MCLD_LD_ELFREADER_H
 
+#include <mcld/LD/ELFReaderIf.h>
+#include <mcld/LD/LDSymbol.h>
+#include <mcld/LD/ResolveInfo.h>
+#include <mcld/Target/GNULDBackend.h>
+
 #include <llvm/ADT/StringRef.h>
 #include <llvm/Support/ELF.h>
 #include <llvm/Support/Host.h>
 
-#include <mcld/LD/ELFReaderIf.h>
-#include <mcld/LD/ResolveInfo.h>
-#include <mcld/LD/LDSymbol.h>
-#include <mcld/Target/GNULDBackend.h>
-
 namespace mcld {
 
-//class Module;
 class IRBuilder;
-class SectionData;
 class LDSection;
+class SectionData;
 
 /** \class ELFReader
  *  \brief ELFReader is a template scaffolding for partial specification.
@@ -111,16 +110,14 @@ private:
     if (p1.ld_value != p2.ld_value)
       return (p1.ld_value < p2.ld_value);
     if (p1.ld_binding != p2.ld_binding) {
-      if (ResolveInfo::Weak==p1.ld_binding)
+      if (ResolveInfo::Weak == p1.ld_binding)
         return true;
-      else if (ResolveInfo::Weak==p2.ld_binding)
+      else if (ResolveInfo::Weak == p2.ld_binding)
         return false;
     }
     return p1.pt_alias->str() < p2.pt_alias->str();
   }
-
 };
-
 
 /** \class ELFReader<64, true>
  *  \brief ELFReader<64, true> is a 64-bit, little endian ELFReader.
@@ -208,10 +205,8 @@ private:
     }
     return p1.pt_alias->str() < p2.pt_alias->str();
   }
-
 };
 
-} // namespace of mcld
+} // namespace mcld
 
 #endif
-

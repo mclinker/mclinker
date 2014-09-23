@@ -13,7 +13,6 @@
 
 namespace mcld {
 
-class Module;
 class Input;
 class IRBuilder;
 class LinkerConfig;
@@ -28,7 +27,7 @@ public:
 
   ~ELFBinaryReader();
 
-  bool isMyFormat(Input& pInput, bool &pContinue) const;
+  bool isMyFormat(Input& pInput, bool& pContinue) const;
 
   bool readBinary(Input& pInput);
 
@@ -37,7 +36,6 @@ private:
   const LinkerConfig& m_Config;
 };
 
-} // namespace of mcld
+} // namespace mcld
 
 #endif
-

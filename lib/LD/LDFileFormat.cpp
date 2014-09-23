@@ -14,13 +14,12 @@ using namespace mcld;
 // LDFileInfo
 //===----------------------------------------------------------------------===//
 LDFileFormat::LDFileFormat()
-  : f_pTextSection(NULL),
-    f_pDataSection(NULL),
-    f_pBSSSection(NULL),
-    f_pReadOnlySection(NULL) {
+    : f_pTextSection(NULL),
+      f_pDataSection(NULL),
+      f_pBSSSection(NULL),
+      f_pReadOnlySection(NULL) {
 }
 
 LDFileFormat::~LDFileFormat()
 {
 }
-

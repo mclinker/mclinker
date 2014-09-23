@@ -20,7 +20,6 @@ class DynObjFormat : public LDFileFormat
 
 };
 
-} // namespace of mcld
+} // namespace mcld
 
 #endif
-

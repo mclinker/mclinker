@@ -7,14 +7,15 @@
 //
 //===----------------------------------------------------------------------===//
 #include <mcld/LD/RelocationFactory.h>
+
 #include <mcld/LinkerConfig.h>
-#include <mcld/Target/TargetLDBackend.h>
 #include <mcld/Support/MsgHandling.h>
+#include <mcld/Target/TargetLDBackend.h>
 
 #include <llvm/Support/Host.h>
 
-#include <cstring>
 #include <cassert>
+#include <cstring>
 
 using namespace mcld;
 
@@ -22,7 +23,7 @@ using namespace mcld;
 // RelocationFactory
 //===----------------------------------------------------------------------===//
 RelocationFactory::RelocationFactory()
-  : GCFactory<Relocation, MCLD_RELOCATIONS_PER_INPUT>(), m_pConfig(NULL) {
+    : GCFactory<Relocation, MCLD_RELOCATIONS_PER_INPUT>(), m_pConfig(NULL) {
 }
 
 void RelocationFactory::setConfig(const LinkerConfig& pConfig)
@@ -34,7 +35,7 @@ Relocation* RelocationFactory::produce(RelocationFactory::Type pType,
                                        FragmentRef& pFragRef,
                                        Address pAddend)
 {
-  if (NULL == m_pConfig) {
+  if (m_pConfig == NULL) {
     fatal(diag::reloc_factory_has_not_config);
     return NULL;
   }
@@ -66,9 +67,8 @@ Relocation* RelocationFactory::produce(RelocationFactory::Type pType,
         return NULL;
       }
     } // end of switch
-  }
-  else {
-    pFragRef.memcpy(&target_data, (m_pConfig->targets().bitclass()/8));
+  } else {
+    pFragRef.memcpy(&target_data, (m_pConfig->targets().bitclass() / 8));
   }
 
   Relocation* result = allocate();
@@ -87,4 +87,3 @@ void RelocationFactory::destroy(Relocation* pRelocation)
 {
    /** GCFactory will recycle the relocation **/
 }
-

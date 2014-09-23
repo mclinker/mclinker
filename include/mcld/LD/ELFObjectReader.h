@@ -9,17 +9,16 @@
 #ifndef MCLD_ELF_OBJECT_READER_H
 #define MCLD_ELF_OBJECT_READER_H
 
-#include <mcld/LD/ObjectReader.h>
 #include <mcld/ADT/Flags.h>
+#include <mcld/LD/ObjectReader.h>
 
 namespace mcld {
 
-class Module;
+class EhFrameReader;
+class ELFReaderIF;
 class Input;
 class IRBuilder;
 class GNULDBackend;
-class ELFReaderIF;
-class EhFrameReader;
 class LinkerConfig;
 
 /** \lclass ELFObjectReader
@@ -43,7 +42,7 @@ public:
   ~ELFObjectReader();
 
   // -----  observers  ----- //
-  bool isMyFormat(Input &pFile, bool &pContinue) const;
+  bool isMyFormat(Input& pFile, bool& pContinue) const;
 
   // -----  readers  ----- //
   bool readHeader(Input& pFile);
@@ -66,7 +65,6 @@ private:
   const LinkerConfig& m_Config;
 };
 
-} // namespace of mcld
+} // namespace mcld
 
 #endif
-

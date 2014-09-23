@@ -6,9 +6,11 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include <llvm/Support/raw_ostream.h>
 #include <mcld/LD/NamePool.h>
+
 #include <mcld/LD/StaticResolver.h>
+
+#include <llvm/Support/raw_ostream.h>
 
 using namespace mcld;
 
@@ -16,7 +18,7 @@ using namespace mcld;
 // NamePool
 //===----------------------------------------------------------------------===//
 NamePool::NamePool(NamePool::size_type pSize)
-  : m_pResolver(new StaticResolver()), m_Table(pSize) {
+    : m_pResolver(new StaticResolver()), m_Table(pSize) {
 }
 
 NamePool::~NamePool()
@@ -73,8 +75,7 @@ void NamePool::insertSymbol(const llvm::StringRef& pName,
   ResolveInfo* new_symbol = NULL;
   if (exist && old_symbol->isSymbol()) {
     new_symbol = m_Table.getEntryFactory().produce(pName);
-  }
-  else {
+  } else {
     exist = false;
     new_symbol = old_symbol;
   }
@@ -93,8 +94,7 @@ void NamePool::insertSymbol(const llvm::StringRef& pName,
     pResult.existent  = false;
     pResult.overriden = true;
     return;
-  }
-  else if (NULL != pOldInfo) {
+  } else if (pOldInfo != NULL) {
     // existent, remember its attribute
     pOldInfo->override(*old_symbol);
   }
@@ -109,7 +109,7 @@ void NamePool::insertSymbol(const llvm::StringRef& pName,
     pResult.overriden = override;
   }
   else {
-      m_pResolver->resolveAgain(*this, action, *old_symbol, *new_symbol, pResult);
+    m_pResolver->resolveAgain(*this, action, *old_symbol, *new_symbol, pResult);
   }
 
   m_Table.getEntryFactory().destroy(new_symbol);
@@ -151,7 +151,7 @@ const ResolveInfo* NamePool::findInfo(const llvm::StringRef& pName) const
 LDSymbol* NamePool::findSymbol(const llvm::StringRef& pName)
 {
   ResolveInfo* info = findInfo(pName);
-  if (NULL == info)
+  if (info == NULL)
     return NULL;
   return info->outSymbol();
 }
@@ -160,8 +160,7 @@ LDSymbol* NamePool::findSymbol(const llvm::StringRef& pName)
 const LDSymbol* NamePool::findSymbol(const llvm::StringRef& pName) const
 {
   const ResolveInfo* info = findInfo(pName);
-  if (NULL == info)
+  if (info == NULL)
     return NULL;
   return info->outSymbol();
 }
-

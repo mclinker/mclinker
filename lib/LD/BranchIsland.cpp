@@ -7,10 +7,11 @@
 //
 //===----------------------------------------------------------------------===//
 #include <mcld/LD/BranchIsland.h>
-#include <mcld/LD/ResolveInfo.h>
-#include <mcld/LD/LDSection.h>
-#include <mcld/Fragment/Stub.h>
+
 #include <mcld/Fragment/AlignFragment.h>
+#include <mcld/Fragment/Stub.h>
+#include <mcld/LD/LDSection.h>
+#include <mcld/LD/ResolveInfo.h>
 
 #include <sstream>
 
@@ -22,11 +23,11 @@ using namespace mcld;
 BranchIsland::BranchIsland(Fragment& pEntryFrag,
                            size_t pMaxSize,
                            size_t pIndex)
- : m_Entry(pEntryFrag),
-   m_pExit(pEntryFrag.getNextNode()),
-   m_pRear(NULL),
-   m_MaxSize(pMaxSize),
-   m_Name("island-")
+    : m_Entry(pEntryFrag),
+      m_pExit(pEntryFrag.getNextNode()),
+      m_pRear(NULL),
+      m_MaxSize(pMaxSize),
+      m_Name("island-")
 {
   // island name
   std::ostringstream index;
@@ -51,14 +52,14 @@ SectionData::const_iterator BranchIsland::begin() const
 
 SectionData::iterator BranchIsland::end()
 {
-  if (NULL != m_pExit)
+  if (m_pExit != NULL)
     return iterator(m_pExit);
   return m_Entry.getParent()->end();
 }
 
 SectionData::const_iterator BranchIsland::end() const
 {
-  if (NULL != m_pExit)
+  if (m_pExit != NULL)
     return iterator(m_pExit);
   return m_Entry.getParent()->end();
 }
@@ -71,7 +72,7 @@ uint64_t BranchIsland::offset() const
 size_t BranchIsland::size() const
 {
   size_t size = 0x0;
-  if (0x0 != numOfStubs()) {
+  if (numOfStubs() != 0x0) {
     size = m_pRear->getOffset() + m_pRear->size() -
            m_Entry.getNextNode()->getOffset();
   }
@@ -100,7 +101,7 @@ Stub* BranchIsland::findStub(const Stub* pPrototype, const Relocation& pReloc)
   Key key(pPrototype, pReloc.symInfo()->outSymbol(), pReloc.addend());
   StubMapType::iterator it = m_StubMap.find(key);
   if (it != m_StubMap.end()) {
-    assert(NULL != it.getEntry()->value());
+    assert(it.getEntry()->value() != NULL);
     return it.getEntry()->value();
   }
   return NULL;
@@ -145,4 +146,3 @@ bool BranchIsland::addRelocation(Relocation& pReloc)
   m_Relocations.push_back(&pReloc);
   return true;
 }
-

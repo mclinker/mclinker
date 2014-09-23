@@ -8,10 +8,12 @@
 //===----------------------------------------------------------------------===//
 #ifndef MCLD_LD_ELFSEGMENT_H
 #define MCLD_LD_ELFSEGMENT_H
-#include <mcld/Support/Allocators.h>
 #include <mcld/Config/Config.h>
-#include <llvm/Support/ELF.h>
+#include <mcld/Support/Allocators.h>
+
 #include <llvm/Support/DataTypes.h>
+#include <llvm/Support/ELF.h>
+
 #include <vector>
 
 namespace mcld
@@ -123,7 +125,6 @@ private:
   SectionList m_SectionList;
 };
 
-} // namespace of mcld
+} // namespace mcld
 
 #endif
-

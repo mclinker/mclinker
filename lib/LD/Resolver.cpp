@@ -15,4 +15,3 @@ using namespace mcld;
 Resolver::~Resolver()
 {
 }
-

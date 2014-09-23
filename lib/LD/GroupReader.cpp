@@ -6,12 +6,13 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
+#include <mcld/LD/GroupReader.h>
+
 #include <mcld/LD/Archive.h>
 #include <mcld/LD/ArchiveReader.h>
-#include <mcld/LD/DynObjReader.h>
-#include <mcld/LD/GroupReader.h>
-#include <mcld/LD/ObjectReader.h>
 #include <mcld/LD/BinaryReader.h>
+#include <mcld/LD/DynObjReader.h>
+#include <mcld/LD/ObjectReader.h>
 #include <mcld/LinkerConfig.h>
 #include <mcld/MC/Attribute.h>
 #include <mcld/Support/MsgHandling.h>
@@ -23,11 +24,11 @@ GroupReader::GroupReader(Module& pModule,
                          DynObjReader& pDynObjReader,
                          ArchiveReader& pArchiveReader,
                          BinaryReader& pBinaryReader)
-  : m_Module(pModule),
-    m_ObjectReader(pObjectReader),
-    m_DynObjReader(pDynObjReader),
-    m_ArchiveReader(pArchiveReader),
-    m_BinaryReader(pBinaryReader)
+    : m_Module(pModule),
+      m_ObjectReader(pObjectReader),
+      m_DynObjReader(pDynObjReader),
+      m_ArchiveReader(pArchiveReader),
+      m_BinaryReader(pBinaryReader)
 {
 }
 
@@ -83,15 +84,13 @@ bool GroupReader::readGroup(Module::input_iterator pRoot,
       // read archive
       m_ArchiveReader.readArchive(pConfig, *ar);
       cur_obj_cnt += ar->numOfObjectMember();
-    }
-    // read input as a binary file
-    else if (doContinue && m_BinaryReader.isMyFormat(**input, doContinue)) {
+    } else if (doContinue && m_BinaryReader.isMyFormat(**input, doContinue)) {
+      // read input as a binary file
       (*input)->setType(Input::Object);
       m_BinaryReader.readBinary(**input);
       m_Module.getObjectList().push_back(*input);
-    }
-    // is a relocatable object file
-    else if (doContinue && m_ObjectReader.isMyFormat(**input, doContinue)) {
+    } else if (doContinue && m_ObjectReader.isMyFormat(**input, doContinue)) {
+      // is a relocatable object file
       (*input)->setType(Input::Object);
       m_ObjectReader.readHeader(**input);
       m_ObjectReader.readSections(**input);
@@ -99,17 +98,15 @@ bool GroupReader::readGroup(Module::input_iterator pRoot,
       m_Module.getObjectList().push_back(*input);
       ++cur_obj_cnt;
       ++non_ar_obj_cnt;
-    }
-    // is a shared object file
-    else if (doContinue && m_DynObjReader.isMyFormat(**input, doContinue)) {
+    } else if (doContinue && m_DynObjReader.isMyFormat(**input, doContinue)) {
+      // is a shared object file
       (*input)->setType(Input::DynObj);
       m_DynObjReader.readHeader(**input);
       m_DynObjReader.readSymbols(**input);
       m_Module.getLibraryList().push_back(*input);
-    }
-    else {
+    } else {
       warning(diag::warn_unrecognized_input_file) << (*input)->path()
-        << pConfig.targets().triple().str();
+          << pConfig.targets().triple().str();
     }
     ++input;
   }
@@ -124,7 +121,7 @@ bool GroupReader::readGroup(Module::input_iterator pRoot,
     for (it = ar_list.begin(); it != end; ++it) {
       Archive& ar = (*it)->archive;
       // if --whole-archive is given to this archive, no need to read it again
-      if ( ar.getARFile().attribute()->isWholeArchive())
+      if (ar.getARFile().attribute()->isWholeArchive())
         continue;
       m_ArchiveReader.readArchive(pConfig, ar);
       cur_obj_cnt += ar.numOfObjectMember();
@@ -150,4 +147,3 @@ bool GroupReader::readGroup(Module::input_iterator pRoot,
 
   return true;
 }
-

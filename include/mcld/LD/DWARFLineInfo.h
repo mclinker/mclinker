@@ -22,7 +22,6 @@ class DWARFLineInfo : public DiagnosticLineInfo
 
 };
 
-} // namespace of mcld
+} // namespace mcld
 
 #endif
-

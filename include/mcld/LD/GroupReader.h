@@ -15,10 +15,11 @@ namespace mcld
 {
 class Archive;
 class ArchiveReader;
+class BinaryReader;
 class DynObjReader;
+class InputBuilder;
 class LinkerConfig;
 class ObjectReader;
-class BinaryReader;
 
 /** \class GroupReader
  *  \brief GroupReader handles the Group Node in InputTree
@@ -49,7 +50,7 @@ private:
   /// of the archive node
   struct ArchiveListEntry {
     ArchiveListEntry(Archive& pArchive, Module::input_iterator pIterator)
-      : archive(pArchive), input(pIterator) {
+        : archive(pArchive), input(pIterator) {
     }
     Archive& archive;
     Module::input_iterator input;
@@ -63,7 +64,6 @@ private:
   BinaryReader& m_BinaryReader;
 };
 
-} // namespace of mcld
+} // namespace mcld
 
 #endif
-

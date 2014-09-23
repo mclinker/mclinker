@@ -6,7 +6,7 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include "mcld/LD/ArchiveReader.h"
+#include <mcld/LD/ArchiveReader.h>
 
 using namespace mcld;
 

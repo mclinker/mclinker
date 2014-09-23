@@ -9,16 +9,16 @@
 #ifndef MCLD_LD_GNUARCHIVEREADER_H
 #define MCLD_LD_GNUARCHIVEREADER_H
 
-#include <mcld/LD/ArchiveReader.h>
 #include <mcld/LD/Archive.h>
+#include <mcld/LD/ArchiveReader.h>
 
 namespace mcld {
 
-class Module;
-class Input;
-class ELFObjectReader;
 class Archive;
+class ELFObjectReader;
+class Input;
 class LinkerConfig;
+class Module;
 
 /** \class GNUArchiveReader
  *  \brief GNUArchiveReader reads GNU archive files.
@@ -91,7 +91,6 @@ private:
   ELFObjectReader& m_ELFObjectReader;
 };
 
-} // namespace of mcld
+} // namespace mcld
 
 #endif
-

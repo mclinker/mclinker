@@ -15,14 +15,14 @@
 #include <mcld/ADT/StringHash.h>
 #include <mcld/Support/GCFactory.h>
 
-#include <vector>
 #include <string>
+#include <vector>
 
 namespace mcld {
 
 class Input;
-class InputFactory;
 class InputBuilder;
+class InputFactory;
 
 /** \class Archive
  *  \brief This class define the interfacee to Archive files
@@ -89,12 +89,14 @@ public:
 private:
   typedef HashEntry<const llvm::StringRef,
                     ArchiveMember,
-                    hash::StringCompare<llvm::StringRef> > ArchiveMemberEntryType;
+                    hash::StringCompare<llvm::StringRef> >
+              ArchiveMemberEntryType;
 
 public:
   typedef HashTable<ArchiveMemberEntryType,
                     hash::StringHash<hash::DJB>,
-                    EntryFactory<ArchiveMemberEntryType> > ArchiveMemberMapType;
+                    EntryFactory<ArchiveMemberEntryType> >
+              ArchiveMemberMapType;
 
   struct Symbol
   {
@@ -109,11 +111,11 @@ public:
     Symbol(const char* pName,
            uint32_t pOffset,
            enum Status pStatus)
-     : name(pName), fileOffset(pOffset), status(pStatus)
-    {}
+         : name(pName), fileOffset(pOffset), status(pStatus)
+    { }
 
     ~Symbol()
-    {}
+    { }
 
   public:
     std::string name;
@@ -198,10 +200,9 @@ public:
   /// addSymbol - add a symtab entry to symtab
   /// @param pName - symbol name
   /// @param pFileOffset - file offset in symtab represents a object file
-  void
-  addSymbol(const char* pName,
-            uint32_t pFileOffset,
-            enum Symbol::Status pStatus = Archive::Symbol::Unknown);
+  void addSymbol(const char* pName,
+                 uint32_t pFileOffset,
+                 enum Symbol::Status pStatus = Archive::Symbol::Unknown);
 
   /// getSymbolName - get the symbol name with the given index
   const std::string& getSymbolName(size_t pSymIdx) const;
@@ -251,7 +252,6 @@ private:
   InputBuilder& m_Builder;
 };
 
-} // namespace of mcld
+} // namespace mcld
 
 #endif
-

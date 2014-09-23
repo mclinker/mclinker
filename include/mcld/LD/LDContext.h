@@ -9,15 +9,17 @@
 #ifndef MCLD_LD_LDCONTEXT_H
 #define MCLD_LD_LDCONTEXT_H
 
-#include <vector>
 #include <mcld/LD/LDFileFormat.h>
+
 #include <llvm/Support/DataTypes.h>
-#include <string>
+
 #include <cassert>
+#include <string>
+#include <vector>
 
 namespace llvm {
-class StringRef;
-}
+  class StringRef;
+} // namespace llvm
 
 namespace mcld {
 
@@ -90,8 +92,6 @@ private:
   // FIXME : maintain a map<section name, section index>
 };
 
-
-} // namespace of mcld
+} // namespace mcld
 
 #endif
-

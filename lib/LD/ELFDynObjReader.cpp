@@ -8,12 +8,13 @@
 //===----------------------------------------------------------------------===//
 #include <mcld/LD/ELFDynObjReader.h>
 
-#include <mcld/LinkerConfig.h>
 #include <mcld/IRBuilder.h>
+#include <mcld/LinkerConfig.h>
 #include <mcld/LD/ELFReader.h>
+#include <mcld/LD/LDContext.h>
 #include <mcld/MC/Input.h>
-#include <mcld/Target/GNULDBackend.h>
 #include <mcld/Support/MemoryArea.h>
+#include <mcld/Target/GNULDBackend.h>
 
 #include <llvm/ADT/StringRef.h>
 #include <llvm/ADT/Twine.h>
@@ -29,9 +30,9 @@ using namespace mcld;
 ELFDynObjReader::ELFDynObjReader(GNULDBackend& pBackend,
                                  IRBuilder& pBuilder,
                                  const LinkerConfig& pConfig)
-  : DynObjReader(),
-    m_pELFReader(0),
-    m_Builder(pBuilder) {
+    : DynObjReader(),
+      m_pELFReader(0),
+      m_Builder(pBuilder) {
   if (pConfig.targets().is32Bits() && pConfig.targets().isLittleEndian())
     m_pELFReader = new ELFReader<32, true>(pBackend);
   else if (pConfig.targets().is64Bits() && pConfig.targets().isLittleEndian())
@@ -99,7 +100,7 @@ bool ELFDynObjReader::readSymbols(Input& pInput)
   assert(pInput.hasMemArea());
 
   LDSection* symtab_shdr = pInput.context()->getSection(".dynsym");
-  if (NULL == symtab_shdr) {
+  if (symtab_shdr == NULL) {
     note(diag::note_has_no_symtab) << pInput.name()
                                    << pInput.path()
                                    << ".dynsym";
@@ -107,7 +108,7 @@ bool ELFDynObjReader::readSymbols(Input& pInput)
   }
 
   LDSection* strtab_shdr = symtab_shdr->getLink();
-  if (NULL == strtab_shdr) {
+  if (strtab_shdr == NULL) {
     fatal(diag::fatal_cannot_read_strtab) << pInput.name()
                                           << pInput.path()
                                           << ".dynsym";
@@ -124,4 +125,3 @@ bool ELFDynObjReader::readSymbols(Input& pInput)
                                           symtab_region, strtab);
   return result;
 }
-

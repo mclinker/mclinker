@@ -16,4 +16,3 @@ using namespace mcld;
 BinaryReader::~BinaryReader()
 {
 }
-

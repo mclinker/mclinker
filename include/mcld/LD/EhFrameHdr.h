@@ -9,10 +9,10 @@
 #ifndef MCLD_LD_EHFRAMEHDR_H
 #define MCLD_LD_EHFRAMEHDR_H
 #include <mcld/ADT/SizeTraits.h>
-#include <cassert>
-
 #include <mcld/LD/EhFrame.h>
 #include <mcld/Support/FileOutputBuffer.h>
+
+#include <cassert>
 namespace mcld {
 
 class LDSection;
@@ -68,7 +68,6 @@ private:
 template<>
 void EhFrameHdr::emitOutput<32>(FileOutputBuffer& pOutput);
 
-} // namespace of mcld
+} // namespace mcld
 
 #endif
-

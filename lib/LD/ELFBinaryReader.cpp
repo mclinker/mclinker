@@ -25,7 +25,8 @@ using namespace mcld;
 /// constructor
 ELFBinaryReader::ELFBinaryReader(IRBuilder& pBuilder,
                                  const LinkerConfig& pConfig)
-  : m_Builder(pBuilder), m_Config(pConfig) {
+    : m_Builder(pBuilder),
+      m_Config(pConfig) {
 }
 
 /// destructor
@@ -50,12 +51,11 @@ bool ELFBinaryReader::readBinary(Input& pInput)
 
   // section: .data
   LDSection* data_sect =
-    m_Builder.CreateELFHeader(pInput,
-                              ".data",
-                              LDFileFormat::DATA,
-                              llvm::ELF::SHF_WRITE | llvm::ELF::SHF_ALLOC,
-                              0x1);
-
+      m_Builder.CreateELFHeader(pInput,
+                                ".data",
+                                LDFileFormat::DATA,
+                                llvm::ELF::SHF_WRITE | llvm::ELF::SHF_ALLOC,
+                                0x1);
 
   SectionData* data = m_Builder.CreateSectionData(*data_sect);
   size_t data_size = pInput.memArea()->size();
@@ -90,7 +90,7 @@ bool ELFBinaryReader::readBinary(Input& pInput)
   // filename to std::string?
   std::string mangled_name = pInput.path().filename().native();
   for (std::string::iterator it = mangled_name.begin(),
-    ie = mangled_name.end(); it != ie; ++it) {
+          ie = mangled_name.end(); it != ie; ++it) {
     if (isalnum(*it) == 0)
       *it = '_';
   }

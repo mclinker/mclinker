@@ -10,14 +10,15 @@
 #define MCLD_LD_STUBFACTORY_H
 
 #include <llvm/Support/DataTypes.h>
+
 #include <vector>
 
 namespace mcld {
 
-class Stub;
-class Relocation;
 class BranchIslandFactory;
 class IRBuilder;
+class Relocation;
+class Stub;
 
 /** \class StubFactory
  *  \brief the clone factory of Stub
@@ -51,6 +52,6 @@ private:
   StubPoolType m_StubPool; // stub pool
 };
 
-} // namespace of mcld
+} // namespace mcld
 
 #endif

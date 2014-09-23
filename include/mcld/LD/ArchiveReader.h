@@ -13,8 +13,8 @@
 namespace mcld
 {
 
-class LinkerConfig;
 class Archive;
+class LinkerConfig;
 
 /** \class ArchiveReader
  *  \brief ArchiveReader provides an common interface for all archive readers.
@@ -35,7 +35,6 @@ public:
   virtual bool readArchive(const LinkerConfig& pConfig, Archive& pArchive) = 0;
 };
 
-} // namespace of mcld
+} // namespace mcld
 
 #endif
-

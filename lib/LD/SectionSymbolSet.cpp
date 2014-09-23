@@ -7,16 +7,16 @@
 //
 //===----------------------------------------------------------------------===//
 #include <mcld/LD/SectionSymbolSet.h>
-#include <mcld/LD/LDSection.h>
-#include <mcld/LD/RelocData.h>
-#include <mcld/LD/SectionData.h>
+
+#include <mcld/Fragment/FragmentRef.h>
 #include <mcld/LD/EhFrame.h>
-#include <mcld/LD/ResolveInfo.h>
+#include <mcld/LD/LDFileFormat.h>
+#include <mcld/LD/LDSection.h>
 #include <mcld/LD/LDSymbol.h>
 #include <mcld/LD/NamePool.h>
-#include <mcld/Fragment/FragmentRef.h>
-#include <mcld/LD/LDFileFormat.h>
-
+#include <mcld/LD/RelocData.h>
+#include <mcld/LD/ResolveInfo.h>
+#include <mcld/LD/SectionData.h>
 
 using namespace mcld;
 
@@ -54,7 +54,7 @@ bool SectionSymbolSet::add(LDSection& pOutSect, NamePool& pNamePool)
   // insert the symbol to the Section to Symbol hash map
   bool exist = false;
   SectHashTableType::entry_type* entry =
-                            m_pSectionSymbolMap->insert(&pOutSect, exist);
+      m_pSectionSymbolMap->insert(&pOutSect, exist);
   assert(!exist);
   entry->setValue(sym);
 
@@ -62,13 +62,14 @@ bool SectionSymbolSet::add(LDSection& pOutSect, NamePool& pNamePool)
 }
 
 bool SectionSymbolSet::finalize(LDSection& pOutSect,
-                                SymbolTable& pSymTab, bool relocatable)
+                                SymbolTable& pSymTab,
+                                bool relocatable)
 {
   if (!relocatable && pOutSect.size() == 0)
       return true;
 
   LDSymbol* sym = get(pOutSect);
-  assert(NULL != sym);
+  assert(sym != NULL);
   SectionData* data = NULL;
   switch (pOutSect.kind()) {
     case LDFileFormat::Relocation:
@@ -77,7 +78,7 @@ bool SectionSymbolSet::finalize(LDSection& pOutSect,
 
     case LDFileFormat::EhFrame:
       if (EhFrame *ehframe = pOutSect.getEhFrame())
-          data = ehframe->getSectionData();
+        data = ehframe->getSectionData();
       break;
 
     default:
@@ -107,4 +108,3 @@ const LDSymbol* SectionSymbolSet::get(const LDSection& pOutSect) const
   SectHashTableType::iterator entry = m_pSectionSymbolMap->find(&pOutSect);
   return entry.getEntry()->value();
 }
-

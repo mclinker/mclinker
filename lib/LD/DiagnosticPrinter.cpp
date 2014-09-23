@@ -14,7 +14,8 @@ using namespace mcld;
 // DiagnosticPrinter
 //===----------------------------------------------------------------------===//
 DiagnosticPrinter::DiagnosticPrinter()
-  : m_NumErrors(0), m_NumWarnings(0) {
+    : m_NumErrors(0),
+      m_NumWarnings(0) {
 }
 
 DiagnosticPrinter::~DiagnosticPrinter()
@@ -33,4 +34,3 @@ void DiagnosticPrinter::handleDiagnostic(DiagnosticEngine::Severity pSeverity,
   if (pSeverity <= DiagnosticEngine::Error)
     ++m_NumErrors;
 }
-

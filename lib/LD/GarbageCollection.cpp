@@ -6,9 +6,10 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
+#include <mcld/LD/GarbageCollection.h>
+
 #include <mcld/Fragment/Fragment.h>
 #include <mcld/Fragment/Relocation.h>
-#include <mcld/LD/GarbageCollection.h>
 #include <mcld/LD/LDContext.h>
 #include <mcld/LD/LDFileFormat.h>
 #include <mcld/LD/LDSection.h>
@@ -53,8 +54,8 @@ static const char* pattern_to_keep[] =
 static bool shouldKeep(const std::string& pName)
 {
   static const unsigned int pattern_size =
-                           sizeof(pattern_to_keep) / sizeof(pattern_to_keep[0]);
-  for (unsigned int i=0; i < pattern_size; ++i) {
+      sizeof(pattern_to_keep) / sizeof(pattern_to_keep[0]);
+  for (unsigned int i = 0; i < pattern_size; ++i) {
     if (fnmatch0(pattern_to_keep[i], pName.c_str()))
       return true;
   }
@@ -84,14 +85,14 @@ GarbageCollection::SectionReachedListMap::addReference(const LDSection& pFrom,
 
 GarbageCollection::SectionListTy&
 GarbageCollection::SectionReachedListMap::getReachedList(
-                                                      const LDSection& pSection)
+    const LDSection& pSection)
 {
   return m_ReachedSections[&pSection];
 }
 
 GarbageCollection::SectionListTy*
 GarbageCollection::SectionReachedListMap::findReachedList(
-                                                      const LDSection& pSection)
+    const LDSection& pSection)
 {
   ReachedSectionsTy::iterator it = m_ReachedSections.find(&pSection);
   if (it == m_ReachedSections.end())
@@ -105,7 +106,7 @@ GarbageCollection::SectionReachedListMap::findReachedList(
 GarbageCollection::GarbageCollection(const LinkerConfig& pConfig,
                                      const TargetLDBackend& pBackend,
                                      Module& pModule)
-  : m_Config(pConfig), m_Backend(pBackend), m_Module(pModule)
+    : m_Config(pConfig), m_Backend(pBackend), m_Module(pModule)
 {
 }
 
@@ -158,12 +159,12 @@ void GarbageCollection::setUpReachedSections()
       SectionListTy* reached_sects = NULL;
       RelocData::iterator reloc_it, rEnd = reloc_sect->getRelocData()->end();
       for (reloc_it = reloc_sect->getRelocData()->begin(); reloc_it != rEnd;
-                                                                   ++reloc_it) {
+           ++reloc_it) {
         Relocation* reloc = llvm::cast<Relocation>(reloc_it);
         ResolveInfo* sym = reloc->symInfo();
         // only the target symbols defined in the input fragments can make the
         // reference
-        if (NULL == sym)
+        if (sym == NULL)
           continue;
         if (!sym->isDefine() || !sym->outSymbol()->hasFragRef())
           continue;
@@ -171,7 +172,7 @@ void GarbageCollection::setUpReachedSections()
         // only the target symbols defined in the concerned sections can make
         // the reference
         const LDSection* target_sect =
-                &sym->outSymbol()->fragRef()->frag()->getParent()->getSection();
+            &sym->outSymbol()->fragRef()->frag()->getParent()->getSection();
         if (!mayProcessGC(*target_sect))
           continue;
 
@@ -204,7 +205,7 @@ void GarbageCollection::getEntrySections(SectionVecTy& pEntry)
         continue;
 
       SectionMap::Input* sm_input =
-                              sect_map.find(input_name, section->name()).second;
+          sect_map.find(input_name, section->name()).second;
       if (((sm_input != NULL) && (InputSectDesc::Keep == sm_input->policy())) ||
           shouldKeep(section->name()))
         pEntry.push_back(section);
@@ -213,19 +214,19 @@ void GarbageCollection::getEntrySections(SectionVecTy& pEntry)
 
   // get the sections those the entry symbols defined in
   if (LinkerConfig::Exec == m_Config.codeGenType() ||
-                                                   m_Config.options().isPIE()) {
+      m_Config.options().isPIE()) {
     // when building executable
     // 1. the entry symbol is the entry
     LDSymbol* entry_sym =
-                m_Module.getNamePool().findSymbol(m_Backend.getEntry(m_Module));
-    assert(NULL != entry_sym);
+        m_Module.getNamePool().findSymbol(m_Backend.getEntry(m_Module));
+    assert(entry_sym != NULL);
     pEntry.push_back(&entry_sym->fragRef()->frag()->getParent()->getSection());
 
     // 2. the symbols have been seen in dynamice objects are entries
     NamePool::syminfo_iterator info_it,
-                                info_end = m_Module.getNamePool().syminfo_end();
+                               info_end = m_Module.getNamePool().syminfo_end();
     for (info_it = m_Module.getNamePool().syminfo_begin(); info_it != info_end;
-                                                                    ++info_it) {
+         ++info_it) {
       ResolveInfo* info = info_it.getEntry();
       if (!info->isDefine() || info->isLocal())
         continue;
@@ -234,39 +235,37 @@ void GarbageCollection::getEntrySections(SectionVecTy& pEntry)
         continue;
 
       LDSymbol* sym = info->outSymbol();
-      if (NULL == sym || !sym->hasFragRef())
+      if (sym == NULL || !sym->hasFragRef())
         continue;
 
       // only the target symbols defined in the concerned sections can be
       // entries
       const LDSection* sect =
-                             &sym->fragRef()->frag()->getParent()->getSection();
+          &sym->fragRef()->frag()->getParent()->getSection();
       if (!mayProcessGC(*sect))
         continue;
 
       pEntry.push_back(sect);
     }
-  }
-
-  else {
+  } else {
     // when building shared objects, the global define symbols are entries
     NamePool::syminfo_iterator info_it,
-                                info_end = m_Module.getNamePool().syminfo_end();
+                               info_end = m_Module.getNamePool().syminfo_end();
     for (info_it = m_Module.getNamePool().syminfo_begin(); info_it != info_end;
-                                                                    ++info_it) {
+         ++info_it) {
       ResolveInfo* info = info_it.getEntry();
       if (!info->isDefine() ||
           info->isLocal()   ||
           info->shouldForceLocal(m_Config))
         continue;
       LDSymbol* sym = info->outSymbol();
-      if (NULL == sym || !sym->hasFragRef())
+      if (sym == NULL || !sym->hasFragRef())
         continue;
 
       // only the target symbols defined in the concerned sections can be
       // entries
       const LDSection* sect =
-                             &sym->fragRef()->frag()->getParent()->getSection();
+          &sym->fragRef()->frag()->getParent()->getSection();
       if (!mayProcessGC(*sect))
         continue;
       pEntry.push_back(sect);
@@ -276,7 +275,7 @@ void GarbageCollection::getEntrySections(SectionVecTy& pEntry)
   // symbols set by -u should not be garbage collected. Set them entries.
   GeneralOptions::const_undef_sym_iterator usym;
   GeneralOptions::const_undef_sym_iterator usymEnd =
-                                             m_Config.options().undef_sym_end();
+      m_Config.options().undef_sym_end();
   for (usym = m_Config.options().undef_sym_begin(); usym != usymEnd; ++usym) {
     LDSymbol* sym = m_Module.getNamePool().findSymbol(*usym);
     assert(sym);
@@ -316,8 +315,8 @@ void GarbageCollection::findReferencedSections(SectionVecTy& pEntry)
       // get the section reached list, if the section do not has one, which
       // means no referenced between it and other sections, then skip it
       SectionListTy* reach_list =
-                                 m_SectionReachedListMap.findReachedList(*sect);
-      if (NULL == reach_list)
+          m_SectionReachedListMap.findReachedList(*sect);
+      if (reach_list == NULL)
         continue;
 
       // put the reached sections to work list, skip the one already be in
@@ -363,4 +362,3 @@ void GarbageCollection::stripSections()
     }
   }
 }
-

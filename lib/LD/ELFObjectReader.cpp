@@ -13,6 +13,7 @@
 #include <mcld/LD/ELFReader.h>
 #include <mcld/LD/EhFrameReader.h>
 #include <mcld/LD/EhFrame.h>
+#include <mcld/LD/LDContext.h>
 #include <mcld/Target/GNULDBackend.h>
 #include <mcld/Support/MsgHandling.h>
 #include <mcld/Support/MemoryArea.h>
@@ -34,13 +35,13 @@ using namespace mcld;
 ELFObjectReader::ELFObjectReader(GNULDBackend& pBackend,
                                  IRBuilder& pBuilder,
                                  const LinkerConfig& pConfig)
-  : ObjectReader(),
-    m_pELFReader(NULL),
-    m_pEhFrameReader(NULL),
-    m_Builder(pBuilder),
-    m_ReadFlag(ParseEhFrame),
-    m_Backend(pBackend),
-    m_Config(pConfig) {
+    : ObjectReader(),
+      m_pELFReader(NULL),
+      m_pEhFrameReader(NULL),
+      m_Builder(pBuilder),
+      m_ReadFlag(ParseEhFrame),
+      m_Backend(pBackend),
+      m_Config(pConfig) {
   if (pConfig.targets().is32Bits() && pConfig.targets().isLittleEndian()) {
     m_pELFReader = new ELFReader<32, true>(pBackend);
   }
@@ -113,20 +114,20 @@ bool ELFObjectReader::readSections(Input& pInput)
   LDContext::sect_iterator section, sectEnd = pInput.context()->sectEnd();
   for (section = pInput.context()->sectBegin(); section != sectEnd; ++section) {
     // ignore the section if the LDSection* in input context is NULL
-    if (NULL == *section)
+    if (*section == NULL)
         continue;
 
     switch((*section)->kind()) {
       /** group sections **/
       case LDFileFormat::Group: {
-        assert(NULL != (*section)->getLink());
+        assert((*section)->getLink() != NULL);
         ResolveInfo* signature =
             m_pELFReader->readSignature(pInput,
                                         *(*section)->getLink(),
                                         (*section)->getInfo());
 
         bool exist = false;
-        if (0 == signature->nameSize() &&
+        if (signature->nameSize() == 0 &&
             ResolveInfo::Section == signature->type()) {
           // if the signature is a section symbol in input object, we use the
           // section name as group signature.
@@ -139,14 +140,15 @@ bool ELFObjectReader::readSections(Input& pInput)
           // if this is not the first time we see this group signature, then
           // ignore all the members in this group (set Ignore)
           llvm::StringRef region = pInput.memArea()->request(
-               pInput.fileOffset() + (*section)->offset(), (*section)->size());
+              pInput.fileOffset() + (*section)->offset(), (*section)->size());
           const llvm::ELF::Elf32_Word* value =
               reinterpret_cast<const llvm::ELF::Elf32_Word*>(region.begin());
 
           size_t size = region.size() / sizeof(llvm::ELF::Elf32_Word);
           if (llvm::ELF::GRP_COMDAT == *value) {
             for (size_t index = 1; index < size; ++index) {
-              pInput.context()->getSection(value[index])->setKind(LDFileFormat::Ignore);
+              pInput.context()->getSection(value[index])->setKind(
+                  LDFileFormat::Ignore);
             }
           }
         }
@@ -157,7 +159,8 @@ bool ELFObjectReader::readSections(Input& pInput)
       case LDFileFormat::LinkOnce: {
         bool exist = false;
         // .gnu.linkonce + "." + type + "." + name
-        llvm::StringRef name(llvm::StringRef((*section)->name()).drop_front(14));
+        llvm::StringRef name(
+            llvm::StringRef((*section)->name()).drop_front(14));
         signatures().insert(name.split(".").second, exist);
         if (!exist) {
           if (name.startswith("wi")) {
@@ -185,10 +188,10 @@ bool ELFObjectReader::readSections(Input& pInput)
       }
       /** relocation sections **/
       case LDFileFormat::Relocation: {
-        assert(NULL != (*section)->getLink());
+        assert((*section)->getLink() != NULL);
         size_t link_index = (*section)->getLink()->index();
         LDSection* link_sect = pInput.context()->getSection(link_index);
-        if (NULL == link_sect || LDFileFormat::Ignore == link_sect->kind()) {
+        if (link_sect == NULL || link_sect->kind() == LDFileFormat::Ignore) {
           // Relocation sections of group members should also be part of the
           // group. Thus, if the associated member sections are ignored, the
           // related relocations should be also ignored.
@@ -282,7 +285,7 @@ bool ELFObjectReader::readSymbols(Input& pInput)
   assert(pInput.hasMemArea());
 
   LDSection* symtab_shdr = pInput.context()->getSection(".symtab");
-  if (NULL == symtab_shdr) {
+  if (symtab_shdr == NULL) {
     note(diag::note_has_no_symtab) << pInput.name()
                                    << pInput.path()
                                    << ".symtab";
@@ -290,7 +293,7 @@ bool ELFObjectReader::readSymbols(Input& pInput)
   }
 
   LDSection* strtab_shdr = symtab_shdr->getLink();
-  if (NULL == strtab_shdr) {
+  if (strtab_shdr == NULL) {
     fatal(diag::fatal_cannot_read_strtab) << pInput.name()
                                           << pInput.path()
                                           << ".symtab";
@@ -345,4 +348,3 @@ bool ELFObjectReader::readRelocations(Input& pInput)
 
   return true;
 }
-

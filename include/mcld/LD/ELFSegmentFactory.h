@@ -11,6 +11,7 @@
 
 #include <llvm/Support/DataTypes.h>
 #include <llvm/Support/ELF.h>
+
 #include <vector>
 
 namespace mcld
@@ -63,7 +64,6 @@ private:
   Segments m_Segments;
 };
 
-} // namespace of mcld
+} // namespace mcld
 
 #endif
-

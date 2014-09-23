@@ -13,9 +13,9 @@
 #include <mcld/Fragment/NullFragment.h>
 #include <mcld/Support/GCFactory.h>
 
-#include <cstring>
-
 #include <llvm/Support/ManagedStatic.h>
+
+#include <cstring>
 
 using namespace mcld;
 
@@ -29,7 +29,7 @@ static llvm::ManagedStatic<LDSymbolFactory> g_LDSymbolFactory;
 // LDSymbol
 //===----------------------------------------------------------------------===//
 LDSymbol::LDSymbol()
-  : m_pResolveInfo(NULL), m_pFragRef(NULL), m_Value(0) {
+    : m_pResolveInfo(NULL), m_pFragRef(NULL), m_Value(0) {
 }
 
 LDSymbol::~LDSymbol()
@@ -37,9 +37,9 @@ LDSymbol::~LDSymbol()
 }
 
 LDSymbol::LDSymbol(const LDSymbol& pCopy)
-  : m_pResolveInfo(pCopy.m_pResolveInfo),
-    m_pFragRef(pCopy.m_pFragRef),
-    m_Value(pCopy.m_Value) {
+    : m_pResolveInfo(pCopy.m_pResolveInfo),
+      m_pFragRef(pCopy.m_pFragRef),
+      m_Value(pCopy.m_Value) {
 }
 
 LDSymbol& LDSymbol::operator=(const LDSymbol& pCopy)
@@ -73,7 +73,7 @@ void LDSymbol::Clear()
 LDSymbol* LDSymbol::Null()
 {
   // lazy initialization
-  if (NULL == g_NullSymbol->resolveInfo()) {
+  if (g_NullSymbol->resolveInfo() == NULL) {
     g_NullSymbol->setResolveInfo(*ResolveInfo::Null());
     g_NullSymbol->setFragmentRef(FragmentRef::Create(*g_NullSymbolFragment, 0));
     ResolveInfo::Null()->setSymPtr(&*g_NullSymbol);
@@ -100,4 +100,3 @@ bool LDSymbol::hasFragRef() const
 {
   return !m_pFragRef->isNull();
 }
-
