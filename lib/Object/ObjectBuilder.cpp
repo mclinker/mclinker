@@ -8,16 +8,16 @@
 //===----------------------------------------------------------------------===//
 #include <mcld/Object/ObjectBuilder.h>
 
-#include <mcld/Module.h>
-#include <mcld/LinkerScript.h>
 #include <mcld/IRBuilder.h>
-#include <mcld/Object/SectionMap.h>
+#include <mcld/LinkerScript.h>
+#include <mcld/Module.h>
+#include <mcld/Fragment/AlignFragment.h>
+#include <mcld/Fragment/FillFragment.h>
+#include <mcld/Fragment/NullFragment.h>
+#include <mcld/LD/EhFrame.h>
 #include <mcld/LD/LDSection.h>
 #include <mcld/LD/SectionData.h>
-#include <mcld/LD/EhFrame.h>
-#include <mcld/Fragment/AlignFragment.h>
-#include <mcld/Fragment/NullFragment.h>
-#include <mcld/Fragment/FillFragment.h>
+#include <mcld/Object/SectionMap.h>
 
 #include <llvm/Support/Casting.h>
 
@@ -27,7 +27,7 @@ using namespace mcld;
 // ObjectBuilder
 //===----------------------------------------------------------------------===//
 ObjectBuilder::ObjectBuilder(Module& pTheModule)
-  : m_Module(pTheModule) {
+    : m_Module(pTheModule) {
 }
 
 /// CreateSection - create an output section.
@@ -39,12 +39,12 @@ LDSection* ObjectBuilder::CreateSection(const std::string& pName,
 {
   // try to get one from output LDSection
   SectionMap::const_mapping pair =
-    m_Module.getScript().sectionMap().find("*", pName);
+      m_Module.getScript().sectionMap().find("*", pName);
 
   std::string output_name = (pair.first == NULL) ? pName : pair.first->name();
 
   LDSection* output_sect = m_Module.getSection(output_name);
-  if (NULL == output_sect) {
+  if (output_sect == NULL) {
     output_sect = LDSection::Create(pName, pKind, pType, pFlag);
     output_sect->setAlign(pAlign);
     m_Module.getSectionTable().push_back(output_sect);
@@ -57,8 +57,8 @@ LDSection* ObjectBuilder::MergeSection(const Input& pInputFile,
                                        LDSection& pInputSection)
 {
   SectionMap::mapping pair =
-    m_Module.getScript().sectionMap().find(pInputFile.path().native(),
-                                           pInputSection.name());
+      m_Module.getScript().sectionMap().find(pInputFile.path().native(),
+                                             pInputSection.name());
 
   if (pair.first != NULL && pair.first->isDiscard()) {
     pInputSection.setKind(LDFileFormat::Ignore);
@@ -69,7 +69,7 @@ LDSection* ObjectBuilder::MergeSection(const Input& pInputFile,
                             pInputSection.name() : pair.first->name();
   LDSection* target = m_Module.getSection(output_name);
 
-  if (NULL == target) {
+  if (target == NULL) {
     target = LDSection::Create(output_name,
                                pInputSection.kind(),
                                pInputSection.type(),
@@ -204,9 +204,8 @@ uint64_t ObjectBuilder::AppendFragment(Fragment& pFrag,
   NullFragment* null = new NullFragment(&pSD);
   null->setOffset(offset);
 
-  if (NULL != align)
+  if (align != NULL)
     return align->size() + pFrag.size();
   else
     return pFrag.size();
 }
-

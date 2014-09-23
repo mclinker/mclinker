@@ -12,23 +12,23 @@
 
 namespace mcld {
 
-class Module;
-class LinkerConfig;
-class IRBuilder;
-class TargetLDBackend;
-class FileOutputBuffer;
-class ObjectReader;
-class DynObjReader;
 class ArchiveReader;
-class GroupReader;
 class BinaryReader;
-class ScriptReader;
-class ObjectWriter;
+class BinaryWriter;
+class DynObjReader;
 class DynObjWriter;
 class ExecWriter;
-class BinaryWriter;
+class FileOutputBuffer;
+class GroupReader;
+class IRBuilder;
+class LinkerConfig;
+class Module;
+class ObjectReader;
+class ObjectWriter;
 class Relocation;
 class ResolveInfo;
+class ScriptReader;
+class TargetLDBackend;
 
 /** \class ObjectLinker
  */
@@ -181,5 +181,6 @@ private:
   ObjectWriter*  m_pWriter;
 };
 
-} // end namespace mcld
+} // namespace mcld
+
 #endif

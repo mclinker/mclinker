@@ -8,41 +8,42 @@
 //===----------------------------------------------------------------------===//
 #include <mcld/Object/ObjectLinker.h>
 
+#include <mcld/InputTree.h>
+#include <mcld/IRBuilder.h>
 #include <mcld/LinkerConfig.h>
 #include <mcld/LinkerScript.h>
 #include <mcld/Module.h>
-#include <mcld/InputTree.h>
-#include <mcld/IRBuilder.h>
-#include <mcld/LD/LDSection.h>
-#include <mcld/LD/LDContext.h>
+#include <mcld/Fragment/Relocation.h>
 #include <mcld/LD/Archive.h>
 #include <mcld/LD/ArchiveReader.h>
-#include <mcld/LD/ObjectReader.h>
-#include <mcld/LD/DynObjReader.h>
-#include <mcld/LD/GroupReader.h>
 #include <mcld/LD/BinaryReader.h>
-#include <mcld/LD/GarbageCollection.h>
-#include <mcld/LD/IdenticalCodeFolding.h>
-#include <mcld/LD/ObjectWriter.h>
-#include <mcld/LD/ResolveInfo.h>
-#include <mcld/LD/RelocData.h>
-#include <mcld/LD/Relocator.h>
-#include <mcld/LD/SectionData.h>
 #include <mcld/LD/BranchIslandFactory.h>
-#include <mcld/Script/ScriptFile.h>
-#include <mcld/Script/ScriptReader.h>
+#include <mcld/LD/DynObjReader.h>
+#include <mcld/LD/GarbageCollection.h>
+#include <mcld/LD/GroupReader.h>
+#include <mcld/LD/IdenticalCodeFolding.h>
+#include <mcld/LD/LDContext.h>
+#include <mcld/LD/LDSection.h>
+#include <mcld/LD/ObjectReader.h>
+#include <mcld/LD/ObjectWriter.h>
+#include <mcld/LD/Relocator.h>
+#include <mcld/LD/RelocData.h>
+#include <mcld/LD/ResolveInfo.h>
+#include <mcld/LD/SectionData.h>
+#include <mcld/Object/ObjectBuilder.h>
 #include <mcld/Script/Assignment.h>
 #include <mcld/Script/Operand.h>
 #include <mcld/Script/RpnEvaluator.h>
-#include <mcld/Support/RealPath.h>
+#include <mcld/Script/ScriptFile.h>
+#include <mcld/Script/ScriptReader.h>
 #include <mcld/Support/FileOutputBuffer.h>
 #include <mcld/Support/MsgHandling.h>
+#include <mcld/Support/RealPath.h>
 #include <mcld/Target/TargetLDBackend.h>
-#include <mcld/Fragment/Relocation.h>
-#include <mcld/Object/ObjectBuilder.h>
 
 #include <llvm/Support/Casting.h>
 #include <llvm/Support/Host.h>
+
 #include <system_error>
 
 using namespace llvm;
@@ -53,17 +54,17 @@ using namespace mcld;
 //===----------------------------------------------------------------------===//
 ObjectLinker::ObjectLinker(const LinkerConfig& pConfig,
                            TargetLDBackend& pLDBackend)
-  : m_Config(pConfig),
-    m_pModule(NULL),
-    m_pBuilder(NULL),
-    m_LDBackend(pLDBackend),
-    m_pObjectReader(NULL),
-    m_pDynObjReader(NULL),
-    m_pArchiveReader(NULL),
-    m_pGroupReader(NULL),
-    m_pBinaryReader(NULL),
-    m_pScriptReader(NULL),
-    m_pWriter(NULL) {
+    : m_Config(pConfig),
+      m_pModule(NULL),
+      m_pBuilder(NULL),
+      m_LDBackend(pLDBackend),
+      m_pObjectReader(NULL),
+      m_pDynObjReader(NULL),
+      m_pArchiveReader(NULL),
+      m_pGroupReader(NULL),
+      m_pBinaryReader(NULL),
+      m_pScriptReader(NULL),
+      m_pWriter(NULL) {
 }
 
 ObjectLinker::~ObjectLinker()
@@ -87,10 +88,15 @@ bool ObjectLinker::initialize(Module& pModule, IRBuilder& pBuilder)
   m_pArchiveReader = m_LDBackend.createArchiveReader(*m_pModule);
   m_pDynObjReader  = m_LDBackend.createDynObjReader(*m_pBuilder);
   m_pBinaryReader  = m_LDBackend.createBinaryReader(*m_pBuilder);
-  m_pGroupReader   = new GroupReader(*m_pModule, *m_pObjectReader,
-                         *m_pDynObjReader, *m_pArchiveReader, *m_pBinaryReader);
-  m_pScriptReader  = new ScriptReader(*m_pObjectReader, *m_pArchiveReader,
-                                      *m_pDynObjReader, *m_pGroupReader);
+  m_pGroupReader   = new GroupReader(*m_pModule,
+                                     *m_pObjectReader,
+                                     *m_pDynObjReader,
+                                     *m_pArchiveReader,
+                                     *m_pBinaryReader);
+  m_pScriptReader  = new ScriptReader(*m_pObjectReader,
+                                      *m_pArchiveReader,
+                                      *m_pDynObjReader,
+                                      *m_pGroupReader);
   m_pWriter        = m_LDBackend.createWriter();
 
   // initialize Relocator
@@ -119,7 +125,7 @@ void ObjectLinker::addUndefinedSymbols()
   // Add the symbol set by -u as an undefind global symbol into symbol pool
   GeneralOptions::const_undef_sym_iterator usym;
   GeneralOptions::const_undef_sym_iterator usymEnd =
-                                             m_Config.options().undef_sym_end();
+      m_Config.options().undef_sym_end();
   for (usym = m_Config.options().undef_sym_begin(); usym != usymEnd; ++usym) {
     Resolver::Result result;
     m_pModule->getNamePool().insertSymbol(*usym, // name
@@ -134,7 +140,7 @@ void ObjectLinker::addUndefinedSymbols()
                                           result);
 
     LDSymbol* output_sym = result.info->outSymbol();
-    bool has_output_sym = (NULL != output_sym);
+    bool has_output_sym = (output_sym != NULL);
 
     // create the output symbol if it dose not have one
     if (!result.existent || !has_output_sym) {
@@ -180,24 +186,24 @@ void ObjectLinker::normalize()
       (*input)->setType(Input::Object);
       getBinaryReader()->readBinary(**input);
       m_pModule->getObjectList().push_back(*input);
-    }
-    // is a relocatable object file
-    else if (doContinue && getObjectReader()->isMyFormat(**input, doContinue)) {
+    } else if (doContinue && getObjectReader()->isMyFormat(**input,
+                                                           doContinue)) {
+      // is a relocatable object file
       (*input)->setType(Input::Object);
       getObjectReader()->readHeader(**input);
       getObjectReader()->readSections(**input);
       getObjectReader()->readSymbols(**input);
       m_pModule->getObjectList().push_back(*input);
-    }
-    // is a shared object file
-    else if (doContinue && getDynObjReader()->isMyFormat(**input, doContinue)) {
+    } else if (doContinue && getDynObjReader()->isMyFormat(**input,
+                                                           doContinue)) {
+      // is a shared object file
       (*input)->setType(Input::DynObj);
       getDynObjReader()->readHeader(**input);
       getDynObjReader()->readSymbols(**input);
       m_pModule->getLibraryList().push_back(*input);
-    }
-    // is an archive
-    else if (doContinue && getArchiveReader()->isMyFormat(**input, doContinue)) {
+    } else if (doContinue && getArchiveReader()->isMyFormat(**input,
+                                                            doContinue)) {
+      // is an archive
       (*input)->setType(Input::Archive);
       if (m_Config.options().isInExcludeLIBS(**input)) {
         (*input)->setNoExport();
@@ -208,24 +214,24 @@ void ObjectLinker::normalize()
         m_pModule->getInputTree().merge<InputTree::Inclusive>(input,
                                                               archive.inputs());
       }
-    }
-    // try to parse input as a linker script
-    else if (doContinue && getScriptReader()->isMyFormat(**input, doContinue)) {
-      ScriptFile script(ScriptFile::LDScript, **input,
+    } else if (doContinue && getScriptReader()->isMyFormat(**input,
+                                                           doContinue)) {
+      // try to parse input as a linker script
+      ScriptFile script(ScriptFile::LDScript,
+                        **input,
                         m_pBuilder->getInputBuilder());
       if (getScriptReader()->readScript(m_Config, script)) {
         (*input)->setType(Input::Script);
         script.activate(*m_pModule);
         if (script.inputs().size() > 0) {
           m_pModule->getInputTree().merge<InputTree::Inclusive>(input,
-            script.inputs());
+              script.inputs());
         }
       }
-    }
-    else {
+    } else {
       if (m_Config.options().warnMismatch())
         warning(diag::warn_unrecognized_input_file) << (*input)->path()
-          << m_Config.targets().triple().str();
+            << m_Config.targets().triple().str();
     }
   } // end of for
 }
@@ -242,8 +248,8 @@ bool ObjectLinker::linkable() const
   Module::const_lib_iterator lib, libEnd = m_pModule->lib_end();
   for (lib = m_pModule->lib_begin(); lib != libEnd; ++lib) {
     if((*lib)->attribute()->isStatic()) {
-      error(diag::err_mixed_shared_static_objects)
-                                      << (*lib)->name() << (*lib)->path();
+      error(diag::err_mixed_shared_static_objects) << (*lib)->name()
+          << (*lib)->path();
       return false;
     }
   }
@@ -371,7 +377,7 @@ bool ObjectLinker::mergeSections()
             continue; // skip
 
           LDSection* out_sect = NULL;
-          if (NULL != (out_sect = builder.MergeSection(**obj, **sect))) {
+          if ((out_sect = builder.MergeSection(**obj, **sect)) != NULL) {
             if (!m_LDBackend.updateSectionFlags(*out_sect, **sect)) {
               error(diag::err_cannot_merge_section) << (*sect)->name()
                                                     << (*obj)->name();
@@ -385,7 +391,7 @@ bool ObjectLinker::mergeSections()
             continue; // skip
 
           LDSection* out_sect = NULL;
-          if (NULL != (out_sect = builder.MergeSection(**obj, **sect))) {
+          if ((out_sect = builder.MergeSection(**obj, **sect)) != NULL) {
             if (!m_LDBackend.updateSectionFlags(*out_sect, **sect)) {
               error(diag::err_cannot_merge_section) << (*sect)->name()
                                                     << (*obj)->name();
@@ -436,7 +442,7 @@ void ObjectLinker::addSymbolToOutput(ResolveInfo& pInfo, Module& pModule)
 {
   // section symbols will be defined by linker later, we should not add section
   // symbols to output here
-  if (ResolveInfo::Section == pInfo.type() || NULL == pInfo.outSymbol())
+  if (ResolveInfo::Section == pInfo.type() || pInfo.outSymbol() == NULL)
     return;
 
   // if the symbols defined in the Ignore sections (e.g. discared by GC), then
@@ -457,7 +463,7 @@ void ObjectLinker::addSymbolsToOutput(Module& pModule)
   NamePool::freeinfo_iterator free_it,
                               free_end = pModule.getNamePool().freeinfo_end();
   for (free_it = pModule.getNamePool().freeinfo_begin(); free_it != free_end;
-                                                                      ++free_it)
+       ++free_it)
     addSymbolToOutput(**free_it, pModule);
 
 
@@ -465,7 +471,7 @@ void ObjectLinker::addSymbolsToOutput(Module& pModule)
   NamePool::syminfo_iterator info_it,
                              info_end = pModule.getNamePool().syminfo_end();
   for (info_it = pModule.getNamePool().syminfo_begin(); info_it != info_end;
-                                                                      ++info_it)
+       ++info_it)
     addSymbolToOutput(*info_it.getEntry(), pModule);
 }
 
@@ -523,36 +529,36 @@ bool ObjectLinker::addScriptSymbols()
     // FIXME: bfd linker would change the binding instead, but currently
     //        ABS is also a kind of Binding in ResolveInfo.
     switch ((*it).second.type()) {
-    case Assignment::HIDDEN:
-      vis = ResolveInfo::Hidden;
-      // Fall through
-    case Assignment::DEFAULT:
-      symbol =
-        m_pBuilder->AddSymbol<IRBuilder::Force,
-                              IRBuilder::Unresolve>(symName,
-                                                    type,
-                                                    ResolveInfo::Define,
-                                                    ResolveInfo::Absolute,
-                                                    size,
-                                                    0x0,
-                                                    FragmentRef::Null(),
-                                                    vis);
-      break;
-    case Assignment::PROVIDE_HIDDEN:
-      vis = ResolveInfo::Hidden;
-      // Fall through
-    case Assignment::PROVIDE:
-      symbol =
-        m_pBuilder->AddSymbol<IRBuilder::AsReferred,
-                              IRBuilder::Unresolve>(symName,
-                                                    type,
-                                                    ResolveInfo::Define,
-                                                    ResolveInfo::Absolute,
-                                                    size,
-                                                    0x0,
-                                                    FragmentRef::Null(),
-                                                    vis);
-      break;
+      case Assignment::HIDDEN:
+        vis = ResolveInfo::Hidden;
+        // Fall through
+      case Assignment::DEFAULT:
+        symbol =
+            m_pBuilder->AddSymbol<IRBuilder::Force,
+                                  IRBuilder::Unresolve>(symName,
+                                                        type,
+                                                        ResolveInfo::Define,
+                                                        ResolveInfo::Absolute,
+                                                        size,
+                                                        0x0,
+                                                        FragmentRef::Null(),
+                                                        vis);
+        break;
+      case Assignment::PROVIDE_HIDDEN:
+        vis = ResolveInfo::Hidden;
+        // Fall through
+      case Assignment::PROVIDE:
+        symbol =
+          m_pBuilder->AddSymbol<IRBuilder::AsReferred,
+                                IRBuilder::Unresolve>(symName,
+                                                      type,
+                                                      ResolveInfo::Define,
+                                                      ResolveInfo::Absolute,
+                                                      size,
+                                                      0x0,
+                                                      FragmentRef::Null(),
+                                                      vis);
+        break;
     }
     // Set symbol of this assignment.
     (*it).first = symbol;
@@ -587,12 +593,17 @@ bool ObjectLinker::scanRelocations()
            continue;
 
         // scan relocation
-        if (LinkerConfig::Object != m_Config.codeGenType())
-          m_LDBackend.getRelocator()->scanRelocation(
-                                    *relocation, *m_pBuilder, *m_pModule, **rs, **input);
-        else
-          m_LDBackend.getRelocator()->partialScanRelocation(
-                                                 *relocation, *m_pModule, **rs);
+        if (LinkerConfig::Object != m_Config.codeGenType()) {
+          m_LDBackend.getRelocator()->scanRelocation(*relocation,
+                                                     *m_pBuilder,
+                                                     *m_pModule,
+                                                     **rs,
+                                                     **input);
+        } else {
+          m_LDBackend.getRelocator()->partialScanRelocation(*relocation,
+                                                            *m_pModule,
+                                                            **rs);
+        }
       } // for all relocations
     } // for all relocation section
     m_LDBackend.getRelocator()->finalizeScan(**input);
@@ -707,9 +718,9 @@ bool ObjectLinker::finalizeSymbolValue()
       // relocatable object file, the section's virtual address becomes zero.
       // And the symbol's value become section relative offset.
       uint64_t value = (*symbol)->fragRef()->getOutputOffset();
-      assert(NULL != (*symbol)->fragRef()->frag());
+      assert((*symbol)->fragRef()->frag() != NULL);
       uint64_t addr =
-        (*symbol)->fragRef()->frag()->getParent()->getSection().addr();
+          (*symbol)->fragRef()->frag()->getParent()->getSection().addr();
       (*symbol)->setValue(value + addr);
       continue;
     }
@@ -856,7 +867,7 @@ void ObjectLinker::normalSyncRelocationResult(FileOutputBuffer& pOutput)
         // we want is the value of the other relocation result. For example,
         // in .exidx, there are usually an R_ARM_NONE and R_ARM_PREL31 apply to
         // the same place
-        if (0x0 == relocation->type())
+        if (relocation->type() == 0x0)
           continue;
         writeRelocationResult(*relocation, data);
       } // for all relocations
@@ -897,7 +908,7 @@ void ObjectLinker::partialSyncRelocationResult(FileOutputBuffer& pOutput)
       // we want is the value of the other relocation result. For example,
       // in .exidx, there are usually an R_ARM_NONE and R_ARM_PREL31 apply to
       // the same place
-      if (0x0 == reloc->type())
+      if (reloc->type() == 0x0)
         continue;
       writeRelocationResult(*reloc, data);
     }
@@ -908,8 +919,8 @@ void ObjectLinker::writeRelocationResult(Relocation& pReloc, uint8_t* pOutput)
 {
   // get output file offset
   size_t out_offset =
-                 pReloc.targetRef().frag()->getParent()->getSection().offset() +
-                 pReloc.targetRef().getOutputOffset();
+      pReloc.targetRef().frag()->getParent()->getSection().offset() +
+      pReloc.targetRef().getOutputOffset();
 
   uint8_t* target_addr = pOutput + out_offset;
   // byte swapping if target and host has different endian, and then write back
@@ -939,9 +950,8 @@ void ObjectLinker::writeRelocationResult(Relocation& pReloc, uint8_t* pOutput)
        default:
          break;
     }
-  }
-  else
+  } else {
     std::memcpy(target_addr, &pReloc.target(),
-                                      pReloc.size(*m_LDBackend.getRelocator())/8);
+                pReloc.size(*m_LDBackend.getRelocator())/8);
+  }
 }
-

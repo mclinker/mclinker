@@ -9,12 +9,14 @@
 #ifndef MCLD_OBJECT_SECTIONMAP_H
 #define MCLD_OBJECT_SECTIONMAP_H
 
-#include <mcld/Script/OutputSectDesc.h>
-#include <mcld/Script/InputSectDesc.h>
 #include <mcld/Script/Assignment.h>
+#include <mcld/Script/InputSectDesc.h>
+#include <mcld/Script/OutputSectDesc.h>
+
 #include <llvm/Support/DataTypes.h>
-#include <vector>
+
 #include <string>
+#include <vector>
 
 namespace mcld {
 
@@ -205,7 +207,6 @@ private:
   OutputDescList m_OutputDescList;
 };
 
-} // namespace of mcld
+} // namespace mcld
 
 #endif
-

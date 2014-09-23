@@ -7,16 +7,19 @@
 //
 //===----------------------------------------------------------------------===//
 #include <mcld/Object/SectionMap.h>
+
+#include <mcld/Fragment/NullFragment.h>
+#include <mcld/LD/LDSection.h>
+#include <mcld/LD/SectionData.h>
 #include <mcld/Script/Assignment.h>
-#include <mcld/Script/WildcardPattern.h>
-#include <mcld/Script/StringList.h>
 #include <mcld/Script/Operand.h>
 #include <mcld/Script/Operator.h>
 #include <mcld/Script/RpnExpr.h>
-#include <mcld/LD/LDSection.h>
-#include <mcld/LD/SectionData.h>
-#include <mcld/Fragment/NullFragment.h>
+#include <mcld/Script/StringList.h>
+#include <mcld/Script/WildcardPattern.h>
+
 #include <llvm/Support/Casting.h>
+
 #include <cassert>
 #include <cstring>
 #include <climits>
@@ -35,7 +38,7 @@ using namespace mcld;
 //===----------------------------------------------------------------------===//
 SectionMap::Input::Input(const std::string& pName,
                          InputSectDesc::KeepPolicy pPolicy)
-  : m_Policy(pPolicy)
+    : m_Policy(pPolicy)
 {
   m_Spec.m_pWildcardFile =
     WildcardPattern::create("*", WildcardPattern::SORT_NONE);
@@ -43,7 +46,7 @@ SectionMap::Input::Input(const std::string& pName,
 
   StringList* sections = StringList::create();
   sections->push_back(
-    WildcardPattern::create(pName, WildcardPattern::SORT_NONE));
+      WildcardPattern::create(pName, WildcardPattern::SORT_NONE));
   m_Spec.m_pWildcardSections = sections;
 
   m_pSection = LDSection::Create(pName, LDFileFormat::TEXT, 0, 0);
@@ -54,7 +57,7 @@ SectionMap::Input::Input(const std::string& pName,
 }
 
 SectionMap::Input::Input(const InputSectDesc& pInputDesc)
-  : m_Policy(pInputDesc.policy())
+    : m_Policy(pInputDesc.policy())
 {
   m_Spec.m_pWildcardFile = pInputDesc.spec().m_pWildcardFile;
   m_Spec.m_pExcludeFiles = pInputDesc.spec().m_pExcludeFiles;
@@ -70,8 +73,8 @@ SectionMap::Input::Input(const InputSectDesc& pInputDesc)
 // SectionMap::Output
 //===----------------------------------------------------------------------===//
 SectionMap::Output::Output(const std::string& pName)
-  : m_Name(pName),
-    m_Order(UINT_MAX)
+    : m_Name(pName),
+      m_Order(UINT_MAX)
 {
   m_Prolog.m_pVMA = NULL;
   m_Prolog.m_Type = OutputSectDesc::LOAD;
@@ -93,10 +96,10 @@ SectionMap::Output::Output(const std::string& pName)
 }
 
 SectionMap::Output::Output(const OutputSectDesc& pOutputDesc)
-  : m_Name(pOutputDesc.name()),
-    m_Prolog(pOutputDesc.prolog()),
-    m_Epilog(pOutputDesc.epilog()),
-    m_Order(UINT_MAX)
+    : m_Name(pOutputDesc.name()),
+      m_Prolog(pOutputDesc.prolog()),
+      m_Epilog(pOutputDesc.epilog()),
+      m_Order(UINT_MAX)
 {
   m_pSection = LDSection::Create(m_Name, LDFileFormat::TEXT, 0, 0);
   SectionData* sd = SectionData::Create(*m_pSection);
@@ -134,7 +137,7 @@ SectionMap::Output::find_last_explicit_dot() const
 {
   typedef DotAssignments::const_reverse_iterator CONST_RIT;
   for (CONST_RIT rit = dotAssignments().rbegin(), rie = dotAssignments().rend();
-    rit != rie; ++rit) {
+       rit != rie; ++rit) {
     if ((*rit).type() == Assignment::DEFAULT) {
       return dot_begin() +
              (dotAssignments().size() - (rit - dotAssignments().rbegin()) - 1);
@@ -147,7 +150,7 @@ SectionMap::Output::dot_iterator SectionMap::Output::find_last_explicit_dot()
 {
   typedef DotAssignments::reverse_iterator RIT;
   for (RIT rit = dotAssignments().rbegin(), rie = dotAssignments().rend();
-    rit != rie; ++rit) {
+       rit != rie; ++rit) {
     if ((*rit).type() == Assignment::DEFAULT) {
       return dot_begin() +
              (dotAssignments().size() - (rit - dotAssignments().rbegin()) - 1);
@@ -361,7 +364,7 @@ void SectionMap::fixupDotSymbols()
                           *RpnExpr::buildHelperExpr(it - 1));
         Output::dot_iterator ref = (*it)->dotAssignments().insert(dot, assign);
         for (RpnExpr::iterator tok = (*dot).getRpnExpr().begin(),
-          tokEnd = (*dot).getRpnExpr().end();  tok != tokEnd; ++tok) {
+                tokEnd = (*dot).getRpnExpr().end();  tok != tokEnd; ++tok) {
           if ((*tok)->kind() == ExprToken::OPERAND &&
               llvm::cast<Operand>(*tok)->isDot())
             *tok = &((*ref).symbol());
@@ -380,7 +383,7 @@ void SectionMap::fixupDotSymbols()
         dot = (*it)->dotAssignments().insert(dot, assign);
       }
       for (RpnExpr::iterator tok = (*it)->prolog().vma().begin(),
-        tokEnd = (*it)->prolog().vma().end();  tok != tokEnd; ++tok) {
+              tokEnd = (*it)->prolog().vma().end();  tok != tokEnd; ++tok) {
         if ((*tok)->kind() == ExprToken::OPERAND &&
             llvm::cast<Operand>(*tok)->isDot())
           *tok = &((*dot).symbol());

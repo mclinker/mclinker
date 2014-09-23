@@ -8,8 +8,8 @@
 //===----------------------------------------------------------------------===//
 #ifndef MCLD_OBJECT_OBJECTBUILDER_H
 #define MCLD_OBJECT_OBJECTBUILDER_H
-#include <mcld/LD/LDFileFormat.h>
 #include <mcld/LD/EhFrame.h>
+#include <mcld/LD/LDFileFormat.h>
 
 #include <llvm/Support/DataTypes.h>
 
@@ -17,11 +17,11 @@
 
 namespace mcld {
 
-class Module;
-class LDSection;
-class SectionData;
 class Fragment;
 class Input;
+class LDSection;
+class Module;
+class SectionData;
 
 /** \class ObjectBuilder
  *  \brief ObjectBuilder recieve ObjectAction and build the mcld::Module.
@@ -94,7 +94,6 @@ private:
   Module& m_Module;
 };
 
-} // namespace of mcld
+} // namespace mcld
 
 #endif
-
