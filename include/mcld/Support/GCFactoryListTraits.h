@@ -9,8 +9,8 @@
 #ifndef MCLD_SUPPORT_GCFACTORYLISTTRAITS_H
 #define MCLD_SUPPORT_GCFACTORYLISTTRAITS_H
 
-#include <llvm/ADT/ilist_node.h>
 #include <llvm/ADT/ilist.h>
+#include <llvm/ADT/ilist_node.h>
 
 #include <assert.h>
 
@@ -58,6 +58,6 @@ private:
   mutable SentinelNode mSentinel;
 };
 
-} // namespace of mcld
+} // namespace mcld
 
 #endif

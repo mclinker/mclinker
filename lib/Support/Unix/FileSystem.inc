@@ -6,16 +6,19 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
+#include <mcld/Support/FileHandle.h>
+#include <mcld/Support/Directory.h>
+
+#include <llvm/Support/ErrorHandling.h>
+
 #include <string>
+
+#include <dirent.h>
+#include <fcntl.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <sys/mman.h>
-#include <dirent.h>
 #include <unistd.h>
-#include <fcntl.h>
-#include <mcld/Support/FileHandle.h>
-#include <mcld/Support/Directory.h>
-#include <llvm/Support/ErrorHandling.h>
 
 namespace mcld{
 namespace sys{
@@ -213,4 +216,3 @@ bool FileHandle::munmap(void* pMemBuffer, size_t pLength)
 }
 
 } // namespace of mcld
-

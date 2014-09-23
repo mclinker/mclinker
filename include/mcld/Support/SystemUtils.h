@@ -9,8 +9,10 @@
 #ifndef MCLD_SUPPORT_SYSTEMUTILS_H
 #define MCLD_SUPPORT_SYSTEMUTILS_H
 
-#include <llvm/Support/DataTypes.h>
 #include <mcld/Config/Config.h>
+
+#include <llvm/Support/DataTypes.h>
+
 #include <string>
 
 namespace mcld {
@@ -34,8 +36,7 @@ long GetRandomNum();
 /// SetRandomSeed - set the initial seed value for future calls to random().
 void SetRandomSeed(unsigned pSeed);
 
-} // namespace of sys
-} // namespace of mcld
+} // namespace sys
+} // namespace mcld
 
 #endif
-

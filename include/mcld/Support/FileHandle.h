@@ -8,8 +8,8 @@
 //===----------------------------------------------------------------------===//
 #ifndef MCLD_SUPPORT_FILEHANDLE_H
 #define MCLD_SUPPORT_FILEHANDLE_H
-#include <mcld/Support/Path.h>
 #include <mcld/ADT/Flags.h>
+#include <mcld/Support/Path.h>
 
 #include <errno.h>
 
@@ -135,7 +135,6 @@ private:
   OpenMode m_OpenMode;
 };
 
-} // namespace of mcld
+} // namespace mcld
 
 #endif
-

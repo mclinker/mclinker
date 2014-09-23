@@ -9,12 +9,11 @@
 #ifndef MCLD_SUPPORT_TARGET_H
 #define MCLD_SUPPORT_TARGET_H
 #include <string>
-#include <list>
 
 namespace llvm {
-class Target;
-class Triple;
-class TargetMachine;
+  class Target;
+  class Triple;
+  class TargetMachine;
 } // namespace of llvm
 
 namespace mcld {
@@ -40,12 +39,12 @@ class Target
 public:
   typedef unsigned int (*TripleMatchQualityFnTy)(const llvm::Triple& pTriple);
 
-  typedef MCLDTargetMachine *(*TargetMachineCtorTy)(const llvm::Target &,
-                                                    const mcld::Target &,
-                                                    llvm::TargetMachine &,
+  typedef MCLDTargetMachine* (*TargetMachineCtorTy)(const llvm::Target&,
+                                                    const mcld::Target&,
+                                                    llvm::TargetMachine&,
                                                     const std::string&);
 
-  typedef MCLinker *(*MCLinkerCtorTy)(const std::string& pTriple,
+  typedef MCLinker* (*MCLinkerCtorTy)(const std::string& pTriple,
                                       LinkerConfig&,
                                       Module&,
                                       FileHandle& pFileHandle);
@@ -71,7 +70,7 @@ public:
                                          llvm::TargetMachine& pTM) const;
 
   /// createMCLinker - create target-specific MCLinker
-  MCLinker *createMCLinker(const std::string &pTriple,
+  MCLinker* createMCLinker(const std::string &pTriple,
                            LinkerConfig& pConfig,
                            Module& pModule,
                            FileHandle& pFileHandle) const;
@@ -99,7 +98,6 @@ private:
   DiagnosticLineInfoCtorTy DiagnosticLineInfoCtorFn;
 };
 
-} //end namespace mcld
+} // namespace mcld
 
 #endif
-

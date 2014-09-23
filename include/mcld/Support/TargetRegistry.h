@@ -9,10 +9,11 @@
 #ifndef MCLD_SUPPORT_TARGETREGISTRY_H
 #define MCLD_SUPPORT_TARGETREGISTRY_H
 #include <mcld/Support/Target.h>
+
 #include <llvm/ADT/Triple.h>
 
-#include <string>
 #include <list>
+#include <string>
 
 namespace llvm {
 class TargetMachine;
@@ -127,7 +128,7 @@ public:
     // if we've registered one, then return immediately.
     TargetRegistry::iterator target, ie = TargetRegistry::end();
     for (target = TargetRegistry::begin(); target != ie; ++target) {
-      if (0 == strcmp((*target)->name(), pName))
+      if (strcmp((*target)->name(), pName) == 0)
         return;
     }
 
@@ -141,6 +142,6 @@ public:
   }
 };
 
-} //end namespace mcld
+} // namespace mcld
 
 #endif

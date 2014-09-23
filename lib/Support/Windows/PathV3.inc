@@ -7,9 +7,11 @@
 //
 //===----------------------------------------------------------------------===//
 #include <mcld/Support/Path.h>
-#include <sys/types.h>
-#include <sys/stat.h>
+
 #include <stack>
+
+#include <sys/stat.h>
+#include <sys/types.h>
 
 namespace mcld{
 namespace sys{
@@ -192,8 +194,7 @@ mcld::sys::fs::PathCache::entry_type* bring_one_into_cache(DirIterator& pIter)
   return entry;
 }
 
-} // namespace of detail
-} // namespace of fs
-} // namespace of sys
-} // namespace of mcld
-
+} // namespace detail
+} // namespace fs
+} // namespace sys
+} // namespace mcld

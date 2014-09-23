@@ -31,4 +31,3 @@ enum SHF {
 } // namespace of mcld
 
 #endif
-

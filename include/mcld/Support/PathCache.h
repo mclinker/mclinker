@@ -24,11 +24,12 @@ namespace {
                     hash::StringCompare<llvm::StringRef> > HashEntryType;
 } // anonymous namespace
 
-typedef HashTable<HashEntryType, hash::StringHash<hash::BKDR>, EntryFactory<HashEntryType> > PathCache;
+typedef HashTable<HashEntryType,
+                  hash::StringHash<hash::BKDR>,
+                  EntryFactory<HashEntryType> > PathCache;
 
-} // namespace of fs
-} // namespace of sys
-} // namespace of mcld
+} // namespace fs
+} // namespace sys
+} // namespace mcld
 
 #endif
-

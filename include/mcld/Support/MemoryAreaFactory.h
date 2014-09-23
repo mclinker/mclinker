@@ -8,10 +8,11 @@
 //===----------------------------------------------------------------------===//
 #ifndef MCLD_SUPPORT_MEMORYAREAFACTORY_H
 #define MCLD_SUPPORT_MEMORYAREAFACTORY_H
+#include <mcld/Support/FileHandle.h>
 #include <mcld/Support/GCFactory.h>
 #include <mcld/Support/MemoryArea.h>
 #include <mcld/Support/Path.h>
-#include <mcld/Support/FileHandle.h>
+
 #include <llvm/ADT/StringMap.h>
 
 namespace mcld
@@ -64,6 +65,6 @@ private:
   llvm::StringMap<MemoryArea*> m_AreaMap;
 };
 
-} // namespace of mcld
+} // namespace mcld
 
 #endif

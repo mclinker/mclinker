@@ -12,10 +12,11 @@
 #include <mcld/ADT/TypeTraits.h>
 #include <mcld/Support/FileSystem.h>
 #include <mcld/Support/Path.h>
+#include <mcld/Support/PathCache.h>
+
 #include <llvm/Support/Allocator.h>
 #include <cstddef>
 
-#include "PathCache.h"
 
 namespace mcld {
 namespace sys {
@@ -30,7 +31,8 @@ class DirIterator;
  */
 class Directory
 {
-friend mcld::sys::fs::PathCache::entry_type* detail::bring_one_into_cache(DirIterator& pIter);
+friend mcld::sys::fs::PathCache::entry_type*
+    detail::bring_one_into_cache(DirIterator& pIter);
 friend void detail::open_dir(Directory& pDir);
 friend void detail::close_dir(Directory& pDir);
 private:
@@ -104,18 +106,19 @@ protected:
  */
 class DirIterator
 {
-friend mcld::sys::fs::PathCache::entry_type* detail::bring_one_into_cache(DirIterator& pIter);
+friend mcld::sys::fs::PathCache::entry_type*
+    detail::bring_one_into_cache(DirIterator& pIter);
 friend class Directory;
 public:
-  typedef mcld::sys::fs::PathCache            DirCache;
+  typedef mcld::sys::fs::PathCache DirCache;
 
 public:
-  typedef Directory                       value_type;
-  typedef ConstTraits<Directory>          const_traits;
-  typedef NonConstTraits<Directory>       non_const_traits;
-  typedef std::input_iterator_tag         iterator_category;
-  typedef size_t                          size_type;
-  typedef ptrdiff_t                       difference_type;
+  typedef Directory                 value_type;
+  typedef ConstTraits<Directory>    const_traits;
+  typedef NonConstTraits<Directory> non_const_traits;
+  typedef std::input_iterator_tag   iterator_category;
+  typedef size_t                    size_type;
+  typedef ptrdiff_t                 difference_type;
 
 private:
   explicit DirIterator(Directory* pParent,
@@ -144,8 +147,8 @@ private:
   DirCache::entry_type* m_pEntry;
 };
 
-} // namespace of fs
-} // namespace of sys
-} // namespace of mcld
+} // namespace fs
+} // namespace sys
+} // namespace mcld
 
 #endif

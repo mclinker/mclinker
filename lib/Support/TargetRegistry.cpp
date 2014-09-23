@@ -40,18 +40,17 @@ const Target* TargetRegistry::lookupTarget(const std::string &pTriple,
   for (iterator target = begin(), ie = end(); target != ie; ++target) {
     unsigned int quality = (*target)->getTripleQuality(triple);
     if (quality > 0) {
-      if (NULL == best || highest < quality) {
+      if (best == NULL || highest < quality) {
         highest = quality;
         best = *target;
         ambiguity = NULL;
-      }
-      else if (highest == quality) {
+      } else if (highest == quality) {
         ambiguity = *target;
       }
     }
   }
 
-  if (NULL == best) {
+  if (best == NULL) {
     pError = "No availaible targets are compatible with this triple.";
     return NULL;
   }
@@ -79,7 +78,7 @@ const Target* TargetRegistry::lookupTarget(const std::string& pArchName,
       }
     }
 
-    if (NULL == result) {
+    if (result == NULL) {
       pError = std::string("invalid target '") + pArchName + "'.\n";
       return NULL;
     }
@@ -87,14 +86,13 @@ const Target* TargetRegistry::lookupTarget(const std::string& pArchName,
     // Adjust the triple to match (if known), otherwise stick with the
     // module/host triple.
     llvm::Triple::ArchType type =
-                               llvm::Triple::getArchTypeForLLVMName(pArchName);
+        llvm::Triple::getArchTypeForLLVMName(pArchName);
     if (llvm::Triple::UnknownArch != type)
       pTriple.setArch(type);
-  }
-  else {
+  } else {
     std::string error;
     result = lookupTarget(pTriple.getTriple(), error);
-    if (NULL == result) {
+    if (result == NULL) {
       pError = std::string("unable to get target for `") +
                pTriple.getTriple() + "'\n" +
                "(Detail: " + error + ")\n";

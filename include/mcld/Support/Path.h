@@ -13,8 +13,9 @@
 #ifndef MCLD_SUPPORT_PATH_H
 #define MCLD_SUPPORT_PATH_H
 
-#include <llvm/Support/raw_ostream.h>
 #include <mcld/Config/Config.h>
+
+#include <llvm/Support/raw_ostream.h>
 
 #include <iosfwd>
 #include <functional>
@@ -43,8 +44,8 @@ const char dot = '.';
 class Path
 {
 public:
-  typedef char                               ValueType;
-  typedef std::string                        StringType;
+  typedef char        ValueType;
+  typedef std::string StringType;
 
 public:
   Path();
@@ -149,9 +150,9 @@ Path& Path::append(InputIterator begin, InputIterator end)
   return *this;
 }
 
-} // namespace of fs
-} // namespace of sys
-} // namespace of mcld
+} // namespace fs
+} // namespace sys
+} // namespace mcld
 
 //===----------------------------------------------------------------------===//
 // STL compatible functions
@@ -160,17 +161,17 @@ namespace std {
 
 template<>
 struct less<mcld::sys::fs::Path> : public binary_function<mcld::sys::fs::Path,
-                                                         mcld::sys::fs::Path,
-                                                         bool>
+                                                          mcld::sys::fs::Path,
+                                                          bool>
 {
-  bool operator() (const mcld::sys::fs::Path& pX,const mcld::sys::fs::Path& pY) const {
+  bool operator() (const mcld::sys::fs::Path& pX,
+                   const mcld::sys::fs::Path& pY) const {
     if (pX.generic_string().size() < pY.generic_string().size())
       return true;
     return (pX.generic_string() < pY.generic_string());
   }
 };
 
-} // namespace of std
+} // namespace std
 
 #endif
-

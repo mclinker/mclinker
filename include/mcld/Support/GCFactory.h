@@ -8,8 +8,8 @@
 //===----------------------------------------------------------------------===//
 #ifndef MCLD_SUPPORT_GCFACTORY_H
 #define MCLD_SUPPORT_GCFACTORY_H
-#include "mcld/ADT/TypeTraits.h"
-#include "mcld/Support/Allocators.h"
+#include <mcld/ADT/TypeTraits.h>
+#include <mcld/Support/Allocators.h>
 
 #include <assert.h>
 #include <cstddef>
@@ -31,7 +31,7 @@ public:
 
 public:
   DataIteratorBase(ChunkType* X, unsigned int pPos)
-  : m_pChunk(X), m_Pos(pPos)
+      : m_pChunk(X), m_Pos(pPos)
   { }
 
   inline void advance() {
@@ -75,15 +75,15 @@ public:
 
 public:
   DataIterator()
-  : Base(0, 0)
+      : Base(NULL, 0)
   { }
 
   DataIterator(ChunkType* pChunk, unsigned int pPos)
-  : Base(pChunk, pPos)
+      : Base(pChunk, pPos)
   { }
 
   DataIterator(const DataIterator& pCopy)
-  : Base(pCopy.m_pChunk, pCopy.m_Pos)
+      : Base(pCopy.m_pChunk, pCopy.m_Pos)
   { }
 
   ~DataIterator()
@@ -91,8 +91,8 @@ public:
 
   // -----  operators  ----- //
   reference operator*() {
-    if (0 == this->m_pChunk)
-      assert(0 && "data iterator goes to a invalid position");
+    assert(this->m_pChunk != NULL &&
+           "data iterator goes to a invalid position");
     return this->m_pChunk->data[Base::m_Pos];
   }
 
@@ -126,11 +126,11 @@ public:
 
 protected:
   GCFactoryBase()
-  : Alloc(), m_NumAllocData(0)
+      : Alloc(), m_NumAllocData(0)
   { }
 
   GCFactoryBase(size_t pNum)
-  : Alloc(pNum), m_NumAllocData(0)
+      : Alloc(pNum), m_NumAllocData(0)
   { }
 
 public:
@@ -140,7 +140,7 @@ public:
   // -----  modifiers  ----- //
   value_type* allocate(size_t N) {
     value_type* result = Alloc::allocate(N);
-    if (0 != result)
+    if (result != NULL)
       m_NumAllocData += N;
     return result;
   }
@@ -150,15 +150,15 @@ public:
     return Alloc::allocate();
   }
 
-  void deallocate(pointer &pPtr, size_type N) {
+  void deallocate(pointer& pPtr, size_type N) {
     Alloc::deallocate(pPtr, N);
-    if (0 == pPtr)
+    if (pPtr == NULL)
       m_NumAllocData -= N;
   }
 
-  void deallocate(pointer &pPtr) {
+  void deallocate(pointer& pPtr) {
     Alloc::deallocate(pPtr);
-    if (0 == pPtr)
+    if (pPtr == NULL)
       --m_NumAllocData;
   }
 
@@ -175,15 +175,15 @@ public:
   { return const_iterator(Alloc::m_pRoot, 0); }
 
   iterator end() {
-    return (0 == Alloc::m_pCurrent)?
-             begin():
-             iterator(Alloc::m_pCurrent, Alloc::m_pCurrent->bound);
+    return (Alloc::m_pCurrent) == 0 ?
+           begin() :
+           iterator(Alloc::m_pCurrent, Alloc::m_pCurrent->bound);
   }
 
   const_iterator end() const {
-    return (0 == Alloc::m_pCurrent)?
-             begin():
-             const_iterator(Alloc::m_pCurrent, Alloc::m_pCurrent->bound);
+    return (Alloc::m_pCurrent) == 0?
+           begin() :
+           const_iterator(Alloc::m_pCurrent, Alloc::m_pCurrent->bound);
   }
 
   // -----  observers  ----- //
@@ -209,20 +209,20 @@ class GCFactory : public GCFactoryBase<LinearAllocator<DataType, ChunkSize> >
 {
 public:
   GCFactory()
-  : GCFactoryBase<LinearAllocator<DataType, ChunkSize> >()
+      : GCFactoryBase<LinearAllocator<DataType, ChunkSize> >()
   { }
 };
 
 template<typename DataType>
-class GCFactory<DataType, 0> : public GCFactoryBase<LinearAllocator<DataType, 0> >
+class GCFactory<DataType, 0> : public GCFactoryBase<LinearAllocator<DataType,
+                                                                    0> >
 {
 public:
   GCFactory(size_t pNum)
-  : GCFactoryBase<LinearAllocator<DataType, 0> >(pNum)
+      : GCFactoryBase<LinearAllocator<DataType, 0> >(pNum)
   { }
 };
 
-} // namespace of mcld
+} // namespace mcld
 
 #endif
-

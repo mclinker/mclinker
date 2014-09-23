@@ -6,16 +6,16 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
+#include <llvm/ADT/StringRef.h>
+
+#include <fcntl.h>
+#include <cstdlib>
 #include <cstring>
+#include <ctype.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <sys/utsname.h>
-#include <ctype.h>
-#include <cstdlib>
-#include <fcntl.h>
 #include <unistd.h>
-
-#include <llvm/ADT/StringRef.h>
 
 namespace mcld{
 namespace sys{
@@ -80,6 +80,5 @@ void SetRandomSeed(unsigned pSeed)
   ::srandom(pSeed);
 }
 
-} // namespace of sys
-} // namespace of mcld
-
+} // namespace sys
+} // namespace mcld

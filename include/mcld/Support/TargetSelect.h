@@ -68,7 +68,6 @@ namespace mcld
 #include "mcld/Config/Linkers.def"
   }
 
-} // namespace of mcld
+} // namespace mcld
 
 #endif
-

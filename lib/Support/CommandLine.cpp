@@ -9,8 +9,8 @@
 #include <mcld/Support/CommandLine.h>
 
 #include <llvm/ADT/StringRef.h>
-#include <llvm/ADT/Twine.h>
 #include <llvm/ADT/StringSwitch.h>
+#include <llvm/ADT/Twine.h>
 #include <llvm/Support/ErrorHandling.h>
 
 using namespace llvm;
@@ -30,7 +30,7 @@ bool SearchDirParser::parse(Option &pOption,
                             std::string &pValue)
 {
   char separator = *(pArgName.data() + 1);
-  if ('=' == separator)
+  if (separator == '=')
     pValue = '=';
   pValue += pArg.str();
   return false;
@@ -70,9 +70,9 @@ bool parser<mcld::sys::fs::Path>::parse(llvm::cl::Option &O,
 }
 
 void parser<mcld::sys::fs::Path>::printOptionDiff(const llvm::cl::Option &O,
-                                                  const mcld::sys::fs::Path &V,
-                                                  parser<mcld::sys::fs::Path>::OptVal Default,
-                                                  size_t GlobalWidth) const
+    const mcld::sys::fs::Path &V,
+    parser<mcld::sys::fs::Path>::OptVal Default,
+    size_t GlobalWidth) const
 {
   printOptionName(O, GlobalWidth);
   outs() << "= " << V;
@@ -142,8 +142,7 @@ bool parser<mcld::ZOption>::parse(llvm::cl::Option &O,
     long long unsigned size = 0;
     Arg.drop_front(17).getAsInteger(0, size);
     Val.setPageSize(static_cast<uint64_t>(size));
-  }
-  else if (Arg.startswith("max-page-size=")) {
+  } else if (Arg.startswith("max-page-size=")) {
     Val.setKind(ZOption::MaxPageSize);
     long long unsigned size = 0;
     Arg.drop_front(14).getAsInteger(0, size);
@@ -157,10 +156,11 @@ bool parser<mcld::ZOption>::parse(llvm::cl::Option &O,
   return false;
 }
 
-void parser<mcld::ZOption>::printOptionDiff(const llvm::cl::Option &O,
-                                            const mcld::ZOption &V,
-                                            parser<mcld::ZOption>::OptVal Default,
-                                            size_t GlobalWidth) const
+void
+parser<mcld::ZOption>::printOptionDiff(const llvm::cl::Option &O,
+                                       const mcld::ZOption &V,
+                                       parser<mcld::ZOption>::OptVal Default,
+                                       size_t GlobalWidth) const
 {
   // TODO
 }
@@ -169,4 +169,3 @@ void parser<mcld::ZOption>::anchor()
 {
   // do nothing
 }
-

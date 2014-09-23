@@ -9,12 +9,13 @@
 #include <mcld/Config/Config.h>
 #include <mcld/Support/FileSystem.h>
 #include <mcld/Support/Path.h>
+
 #include <llvm/ADT/StringRef.h>
 
-#include <locale>
-#include <string.h>
 #include <istream>
+#include <locale>
 #include <ostream>
+#include <string.h>
 
 using namespace mcld;
 using namespace mcld::sys::fs;
@@ -47,19 +48,19 @@ const Path::StringType separator_str("/");
 // Path
 //===--------------------------------------------------------------------===//
 Path::Path()
-  : m_PathName() {
+    : m_PathName() {
 }
 
-Path::Path(const Path::ValueType* s )
-  : m_PathName(s) {
+Path::Path(const Path::ValueType* s)
+    : m_PathName(s) {
 }
 
-Path::Path(const Path::StringType &s )
-  : m_PathName(s) {
+Path::Path(const Path::StringType& s)
+    : m_PathName(s) {
 }
 
 Path::Path(const Path& pCopy)
- : m_PathName(pCopy.m_PathName) {
+    : m_PathName(pCopy.m_PathName) {
 }
 
 Path::~Path()
@@ -75,7 +76,7 @@ bool Path::isFromRoot() const
 
 bool Path::isFromPWD() const
 {
-  if (2 > m_PathName.size())
+  if (m_PathName.size() < 2)
     return false;
   return ('.' == m_PathName[0] && separator == m_PathName[1]);
 }
@@ -88,7 +89,7 @@ Path& Path::assign(const Path::StringType &s)
 
 Path& Path::assign(const Path::ValueType* s, unsigned int length)
 {
-  if (0 == s || 0 == length)
+  if (s == 0 || length == 0)
     assert(0 && "assign a null or empty string to Path");
   m_PathName.assign(s, length);
   return *this;
@@ -98,22 +99,22 @@ Path& Path::assign(const Path::ValueType* s, unsigned int length)
 Path& Path::append(const Path& pPath)
 {
   //first path is a/,second path is /b
-  if(m_PathName[m_PathName.length()-1] == separator &&
+  if(m_PathName[m_PathName.length() - 1] == separator &&
      pPath.native()[0] == separator) {
-    unsigned int old_size = m_PathName.size()-1;
+    unsigned int old_size = m_PathName.size() - 1;
     unsigned int new_size = old_size + pPath.native().size();
 
     m_PathName.resize(new_size);
-    strcpy(const_cast<ValueType*>(m_PathName.data()+old_size), pPath.native().data());
+    strcpy(const_cast<ValueType*>(m_PathName.data()+old_size),
+                                  pPath.native().data());
   }
   //first path is a,second path is b
-  else if(this->native()[this->native().size()-1] != separator &&
+  else if(this->native()[this->native().size() - 1] != separator &&
           pPath.native()[0] != separator) {
     m_PathName.append(separator_str);
     m_PathName.append(pPath.native());
-  }
-  // a/,b or a,/b just append
-  else {
+  } else {
+    // a/,b or a,/b just append
     m_PathName.append(pPath.native());
   }
   return *this;
@@ -189,7 +190,7 @@ Path Path::filename() const
 
 Path Path::stem() const
 {
-  size_t begin_pos = m_PathName.find_last_of(separator)+1;
+  size_t begin_pos = m_PathName.find_last_of(separator) + 1;
   size_t end_pos   = m_PathName.find_last_of(dot);
   Path result_path(m_PathName.substr(begin_pos, end_pos - begin_pos));
   return result_path;
@@ -222,4 +223,3 @@ Path mcld::sys::fs::operator+(const Path& pLHS, const Path& pRHS)
   result.append(pRHS);
   return result;
 }
-

@@ -6,15 +6,17 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include <string>
-#include <io.h>
-#include <fcntl.h>
-#include <cstdlib>
-#include <windows.h>
-#include <sys/stat.h>
-#include <limits.h>
 #include <mcld/Support/FileHandle.h>
 #include <mcld/Support/Directory.h>
+
+#include <string>
+
+#include <cstdlib>
+#include <io.h>
+#include <fcntl.h>
+#include <limits.h>
+#include <sys/stat.h>
+#include <windows.h>
 
 #ifndef STDIN_FILENO
 # define STDIN_FILENO 0
@@ -169,5 +171,4 @@ bool FileHandle::munmap(void* pMemBuffer, size_t pLength)
   return true;
 }
 
-} // namespace of mcld
-
+} // namespace mcld

@@ -9,7 +9,8 @@
 #ifndef MCLD_SUPPORT_UNIQUEGCFACTORY_H
 #define MCLD_SUPPORT_UNIQUEGCFACTORY_H
 
-#include "mcld/Support/GCFactory.h"
+#include <mcld/Support/GCFactory.h>
+
 #include <map>
 #include <utility>
 
@@ -21,7 +22,8 @@ namespace mcld
  *  no two elements have the same key.
  */
 template<typename KeyType, typename DataType, size_t ChunkSize>
-class UniqueGCFactoryBase : public GCFactoryBase<LinearAllocator<DataType, ChunkSize> >
+class UniqueGCFactoryBase : public GCFactoryBase<LinearAllocator<DataType,
+                                                                 ChunkSize> >
 {
 protected:
   typedef GCFactoryBase<LinearAllocator<DataType, ChunkSize> > Alloc;
@@ -29,11 +31,11 @@ protected:
 
 protected:
   UniqueGCFactoryBase()
-  : GCFactoryBase<LinearAllocator<DataType, ChunkSize> >()
+      : GCFactoryBase<LinearAllocator<DataType, ChunkSize> >()
   { }
 
   UniqueGCFactoryBase(size_t pNum)
-  : GCFactoryBase<LinearAllocator<DataType, ChunkSize> >(pNum)
+      : GCFactoryBase<LinearAllocator<DataType, ChunkSize> >(pNum)
   { }
 
 public:
@@ -82,10 +84,8 @@ public:
 
 protected:
   KeyMap f_KeyMap;
-
 };
 
-} // namespace of mcld
+} // namespace mcld
 
 #endif
-

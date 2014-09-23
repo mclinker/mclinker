@@ -33,7 +33,7 @@ MsgHandler debug(unsigned int pID);
 MsgHandler note(unsigned int pID);
 MsgHandler ignore(unsigned int pID);
 
-} // namespace of mcld
+} // namespace mcld
 
 //===----------------------------------------------------------------------===//
 //  Inline functions
@@ -74,4 +74,3 @@ inline mcld::MsgHandler mcld::ignore(unsigned int pID)
 }
 
 #endif
-

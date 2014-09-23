@@ -10,6 +10,7 @@
 #define MCLD_SUPPORT_MEMORYREGION_H
 
 #include <mcld/ADT/TypeTraits.h>
+
 #include <llvm/ADT/ArrayRef.h>
 #include <llvm/Support/DataTypes.h>
 

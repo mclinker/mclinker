@@ -8,9 +8,10 @@
 //===----------------------------------------------------------------------===//
 #ifndef MCLD_SUPPORT_RAWOSTREAM_H
 #define MCLD_SUPPORT_RAWOSTREAM_H
-#include <string>
 #include <llvm/Support/FileSystem.h>
 #include <llvm/Support/raw_ostream.h>
+
+#include <string>
 
 namespace mcld {
 
@@ -53,7 +54,6 @@ public:
 private:
   bool m_bConfigColor : 1;
   bool m_bSetColor : 1;
-
 };
 
 /// outs() - This returns a reference to a raw_ostream for standard output.
@@ -64,7 +64,6 @@ mcld::raw_fd_ostream &outs();
 /// Use it like: errs() << "foo" << "bar";
 mcld::raw_fd_ostream &errs();
 
-} // namespace of mcld
+} // namespace mcld
 
 #endif
-

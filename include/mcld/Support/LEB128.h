@@ -108,7 +108,7 @@ IntType decode(const char *&pBuf) {
   return decode<IntType>(reinterpret_cast<const ByteType*&>(pBuf));
 }
 
-} // namespace of leb128
-} // namespace of mcld
+} // namespace leb128
+} // namespace mcld
 
 #endif

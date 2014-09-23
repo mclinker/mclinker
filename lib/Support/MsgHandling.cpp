@@ -9,8 +9,8 @@
 #include <mcld/LD/DiagnosticEngine.h>
 #include <mcld/LD/DiagnosticLineInfo.h>
 #include <mcld/LD/DiagnosticPrinter.h>
-#include <mcld/LD/TextDiagnosticPrinter.h>
 #include <mcld/LD/MsgHandler.h>
+#include <mcld/LD/TextDiagnosticPrinter.h>
 #include <mcld/Support/MsgHandling.h>
 #include <mcld/Support/raw_ostream.h>
 
@@ -27,12 +27,11 @@ using namespace mcld;
 //===----------------------------------------------------------------------===//
 static llvm::ManagedStatic<DiagnosticEngine> g_pEngine;
 
-void
-mcld::InitializeDiagnosticEngine(const mcld::LinkerConfig& pConfig,
-                                 DiagnosticPrinter* pPrinter)
+void mcld::InitializeDiagnosticEngine(const mcld::LinkerConfig& pConfig,
+                                      DiagnosticPrinter* pPrinter)
 {
   g_pEngine->reset(pConfig);
-  if (NULL != pPrinter)
+  if (pPrinter != NULL)
     g_pEngine->setPrinter(*pPrinter, false);
   else {
     DiagnosticPrinter* printer = new TextDiagnosticPrinter(mcld::errs(), pConfig);
@@ -62,4 +61,3 @@ void mcld::FinalizeDiagnosticEngine()
 {
   g_pEngine->getPrinter()->finish();
 }
-

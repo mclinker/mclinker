@@ -224,5 +224,5 @@ int64_t decode<int64_t>(const ByteType *&pBuf) {
   return result;
 }
 
-} // namespace of leb128
-} // namespace of mcld
+} // namespace leb128
+} // namespace mcld

@@ -14,11 +14,12 @@
 #ifndef MCLD_SUPPORT_FILESYSTEM_H
 #define MCLD_SUPPORT_FILESYSTEM_H
 
-#include "mcld/Support/PathCache.h"
 #include <mcld/Config/Config.h>
-#include <string>
+#include <mcld/Support/PathCache.h>
+
 #include <iosfwd>
 #include <locale>
+#include <string>
 
 namespace mcld {
 namespace sys {
@@ -50,10 +51,10 @@ class FileStatus
 {
 public:
   FileStatus()
-    : m_Value(StatusError) {}
+      : m_Value(StatusError) { }
 
   explicit FileStatus(FileType v)
-    : m_Value(v) {}
+      : m_Value(v) { }
 
   void setType(FileType v)   { m_Value = v; }
   FileType type() const   { return m_Value; }
@@ -104,10 +105,9 @@ void* mmap(void *pAddr, size_t pLen,
            int pProt, int pFlags, int pFD, off_t pOffset);
 int munmap(void *pAddr, size_t pLen);
 
-} // namespace of detail
-} // namespace of fs
-} // namespace of sys
-} // namespace of mcld
+} // namespace detail
+} // namespace fs
+} // namespace sys
+} // namespace mcld
 
 #endif
-

@@ -6,16 +6,17 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include <mcld/Support/Path.h>
 #include <mcld/Support/FileSystem.h>
+#include <mcld/Support/Path.h>
+
 #include <llvm/Support/ErrorHandling.h>
 
 #include <cerrno>
+#include <stack>
 #include <stdio.h>
+#include <string>
 #include <sys/stat.h>
 #include <sys/types.h>
-#include <string>
-#include <stack>
 #include <unistd.h>
 
 namespace mcld{
@@ -221,8 +222,7 @@ mcld::sys::fs::PathCache::entry_type* bring_one_into_cache(DirIterator& pIter)
   return entry;
 }
 
-} // namespace of detail
-} // namespace of fs
-} // namespace of sys
-} // namespace of mcld
-
+} // namespace detail
+} // namespace fs
+} // namespace sys
+} // namespace mcld

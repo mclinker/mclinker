@@ -16,7 +16,7 @@ using namespace mcld;
 // MemoryAreaFactory
 //===----------------------------------------------------------------------===//
 MemoryAreaFactory::MemoryAreaFactory(size_t pNum)
-  : GCFactory<MemoryArea, 0>(pNum) {
+    : GCFactory<MemoryArea, 0>(pNum) {
 }
 
 MemoryAreaFactory::~MemoryAreaFactory()

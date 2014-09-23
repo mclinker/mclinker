@@ -38,17 +38,17 @@ using namespace mcld;
 mcld::raw_fd_ostream::raw_fd_ostream(const char *pFilename,
                                      std::error_code &pErrorCode,
                                      llvm::sys::fs::OpenFlags pFlags)
-  : llvm::raw_fd_ostream(pFilename, pErrorCode, pFlags),
-    m_bConfigColor(false),
-    m_bSetColor(false) {
+    : llvm::raw_fd_ostream(pFilename, pErrorCode, pFlags),
+      m_bConfigColor(false),
+      m_bSetColor(false) {
 }
 
 mcld::raw_fd_ostream::raw_fd_ostream(int pFD,
                                      bool pShouldClose,
                                      bool pUnbuffered)
-  : llvm::raw_fd_ostream(pFD, pShouldClose, pUnbuffered),
-    m_bConfigColor(false),
-    m_bSetColor(false) {
+    : llvm::raw_fd_ostream(pFD, pShouldClose, pUnbuffered),
+      m_bConfigColor(false),
+      m_bSetColor(false) {
 }
 
 mcld::raw_fd_ostream::~raw_fd_ostream()
@@ -107,4 +107,3 @@ mcld::raw_fd_ostream& mcld::errs() {
   static mcld::raw_fd_ostream S(STDERR_FILENO, false, true);
   return S;
 }
-

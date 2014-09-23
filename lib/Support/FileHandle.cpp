@@ -6,9 +6,10 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include "mcld/Config/Config.h"
+#include <mcld/Config/Config.h>
 #include <mcld/Support/FileHandle.h>
 #include <mcld/Support/FileSystem.h>
+
 #include <errno.h>
 
 #if defined(HAVE_UNISTD_H)
@@ -26,11 +27,11 @@ using namespace mcld;
 // FileHandle
 //===----------------------------------------------------------------------===//
 FileHandle::FileHandle()
-  : m_Path(),
-    m_Handler(-1),
-    m_Size(0),
-    m_State(GoodBit),
-    m_OpenMode(NotOpen) {
+    : m_Path(),
+      m_Handler(-1),
+      m_Size(0),
+      m_State(GoodBit),
+      m_OpenMode(NotOpen) {
 }
 
 FileHandle::~FileHandle()
@@ -91,7 +92,7 @@ bool FileHandle::open(const sys::fs::Path& pPath,
     m_Handler = sys::fs::detail::open(pPath, oflag(pMode), (int)pPerm);
 
   m_Path = pPath;
-  if (-1 == m_Handler) {
+  if (m_Handler == -1) {
     m_OpenMode = NotOpen;
     setState(FailBit);
     return false;
@@ -132,7 +133,7 @@ bool FileHandle::close()
   }
 
   if (isOwned()) {
-    if (-1 == ::close(m_Handler)) {
+    if (::close(m_Handler) == -1) {
       setState(FailBit);
       return false;
     }
@@ -152,7 +153,7 @@ bool FileHandle::truncate(size_t pSize)
     return false;
   }
 
-  if (-1 == sys::fs::detail::ftruncate(m_Handler, pSize)) {
+  if (sys::fs::detail::ftruncate(m_Handler, pSize) == -1) {
     setState(FailBit);
     return false;
   }
@@ -168,7 +169,7 @@ bool FileHandle::read(void* pMemBuffer, size_t pStartOffset, size_t pLength)
     return false;
   }
 
-  if (0 == pLength)
+  if (pLength == 0)
     return true;
 
   ssize_t read_bytes = sys::fs::detail::pread(m_Handler,
@@ -176,7 +177,7 @@ bool FileHandle::read(void* pMemBuffer, size_t pStartOffset, size_t pLength)
                                               pLength,
                                               pStartOffset);
 
-  if (-1 == read_bytes) {
+  if (read_bytes == -1) {
     setState(FailBit);
     return false;
   }
@@ -191,7 +192,7 @@ bool FileHandle::write(const void* pMemBuffer, size_t pStartOffset, size_t pLeng
     return false;
   }
 
-  if (0 == pLength)
+  if (pLength == 0)
     return true;
 
 
@@ -200,7 +201,7 @@ bool FileHandle::write(const void* pMemBuffer, size_t pStartOffset, size_t pLeng
                                                 pLength,
                                                 pStartOffset);
 
-  if (-1 == write_bytes) {
+  if (write_bytes == -1) {
     setState(FailBit);
     return false;
   }
@@ -220,7 +221,7 @@ void FileHandle::cleanState(FileHandle::IOState pState)
 
 bool FileHandle::isOpened() const
 {
-  if (-1 != m_Handler && m_OpenMode != NotOpen && isGood())
+  if (m_Handler != -1 && m_OpenMode != NotOpen && isGood())
     return true;
 
   return false;
@@ -263,4 +264,3 @@ bool FileHandle::isOwned() const
 {
   return !(m_State & DeputedBit);
 }
-

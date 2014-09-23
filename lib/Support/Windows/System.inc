@@ -7,11 +7,12 @@
 //
 //===----------------------------------------------------------------------===//
 #include <string>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <fcntl.h>
+
 #include <cstdlib>
 #include <cstring>
+#include <fcntl.h>
+#include <sys/types.h>
+#include <sys/stat.h>
 #include <windows.h>
 
 namespace mcld{
@@ -50,6 +51,5 @@ void SetRandomSeed(unsigned pSeed)
   ::srand(pSeed);
 }
 
-} // namespace of sys
-} // namespace of mcld
-
+} // namespace sys
+} // namespace mcld

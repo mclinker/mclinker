@@ -8,7 +8,8 @@
 //===----------------------------------------------------------------------===//
 #ifndef MCLD_SUPPORT_REALPATH_H
 #define MCLD_SUPPORT_REALPATH_H
-#include "mcld/Support/Path.h"
+#include <mcld/Support/Path.h>
+
 #include <string>
 
 namespace mcld {
@@ -39,20 +40,20 @@ protected:
   void initialize();
 };
 
-} // namespace of fs
-} // namespace of sys
-} // namespace of mcld
+} // namespace fs
+} // namespace sys
+} // namespace mcld
 
-//-------------------------------------------------------------------------//
-//                              STL compatible functions                   //
-//-------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
+//                              STL compatible functions                      //
+//----------------------------------------------------------------------------//
 namespace std {
 
 template<>
-struct less<mcld::sys::fs::RealPath> : public binary_function<
-                                                     mcld::sys::fs::RealPath,
-                                                     mcld::sys::fs::RealPath,
-                                                     bool>
+struct less<mcld::sys::fs::RealPath> :
+    public binary_function<mcld::sys::fs::RealPath,
+                           mcld::sys::fs::RealPath,
+                           bool>
 {
   bool operator() (const mcld::sys::fs::RealPath& pX,
                    const mcld::sys::fs::RealPath& pY) const {
@@ -62,8 +63,6 @@ struct less<mcld::sys::fs::RealPath> : public binary_function<
   }
 };
 
-} // namespace of std
-
+} // namespace std
 
 #endif
-

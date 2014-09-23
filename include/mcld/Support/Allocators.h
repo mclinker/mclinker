@@ -8,8 +8,8 @@
 //===----------------------------------------------------------------------===//
 #ifndef MCLD_SUPPORT_ALLOCATORS_H
 #define MCLD_SUPPORT_ALLOCATORS_H
-#include <mcld/ADT/Uncopyable.h>
 #include <mcld/ADT/TypeTraits.h>
+#include <mcld/ADT/Uncopyable.h>
 
 #include <cstddef>
 #include <cstdlib>
@@ -28,7 +28,7 @@ public:
   typedef DataType value_type;
 public:
   Chunk()
-  : next(0), bound(0)
+      : next(NULL), bound(0)
   { }
 
   static size_t size() { return ChunkSize; }
@@ -56,8 +56,8 @@ public:
 
 public:
   Chunk()
-  : next(0), bound(0) {
-    if (0 != m_Size)
+    : next(NULL), bound(0) {
+    if (m_Size != 0)
       data = (DataType*)malloc(sizeof(DataType)*m_Size);
     else
       data = 0;
@@ -107,9 +107,9 @@ public:
 
 protected:
   LinearAllocatorBase()
-    : m_pRoot(0),
-      m_pCurrent(0),
-      m_AllocatedNum(0) {
+      : m_pRoot(NULL),
+        m_pCurrent(NULL),
+        m_AllocatedNum(0) {
   }
 
   // LinearAllocatorBase does NOT mean to destroy the allocated memory.
@@ -152,7 +152,7 @@ public:
   //  @param N the number of allocated data.
   //  @return the start address of the allocated memory
   pointer allocate(size_type N) {
-    if (0 == N || N > chunk_type::size())
+    if (N == 0 || N > chunk_type::size())
       return 0;
 
     if (empty())
@@ -184,9 +184,9 @@ public:
   //  - if we can simply release some memory, then do it. Otherwise, do
   //    nothing.
   void deallocate(pointer &pPtr, size_type N) {
-    if (0 == N ||
+    if (N == 0 ||
         N > chunk_type::size() ||
-        0 == m_pCurrent->bound ||
+        m_pCurrent->bound == 0 ||
         N >= m_pCurrent->bound)
       return;
     if (!isAvailable(pPtr))
@@ -197,7 +197,7 @@ public:
 
   /// deallocate - clone function of deallocating one datum
   void deallocate(pointer &pPtr) {
-    if (0 == m_pCurrent->bound)
+    if (m_pCurrent->bound == 0)
       return;
     if (!isAvailable(pPtr))
       return;
@@ -230,7 +230,7 @@ public:
   /// clear - clear all chunks
   void clear() {
     chunk_type *cur = m_pRoot, *prev;
-    while (0 != cur) {
+    while (cur != 0) {
       prev = cur;
       cur = cur->next;
       for (unsigned int idx = 0; idx != prev->bound; ++idx)
@@ -242,7 +242,7 @@ public:
 
   // -----  observers  ----- //
   bool empty() const {
-    return (0 == m_pRoot);
+    return (m_pRoot == 0);
   }
 
   size_type max_size() const
@@ -296,7 +296,7 @@ public:
 
 public:
   LinearAllocator()
-    : LinearAllocatorBase<Chunk<DataType, ChunkSize> >() {
+      : LinearAllocatorBase<Chunk<DataType, ChunkSize> >() {
   }
 
   virtual ~LinearAllocator()
@@ -314,7 +314,7 @@ public:
 
 public:
   explicit LinearAllocator(size_t pNum)
-    : LinearAllocatorBase<Chunk<DataType, 0> >() {
+      : LinearAllocatorBase<Chunk<DataType, 0> >() {
     Chunk<DataType, 0>::setSize(pNum);
   }
 
@@ -416,7 +416,7 @@ public:
   template<typename DataType>
   DataType* allocate(size_type pNumOfElements, const void* = 0) {
     return static_cast<DataType*>(
-                       std::malloc(pNumOfElements*sizeof(DataType)));
+              std::malloc(pNumOfElements*sizeof(DataType)));
   }
 
   pointer allocate(size_type pNumOfElements, const void* = 0) {
@@ -448,4 +448,3 @@ public:
 } // namespace mcld
 
 #endif
-

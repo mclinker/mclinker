@@ -43,6 +43,6 @@ private:
   std::unique_ptr<llvm::MemoryBuffer> m_pMemoryBuffer;
 };
 
-} // namespace of mcld
+} // namespace mcld
 
 #endif
