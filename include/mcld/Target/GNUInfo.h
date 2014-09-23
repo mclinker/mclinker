@@ -66,7 +66,6 @@ protected:
   const llvm::Triple& m_Triple;
 };
 
-} // namespace of mcld
+} // namespace mcld
 
 #endif
-

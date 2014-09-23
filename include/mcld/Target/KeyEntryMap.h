@@ -9,8 +9,8 @@
 #ifndef MCLD_TARGET_KEYENTRYMAP_H
 #define MCLD_TARGET_KEYENTRYMAP_H
 
-#include <vector>
 #include <list>
+#include <vector>
 
 namespace mcld {
 
@@ -27,8 +27,8 @@ public:
 private:
   struct EntryPair {
     EntryPair(EntryType* pEntry1, EntryType* pEntry2)
-     : entry1(pEntry1), entry2(pEntry2)
-    {}
+        : entry1(pEntry1), entry2(pEntry2)
+    { }
 
     EntryType* entry1;
     EntryType* entry2;
@@ -67,9 +67,7 @@ public:
   EntryType*       lookUpSecondEntry(const KeyType& pKey);
 
   void record(const KeyType& pKey, EntryType& pEntry);
-  void record(const KeyType& pKey,
-              EntryType& pEntry1,
-              EntryType& pEntry2);
+  void record(const KeyType& pKey, EntryType& pEntry1, EntryType& pEntry2);
 
   bool   empty() const { return m_Pool.empty(); }
   size_t size () const { return m_Pool.size(); }
@@ -185,8 +183,8 @@ KeyEntryMap<KeyType, EntryType>::record(const KeyType& pKey, EntryType& pEntry)
 template<typename KeyType, typename EntryType>
 void
 KeyEntryMap<KeyType, EntryType>::record(const KeyType& pKey,
-                                  EntryType& pEntry1,
-                                  EntryType& pEntry2)
+                                        EntryType& pEntry1,
+                                        EntryType& pEntry2)
 {
   Mapping mapping;
   mapping.key = &pKey;
@@ -195,7 +193,6 @@ KeyEntryMap<KeyType, EntryType>::record(const KeyType& pKey,
   m_Pool.push_back(mapping);
 }
 
-} // namespace of mcld
+} // namespace mcld
 
 #endif
-

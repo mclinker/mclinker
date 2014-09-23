@@ -10,11 +10,11 @@
 #define MCLD_TARGET_GNULDBACKEND_H
 
 #include <mcld/Module.h>
-#include <mcld/LD/GNUArchiveReader.h>
-#include <mcld/LD/ELFDynObjReader.h>
 #include <mcld/LD/ELFBinaryReader.h>
+#include <mcld/LD/ELFDynObjReader.h>
 #include <mcld/LD/ELFObjectReader.h>
 #include <mcld/LD/ELFObjectWriter.h>
+#include <mcld/LD/GNUArchiveReader.h>
 #include <mcld/Target/TargetLDBackend.h>
 
 #include <llvm/Support/ELF.h>
@@ -304,7 +304,7 @@ public:
   BranchIslandFactory* getBRIslandFactory() { return m_pBRIslandFactory; }
 
   /// getStubFactory
-  StubFactory*         getStubFactory()     { return m_pStubFactory; }
+  StubFactory* getStubFactory() { return m_pStubFactory; }
 
   /// maxFwdBranchOffset - return the max forward branch offset of the backend.
   /// Target can override this function if needed.
@@ -573,6 +573,6 @@ protected:
   LDSymbol* f_p_End;
 };
 
-} // namespace of mcld
+} // namespace mcld
 
 #endif

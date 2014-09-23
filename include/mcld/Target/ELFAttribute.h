@@ -48,25 +48,25 @@ public:
         1 * MinimalELFAttributeSubsectionSize;
 
 public:
-  ELFAttribute(const GNULDBackend &pBackend, const LinkerConfig& pConfig)
-    : m_Backend(pBackend), m_Config(pConfig) { }
+  ELFAttribute(const GNULDBackend& pBackend, const LinkerConfig& pConfig)
+      : m_Backend(pBackend), m_Config(pConfig) { }
 
   ~ELFAttribute();
 
 public:
   /// merge - merge attributes from input (attribute) section
-  bool merge(const Input &pInput, LDSection &pInputAttrSectHdr);
+  bool merge(const Input& pInput, LDSection& pInputAttrSectHdr);
 
   /// sizeOutput - calculate the number of bytes required to encode this
   /// attribute data section
   size_t sizeOutput() const;
 
   /// emit - encode and write out this attribute section
-  size_t emit(MemoryRegion &pRegion) const;
+  size_t emit(MemoryRegion& pRegion) const;
 
-  inline const GNULDBackend &backend() const { return m_Backend; }
+  inline const GNULDBackend& backend() const { return m_Backend; }
 
-  inline const LinkerConfig &config() const { return m_Config; }
+  inline const LinkerConfig& config() const { return m_Config; }
 
   // Place vendor's attribute data under the management.
   void registerAttributeData(ELFAttributeData& pAttrData);
@@ -78,8 +78,8 @@ private:
    */
   class Subsection {
   public:
-    Subsection(ELFAttribute &pParent, ELFAttributeData &pAttrData)
-      : m_Parent(pParent), m_AttrData(pAttrData) { }
+    Subsection(ELFAttribute& pParent, ELFAttributeData& pAttrData)
+        : m_Parent(pParent), m_AttrData(pAttrData) { }
 
   public:
     bool isMyAttribute(llvm::StringRef pVendorName) const
@@ -88,7 +88,7 @@ private:
     }
 
     /// merge -  Merge the attributes from the section in the input data.
-    bool merge(const Input &pInput, ConstAddress pData, size_t pSize);
+    bool merge(const Input& pInput, ConstAddress pData, size_t pSize);
 
     /// sizeOutput - calculate the number of bytes required to encode this
     /// subsection
@@ -99,14 +99,14 @@ private:
 
   private:
     // The attribute section this subsection belongs to
-    ELFAttribute &m_Parent;
+    ELFAttribute& m_Parent;
 
     // The attribute data containing in this subsection
-    ELFAttributeData &m_AttrData;
+    ELFAttributeData& m_AttrData;
   };
 
   // Obtain the corresponding subsection of the specified vendor
-  Subsection *getSubsection(llvm::StringRef pVendorName) const;
+  Subsection* getSubsection(llvm::StringRef pVendorName) const;
 
 private:
   const GNULDBackend &m_Backend;
@@ -117,6 +117,6 @@ private:
   llvm::SmallVector<Subsection*, 2> m_Subsections;
 };
 
-} // namespace of mcld
+} // namespace mcld
 
 #endif

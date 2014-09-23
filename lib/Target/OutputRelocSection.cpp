@@ -8,11 +8,11 @@
 //===----------------------------------------------------------------------===//
 #include <mcld/Target/OutputRelocSection.h>
 
+#include <mcld/IRBuilder.h>
 #include <mcld/LD/LDSection.h>
 #include <mcld/LD/RelocationFactory.h>
-#include <mcld/Module.h>
 #include <mcld/Support/MsgHandling.h>
-#include <mcld/IRBuilder.h>
+#include <mcld/Module.h>
 
 #include <llvm/Support/Casting.h>
 
@@ -22,11 +22,12 @@ using namespace mcld;
 // OutputRelocSection
 //===----------------------------------------------------------------------===//
 OutputRelocSection::OutputRelocSection(Module& pModule, LDSection& pSection)
-  : m_Module(pModule),
-    m_pRelocData(NULL),
-    m_isVisit(false),
-    m_ValidEntryIterator(){
-  assert(!pSection.hasRelocData() && "Given section is not a relocation section");
+    : m_Module(pModule),
+      m_pRelocData(NULL),
+      m_isVisit(false),
+      m_ValidEntryIterator(){
+  assert(!pSection.hasRelocData() &&
+         "Given section is not a relocation section");
   m_pRelocData = IRBuilder::CreateRelocData(pSection);
 }
 
@@ -43,7 +44,7 @@ Relocation* OutputRelocSection::create()
 
 void OutputRelocSection::reserveEntry(size_t pNum)
 {
-  for(size_t i=0; i<pNum; i++)
+  for(size_t i = 0; i < pNum; ++i)
     m_pRelocData->append(*Relocation::Create());
 }
 
@@ -53,11 +54,10 @@ Relocation* OutputRelocSection::consumeEntry()
   // Fragments.begin()
   if(!m_isVisit) {
     assert(!m_pRelocData->getRelocationList().empty() &&
-             "DynRelSection contains no entries.");
+           "DynRelSection contains no entries.");
     m_ValidEntryIterator = m_pRelocData->begin();
     m_isVisit = true;
-  }
-  else {
+  } else {
     // Add m_ValidEntryIterator here instead of at the end of this function.
     // We may reserve an entry and then consume it immediately, e.g. for COPY
     // relocation, so we need to avoid setting this iterator to
@@ -81,4 +81,3 @@ bool OutputRelocSection::addSymbolToDynSym(LDSymbol& pSymbol)
   m_Module.getSymbolTable().changeToDynamic(pSymbol);
   return true;
 }
-

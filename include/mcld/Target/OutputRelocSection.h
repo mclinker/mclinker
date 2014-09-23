@@ -63,7 +63,6 @@ private:
   RelocIterator m_ValidEntryIterator;
 };
 
-} // namespace of mcld
+} // namespace mcld
 
 #endif
-

@@ -15,8 +15,8 @@
 
 using namespace mcld;
 
-bool ELFAttributeData::ReadTag(TagType& pTag, const char* &pBuf,
-                               size_t &pBufSize)
+bool ELFAttributeData::ReadTag(TagType& pTag, const char*& pBuf,
+                               size_t& pBufSize)
 {
   size_t size = 0;
 
@@ -32,8 +32,8 @@ bool ELFAttributeData::ReadTag(TagType& pTag, const char* &pBuf,
   return true;
 }
 
-bool ELFAttributeData::ReadValue(ELFAttributeValue& pValue, const char* &pBuf,
-                                 size_t &pBufSize)
+bool ELFAttributeData::ReadValue(ELFAttributeValue& pValue, const char*& pBuf,
+                                 size_t& pBufSize)
 {
   // An ULEB128-encoded value
   if (pValue.isIntValue()) {
@@ -63,7 +63,7 @@ bool ELFAttributeData::ReadValue(ELFAttributeValue& pValue, const char* &pBuf,
 
 bool ELFAttributeData::WriteAttribute(TagType pTag,
                                       const ELFAttributeValue& pValue,
-                                      char* &pBuf)
+                                      char*& pBuf)
 {
   // Write the attribute tag.
   leb128::encode<uint32_t>(pBuf, pTag);

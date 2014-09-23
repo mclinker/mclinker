@@ -40,7 +40,7 @@ public:
 
 public:
   ELFAttributeValue()
-    : m_Type(Uninitialized), m_IntValue(0), m_StringValue() { }
+      : m_Type(Uninitialized), m_IntValue(0), m_StringValue() { }
 
   ~ELFAttributeValue() { }
 
@@ -57,16 +57,16 @@ public:
   void setIntValue(unsigned int pIntValue)
   { m_IntValue = pIntValue; }
 
-  const std::string &getStringValue() const
+  const std::string& getStringValue() const
   { return m_StringValue; }
 
-  void setStringValue(const std::string &pStringValue)
+  void setStringValue(const std::string& pStringValue)
   { m_StringValue = pStringValue; }
 
-  void setStringValue(const char *pStringValue, size_t pSize)
+  void setStringValue(const char* pStringValue, size_t pSize)
   { m_StringValue.assign(pStringValue, pSize); }
 
-  void setStringValue(const char *pStringValue)
+  void setStringValue(const char* pStringValue)
   { m_StringValue.assign(pStringValue); }
 
   size_t getSize() const;
@@ -117,6 +117,6 @@ private:
   std::string m_StringValue;
 };
 
-} // namespace of mcld
+} // namespace mcld
 
 #endif

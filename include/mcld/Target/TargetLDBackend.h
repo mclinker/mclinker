@@ -16,19 +16,17 @@
 namespace mcld {
 
 class ArchiveReader;
+class BranchIslandFactory;
 class BinaryReader;
 class BinaryWriter;
-class BranchIslandFactory;
 class DynObjReader;
 class DynObjWriter;
 class ExecWriter;
 class FileOutputBuffer;
-class SectionReachedListMap;
 class IRBuilder;
 class Input;
 class LDSection;
 class LDSymbol;
-class Layout;
 class LinkerConfig;
 class Module;
 class ObjectBuilder;
@@ -37,6 +35,7 @@ class ObjectWriter;
 class Relocator;
 class ResolveInfo;
 class SectionData;
+class SectionReachedListMap;
 class StubFactory;
 
 //===----------------------------------------------------------------------===//
@@ -44,8 +43,8 @@ class StubFactory;
 //===----------------------------------------------------------------------===//
 class TargetLDBackend
 {
-  TargetLDBackend(const TargetLDBackend &);   // DO NOT IMPLEMENT
-  void operator=(const TargetLDBackend &);  // DO NOT IMPLEMENT
+  TargetLDBackend(const TargetLDBackend&);   // DO NOT IMPLEMENT
+  void operator=(const TargetLDBackend&);  // DO NOT IMPLEMENT
 
 protected:
   TargetLDBackend(const LinkerConfig& pConfig);
@@ -185,6 +184,6 @@ private:
   const LinkerConfig& m_Config;
 };
 
-} // End mcld namespace
+} // namespace mcld
 
 #endif

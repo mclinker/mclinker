@@ -13,7 +13,8 @@ namespace mcld
 {
 
 /** \class DarwinLDBackend
- *  \brief DarwinLDBackend provides a common interface for all Darwin OS LDBackend.
+ *  \brief DarwinLDBackend provides a common interface for all Darwin OS
+ *         LDBackend.
  *
  *  \see
  */
@@ -22,7 +23,6 @@ class DarwinLDBackend
 
 };
 
-} // namespace of mcld
+} // namespace mcld
 
 #endif
-

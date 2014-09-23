@@ -74,10 +74,10 @@ bool mcld::MCLDEmulateELF(LinkerScript& pScript, LinkerConfig& pConfig)
   // set up section map
   if (pConfig.options().getScriptList().empty() &&
       pConfig.codeGenType() != LinkerConfig::Object) {
-    const unsigned int map_size =  (sizeof(map) / sizeof(map[0]) );
+    const unsigned int map_size = (sizeof(map) / sizeof(map[0]));
     for (unsigned int i = 0; i < map_size; ++i) {
       std::pair<SectionMap::mapping, bool> res =
-        pScript.sectionMap().insert(map[i].from, map[i].to, map[i].policy);
+          pScript.sectionMap().insert(map[i].from, map[i].to, map[i].policy);
       if (!res.second)
         return false;
     }
@@ -105,4 +105,3 @@ bool mcld::MCLDEmulateELF(LinkerScript& pScript, LinkerConfig& pConfig)
   }
   return true;
 }
-

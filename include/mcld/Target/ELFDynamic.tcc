@@ -58,4 +58,3 @@ size_t Entry<64, true>::emit(uint8_t* pAddress) const
          sizeof(Pair));
   return sizeof(Pair);
 }
-

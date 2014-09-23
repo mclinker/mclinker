@@ -9,9 +9,9 @@
 #ifndef MCLD_TARGET_GOT_H
 #define MCLD_TARGET_GOT_H
 
+#include <mcld/Fragment/TargetFragment.h>
 #include <mcld/LD/LDSection.h>
 #include <mcld/LD/SectionData.h>
-#include <mcld/Fragment/TargetFragment.h>
 
 namespace mcld {
 
@@ -39,8 +39,8 @@ public:
 
   public:
     Entry(uint64_t pValue, SectionData* pParent)
-      : TargetFragment(Fragment::Target, pParent),
-        f_Value(pValue) {
+        : TargetFragment(Fragment::Target, pParent),
+          f_Value(pValue) {
     }
 
     virtual ~Entry() {}
@@ -82,7 +82,6 @@ protected:
   SectionData* m_SectionData;
 };
 
-} // namespace of mcld
+} // namespace mcld
 
 #endif
-

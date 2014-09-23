@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-
 #include <mcld/Target/PLT.h>
+
 #include <mcld/IRBuilder.h>
 
 using namespace mcld;
@@ -18,7 +18,7 @@ class GOT;
 // PLT
 //===----------------------------------------------------------------------===//
 PLT::PLT(LDSection& pSection)
-  :m_Section(pSection)
+    :m_Section(pSection)
 {
   m_pSectionData = IRBuilder::CreateSectionData(pSection);
 }
@@ -26,4 +26,3 @@ PLT::PLT(LDSection& pSection)
 PLT::~PLT()
 {
 }
-

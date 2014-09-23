@@ -6,12 +6,12 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include <llvm/Support/Casting.h>
-
 #include <mcld/LD/LDSection.h>
-#include <mcld/Target/GOT.h>
-#include <mcld/Support/MsgHandling.h>
 #include <mcld/IRBuilder.h>
+#include <mcld/Support/MsgHandling.h>
+#include <mcld/Target/GOT.h>
+
+#include <llvm/Support/Casting.h>
 
 #include <cstring>
 #include <cstdlib>
@@ -22,7 +22,7 @@ using namespace mcld;
 // GOT
 //===----------------------------------------------------------------------===//
 GOT::GOT(LDSection& pSection)
-  : m_Section(pSection) {
+    : m_Section(pSection) {
   m_SectionData = IRBuilder::CreateSectionData(pSection);
 }
 
@@ -41,4 +41,3 @@ void GOT::finalizeSectionSize()
 
   m_Section.setSize(offset);
 }
-

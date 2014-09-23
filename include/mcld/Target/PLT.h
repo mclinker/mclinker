@@ -9,9 +9,9 @@
 #ifndef MCLD_TARGET_PLT_H
 #define MCLD_TARGET_PLT_H
 
+#include <mcld/Fragment/TargetFragment.h>
 #include <mcld/LD/LDSection.h>
 #include <mcld/LD/SectionData.h>
-#include <mcld/Fragment/TargetFragment.h>
 
 namespace mcld {
 
@@ -25,8 +25,8 @@ class PLTEntryBase : public TargetFragment
 {
 public:
   PLTEntryBase(SectionData& pParent)
-    : TargetFragment(Fragment::Target, &pParent), m_pValue(NULL)
-  {}
+      : TargetFragment(Fragment::Target, &pParent), m_pValue(NULL)
+  { }
 
   virtual ~PLTEntryBase()
   {
@@ -64,8 +64,8 @@ public:
 
   public:
     Entry(SectionData& pParent)
-      : EntryBase(pParent)
-    {}
+        : EntryBase(pParent)
+    { }
 
     virtual ~Entry() {}
 
@@ -93,7 +93,6 @@ protected:
   SectionData* m_pSectionData;
 };
 
-} // namespace of mcld
+} // namespace mcld
 
 #endif
-

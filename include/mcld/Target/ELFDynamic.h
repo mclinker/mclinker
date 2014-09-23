@@ -124,7 +124,7 @@ private:
 
 #include "ELFDynamic.tcc"
 
-} // namespace of elf_dynamic
+} // namespace elf_dynamic
 
 /** \class ELFDynamic
  *  \brief ELFDynamic is the .dynamic section in ELF shared and executable
@@ -197,7 +197,6 @@ private:
   size_t m_Idx;
 };
 
-} // namespace of mcld
+} // namespace mcld
 
 #endif
-

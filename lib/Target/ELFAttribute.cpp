@@ -36,7 +36,7 @@ ELFAttribute::~ELFAttribute()
   return;
 }
 
-bool ELFAttribute::merge(const Input &pInput, LDSection &pInputAttrSectHdr)
+bool ELFAttribute::merge(const Input& pInput, LDSection& pInputAttrSectHdr)
 {
   // Skip corrupt subsection
   if (pInputAttrSectHdr.size() < MinimalELFAttributeSectionSize)
@@ -135,7 +135,7 @@ size_t ELFAttribute::sizeOutput() const
   return total_size;
 }
 
-size_t ELFAttribute::emit(MemoryRegion &pRegion) const
+size_t ELFAttribute::emit(MemoryRegion& pRegion) const
 {
   // ARM [ABI-addenda], 2.2.3
   uint64_t total_size = 0;
@@ -183,7 +183,7 @@ ELFAttribute::getSubsection(llvm::StringRef pVendorName) const
 //===----------------------------------------------------------------------===//
 // ELFAttribute::Subsection
 //===----------------------------------------------------------------------===//
-bool ELFAttribute::Subsection::merge(const Input &pInput,
+bool ELFAttribute::Subsection::merge(const Input& pInput,
                                      ConstAddress pData,
                                      size_t pSize)
 {
@@ -319,7 +319,7 @@ size_t ELFAttribute::Subsection::emit(char *pBuf) const
   buffer += 4;
 
   // Write vendor-name.
-  const std::string &vendor_name = m_AttrData.getVendorName();
+  const std::string& vendor_name = m_AttrData.getVendorName();
   ::memcpy(buffer, vendor_name.c_str(), vendor_name.length());
   buffer += vendor_name.length();
 
