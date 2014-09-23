@@ -31,7 +31,7 @@ LDFileFormat::Kind GetELFSectionKind(uint32_t pType,
                                      const char* pName,
                                      uint32_t pFlag)
 {
-  if (pFlag & mcld::ELF::SHF_EXCLUDE)
+  if (pFlag & llvm::ELF::SHF_EXCLUDE)
     return LDFileFormat::Exclude;
 
   if (pFlag & llvm::ELF::SHF_MASKPROC)
