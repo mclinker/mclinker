@@ -25,7 +25,7 @@ namespace {
 } // anonymous namespace
 
 typedef HashTable<HashEntryType,
-                  hash::StringHash<hash::BKDR>,
+                  hash::StringHash<hash::DJB>,
                   EntryFactory<HashEntryType> > PathCache;
 
 } // namespace fs
