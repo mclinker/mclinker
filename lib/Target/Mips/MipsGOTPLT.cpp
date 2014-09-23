@@ -6,8 +6,9 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include <llvm/Support/Casting.h>
 #include "MipsGOTPLT.h"
+
+#include <llvm/Support/Casting.h>
 
 namespace {
   typedef mcld::GOT::Entry<4> GOTPLTEntry;
@@ -21,7 +22,7 @@ namespace mcld {
 // MipsGOTPLT
 //===----------------------------------------------------------------------===//
 MipsGOTPLT::MipsGOTPLT(LDSection& pSection)
-  : GOT(pSection)
+    : GOT(pSection)
 {
   // Create header's entries.
   new GOTPLTEntry(0, m_SectionData);
@@ -31,7 +32,7 @@ MipsGOTPLT::MipsGOTPLT(LDSection& pSection)
 
 void MipsGOTPLT::reserve(size_t pNum)
 {
-  for (size_t i = 0; i < pNum; i++)
+  for (size_t i = 0; i < pNum; ++i)
     new GOTPLTEntry(0, m_SectionData);
 }
 
@@ -76,4 +77,4 @@ void MipsGOTPLT::applyAllGOTPLT(uint64_t pltAddr)
     llvm::cast<GOTPLTEntry>(*it).setValue(pltAddr);
 }
 
-} //end mcld namespace
+} // namespace mcld

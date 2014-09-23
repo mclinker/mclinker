@@ -13,26 +13,26 @@
 #include "MipsLDBackend.h"
 #include "MipsRelocator.h"
 
-#include <llvm/ADT/Triple.h>
-#include <llvm/Support/Casting.h>
-#include <llvm/Support/ELF.h>
-#include <llvm/Support/Host.h>
-
-#include <mcld/Module.h>
-#include <mcld/LinkerConfig.h>
 #include <mcld/IRBuilder.h>
+#include <mcld/LinkerConfig.h>
+#include <mcld/Module.h>
+#include <mcld/Fragment/FillFragment.h>
 #include <mcld/LD/BranchIslandFactory.h>
 #include <mcld/LD/LDContext.h>
 #include <mcld/LD/StubFactory.h>
 #include <mcld/LD/ELFFileFormat.h>
 #include <mcld/MC/Attribute.h>
-#include <mcld/Fragment/FillFragment.h>
+#include <mcld/Object/ObjectBuilder.h>
 #include <mcld/Support/MemoryRegion.h>
 #include <mcld/Support/MemoryArea.h>
 #include <mcld/Support/MsgHandling.h>
 #include <mcld/Support/TargetRegistry.h>
 #include <mcld/Target/OutputRelocSection.h>
-#include <mcld/Object/ObjectBuilder.h>
+
+#include <llvm/ADT/Triple.h>
+#include <llvm/Support/Casting.h>
+#include <llvm/Support/ELF.h>
+#include <llvm/Support/Host.h>
 
 using namespace mcld;
 
@@ -41,18 +41,18 @@ using namespace mcld;
 //===----------------------------------------------------------------------===//
 MipsGNULDBackend::MipsGNULDBackend(const LinkerConfig& pConfig,
                                    MipsGNUInfo* pInfo)
-  : GNULDBackend(pConfig, pInfo),
-    m_pRelocator(NULL),
-    m_pGOT(NULL),
-    m_pPLT(NULL),
-    m_pGOTPLT(NULL),
-    m_pInfo(*pInfo),
-    m_pRelPlt(NULL),
-    m_pRelDyn(NULL),
-    m_pDynamic(NULL),
-    m_pGOTSymbol(NULL),
-    m_pPLTSymbol(NULL),
-    m_pGpDispSymbol(NULL)
+    : GNULDBackend(pConfig, pInfo),
+      m_pRelocator(NULL),
+      m_pGOT(NULL),
+      m_pPLT(NULL),
+      m_pGOTPLT(NULL),
+      m_pInfo(*pInfo),
+      m_pRelPlt(NULL),
+      m_pRelDyn(NULL),
+      m_pDynamic(NULL),
+      m_pGOTSymbol(NULL),
+      m_pPLTSymbol(NULL),
+      m_pGpDispSymbol(NULL)
 {
 }
 
@@ -112,64 +112,65 @@ void MipsGNULDBackend::initTargetSymbols(IRBuilder& pBuilder, Module& pModule)
   // Define the symbol _GLOBAL_OFFSET_TABLE_ if there is a symbol with the
   // same name in input
   m_pGOTSymbol = pBuilder.AddSymbol<IRBuilder::AsReferred, IRBuilder::Resolve>(
-                   "_GLOBAL_OFFSET_TABLE_",
-                   ResolveInfo::Object,
-                   ResolveInfo::Define,
-                   ResolveInfo::Local,
-                   0x0,  // size
-                   0x0,  // value
-                   FragmentRef::Null(), // FragRef
-                   ResolveInfo::Hidden);
+                    "_GLOBAL_OFFSET_TABLE_",
+                    ResolveInfo::Object,
+                    ResolveInfo::Define,
+                    ResolveInfo::Local,
+                    0x0,  // size
+                    0x0,  // value
+                    FragmentRef::Null(), // FragRef
+                    ResolveInfo::Hidden);
 
   // Define the symbol _PROCEDURE_LINKAGE_TABLE_ if there is a symbol with the
   // same name in input
-  m_pPLTSymbol =
-    pBuilder.AddSymbol<IRBuilder::AsReferred, IRBuilder::Resolve>(
-                   "_PROCEDURE_LINKAGE_TABLE_",
-                   ResolveInfo::Object,
-                   ResolveInfo::Define,
-                   ResolveInfo::Local,
-                   0x0,  // size
-                   0x0,  // value
-                   FragmentRef::Null(), // FragRef
-                   ResolveInfo::Hidden);
+  m_pPLTSymbol = pBuilder.AddSymbol<IRBuilder::AsReferred, IRBuilder::Resolve>(
+                    "_PROCEDURE_LINKAGE_TABLE_",
+                    ResolveInfo::Object,
+                    ResolveInfo::Define,
+                    ResolveInfo::Local,
+                    0x0,  // size
+                    0x0,  // value
+                    FragmentRef::Null(), // FragRef
+                    ResolveInfo::Hidden);
 
-  m_pGpDispSymbol = pBuilder.AddSymbol<IRBuilder::AsReferred, IRBuilder::Resolve>(
-                   "_gp_disp",
-                   ResolveInfo::Section,
-                   ResolveInfo::Define,
-                   ResolveInfo::Absolute,
-                   0x0,  // size
-                   0x0,  // value
-                   FragmentRef::Null(), // FragRef
-                   ResolveInfo::Default);
+  m_pGpDispSymbol =
+      pBuilder.AddSymbol<IRBuilder::AsReferred, IRBuilder::Resolve>(
+          "_gp_disp",
+          ResolveInfo::Section,
+          ResolveInfo::Define,
+          ResolveInfo::Absolute,
+          0x0,  // size
+          0x0,  // value
+          FragmentRef::Null(), // FragRef
+          ResolveInfo::Default);
+
   pBuilder.AddSymbol<IRBuilder::AsReferred, IRBuilder::Unresolve>(
-                   "_gp",
-                   ResolveInfo::NoType,
-                   ResolveInfo::Define,
-                   ResolveInfo::Absolute,
-                   0x0,  // size
-                   0x0,  // value
-                   FragmentRef::Null(), // FragRef
-                   ResolveInfo::Default);
+      "_gp",
+      ResolveInfo::NoType,
+      ResolveInfo::Define,
+      ResolveInfo::Absolute,
+      0x0,  // size
+      0x0,  // value
+      FragmentRef::Null(), // FragRef
+      ResolveInfo::Default);
 }
 
 const Relocator* MipsGNULDBackend::getRelocator() const
 {
-  assert(NULL != m_pRelocator);
+  assert(m_pRelocator != NULL);
   return m_pRelocator;
 }
 
 Relocator* MipsGNULDBackend::getRelocator()
 {
-  assert(NULL != m_pRelocator);
+  assert(m_pRelocator != NULL);
   return m_pRelocator;
 }
 
 void MipsGNULDBackend::doPreLayout(IRBuilder& pBuilder)
 {
   // initialize .dynamic data
-  if (!config().isCodeStatic() && NULL == m_pDynamic)
+  if (!config().isCodeStatic() && m_pDynamic == NULL)
     m_pDynamic = new MipsELFDynamic(*this, config());
 
   // set .got size
@@ -177,7 +178,7 @@ void MipsGNULDBackend::doPreLayout(IRBuilder& pBuilder)
   if (LinkerConfig::Object != config().codeGenType()) {
     if (LinkerConfig::DynObj == config().codeGenType() ||
         m_pGOT->hasGOT1() ||
-        NULL != m_pGOTSymbol) {
+        m_pGOTSymbol != NULL) {
       m_pGOT->finalizeScanning(*m_pRelDyn);
       m_pGOT->finalizeSectionSize();
 
@@ -200,7 +201,7 @@ void MipsGNULDBackend::doPreLayout(IRBuilder& pBuilder)
       assert(!config().isCodeStatic() &&
             "static linkage should not result in a dynamic relocation section");
       file_format->getRelPlt().setSize(
-                                  m_pRelPlt->numOfRelocs() * getRelEntrySize());
+          m_pRelPlt->numOfRelocs() * getRelEntrySize());
     }
 
     // set .rel.dyn size
@@ -208,7 +209,7 @@ void MipsGNULDBackend::doPreLayout(IRBuilder& pBuilder)
       assert(!config().isCodeStatic() &&
             "static linkage should not result in a dynamic relocation section");
       file_format->getRelDyn().setSize(
-                                  m_pRelDyn->numOfRelocs() * getRelEntrySize());
+          m_pRelDyn->numOfRelocs() * getRelEntrySize());
     }
   }
 }
@@ -218,12 +219,12 @@ void MipsGNULDBackend::doPostLayout(Module& pModule, IRBuilder& pBuilder)
   const ELFFileFormat *format = getOutputFormat();
 
   if (format->hasGOTPLT()) {
-    assert(m_pGOTPLT && "doPostLayout failed, m_pGOTPLT is NULL!");
+    assert(m_pGOTPLT != NULL && "doPostLayout failed, m_pGOTPLT is NULL!");
     m_pGOTPLT->applyAllGOTPLT(m_pPLT->addr());
   }
 
   if (format->hasPLT()) {
-    assert(m_pPLT && "doPostLayout failed, m_pPLT is NULL!");
+    assert(m_pPLT != NULL && "doPostLayout failed, m_pPLT is NULL!");
     m_pPLT->applyAllPLT(*m_pGOTPLT);
   }
 
@@ -234,8 +235,7 @@ void MipsGNULDBackend::doPostLayout(Module& pModule, IRBuilder& pBuilder)
   uint64_t picFlags = llvm::ELF::EF_MIPS_CPIC;
   if (config().targets().triple().isArch64Bit()) {
     picFlags |= llvm::ELF::EF_MIPS_PIC;
-  }
-  else {
+  } else {
     if (LinkerConfig::DynObj == config().codeGenType())
       picFlags |= llvm::ELF::EF_MIPS_PIC;
   }
@@ -247,7 +247,7 @@ void MipsGNULDBackend::doPostLayout(Module& pModule, IRBuilder& pBuilder)
 /// Use co-variant return type to return its own dynamic section.
 MipsELFDynamic& MipsGNULDBackend::dynamic()
 {
-  assert(NULL != m_pDynamic);
+  assert(m_pDynamic != NULL);
   return *m_pDynamic;
 }
 
@@ -255,7 +255,7 @@ MipsELFDynamic& MipsGNULDBackend::dynamic()
 /// Use co-variant return type to return its own dynamic section.
 const MipsELFDynamic& MipsGNULDBackend::dynamic() const
 {
-  assert(NULL != m_pDynamic);
+  assert(m_pDynamic != NULL);
   return *m_pDynamic;
 }
 
@@ -279,8 +279,8 @@ uint64_t MipsGNULDBackend::emitSectionData(const LDSection& pSection,
   }
 
   fatal(diag::unrecognized_output_sectoin)
-          << pSection.name()
-          << "mclinker@googlegroups.com";
+      << pSection.name()
+      << "mclinker@googlegroups.com";
   return 0;
 }
 
@@ -296,7 +296,7 @@ namespace {
     const MipsGOT& m_pGOT;
 
     DynsymGOTCompare(const MipsGOT& pGOT)
-      : m_pGOT(pGOT)
+        : m_pGOT(pGOT)
     {
     }
 
@@ -305,7 +305,7 @@ namespace {
       return m_pGOT.dynSymOrderCompare(X, Y);
     }
   };
-}
+} // anonymous namespace
 
 void MipsGNULDBackend::orderSymbolTable(Module& pModule)
 {
@@ -366,8 +366,8 @@ struct Elf64_RegInfo {
   Elf64_Addr ri_gp_value;   // GP register value for this object file.
 };
 
-}
-}
+} // namespace ELF
+} // namespace llvm
 
 bool MipsGNULDBackend::readSection(Input& pInput, SectionData& pSD)
 {
@@ -389,11 +389,13 @@ bool MipsGNULDBackend::readSection(Input& pInput, SectionData& pSD)
     llvm::StringRef region = pInput.memArea()->request(offset, size);
     if (region.size() > 0) {
       const llvm::ELF::Elf_Options* optb =
-        reinterpret_cast<const llvm::ELF::Elf_Options*>(region.begin());
+          reinterpret_cast<const llvm::ELF::Elf_Options*>(region.begin());
       const llvm::ELF::Elf_Options* opte =
-        reinterpret_cast<const llvm::ELF::Elf_Options*>(region.begin() + size);
+          reinterpret_cast<const llvm::ELF::Elf_Options*>(region.begin() +
+                                                          size);
 
-      for (const llvm::ELF::Elf_Options* opt = optb; opt < opte; opt += opt->size) {
+      for (const llvm::ELF::Elf_Options* opt = optb; opt < opte;
+           opt += opt->size) {
         switch (opt->kind) {
           default:
             // Nothing to do.
@@ -401,12 +403,11 @@ bool MipsGNULDBackend::readSection(Input& pInput, SectionData& pSD)
           case llvm::ELF::ODK_REGINFO:
             if (config().targets().triple().isArch32Bit()) {
               const llvm::ELF::Elf32_RegInfo* reg =
-                reinterpret_cast<const llvm::ELF::Elf32_RegInfo*>(opt + 1);
+                  reinterpret_cast<const llvm::ELF::Elf32_RegInfo*>(opt + 1);
               m_GP0Map[&pInput] = reg->ri_gp_value;
-            }
-            else {
+            } else {
               const llvm::ELF::Elf64_RegInfo* reg =
-                reinterpret_cast<const llvm::ELF::Elf64_RegInfo*>(opt + 1);
+                  reinterpret_cast<const llvm::ELF::Elf64_RegInfo*>(opt + 1);
               m_GP0Map[&pInput] = reg->ri_gp_value;
             }
             break;
@@ -422,61 +423,61 @@ bool MipsGNULDBackend::readSection(Input& pInput, SectionData& pSD)
 
 MipsGOT& MipsGNULDBackend::getGOT()
 {
-  assert(NULL != m_pGOT);
+  assert(m_pGOT != NULL);
   return *m_pGOT;
 }
 
 const MipsGOT& MipsGNULDBackend::getGOT() const
 {
-  assert(NULL != m_pGOT);
+  assert(m_pGOT != NULL);
   return *m_pGOT;
 }
 
 MipsPLT& MipsGNULDBackend::getPLT()
 {
-  assert(NULL != m_pPLT);
+  assert(m_pPLT != NULL);
   return *m_pPLT;
 }
 
 const MipsPLT& MipsGNULDBackend::getPLT() const
 {
-  assert(NULL != m_pPLT);
+  assert(m_pPLT != NULL);
   return *m_pPLT;
 }
 
 MipsGOTPLT& MipsGNULDBackend::getGOTPLT()
 {
-  assert(NULL != m_pGOTPLT);
+  assert(m_pGOTPLT != NULL);
   return *m_pGOTPLT;
 }
 
 const MipsGOTPLT& MipsGNULDBackend::getGOTPLT() const
 {
-  assert(NULL != m_pGOTPLT);
+  assert(m_pGOTPLT != NULL);
   return *m_pGOTPLT;
 }
 
 OutputRelocSection& MipsGNULDBackend::getRelPLT()
 {
-  assert(NULL != m_pRelPlt);
+  assert(m_pRelPlt != NULL);
   return *m_pRelPlt;
 }
 
 const OutputRelocSection& MipsGNULDBackend::getRelPLT() const
 {
-  assert(NULL != m_pRelPlt);
+  assert(m_pRelPlt != NULL);
   return *m_pRelPlt;
 }
 
 OutputRelocSection& MipsGNULDBackend::getRelDyn()
 {
-  assert(NULL != m_pRelDyn);
+  assert(m_pRelDyn != NULL);
   return *m_pRelDyn;
 }
 
 const OutputRelocSection& MipsGNULDBackend::getRelDyn() const
 {
-  assert(NULL != m_pRelDyn);
+  assert(m_pRelDyn != NULL);
   return *m_pRelDyn;
 }
 
@@ -500,7 +501,7 @@ MipsGNULDBackend::getTargetSectionOrder(const LDSection& pSectHdr) const
 /// finalizeSymbol - finalize the symbol value
 bool MipsGNULDBackend::finalizeTargetSymbols()
 {
-  if (NULL != m_pGpDispSymbol)
+  if (m_pGpDispSymbol != NULL)
     m_pGpDispSymbol->setValue(m_pGOT->getGPDispAddress());
 
   return true;
@@ -565,9 +566,8 @@ bool MipsGNULDBackend::allocateCommonSymbols(Module& pModule)
                                                      (*com_sym)->value());
         ObjectBuilder::UpdateSectionAlign(tbss_sect, (*com_sym)->value());
         (*com_sym)->setFragmentRef(FragmentRef::Create(*frag, 0));
-      }
-      // FIXME: how to identify small and large common symbols?
-      else {
+      } else {
+        // FIXME: how to identify small and large common symbols?
         bss_offset += ObjectBuilder::AppendFragment(*frag,
                                                     *bss_sect_data,
                                                     (*com_sym)->value());
@@ -595,9 +595,8 @@ bool MipsGNULDBackend::allocateCommonSymbols(Module& pModule)
                                                    (*com_sym)->value());
       ObjectBuilder::UpdateSectionAlign(tbss_sect, (*com_sym)->value());
       (*com_sym)->setFragmentRef(FragmentRef::Create(*frag, 0));
-    }
-    // FIXME: how to identify small and large common symbols?
-    else {
+    } else {
+      // FIXME: how to identify small and large common symbols?
       bss_offset += ObjectBuilder::AppendFragment(*frag,
                                                   *bss_sect_data,
                                                   (*com_sym)->value());
@@ -625,54 +624,52 @@ void MipsGNULDBackend::defineGOTSymbol(IRBuilder& pBuilder)
     return;
 
   // define symbol _GLOBAL_OFFSET_TABLE_
-  if ( m_pGOTSymbol != NULL ) {
+  if (m_pGOTSymbol != NULL) {
     pBuilder.AddSymbol<IRBuilder::Force, IRBuilder::Unresolve>(
-                     "_GLOBAL_OFFSET_TABLE_",
-                     ResolveInfo::Object,
-                     ResolveInfo::Define,
-                     ResolveInfo::Local,
-                     0x0, // size
-                     0x0, // value
-                     FragmentRef::Create(*(m_pGOT->begin()), 0x0),
-                     ResolveInfo::Hidden);
-  }
-  else {
+        "_GLOBAL_OFFSET_TABLE_",
+        ResolveInfo::Object,
+        ResolveInfo::Define,
+        ResolveInfo::Local,
+        0x0, // size
+        0x0, // value
+        FragmentRef::Create(*(m_pGOT->begin()), 0x0),
+        ResolveInfo::Hidden);
+  } else {
     m_pGOTSymbol = pBuilder.AddSymbol<IRBuilder::Force, IRBuilder::Resolve>(
-                     "_GLOBAL_OFFSET_TABLE_",
-                     ResolveInfo::Object,
-                     ResolveInfo::Define,
-                     ResolveInfo::Local,
-                     0x0, // size
-                     0x0, // value
-                     FragmentRef::Create(*(m_pGOT->begin()), 0x0),
-                     ResolveInfo::Hidden);
+                      "_GLOBAL_OFFSET_TABLE_",
+                      ResolveInfo::Object,
+                      ResolveInfo::Define,
+                      ResolveInfo::Local,
+                      0x0, // size
+                      0x0, // value
+                      FragmentRef::Create(*(m_pGOT->begin()), 0x0),
+                      ResolveInfo::Hidden);
   }
 }
 
 void MipsGNULDBackend::defineGOTPLTSymbol(IRBuilder& pBuilder)
 {
   // define symbol _PROCEDURE_LINKAGE_TABLE_
-  if ( m_pPLTSymbol != NULL ) {
+  if (m_pPLTSymbol != NULL) {
     pBuilder.AddSymbol<IRBuilder::Force, IRBuilder::Unresolve>(
-                     "_PROCEDURE_LINKAGE_TABLE_",
-                     ResolveInfo::Object,
-                     ResolveInfo::Define,
-                     ResolveInfo::Local,
-                     0x0, // size
-                     0x0, // value
-                     FragmentRef::Create(*(m_pPLT->begin()), 0x0),
-                     ResolveInfo::Hidden);
-  }
-  else {
+        "_PROCEDURE_LINKAGE_TABLE_",
+        ResolveInfo::Object,
+        ResolveInfo::Define,
+        ResolveInfo::Local,
+        0x0, // size
+        0x0, // value
+        FragmentRef::Create(*(m_pPLT->begin()), 0x0),
+        ResolveInfo::Hidden);
+  } else {
     m_pPLTSymbol = pBuilder.AddSymbol<IRBuilder::Force, IRBuilder::Resolve>(
-                     "_PROCEDURE_LINKAGE_TABLE_",
-                     ResolveInfo::Object,
-                     ResolveInfo::Define,
-                     ResolveInfo::Local,
-                     0x0, // size
-                     0x0, // value
-                     FragmentRef::Create(*(m_pPLT->begin()), 0x0),
-                     ResolveInfo::Hidden);
+                      "_PROCEDURE_LINKAGE_TABLE_",
+                      ResolveInfo::Object,
+                      ResolveInfo::Define,
+                      ResolveInfo::Local,
+                      0x0, // size
+                      0x0, // value
+                      FragmentRef::Create(*(m_pPLT->begin()), 0x0),
+                      ResolveInfo::Hidden);
   }
 }
 
@@ -694,13 +691,13 @@ bool MipsGNULDBackend::relaxRelocation(IRBuilder& pBuilder, Relocation& pRel)
     sym_value = addr + value;
   }
 
-  Stub* stub =
-    getStubFactory()->create(pRel, sym_value, pBuilder, *getBRIslandFactory());
+  Stub* stub = getStubFactory()->create(pRel, sym_value, pBuilder,
+                                        *getBRIslandFactory());
 
-  if (NULL == stub)
+  if (stub == NULL)
     return false;
 
-  assert(NULL != stub->symInfo());
+  assert(stub->symInfo() != NULL);
   // increase the size of .symtab and .strtab
   LDSection& symtab = getOutputFormat()->getSymTab();
   LDSection& strtab = getOutputFormat()->getStrTab();
@@ -713,7 +710,7 @@ bool MipsGNULDBackend::relaxRelocation(IRBuilder& pBuilder, Relocation& pRel)
 bool MipsGNULDBackend::doRelax(Module& pModule, IRBuilder& pBuilder,
                                bool& pFinished)
 {
-  assert(NULL != getStubFactory() && NULL != getBRIslandFactory());
+  assert(getStubFactory() != NULL && getBRIslandFactory() != NULL);
 
   bool isRelaxed = false;
 
@@ -761,7 +758,7 @@ bool MipsGNULDBackend::doRelax(Module& pModule, IRBuilder& pBuilder,
   }
 
   // reset the offset of invalid fragments
-  while (NULL != invalid) {
+  while (invalid != NULL) {
     invalid->setOffset(invalid->getPrevNode()->getOffset() +
                        invalid->getPrevNode()->size());
     invalid = invalid->getNextNode();
@@ -777,7 +774,7 @@ bool MipsGNULDBackend::doRelax(Module& pModule, IRBuilder& pBuilder,
 
 bool MipsGNULDBackend::initTargetStubs()
 {
-  if (NULL == getStubFactory())
+  if (getStubFactory() == NULL)
     return false;
 
   getStubFactory()->addPrototype(new MipsLA25Stub(*this));
@@ -810,8 +807,7 @@ bool MipsGNULDBackend::readRelocation(const llvm::ELF::Elf64_Rel& pRel,
   if (llvm::sys::IsLittleEndianHost) {
     pOffset = pRel.r_offset;
     r_info  = pRel.r_info;
-  }
-  else {
+  } else {
     pOffset = mcld::bswap64(pRel.r_offset);
     r_info  = mcld::bswap64(pRel.r_info);
   }
@@ -836,8 +832,7 @@ bool MipsGNULDBackend::readRelocation(const llvm::ELF::Elf64_Rela& pRel,
     pOffset = pRel.r_offset;
     r_info  = pRel.r_info;
     pAddend = pRel.r_addend;
-  }
-  else {
+  } else {
     pOffset = mcld::bswap64(pRel.r_offset);
     r_info  = mcld::bswap64(pRel.r_info);
     pAddend = mcld::bswap64(pRel.r_addend);
@@ -898,12 +893,12 @@ void MipsGNULDBackend::emitRelocation(llvm::ELF::Elf64_Rela& pRel,
 //===----------------------------------------------------------------------===//
 Mips32GNULDBackend::Mips32GNULDBackend(const LinkerConfig& pConfig,
                                        MipsGNUInfo* pInfo)
-  : MipsGNULDBackend(pConfig, pInfo)
-{}
+    : MipsGNULDBackend(pConfig, pInfo)
+{ }
 
 bool Mips32GNULDBackend::initRelocator()
 {
-  if (NULL == m_pRelocator)
+  if (m_pRelocator == NULL)
     m_pRelocator = new Mips32Relocator(*this, config());
 
   return true;
@@ -947,12 +942,12 @@ size_t Mips32GNULDBackend::getRelaEntrySize()
 //===----------------------------------------------------------------------===//
 Mips64GNULDBackend::Mips64GNULDBackend(const LinkerConfig& pConfig,
                                        MipsGNUInfo* pInfo)
-  : MipsGNULDBackend(pConfig, pInfo)
-{}
+    : MipsGNULDBackend(pConfig, pInfo)
+{ }
 
 bool Mips64GNULDBackend::initRelocator()
 {
-  if (NULL == m_pRelocator)
+  if (m_pRelocator == NULL)
     m_pRelocator = new Mips64Relocator(*this, config());
 
   return true;
@@ -1010,7 +1005,7 @@ static TargetLDBackend* createMipsLDBackend(const LinkerConfig& pConfig)
   if (llvm::Triple::mips64el == arch)
     return new Mips64GNULDBackend(pConfig, new MipsGNUInfo(triple));
 
-  assert (arch == llvm::Triple::mipsel);
+  assert(arch == llvm::Triple::mipsel);
   return new Mips32GNULDBackend(pConfig, new MipsGNUInfo(triple));
 }
 

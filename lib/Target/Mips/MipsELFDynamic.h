@@ -34,6 +34,6 @@ private:
   uint64_t getBaseAddress();
 };
 
-} // namespace of mcld
+} // namespace mcld
 
 #endif

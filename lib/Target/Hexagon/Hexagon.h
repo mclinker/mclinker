@@ -11,8 +11,8 @@
 #include <string>
 
 namespace llvm {
-class Target;
-} // namespace of llvm
+  class Target;
+} // namespace llvm
 
 namespace mcld {
 
@@ -24,7 +24,6 @@ extern mcld::Target TheHexagonTarget;
 TargetLDBackend*
 createHexagonLDBackend(const llvm::Target&, const std::string&);
 
-} // namespace of mcld
+} // namespace mcld
 
 #endif
-

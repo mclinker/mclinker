@@ -9,8 +9,8 @@
 #include "Hexagon.h"
 #include <mcld/LinkerScript.h>
 #include <mcld/LinkerConfig.h>
-#include <mcld/Target/ELFEmulation.h>
 #include <mcld/Support/TargetRegistry.h>
+#include <mcld/Target/ELFEmulation.h>
 
 namespace mcld {
 
@@ -52,7 +52,7 @@ bool emulateHexagonLD(LinkerScript& pScript, LinkerConfig& pConfig)
   return MCLDEmulateHexagonELF(pScript, pConfig);
 }
 
-} // namespace of mcld
+} // namespace mcld
 
 //===----------------------------------------------------------------------===//
 // HexagonEmulation
@@ -62,4 +62,3 @@ extern "C" void MCLDInitializeHexagonEmulation() {
   mcld::TargetRegistry::RegisterEmulation(mcld::TheHexagonTarget,
                                           mcld::emulateHexagonLD);
 }
-

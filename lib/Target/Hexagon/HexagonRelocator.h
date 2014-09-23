@@ -17,8 +17,8 @@
 
 namespace mcld {
 
-class ResolveInfo;
 class LinkerConfig;
+class ResolveInfo;
 
 /** \class HexagonRelocator
  *  \brief HexagonRelocator creates and destroys the Hexagon relocations.
@@ -142,7 +142,6 @@ private:
   RelRelMap m_RelRelMap;
 };
 
-} // namespace of mcld
+} // namespace mcld
 
 #endif
-

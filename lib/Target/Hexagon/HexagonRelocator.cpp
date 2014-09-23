@@ -9,13 +9,14 @@
 #include "HexagonRelocator.h"
 #include "HexagonRelocationFunctions.h"
 #include "HexagonEncodings.h"
-#include <llvm/ADT/Twine.h>
-#include <llvm/Support/DataTypes.h>
-#include <llvm/Support/ELF.h>
 
 #include <mcld/LD/ELFFileFormat.h>
 #include <mcld/LD/LDSymbol.h>
 #include <mcld/Support/MsgHandling.h>
+
+#include <llvm/ADT/Twine.h>
+#include <llvm/Support/DataTypes.h>
+#include <llvm/Support/ELF.h>
 
 using namespace mcld;
 
@@ -28,11 +29,11 @@ static Relocation &helper_DynRel_init(ResolveInfo *pSym,
                                       uint64_t pOffset,
                                       Relocator::Type pType,
                                       HexagonRelocator &pParent) {
-  HexagonLDBackend &ld_backend = pParent.getTarget();
-  Relocation &rela_entry = *ld_backend.getRelaDyn().create();
+  HexagonLDBackend& ld_backend = pParent.getTarget();
+  Relocation& rela_entry = *ld_backend.getRelaDyn().create();
   rela_entry.setType(pType);
   rela_entry.targetRef().assign(pFrag, pOffset);
-  if (pType == llvm::ELF::R_HEX_RELATIVE || NULL == pSym)
+  if (pType == llvm::ELF::R_HEX_RELATIVE || pSym == NULL)
     rela_entry.setSymInfo(0);
   else
     rela_entry.setSymInfo(pSym);
@@ -51,31 +52,29 @@ static bool helper_use_relative_reloc(const ResolveInfo &pSym,
   return true;
 }
 
-static HexagonGOTEntry &helper_GOT_init(Relocation &pReloc,
+static HexagonGOTEntry& helper_GOT_init(Relocation &pReloc,
                                         bool pHasRel,
                                         HexagonRelocator &pParent) {
   // rsym - The relocation target symbol
-  ResolveInfo *rsym = pReloc.symInfo();
+  ResolveInfo* rsym = pReloc.symInfo();
   HexagonLDBackend &ld_backend = pParent.getTarget();
-  assert(NULL == pParent.getSymGOTMap().lookUp(*rsym));
+  assert(pParent.getSymGOTMap().lookUp(*rsym) == NULL);
 
-  HexagonGOTEntry *got_entry = ld_backend.getGOT().create();
+  HexagonGOTEntry* got_entry = ld_backend.getGOT().create();
   pParent.getSymGOTMap().record(*rsym, *got_entry);
 
   if (!pHasRel) {
     // No corresponding dynamic relocation, initialize to the symbol value.
     got_entry->setValue(HexagonRelocator::SymVal);
-  }
-  else {
+  } else {
     // Initialize got_entry content and the corresponding dynamic relocation.
     if (helper_use_relative_reloc(*rsym, pParent)) {
       helper_DynRel_init(rsym, *got_entry, 0x0, llvm::ELF::R_HEX_RELATIVE,
-                                                                       pParent);
+                         pParent);
       got_entry->setValue(HexagonRelocator::SymVal);
-    }
-    else {
+    }  else {
       helper_DynRel_init(rsym, *got_entry, 0x0, llvm::ELF::R_HEX_GLOB_DAT,
-                                                                       pParent);
+                         pParent);
       got_entry->setValue(0);
     }
   }
@@ -83,28 +82,28 @@ static HexagonGOTEntry &helper_GOT_init(Relocation &pReloc,
 }
 
 static Relocator::Address helper_get_GOT_address(ResolveInfo &pSym,
-                                                    HexagonRelocator &pParent) {
-  HexagonGOTEntry *got_entry = pParent.getSymGOTMap().lookUp(pSym);
-  assert(NULL != got_entry);
+                                                 HexagonRelocator &pParent) {
+  HexagonGOTEntry* got_entry = pParent.getSymGOTMap().lookUp(pSym);
+  assert(got_entry != NULL);
   return pParent.getTarget().getGOT().addr() + got_entry->getOffset();
 }
 
 static PLTEntryBase &helper_PLT_init(Relocation &pReloc,
                                      HexagonRelocator &pParent) {
   // rsym - The relocation target symbol
-  ResolveInfo *rsym = pReloc.symInfo();
-  HexagonLDBackend &ld_backend = pParent.getTarget();
-  assert(NULL == pParent.getSymPLTMap().lookUp(*rsym));
+  ResolveInfo* rsym = pReloc.symInfo();
+  HexagonLDBackend& ld_backend = pParent.getTarget();
+  assert(pParent.getSymPLTMap().lookUp(*rsym) == NULL);
 
-  PLTEntryBase *plt_entry = ld_backend.getPLT().create();
+  PLTEntryBase* plt_entry = ld_backend.getPLT().create();
   pParent.getSymPLTMap().record(*rsym, *plt_entry);
 
-  assert(NULL == pParent.getSymGOTPLTMap().lookUp(*rsym) &&
+  assert(pParent.getSymGOTPLTMap().lookUp(*rsym) == NULL &&
          "PLT entry not exist, but DynRel entry exist!");
-  HexagonGOTEntry *gotplt_entry = ld_backend.getGOTPLT().create();
+  HexagonGOTEntry* gotplt_entry = ld_backend.getGOTPLT().create();
   pParent.getSymGOTPLTMap().record(*rsym, *gotplt_entry);
   // init the corresponding rel entry in .rela.plt
-  Relocation &rela_entry = *ld_backend.getRelaPLT().create();
+  Relocation& rela_entry = *ld_backend.getRelaPLT().create();
   rela_entry.setType(llvm::ELF::R_HEX_JMP_SLOT);
   rela_entry.targetRef().assign(*gotplt_entry);
   rela_entry.setSymInfo(rsym);
@@ -113,9 +112,9 @@ static PLTEntryBase &helper_PLT_init(Relocation &pReloc,
 }
 
 static Relocator::Address helper_get_PLT_address(ResolveInfo& pSym,
-                                                    HexagonRelocator &pParent) {
-  PLTEntryBase *plt_entry = pParent.getSymPLTMap().lookUp(pSym);
-  assert(NULL != plt_entry);
+                                                 HexagonRelocator &pParent) {
+  PLTEntryBase* plt_entry = pParent.getSymPLTMap().lookUp(pSym);
+  assert(plt_entry != NULL);
   return pParent.getTarget().getPLT().addr() + plt_entry->getOffset();
 }
 
@@ -142,7 +141,7 @@ static const ApplyFunctionTriple ApplyFunctions[] = {
 
 static uint32_t findBitMask(uint32_t insn, Instruction *encodings,
                             int32_t numInsns) {
-  for (int32_t i = 0; i < numInsns; i++) {
+  for (int32_t i = 0; i < numInsns; ++i) {
     if (((insn & 0xc000) == 0) && !(encodings[i].isDuplex))
       continue;
 
@@ -191,20 +190,21 @@ Relocator::Size HexagonRelocator::getSize(Relocation::Type pType) const {
 }
 
 void HexagonRelocator::scanRelocation(Relocation &pReloc, IRBuilder &pLinker,
-                                      Module &pModule, LDSection &pSection, Input &pInput) {
+                                      Module &pModule, LDSection &pSection,
+                                      Input &pInput) {
   if (LinkerConfig::Object == config().codeGenType())
     return;
 
   // rsym - The relocation target symbol
   ResolveInfo *rsym = pReloc.symInfo();
-  assert(NULL != rsym &&
+  assert(rsym != NULL &&
          "ResolveInfo of relocation not set while scanRelocation");
 
   if (config().isCodeStatic())
     return;
 
-  assert(NULL != pSection.getLink());
-  if (0 == (pSection.getLink()->flag() & llvm::ELF::SHF_ALLOC))
+  assert(pSection.getLink() != NULL);
+  if ((pSection.getLink()->flag() & llvm::ELF::SHF_ALLOC) == 0)
     return;
 
   if (rsym->isLocal()) // rsym is local
@@ -315,8 +315,7 @@ void HexagonRelocator::scanGlobalReloc(Relocation &pReloc, IRBuilder &pBuilder,
         LDSymbol &cpy_sym =
             defineSymbolforCopyReloc(pBuilder, *rsym, ld_backend);
         addCopyReloc(*cpy_sym.resolveInfo(), ld_backend);
-      }
-      else {
+      } else {
         Relocation &reloc = helper_DynRel_init(rsym,
                                                *pReloc.targetRef().frag(),
                                                pReloc.targetRef().offset(),
@@ -406,7 +405,7 @@ LDSymbol &HexagonRelocator::defineSymbolforCopyReloc(
     bss_sect_hdr = &file_format->getBSS();
 
   // get or create corresponding BSS SectionData
-  assert(NULL != bss_sect_hdr);
+  assert(bss_sect_hdr != NULL);
   SectionData *bss_section = NULL;
   if (bss_sect_hdr->hasSectionData())
     bss_section = bss_sect_hdr->getSectionData();
@@ -437,7 +436,7 @@ LDSymbol &HexagonRelocator::defineSymbolforCopyReloc(
   // output all other alias symbols if any
   Module &pModule = pBuilder.getModule();
   Module::AliasList *alias_list = pModule.getAliasList(pSym);
-  if (NULL != alias_list) {
+  if (alias_list != NULL) {
     Module::alias_iterator it, it_e = alias_list->end();
     for (it = alias_list->begin(); it != it_e; ++it) {
       const ResolveInfo *alias = *it;
@@ -461,14 +460,14 @@ void HexagonRelocator::partialScanRelocation(Relocation &pReloc,
   pReloc.updateAddend();
   // if we meet a section symbol
   if (pReloc.symInfo()->type() == ResolveInfo::Section) {
-    LDSymbol *input_sym = pReloc.symInfo()->outSymbol();
+    LDSymbol* input_sym = pReloc.symInfo()->outSymbol();
 
     // 1. update the relocation target offset
     assert(input_sym->hasFragRef());
     // 2. get the output LDSection which the symbol defined in
-    const LDSection &out_sect =
+    const LDSection& out_sect =
         input_sym->fragRef()->frag()->getParent()->getSection();
-    ResolveInfo *sym_info =
+    ResolveInfo* sym_info =
         pModule.getSectionSymbolSet().get(out_sect)->resolveInfo();
     // set relocation target symbol to the output section symbol's resolveInfo
     pReloc.setSymInfo(sym_info);
@@ -678,12 +677,12 @@ Relocator::Result applyRel(Relocation &pReloc, int64_t pResult) {
 }
 
 Relocator::Result relocAbs(Relocation &pReloc, HexagonRelocator &pParent) {
-  ResolveInfo *rsym = pReloc.symInfo();
+  ResolveInfo* rsym = pReloc.symInfo();
   Relocator::Address S = pReloc.symValue();
   Relocator::DWord A = pReloc.addend();
 
   Relocation* rel_entry = pParent.getRelRelMap().lookUp(pReloc);
-  bool has_dyn_rel = (NULL != rel_entry);
+  bool has_dyn_rel = (rel_entry != NULL);
 
   // if the flag of target section is not ALLOC, we eprform only static
   // relocation.
@@ -718,7 +717,7 @@ Relocator::Result relocAbs(Relocation &pReloc, HexagonRelocator &pParent) {
 }
 
 Relocator::Result relocPCREL(Relocation &pReloc, HexagonRelocator &pParent) {
-  ResolveInfo *rsym = pReloc.symInfo();
+  ResolveInfo* rsym = pReloc.symInfo();
   int64_t result;
 
   Relocator::Address S = pReloc.symValue();
@@ -732,7 +731,7 @@ Relocator::Result relocPCREL(Relocation &pReloc, HexagonRelocator &pParent) {
   result = (int64_t)(S + A - P);
 
   // for relocs inside non ALLOC, just apply
-  if (0 == (llvm::ELF::SHF_ALLOC & target_sect.flag())) {
+  if ((llvm::ELF::SHF_ALLOC & target_sect.flag()) == 0) {
     return applyRel(pReloc, result);
   }
 
@@ -779,8 +778,8 @@ Relocator::Result relocGPREL(Relocation &pReloc, HexagonRelocator &pParent) {
 
   default:
     // show proper error
-    fatal(diag::unsupported_relocation) << (int)
-        pReloc.type() << "mclinker@googlegroups.com";
+    fatal(diag::unsupported_relocation) << (int) pReloc.type()
+                                        << "mclinker@googlegroups.com";
   }
 
   uint32_t range = 1 << 16;
@@ -823,13 +822,12 @@ Relocator::Result relocGOT(Relocation &pReloc, HexagonRelocator &pParent) {
   }
 
   // set got entry value if needed
-  HexagonGOTEntry *got_entry = pParent.getSymGOTMap().lookUp(*pReloc.symInfo());
-  assert(NULL != got_entry);
+  HexagonGOTEntry* got_entry = pParent.getSymGOTMap().lookUp(*pReloc.symInfo());
+  assert(got_entry != NULL);
   if (HexagonRelocator::SymVal == got_entry->getValue())
     got_entry->setValue(pReloc.symValue());
 
-  Relocator::Address GOT_S =
-                             helper_get_GOT_address(*pReloc.symInfo(), pParent);
+  Relocator::Address GOT_S = helper_get_GOT_address(*pReloc.symInfo(), pParent);
   Relocator::Address GOT = pParent.getTarget().getGOTSymbolAddr();
   int32_t result = (int32_t)(GOT_S - GOT);
   uint32_t effectiveBits = 0;
@@ -876,8 +874,8 @@ Relocator::Result relocGOT(Relocation &pReloc, HexagonRelocator &pParent) {
 
   default:
     // show proper error
-    fatal(diag::unsupported_relocation) << (int)
-        pReloc.type() << "mclinker@googlegroups.com";
+    fatal(diag::unsupported_relocation) << (int) pReloc.type()
+                                        << "mclinker@googlegroups.com";
   }
 
   if ((shift != 0) && (result % alignment != 0))
@@ -934,8 +932,8 @@ Relocator::Result relocGOTREL(Relocation &pReloc, HexagonRelocator &pParent) {
 
   default:
     // show proper error
-    fatal(diag::unsupported_relocation) << (int)
-        pReloc.type() << "mclinker@googlegroups.com";
+    fatal(diag::unsupported_relocation) << (int) pReloc.type()
+                                        << "mclinker@googlegroups.com";
   }
 
   if (result % alignment != 0)

@@ -23,8 +23,8 @@ class HexagonGOTEntry : public GOT::Entry<4>
 {
 public:
   HexagonGOTEntry(uint64_t pContent, SectionData* pParent)
-   : GOT::Entry<4>(pContent, pParent)
-  {}
+      : GOT::Entry<4>(pContent, pParent)
+  { }
 };
 
 /** \class HexagonGOT
@@ -41,7 +41,6 @@ public:
   HexagonGOTEntry* create();
 };
 
-} // namespace of mcld
+} // namespace mcld
 
 #endif
-

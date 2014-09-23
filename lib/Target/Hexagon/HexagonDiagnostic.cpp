@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include <mcld/Support/TargetRegistry.h>
 #include <mcld/LD/DWARFLineInfo.h>
+#include <mcld/Support/TargetRegistry.h>
 #include "Hexagon.h"
 
 namespace mcld {
@@ -22,7 +22,7 @@ createHexagonDiagLineInfo(const Target& pTarget, const std::string &pTriple)
   return new DWARFLineInfo();
 }
 
-} // namespace of mcld
+} // namespace mcld
 
 using namespace mcld;
 
@@ -34,4 +34,3 @@ extern "C" void MCLDInitializeHexagonDiagnosticLineInfo() {
   mcld::TargetRegistry::RegisterDiagnosticLineInfo(TheHexagonTarget,
                                                    createHexagonDiagLineInfo);
 }
-

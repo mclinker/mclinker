@@ -44,8 +44,8 @@ const uint8_t hexagon_plt1[] = {
 namespace mcld {
 
 class GOTEntry;
-class LinkerConfig;
 class HexagonPLT1;
+class LinkerConfig;
 
 //===----------------------------------------------------------------------===//
 // HexagonPLT Entry
@@ -101,7 +101,6 @@ public:
   HexagonPLT1(SectionData& pParent);
 };
 
-} // namespace of mcld
+} // namespace mcld
 
 #endif
-

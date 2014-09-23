@@ -22,8 +22,8 @@
 
 namespace mcld {
 
-class LinkerConfig;
 class HexagonGNUInfo;
+class LinkerConfig;
 
 //===----------------------------------------------------------------------===//
 /// HexagonLDBackend - linker backend of Hexagon target of GNU ELF format
@@ -140,12 +140,11 @@ public:
 
   uint32_t getGP() { return m_psdata->addr(); }
 
-  Relocation::Type getCopyRelType()    const { return m_CopyRel;    }
+  Relocation::Type getCopyRelType() const { return m_CopyRel;    }
 
   virtual uint32_t getGOTSymbolAddr() {
     return m_pGOTSymbol->value();
   }
-
 
 protected:
   void defineGOTSymbol(IRBuilder& pBuilder, Fragment&);
@@ -200,7 +199,7 @@ private:
   LDSymbol* m_pBSSEnd;
   Relocation::Type m_CopyRel;
 };
-} // namespace of mcld
+
+} // namespace mcld
 
 #endif
-

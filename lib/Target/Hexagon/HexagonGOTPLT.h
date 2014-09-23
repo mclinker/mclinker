@@ -9,8 +9,8 @@
 #ifndef TARGET_HEXAGON_HEXAGONGOTPLT_H
 #define TARGET_HEXAGON_HEXAGONGOTPLT_H
 
-#include <llvm/ADT/DenseMap.h>
 #include "HexagonGOT.h"
+#include <llvm/ADT/DenseMap.h>
 
 namespace mcld {
 
@@ -38,6 +38,6 @@ public:
   void applyAllGOTPLT(const HexagonPLT& pPLT);
 };
 
-} // namespace of mcld
+} // namespace mcld
 
 #endif

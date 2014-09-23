@@ -10,11 +10,12 @@
 #include "HexagonAbsoluteStub.h"
 #include "HexagonLDBackend.h"
 
-#include <llvm/Support/ELF.h>
-#include <llvm/Support/MathExtras.h>
 #include <mcld/LD/ResolveInfo.h>
 #include <mcld/LD/LDSymbol.h>
 #include <mcld/Fragment/Relocation.h>
+
+#include <llvm/Support/ELF.h>
+#include <llvm/Support/MathExtras.h>
 
 using namespace mcld;
 
@@ -36,7 +37,7 @@ const uint32_t HexagonAbsoluteStub::TEMPLATE[] = {
     ( llvm::abs64(D) < (~(~(int64_t) 0 << ((B) - 1)) & -(4 * 4)))
 
 HexagonAbsoluteStub::HexagonAbsoluteStub(bool pIsOutputPIC)
- : Stub(), m_Name("HexagonTrampoline"), m_pData(NULL), m_Size(0x0)
+    : Stub(), m_Name("HexagonTrampoline"), m_pData(NULL), m_Size(0x0)
 {
   m_pData = TEMPLATE;
   m_Size = sizeof(TEMPLATE);
@@ -49,7 +50,7 @@ HexagonAbsoluteStub::HexagonAbsoluteStub(const uint32_t* pData,
                                          size_t pSize,
                                          const_fixup_iterator pBegin,
                                          const_fixup_iterator pEnd)
- : Stub(), m_Name("AbsVeneer"), m_pData(pData), m_Size(pSize)
+    : Stub(), m_Name("AbsVeneer"), m_pData(pData), m_Size(pSize)
 {
   for (const_fixup_iterator it = pBegin, ie = pEnd; it != ie; ++it)
     addFixup(**it);

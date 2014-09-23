@@ -9,8 +9,8 @@
 #ifndef TARGET_MIPS_MIPSGOTPLT_H
 #define TARGET_MIPS_MIPSGOTPLT_H
 
-#include <mcld/Target/GOT.h>
 #include <mcld/Support/MemoryRegion.h>
+#include <mcld/Target/GOT.h>
 #include <llvm/ADT/DenseMap.h>
 
 namespace mcld {
@@ -45,6 +45,6 @@ private:
   SectionData::iterator m_Last;
 };
 
-} // namespace of mcld
+} // namespace mcld
 
 #endif

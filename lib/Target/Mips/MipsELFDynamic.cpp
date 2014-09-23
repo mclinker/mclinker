@@ -6,7 +6,6 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include <llvm/Support/ELF.h>
 #include <mcld/LinkerConfig.h>
 #include <mcld/LD/ELFFileFormat.h>
 #include <mcld/LD/ELFSegment.h>
@@ -15,13 +14,15 @@
 #include "MipsELFDynamic.h"
 #include "MipsLDBackend.h"
 
+#include <llvm/Support/ELF.h>
+
 using namespace mcld;
 
 MipsELFDynamic::MipsELFDynamic(const MipsGNULDBackend& pParent,
                                const LinkerConfig& pConfig)
-  : ELFDynamic(pParent, pConfig),
-    m_pParent(pParent),
-    m_pConfig(pConfig)
+    : ELFDynamic(pParent, pConfig),
+      m_pParent(pParent),
+      m_pConfig(pConfig)
 {
 }
 
@@ -88,7 +89,7 @@ uint64_t MipsELFDynamic::getBaseAddress()
     return 0;
 
   ELFSegmentFactory::const_iterator baseSeg =
-    m_pParent.elfSegmentTable().find(llvm::ELF::PT_LOAD, 0x0, 0x0);
+      m_pParent.elfSegmentTable().find(llvm::ELF::PT_LOAD, 0x0, 0x0);
 
   return m_pParent.elfSegmentTable().end() == baseSeg ? 0 : (*baseSeg)->vaddr();
 }

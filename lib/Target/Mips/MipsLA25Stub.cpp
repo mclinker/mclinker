@@ -26,7 +26,7 @@ enum {
   R_MIPS_LA25_ADD = 202
 };
 
-}
+} // anonymous namespace
 
 namespace mcld {
 
@@ -35,10 +35,10 @@ namespace mcld {
 //===----------------------------------------------------------------------===//
 
 MipsLA25Stub::MipsLA25Stub(const MipsGNULDBackend& pTarget)
- : m_Target(pTarget),
-   m_Name("MipsLA25_Prototype"),
-   m_pData(STUB),
-   m_Size(sizeof(STUB))
+   : m_Target(pTarget),
+     m_Name("MipsLA25_Prototype"),
+     m_pData(STUB),
+     m_Size(sizeof(STUB))
 {
   addFixup(0, 0x0, R_MIPS_LA25_LUI);
   addFixup(4, 0x0, R_MIPS_LA25_J);
@@ -50,10 +50,10 @@ MipsLA25Stub::MipsLA25Stub(const MipsGNULDBackend& pTarget,
                            size_t pSize,
                            const_fixup_iterator pBegin,
                            const_fixup_iterator pEnd)
- : m_Target(pTarget),
-   m_Name("pic"),
-   m_pData(pData),
-   m_Size(pSize)
+   : m_Target(pTarget),
+     m_Name("pic"),
+     m_pData(pData),
+     m_Size(pSize)
 {
   for (const_fixup_iterator it = pBegin, ie = pEnd; it != ie; ++it)
     addFixup(**it);
@@ -106,4 +106,4 @@ Stub* MipsLA25Stub::doClone()
                           fixup_begin(), fixup_end());
 }
 
-} //end mcld namespace
+} // namespace mcld

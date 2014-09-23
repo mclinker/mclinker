@@ -9,10 +9,11 @@
 #ifndef TARGET_MIPS_MIPSRELOCATOR_H
 #define TARGET_MIPS_MIPSRELOCATOR_H
 
-#include <llvm/ADT/DenseMapInfo.h>
 #include <mcld/LD/Relocator.h>
 #include <mcld/Support/GCFactory.h>
 #include "MipsLDBackend.h"
+
+#include <llvm/ADT/DenseMapInfo.h>
 
 namespace mcld {
 
@@ -190,6 +191,6 @@ private:
   void setupRelDynEntry(FragmentRef& pFragRef, ResolveInfo* pSym);
 };
 
-} // namespace of mcld
+} // namespace mcld
 
 #endif

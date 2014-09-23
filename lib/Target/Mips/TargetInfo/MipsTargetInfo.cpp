@@ -15,10 +15,9 @@ mcld::Target TheMipselTarget;
 mcld::Target TheMips64elTarget;
 
 extern "C" void MCLDInitializeMipsLDTargetInfo() {
-  mcld::RegisterTarget<llvm::Triple::mipsel>
-                       X1(TheMipselTarget, "mipsel");
-  mcld::RegisterTarget<llvm::Triple::mips64el>
-                       X2(TheMips64elTarget, "mips64el");
+  mcld::RegisterTarget<llvm::Triple::mipsel> X1(TheMipselTarget, "mipsel");
+  mcld::RegisterTarget<llvm::Triple::mips64el> X2(TheMips64elTarget,
+                                                  "mips64el");
 }
 
-} // namespace of mcld
+} // namespace mcld

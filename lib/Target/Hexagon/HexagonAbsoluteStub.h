@@ -10,8 +10,8 @@
 #ifndef TARGET_HEXAGON_HEXAGONABSOLUTESTUB_H
 #define TARGET_HEXAGON_HEXAGONABSOLUTESTUB_H
 
-#include <llvm/Support/DataTypes.h>
 #include <mcld/Fragment/Stub.h>
+#include <llvm/Support/DataTypes.h>
 #include <string>
 #include <vector>
 
@@ -53,9 +53,9 @@ private:
 
   /// for doClone
   HexagonAbsoluteStub(const uint32_t* pData,
-               size_t pSize,
-               const_fixup_iterator pBegin,
-               const_fixup_iterator pEnd);
+                      size_t pSize,
+                      const_fixup_iterator pBegin,
+                      const_fixup_iterator pEnd);
 
   /// doClone
   Stub* doClone();
@@ -67,6 +67,6 @@ private:
   size_t m_Size;
 };
 
-} // namespace of mcld
+} // namespace mcld
 
 #endif

@@ -8,9 +8,9 @@
 //===----------------------------------------------------------------------===//
 #ifndef TARGET_MIPS_MIPSGNUINFO_H
 #define TARGET_MIPS_MIPSGNUINFO_H
-#include <llvm/Support/ELF.h>
 #include <mcld/Target/GNUInfo.h>
 
+#include <llvm/Support/ELF.h>
 namespace mcld {
 
 class MipsGNUInfo : public GNUInfo
@@ -35,6 +35,6 @@ private:
   uint64_t m_PICFlags;
 };
 
-} // namespace of mcld
+} // namespace mcld
 
 #endif

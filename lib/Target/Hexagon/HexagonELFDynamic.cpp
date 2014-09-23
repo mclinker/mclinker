@@ -14,7 +14,7 @@ using namespace mcld;
 
 HexagonELFDynamic::HexagonELFDynamic(const GNULDBackend& pParent,
                                      const LinkerConfig& pConfig)
-  : ELFDynamic(pParent, pConfig) {
+    : ELFDynamic(pParent, pConfig) {
 }
 
 HexagonELFDynamic::~HexagonELFDynamic()
@@ -34,4 +34,3 @@ void HexagonELFDynamic::applyTargetEntries(const ELFFileFormat& pFormat)
   if (pFormat.hasGOTPLT())
     applyOne(llvm::ELF::DT_PLTGOT, pFormat.getGOTPLT().addr());
 }
-

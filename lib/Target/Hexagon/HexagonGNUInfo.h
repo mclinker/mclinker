@@ -38,7 +38,6 @@ private:
   const TargetOptions& m_Options;
 };
 
-} // namespace of mcld
+} // namespace mcld
 
 #endif
-

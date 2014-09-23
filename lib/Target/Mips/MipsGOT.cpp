@@ -7,15 +7,15 @@
 //
 //===----------------------------------------------------------------------===//
 
-#include <llvm/Support/Casting.h>
-#include <llvm/Support/ELF.h>
-
 #include <mcld/LD/ResolveInfo.h>
 #include <mcld/Support/MsgHandling.h>
 #include <mcld/Target/OutputRelocSection.h>
 
 #include "MipsGOT.h"
 #include "MipsRelocator.h"
+
+#include <llvm/Support/Casting.h>
+#include <llvm/Support/ELF.h>
 
 namespace {
   const uint32_t Mips32ModulePtr = 1 << 31;
@@ -31,12 +31,12 @@ using namespace mcld;
 // MipsGOT::GOTMultipart
 //===----------------------------------------------------------------------===//
 MipsGOT::GOTMultipart::GOTMultipart(size_t local, size_t global)
-  : m_LocalNum(local),
-    m_GlobalNum(global),
-    m_ConsumedLocal(0),
-    m_ConsumedGlobal(0),
-    m_pLastLocal(NULL),
-    m_pLastGlobal(NULL)
+    : m_LocalNum(local),
+      m_GlobalNum(global),
+      m_ConsumedLocal(0),
+      m_ConsumedGlobal(0),
+      m_pLastLocal(NULL),
+      m_pLastGlobal(NULL)
 {
 }
 
@@ -67,9 +67,9 @@ void MipsGOT::GOTMultipart::consumeGlobal()
 //===----------------------------------------------------------------------===//
 MipsGOT::LocalEntry::LocalEntry(const ResolveInfo* pInfo,
                                 Relocation::DWord addend, bool isGot16)
-  : m_pInfo(pInfo),
-    m_Addend(addend),
-    m_IsGot16(isGot16)
+    : m_pInfo(pInfo),
+      m_Addend(addend),
+      m_IsGot16(isGot16)
 {
 }
 
@@ -88,9 +88,9 @@ bool MipsGOT::LocalEntry::operator<(const LocalEntry &O) const
 // MipsGOT
 //===----------------------------------------------------------------------===//
 MipsGOT::MipsGOT(LDSection& pSection)
-  : GOT(pSection),
-    m_pInput(NULL),
-    m_CurrentGOTPart(0)
+    : GOT(pSection),
+      m_pInput(NULL),
+      m_CurrentGOTPart(0)
 {
 }
 
@@ -101,7 +101,7 @@ uint64_t MipsGOT::getGPDispAddress() const
 
 void MipsGOT::reserve(size_t pNum)
 {
-  for (size_t i = 0; i < pNum; i++)
+  for (size_t i = 0; i < pNum; ++i)
     createEntry(0, m_SectionData);
 }
 
@@ -125,12 +125,12 @@ void MipsGOT::finalizeScanning(OutputRelocSection& pRelDyn)
     it->m_pLastGlobal = &m_SectionData->back();
     reserve(it->m_GlobalNum);
 
-    if (it == m_MultipartList.begin())
+    if (it == m_MultipartList.begin()) {
       // Reserve entries in the second part of the primary GOT.
       // These entries correspond to the global symbols in all
       // non-primary GOTs.
       reserve(getGlobalNum() - it->m_GlobalNum);
-    else {
+    } else {
       // Reserve reldyn entries for R_MIPS_REL32 relocations
       // for all global entries of secondary GOTs.
       // FIXME: (simon) Do not count local entries for non-pic.
@@ -224,8 +224,7 @@ void MipsGOT::initializeScan(const Input& pInput)
   if (m_pInput == NULL) {
     m_pInput = &pInput;
     initGOTList();
-  }
-  else {
+  } else {
     m_pInput = &pInput;
     changeInput();
   }
@@ -292,7 +291,8 @@ bool MipsGOT::isPrimaryGOTConsumed()
 
 Fragment* MipsGOT::consumeLocal()
 {
-  assert(m_CurrentGOTPart < m_MultipartList.size() && "GOT number is out of range!");
+  assert(m_CurrentGOTPart < m_MultipartList.size() &&
+         "GOT number is out of range!");
 
   if (m_MultipartList[m_CurrentGOTPart].isConsumed())
     ++m_CurrentGOTPart;
@@ -304,7 +304,8 @@ Fragment* MipsGOT::consumeLocal()
 
 Fragment* MipsGOT::consumeGlobal()
 {
-  assert(m_CurrentGOTPart < m_MultipartList.size() && "GOT number is out of range!");
+  assert(m_CurrentGOTPart < m_MultipartList.size() &&
+         "GOT number is out of range!");
 
   if (m_MultipartList[m_CurrentGOTPart].isConsumed())
     ++m_CurrentGOTPart;
@@ -317,8 +318,8 @@ Fragment* MipsGOT::consumeGlobal()
 uint64_t MipsGOT::getGPAddr(const Input& pInput) const
 {
   uint64_t gotSize = 0;
-  for (MultipartListType::const_iterator it = m_MultipartList.begin();
-                                         it != m_MultipartList.end(); ++it) {
+  for (MultipartListType::const_iterator it = m_MultipartList.begin(),
+          ie = m_MultipartList.end(); it != ie; ++it) {
     if (it->m_Inputs.count(&pInput))
       break;
 
@@ -400,8 +401,8 @@ size_t MipsGOT::getGlobalNum() const
 // Mips32GOT
 //===----------------------------------------------------------------------===//
 Mips32GOT::Mips32GOT(LDSection& pSection)
-  : MipsGOT(pSection)
-{}
+    : MipsGOT(pSection)
+{ }
 
 void Mips32GOT::setEntryValue(Fragment* entry, uint64_t pValue)
 {
@@ -441,8 +442,8 @@ void Mips32GOT::reserveHeader()
 // Mips64GOT
 //===----------------------------------------------------------------------===//
 Mips64GOT::Mips64GOT(LDSection& pSection)
-  : MipsGOT(pSection)
-{}
+    : MipsGOT(pSection)
+{ }
 
 void Mips64GOT::setEntryValue(Fragment* entry, uint64_t pValue)
 {

@@ -9,11 +9,11 @@
 #include "HexagonGOTPLT.h"
 #include "HexagonPLT.h"
 
-#include <llvm/Support/Casting.h>
-
 #include <mcld/LD/LDSection.h>
 #include <mcld/LD/LDFileFormat.h>
 #include <mcld/Support/MsgHandling.h>
+
+#include <llvm/Support/Casting.h>
 
 namespace mcld {
 
@@ -21,7 +21,7 @@ namespace mcld {
 // HexagonGOTPLT
 //===----------------------------------------------------------------------===//
 HexagonGOTPLT::HexagonGOTPLT(LDSection& pSection)
-  : HexagonGOT(pSection)
+    : HexagonGOT(pSection)
 {
   // Skip GOT0 entries
   for (size_t i = 0; i < HexagonGOTPLT0Num; ++i) {
@@ -43,7 +43,7 @@ bool HexagonGOTPLT::hasGOT1() const
 void HexagonGOTPLT::applyGOT0(uint64_t pAddress)
 {
   llvm::cast<HexagonGOTEntry>
-    (*(m_SectionData->getFragmentList().begin())).setValue(pAddress);
+      (*(m_SectionData->getFragmentList().begin())).setValue(pAddress);
 }
 
 void HexagonGOTPLT::applyAllGOTPLT(const HexagonPLT& pPLT)
@@ -60,4 +60,4 @@ void HexagonGOTPLT::applyAllGOTPLT(const HexagonPLT& pPLT)
   }
 }
 
-}
+} // namespace mcld

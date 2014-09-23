@@ -17,10 +17,10 @@
 namespace mcld {
 
 class LinkerConfig;
-class OutputRelocSection;
-class SectionMap;
 class MemoryArea;
 class MipsGNUInfo;
+class OutputRelocSection;
+class SectionMap;
 
 /** \class MipsGNULDBackend
  *  \brief Base linker backend of Mips target of GNU ELF format.
@@ -269,6 +269,6 @@ private:
   size_t getRelaEntrySize();
 };
 
-} // namespace of mcld
+} // namespace mcld
 
 #endif

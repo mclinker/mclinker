@@ -9,8 +9,8 @@
 #ifndef TARGET_MIPS_MIPSPLT_H
 #define TARGET_MIPS_MIPSPLT_H
 
-#include <mcld/Target/PLT.h>
 #include <mcld/Support/MemoryRegion.h>
+#include <mcld/Target/PLT.h>
 
 namespace mcld {
 
@@ -46,6 +46,6 @@ private:
   SectionData::iterator m_Last;
 };
 
-} // namespace of mcld
+} // namespace mcld
 
 #endif

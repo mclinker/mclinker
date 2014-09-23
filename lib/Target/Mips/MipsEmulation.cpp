@@ -9,8 +9,8 @@
 #include "Mips.h"
 #include <mcld/LinkerScript.h>
 #include <mcld/LinkerConfig.h>
-#include <mcld/Target/ELFEmulation.h>
 #include <mcld/Support/TargetRegistry.h>
+#include <mcld/Target/ELFEmulation.h>
 
 namespace mcld {
 
@@ -56,7 +56,7 @@ bool emulateMipsLD(LinkerScript& pScript, LinkerConfig& pConfig)
   return MCLDEmulateMipsELF(pScript, pConfig);
 }
 
-} // namespace of mcld
+} // namespace mcld
 
 //===----------------------------------------------------------------------===//
 // MipsEmulation

@@ -19,7 +19,7 @@ using namespace mcld;
 // HexagonGOT
 //===----------------------------------------------------------------------===//
 HexagonGOT::HexagonGOT(LDSection& pSection)
-  : GOT(pSection)
+    : GOT(pSection)
 {
 }
 
@@ -31,4 +31,3 @@ HexagonGOTEntry* HexagonGOT::create()
 {
   return new HexagonGOTEntry(0, m_SectionData);
 }
-

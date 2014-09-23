@@ -32,7 +32,7 @@ const uint32_t PLTA[] = {
   0x25f80000          // addiu $24, $15, %lo(.got.plt entry)
 };
 
-}
+} // anonymous namespace
 
 namespace mcld {
 
@@ -43,8 +43,8 @@ class MipsPLT0 : public PLT::Entry<sizeof(PLT0)>
 {
 public:
   MipsPLT0(SectionData& pParent)
-    : PLT::Entry<sizeof(PLT0)>(pParent)
-  {}
+      : PLT::Entry<sizeof(PLT0)>(pParent)
+  { }
 };
 
 //===----------------------------------------------------------------------===//
@@ -54,15 +54,15 @@ class MipsPLTA : public PLT::Entry<sizeof(PLTA)>
 {
 public:
   MipsPLTA(SectionData& pParent)
-    : PLT::Entry<sizeof(PLTA)>(pParent)
-  {}
+      : PLT::Entry<sizeof(PLTA)>(pParent)
+  { }
 };
 
 //===----------------------------------------------------------------------===//
 // MipsPLT
 //===----------------------------------------------------------------------===//
 MipsPLT::MipsPLT(LDSection& pSection)
-  : PLT(pSection)
+    : PLT(pSection)
 {
   new MipsPLT0(*m_pSectionData);
   m_Last = m_pSectionData->begin();
@@ -111,7 +111,7 @@ void MipsPLT::reserveEntry(size_t pNum)
   for (size_t i = 0; i < pNum; ++i) {
     Fragment* entry = new (std::nothrow) MipsPLTA(*m_pSectionData);
 
-    if (NULL == entry)
+    if (entry == NULL)
       fatal(diag::fail_allocate_memory_plt);
   }
 }
@@ -129,7 +129,8 @@ void MipsPLT::applyAllPLT(MipsGOTPLT& pGOTPLT)
   assert(m_Section.addr() && ".plt base address is NULL!");
 
   size_t count = 0;
-  for (iterator it = m_pSectionData->begin(); it != m_pSectionData->end(); ++it) {
+  for (iterator it = m_pSectionData->begin(); it != m_pSectionData->end();
+       ++it) {
     PLTEntryBase* plt = &(llvm::cast<PLTEntryBase>(*it));
 
     if (it == m_pSectionData->begin()) {
@@ -166,4 +167,4 @@ void MipsPLT::applyAllPLT(MipsGOTPLT& pGOTPLT)
   }
 }
 
-} //end mcld namespace
+} // namespace mcld

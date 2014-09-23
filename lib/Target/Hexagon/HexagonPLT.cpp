@@ -9,12 +9,12 @@
 #include "HexagonPLT.h"
 #include "HexagonRelocationFunctions.h"
 
-#include <llvm/Support/ELF.h>
-#include <llvm/Support/Casting.h>
-
 #include <mcld/LD/LDSection.h>
 #include <mcld/LinkerConfig.h>
 #include <mcld/Support/MsgHandling.h>
+
+#include <llvm/Support/ELF.h>
+#include <llvm/Support/Casting.h>
 
 using namespace mcld;
 
@@ -22,12 +22,12 @@ using namespace mcld;
 // PLT entry data
 //===----------------------------------------------------------------------===//
 HexagonPLT0::HexagonPLT0(SectionData& pParent)
-  : PLT::Entry<sizeof(hexagon_plt0)>(pParent)
+    : PLT::Entry<sizeof(hexagon_plt0)>(pParent)
 {
 }
 
 HexagonPLT1::HexagonPLT1(SectionData& pParent)
-  : PLT::Entry<sizeof(hexagon_plt1)>(pParent)
+    : PLT::Entry<sizeof(hexagon_plt1)>(pParent)
 {
 }
 
@@ -37,9 +37,9 @@ HexagonPLT1::HexagonPLT1(SectionData& pParent)
 HexagonPLT::HexagonPLT(LDSection& pSection,
                HexagonGOTPLT &pGOTPLT,
                const LinkerConfig& pConfig)
-  : PLT(pSection),
-    m_GOTPLT(pGOTPLT),
-    m_Config(pConfig)
+    : PLT(pSection),
+      m_GOTPLT(pGOTPLT),
+      m_Config(pConfig)
 {
   assert(LinkerConfig::DynObj == m_Config.codeGenType() ||
          LinkerConfig::Exec   == m_Config.codeGenType() ||
@@ -140,11 +140,9 @@ void HexagonPLT::applyPLT1() {
   assert(it != ie && "FragmentList is empty, applyPLT1 failed!");
 
   uint32_t GOTEntrySize = HexagonGOTEntry::EntrySize;
-  uint32_t GOTEntryAddress =
-    got_base +  GOTEntrySize * 4;
+  uint32_t GOTEntryAddress = got_base +  GOTEntrySize * 4;
 
-  uint64_t PLTEntryAddress =
-    plt_base + HexagonPLT0::EntrySize; //Offset of PLT0
+  uint64_t PLTEntryAddress = plt_base + HexagonPLT0::EntrySize; //Offset of PLT0
 
   ++it; //skip PLT0
   uint64_t PLT1EntrySize = HexagonPLT1::EntrySize;
@@ -184,7 +182,8 @@ uint64_t HexagonPLT::emit(MemoryRegion& pRegion)
   iterator it = begin();
 
   unsigned char* buffer = pRegion.begin();
-  memcpy(buffer, llvm::cast<HexagonPLT0>((*it)).getValue(), HexagonPLT0::EntrySize);
+  memcpy(buffer, llvm::cast<HexagonPLT0>((*it)).getValue(),
+         HexagonPLT0::EntrySize);
   result += HexagonPLT0::EntrySize;
   ++it;
 
@@ -198,4 +197,3 @@ uint64_t HexagonPLT::emit(MemoryRegion& pRegion)
   }
   return result;
 }
-

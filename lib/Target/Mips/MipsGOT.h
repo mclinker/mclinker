@@ -8,17 +8,17 @@
 //===----------------------------------------------------------------------===//
 #ifndef TARGET_MIPS_MIPSGOT_H
 #define TARGET_MIPS_MIPSGOT_H
-#include <map>
-#include <vector>
-
-
 #include <mcld/ADT/SizeTraits.h>
-#include <mcld/Target/GOT.h>
 #include <mcld/Fragment/Relocation.h>
 #include <mcld/Support/MemoryRegion.h>
+#include <mcld/Target/GOT.h>
+
 #include <llvm/ADT/DenseMap.h>
 #include <llvm/ADT/DenseSet.h>
+
+#include <map>
 #include <set>
+#include <vector>
 
 namespace mcld {
 
@@ -234,7 +234,6 @@ private:
   virtual void reserveHeader();
 };
 
-} // namespace of mcld
+} // namespace mcld
 
 #endif
-

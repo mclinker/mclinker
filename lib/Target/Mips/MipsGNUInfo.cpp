@@ -14,9 +14,9 @@ namespace mcld {
 // MipsGNUInfo
 //===----------------------------------------------------------------------===//
 MipsGNUInfo::MipsGNUInfo(const llvm::Triple& pTriple)
-  : GNUInfo(pTriple),
-    m_ABIVersion(0),
-    m_PICFlags(0)
+    : GNUInfo(pTriple),
+      m_ABIVersion(0),
+      m_PICFlags(0)
 {}
 
 void MipsGNUInfo::setABIVersion(uint8_t ver)
@@ -74,4 +74,4 @@ uint64_t MipsGNUInfo::abiPageSize() const
   return 0x10000;
 }
 
-} // end mcld namespace
+} // namespace mcld

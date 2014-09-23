@@ -56,6 +56,6 @@ private:
   const size_t m_Size;
 };
 
-} // namespace of mcld
+} // namespace mcld
 
 #endif

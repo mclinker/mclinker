@@ -17,7 +17,7 @@ using namespace mcld;
 // HexagonGNUInfo
 //===----------------------------------------------------------------------===//
 HexagonGNUInfo::HexagonGNUInfo(const TargetOptions& pTargetOptions)
-  : GNUInfo(pTargetOptions.triple()), m_Options(pTargetOptions) {
+    : GNUInfo(pTargetOptions.triple()), m_Options(pTargetOptions) {
 }
 
 /// flags - the value of ElfXX_Ehdr::e_flags
@@ -28,4 +28,3 @@ uint64_t HexagonGNUInfo::flags() const
            .Case("hexagonv5", V5)
            .Default(V4);
 }
-
