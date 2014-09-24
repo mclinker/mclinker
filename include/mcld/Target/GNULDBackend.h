@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_TARGET_GNULDBACKEND_H
-#define MCLD_TARGET_GNULDBACKEND_H
+#ifndef MCLD_TARGET_GNULDBACKEND_H_
+#define MCLD_TARGET_GNULDBACKEND_H_
 
 #include <mcld/Module.h>
 #include <mcld/LD/ELFBinaryReader.h>
@@ -575,4 +575,4 @@ protected:
 
 } // namespace mcld
 
-#endif
+#endif  // MCLD_TARGET_GNULDBACKEND_H_

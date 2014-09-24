@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_SUPPORT_TARGETSELECT_H
-#define MCLD_SUPPORT_TARGETSELECT_H
+#ifndef MCLD_SUPPORT_TARGETSELECT_H_
+#define MCLD_SUPPORT_TARGETSELECT_H_
 
 extern "C" {
   // Declare all of the target-initialization functions that are available.
@@ -70,4 +70,4 @@ namespace mcld
 
 } // namespace mcld
 
-#endif
+#endif  // MCLD_SUPPORT_TARGETSELECT_H_

@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef TARGET_HEXAGON_HEXAGONGOTPLT_H
-#define TARGET_HEXAGON_HEXAGONGOTPLT_H
+#ifndef TARGET_HEXAGON_HEXAGONGOTPLT_H_
+#define TARGET_HEXAGON_HEXAGONGOTPLT_H_
 
 #include "HexagonGOT.h"
 #include <llvm/ADT/DenseMap.h>
@@ -40,4 +40,4 @@ public:
 
 } // namespace mcld
 
-#endif
+#endif  // TARGET_HEXAGON_HEXAGONGOTPLT_H_

@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_LD_RESOLVEINFO_H
-#define MCLD_LD_RESOLVEINFO_H
+#ifndef MCLD_LD_RESOLVEINFO_H_
+#define MCLD_LD_RESOLVEINFO_H_
 
 #include <llvm/ADT/StringRef.h>
 #include <llvm/Support/DataTypes.h>
@@ -295,4 +295,4 @@ private:
 
 } // namespace mcld
 
-#endif
+#endif  // MCLD_LD_RESOLVEINFO_H_

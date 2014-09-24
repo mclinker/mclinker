@@ -6,6 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
+#ifndef TARGET_ARM_ARMRELOCATIONFUNCTIONS_H_
+#define TARGET_ARM_ARMRELOCATIONFUNCTIONS_H_
 
 #define DECL_ARM_APPLY_RELOC_FUNC(Name) \
 static ARMRelocator::Result Name    (Relocation& pEntry, \
@@ -170,3 +172,5 @@ DECL_ARM_APPLY_RELOC_FUNC(unsupport)
   { &unsupport,        128, "R_ARM_ME_TOO"            },  \
   { &unsupport,        129, "R_ARM_THM_TLS_DESCSEQ16" },  \
   { &unsupport,        130, "R_ARM_THM_TLS_DESCSEQ32" }
+
+#endif  // TARGET_ARM_ARMRELOCATIONFUNCTIONS_H_

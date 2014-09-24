@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_SCRIPT_ENTRYCMD_H
-#define MCLD_SCRIPT_ENTRYCMD_H
+#ifndef MCLD_SCRIPT_ENTRYCMD_H_
+#define MCLD_SCRIPT_ENTRYCMD_H_
 
 #include <mcld/Script/ScriptCommand.h>
 
@@ -43,4 +43,4 @@ private:
 
 } // namespace mcld
 
-#endif
+#endif  // MCLD_SCRIPT_ENTRYCMD_H_

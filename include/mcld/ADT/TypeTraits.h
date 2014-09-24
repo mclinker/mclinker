@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_ADT_TYPETRAITS_H
-#define MCLD_ADT_TYPETRAITS_H
+#ifndef MCLD_ADT_TYPETRAITS_H_
+#define MCLD_ADT_TYPETRAITS_H_
 
 #include <cstdlib>
 
@@ -64,4 +64,4 @@ struct NonConstIteratorTraits
 
 } // namespace mcld
 
-#endif
+#endif  // MCLD_ADT_TYPETRAITS_H_

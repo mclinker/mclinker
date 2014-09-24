@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef TARGET_HEXAGON_HEXAGONENCODINGS_H
-#define TARGET_HEXAGON_HEXAGONENCODINGS_H
+#ifndef TARGET_HEXAGON_HEXAGONENCODINGS_H_
+#define TARGET_HEXAGON_HEXAGONENCODINGS_H_
 
 Instruction insn_encodings[] = {
   { "if (Pv4) memb(Rs32+#u6:0)=Rt32",
@@ -3558,4 +3558,4 @@ Instruction insn_encodings[] = {
   },
 };
 
-#endif
+#endif  // TARGET_HEXAGON_HEXAGONENCODINGS_H_

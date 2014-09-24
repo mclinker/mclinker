@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef TARGET_HEXAGON_HEXAGONLDBACKEND_H
-#define TARGET_HEXAGON_HEXAGONLDBACKEND_H
+#ifndef TARGET_HEXAGON_HEXAGONLDBACKEND_H_
+#define TARGET_HEXAGON_HEXAGONLDBACKEND_H_
 
 #include "HexagonELFDynamic.h"
 #include "HexagonGOT.h"
@@ -202,4 +202,4 @@ private:
 
 } // namespace mcld
 
-#endif
+#endif  // TARGET_HEXAGON_HEXAGONLDBACKEND_H_

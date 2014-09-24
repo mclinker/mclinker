@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef TARGET_HEXAGON_HEXAGONGOT_H
-#define TARGET_HEXAGON_HEXAGONGOT_H
+#ifndef TARGET_HEXAGON_HEXAGONGOT_H_
+#define TARGET_HEXAGON_HEXAGONGOT_H_
 
 #include <mcld/Target/GOT.h>
 
@@ -43,4 +43,4 @@ public:
 
 } // namespace mcld
 
-#endif
+#endif  // TARGET_HEXAGON_HEXAGONGOT_H_

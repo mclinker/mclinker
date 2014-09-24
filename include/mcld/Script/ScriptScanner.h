@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_SCRIPT_SCRIPTSCANNER_H
-#define MCLD_SCRIPT_SCRIPTSCANNER_H
+#ifndef MCLD_SCRIPT_SCRIPTSCANNER_H_
+#define MCLD_SCRIPT_SCRIPTSCANNER_H_
 
 #ifndef __FLEX_LEXER_H
 #include "FlexLexer.h"
@@ -55,4 +55,4 @@ private:
 
 } // namespace mcld
 
-#endif
+#endif  // MCLD_SCRIPT_SCRIPTSCANNER_H_

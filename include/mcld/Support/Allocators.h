@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_SUPPORT_ALLOCATORS_H
-#define MCLD_SUPPORT_ALLOCATORS_H
+#ifndef MCLD_SUPPORT_ALLOCATORS_H_
+#define MCLD_SUPPORT_ALLOCATORS_H_
 #include <mcld/ADT/TypeTraits.h>
 #include <mcld/ADT/Uncopyable.h>
 
@@ -447,4 +447,4 @@ public:
 
 } // namespace mcld
 
-#endif
+#endif  // MCLD_SUPPORT_ALLOCATORS_H_

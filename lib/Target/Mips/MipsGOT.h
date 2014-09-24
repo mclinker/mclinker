@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef TARGET_MIPS_MIPSGOT_H
-#define TARGET_MIPS_MIPSGOT_H
+#ifndef TARGET_MIPS_MIPSGOT_H_
+#define TARGET_MIPS_MIPSGOT_H_
 #include <mcld/ADT/SizeTraits.h>
 #include <mcld/Fragment/Relocation.h>
 #include <mcld/Support/MemoryRegion.h>
@@ -236,4 +236,4 @@ private:
 
 } // namespace mcld
 
-#endif
+#endif  // TARGET_MIPS_MIPSGOT_H_

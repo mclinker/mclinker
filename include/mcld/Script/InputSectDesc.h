@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_SCRIPT_INPUTSECTDESC_H
-#define MCLD_SCRIPT_INPUTSECTDESC_H
+#ifndef MCLD_SCRIPT_INPUTSECTDESC_H_
+#define MCLD_SCRIPT_INPUTSECTDESC_H_
 
 #include <mcld/Script/ScriptCommand.h>
 #include <mcld/Script/StringList.h>
@@ -100,4 +100,4 @@ private:
 
 } // namespace mcld
 
-#endif
+#endif  // MCLD_SCRIPT_INPUTSECTDESC_H_

@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_SCRIPT_STRINGLIST_H
-#define MCLD_SCRIPT_STRINGLIST_H
+#ifndef MCLD_SCRIPT_STRINGLIST_H_
+#define MCLD_SCRIPT_STRINGLIST_H_
 
 #include <mcld/Config/Config.h>
 #include <mcld/Support/Allocators.h>
@@ -66,4 +66,4 @@ private:
 
 } // namepsace mcld
 
-#endif
+#endif  // MCLD_SCRIPT_STRINGLIST_H_

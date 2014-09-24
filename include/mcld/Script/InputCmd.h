@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_SCRIPT_INPUTCMD_H
-#define MCLD_SCRIPT_INPUTCMD_H
+#ifndef MCLD_SCRIPT_INPUTCMD_H_
+#define MCLD_SCRIPT_INPUTCMD_H_
 
 #include <mcld/Script/ScriptCommand.h>
 
@@ -59,4 +59,4 @@ private:
 
 } // namespace mcld
 
-#endif
+#endif  // MCLD_SCRIPT_INPUTCMD_H_

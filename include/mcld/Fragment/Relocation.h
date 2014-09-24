@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_FRAGMENT_RELOCATION_H
-#define MCLD_FRAGMENT_RELOCATION_H
+#ifndef MCLD_FRAGMENT_RELOCATION_H_
+#define MCLD_FRAGMENT_RELOCATION_H_
 
 #include <mcld/Config/Config.h>
 #include <mcld/Fragment/FragmentRef.h>
@@ -127,4 +127,4 @@ private:
 
 } // namespace mcld
 
-#endif
+#endif  // MCLD_FRAGMENT_RELOCATION_H_

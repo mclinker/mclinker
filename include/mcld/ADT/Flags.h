@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_ADT_FLAGS_H
-#define MCLD_ADT_FLAGS_H
+#ifndef MCLD_ADT_FLAGS_H_
+#define MCLD_ADT_FLAGS_H_
 
 namespace mcld
 {
@@ -94,4 +94,4 @@ private:
 
 } // namespace mcld
 
-#endif
+#endif  // MCLD_ADT_FLAGS_H_

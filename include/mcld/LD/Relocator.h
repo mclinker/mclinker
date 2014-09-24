@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_RELOCATOR_H
-#define MCLD_RELOCATOR_H
+#ifndef MCLD_LD_RELOCATOR_H_
+#define MCLD_LD_RELOCATOR_H_
 
 #include <mcld/Fragment/Relocation.h>
 
@@ -130,4 +130,4 @@ private:
 
 } // namespace mcld
 
-#endif
+#endif  // MCLD_LD_RELOCATOR_H_

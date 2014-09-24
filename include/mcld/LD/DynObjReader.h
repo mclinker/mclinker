@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_LD_DYNOBJREADER_H
-#define MCLD_LD_DYNOBJREADER_H
+#ifndef MCLD_LD_DYNOBJREADER_H_
+#define MCLD_LD_DYNOBJREADER_H_
 #include "mcld/LD/LDReader.h"
 
 namespace mcld {
@@ -36,4 +36,4 @@ public:
 
 } // namespace mcld
 
-#endif
+#endif  // MCLD_LD_DYNOBJREADER_H_

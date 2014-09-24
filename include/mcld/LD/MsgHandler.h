@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_LD_MSGHANDLER_H
-#define MCLD_LD_MSGHANDLER_H
+#ifndef MCLD_LD_MSGHANDLER_H_
+#define MCLD_LD_MSGHANDLER_H_
 #include <mcld/LD/DiagnosticEngine.h>
 #include <mcld/Support/Path.h>
 
@@ -118,4 +118,4 @@ operator<<(const MsgHandler& pHandler, bool pValue)
 
 } // namespace mcld
 
-#endif
+#endif  // MCLD_LD_MSGHANDLER_H_

@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_OBJECT_OBJECTBUILDER_H
-#define MCLD_OBJECT_OBJECTBUILDER_H
+#ifndef MCLD_OBJECT_OBJECTBUILDER_H_
+#define MCLD_OBJECT_OBJECTBUILDER_H_
 #include <mcld/LD/EhFrame.h>
 #include <mcld/LD/LDFileFormat.h>
 
@@ -96,4 +96,4 @@ private:
 
 } // namespace mcld
 
-#endif
+#endif  // MCLD_OBJECT_OBJECTBUILDER_H_

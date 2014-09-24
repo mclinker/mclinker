@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_SCRIPT_UNARYOP_H
-#define MCLD_SCRIPT_UNARYOP_H
+#ifndef MCLD_SCRIPT_UNARYOP_H_
+#define MCLD_SCRIPT_UNARYOP_H_
 
 #include <mcld/Script/Operator.h>
 
@@ -96,4 +96,4 @@ IntOperand* UnaryOp<Operator::SIZEOF>::eval(const Module&,
 
 } // namespace mcld
 
-#endif
+#endif  // MCLD_SCRIPT_UNARYOP_H_

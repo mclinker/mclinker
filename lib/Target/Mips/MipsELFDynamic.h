@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef TARGET_MIPS_MIPSELFDYNAMIC_H
-#define TARGET_MIPS_MIPSELFDYNAMIC_H
+#ifndef TARGET_MIPS_MIPSELFDYNAMIC_H_
+#define TARGET_MIPS_MIPSELFDYNAMIC_H_
 
 #include <mcld/Target/ELFDynamic.h>
 
@@ -36,4 +36,4 @@ private:
 
 } // namespace mcld
 
-#endif
+#endif  // TARGET_MIPS_MIPSELFDYNAMIC_H_

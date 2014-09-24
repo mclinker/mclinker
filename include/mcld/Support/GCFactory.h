@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_SUPPORT_GCFACTORY_H
-#define MCLD_SUPPORT_GCFACTORY_H
+#ifndef MCLD_SUPPORT_GCFACTORY_H_
+#define MCLD_SUPPORT_GCFACTORY_H_
 #include <mcld/ADT/TypeTraits.h>
 #include <mcld/Support/Allocators.h>
 
@@ -225,4 +225,4 @@ public:
 
 } // namespace mcld
 
-#endif
+#endif  // MCLD_SUPPORT_GCFACTORY_H_

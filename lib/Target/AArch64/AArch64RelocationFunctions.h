@@ -6,6 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
+#ifndef TARGET_AARCH64_AARCH64RELOCATIONFUNCTIONS_H_
+#define TARGET_AARCH64_AARCH64RELOCATIONFUNCTIONS_H_
 
 #define DECL_AARCH64_APPLY_RELOC_FUNC(Name) \
 static AArch64Relocator::Result Name (Relocation& pEntry, AArch64Relocator& pParent);
@@ -108,3 +110,5 @@ DECL_AARCH64_APPLY_RELOC_FUNC(unsupport)
   ValueType( 1030, MappedType(&unsupport, "R_AARCH64_TLS_TPREL64")), \
   ValueType( 1031, MappedType(&unsupport, "R_AARCH64_TLSDESC")), \
   ValueType( 1032, MappedType(&unsupport, "R_AARCH64_IRELATIVE"))
+
+#endif  // TARGET_AARCH64_AARCH64RELOCATIONFUNCTIONS_H_

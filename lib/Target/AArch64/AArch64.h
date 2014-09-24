@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef TARGET_AARCH64_AARCH64_H
-#define TARGET_AARCH64_AARCH64_H
+#ifndef TARGET_AARCH64_AARCH64_H_
+#define TARGET_AARCH64_AARCH64_H_
 #include <string>
 
 namespace llvm {
@@ -26,4 +26,4 @@ TargetLDBackend* createAArch64LDBackend(const llvm::Target&,
 
 } // namespace mcld
 
-#endif
+#endif  // TARGET_AARCH64_AARCH64_H_

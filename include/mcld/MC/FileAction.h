@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_MC_FILEACTION_H
-#define MCLD_MC_FILEACTION_H
+#ifndef MCLD_MC_FILEACTION_H_
+#define MCLD_MC_FILEACTION_H_
 #include <mcld/MC/InputAction.h>
 #include <mcld/Support/FileHandle.h>
 
@@ -45,4 +45,4 @@ private:
 
 } // namespace mcld
 
-#endif
+#endif  // MCLD_MC_FILEACTION_H_

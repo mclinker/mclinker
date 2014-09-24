@@ -10,8 +10,8 @@
 // filesystem (v3), but modified to remove exception handling and the
 // path class.
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_SUPPORT_PATH_H
-#define MCLD_SUPPORT_PATH_H
+#ifndef MCLD_SUPPORT_PATH_H_
+#define MCLD_SUPPORT_PATH_H_
 
 #include <mcld/Config/Config.h>
 
@@ -174,4 +174,4 @@ struct less<mcld::sys::fs::Path> : public binary_function<mcld::sys::fs::Path,
 
 } // namespace std
 
-#endif
+#endif  // MCLD_SUPPORT_PATH_H_

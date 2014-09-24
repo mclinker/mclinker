@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_LD_BRANCHISLANDFACTORY_H
-#define MCLD_LD_BRANCHISLANDFACTORY_H
+#ifndef MCLD_LD_BRANCHISLANDFACTORY_H_
+#define MCLD_LD_BRANCHISLANDFACTORY_H_
 
 #include <mcld/LD/BranchIsland.h>
 #include <mcld/Support/GCFactory.h>
@@ -59,4 +59,4 @@ private:
 
 } // namespace mcld
 
-#endif
+#endif  // MCLD_LD_BRANCHISLANDFACTORY_H_

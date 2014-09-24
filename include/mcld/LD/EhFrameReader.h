@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_LD_EHFRAMEREADER_H
-#define MCLD_LD_EHFRAMEREADER_H
+#ifndef MCLD_LD_EHFRAMEREADER_H_
+#define MCLD_LD_EHFRAMEREADER_H_
 #include <mcld/LD/EhFrame.h>
 
 #include <llvm/ADT/StringRef.h>
@@ -104,4 +104,4 @@ EhFrameReader::scan<true>(ConstAddress pHandler,
 
 } // namespace mcld
 
-#endif
+#endif  // MCLD_LD_EHFRAMEREADER_H_

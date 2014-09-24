@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef TARGET_AARCH64_AARCH64PLT_H
-#define TARGET_AARCH64_AARCH64PLT_H
+#ifndef TARGET_AARCH64_AARCH64PLT_H_
+#define TARGET_AARCH64_AARCH64PLT_H_
 
 #include <mcld/Support/MemoryRegion.h>
 #include <mcld/Target/GOT.h>
@@ -82,4 +82,4 @@ private:
 
 } // namespace mcld
 
-#endif
+#endif  // TARGET_AARCH64_AARCH64PLT_H_

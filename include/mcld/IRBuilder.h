@@ -11,8 +11,8 @@
 // with a consistent and simplified interface.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_IRBUILDER_H
-#define MCLD_IRBUILDER_H
+#ifndef MCLD_IRBUILDER_H_
+#define MCLD_IRBUILDER_H_
 
 #include <mcld/Fragment/FillFragment.h>
 #include <mcld/Fragment/Fragment.h>
@@ -529,4 +529,4 @@ IRBuilder::AddSymbol<IRBuilder::AsReferred, IRBuilder::Resolve>(
 
 } // end of namespace mcld
 
-#endif
+#endif  // MCLD_IRBUILDER_H_

@@ -6,9 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-
-#ifndef TARGET_ARM_ARMTOTHMSTUB_H
-#define TARGET_ARM_ARMTOTHMSTUB_H
+#ifndef TARGET_ARM_ARMTOTHMSTUB_H_
+#define TARGET_ARM_ARMTOTHMSTUB_H_
 
 #include <mcld/Fragment/Stub.h>
 #include <llvm/Support/DataTypes.h>
@@ -70,4 +69,4 @@ private:
 
 } // namespace mcld
 
-#endif
+#endif  // TARGET_ARM_ARMTOTHMSTUB_H_

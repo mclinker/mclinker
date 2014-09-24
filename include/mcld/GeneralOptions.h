@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_GENERALOPTIONS_H
-#define MCLD_GENERALOPTIONS_H
+#ifndef MCLD_GENERALOPTIONS_H_
+#define MCLD_GENERALOPTIONS_H_
 #include <mcld/Config/Config.h>
 #include <mcld/Support/RealPath.h>
 #include <mcld/Support/FileSystem.h>
@@ -466,4 +466,4 @@ private:
 
 } // namespace mcld
 
-#endif
+#endif  // MCLD_GENERALOPTIONS_H_

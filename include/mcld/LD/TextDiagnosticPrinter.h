@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_LD_TEXTDIAGNOSTICPRINTER_H
-#define MCLD_LD_TEXTDIAGNOSTICPRINTER_H
+#ifndef MCLD_LD_TEXTDIAGNOSTICPRINTER_H_
+#define MCLD_LD_TEXTDIAGNOSTICPRINTER_H_
 #include <mcld/LD/DiagnosticPrinter.h>
 
 #include <llvm/Support/raw_ostream.h>
@@ -45,4 +45,4 @@ private:
 
 } // namespace mcld
 
-#endif
+#endif  // MCLD_LD_TEXTDIAGNOSTICPRINTER_H_

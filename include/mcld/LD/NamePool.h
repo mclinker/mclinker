@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_LD_NAMEPOOL_H
-#define MCLD_LD_NAMEPOOL_H
+#ifndef MCLD_LD_NAMEPOOL_H_
+#define MCLD_LD_NAMEPOOL_H_
 
 #include <mcld/ADT/HashTable.h>
 #include <mcld/ADT/StringHash.h>
@@ -135,4 +135,4 @@ private:
 
 } // namespace mcld
 
-#endif
+#endif  // MCLD_LD_NAMEPOOL_H_

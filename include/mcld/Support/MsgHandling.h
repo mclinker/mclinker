@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_SUPPORT_MSGHANDLING_H
-#define MCLD_SUPPORT_MSGHANDLING_H
+#ifndef MCLD_SUPPORT_MSGHANDLING_H_
+#define MCLD_SUPPORT_MSGHANDLING_H_
 #include <mcld/LD/MsgHandler.h>
 
 namespace mcld {
@@ -73,4 +73,4 @@ inline mcld::MsgHandler mcld::ignore(unsigned int pID)
   return getDiagnosticEngine().report(pID, DiagnosticEngine::Ignore);
 }
 
-#endif
+#endif  // MCLD_SUPPORT_MSGHANDLING_H_

@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef TARGET_MIPS_MIPSLDBACKEND_H
-#define TARGET_MIPS_MIPSLDBACKEND_H
+#ifndef TARGET_MIPS_MIPSLDBACKEND_H_
+#define TARGET_MIPS_MIPSLDBACKEND_H_
 #include <mcld/Target/GNULDBackend.h>
 #include "MipsELFDynamic.h"
 #include "MipsGOT.h"
@@ -271,4 +271,4 @@ private:
 
 } // namespace mcld
 
-#endif
+#endif  // TARGET_MIPS_MIPSLDBACKEND_H_

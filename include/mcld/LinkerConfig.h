@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_LINKERCONFIG_H
-#define MCLD_LINKERCONFIG_H
+#ifndef MCLD_LINKERCONFIG_H_
+#define MCLD_LINKERCONFIG_H_
 
 #include <llvm/ADT/Triple.h>
 
@@ -102,4 +102,4 @@ private:
 
 } // namespace mcld
 
-#endif
+#endif  // MCLD_LINKERCONFIG_H_

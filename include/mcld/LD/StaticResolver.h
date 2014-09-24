@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_LD_STATICRESOLVER_H
-#define MCLD_LD_STATICRESOLVER_H
+#ifndef MCLD_LD_STATICRESOLVER_H_
+#define MCLD_LD_STATICRESOLVER_H_
 #include <mcld/LD/ResolveInfo.h>
 #include <mcld/LD/Resolver.h>
 
@@ -131,4 +131,4 @@ private:
 
 } // namespace mcld
 
-#endif
+#endif  // MCLD_LD_STATICRESOLVER_H_

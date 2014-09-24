@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_LD_EHFRAME_H
-#define MCLD_LD_EHFRAME_H
+#ifndef MCLD_LD_EHFRAME_H_
+#define MCLD_LD_EHFRAME_H_
 
 #include <mcld/Config/Config.h>
 #include <mcld/Fragment/RegionFragment.h>
@@ -252,4 +252,4 @@ bool operator==(const EhFrame::CIE&, const EhFrame::CIE&);
 
 } // namespace mcld
 
-#endif
+#endif  // MCLD_LD_EHFRAME_H_

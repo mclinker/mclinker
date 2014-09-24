@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef TARGET_HEXAGON_HEXAGONRELOCATOR_H
-#define TARGET_HEXAGON_HEXAGONRELOCATOR_H
+#ifndef TARGET_HEXAGON_HEXAGONRELOCATOR_H_
+#define TARGET_HEXAGON_HEXAGONRELOCATOR_H_
 
 #include <mcld/LD/Relocator.h>
 #include <mcld/Target/GOT.h>
@@ -144,4 +144,4 @@ private:
 
 } // namespace mcld
 
-#endif
+#endif  // TARGET_HEXAGON_HEXAGONRELOCATOR_H_

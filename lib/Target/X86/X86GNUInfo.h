@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef TARGET_X86_X86GNUINFO_H
-#define TARGET_X86_X86GNUINFO_H
+#ifndef TARGET_X86_X86GNUINFO_H_
+#define TARGET_X86_X86GNUINFO_H_
 #include <mcld/Target/GNUInfo.h>
 
 #include <llvm/Support/ELF.h>
@@ -46,4 +46,4 @@ public:
 
 } // namespace mcld
 
-#endif
+#endif  // TARGET_X86_X86GNUINFO_H_

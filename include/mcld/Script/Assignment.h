@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_SCRIPT_ASSIGNMENT_H
-#define MCLD_SCRIPT_ASSIGNMENT_H
+#ifndef MCLD_SCRIPT_ASSIGNMENT_H_
+#define MCLD_SCRIPT_ASSIGNMENT_H_
 
 #include <mcld/Script/ScriptCommand.h>
 
@@ -80,4 +80,4 @@ private:
 
 } // namespace mcld
 
-#endif
+#endif  // MCLD_SCRIPT_ASSIGNMENT_H_

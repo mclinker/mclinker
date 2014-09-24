@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_SUPPORT_DIRECTORY_H
-#define MCLD_SUPPORT_DIRECTORY_H
+#ifndef MCLD_SUPPORT_DIRECTORY_H_
+#define MCLD_SUPPORT_DIRECTORY_H_
 
 #include <mcld/ADT/TypeTraits.h>
 #include <mcld/Support/FileSystem.h>
@@ -151,4 +151,4 @@ private:
 } // namespace sys
 } // namespace mcld
 
-#endif
+#endif  // MCLD_SUPPORT_DIRECTORY_H_

@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef TARGET_HEXAGON_HEXAGONPLT_H
-#define TARGET_HEXAGON_HEXAGONPLT_H
+#ifndef TARGET_HEXAGON_HEXAGONPLT_H_
+#define TARGET_HEXAGON_HEXAGONPLT_H_
 
 #include "HexagonGOT.h"
 #include "HexagonGOTPLT.h"
@@ -103,4 +103,4 @@ public:
 
 } // namespace mcld
 
-#endif
+#endif  // TARGET_HEXAGON_HEXAGONPLT_H_

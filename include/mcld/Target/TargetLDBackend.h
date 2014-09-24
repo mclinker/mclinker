@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_TARGET_TARGETLDBACKEND_H
-#define MCLD_TARGET_TARGETLDBACKEND_H
+#ifndef MCLD_TARGET_TARGETLDBACKEND_H_
+#define MCLD_TARGET_TARGETLDBACKEND_H_
 
 #include <llvm/ADT/StringRef.h>
 #include <llvm/Support/DataTypes.h>
@@ -186,4 +186,4 @@ private:
 
 } // namespace mcld
 
-#endif
+#endif  // MCLD_TARGET_TARGETLDBACKEND_H_

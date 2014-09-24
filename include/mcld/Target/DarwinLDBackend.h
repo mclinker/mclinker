@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_TARGET_DARWINLDBACKEND_H
-#define MCLD_TARGET_DARWINLDBACKEND_H
+#ifndef MCLD_TARGET_DARWINLDBACKEND_H_
+#define MCLD_TARGET_DARWINLDBACKEND_H_
 
 namespace mcld
 {
@@ -25,4 +25,4 @@ class DarwinLDBackend
 
 } // namespace mcld
 
-#endif
+#endif  // MCLD_TARGET_DARWINLDBACKEND_H_

@@ -6,6 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
+#ifndef TARGET_MIPS_MIPSRELOCATIONFUNCTIONS_H_
+#define TARGET_MIPS_MIPSRELOCATIONFUNCTIONS_H_
 
 #define DECL_MIPS_APPLY_RELOC_FUNC(Name) \
 static MipsRelocator::Result Name(MipsRelocationInfo& pReloc, \
@@ -290,3 +292,5 @@ DECL_MIPS_APPLY_RELOC_FUNC(unsupport)
   { &unsupport,  252, "",                             0}, \
   { &unsupport,  253, "R_MIPS_GNU_VTINHERIT",         0}, \
   { &unsupport,  254, "R_MIPS_GNU_VTENTRY",           0}
+
+#endif  // TARGET_MIPS_MIPSRELOCATIONFUNCTIONS_H_

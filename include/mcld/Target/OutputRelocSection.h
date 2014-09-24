@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_TARGET_OUTPUTRELOCSECTION_H
-#define MCLD_TARGET_OUTPUTRELOCSECTION_H
+#ifndef MCLD_TARGET_OUTPUTRELOCSECTION_H_
+#define MCLD_TARGET_OUTPUTRELOCSECTION_H_
 
 #include <mcld/LD/RelocData.h>
 
@@ -65,4 +65,4 @@ private:
 
 } // namespace mcld
 
-#endif
+#endif  // MCLD_TARGET_OUTPUTRELOCSECTION_H_

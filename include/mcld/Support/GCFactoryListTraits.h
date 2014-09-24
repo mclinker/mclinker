@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_SUPPORT_GCFACTORYLISTTRAITS_H
-#define MCLD_SUPPORT_GCFACTORYLISTTRAITS_H
+#ifndef MCLD_SUPPORT_GCFACTORYLISTTRAITS_H_
+#define MCLD_SUPPORT_GCFACTORYLISTTRAITS_H_
 
 #include <llvm/ADT/ilist.h>
 #include <llvm/ADT/ilist_node.h>
@@ -60,4 +60,4 @@ private:
 
 } // namespace mcld
 
-#endif
+#endif  // MCLD_SUPPORT_GCFACTORYLISTTRAITS_H_

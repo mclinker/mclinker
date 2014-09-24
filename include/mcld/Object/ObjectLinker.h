@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_OBJECT_OBJECTLINKER_H
-#define MCLD_OBJECT_OBJECTLINKER_H
+#ifndef MCLD_OBJECT_OBJECTLINKER_H_
+#define MCLD_OBJECT_OBJECTLINKER_H_
 #include <llvm/Support/DataTypes.h>
 
 namespace mcld {
@@ -183,4 +183,4 @@ private:
 
 } // namespace mcld
 
-#endif
+#endif  // MCLD_OBJECT_OBJECTLINKER_H_

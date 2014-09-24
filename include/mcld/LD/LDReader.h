@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_LD_LDREADER_H
-#define MCLD_LD_LDREADER_H
+#ifndef MCLD_LD_LDREADER_H_
+#define MCLD_LD_LDREADER_H_
 
 namespace mcld
 {
@@ -37,4 +37,4 @@ public:
 
 } // namespace mcld
 
-#endif
+#endif  // MCLD_LD_LDREADER_H_

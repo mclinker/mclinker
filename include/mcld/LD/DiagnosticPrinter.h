@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_LD_DIAGNOSTICPRINTER_H
-#define MCLD_LD_DIAGNOSTICPRINTER_H
+#ifndef MCLD_LD_DIAGNOSTICPRINTER_H_
+#define MCLD_LD_DIAGNOSTICPRINTER_H_
 
 #include <mcld/LD/Diagnostic.h>
 #include <mcld/LD/DiagnosticEngine.h>
@@ -50,4 +50,4 @@ protected:
 
 } // namespace mcld
 
-#endif
+#endif  // MCLD_LD_DIAGNOSTICPRINTER_H_

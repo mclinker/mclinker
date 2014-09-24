@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef TARGET_AARCH64_AARCH64GNUINFO_H
-#define TARGET_AARCH64_AARCH64GNUINFO_H
+#ifndef TARGET_AARCH64_AARCH64GNUINFO_H_
+#define TARGET_AARCH64_AARCH64GNUINFO_H_
 #include <mcld/Target/GNUInfo.h>
 
 #include <llvm/Support/ELF.h>
@@ -31,4 +31,4 @@ public:
 
 } // namespace mcld
 
-#endif
+#endif  // TARGET_AARCH64_AARCH64GNUINFO_H_

@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_TARGET_GOT_H
-#define MCLD_TARGET_GOT_H
+#ifndef MCLD_TARGET_GOT_H_
+#define MCLD_TARGET_GOT_H_
 
 #include <mcld/Fragment/TargetFragment.h>
 #include <mcld/LD/LDSection.h>
@@ -84,4 +84,4 @@ protected:
 
 } // namespace mcld
 
-#endif
+#endif  // MCLD_TARGET_GOT_H_

@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_ADT_SIZETRAITS_H
-#define MCLD_ADT_SIZETRAITS_H
+#ifndef MCLD_ADT_SIZETRAITS_H_
+#define MCLD_ADT_SIZETRAITS_H_
 
 #include <llvm/Support/DataTypes.h>
 #include <llvm/Support/ELF.h>
@@ -193,4 +193,4 @@ public:
 
 } // namespace mcld
 
-#endif
+#endif  // MCLD_ADT_SIZETRAITS_H_

@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_SUPPORT_TARGET_H
-#define MCLD_SUPPORT_TARGET_H
+#ifndef MCLD_SUPPORT_TARGET_H_
+#define MCLD_SUPPORT_TARGET_H_
 #include <string>
 
 namespace llvm {
@@ -100,4 +100,4 @@ private:
 
 } // namespace mcld
 
-#endif
+#endif  // MCLD_SUPPORT_TARGET_H_

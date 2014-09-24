@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_SUPPORT_PATHCACHE_H
-#define MCLD_SUPPORT_PATHCACHE_H
+#ifndef MCLD_SUPPORT_PATHCACHE_H_
+#define MCLD_SUPPORT_PATHCACHE_H_
 
 #include <mcld/ADT/HashEntry.h>
 #include <mcld/ADT/HashTable.h>
@@ -32,4 +32,4 @@ typedef HashTable<HashEntryType,
 } // namespace sys
 } // namespace mcld
 
-#endif
+#endif  // MCLD_SUPPORT_PATHCACHE_H_

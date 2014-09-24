@@ -10,8 +10,8 @@
 // Module contains the intermediate representation (LDIR) of MCLinker.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_MODULE_H
-#define MCLD_MODULE_H
+#ifndef MCLD_MODULE_H_
+#define MCLD_MODULE_H_
 
 #include <mcld/InputTree.h>
 #include <mcld/LD/NamePool.h>
@@ -175,4 +175,4 @@ private:
 
 } // namespace mcld
 
-#endif
+#endif  // MCLD_MODULE_H_

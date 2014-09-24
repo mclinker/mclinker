@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef TARGET_ARM_ARMGNUINFO_H
-#define TARGET_ARM_ARMGNUINFO_H
+#ifndef TARGET_ARM_ARMGNUINFO_H_
+#define TARGET_ARM_ARMGNUINFO_H_
 #include <mcld/Target/GNUInfo.h>
 
 #include <llvm/Support/ELF.h>
@@ -28,4 +28,4 @@ public:
 
 } // namespace mcld
 
-#endif
+#endif  // TARGET_ARM_ARMGNUINFO_H_

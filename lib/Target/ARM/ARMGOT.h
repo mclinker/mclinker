@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef TARGET_ARM_ARMGOT_H
-#define TARGET_ARM_ARMGOT_H
+#ifndef TARGET_ARM_ARMGOT_H_
+#define TARGET_ARM_ARMGOT_H_
 
 #include <mcld/Support/MemoryRegion.h>
 #include <mcld/Target/GOT.h>
@@ -84,4 +84,4 @@ private:
 
 } // namespace mcld
 
-#endif
+#endif  // TARGET_ARM_ARMGOT_H_

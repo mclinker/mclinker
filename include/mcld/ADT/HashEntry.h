@@ -7,8 +7,8 @@
 //
 //===----------------------------------------------------------------------===//
 
-#ifndef MCLD_ADT_HASHENTRY_H
-#define MCLD_ADT_HASHENTRY_H
+#ifndef MCLD_ADT_HASHENTRY_H_
+#define MCLD_ADT_HASHENTRY_H_
 
 namespace mcld {
 
@@ -88,4 +88,4 @@ public:
 
 } // namespace mcld
 
-#endif
+#endif  // MCLD_ADT_HASHENTRY_H_

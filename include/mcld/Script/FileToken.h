@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_SCRIPT_FILETOKEN_H
-#define MCLD_SCRIPT_FILETOKEN_H
+#ifndef MCLD_SCRIPT_FILETOKEN_H_
+#define MCLD_SCRIPT_FILETOKEN_H_
 
 #include <mcld/Config/Config.h>
 #include <mcld/Script/InputToken.h>
@@ -44,4 +44,4 @@ public:
 
 } // namepsace mcld
 
-#endif
+#endif  // MCLD_SCRIPT_FILETOKEN_H_

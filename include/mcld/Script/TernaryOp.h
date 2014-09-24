@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_SCRIPT_TERNARYOP_H
-#define MCLD_SCRIPT_TERNARYOP_H
+#ifndef MCLD_SCRIPT_TERNARYOP_H_
+#define MCLD_SCRIPT_TERNARYOP_H_
 
 #include <mcld/Script/Operator.h>
 
@@ -66,4 +66,4 @@ TernaryOp<Operator::DATA_SEGMENT_ALIGN>::eval(const Module&,
 
 } // namespace mcld
 
-#endif
+#endif  // MCLD_SCRIPT_TERNARYOP_H_

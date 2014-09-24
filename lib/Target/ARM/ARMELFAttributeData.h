@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef TARGET_ARM_ARMELFATTRIBUTEDATA_H
-#define TARGET_ARM_ARMELFATTRIBUTEDATA_H
+#ifndef TARGET_ARM_ARMELFATTRIBUTEDATA_H_
+#define TARGET_ARM_ARMELFATTRIBUTEDATA_H_
 
 #include <mcld/Target/ELFAttributeData.h>
 #include <mcld/Target/ELFAttributeValue.h>
@@ -240,4 +240,4 @@ private:
 
 } // namespace mcld
 
-#endif
+#endif  // TARGET_ARM_ARMELFATTRIBUTEDATA_H_

@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_SCRIPT_RPNEVALUATOR_H
-#define MCLD_SCRIPT_RPNEVALUATOR_H
+#ifndef MCLD_SCRIPT_RPNEVALUATOR_H_
+#define MCLD_SCRIPT_RPNEVALUATOR_H_
 
 #include <cstdint>
 
@@ -35,4 +35,4 @@ private:
 
 } // namespace mcld
 
-#endif
+#endif  // MCLD_SCRIPT_RPNEVALUATOR_H_

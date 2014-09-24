@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef TARGET_MIPS_MIPSRELOCATOR_H
-#define TARGET_MIPS_MIPSRELOCATOR_H
+#ifndef TARGET_MIPS_MIPSRELOCATOR_H_
+#define TARGET_MIPS_MIPSRELOCATOR_H_
 
 #include <mcld/LD/Relocator.h>
 #include <mcld/Support/GCFactory.h>
@@ -193,4 +193,4 @@ private:
 
 } // namespace mcld
 
-#endif
+#endif  // TARGET_MIPS_MIPSRELOCATOR_H_

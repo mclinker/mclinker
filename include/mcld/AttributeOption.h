@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_ATTRIBUTEOPTION_H
-#define MCLD_ATTRIBUTEOPTION_H
+#ifndef MCLD_ATTRIBUTEOPTION_H_
+#define MCLD_ATTRIBUTEOPTION_H_
 #include <mcld/MC/Attribute.h>
 
 namespace mcld {
@@ -31,4 +31,4 @@ private:
 
 } // namespace mcld
 
-#endif
+#endif  // MCLD_ATTRIBUTEOPTION_H_

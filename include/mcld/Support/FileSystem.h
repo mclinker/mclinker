@@ -10,9 +10,8 @@
 // filesystem (v3), but modified to remove exception handling and the
 // path class.
 //===----------------------------------------------------------------------===//
-
-#ifndef MCLD_SUPPORT_FILESYSTEM_H
-#define MCLD_SUPPORT_FILESYSTEM_H
+#ifndef MCLD_SUPPORT_FILESYSTEM_H_
+#define MCLD_SUPPORT_FILESYSTEM_H_
 
 #include <mcld/Config/Config.h>
 #include <mcld/Support/PathCache.h>
@@ -110,4 +109,4 @@ int munmap(void *pAddr, size_t pLen);
 } // namespace sys
 } // namespace mcld
 
-#endif
+#endif  // MCLD_SUPPORT_FILESYSTEM_H_

@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_ADT_BITREE_H
-#define MCLD_ADT_BITREE_H
+#ifndef MCLD_ADT_BINTREE_H_
+#define MCLD_ADT_BINTREE_H_
 
 #include <mcld/ADT/TreeAllocator.h>
 #include <mcld/ADT/TreeBase.h>
@@ -492,4 +492,4 @@ public:
 
 } // namespace mcld
 
-#endif
+#endif  // MCLD_ADT_BINTREE_H_

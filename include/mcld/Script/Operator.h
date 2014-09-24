@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_SCRIPT_OPERATOR_INTERFACE_H
-#define MCLD_SCRIPT_OPERATOR_INTERFACE_H
+#ifndef MCLD_SCRIPT_OPERATOR_H_
+#define MCLD_SCRIPT_OPERATOR_H_
 
 #include <mcld/Script/ExprToken.h>
 #include <llvm/Support/DataTypes.h>
@@ -224,4 +224,4 @@ Operator&
 Operator::create<Operator::DATA_SEGMENT_ALIGN>();
 } // namespace mcld
 
-#endif
+#endif  // MCLD_SCRIPT_OPERATOR_H_

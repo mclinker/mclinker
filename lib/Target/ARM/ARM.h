@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef TARGET_ARM_ARM_H
-#define TARGET_ARM_ARM_H
+#ifndef TARGET_ARM_ARM_H_
+#define TARGET_ARM_ARM_H_
 #include <string>
 
 namespace llvm {
@@ -26,4 +26,4 @@ TargetLDBackend *createARMLDBackend(const llvm::Target&, const std::string&);
 
 } // namespace mcld
 
-#endif
+#endif  // TARGET_ARM_ARM_H_

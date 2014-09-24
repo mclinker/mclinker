@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef TARGET_ARM_ARMPLT_H
-#define TARGET_ARM_ARMPLT_H
+#ifndef TARGET_ARM_ARMPLT_H_
+#define TARGET_ARM_ARMPLT_H_
 
 #include <mcld/Target/GOT.h>
 #include <mcld/Target/PLT.h>
@@ -78,4 +78,4 @@ private:
 
 } // namespace mcld
 
-#endif
+#endif  // TARGET_ARM_ARMPLT_H_

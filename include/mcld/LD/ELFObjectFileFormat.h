@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_ELF_OBJECT_FILE_FROMAT_H
-#define MCLD_ELF_OBJECT_FILE_FROMAT_H
+#ifndef MCLD_LD_ELFOBJECTFILEFORMAT_H_
+#define MCLD_LD_ELFOBJECTFILEFORMAT_H_
 #include <mcld/LD/ELFFileFormat.h>
 
 namespace mcld {
@@ -27,4 +27,4 @@ class ELFObjectFileFormat : public ELFFileFormat
 
 } // namespace mcld
 
-#endif
+#endif  // MCLD_LD_ELFOBJECTFILEFORMAT_H_

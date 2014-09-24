@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_LD_BSDARCHIVEREADER_H
-#define MCLD_LD_BSDARCHIVEREADER_H
+#ifndef MCLD_LD_BSDARCHIVEREADER_H_
+#define MCLD_LD_BSDARCHIVEREADER_H_
 #include <mcld/LD/ArchiveReader.h>
 
 namespace mcld
@@ -33,4 +33,4 @@ public:
 
 } // namespace mcld
 
-#endif
+#endif  // MCLD_LD_BSDARCHIVEREADER_H_

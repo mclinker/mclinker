@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_SUPPORT_MEMORYAREAFACTORY_H
-#define MCLD_SUPPORT_MEMORYAREAFACTORY_H
+#ifndef MCLD_SUPPORT_MEMORYAREAFACTORY_H_
+#define MCLD_SUPPORT_MEMORYAREAFACTORY_H_
 #include <mcld/Support/FileHandle.h>
 #include <mcld/Support/GCFactory.h>
 #include <mcld/Support/MemoryArea.h>
@@ -67,4 +67,4 @@ private:
 
 } // namespace mcld
 
-#endif
+#endif  // MCLD_SUPPORT_MEMORYAREAFACTORY_H_

@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_LD_DIAGNOSTICENGINE_H
-#define MCLD_LD_DIAGNOSTICENGINE_H
+#ifndef MCLD_LD_DIAGNOSTICENGINE_H_
+#define MCLD_LD_DIAGNOSTICENGINE_H_
 #include <mcld/LD/DiagnosticInfos.h>
 
 #include <llvm/Support/DataTypes.h>
@@ -148,4 +148,4 @@ private:
 
 } // namespace mcld
 
-#endif
+#endif  // MCLD_LD_DIAGNOSTICENGINE_H_

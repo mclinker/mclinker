@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_SUPPORT_MEMORYAREA_H
-#define MCLD_SUPPORT_MEMORYAREA_H
+#ifndef MCLD_SUPPORT_MEMORYAREA_H_
+#define MCLD_SUPPORT_MEMORYAREA_H_
 
 #include <mcld/ADT/Uncopyable.h>
 
@@ -45,4 +45,4 @@ private:
 
 } // namespace mcld
 
-#endif
+#endif  // MCLD_SUPPORT_MEMORYAREA_H_

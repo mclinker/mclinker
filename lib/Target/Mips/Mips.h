@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef TARGET_MIPS_MIPS_H
-#define TARGET_MIPS_MIPS_H
+#ifndef TARGET_MIPS_MIPS_H_
+#define TARGET_MIPS_MIPS_H_
 
 namespace mcld {
 
@@ -18,4 +18,4 @@ extern Target TheMips64elTarget;
 
 } // namespace mcld
 
-#endif
+#endif  // TARGET_MIPS_MIPS_H_

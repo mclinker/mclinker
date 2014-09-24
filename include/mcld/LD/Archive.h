@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_LD_ARCHIVE_H
-#define MCLD_LD_ARCHIVE_H
+#ifndef MCLD_LD_ARCHIVE_H_
+#define MCLD_LD_ARCHIVE_H_
 
 #include <mcld/InputTree.h>
 #include <mcld/ADT/HashEntry.h>
@@ -254,4 +254,4 @@ private:
 
 } // namespace mcld
 
-#endif
+#endif  // MCLD_LD_ARCHIVE_H_

@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_TARGET_KEYENTRYMAP_H
-#define MCLD_TARGET_KEYENTRYMAP_H
+#ifndef MCLD_TARGET_KEYENTRYMAP_H_
+#define MCLD_TARGET_KEYENTRYMAP_H_
 
 #include <list>
 #include <vector>
@@ -195,4 +195,4 @@ KeyEntryMap<KeyType, EntryType>::record(const KeyType& pKey,
 
 } // namespace mcld
 
-#endif
+#endif  // MCLD_TARGET_KEYENTRYMAP_H_

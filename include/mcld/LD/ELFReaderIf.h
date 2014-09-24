@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_LD_ELFREADERIF_H
-#define MCLD_LD_ELFREADERIF_H
+#ifndef MCLD_LD_ELFREADERIF_H_
+#define MCLD_LD_ELFREADERIF_H_
 
 #include <mcld/LinkerConfig.h>
 #include <mcld/Support/MsgHandling.h>
@@ -123,4 +123,4 @@ protected:
 
 } // namespace mcld
 
-#endif
+#endif  // MCLD_LD_ELFREADERIF_H_

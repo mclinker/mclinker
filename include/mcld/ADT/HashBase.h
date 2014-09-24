@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_ADT_HASHBASE_H
-#define MCLD_ADT_HASHBASE_H
+#ifndef MCLD_ADT_HASHBASE_H_
+#define MCLD_ADT_HASHBASE_H_
 
 #include <llvm/ADT/StringRef.h>
 
@@ -136,4 +136,4 @@ protected:
 
 } // namespace mcld
 
-#endif
+#endif  // MCLD_ADT_HASHBASE_H_

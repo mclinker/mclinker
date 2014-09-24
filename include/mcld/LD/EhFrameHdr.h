@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_LD_EHFRAMEHDR_H
-#define MCLD_LD_EHFRAMEHDR_H
+#ifndef MCLD_LD_EHFRAMEHDR_H_
+#define MCLD_LD_EHFRAMEHDR_H_
 #include <mcld/ADT/SizeTraits.h>
 #include <mcld/LD/EhFrame.h>
 #include <mcld/Support/FileOutputBuffer.h>
@@ -70,4 +70,4 @@ void EhFrameHdr::emitOutput<32>(FileOutputBuffer& pOutput);
 
 } // namespace mcld
 
-#endif
+#endif  // MCLD_LD_EHFRAMEHDR_H_

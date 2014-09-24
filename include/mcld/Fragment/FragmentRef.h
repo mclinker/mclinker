@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_FRAGMENT_FRAGMENTREF_H
-#define MCLD_FRAGMENT_FRAGMENTREF_H
+#ifndef MCLD_FRAGMENT_FRAGMENTREF_H_
+#define MCLD_FRAGMENT_FRAGMENTREF_H_
 
 #include <mcld/ADT/SizeTraits.h>
 #include <mcld/ADT/TypeTraits.h>
@@ -94,4 +94,4 @@ private:
 
 } // namespace mcld
 
-#endif
+#endif  // MCLD_FRAGMENT_FRAGMENTREF_H_

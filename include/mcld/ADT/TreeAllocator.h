@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_ADT_TREEALLOCATOR_H
-#define MCLD_ADT_TREEALLOCATOR_H
+#ifndef MCLD_ADT_TREEALLOCATOR_H_
+#define MCLD_ADT_TREEALLOCATOR_H_
 
 #include <mcld/ADT/TreeBase.h>
 #include <mcld/Support/GCFactory.h>
@@ -92,4 +92,4 @@ private:
 
 } // namespace mcld
 
-#endif
+#endif  // MCLD_ADT_TREEALLOCATOR_H_

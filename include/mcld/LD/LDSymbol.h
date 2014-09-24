@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_LD_LDSYMBOL_H
-#define MCLD_LD_LDSYMBOL_H
+#ifndef MCLD_LD_LDSYMBOL_H_
+#define MCLD_LD_LDSYMBOL_H_
 
 #include <mcld/ADT/Uncopyable.h>
 #include <mcld/Config/Config.h>
@@ -143,4 +143,4 @@ private:
 
 } // namespace mcld
 
-#endif
+#endif  // MCLD_LD_LDSYMBOL_H_

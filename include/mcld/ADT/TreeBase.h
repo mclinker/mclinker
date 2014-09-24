@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_ADT_TREEBASE_H
-#define MCLD_ADT_TREEBASE_H
+#ifndef MCLD_ADT_TREEBASE_H_
+#define MCLD_ADT_TREEBASE_H_
 
 #include <mcld/ADT/TypeTraits.h>
 
@@ -123,4 +123,4 @@ public:
 
 } // namespace mcld
 
-#endif
+#endif  // MCLD_ADT_TREEBASE_H_

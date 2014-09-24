@@ -6,6 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
+#ifndef TARGET_X86_X86RELOCATIONFUNCTIONS_H_
+#define TARGET_X86_X86RELOCATIONFUNCTIONS_H_
 
 #define DECL_X86_32_APPLY_RELOC_FUNC(Name) \
 static X86Relocator::Result Name(Relocation& pEntry, X86_32Relocator& pParent);
@@ -126,3 +128,5 @@ DECL_X86_64_APPLY_RELOC_FUNC(unsupport)
   { &none,              36, "R_X86_64_TLSDESC",         0  },  \
   { &none,              37, "R_X86_64_IRELATIVE",       0  },  \
   { &none,              38, "R_X86_64_RELATIVE64",      0  }
+
+#endif  // TARGET_X86_X86RELOCATIONFUNCTIONS_H_

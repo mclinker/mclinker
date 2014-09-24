@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_LD_ELFREADER_H
-#define MCLD_LD_ELFREADER_H
+#ifndef MCLD_LD_ELFREADER_H_
+#define MCLD_LD_ELFREADER_H_
 
 #include <mcld/LD/ELFReaderIf.h>
 #include <mcld/LD/LDSymbol.h>
@@ -209,4 +209,4 @@ private:
 
 } // namespace mcld
 
-#endif
+#endif  // MCLD_LD_ELFREADER_H_

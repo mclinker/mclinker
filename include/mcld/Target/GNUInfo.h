@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_TARGET_GNUINFO_H
-#define MCLD_TARGET_GNUINFO_H
+#ifndef MCLD_TARGET_GNUINFO_H_
+#define MCLD_TARGET_GNUINFO_H_
 #include <llvm/ADT/Triple.h>
 #include <llvm/Support/ELF.h>
 
@@ -68,4 +68,4 @@ protected:
 
 } // namespace mcld
 
-#endif
+#endif  // MCLD_TARGET_GNUINFO_H_

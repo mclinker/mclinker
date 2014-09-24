@@ -10,8 +10,8 @@
 //  Input class inherits MCLDFile, which is used to represent a input file
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_MC_INPUT_H
-#define MCLD_MC_INPUT_H
+#ifndef MCLD_MC_INPUT_H_
+#define MCLD_MC_INPUT_H_
 
 #include <mcld/Support/Path.h>
 
@@ -140,4 +140,4 @@ private:
 
 } // namespace mcld
 
-#endif
+#endif  // MCLD_MC_INPUT_H_

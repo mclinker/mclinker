@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_LD_OBJECTREADER_H
-#define MCLD_LD_OBJECTREADER_H
+#ifndef MCLD_LD_OBJECTREADER_H_
+#define MCLD_LD_OBJECTREADER_H_
 #include <mcld/ADT/HashTable.h>
 #include <mcld/ADT/StringHash.h>
 #include <mcld/LD/LDReader.h>
@@ -58,4 +58,4 @@ protected:
 
 } // namespace mcld
 
-#endif
+#endif  // MCLD_LD_OBJECTREADER_H_

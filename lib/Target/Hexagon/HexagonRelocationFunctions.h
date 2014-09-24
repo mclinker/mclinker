@@ -6,6 +6,9 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
+#ifndef TARGET_HEXAGON_HEXAGONRELOCATIONFUNCTIONS_H_
+#define TARGET_HEXAGON_HEXAGONRELOCATIONFUNCTIONS_H_
+
 typedef struct {
   const char *insnSyntax;
   uint32_t insnMask;
@@ -134,3 +137,5 @@ DECL_HEXAGON_APPLY_RELOC_FUNC(unsupport)
   { &unsupport,           83, "R_HEX_TPREL_32_6_X"               }, \
   { &unsupport,           84, "R_HEX_TPREL_16_X"                 }, \
   { &unsupport,           85, "R_HEX_TPREL_11_X"                 }
+
+#endif  // TARGET_HEXAGON_HEXAGONRELOCATIONFUNCTIONS_H_

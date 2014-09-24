@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef TARGET_AARCH64_AARCH64RELOCATIONHELPERS_H
-#define TARGET_AARCH64_AARCH64RELOCATIONHELPERS_H
+#ifndef TARGET_AARCH64_AARCH64RELOCATIONHELPERS_H_
+#define TARGET_AARCH64_AARCH64RELOCATIONHELPERS_H_
 
 #include "AArch64Relocator.h"
 #include <llvm/Support/Host.h>
@@ -204,4 +204,4 @@ helper_GOT_init(Relocation& pReloc, bool pHasRel, AArch64Relocator& pParent)
 }
 
 }
-#endif
+#endif  // TARGET_AARCH64_AARCH64RELOCATIONHELPERS_H_

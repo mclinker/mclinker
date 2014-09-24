@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_FRAGMENT_NULLFRAGMENT_H
-#define MCLD_FRAGMENT_NULLFRAGMENT_H
+#ifndef MCLD_FRAGMENT_NULLFRAGMENT_H_
+#define MCLD_FRAGMENT_NULLFRAGMENT_H_
 
 #include <mcld/Fragment/Fragment.h>
 
@@ -36,4 +36,4 @@ public:
 
 } // namespace mcld
 
-#endif
+#endif  // MCLD_FRAGMENT_NULLFRAGMENT_H_

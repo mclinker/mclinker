@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_MC_ATTRIBUTE_H
-#define MCLD_MC_ATTRIBUTE_H
+#ifndef MCLD_MC_ATTRIBUTE_H_
+#define MCLD_MC_ATTRIBUTE_H_
 
 namespace mcld {
 
@@ -233,4 +233,4 @@ inline bool operator!= (const Attribute& pLHS, const Attribute& pRHS)
 
 } // namespace mcld
 
-#endif
+#endif  // MCLD_MC_ATTRIBUTE_H_

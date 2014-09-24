@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_LD_SECTIONDATA_H
-#define MCLD_LD_SECTIONDATA_H
+#ifndef MCLD_LD_SECTIONDATA_H_
+#define MCLD_LD_SECTIONDATA_H_
 
 #include <mcld/Config/Config.h>
 #include <mcld/Fragment/Fragment.h>
@@ -85,4 +85,4 @@ private:
 
 } // namespace mcld
 
-#endif
+#endif  // MCLD_LD_SECTIONDATA_H_

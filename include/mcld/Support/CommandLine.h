@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_SUPPORT_COMMANDLINE_H
-#define MCLD_SUPPORT_COMMANDLINE_H
+#ifndef MCLD_SUPPORT_COMMANDLINE_H_
+#define MCLD_SUPPORT_COMMANDLINE_H_
 #include <mcld/MC/ZOption.h>
 #include <mcld/Support/FileSystem.h>
 
@@ -97,4 +97,4 @@ public:
 } // namespace cl
 } // namespace llvm
 
-#endif
+#endif  // MCLD_SUPPORT_COMMANDLINE_H_

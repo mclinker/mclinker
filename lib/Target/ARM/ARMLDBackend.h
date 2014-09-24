@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef TARGET_ARM_ARMLDBACKEND_H
-#define TARGET_ARM_ARMLDBACKEND_H
+#ifndef TARGET_ARM_ARMLDBACKEND_H_
+#define TARGET_ARM_ARMLDBACKEND_H_
 
 #include "ARMELFDynamic.h"
 #include "ARMGOT.h"
@@ -190,4 +190,4 @@ private:
 };
 } // namespace mcld
 
-#endif
+#endif  // TARGET_ARM_ARMLDBACKEND_H_

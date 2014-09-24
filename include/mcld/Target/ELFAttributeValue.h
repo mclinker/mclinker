@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_TARGET_ELFATTRIBUTEVALUE_H
-#define MCLD_TARGET_ELFATTRIBUTEVALUE_H
+#ifndef MCLD_TARGET_ELFATTRIBUTEVALUE_H_
+#define MCLD_TARGET_ELFATTRIBUTEVALUE_H_
 
 #include <string>
 
@@ -119,4 +119,4 @@ private:
 
 } // namespace mcld
 
-#endif
+#endif  // MCLD_TARGET_ELFATTRIBUTEVALUE_H_

@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_ADT_STRINGHASH_H
-#define MCLD_ADT_STRINGHASH_H
+#ifndef MCLD_ADT_STRINGHASH_H_
+#define MCLD_ADT_STRINGHASH_H_
 
 #include <llvm/ADT/StringRef.h>
 #include <llvm/Support/DataTypes.h>
@@ -384,4 +384,4 @@ struct StringCompare<char*> : public std::binary_function<const char*,
 } // namespace hash
 } // namespace mcld
 
-#endif
+#endif  // MCLD_ADT_STRINGHASH_H_

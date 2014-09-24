@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_SCRIPT_WILDCARDPATTERN_H
-#define MCLD_SCRIPT_WILDCARDPATTERN_H
+#ifndef MCLD_SCRIPT_WILDCARDPATTERN_H_
+#define MCLD_SCRIPT_WILDCARDPATTERN_H_
 
 #include <mcld/Config/Config.h>
 #include <mcld/Script/StrToken.h>
@@ -66,4 +66,4 @@ private:
 
 } // namepsace mcld
 
-#endif
+#endif  // MCLD_SCRIPT_WILDCARDPATTERN_H_

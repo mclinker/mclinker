@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef TARGET_AARCH64_AARCH64LDBACKEND_H
-#define TARGET_AARCH64_AARCH64LDBACKEND_H
+#ifndef TARGET_AARCH64_AARCH64LDBACKEND_H_
+#define TARGET_AARCH64_AARCH64LDBACKEND_H_
 
 #include "AArch64ELFDynamic.h"
 #include "AArch64GOT.h"
@@ -167,4 +167,4 @@ private:
 
 } // namespace mcld
 
-#endif
+#endif  // TARGET_AARCH64_AARCH64LDBACKEND_H_

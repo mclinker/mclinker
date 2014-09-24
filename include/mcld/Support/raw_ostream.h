@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_SUPPORT_RAWOSTREAM_H
-#define MCLD_SUPPORT_RAWOSTREAM_H
+#ifndef MCLD_SUPPORT_RAW_OSTREAM_H_
+#define MCLD_SUPPORT_RAW_OSTREAM_H_
 #include <llvm/Support/FileSystem.h>
 #include <llvm/Support/raw_ostream.h>
 
@@ -66,4 +66,4 @@ mcld::raw_fd_ostream &errs();
 
 } // namespace mcld
 
-#endif
+#endif  // MCLD_SUPPORT_RAW_OSTREAM_H_

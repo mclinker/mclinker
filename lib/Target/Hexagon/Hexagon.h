@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef TARGET_HEXAGON_HEXAGON_H
-#define TARGET_HEXAGON_HEXAGON_H
+#ifndef TARGET_HEXAGON_HEXAGON_H_
+#define TARGET_HEXAGON_HEXAGON_H_
 #include <string>
 
 namespace llvm {
@@ -26,4 +26,4 @@ createHexagonLDBackend(const llvm::Target&, const std::string&);
 
 } // namespace mcld
 
-#endif
+#endif  // TARGET_HEXAGON_HEXAGON_H_

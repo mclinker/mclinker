@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef TARGET_X86_X86RELOCATOR_H
-#define TARGET_X86_X86RELOCATOR_H
+#ifndef TARGET_X86_X86RELOCATOR_H_
+#define TARGET_X86_X86RELOCATOR_H_
 
 #include <mcld/LD/Relocator.h>
 #include <mcld/Target/GOT.h>
@@ -235,4 +235,4 @@ private:
 
 } // namespace mcld
 
-#endif
+#endif  // TARGET_X86_X86RELOCATOR_H_

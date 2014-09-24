@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_LD_RESOLVER_H
-#define MCLD_LD_RESOLVER_H
+#ifndef MCLD_LD_RESOLVER_H_
+#define MCLD_LD_RESOLVER_H_
 #include <mcld/LD/LDSymbol.h>
 
 #include <string>
@@ -77,4 +77,4 @@ public:
 
 } // namespace mcld
 
-#endif
+#endif  // MCLD_LD_RESOLVER_H_

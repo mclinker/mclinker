@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_LINKERSCRIPT_H
-#define MCLD_LINKERSCRIPT_H
+#ifndef MCLD_LINKERSCRIPT_H_
+#define MCLD_LINKERSCRIPT_H_
 
 #include <mcld/ADT/HashTable.h>
 #include <llvm/ADT/StringRef.h>
@@ -101,4 +101,4 @@ private:
 
 } // namespace mcld
 
-#endif
+#endif  // MCLD_LINKERSCRIPT_H_

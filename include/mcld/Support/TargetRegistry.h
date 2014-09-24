@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_SUPPORT_TARGETREGISTRY_H
-#define MCLD_SUPPORT_TARGETREGISTRY_H
+#ifndef MCLD_SUPPORT_TARGETREGISTRY_H_
+#define MCLD_SUPPORT_TARGETREGISTRY_H_
 #include <mcld/Support/Target.h>
 
 #include <llvm/ADT/Triple.h>
@@ -144,4 +144,4 @@ public:
 
 } // namespace mcld
 
-#endif
+#endif  // MCLD_SUPPORT_TARGETREGISTRY_H_

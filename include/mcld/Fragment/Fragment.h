@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_FRAGMENT_FRAGMENT_H
-#define MCLD_FRAGMENT_FRAGMENT_H
+#ifndef MCLD_FRAGMENT_FRAGMENT_H_
+#define MCLD_FRAGMENT_FRAGMENT_H_
 
 #include <llvm/ADT/ilist_node.h>
 #include <llvm/Support/DataTypes.h>
@@ -75,4 +75,4 @@ private:
 
 } // namespace mcld
 
-#endif
+#endif  // MCLD_FRAGMENT_FRAGMENT_H_

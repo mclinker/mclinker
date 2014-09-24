@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_SCRIPT_COMMAND_H
-#define MCLD_SCRIPT_COMMAND_H
+#ifndef MCLD_SCRIPT_SCRIPTCOMMAND_H_
+#define MCLD_SCRIPT_SCRIPTCOMMAND_H_
 
 namespace mcld {
 
@@ -54,4 +54,4 @@ private:
 
 } // namespace mcld
 
-#endif
+#endif  // MCLD_SCRIPT_SCRIPTCOMMAND_H_

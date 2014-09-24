@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_SCRIPT_INPUTTOKEN_H
-#define MCLD_SCRIPT_INPUTTOKEN_H
+#ifndef MCLD_SCRIPT_INPUTTOKEN_H_
+#define MCLD_SCRIPT_INPUTTOKEN_H_
 
 #include <mcld/Script/StrToken.h>
 
@@ -50,4 +50,4 @@ private:
 
 } // namepsace mcld
 
-#endif
+#endif  // MCLD_SCRIPT_INPUTTOKEN_H_

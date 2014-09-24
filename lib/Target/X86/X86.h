@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef TARGET_X86_X86_H
-#define TARGET_X86_X86_H
+#ifndef TARGET_X86_X86_H_
+#define TARGET_X86_X86_H_
 #include <string>
 
 namespace llvm {
@@ -26,4 +26,4 @@ TargetLDBackend* createX86LDBackend(const llvm::Target&, const std::string&);
 
 } // namespace mcld
 
-#endif
+#endif  // TARGET_X86_X86_H_

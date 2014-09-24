@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_ELF_EXEC_FILE_FORMAT_H
-#define MCLD_ELF_EXEC_FILE_FORMAT_H
+#ifndef MCLD_LD_ELFEXECFILEFORMAT_H_
+#define MCLD_LD_ELFEXECFILEFORMAT_H_
 #include <mcld/LD/ELFFileFormat.h>
 
 namespace mcld {
@@ -26,4 +26,4 @@ class ELFExecFileFormat : public ELFFileFormat
 
 } // namespace mcld
 
-#endif
+#endif  // MCLD_LD_ELFEXECFILEFORMAT_H_

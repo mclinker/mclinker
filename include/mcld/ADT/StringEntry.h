@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_ADT_STRINGENTRY_H
-#define MCLD_ADT_STRINGENTRY_H
+#ifndef MCLD_ADT_STRINGENTRY_H_
+#define MCLD_ADT_STRINGENTRY_H_
 
 #include <llvm/ADT/StringRef.h>
 #include <llvm/Support/DataTypes.h>
@@ -147,4 +147,4 @@ public:
 
 } // namespace mcld
 
-#endif
+#endif  // MCLD_ADT_STRINGENTRY_H_

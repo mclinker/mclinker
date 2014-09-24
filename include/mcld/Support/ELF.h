@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_SUPPORT_ELF_H
-#define MCLD_SUPPORT_ELF_H
+#ifndef MCLD_SUPPORT_ELF_H_
+#define MCLD_SUPPORT_ELF_H_
 
 namespace mcld {
 namespace ELF {
@@ -25,4 +25,4 @@ enum SHF {
 } // namespace ELF
 } // namespace mcld
 
-#endif
+#endif  // MCLD_SUPPORT_ELF_H_

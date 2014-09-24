@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_MC_INPUTACTION_H
-#define MCLD_MC_INPUTACTION_H
+#ifndef MCLD_MC_INPUTACTION_H_
+#define MCLD_MC_INPUTACTION_H_
 
 namespace mcld {
 
@@ -46,4 +46,4 @@ private:
 
 } // namespace mcld
 
-#endif
+#endif  // MCLD_MC_INPUTACTION_H_

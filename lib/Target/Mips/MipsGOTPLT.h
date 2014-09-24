@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef TARGET_MIPS_MIPSGOTPLT_H
-#define TARGET_MIPS_MIPSGOTPLT_H
+#ifndef TARGET_MIPS_MIPSGOTPLT_H_
+#define TARGET_MIPS_MIPSGOTPLT_H_
 
 #include <mcld/Support/MemoryRegion.h>
 #include <mcld/Target/GOT.h>
@@ -47,4 +47,4 @@ private:
 
 } // namespace mcld
 
-#endif
+#endif  // TARGET_MIPS_MIPSGOTPLT_H_

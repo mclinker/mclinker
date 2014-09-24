@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_LD_OBJECTWRITER_H
-#define MCLD_LD_OBJECTWRITER_H
+#ifndef MCLD_LD_OBJECTWRITER_H_
+#define MCLD_LD_OBJECTWRITER_H_
 #include <system_error>
 
 namespace mcld {
@@ -34,4 +34,4 @@ public:
 
 } // namespace mcld
 
-#endif
+#endif  // MCLD_LD_OBJECTWRITER_H_

@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_ADT_HASHTABLE_H
-#define MCLD_ADT_HASHTABLE_H
+#ifndef MCLD_ADT_HASHTABLE_H_
+#define MCLD_ADT_HASHTABLE_H_
 
 #include <mcld/ADT/HashBase.h>
 #include <mcld/ADT/HashEntryFactory.h>
@@ -118,4 +118,4 @@ private:
 
 } // namespace mcld
 
-#endif
+#endif  // MCLD_ADT_HASHTABLE_H_

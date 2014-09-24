@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_LD_GARBAGECOLLECTION_H
-#define MCLD_LD_GARBAGECOLLECTION_H
+#ifndef MCLD_LD_GARBAGECOLLECTION_H_
+#define MCLD_LD_GARBAGECOLLECTION_H_
 
 #include <map>
 #include <set>
@@ -87,4 +87,4 @@ private:
 
 } // namespace mcld
 
-#endif
+#endif  // MCLD_LD_GARBAGECOLLECTION_H_

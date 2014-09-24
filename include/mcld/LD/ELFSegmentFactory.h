@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_LD_ELFSEGMENTFACTORY_H
-#define MCLD_LD_ELFSEGMENTFACTORY_H
+#ifndef MCLD_LD_ELFSEGMENTFACTORY_H_
+#define MCLD_LD_ELFSEGMENTFACTORY_H_
 
 #include <llvm/Support/DataTypes.h>
 #include <llvm/Support/ELF.h>
@@ -66,4 +66,4 @@ private:
 
 } // namespace mcld
 
-#endif
+#endif  // MCLD_LD_ELFSEGMENTFACTORY_H_

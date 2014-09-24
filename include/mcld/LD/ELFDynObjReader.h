@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_LD_ELFDYNOBJREADER_H
-#define MCLD_LD_ELFDYNOBJREADER_H
+#ifndef MCLD_LD_ELFDYNOBJREADER_H_
+#define MCLD_LD_ELFDYNOBJREADER_H_
 #include <mcld/LD/DynObjReader.h>
 
 namespace mcld {
@@ -45,4 +45,4 @@ private:
 
 } // namespace mcld
 
-#endif
+#endif  // MCLD_LD_ELFDYNOBJREADER_H_

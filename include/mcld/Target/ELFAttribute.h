@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_TARGET_ELFATTRIBUTE_H
-#define MCLD_TARGET_ELFATTRIBUTE_H
+#ifndef MCLD_TARGET_ELFATTRIBUTE_H_
+#define MCLD_TARGET_ELFATTRIBUTE_H_
 
 #include <mcld/Support/MemoryRegion.h>
 #include <mcld/Target/ELFAttributeData.h>
@@ -119,4 +119,4 @@ private:
 
 } // namespace mcld
 
-#endif
+#endif  // MCLD_TARGET_ELFATTRIBUTE_H_

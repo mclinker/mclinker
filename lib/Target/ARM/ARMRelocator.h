@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef TARGET_ARM_ARMRELOCATOR_H
-#define TARGET_ARM_ARMRELOCATOR_H
+#ifndef TARGET_ARM_ARMRELOCATOR_H_
+#define TARGET_ARM_ARMRELOCATOR_H_
 
 #include <mcld/LD/Relocator.h>
 #include <mcld/Target/GOT.h>
@@ -131,4 +131,4 @@ private:
 
 } // namespace mcld
 
-#endif
+#endif  // TARGET_ARM_ARMRELOCATOR_H_

@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_TARGETOPTIONS_H
-#define MCLD_TARGETOPTIONS_H
+#ifndef MCLD_TARGETOPTIONS_H_
+#define MCLD_TARGETOPTIONS_H_
 
 #include <llvm/ADT/Triple.h>
 
@@ -79,4 +79,4 @@ private:
 
 } // namespace mcld
 
-#endif
+#endif  // MCLD_TARGETOPTIONS_H_

@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_SUPPORT_FILEHANDLE_H
-#define MCLD_SUPPORT_FILEHANDLE_H
+#ifndef MCLD_SUPPORT_FILEHANDLE_H_
+#define MCLD_SUPPORT_FILEHANDLE_H_
 #include <mcld/ADT/Flags.h>
 #include <mcld/Support/Path.h>
 
@@ -137,4 +137,4 @@ private:
 
 } // namespace mcld
 
-#endif
+#endif  // MCLD_SUPPORT_FILEHANDLE_H_

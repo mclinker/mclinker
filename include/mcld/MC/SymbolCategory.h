@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_MC_SYMBOLCATEGORY_H
-#define MCLD_MC_SYMBOLCATEGORY_H
+#ifndef MCLD_MC_SYMBOLCATEGORY_H_
+#define MCLD_MC_SYMBOLCATEGORY_H_
 #include <cstddef>
 #include <vector>
 
@@ -188,4 +188,4 @@ private:
 
 } // namespace mcld
 
-#endif
+#endif  // MCLD_MC_SYMBOLCATEGORY_H_

@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_SCRIPT_STRTOKEN_H
-#define MCLD_SCRIPT_STRTOKEN_H
+#ifndef MCLD_SCRIPT_STRTOKEN_H_
+#define MCLD_SCRIPT_STRTOKEN_H_
 
 #include <mcld/Config/Config.h>
 #include <mcld/Support/Allocators.h>
@@ -62,4 +62,4 @@ private:
 
 } // namepsace mcld
 
-#endif
+#endif  // MCLD_SCRIPT_STRTOKEN_H_

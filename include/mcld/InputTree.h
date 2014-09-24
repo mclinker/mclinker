@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_INPUTTREE_H
-#define MCLD_INPUTTREE_H
+#ifndef MCLD_INPUTTREE_H_
+#define MCLD_INPUTTREE_H_
 
 #include <mcld/ADT/BinTree.h>
 #include <mcld/ADT/TypeTraits.h>
@@ -351,4 +351,4 @@ mcld::InputTree& mcld::InputTree::insert(mcld::TreeIteratorBase pRoot,
   return *this;
 }
 
-#endif
+#endif  // MCLD_INPUTTREE_H_

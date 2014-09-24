@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef TARGET_ARM_ARMELFDYNAMIC_H
-#define TARGET_ARM_ARMELFDYNAMIC_H
+#ifndef TARGET_ARM_ARMELFDYNAMIC_H_
+#define TARGET_ARM_ARMELFDYNAMIC_H_
 
 #include <mcld/Target/ELFDynamic.h>
 
@@ -25,4 +25,4 @@ private:
 
 } // namespace mcld
 
-#endif
+#endif  // TARGET_ARM_ARMELFDYNAMIC_H_

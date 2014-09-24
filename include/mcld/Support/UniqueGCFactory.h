@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_SUPPORT_UNIQUEGCFACTORY_H
-#define MCLD_SUPPORT_UNIQUEGCFACTORY_H
+#ifndef MCLD_SUPPORT_UNIQUEGCFACTORY_H_
+#define MCLD_SUPPORT_UNIQUEGCFACTORY_H_
 
 #include <mcld/Support/GCFactory.h>
 
@@ -88,4 +88,4 @@ protected:
 
 } // namespace mcld
 
-#endif
+#endif  // MCLD_SUPPORT_UNIQUEGCFACTORY_H_

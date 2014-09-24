@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_LD_ELFOBJWRITER_H
-#define MCLD_LD_ELFOBJWRITER_H
+#ifndef MCLD_LD_ELFOBJECTWRITER_H_
+#define MCLD_LD_ELFOBJECTWRITER_H_
 #include <mcld/LD/ObjectWriter.h>
 #include <mcld/Support/FileOutputBuffer.h>
 
@@ -127,4 +127,4 @@ uint64_t ELFObjectWriter::getLastStartOffset<64>(const Module& pModule) const;
 
 } // namespace mcld
 
-#endif
+#endif  // MCLD_LD_ELFOBJECTWRITER_H_

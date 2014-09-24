@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_SCRIPT_BINARYOP_H
-#define MCLD_SCRIPT_BINARYOP_H
+#ifndef MCLD_SCRIPT_BINARYOP_H_
+#define MCLD_SCRIPT_BINARYOP_H_
 
 #include <mcld/Script/Operator.h>
 
@@ -129,4 +129,4 @@ IntOperand* BinaryOp<Operator::SEGMENT_START>::eval(const Module&,
 
 } // namespace mcld
 
-#endif
+#endif  // MCLD_SCRIPT_BINARYOP_H_

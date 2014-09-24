@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_ELF_FILE_FORMAT_H
-#define MCLD_ELF_FILE_FORMAT_H
+#ifndef MCLD_LD_ELFFILEFORMAT_H_
+#define MCLD_LD_ELFFILEFORMAT_H_
 #include <mcld/LD/LDFileFormat.h>
 #include <mcld/LD/LDSection.h>
 
@@ -703,4 +703,4 @@ protected:
 
 } // namespace mcld
 
-#endif
+#endif  // MCLD_LD_ELFFILEFORMAT_H_

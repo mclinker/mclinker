@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_SUPPORT_REALPATH_H
-#define MCLD_SUPPORT_REALPATH_H
+#ifndef MCLD_SUPPORT_REALPATH_H_
+#define MCLD_SUPPORT_REALPATH_H_
 #include <mcld/Support/Path.h>
 
 #include <string>
@@ -65,4 +65,4 @@ struct less<mcld::sys::fs::RealPath> :
 
 } // namespace std
 
-#endif
+#endif  // MCLD_SUPPORT_REALPATH_H_

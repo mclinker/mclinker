@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_SUPPORT_MEMORYREGION_H
-#define MCLD_SUPPORT_MEMORYREGION_H
+#ifndef MCLD_SUPPORT_MEMORYREGION_H_
+#define MCLD_SUPPORT_MEMORYREGION_H_
 
 #include <mcld/ADT/TypeTraits.h>
 
@@ -24,4 +24,4 @@ typedef llvm::MutableArrayRef<uint8_t> MemoryRegion;
 
 } // namespace mcld
 
-#endif
+#endif  // MCLD_SUPPORT_MEMORYREGION_H_

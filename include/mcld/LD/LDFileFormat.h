@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_LD_LDFILEFORMAT_H
-#define MCLD_LD_LDFILEFORMAT_H
+#ifndef MCLD_LD_LDFILEFORMAT_H_
+#define MCLD_LD_LDFILEFORMAT_H_
 
 #include <cassert>
 #include <cstddef>
@@ -109,4 +109,4 @@ protected:
 
 } // namespace mcld
 
-#endif
+#endif  // MCLD_LD_LDFILEFORMAT_H_

@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_LINKER_H
-#define MCLD_LINKER_H
+#ifndef MCLD_LINKER_H_
+#define MCLD_LINKER_H_
 
 #include <string>
 
@@ -80,4 +80,4 @@ private:
 
 } // namespace MC Linker
 
-#endif
+#endif  // MCLD_LINKER_H_

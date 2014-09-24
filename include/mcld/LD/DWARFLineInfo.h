@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_LD_DWARFLINEINFO_H
-#define MCLD_LD_DWARFLINEINFO_H
+#ifndef MCLD_LD_DWARFLINEINFO_H_
+#define MCLD_LD_DWARFLINEINFO_H_
 #include <mcld/LD/DiagnosticLineInfo.h>
 
 namespace mcld
@@ -24,4 +24,4 @@ class DWARFLineInfo : public DiagnosticLineInfo
 
 } // namespace mcld
 
-#endif
+#endif  // MCLD_LD_DWARFLINEINFO_H_

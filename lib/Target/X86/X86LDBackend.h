@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef TARGET_X86_X86LDBACKEND_H
-#define TARGET_X86_X86LDBACKEND_H
+#ifndef TARGET_X86_X86LDBACKEND_H_
+#define TARGET_X86_X86LDBACKEND_H_
 
 #include "X86ELFDynamic.h"
 #include "X86GOT.h"
@@ -243,4 +243,4 @@ private:
 
 } // namespace mcld
 
-#endif
+#endif  // TARGET_X86_X86LDBACKEND_H_

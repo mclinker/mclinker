@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_SCRIPT_NULLOP_H
-#define MCLD_SCRIPT_NULLOP_H
+#ifndef MCLD_SCRIPT_NULLARYOP_H_
+#define MCLD_SCRIPT_NULLARYOP_H_
 
 #include <mcld/Script/Operator.h>
 
@@ -60,4 +60,4 @@ IntOperand* NullaryOp<Operator::COMMONPAGESIZE>::eval(const Module&,
 
 } // namespace mcld
 
-#endif
+#endif  // MCLD_SCRIPT_NULLARYOP_H_

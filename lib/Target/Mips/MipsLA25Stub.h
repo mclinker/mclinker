@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef TARGET_MIPS_MIPSLA25STUB_H
-#define TARGET_MIPS_MIPSLA25STUB_H
+#ifndef TARGET_MIPS_MIPSLA25STUB_H_
+#define TARGET_MIPS_MIPSLA25STUB_H_
 
 #include <mcld/Fragment/Stub.h>
 
@@ -58,4 +58,4 @@ private:
 
 } // namespace mcld
 
-#endif
+#endif  // TARGET_MIPS_MIPSLA25STUB_H_

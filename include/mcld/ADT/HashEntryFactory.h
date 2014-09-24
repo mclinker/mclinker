@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_ADT_HASHENTRYFACTORY_H
-#define MCLD_ADT_HASHENTRYFACTORY_H
+#ifndef MCLD_ADT_HASHENTRYFACTORY_H_
+#define MCLD_ADT_HASHENTRYFACTORY_H_
 
 namespace mcld {
 
@@ -32,4 +32,4 @@ public:
 
 } // namespace mcld
 
-#endif
+#endif  // MCLD_ADT_HASHENTRYFACTORY_H_

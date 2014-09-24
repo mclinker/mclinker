@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_SUPPORT_SYSTEMUTILS_H
-#define MCLD_SUPPORT_SYSTEMUTILS_H
+#ifndef MCLD_SUPPORT_SYSTEMUTILS_H_
+#define MCLD_SUPPORT_SYSTEMUTILS_H_
 
 #include <mcld/Config/Config.h>
 
@@ -39,4 +39,4 @@ void SetRandomSeed(unsigned pSeed);
 } // namespace sys
 } // namespace mcld
 
-#endif
+#endif  // MCLD_SUPPORT_SYSTEMUTILS_H_

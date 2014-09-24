@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_TARGET_ELFDYNAMIC_H
-#define MCLD_TARGET_ELFDYNAMIC_H
+#ifndef MCLD_TARGET_ELFDYNAMIC_H_
+#define MCLD_TARGET_ELFDYNAMIC_H_
 
 #include <mcld/LD/LDSection.h>
 #include <mcld/Support/FileOutputBuffer.h>
@@ -199,4 +199,4 @@ private:
 
 } // namespace mcld
 
-#endif
+#endif  // MCLD_TARGET_ELFDYNAMIC_H_

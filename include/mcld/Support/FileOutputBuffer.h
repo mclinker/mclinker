@@ -6,8 +6,8 @@
 // license. see license.txt for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_SUPPORT_FILEOUTPUTBUFFER_H
-#define MCLD_SUPPORT_FILEOUTPUTBUFFER_H
+#ifndef MCLD_SUPPORT_FILEOUTPUTBUFFER_H_
+#define MCLD_SUPPORT_FILEOUTPUTBUFFER_H_
 
 #include <mcld/Support/MemoryRegion.h>
 
@@ -67,4 +67,4 @@ private:
 
 } // namespace mcld
 
-#endif
+#endif  // MCLD_SUPPORT_FILEOUTPUTBUFFER_H_

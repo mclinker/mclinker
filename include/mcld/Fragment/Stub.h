@@ -7,8 +7,8 @@
 //
 //===----------------------------------------------------------------------===//
 
-#ifndef MCLD_FRAGMENT_STUB_H
-#define MCLD_FRAGMENT_STUB_H
+#ifndef MCLD_FRAGMENT_STUB_H_
+#define MCLD_FRAGMENT_STUB_H_
 
 #include <mcld/Fragment/Fragment.h>
 #include <mcld/Fragment/Relocation.h>
@@ -129,4 +129,4 @@ private:
 
 } // namespace mcld
 
-#endif
+#endif  // MCLD_FRAGMENT_STUB_H_

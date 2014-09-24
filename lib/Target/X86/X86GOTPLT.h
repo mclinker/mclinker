@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef TARGET_X86_X86GOTPLT_H
-#define TARGET_X86_X86GOTPLT_H
+#ifndef TARGET_X86_X86GOTPLT_H_
+#define TARGET_X86_X86GOTPLT_H_
 
 #include "X86GOT.h"
 
@@ -58,4 +58,4 @@ public:
 
 } // namespace mcld
 
-#endif
+#endif  // TARGET_X86_X86GOTPLT_H_

@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_LD_DYNOBJFILEFORMAT_H
-#define MCLD_LD_DYNOBJFILEFORMAT_H
+#ifndef MCLD_LD_DYNOBJFILEFORMAT_H_
+#define MCLD_LD_DYNOBJFILEFORMAT_H_
 
 namespace mcld
 {
@@ -22,4 +22,4 @@ class DynObjFormat : public LDFileFormat
 
 } // namespace mcld
 
-#endif
+#endif  // MCLD_LD_DYNOBJFILEFORMAT_H_

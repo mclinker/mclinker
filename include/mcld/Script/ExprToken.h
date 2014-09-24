@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_SCRIPT_EXPRTOKEN_H
-#define MCLD_SCRIPT_EXPRTOKEN_H
+#ifndef MCLD_SCRIPT_EXPRTOKEN_H_
+#define MCLD_SCRIPT_EXPRTOKEN_H_
 
 namespace mcld
 {
@@ -43,4 +43,4 @@ private:
 
 } // namespace mcld
 
-#endif
+#endif  // MCLD_SCRIPT_EXPRTOKEN_H_

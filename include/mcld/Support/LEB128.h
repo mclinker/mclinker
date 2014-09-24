@@ -6,9 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-
-#ifndef MCLD_SUPPORT_LEB128_H
-#define MCLD_SUPPORT_LEB128_H
+#ifndef MCLD_SUPPORT_LEB128_H_
+#define MCLD_SUPPORT_LEB128_H_
 
 #include <stdint.h>
 #include <sys/types.h>
@@ -111,4 +110,4 @@ IntType decode(const char *&pBuf) {
 } // namespace leb128
 } // namespace mcld
 
-#endif
+#endif  // MCLD_SUPPORT_LEB128_H_

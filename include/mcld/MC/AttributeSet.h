@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_MC_ATTRIBUTESET_H
-#define MCLD_MC_ATTRIBUTESET_H
+#ifndef MCLD_MC_ATTRIBUTESET_H_
+#define MCLD_MC_ATTRIBUTESET_H_
 #include <mcld/ADT/Uncopyable.h>
 
 #include <vector>
@@ -56,4 +56,4 @@ private:
 
 } // namespace mcld
 
-#endif
+#endif  // MCLD_MC_ATTRIBUTESET_H_

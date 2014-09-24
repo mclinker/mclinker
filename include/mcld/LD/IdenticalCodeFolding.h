@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_LD_IDENTICALCODEFOLDING_H
-#define MCLD_LD_IDENTICALCODEFOLDING_H
+#ifndef MCLD_LD_IDENTICALCODEFOLDING_H_
+#define MCLD_LD_IDENTICALCODEFOLDING_H_
 
 #include <llvm/ADT/MapVector.h>
 
@@ -78,4 +78,4 @@ private:
 
 } // namespace mcld
 
-#endif
+#endif  // MCLD_LD_IDENTICALCODEFOLDING_H_

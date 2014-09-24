@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_TARGET_PLT_H
-#define MCLD_TARGET_PLT_H
+#ifndef MCLD_TARGET_PLT_H_
+#define MCLD_TARGET_PLT_H_
 
 #include <mcld/Fragment/TargetFragment.h>
 #include <mcld/LD/LDSection.h>
@@ -95,4 +95,4 @@ protected:
 
 } // namespace mcld
 
-#endif
+#endif  // MCLD_TARGET_PLT_H_

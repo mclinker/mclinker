@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_MC_INPUTBUILDER_H
-#define MCLD_MC_INPUTBUILDER_H
+#ifndef MCLD_MC_INPUTBUILDER_H_
+#define MCLD_MC_INPUTBUILDER_H_
 
 #include <mcld/InputTree.h>
 #include <mcld/MC/Input.h>
@@ -133,4 +133,4 @@ InputBuilder::createNode<InputTree::Positional>(const std::string& pName,
 
 } // namespace mcld
 
-#endif
+#endif  // MCLD_MC_INPUTBUILDER_H_
