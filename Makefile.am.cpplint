@@ -1,0 +1,60 @@
+# Utility variables.
+empty :=
+space := $(empty) $(empty)
+comma := ,
+
+CPPLINT = $(top_srcdir)/utils/cpplint/cpplint.py
+
+CPPLINT_DISABLE_FILTERS = \
+  build/c++11 \
+  build/include_what_you_use \
+  legal/copyright \
+  readability/braces \
+  readability/fn_size \
+  readability/streams \
+  readability/todo \
+  runtime/int \
+  runtime/references
+
+CPPLINT_FLAGS = \
+  --linelength=80 \
+  --filter=-$(subst $(space),$(comma)-,$(strip $(CPPLINT_DISABLE_FILTERS)))
+
+CPPLINT_SRCS_DIRS = \
+  $(top_srcdir)/include \
+  $(top_srcdir)/lib
+
+# List of files that doesn't want to run cpplint
+CPPLINT_SRC_FILES_FILTER =
+
+CPPLINT_SRC_FILES = $(shell find $(CPPLINT_SRCS_DIRS) \
+                       -name \*.h -o \
+                       -name \*.cpp -o \
+                       -name \*.tcc \
+                       -name \*.inc \
+                       -type f)
+
+# $(1): file
+define declare-cpplint-target
+cpplint_file = $(1)
+
+cpplint_target = $(subst /,__,$(cpplint_file))
+
+cpplint_root = \
+  $(subst $(top_srcdir)/,,$(strip $(foreach subdir,$(CPPLINT_SRCS_DIRS), \
+                                    $(if $(findstring $(subdir)/,$(cpplint_file)), \
+                                      $(patsubst $(subdir)/%,$(subdir),$(cpplint_file)),))))
+
+.PHONY: $(cpplint_target)
+$(cpplint_target): $(cpplint_file) $(cpplint_root) $(CPPLINT)
+	$(hide) $(CPPLINT) $(CPPLINT_FLAGS) --root=$(cpplint_root) $(cpplint_file) && \
+    printf "\E[1;37;42mPASSED\E[0m " && echo $(cpplint_file) || \
+    printf "\E[1;37;41mFAILED\E[0m " && echo $(cpplint_file)
+endef
+
+$(foreach file,$(CPPLINT_SRC_FILES),$(eval $(call declare-cpplint-target,$(file))))
+
+CPPLINT_TARGET = $(foreach file,$(CPPLINT_SRC_FILES),$(subst /,__,$(file)))
+
+.PHONY: cpplint
+cpplint: $(CPPLINT_TARGET)
