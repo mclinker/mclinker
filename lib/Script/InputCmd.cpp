@@ -168,7 +168,9 @@ void InputCmd::activate(Module& pModule) {
       is_begin_marked = true;
     }
     assert(*input != NULL);
-    if (!m_Builder.setMemory(**input, FileHandle::ReadOnly)) {
+    if (!m_Builder.setMemory(**input,
+                             FileHandle::OpenMode(FileHandle::ReadOnly),
+                             FileHandle::Permission(FileHandle::System))) {
       error(diag::err_cannot_open_input) << (*input)->name()
                                          << (*input)->path();
     }

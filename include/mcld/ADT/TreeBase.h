@@ -40,7 +40,7 @@ class TreeIteratorBase {
  public:
   TreeIteratorBase() : m_pNode(NULL) {}
 
-  TreeIteratorBase(NodeBase* X) : m_pNode(X) {}
+  explicit TreeIteratorBase(NodeBase* X) : m_pNode(X) {}
 
   virtual ~TreeIteratorBase(){};
 
@@ -106,7 +106,7 @@ class Node : public NodeBase {
  public:
   Node() : NodeBase(), data(NULL) {}
 
-  Node(const value_type& pValue) : NodeBase(), data(&pValue) {}
+  explicit Node(const value_type& pValue) : NodeBase(), data(&pValue) {}
 };
 
 }  // namespace mcld

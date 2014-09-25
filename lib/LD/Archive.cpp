@@ -235,7 +235,9 @@ Input* Archive::getMemberFile(Input& pArchiveFile,
   } else {
     member = m_Builder.createInput(pName, pPath, Input::Unknown);
     assert(member != NULL);
-    if (!m_Builder.setMemory(*member, FileHandle::ReadOnly)) {
+    if (!m_Builder.setMemory(*member,
+                             FileHandle::OpenMode(FileHandle::ReadOnly),
+                             FileHandle::Permission(FileHandle::System))) {
       error(diag::err_cannot_open_input) << member->name() << member->path();
       return NULL;
     }

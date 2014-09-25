@@ -37,8 +37,8 @@ bool ContextAction::activate(InputBuilder& pBuilder) const {
 // MemoryAreaAction
 //===----------------------------------------------------------------------===//
 MemoryAreaAction::MemoryAreaAction(unsigned int pPosition,
-                                   FileHandle::OpenMode pMode,
-                                   FileHandle::Permission pPerm)
+                                   FileHandle::OpenModeEnum pMode,
+                                   FileHandle::PermissionEnum pPerm)
     : InputAction(pPosition), m_Mode(pMode), m_Permission(pPerm) {
 }
 

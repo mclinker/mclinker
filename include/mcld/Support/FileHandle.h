@@ -69,11 +69,9 @@ class FileHandle {
   /// open - open the file.
   /// @return if we meet any trouble during opening the file, return false.
   ///         use rdstate() to see what happens.
-  bool open(const sys::fs::Path& pPath,
-            OpenMode pMode,
-            Permission pPerm = System);
+  bool open(const sys::fs::Path& pPath, OpenMode pMode, Permission pPerm);
 
-  bool delegate(int pFD, OpenMode pMode = Unknown);
+  bool delegate(int pFD, OpenModeEnum pMode = Unknown);
 
   bool close();
 

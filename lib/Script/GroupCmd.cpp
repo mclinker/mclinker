@@ -153,8 +153,10 @@ void GroupCmd::activate(Module& pModule) {
 
     Input* input = *m_Builder.getCurrentNode();
     assert(input != NULL);
-    if (!m_Builder.setMemory(*input, FileHandle::ReadOnly))
+    if (!m_Builder.setMemory(*input, FileHandle::OpenMode(FileHandle::ReadOnly),
+                             FileHandle::Permission(FileHandle::System))) {
       error(diag::err_cannot_open_input) << input->name() << input->path();
+    }
     m_Builder.setContext(*input);
   }
 

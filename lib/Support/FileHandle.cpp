@@ -89,7 +89,7 @@ bool FileHandle::open(const sys::fs::Path& pPath,
 
   m_Path = pPath;
   if (m_Handler == -1) {
-    m_OpenMode = NotOpen;
+    m_OpenMode = OpenMode(NotOpen);
     setState(FailBit);
     return false;
   }
@@ -102,14 +102,14 @@ bool FileHandle::open(const sys::fs::Path& pPath,
   return true;
 }
 
-bool FileHandle::delegate(int pFD, FileHandle::OpenMode pMode) {
+bool FileHandle::delegate(int pFD, FileHandle::OpenModeEnum pMode) {
   if (isOpened()) {
     setState(BadBit);
     return false;
   }
 
   m_Handler = pFD;
-  m_OpenMode = pMode;
+  m_OpenMode = OpenMode(pMode);
   m_State = (GoodBit | DeputedBit);
 
   if (!get_size(m_Handler, m_Size)) {
@@ -135,7 +135,7 @@ bool FileHandle::close() {
 
   m_Path.native().clear();
   m_Size = 0;
-  m_OpenMode = NotOpen;
+  m_OpenMode = OpenMode(NotOpen);
   cleanState();
   return true;
 }

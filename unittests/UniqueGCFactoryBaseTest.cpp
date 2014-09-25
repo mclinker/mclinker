@@ -70,11 +70,17 @@ TEST_F(UniqueGCFactoryBaseTest, iterator) {
   path2.append("unittests/test2.txt");
 
   MemoryAreaFactory* memFactory = new MemoryAreaFactory(10);
-  MemoryArea* area1 = memFactory->produce(path1, FileHandle::ReadOnly);
-  MemoryArea* area2 = memFactory->produce(path2, FileHandle::ReadOnly);
+  MemoryArea* area1 =
+      memFactory->produce(path1, FileHandle::OpenMode(FileHandle::ReadOnly),
+                          FileHandle::Permission(FileHandle::System));
+  MemoryArea* area2 =
+      memFactory->produce(path2, FileHandle::OpenMode(FileHandle::ReadOnly),
+                          FileHandle::Permission(FileHandle::System));
   ASSERT_NE(area1, area2);
 
-  MemoryArea* area3 = memFactory->produce(path1, FileHandle::ReadOnly);
+  MemoryArea* area3 =
+      memFactory->produce(path1, FileHandle::OpenMode(FileHandle::ReadOnly),
+                          FileHandle::Permission(FileHandle::System));
 
   ASSERT_EQ(area1, area3);
   ASSERT_FALSE(memFactory->empty());

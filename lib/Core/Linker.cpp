@@ -254,25 +254,24 @@ bool Linker::emit(FileOutputBuffer& pOutput) {
 
 bool Linker::emit(const Module& pModule, const std::string& pPath) {
   FileHandle file;
-  FileHandle::Permission perm;
+  FileHandle::OpenMode open_mode(
+      FileHandle::ReadWrite | FileHandle::Truncate | FileHandle::Create);
+  FileHandle::Permission permission;
   switch (m_pConfig->codeGenType()) {
     case mcld::LinkerConfig::Unknown:
     case mcld::LinkerConfig::Object:
-      perm = mcld::FileHandle::Permission(0x644);
+      permission = FileHandle::Permission(0x644);
       break;
     case mcld::LinkerConfig::DynObj:
     case mcld::LinkerConfig::Exec:
     case mcld::LinkerConfig::Binary:
-      perm = mcld::FileHandle::Permission(0x755);
+      permission = FileHandle::Permission(0x755);
       break;
     default:
       assert(0 && "Unknown file type");
   }
 
-  bool result = file.open(
-      sys::fs::Path(pPath),
-      FileHandle::ReadWrite | FileHandle::Truncate | FileHandle::Create,
-      perm);
+  bool result = file.open(sys::fs::Path(pPath), open_mode, permission);
   if (!result) {
     error(diag::err_cannot_open_output_file) << "Linker::emit()" << pPath;
     return false;

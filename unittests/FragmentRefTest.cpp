@@ -36,14 +36,16 @@ void FragmentRefTest::SetUp() {
 void FragmentRefTest::TearDown() {
 }
 
-//==========================================================================//
+//============================================================================//
 // Testcases
 //
 TEST_F(FragmentRefTest, ) {
   Path path(TOPDIR);
   path.append("unittests/test3.txt");
   MemoryAreaFactory* areaFactory = new MemoryAreaFactory(1);
-  MemoryArea* area = areaFactory->produce(path, FileHandle::ReadWrite);
+  MemoryArea* area =
+      areaFactory->produce(path, FileHandle::OpenMode(FileHandle::ReadWrite),
+                           FileHandle::Permission(FileHandle::System));
 
   llvm::StringRef region = area->request(0, 4096);
   RegionFragment* frag = new RegionFragment(region);

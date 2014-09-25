@@ -31,8 +31,8 @@ class ContextAction : public InputAction {
 class MemoryAreaAction : public InputAction {
  public:
   MemoryAreaAction(unsigned int pPosition,
-                   FileHandle::OpenMode pMode,
-                   FileHandle::Permission pPerm = FileHandle::System);
+                   FileHandle::OpenModeEnum pMode,
+                   FileHandle::PermissionEnum pPerm = FileHandle::System);
 
   bool activate(InputBuilder& pBuilder) const;
 

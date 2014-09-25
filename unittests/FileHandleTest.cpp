@@ -40,7 +40,8 @@ void FileHandleTest::TearDown() {
 TEST_F(FileHandleTest, open_close) {
   mcld::sys::fs::Path path(TOPDIR);
   path.append("unittests/test.txt");
-  ASSERT_TRUE(m_pTestee->open(path, FileHandle::ReadOnly));
+  ASSERT_TRUE(m_pTestee->open(path, FileHandle::OpenMode(FileHandle::ReadOnly),
+                              FileHandle::Permission(FileHandle::System)));
   ASSERT_TRUE(m_pTestee->isOpened());
   ASSERT_TRUE(m_pTestee->isGood());
   ASSERT_TRUE(m_pTestee->isOwned());
@@ -81,7 +82,8 @@ TEST_F(FileHandleTest, delegate_close) {
 TEST_F(FileHandleTest, fail_close) {
   mcld::sys::fs::Path path(TOPDIR);
   path.append("unittests/test.txt");
-  ASSERT_TRUE(m_pTestee->open(path, FileHandle::ReadOnly));
+  ASSERT_TRUE(m_pTestee->open(path, FileHandle::OpenMode(FileHandle::ReadOnly),
+                              FileHandle::Permission(FileHandle::System)));
   ASSERT_TRUE(m_pTestee->isOpened());
   ASSERT_TRUE(m_pTestee->isGood());
 

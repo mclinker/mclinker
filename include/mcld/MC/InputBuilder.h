@@ -66,7 +66,7 @@ class InputBuilder {
 
   bool setMemory(Input& pInput,
                  FileHandle::OpenMode pMode,
-                 FileHandle::Permission pPerm = FileHandle::System);
+                 FileHandle::Permission pPerm);
 
   bool setMemory(Input& pInput, void* pMemBuffer, size_t pSize);
 

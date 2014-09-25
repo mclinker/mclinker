@@ -28,7 +28,7 @@ class DFSIterator : public TreeIteratorBase {
  public:
   DFSIterator() : TreeIteratorBase() {}
 
-  DFSIterator(NodeBase* X) : TreeIteratorBase(X) {
+  explicit DFSIterator(NodeBase* X) : TreeIteratorBase(X) {
     if (hasRightChild())
       m_Stack.push(m_pNode->right);
     if (hasLeftChild())
@@ -58,7 +58,7 @@ class BFSIterator : public TreeIteratorBase {
  public:
   BFSIterator() : TreeIteratorBase() {}
 
-  BFSIterator(NodeBase* X) : TreeIteratorBase(X) {
+  explicit BFSIterator(NodeBase* X) : TreeIteratorBase(X) {
     if (hasRightChild())
       m_Queue.push(m_pNode->right);
     if (hasLeftChild())

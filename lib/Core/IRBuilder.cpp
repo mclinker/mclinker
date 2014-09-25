@@ -142,7 +142,8 @@ Input* IRBuilder::ReadInput(const std::string& pName,
     m_InputBuilder.setContext(*input);
 
   if (!input->hasMemArea())
-    m_InputBuilder.setMemory(*input, FileHandle::ReadOnly, FileHandle::System);
+    m_InputBuilder.setMemory(*input, FileHandle::OpenMode(FileHandle::ReadOnly),
+                             FileHandle::Permission(FileHandle::System));
 
   return input;
 }
@@ -180,7 +181,8 @@ Input* IRBuilder::ReadInput(const std::string& pNameSpec) {
     m_InputBuilder.setContext(*input);
 
   if (!input->hasMemArea())
-    m_InputBuilder.setMemory(*input, FileHandle::ReadOnly, FileHandle::System);
+    m_InputBuilder.setMemory(*input, FileHandle::OpenMode(FileHandle::ReadOnly),
+                             FileHandle::Permission(FileHandle::System));
 
   return input;
 }
@@ -193,12 +195,11 @@ Input* IRBuilder::ReadInput(FileHandle& pFileHandle) {
   Input* input = *m_InputBuilder.getCurrentNode();
   if (pFileHandle.path().empty()) {
     m_InputBuilder.setContext(*input, false);
-    m_InputBuilder.setMemory(
-        *input, pFileHandle.handler(), FileHandle::ReadOnly);
   } else {
     m_InputBuilder.setContext(*input, true);
-    m_InputBuilder.setMemory(*input, FileHandle::ReadOnly, FileHandle::System);
   }
+  m_InputBuilder.setMemory(*input, FileHandle::OpenMode(FileHandle::ReadOnly),
+                           FileHandle::Permission(FileHandle::System));
 
   return input;
 }
