@@ -49,9 +49,7 @@ static const NameMap map[] = {
     {".ldata*", ".ldata", InputSectDesc::NoKeep},
     {".lbss*", ".lbss", InputSectDesc::NoKeep},
     {".gcc_except_table*", ".gcc_except_table", InputSectDesc::Keep},
-    {".gnu.linkonce.d.rel.ro.local*",
-     ".data.rel.ro.local",
-     InputSectDesc::NoKeep},
+    {".gnu.linkonce.d.rel.ro.local*", ".data.rel.ro.local", InputSectDesc::NoKeep},  // NOLINT
     {".gnu.linkonce.d.rel.ro*", ".data.rel.ro", InputSectDesc::NoKeep},
     {".gnu.linkonce.r*", ".rodata", InputSectDesc::NoKeep},
     {".gnu.linkonce.d*", ".data", InputSectDesc::NoKeep},

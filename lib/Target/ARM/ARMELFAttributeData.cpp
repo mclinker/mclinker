@@ -509,96 +509,26 @@ static int calculate_cpu_arch(int cpu_arch, int secondary_arch) {
  * and Y. 0 in the table means unreachable and -1 means conflict architecture
  * profile.
  */
-#define CPU(C) ARMELFAttributeData::CPU_Arch_ARM_##C
+#define CPU(C)  ARMELFAttributeData::CPU_Arch_ARM_ ## C
 static const int cpu_compatibility_table[][CPU(V4T_Plus_V6_M) + 1] = {
-    /* old\new          ARM v6T2    ARM v6K   ARM v7   ARM v6-M   ARM v6S-M
-       ARM v7E-M    ARMv8, ARM v4t + v6-M     */
-    /* Pre v4     */ {CPU(V6T2), CPU(V6K), CPU(V7), -1, -1, -1, -1, -1},
-    /* ARM v4     */ {CPU(V6T2), CPU(V6K), CPU(V7), -1, -1, -1, -1, -1},
-    /* ARM v4T    */ {CPU(V6T2),
-                      CPU(V6K),
-                      CPU(V7),
-                      CPU(V6K),
-                      CPU(V6K),
-                      CPU(V7E_M),
-                      CPU(V8),
-                      CPU(V4T)},
-    /* ARM v5T    */ {CPU(V6T2),
-                      CPU(V6K),
-                      CPU(V7),
-                      CPU(V6K),
-                      CPU(V6K),
-                      CPU(V7E_M),
-                      CPU(V8),
-                      CPU(V5T)},
-    /* ARM v5TE   */ {CPU(V6T2),
-                      CPU(V6K),
-                      CPU(V7),
-                      CPU(V6K),
-                      CPU(V6K),
-                      CPU(V7E_M),
-                      CPU(V8),
-                      CPU(V5TE)},
-    /* ARM v5TEJ  */ {CPU(V6T2),
-                      CPU(V6K),
-                      CPU(V7),
-                      CPU(V6K),
-                      CPU(V6K),
-                      CPU(V7E_M),
-                      CPU(V8),
-                      CPU(V5TEJ)},
-    /* ARM v6     */ {CPU(V6T2),
-                      CPU(V6K),
-                      CPU(V7),
-                      CPU(V6K),
-                      CPU(V6K),
-                      CPU(V7E_M),
-                      CPU(V8),
-                      CPU(V6)},
-    /* ARM v6KZ   */ {CPU(V7),
-                      CPU(V6KZ),
-                      CPU(V7),
-                      CPU(V6KZ),
-                      CPU(V6KZ),
-                      CPU(V7E_M),
-                      CPU(V8),
-                      CPU(V6KZ)},
-    /* ARM v6T2   */ {CPU(V6T2),
-                      CPU(V7),
-                      CPU(V7),
-                      CPU(V7),
-                      CPU(V7),
-                      CPU(V7E_M),
-                      CPU(V8),
-                      CPU(V6T2)},
-    /* ARM v6K    */ {0,
-                      CPU(V6K),
-                      CPU(V7),
-                      CPU(V6K),
-                      CPU(V6K),
-                      CPU(V7E_M),
-                      CPU(V8),
-                      CPU(V6K)},
-    /* ARM v7     */ {0,
-                      0,
-                      CPU(V7),
-                      CPU(V7),
-                      CPU(V7),
-                      CPU(V7E_M),
-                      CPU(V8),
-                      CPU(V7)},
-    /* ARM v6-M   */ {0,
-                      0,
-                      0,
-                      CPU(V6_M),
-                      CPU(V6S_M),
-                      CPU(V7E_M),
-                      CPU(V8),
-                      CPU(V6_M)},
-    /* ARM v6S-M  */ {0, 0, 0, 0, CPU(V6S_M), CPU(V7E_M), CPU(V8), CPU(V6S_M)},
-    /* ARM v7E-M  */ {0, 0, 0, 0, 0, CPU(V7E_M), CPU(V8), CPU(V7E_M)},
-    /* ARM v8     */ {0, 0, 0, 0, 0, 0, CPU(V8), CPU(V8)},
-    /* v4T + v6-M */ {0, 0, 0, 0, 0, 0, 0, CPU(V4T_Plus_V6_M)}};
+    /* old\new          ARM v6T2    ARM v6K   ARM v7   ARM v6-M   ARM v6S-M   ARM v7E-M    ARMv8, ARM v4t + v6-M     */  // NOLINT
+    /* Pre v4     */ { CPU(V6T2),  CPU(V6K), CPU(V7),        -1,         -1,         -1,      -1,       -1           },  // NOLINT
+    /* ARM v4     */ { CPU(V6T2),  CPU(V6K), CPU(V7),        -1,         -1,         -1,      -1,       -1           },  // NOLINT
+    /* ARM v4T    */ { CPU(V6T2),  CPU(V6K), CPU(V7),  CPU(V6K),   CPU(V6K), CPU(V7E_M), CPU(V8), CPU(V4T)           },  // NOLINT
+    /* ARM v5T    */ { CPU(V6T2),  CPU(V6K), CPU(V7),  CPU(V6K),   CPU(V6K), CPU(V7E_M), CPU(V8), CPU(V5T)           },  // NOLINT
+    /* ARM v5TE   */ { CPU(V6T2),  CPU(V6K), CPU(V7),  CPU(V6K),   CPU(V6K), CPU(V7E_M), CPU(V8), CPU(V5TE)          },  // NOLINT
+    /* ARM v5TEJ  */ { CPU(V6T2),  CPU(V6K), CPU(V7),  CPU(V6K),   CPU(V6K), CPU(V7E_M), CPU(V8), CPU(V5TEJ)         },  // NOLINT
+    /* ARM v6     */ { CPU(V6T2),  CPU(V6K), CPU(V7),  CPU(V6K),   CPU(V6K), CPU(V7E_M), CPU(V8), CPU(V6)            },  // NOLINT
+    /* ARM v6KZ   */ {   CPU(V7), CPU(V6KZ), CPU(V7), CPU(V6KZ),  CPU(V6KZ), CPU(V7E_M), CPU(V8), CPU(V6KZ)          },  // NOLINT
+    /* ARM v6T2   */ { CPU(V6T2),   CPU(V7), CPU(V7),   CPU(V7),    CPU(V7), CPU(V7E_M), CPU(V8), CPU(V6T2)          },  // NOLINT
+    /* ARM v6K    */ {         0,  CPU(V6K), CPU(V7),  CPU(V6K),   CPU(V6K), CPU(V7E_M), CPU(V8), CPU(V6K)           },  // NOLINT
+    /* ARM v7     */ {         0,         0, CPU(V7),   CPU(V7),    CPU(V7), CPU(V7E_M), CPU(V8), CPU(V7)            },  // NOLINT
+    /* ARM v6-M   */ {         0,         0,       0, CPU(V6_M), CPU(V6S_M), CPU(V7E_M), CPU(V8), CPU(V6_M)          },  // NOLINT
+    /* ARM v6S-M  */ {         0,         0,       0,         0, CPU(V6S_M), CPU(V7E_M), CPU(V8), CPU(V6S_M)         },  // NOLINT
+    /* ARM v7E-M  */ {         0,         0,       0,         0,          0, CPU(V7E_M), CPU(V8), CPU(V7E_M)         },  // NOLINT
+    /* ARM v8     */ {         0,         0,       0,         0,          0,          0, CPU(V8), CPU(V8)            },  // NOLINT
+    /* v4T + v6-M */ {         0,         0,       0,         0,          0,          0,       0, CPU(V4T_Plus_V6_M) }   // NOLINT
+};
 
 /*
  * Helper function to determine the merge of two different CPU arch.

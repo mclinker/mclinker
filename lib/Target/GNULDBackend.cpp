@@ -2575,25 +2575,10 @@ void GNULDBackend::postProcessing(FileOutputBuffer& pOutput) {
 /// getHashBucketCount - calculate hash bucket count.
 unsigned GNULDBackend::getHashBucketCount(unsigned pNumOfSymbols,
                                           bool pIsGNUStyle) {
-  static const unsigned int buckets[] = {1,
-                                         3,
-                                         17,
-                                         37,
-                                         67,
-                                         97,
-                                         131,
-                                         197,
-                                         263,
-                                         521,
-                                         1031,
-                                         2053,
-                                         4099,
-                                         8209,
-                                         16411,
-                                         32771,
-                                         65537,
-                                         131101,
-                                         262147};
+  static const unsigned int buckets[] = {
+      1, 3, 17, 37, 67, 97, 131, 197, 263, 521, 1031, 2053, 4099, 8209, 16411,
+      32771, 65537, 131101, 262147
+  };
   const unsigned buckets_count = sizeof buckets / sizeof buckets[0];
 
   unsigned int result = 1;

@@ -393,40 +393,50 @@ const X86_32GOTPLT& X86_32GNULDBackend::getGOTPLT() const {
 llvm::StringRef X86_32GNULDBackend::createCIERegionForPLT() {
   using namespace llvm::dwarf;
   static const uint8_t data[4 + 4 + 16] = {
-      0x14,                             0,         0,    0,  // length
-      0,                                0,         0,    0,  // ID
-      1,                                                     // version
-      'z',                              'R',       '\0',  // augmentation string
-      1,                                 // code alignment factor
-      0x7c,                              // data alignment factor
-      8,                                 // return address column
-      1,                                 // augmentation data size
+      0x14, 0, 0, 0,  // length
+      0, 0, 0, 0,  // ID
+      1,  // version
+      'z', 'R', '\0',  // augmentation string
+      1,  // code alignment factor
+      0x7c,  // data alignment factor
+      8,  // return address column
+      1,  // augmentation data size
       DW_EH_PE_pcrel | DW_EH_PE_sdata4,  // FDE encoding
-      DW_CFA_def_cfa,                   4,         4,    DW_CFA_offset + 8, 1,
-      DW_CFA_nop,                       DW_CFA_nop};
+      DW_CFA_def_cfa, 4, 4,
+      DW_CFA_offset + 8, 1,
+      DW_CFA_nop, DW_CFA_nop
+  };
   return llvm::StringRef((const char*)data, 4 + 4 + 16);
 }
 
 llvm::StringRef X86_32GNULDBackend::createFDERegionForPLT() {
   using namespace llvm::dwarf;
   static const uint8_t data[4 + 4 + 32] = {
-      0x24,                      0,           0,
-      0,  // length
-      0,                         0,           0,
-      0,  // offset to CIE
-      0,                         0,           0,
-      0,  // offset to PLT
-      0,                         0,           0,
-      0,  // size of PLT
+      0x24, 0, 0, 0,  // length
+      0, 0, 0, 0,  // offset to CIE
+      0, 0, 0, 0,  // offset to PLT
+      0, 0, 0, 0,  // size of PLT
       0,  // augmentation data size
-      DW_CFA_def_cfa_offset,     8,           DW_CFA_advance_loc + 6,
-      DW_CFA_def_cfa_offset,     12,          DW_CFA_advance_loc + 10,
-      DW_CFA_def_cfa_expression, 11,          DW_OP_breg4,
-      4,                         DW_OP_breg8, 0,
-      DW_OP_lit15,               DW_OP_and,   DW_OP_lit11,
-      DW_OP_ge,                  DW_OP_lit2,  DW_OP_shl,
-      DW_OP_plus,                DW_CFA_nop,  DW_CFA_nop,
-      DW_CFA_nop,                DW_CFA_nop};
+      DW_CFA_def_cfa_offset, 8,
+      DW_CFA_advance_loc + 6,
+      DW_CFA_def_cfa_offset, 12,
+      DW_CFA_advance_loc + 10,
+      DW_CFA_def_cfa_expression,
+      11,
+      DW_OP_breg4, 4,
+      DW_OP_breg8, 0,
+      DW_OP_lit15,
+      DW_OP_and,
+      DW_OP_lit11,
+      DW_OP_ge,
+      DW_OP_lit2,
+      DW_OP_shl,
+      DW_OP_plus,
+      DW_CFA_nop,
+      DW_CFA_nop,
+      DW_CFA_nop,
+      DW_CFA_nop
+  };
   return llvm::StringRef((const char*)data, 4 + 4 + 32);
 }
 
@@ -540,40 +550,51 @@ const X86_64GOTPLT& X86_64GNULDBackend::getGOTPLT() const {
 llvm::StringRef X86_64GNULDBackend::createCIERegionForPLT() {
   using namespace llvm::dwarf;
   static const uint8_t data[4 + 4 + 16] = {
-      0x14,                             0,         0,    0,  // length
-      0,                                0,         0,    0,  // ID
-      1,                                                     // CIE version
-      'z',                              'R',       '\0',  // augmentation string
-      1,                                 // code alignment factor
-      0x78,                              // data alignment factor
-      16,                                // return address column
-      1,                                 // augmentation data size
+      0x14, 0, 0, 0,  // length
+      0, 0, 0, 0,  // ID
+      1,  // CIE version
+      'z', 'R', '\0',  // augmentation string
+      1,  // code alignment factor
+      0x78,  // data alignment factor
+      16,  // return address column
+      1,  // augmentation data size
       DW_EH_PE_pcrel | DW_EH_PE_sdata4,  // FDE encoding
-      DW_CFA_def_cfa,                   7,         8,    DW_CFA_offset + 16, 1,
-      DW_CFA_nop,                       DW_CFA_nop};
+      DW_CFA_def_cfa, 7, 8,
+      DW_CFA_offset + 16, 1,
+      DW_CFA_nop,
+      DW_CFA_nop
+  };
   return llvm::StringRef((const char*)data, 4 + 4 + 16);
 }
 
 llvm::StringRef X86_64GNULDBackend::createFDERegionForPLT() {
   using namespace llvm::dwarf;
   static const uint8_t data[4 + 4 + 32] = {
-      0x24,                      0,            0,
-      0,  // length
-      0,                         0,            0,
-      0,  // ID
-      0,                         0,            0,
-      0,  // offset to PLT
-      0,                         0,            0,
-      0,  // size of PLT
+      0x24, 0, 0, 0,  // length
+      0, 0, 0, 0,  // ID
+      0, 0, 0, 0,  // offset to PLT
+      0, 0, 0, 0,  // size of PLT
       0,  // augmentation data size
-      DW_CFA_def_cfa_offset,     16,           DW_CFA_advance_loc + 6,
-      DW_CFA_def_cfa_offset,     24,           DW_CFA_advance_loc + 10,
-      DW_CFA_def_cfa_expression, 11,           DW_OP_breg7,
-      8,                         DW_OP_breg16, 0,
-      DW_OP_lit15,               DW_OP_and,    DW_OP_lit11,
-      DW_OP_ge,                  DW_OP_lit3,   DW_OP_shl,
-      DW_OP_plus,                DW_CFA_nop,   DW_CFA_nop,
-      DW_CFA_nop,                DW_CFA_nop};
+      DW_CFA_def_cfa_offset, 16,
+      DW_CFA_advance_loc + 6,
+      DW_CFA_def_cfa_offset, 24,
+      DW_CFA_advance_loc + 10,
+      DW_CFA_def_cfa_expression,
+      11,
+      DW_OP_breg7, 8,
+      DW_OP_breg16, 0,
+      DW_OP_lit15,
+      DW_OP_and,
+      DW_OP_lit11,
+      DW_OP_ge,
+      DW_OP_lit3,
+      DW_OP_shl,
+      DW_OP_plus,
+      DW_CFA_nop,
+      DW_CFA_nop,
+      DW_CFA_nop,
+      DW_CFA_nop
+  };
   return llvm::StringRef((const char*)data, 4 + 4 + 32);
 }
 
