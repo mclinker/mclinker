@@ -33,25 +33,25 @@
 #include <cstdlib>
 
 /// configure linker
-static inline bool ConfigLinker(int pArgc,
-                                char* pArgv[],
-                                const char* pName,
-                                mcld::Module& pModule,
-                                mcld::LinkerScript& pScript,
-                                mcld::LinkerConfig& pConfig,
-                                mcld::IRBuilder& pBuilder,
-                                std::vector<mcld::InputAction*>& pInputActions)
-{
-  mcld::PreferenceOptions     preference;
-  mcld::TripleOptions         triple;
+static inline bool ConfigLinker(
+    int pArgc,
+    char* pArgv[],
+    const char* pName,
+    mcld::Module& pModule,
+    mcld::LinkerScript& pScript,
+    mcld::LinkerConfig& pConfig,
+    mcld::IRBuilder& pBuilder,
+    std::vector<mcld::InputAction*>& pInputActions) {
+  mcld::PreferenceOptions preference;
+  mcld::TripleOptions triple;
   mcld::DynamicSectionOptions dynamic_section;
-  mcld::OutputFormatOptions   output_format;
-  mcld::SearchPathOptions     search_path;
-  mcld::OptimizationOptions   optimization;
-  mcld::SymbolOptions         symbol;
-  mcld::TargetControlOptions  target_control;
-  mcld::ScriptOptions         script;
-  mcld::PositionalOptions     positional;
+  mcld::OutputFormatOptions output_format;
+  mcld::SearchPathOptions search_path;
+  mcld::OptimizationOptions optimization;
+  mcld::SymbolOptions symbol;
+  mcld::TargetControlOptions target_control;
+  mcld::ScriptOptions script;
+  mcld::PositionalOptions positional;
 
   llvm::cl::ParseCommandLineOptions(pArgc, pArgv, pName);
 
@@ -91,12 +91,14 @@ static inline bool ConfigLinker(int pArgc,
   return true;
 }
 
-static
-inline bool InitializeInputs(mcld::IRBuilder& pBuilder,
-                             std::vector<mcld::InputAction*>& pInputActions)
-{
-  for (std::vector<mcld::InputAction*>::iterator action = pInputActions.begin(),
-    actionEnd = pInputActions.end(); action != actionEnd; ++action) {
+static inline bool InitializeInputs(
+    mcld::IRBuilder& pBuilder,
+    std::vector<mcld::InputAction*>& pInputActions) {
+  for (
+      std::vector<mcld::InputAction*>::iterator action = pInputActions.begin(),
+                                                actionEnd = pInputActions.end();
+      action != actionEnd;
+      ++action) {
     assert(*action != NULL);
     (*action)->activate(pBuilder.getInputBuilder());
     delete *action;
@@ -110,8 +112,7 @@ inline bool InitializeInputs(mcld::IRBuilder& pBuilder,
   return true;
 }
 
-int main(int argc, char* argv[])
-{
+int main(int argc, char* argv[]) {
   llvm::sys::PrintStackTraceOnErrorSignal();
   llvm::llvm_shutdown_obj Y;  // Call llvm_shutdown() on exit.
   mcld::Initialize();
@@ -122,7 +123,13 @@ int main(int argc, char* argv[])
   mcld::IRBuilder builder(module, config);
   std::vector<mcld::InputAction*> input_actions;
 
-  if (!ConfigLinker(argc, argv, "MCLinker\n", module, script, config, builder,
+  if (!ConfigLinker(argc,
+                    argv,
+                    "MCLinker\n",
+                    module,
+                    script,
+                    config,
+                    builder,
                     input_actions)) {
     mcld::errs() << argv[0]
                  << ": failed to process linker options from command line!\n";
@@ -131,27 +138,23 @@ int main(int argc, char* argv[])
 
   mcld::Linker linker;
   if (!linker.emulate(script, config)) {
-    mcld::errs() << argv[0]
-                 << ": failed to emulate target!\n";
+    mcld::errs() << argv[0] << ": failed to emulate target!\n";
     return EXIT_FAILURE;
   }
 
   // FIXME: is it possible to have a lightweight MCLinker pass?
   if (!InitializeInputs(builder, input_actions)) {
-    mcld::errs() << argv[0]
-                 << ": failed to initialize input tree!\n";
+    mcld::errs() << argv[0] << ": failed to initialize input tree!\n";
     return EXIT_FAILURE;
   }
 
   if (!linker.link(module, builder)) {
-    mcld::errs() << argv[0]
-                 << ": failed to link objects!\n";
+    mcld::errs() << argv[0] << ": failed to link objects!\n";
     return EXIT_FAILURE;
   }
 
   if (!linker.emit(module, module.name())) {
-    mcld::errs() << argv[0]
-                 << ": failed to emit output!\n";
+    mcld::errs() << argv[0] << ": failed to emit output!\n";
     return EXIT_FAILURE;
   }
 

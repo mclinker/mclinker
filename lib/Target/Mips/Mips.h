@@ -16,6 +16,6 @@ class Target;
 extern Target TheMipselTarget;
 extern Target TheMips64elTarget;
 
-} // namespace mcld
+}  // namespace mcld
 
 #endif  // TARGET_MIPS_MIPS_H_

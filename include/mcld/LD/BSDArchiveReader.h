@@ -10,8 +10,7 @@
 #define MCLD_LD_BSDARCHIVEREADER_H_
 #include <mcld/LD/ArchiveReader.h>
 
-namespace mcld
-{
+namespace mcld {
 
 class Archive;
 class Input;
@@ -21,16 +20,15 @@ class LinkerConfig;
  *  \brief BSDArchiveReader reads BSD-variant archive files.
  *
  */
-class BSDArchiveReader : public ArchiveReader
-{
-public:
+class BSDArchiveReader : public ArchiveReader {
+ public:
   BSDArchiveReader();
   ~BSDArchiveReader();
 
   bool readArchive(const LinkerConfig& pConfig, Archive& pArchive);
-  bool isMyFormat(Input& pInput, bool &pContinue) const;
+  bool isMyFormat(Input& pInput, bool& pContinue) const;
 };
 
-} // namespace mcld
+}  // namespace mcld
 
 #endif  // MCLD_LD_BSDARCHIVEREADER_H_

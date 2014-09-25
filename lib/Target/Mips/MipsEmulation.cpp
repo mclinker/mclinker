@@ -14,8 +14,7 @@
 
 namespace mcld {
 
-static bool MCLDEmulateMipsELF(LinkerScript& pScript, LinkerConfig& pConfig)
-{
+static bool MCLDEmulateMipsELF(LinkerScript& pScript, LinkerConfig& pConfig) {
   if (!MCLDEmulateELF(pScript, pConfig))
     return false;
 
@@ -42,8 +41,7 @@ static bool MCLDEmulateMipsELF(LinkerScript& pScript, LinkerConfig& pConfig)
 //===----------------------------------------------------------------------===//
 // emulateMipsLD - the help function to emulate Mips ld
 //===----------------------------------------------------------------------===//
-bool emulateMipsLD(LinkerScript& pScript, LinkerConfig& pConfig)
-{
+bool emulateMipsLD(LinkerScript& pScript, LinkerConfig& pConfig) {
   if (pConfig.targets().triple().isOSDarwin()) {
     assert(0 && "MachO linker has not supported yet");
     return false;
@@ -56,7 +54,7 @@ bool emulateMipsLD(LinkerScript& pScript, LinkerConfig& pConfig)
   return MCLDEmulateMipsELF(pScript, pConfig);
 }
 
-} // namespace mcld
+}  // namespace mcld
 
 //===----------------------------------------------------------------------===//
 // MipsEmulation

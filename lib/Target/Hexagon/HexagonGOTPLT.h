@@ -23,10 +23,9 @@ const unsigned int HexagonGOTPLT0Num = 4;
 /** \class HexagonGOTPLT
  *  \brief Hexagon .got.plt section.
  */
-class HexagonGOTPLT : public HexagonGOT
-{
-public:
-  HexagonGOTPLT(LDSection &pSection);
+class HexagonGOTPLT : public HexagonGOT {
+ public:
+  explicit HexagonGOTPLT(LDSection& pSection);
 
   ~HexagonGOTPLT();
 
@@ -38,6 +37,6 @@ public:
   void applyAllGOTPLT(const HexagonPLT& pPLT);
 };
 
-} // namespace mcld
+}  // namespace mcld
 
 #endif  // TARGET_HEXAGON_HEXAGONGOTPLT_H_

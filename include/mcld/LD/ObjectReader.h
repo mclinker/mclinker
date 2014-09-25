@@ -22,17 +22,15 @@ class Module;
  *  \brief ObjectReader provides an common interface for different object
  *  formats.
  */
-class ObjectReader : public LDReader
-{
-protected:
-  typedef HashTable<ResolveInfo,
-                    hash::StringHash<hash::DJB> > GroupSignatureMap;
+class ObjectReader : public LDReader {
+ protected:
+  typedef HashTable<ResolveInfo, hash::StringHash<hash::DJB> >
+      GroupSignatureMap;
 
-protected:
-  ObjectReader()
-  { }
+ protected:
+  ObjectReader() {}
 
-public:
+ public:
   virtual ~ObjectReader() { f_GroupSignatureMap.clear(); }
 
   virtual bool readHeader(Input& pFile) = 0;
@@ -46,16 +44,14 @@ public:
   /// This function should be called after symbol resolution.
   virtual bool readRelocations(Input& pFile) = 0;
 
-  GroupSignatureMap& signatures()
-  { return f_GroupSignatureMap; }
+  GroupSignatureMap& signatures() { return f_GroupSignatureMap; }
 
-  const GroupSignatureMap& signatures() const
-  { return f_GroupSignatureMap; }
+  const GroupSignatureMap& signatures() const { return f_GroupSignatureMap; }
 
-protected:
+ protected:
   GroupSignatureMap f_GroupSignatureMap;
 };
 
-} // namespace mcld
+}  // namespace mcld
 
 #endif  // MCLD_LD_OBJECTREADER_H_

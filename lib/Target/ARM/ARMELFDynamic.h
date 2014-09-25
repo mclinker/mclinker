@@ -14,15 +14,15 @@
 namespace mcld {
 
 class ARMELFDynamic : public ELFDynamic {
-public:
+ public:
   ARMELFDynamic(const GNULDBackend& pParent, const LinkerConfig& pConfig);
   ~ARMELFDynamic();
 
-private:
+ private:
   void reserveTargetEntries(const ELFFileFormat& pFormat);
   void applyTargetEntries(const ELFFileFormat& pFormat);
 };
 
-} // namespace mcld
+}  // namespace mcld
 
 #endif  // TARGET_ARM_ARMELFDYNAMIC_H_

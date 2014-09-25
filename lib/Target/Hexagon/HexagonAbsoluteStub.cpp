@@ -1,4 +1,4 @@
-//===- HexagonAbsoluteStub.cpp ---------------------------------------------------===//
+//===- HexagonAbsoluteStub.cpp --------------------------------------------===//
 //
 //                     The MCLinker Project
 //
@@ -24,21 +24,20 @@ using namespace mcld;
 //===----------------------------------------------------------------------===//
 
 const uint32_t HexagonAbsoluteStub::TEMPLATE[] = {
-  0xbffd7f1d, /* { sp = add (sp, #-8)      */
-  0xa79dfcfe, /*   memw (sp + #-8) = r28 } */
-  0x723cc000, /* r28.h = #HI (foo)         */
-  0x713cc000, /* r28.l = #LO (foo)         */
-  0xb01d411d, /* { sp = add (sp, #8)       */
-  0x529c4000, /*   jumpr r28               */
-  0x919dc01c  /*   r28 = memw (sp) }       */
+    0xbffd7f1d, /* { sp = add (sp, #-8)      */
+    0xa79dfcfe, /*   memw (sp + #-8) = r28 } */
+    0x723cc000, /* r28.h = #HI (foo)         */
+    0x713cc000, /* r28.l = #LO (foo)         */
+    0xb01d411d, /* { sp = add (sp, #8)       */
+    0x529c4000, /*   jumpr r28               */
+    0x919dc01c  /*   r28 = memw (sp) }       */
 };
 
 #define FITS_IN_NBITS(D, B) \
-    ( llvm::abs64(D) < (~(~(int64_t) 0 << ((B) - 1)) & -(4 * 4)))
+  (llvm::abs64(D) < (~(~(int64_t)0 << ((B)-1)) & -(4 * 4)))
 
 HexagonAbsoluteStub::HexagonAbsoluteStub(bool pIsOutputPIC)
-    : Stub(), m_Name("HexagonTrampoline"), m_pData(NULL), m_Size(0x0)
-{
+    : Stub(), m_Name("HexagonTrampoline"), m_pData(NULL), m_Size(0x0) {
   m_pData = TEMPLATE;
   m_Size = sizeof(TEMPLATE);
   addFixup(8u, 0x0, llvm::ELF::R_HEX_HI16);
@@ -50,20 +49,17 @@ HexagonAbsoluteStub::HexagonAbsoluteStub(const uint32_t* pData,
                                          size_t pSize,
                                          const_fixup_iterator pBegin,
                                          const_fixup_iterator pEnd)
-    : Stub(), m_Name("AbsVeneer"), m_pData(pData), m_Size(pSize)
-{
+    : Stub(), m_Name("AbsVeneer"), m_pData(pData), m_Size(pSize) {
   for (const_fixup_iterator it = pBegin, ie = pEnd; it != ie; ++it)
     addFixup(**it);
 }
 
-HexagonAbsoluteStub::~HexagonAbsoluteStub()
-{
+HexagonAbsoluteStub::~HexagonAbsoluteStub() {
 }
 
 bool HexagonAbsoluteStub::isMyDuty(const class Relocation& pReloc,
                                    uint64_t pSource,
-                                   uint64_t pTargetSymValue) const
-{
+                                   uint64_t pTargetSymValue) const {
   int nbits = 0;
   switch (pReloc.type()) {
     case llvm::ELF::R_HEX_B22_PCREL:
@@ -93,27 +89,22 @@ bool HexagonAbsoluteStub::isMyDuty(const class Relocation& pReloc,
   return true;
 }
 
-const std::string& HexagonAbsoluteStub::name() const
-{
+const std::string& HexagonAbsoluteStub::name() const {
   return m_Name;
 }
 
-const uint8_t* HexagonAbsoluteStub::getContent() const
-{
+const uint8_t* HexagonAbsoluteStub::getContent() const {
   return reinterpret_cast<const uint8_t*>(m_pData);
 }
 
-size_t HexagonAbsoluteStub::size() const
-{
+size_t HexagonAbsoluteStub::size() const {
   return m_Size;
 }
 
-size_t HexagonAbsoluteStub::alignment() const
-{
+size_t HexagonAbsoluteStub::alignment() const {
   return 4u;
 }
 
-Stub* HexagonAbsoluteStub::doClone()
-{
+Stub* HexagonAbsoluteStub::doClone() {
   return new HexagonAbsoluteStub(m_pData, m_Size, fixup_begin(), fixup_end());
 }

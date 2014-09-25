@@ -12,10 +12,8 @@ using namespace mcld;
 
 //==========================
 // MCELFArchiveReader
-ArchiveReader::ArchiveReader()
-{
+ArchiveReader::ArchiveReader() {
 }
 
-ArchiveReader::~ArchiveReader()
-{
+ArchiveReader::~ArchiveReader() {
 }

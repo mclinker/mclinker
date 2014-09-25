@@ -24,9 +24,8 @@ class ObjectReader;
 class ScriptFile;
 class TargetLDBackend;
 
-class ScriptReader : public LDReader
-{
-public:
+class ScriptReader : public LDReader {
+ public:
   ScriptReader(ObjectReader& pObjectReader,
                ArchiveReader& pArchiveReader,
                DynObjReader& pDynObjReader,
@@ -38,15 +37,15 @@ public:
   bool readScript(const LinkerConfig& pConfig, ScriptFile& pScriptFile);
 
   /// isMyFormat
-  bool isMyFormat(Input& pInput, bool &pContinue) const;
+  bool isMyFormat(Input& pInput, bool& pContinue) const;
 
-private:
+ private:
   ObjectReader& m_ObjectReader;
   ArchiveReader& m_ArchiveReader;
   DynObjReader& m_DynObjReader;
   GroupReader& m_GroupReader;
 };
 
-} // namespace mcld
+}  // namespace mcld
 
 #endif  // MCLD_SCRIPT_SCRIPTREADER_H_

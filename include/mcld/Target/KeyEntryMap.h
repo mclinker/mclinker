@@ -17,18 +17,16 @@ namespace mcld {
 /** \class KeyEntryMap
  *  \brief KeyEntryMap is a <const KeyType*, ENTRY*> map.
  */
-template<typename KEY, typename ENTRY>
-class KeyEntryMap
-{
-public:
-  typedef KEY   KeyType;
+template <typename KEY, typename ENTRY>
+class KeyEntryMap {
+ public:
+  typedef KEY KeyType;
   typedef ENTRY EntryType;
 
-private:
+ private:
   struct EntryPair {
     EntryPair(EntryType* pEntry1, EntryType* pEntry2)
-        : entry1(pEntry1), entry2(pEntry2)
-    { }
+        : entry1(pEntry1), entry2(pEntry2) {}
 
     EntryType* entry1;
     EntryType* entry2;
@@ -49,47 +47,46 @@ private:
   typedef std::vector<Mapping> KeyEntryPool;
   typedef std::list<EntryPair> PairListType;
 
-public:
+ public:
   typedef typename KeyEntryPool::iterator iterator;
   typedef typename KeyEntryPool::const_iterator const_iterator;
 
-public:
+ public:
   /// lookUp - look up the entry mapping to pKey
   const EntryType* lookUp(const KeyType& pKey) const;
-  EntryType*       lookUp(const KeyType& pKey);
+  EntryType* lookUp(const KeyType& pKey);
 
   /// lookUpFirstEntry - look up the first entry mapping to pKey
   const EntryType* lookUpFirstEntry(const KeyType& pKey) const;
-  EntryType*       lookUpFirstEntry(const KeyType& pKey);
+  EntryType* lookUpFirstEntry(const KeyType& pKey);
 
   /// lookUpSecondEntry - look up the second entry mapping to pKey
   const EntryType* lookUpSecondEntry(const KeyType& pKey) const;
-  EntryType*       lookUpSecondEntry(const KeyType& pKey);
+  EntryType* lookUpSecondEntry(const KeyType& pKey);
 
   void record(const KeyType& pKey, EntryType& pEntry);
   void record(const KeyType& pKey, EntryType& pEntry1, EntryType& pEntry2);
 
-  bool   empty() const { return m_Pool.empty(); }
-  size_t size () const { return m_Pool.size(); }
+  bool empty() const { return m_Pool.empty(); }
+  size_t size() const { return m_Pool.size(); }
 
   const_iterator begin() const { return m_Pool.begin(); }
-  iterator       begin()       { return m_Pool.begin(); }
-  const_iterator end  () const { return m_Pool.end();   }
-  iterator       end  ()       { return m_Pool.end();   }
+  iterator begin() { return m_Pool.begin(); }
+  const_iterator end() const { return m_Pool.end(); }
+  iterator end() { return m_Pool.end(); }
 
   void reserve(size_t pSize) { m_Pool.reserve(pSize); }
 
-private:
+ private:
   KeyEntryPool m_Pool;
 
   /// m_Pairs - the EntryPairs
   PairListType m_Pairs;
 };
 
-template<typename KeyType, typename EntryType>
-const EntryType*
-KeyEntryMap<KeyType, EntryType>::lookUp(const KeyType& pKey) const
-{
+template <typename KeyType, typename EntryType>
+const EntryType* KeyEntryMap<KeyType, EntryType>::lookUp(
+    const KeyType& pKey) const {
   const_iterator mapping, mEnd = m_Pool.end();
   for (mapping = m_Pool.begin(); mapping != mEnd; ++mapping) {
     if (mapping->key == &pKey) {
@@ -100,10 +97,8 @@ KeyEntryMap<KeyType, EntryType>::lookUp(const KeyType& pKey) const
   return NULL;
 }
 
-template<typename KeyType, typename EntryType>
-EntryType*
-KeyEntryMap<KeyType, EntryType>::lookUp(const KeyType& pKey)
-{
+template <typename KeyType, typename EntryType>
+EntryType* KeyEntryMap<KeyType, EntryType>::lookUp(const KeyType& pKey) {
   iterator mapping, mEnd = m_Pool.end();
   for (mapping = m_Pool.begin(); mapping != mEnd; ++mapping) {
     if (mapping->key == &pKey) {
@@ -114,10 +109,9 @@ KeyEntryMap<KeyType, EntryType>::lookUp(const KeyType& pKey)
   return NULL;
 }
 
-template<typename KeyType, typename EntryType>
-const EntryType*
-KeyEntryMap<KeyType, EntryType>::lookUpFirstEntry(const KeyType& pKey) const
-{
+template <typename KeyType, typename EntryType>
+const EntryType* KeyEntryMap<KeyType, EntryType>::lookUpFirstEntry(
+    const KeyType& pKey) const {
   const_iterator mapping, mEnd = m_Pool.end();
   for (mapping = m_Pool.begin(); mapping != mEnd; ++mapping) {
     if (mapping->key == &pKey) {
@@ -128,10 +122,9 @@ KeyEntryMap<KeyType, EntryType>::lookUpFirstEntry(const KeyType& pKey) const
   return NULL;
 }
 
-template<typename KeyType, typename EntryType>
-EntryType*
-KeyEntryMap<KeyType, EntryType>::lookUpFirstEntry(const KeyType& pKey)
-{
+template <typename KeyType, typename EntryType>
+EntryType* KeyEntryMap<KeyType, EntryType>::lookUpFirstEntry(
+    const KeyType& pKey) {
   const_iterator mapping, mEnd = m_Pool.end();
   for (mapping = m_Pool.begin(); mapping != mEnd; ++mapping) {
     if (mapping->key == &pKey) {
@@ -142,10 +135,9 @@ KeyEntryMap<KeyType, EntryType>::lookUpFirstEntry(const KeyType& pKey)
   return NULL;
 }
 
-template<typename KeyType, typename EntryType>
-const EntryType*
-KeyEntryMap<KeyType, EntryType>::lookUpSecondEntry(const KeyType& pKey) const
-{
+template <typename KeyType, typename EntryType>
+const EntryType* KeyEntryMap<KeyType, EntryType>::lookUpSecondEntry(
+    const KeyType& pKey) const {
   const_iterator mapping, mEnd = m_Pool.end();
   for (mapping = m_Pool.begin(); mapping != mEnd; ++mapping) {
     if (mapping->key == &pKey) {
@@ -156,10 +148,9 @@ KeyEntryMap<KeyType, EntryType>::lookUpSecondEntry(const KeyType& pKey) const
   return NULL;
 }
 
-template<typename KeyType, typename EntryType>
-EntryType*
-KeyEntryMap<KeyType, EntryType>::lookUpSecondEntry(const KeyType& pKey)
-{
+template <typename KeyType, typename EntryType>
+EntryType* KeyEntryMap<KeyType, EntryType>::lookUpSecondEntry(
+    const KeyType& pKey) {
   const_iterator mapping, mEnd = m_Pool.end();
   for (mapping = m_Pool.begin(); mapping != mEnd; ++mapping) {
     if (mapping->key == &pKey) {
@@ -170,22 +161,19 @@ KeyEntryMap<KeyType, EntryType>::lookUpSecondEntry(const KeyType& pKey)
   return NULL;
 }
 
-template<typename KeyType, typename EntryType>
-void
-KeyEntryMap<KeyType, EntryType>::record(const KeyType& pKey, EntryType& pEntry)
-{
+template <typename KeyType, typename EntryType>
+void KeyEntryMap<KeyType, EntryType>::record(const KeyType& pKey,
+                                             EntryType& pEntry) {
   Mapping mapping;
   mapping.key = &pKey;
   mapping.entry.entry_ptr = &pEntry;
   m_Pool.push_back(mapping);
 }
 
-template<typename KeyType, typename EntryType>
-void
-KeyEntryMap<KeyType, EntryType>::record(const KeyType& pKey,
-                                        EntryType& pEntry1,
-                                        EntryType& pEntry2)
-{
+template <typename KeyType, typename EntryType>
+void KeyEntryMap<KeyType, EntryType>::record(const KeyType& pKey,
+                                             EntryType& pEntry1,
+                                             EntryType& pEntry2) {
   Mapping mapping;
   mapping.key = &pKey;
   m_Pairs.push_back(EntryPair(&pEntry1, &pEntry2));
@@ -193,6 +181,6 @@ KeyEntryMap<KeyType, EntryType>::record(const KeyType& pKey,
   m_Pool.push_back(mapping);
 }
 
-} // namespace mcld
+}  // namespace mcld
 
 #endif  // MCLD_TARGET_KEYENTRYMAP_H_

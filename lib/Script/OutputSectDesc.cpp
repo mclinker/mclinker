@@ -25,24 +25,20 @@ using namespace mcld;
 //===----------------------------------------------------------------------===//
 // OutputSectDesc
 //===----------------------------------------------------------------------===//
-OutputSectDesc::OutputSectDesc(const std::string& pName,
-                               const Prolog& pProlog)
+OutputSectDesc::OutputSectDesc(const std::string& pName, const Prolog& pProlog)
     : ScriptCommand(ScriptCommand::OUTPUT_SECT_DESC),
       m_Name(pName),
-      m_Prolog(pProlog)
-{
+      m_Prolog(pProlog) {
 }
 
-OutputSectDesc::~OutputSectDesc()
-{
+OutputSectDesc::~OutputSectDesc() {
   for (iterator it = begin(), ie = end(); it != ie; ++it) {
     if (*it != NULL)
       delete *it;
   }
 }
 
-void OutputSectDesc::dump() const
-{
+void OutputSectDesc::dump() const {
   mcld::outs() << m_Name << "\t";
 
   if (m_Prolog.hasVMA()) {
@@ -122,7 +118,9 @@ void OutputSectDesc::dump() const
 
   if (m_Epilog.hasPhdrs()) {
     for (StringList::const_iterator it = m_Epilog.phdrs().begin(),
-            ie = m_Epilog.phdrs().end(); it != ie; ++it) {
+                                    ie = m_Epilog.phdrs().end();
+         it != ie;
+         ++it) {
       assert((*it)->kind() == StrToken::String);
       mcld::outs() << ":" << (*it)->name() << " ";
     }
@@ -135,8 +133,7 @@ void OutputSectDesc::dump() const
   mcld::outs() << "\n";
 }
 
-void OutputSectDesc::push_back(ScriptCommand* pCommand)
-{
+void OutputSectDesc::push_back(ScriptCommand* pCommand) {
   switch (pCommand->getKind()) {
     case ScriptCommand::ASSIGNMENT:
     case ScriptCommand::INPUT_SECT_DESC:
@@ -148,16 +145,14 @@ void OutputSectDesc::push_back(ScriptCommand* pCommand)
   }
 }
 
-void OutputSectDesc::setEpilog(const Epilog& pEpilog)
-{
-  m_Epilog.m_pRegion    = pEpilog.m_pRegion;
+void OutputSectDesc::setEpilog(const Epilog& pEpilog) {
+  m_Epilog.m_pRegion = pEpilog.m_pRegion;
   m_Epilog.m_pLMARegion = pEpilog.m_pLMARegion;
-  m_Epilog.m_pPhdrs     = pEpilog.m_pPhdrs;
-  m_Epilog.m_pFillExp   = pEpilog.m_pFillExp;
+  m_Epilog.m_pPhdrs = pEpilog.m_pPhdrs;
+  m_Epilog.m_pFillExp = pEpilog.m_pFillExp;
 }
 
-void OutputSectDesc::activate(Module& pModule)
-{
+void OutputSectDesc::activate(Module& pModule) {
   // Assignment in an output section
   OutputSectCmds assignments;
 
@@ -170,7 +165,9 @@ void OutputSectDesc::activate(Module& pModule)
         (*it)->activate(pModule);
 
         for (iterator assign = assignments.begin(),
-                assignEnd = assignments.end(); assign != assignEnd; ++assign) {
+                      assignEnd = assignments.end();
+             assign != assignEnd;
+             ++assign) {
           (*assign)->activate(pModule);
         }
         assignments.clear();
@@ -183,7 +180,8 @@ void OutputSectDesc::activate(Module& pModule)
   }
 
   if (!assignments.empty()) {
-    InputSectDesc::Spec spec;;
+    InputSectDesc::Spec spec;
+    ;
     spec.m_pWildcardFile = NULL;
     spec.m_pExcludeFiles = NULL;
     spec.m_pWildcardSections = NULL;
@@ -191,7 +189,8 @@ void OutputSectDesc::activate(Module& pModule)
     pModule.getScript().sectionMap().insert(inputDesc, *this);
 
     for (iterator assign = assignments.begin(), assignEnd = assignments.end();
-         assign != assignEnd; ++assign) {
+         assign != assignEnd;
+         ++assign) {
       (*assign)->activate(pModule);
     }
     assignments.clear();

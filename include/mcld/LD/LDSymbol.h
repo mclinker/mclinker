@@ -19,9 +19,10 @@
 namespace llvm {
 
 // forware declaration
-template<class T> void* object_creator();
+template <class T>
+void* object_creator();
 
-} // namespace llvm
+}  // namespace llvm
 
 namespace mcld {
 
@@ -31,14 +32,13 @@ class FragmentRef;
  *  \brief LDSymbol provides a consistent abstraction for different formats
  *  in different targets.
  */
-class LDSymbol
-{
-public:
+class LDSymbol {
+ public:
   // FIXME: use SizeTrait<32> or SizeTrait<64> instead of big type
   typedef ResolveInfo::SizeType SizeType;
   typedef uint64_t ValueType;
 
-public:
+ public:
   ~LDSymbol();
 
   // -----  factory method ----- //
@@ -80,7 +80,7 @@ public:
     assert(m_pResolveInfo != NULL);
     return m_pResolveInfo->type();
   }
- unsigned int desc() const {
+  unsigned int desc() const {
     assert(m_pResolveInfo != NULL);
     return m_pResolveInfo->desc();
   }
@@ -99,17 +99,15 @@ public:
     return m_pResolveInfo->other();
   }
 
-  ValueType value() const
-  { return m_Value; }
+  ValueType value() const { return m_Value; }
 
   const FragmentRef* fragRef() const { return m_pFragRef; }
-  FragmentRef*       fragRef()       { return m_pFragRef; }
+  FragmentRef* fragRef() { return m_pFragRef; }
 
-  SizeType size() const
-  { return m_pResolveInfo->size(); }
+  SizeType size() const { return m_pResolveInfo->size(); }
 
   const ResolveInfo* resolveInfo() const { return m_pResolveInfo; }
-  ResolveInfo*       resolveInfo()       { return m_pResolveInfo; }
+  ResolveInfo* resolveInfo() { return m_pResolveInfo; }
 
   bool hasFragRef() const;
 
@@ -119,28 +117,28 @@ public:
     m_pResolveInfo->setSize(pSize);
   }
 
-  void setValue(ValueType pValue)
-  { m_Value = pValue; }
+  void setValue(ValueType pValue) { m_Value = pValue; }
 
   void setFragmentRef(FragmentRef* pFragmentRef);
 
   void setResolveInfo(const ResolveInfo& pInfo);
 
-private:
+ private:
   friend class Chunk<LDSymbol, MCLD_SYMBOLS_PER_INPUT>;
-  template<class T> friend void* llvm::object_creator();
+  template <class T>
+  friend void* llvm::object_creator();
 
   LDSymbol();
   LDSymbol(const LDSymbol& pCopy);
   LDSymbol& operator=(const LDSymbol& pCopy);
 
-private:
+ private:
   // -----  Symbol's fields  ----- //
   ResolveInfo* m_pResolveInfo;
   FragmentRef* m_pFragRef;
   ValueType m_Value;
 };
 
-} // namespace mcld
+}  // namespace mcld
 
 #endif  // MCLD_LD_LDSYMBOL_H_

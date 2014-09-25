@@ -30,10 +30,9 @@ class OutputRelocSection;
 /** \class MipsGOT
  *  \brief Mips Global Offset Table.
  */
-class MipsGOT : public GOT
-{
-public:
-  MipsGOT(LDSection& pSection);
+class MipsGOT : public GOT {
+ public:
+  explicit MipsGOT(LDSection& pSection);
 
   /// Assign value to the GOT entry.
   virtual void setEntryValue(Fragment* entry, uint64_t pValue) = 0;
@@ -47,7 +46,8 @@ public:
   void initializeScan(const Input& pInput);
   void finalizeScan(const Input& pInput);
 
-  bool reserveLocalEntry(ResolveInfo& pInfo, int reloc,
+  bool reserveLocalEntry(ResolveInfo& pInfo,
+                         int reloc,
                          Relocation::DWord pAddend);
   bool reserveGlobalEntry(ResolveInfo& pInfo);
 
@@ -82,7 +82,7 @@ public:
   /// Compare two symbols to define order in the .dynsym.
   bool dynSymOrderCompare(const LDSymbol* pX, const LDSymbol* pY) const;
 
-protected:
+ protected:
   /// Create GOT entry.
   virtual Fragment* createEntry(uint64_t pValue, SectionData* pParent) = 0;
 
@@ -92,21 +92,20 @@ protected:
   /// Reserve GOT header entries.
   virtual void reserveHeader() = 0;
 
-private:
+ private:
   /** \class GOTMultipart
    *  \brief GOTMultipart counts local and global entries in the GOT.
    */
-  struct GOTMultipart
-  {
-    GOTMultipart(size_t local = 0, size_t global = 0);
+  struct GOTMultipart {
+    explicit GOTMultipart(size_t local = 0, size_t global = 0);
 
     typedef llvm::DenseSet<const Input*> InputSetType;
 
-    size_t m_LocalNum;  ///< number of reserved local entries
-    size_t m_GlobalNum; ///< number of reserved global entries
+    size_t m_LocalNum;   ///< number of reserved local entries
+    size_t m_GlobalNum;  ///< number of reserved global entries
 
-    size_t m_ConsumedLocal;       ///< consumed local entries
-    size_t m_ConsumedGlobal;      ///< consumed global entries
+    size_t m_ConsumedLocal;   ///< consumed local entries
+    size_t m_ConsumedGlobal;  ///< consumed global entries
 
     Fragment* m_pLastLocal;   ///< the last consumed local entry
     Fragment* m_pLastGlobal;  ///< the last consumed global entry
@@ -122,16 +121,16 @@ private:
   /** \class LocalEntry
    *  \brief LocalEntry local GOT entry descriptor.
    */
-  struct LocalEntry
-  {
+  struct LocalEntry {
     const ResolveInfo* m_pInfo;
-    Relocation::DWord  m_Addend;
-    bool               m_IsGot16;
+    Relocation::DWord m_Addend;
+    bool m_IsGot16;
 
     LocalEntry(const ResolveInfo* pInfo,
-               Relocation::DWord addend, bool isGot16);
+               Relocation::DWord addend,
+               bool isGot16);
 
-    bool operator<(const LocalEntry &O) const;
+    bool operator<(const LocalEntry& O) const;
   };
 
   typedef std::vector<GOTMultipart> MultipartListType;
@@ -172,15 +171,13 @@ private:
   void split();
   void reserve(size_t pNum);
 
-private:
-  struct GotEntryKey
-  {
+ private:
+  struct GotEntryKey {
     size_t m_GOTPage;
     const ResolveInfo* m_pInfo;
     Relocation::DWord m_Addend;
 
-    bool operator<(const GotEntryKey& key) const
-    {
+    bool operator<(const GotEntryKey& key) const {
       if (m_GOTPage != key.m_GOTPage)
         return m_GOTPage < key.m_GOTPage;
 
@@ -199,12 +196,11 @@ private:
 /** \class Mips32GOT
  *  \brief Mips 32-bit Global Offset Table.
  */
-class Mips32GOT : public MipsGOT
-{
-public:
-  Mips32GOT(LDSection& pSection);
+class Mips32GOT : public MipsGOT {
+ public:
+  explicit Mips32GOT(LDSection& pSection);
 
-private:
+ private:
   typedef GOT::Entry<4> Mips32GOTEntry;
 
   // MipsGOT
@@ -218,12 +214,11 @@ private:
 /** \class Mips64GOT
  *  \brief Mips 64-bit Global Offset Table.
  */
-class Mips64GOT : public MipsGOT
-{
-public:
-  Mips64GOT(LDSection& pSection);
+class Mips64GOT : public MipsGOT {
+ public:
+  explicit Mips64GOT(LDSection& pSection);
 
-private:
+ private:
   typedef GOT::Entry<8> Mips64GOTEntry;
 
   // MipsGOT
@@ -234,6 +229,6 @@ private:
   virtual void reserveHeader();
 };
 
-} // namespace mcld
+}  // namespace mcld
 
 #endif  // TARGET_MIPS_MIPSGOT_H_

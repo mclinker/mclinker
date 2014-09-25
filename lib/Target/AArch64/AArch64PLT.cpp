@@ -30,22 +30,19 @@ AArch64PLT1::AArch64PLT1(SectionData& pParent)
 //===----------------------------------------------------------------------===//
 // AArch64PLT
 
-AArch64PLT::AArch64PLT(LDSection& pSection, AArch64GOT &pGOTPLT)
-  : PLT(pSection), m_GOT(pGOTPLT) {
+AArch64PLT::AArch64PLT(LDSection& pSection, AArch64GOT& pGOTPLT)
+    : PLT(pSection), m_GOT(pGOTPLT) {
   new AArch64PLT0(*m_pSectionData);
 }
 
-AArch64PLT::~AArch64PLT()
-{
+AArch64PLT::~AArch64PLT() {
 }
 
-bool AArch64PLT::hasPLT1() const
-{
+bool AArch64PLT::hasPLT1() const {
   return (m_pSectionData->size() > 1);
 }
 
-void AArch64PLT::finalizeSectionSize()
-{
+void AArch64PLT::finalizeSectionSize() {
   uint64_t size = (m_pSectionData->size() - 1) * sizeof(aarch64_plt1) +
                   sizeof(aarch64_plt0);
   m_Section.setSize(size);
@@ -58,16 +55,14 @@ void AArch64PLT::finalizeSectionSize()
   }
 }
 
-AArch64PLT1* AArch64PLT::create()
-{
+AArch64PLT1* AArch64PLT::create() {
   AArch64PLT1* plt1_entry = new (std::nothrow) AArch64PLT1(*m_pSectionData);
   if (!plt1_entry)
     fatal(diag::fail_allocate_memory_plt);
   return plt1_entry;
 }
 
-void AArch64PLT::applyPLT0()
-{
+void AArch64PLT::applyPLT0() {
   // malloc plt0
   iterator first = m_pSectionData->getFragmentList().begin();
   assert(first != m_pSectionData->getFragmentList().end() &&
@@ -97,13 +92,12 @@ void AArch64PLT::applyPLT0()
   data[2] = helper_reencode_add_imm(data[2],
                                     helper_get_page_offset(got_ent2_base) >> 3);
   // apply 4th instruction
-  data[3] = helper_reencode_add_imm(data[3],
-                                    helper_get_page_offset(got_ent2_base));
+  data[3] =
+      helper_reencode_add_imm(data[3], helper_get_page_offset(got_ent2_base));
   plt0->setValue(reinterpret_cast<unsigned char*>(data));
 }
 
-void AArch64PLT::applyPLT1()
-{
+void AArch64PLT::applyPLT1() {
   uint64_t plt_base = m_Section.addr();
   assert(plt_base && ".plt base address is NULL!");
 
@@ -120,7 +114,7 @@ void AArch64PLT::applyPLT1()
   // first plt1 address
   uint32_t PLTEntryAddress = plt_base + AArch64PLT0::EntrySize;
 
-  ++it; //skip PLT0
+  ++it;  // skip PLT0
   uint32_t PLT1EntrySize = AArch64PLT1::EntrySize;
   AArch64PLT1* plt1 = NULL;
 
@@ -134,9 +128,8 @@ void AArch64PLT::applyPLT1()
                                   helper_get_page_address(PLTEntryAddress);
     Out[0] = helper_reencode_adr_imm(Out[0], imm >> 12);
     // apply 2nd instruction
-    Out[1] =
-        helper_reencode_add_imm(Out[1],
-                                helper_get_page_offset(GOTEntryAddress) >> 3);
+    Out[1] = helper_reencode_add_imm(
+        Out[1], helper_get_page_offset(GOTEntryAddress) >> 3);
     // apply 3rd instruction
     Out[2] = helper_reencode_add_imm(Out[2],
                                      helper_get_page_offset(GOTEntryAddress));
@@ -151,13 +144,13 @@ void AArch64PLT::applyPLT1()
   m_GOT.applyGOTPLT(plt_base);
 }
 
-uint64_t AArch64PLT::emit(MemoryRegion& pRegion)
-{
+uint64_t AArch64PLT::emit(MemoryRegion& pRegion) {
   uint64_t result = 0x0;
   iterator it = begin();
 
   unsigned char* buffer = pRegion.begin();
-  memcpy(buffer, llvm::cast<AArch64PLT0>((*it)).getValue(),
+  memcpy(buffer,
+         llvm::cast<AArch64PLT0>((*it)).getValue(),
          AArch64PLT0::EntrySize);
   result += AArch64PLT0::EntrySize;
   ++it;

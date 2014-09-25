@@ -12,34 +12,31 @@
 #include "mcld/Support/Path.h"
 #include <gtest.h>
 
-namespace mcldtest
-{
+namespace mcldtest {
 
 /** \class PathTest
  *  \brief a testcase for mcld::Path and its non-member funtions.
  *
  *  \see Path
  */
-class PathTest : public ::testing::Test
-{
-public:
-	// Constructor can do set-up work for all test here.
-	PathTest();
+class PathTest : public ::testing::Test {
+ public:
+  // Constructor can do set-up work for all test here.
+  PathTest();
 
-	// Destructor can do clean-up work that doesn't throw exceptions here.
-	virtual ~PathTest();
+  // Destructor can do clean-up work that doesn't throw exceptions here.
+  virtual ~PathTest();
 
-	// SetUp() will be called immediately before each test.
-	virtual void SetUp();
+  // SetUp() will be called immediately before each test.
+  virtual void SetUp();
 
-	// TearDown() will be called immediately after each test.
-	virtual void TearDown();
+  // TearDown() will be called immediately after each test.
+  virtual void TearDown();
 
-protected:
-	mcld::sys::fs::Path* m_pTestee;
+ protected:
+  mcld::sys::fs::Path* m_pTestee;
 };
 
-} // namespace of mcldtest
+}  // namespace of mcldtest
 
 #endif
-

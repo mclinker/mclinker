@@ -16,12 +16,11 @@ namespace mcld {
 /** \class GNUInfo
  *  \brief GNUInfo records ELF-dependent and target-dependnet data fields
  */
-class GNUInfo
-{
-public:
-  GNUInfo(const llvm::Triple& pTriple);
+class GNUInfo {
+ public:
+  explicit GNUInfo(const llvm::Triple& pTriple);
 
-  virtual ~GNUInfo() { }
+  virtual ~GNUInfo() {}
 
   /// ELFVersion - the value of e_ident[EI_VERSION]
   virtual uint8_t ELFVersion() const { return llvm::ELF::EV_CURRENT; }
@@ -35,7 +34,8 @@ public:
   /// ABIVersion - the value of e_ident[EI_ABIVRESION]
   virtual uint8_t ABIVersion() const { return 0x0; }
 
-  /// defaultTextSegmentAddr - target should specify its own default start address
+  /// defaultTextSegmentAddr - target should specify its own default start
+  /// address
   /// of the text segment. esp. for exec.
   virtual uint64_t defaultTextSegmentAddr() const { return 0x0; }
 
@@ -62,10 +62,10 @@ public:
   /// here. If target favors the different size, please override this function
   virtual uint64_t abiPageSize() const { return 0x1000; }
 
-protected:
+ protected:
   const llvm::Triple& m_Triple;
 };
 
-} // namespace mcld
+}  // namespace mcld
 
 #endif  // MCLD_TARGET_GNUINFO_H_

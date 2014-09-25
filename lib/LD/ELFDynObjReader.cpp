@@ -30,23 +30,19 @@ using namespace mcld;
 ELFDynObjReader::ELFDynObjReader(GNULDBackend& pBackend,
                                  IRBuilder& pBuilder,
                                  const LinkerConfig& pConfig)
-    : DynObjReader(),
-      m_pELFReader(0),
-      m_Builder(pBuilder) {
+    : DynObjReader(), m_pELFReader(0), m_Builder(pBuilder) {
   if (pConfig.targets().is32Bits() && pConfig.targets().isLittleEndian())
     m_pELFReader = new ELFReader<32, true>(pBackend);
   else if (pConfig.targets().is64Bits() && pConfig.targets().isLittleEndian())
     m_pELFReader = new ELFReader<64, true>(pBackend);
 }
 
-ELFDynObjReader::~ELFDynObjReader()
-{
+ELFDynObjReader::~ELFDynObjReader() {
   delete m_pELFReader;
 }
 
 /// isMyFormat
-bool ELFDynObjReader::isMyFormat(Input &pInput, bool &pContinue) const
-{
+bool ELFDynObjReader::isMyFormat(Input& pInput, bool& pContinue) const {
   assert(pInput.hasMemArea());
 
   // Don't warning about the frequently requests.
@@ -55,8 +51,8 @@ bool ELFDynObjReader::isMyFormat(Input &pInput, bool &pContinue) const
   if (pInput.memArea()->size() < hdr_size)
     return false;
 
-  llvm::StringRef region = pInput.memArea()->request(pInput.fileOffset(),
-                                                     hdr_size);
+  llvm::StringRef region =
+      pInput.memArea()->request(pInput.fileOffset(), hdr_size);
 
   const char* ELF_hdr = region.begin();
   bool result = true;
@@ -77,13 +73,12 @@ bool ELFDynObjReader::isMyFormat(Input &pInput, bool &pContinue) const
 }
 
 /// readHeader
-bool ELFDynObjReader::readHeader(Input& pInput)
-{
+bool ELFDynObjReader::readHeader(Input& pInput) {
   assert(pInput.hasMemArea());
 
   size_t hdr_size = m_pELFReader->getELFHeaderSize();
-  llvm::StringRef region = pInput.memArea()->request(pInput.fileOffset(),
-                                                     hdr_size);
+  llvm::StringRef region =
+      pInput.memArea()->request(pInput.fileOffset(), hdr_size);
   const char* ELF_hdr = region.begin();
 
   bool shdr_result = m_pELFReader->readSectionHeaders(pInput, ELF_hdr);
@@ -95,22 +90,19 @@ bool ELFDynObjReader::readHeader(Input& pInput)
 }
 
 /// readSymbols
-bool ELFDynObjReader::readSymbols(Input& pInput)
-{
+bool ELFDynObjReader::readSymbols(Input& pInput) {
   assert(pInput.hasMemArea());
 
   LDSection* symtab_shdr = pInput.context()->getSection(".dynsym");
   if (symtab_shdr == NULL) {
-    note(diag::note_has_no_symtab) << pInput.name()
-                                   << pInput.path()
+    note(diag::note_has_no_symtab) << pInput.name() << pInput.path()
                                    << ".dynsym";
     return true;
   }
 
   LDSection* strtab_shdr = symtab_shdr->getLink();
   if (strtab_shdr == NULL) {
-    fatal(diag::fatal_cannot_read_strtab) << pInput.name()
-                                          << pInput.path()
+    fatal(diag::fatal_cannot_read_strtab) << pInput.name() << pInput.path()
                                           << ".dynsym";
     return false;
   }
@@ -121,7 +113,7 @@ bool ELFDynObjReader::readSymbols(Input& pInput)
   llvm::StringRef strtab_region = pInput.memArea()->request(
       pInput.fileOffset() + strtab_shdr->offset(), strtab_shdr->size());
   const char* strtab = strtab_region.begin();
-  bool result = m_pELFReader->readSymbols(pInput, m_Builder,
-                                          symtab_region, strtab);
+  bool result =
+      m_pELFReader->readSymbols(pInput, m_Builder, symtab_region, strtab);
   return result;
 }

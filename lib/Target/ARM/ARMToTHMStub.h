@@ -14,8 +14,7 @@
 #include <string>
 #include <vector>
 
-namespace mcld
-{
+namespace mcld {
 
 class Relocation;
 class ResolveInfo;
@@ -24,10 +23,9 @@ class ResolveInfo;
  *  \brief ARM stub for long call from ARM source to ARM target
  *
  */
-class ARMToTHMStub : public Stub
-{
-public:
-  ARMToTHMStub(bool pIsOutputPIC);
+class ARMToTHMStub : public Stub {
+ public:
+  explicit ARMToTHMStub(bool pIsOutputPIC);
 
   ~ARMToTHMStub();
 
@@ -45,7 +43,7 @@ public:
 
   size_t alignment() const;
 
-private:
+ private:
   ARMToTHMStub(const ARMToTHMStub&);
 
   ARMToTHMStub& operator=(const ARMToTHMStub&);
@@ -59,7 +57,7 @@ private:
   /// doClone
   Stub* doClone();
 
-private:
+ private:
   static const uint32_t PIC_TEMPLATE[];
   static const uint32_t TEMPLATE[];
   const uint32_t* m_pData;
@@ -67,6 +65,6 @@ private:
   size_t m_Size;
 };
 
-} // namespace mcld
+}  // namespace mcld
 
 #endif  // TARGET_ARM_ARMTOTHMSTUB_H_

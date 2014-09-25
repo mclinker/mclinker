@@ -24,9 +24,8 @@ class Stub;
  *  \brief the clone factory of Stub
  *
  */
-class StubFactory
-{
-public:
+class StubFactory {
+ public:
   ~StubFactory();
 
   /// addPrototype - register a stub prototype
@@ -38,20 +37,20 @@ public:
                IRBuilder& pBuilder,
                BranchIslandFactory& pBRIslandFactory);
 
-private:
+ private:
   /// findPrototype - find if there is a registered stub prototype for the given
   ///                 relocation
   Stub* findPrototype(const Relocation& pReloc,
                       const uint64_t pSource,
                       uint64_t pTargetSymValue);
 
-private:
- typedef std::vector<Stub*> StubPoolType;
+ private:
+  typedef std::vector<Stub*> StubPoolType;
 
-private:
-  StubPoolType m_StubPool; // stub pool
+ private:
+  StubPoolType m_StubPool;  // stub pool
 };
 
-} // namespace mcld
+}  // namespace mcld
 
 #endif  // MCLD_LD_STUBFACTORY_H_

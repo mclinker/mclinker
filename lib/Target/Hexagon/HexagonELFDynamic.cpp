@@ -17,19 +17,16 @@ HexagonELFDynamic::HexagonELFDynamic(const GNULDBackend& pParent,
     : ELFDynamic(pParent, pConfig) {
 }
 
-HexagonELFDynamic::~HexagonELFDynamic()
-{
+HexagonELFDynamic::~HexagonELFDynamic() {
 }
 
-void HexagonELFDynamic::reserveTargetEntries(const ELFFileFormat& pFormat)
-{
+void HexagonELFDynamic::reserveTargetEntries(const ELFFileFormat& pFormat) {
   // reservePLTGOT
   if (pFormat.hasGOTPLT())
     reserveOne(llvm::ELF::DT_PLTGOT);
 }
 
-void HexagonELFDynamic::applyTargetEntries(const ELFFileFormat& pFormat)
-{
+void HexagonELFDynamic::applyTargetEntries(const ELFFileFormat& pFormat) {
   // applyPLTGOT
   if (pFormat.hasGOTPLT())
     applyOne(llvm::ELF::DT_PLTGOT, pFormat.getGOTPLT().addr());

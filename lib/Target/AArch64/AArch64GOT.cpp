@@ -15,50 +15,43 @@
 #include <llvm/Support/Casting.h>
 
 namespace {
-  const unsigned int AArch64GOT0Num = 3;
-} // end of anonymous namespace
+const unsigned int AArch64GOT0Num = 3;
+}  // end of anonymous namespace
 
 using namespace mcld;
 
 //===----------------------------------------------------------------------===//
 // AArch64GOT
 AArch64GOT::AArch64GOT(LDSection& pSection)
-    : GOT(pSection), m_pGOTPLTFront(NULL), m_pGOTFront(NULL)
-{
+    : GOT(pSection), m_pGOTPLTFront(NULL), m_pGOTFront(NULL) {
 }
 
-AArch64GOT::~AArch64GOT()
-{
+AArch64GOT::~AArch64GOT() {
 }
 
-void AArch64GOT::createGOT0()
-{
+void AArch64GOT::createGOT0() {
   // create GOT0, and put them into m_SectionData immediately
   for (unsigned int i = 0; i < AArch64GOT0Num; ++i)
     new AArch64GOTEntry(0, m_SectionData);
 }
 
-bool AArch64GOT::hasGOT1() const
-{
+bool AArch64GOT::hasGOT1() const {
   return ((!m_GOT.empty()) || (!m_GOTPLT.empty()));
 }
 
-AArch64GOTEntry* AArch64GOT::createGOT()
-{
+AArch64GOTEntry* AArch64GOT::createGOT() {
   AArch64GOTEntry* entry = new AArch64GOTEntry(0, NULL);
   m_GOT.push_back(entry);
   return entry;
 }
 
-AArch64GOTEntry* AArch64GOT::createGOTPLT()
-{
+AArch64GOTEntry* AArch64GOT::createGOTPLT() {
   AArch64GOTEntry* entry = new AArch64GOTEntry(0, NULL);
   m_GOTPLT.push_back(entry);
   return entry;
 }
 
-void AArch64GOT::finalizeSectionSize()
-{
+void AArch64GOT::finalizeSectionSize() {
   uint32_t offset = 0;
   SectionData::FragmentListType& frag_list = m_SectionData->getFragmentList();
   // setup GOT0 offset
@@ -78,7 +71,6 @@ void AArch64GOT::finalizeSectionSize()
       entry->setParent(m_SectionData);
       entry->setOffset(offset);
       offset += entry->size();
-
     }
   }
   m_GOTPLT.clear();
@@ -101,14 +93,12 @@ void AArch64GOT::finalizeSectionSize()
   m_Section.setSize(offset);
 }
 
-void AArch64GOT::applyGOT0(uint64_t pAddress)
-{
-  llvm::cast<AArch64GOTEntry>
-      (*(m_SectionData->getFragmentList().begin())).setValue(pAddress);
+void AArch64GOT::applyGOT0(uint64_t pAddress) {
+  llvm::cast<AArch64GOTEntry>(*(m_SectionData->getFragmentList().begin()))
+      .setValue(pAddress);
 }
 
-void AArch64GOT::applyGOTPLT(uint64_t pPLTBase)
-{
+void AArch64GOT::applyGOTPLT(uint64_t pPLTBase) {
   if (m_pGOTPLTFront == NULL)
     return;
 
@@ -125,8 +115,7 @@ void AArch64GOT::applyGOTPLT(uint64_t pPLTBase)
   }
 }
 
-uint64_t AArch64GOT::emit(MemoryRegion& pRegion)
-{
+uint64_t AArch64GOT::emit(MemoryRegion& pRegion) {
   uint64_t* buffer = reinterpret_cast<uint64_t*>(pRegion.begin());
 
   AArch64GOTEntry* got = NULL;

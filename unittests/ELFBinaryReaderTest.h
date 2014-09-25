@@ -16,9 +16,8 @@ class ELFBinaryReader;
 
 namespace test {
 
-class ELFBinaryReaderTest : public ::testing::Test
-{
-public:
+class ELFBinaryReaderTest : public ::testing::Test {
+ public:
   // Constructor can do set-up work for all test here.
   ELFBinaryReaderTest();
 
@@ -32,8 +31,7 @@ public:
   virtual void TearDown();
 };
 
-} // namespace of test
-} // namespace of mcld
+}  // namespace of test
+}  // namespace of mcld
 
 #endif
-

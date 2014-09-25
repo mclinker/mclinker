@@ -19,10 +19,10 @@ namespace mcld {
 /** \class MemoryArea
  *  \brief MemoryArea is used to manage input read-only memory space.
  */
-class MemoryArea : private Uncopyable
-{
+class MemoryArea : private Uncopyable {
   friend class MemoryAreaFactory;
-public:
+
+ public:
   // constructor by file handler.
   // If the given file handler is read-only, client can not request a region
   // that out of the file size.
@@ -39,10 +39,10 @@ public:
 
   size_t size() const;
 
-private:
+ private:
   std::unique_ptr<llvm::MemoryBuffer> m_pMemoryBuffer;
 };
 
-} // namespace mcld
+}  // namespace mcld
 
 #endif  // MCLD_SUPPORT_MEMORYAREA_H_

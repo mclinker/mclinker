@@ -13,37 +13,30 @@ using namespace mcld::sys::fs;
 
 //==========================
 // RealPath
-RealPath::RealPath()
-    : Path() {
+RealPath::RealPath() : Path() {
 }
 
-RealPath::RealPath(const RealPath::ValueType* s )
-    : Path(s) {
+RealPath::RealPath(const RealPath::ValueType* s) : Path(s) {
   initialize();
 }
 
-RealPath::RealPath(const RealPath::StringType &s )
-    : Path(s) {
+RealPath::RealPath(const RealPath::StringType& s) : Path(s) {
   initialize();
 }
 
-RealPath::RealPath(const Path& pPath)
-   : Path(pPath) {
+RealPath::RealPath(const Path& pPath) : Path(pPath) {
   initialize();
 }
 
-RealPath::~RealPath()
-{
+RealPath::~RealPath() {
 }
 
-RealPath& RealPath::assign(const Path& pPath)
-{
+RealPath& RealPath::assign(const Path& pPath) {
   Path::m_PathName.assign(pPath.native());
   return (*this);
 }
 
-void RealPath::initialize()
-{
+void RealPath::initialize() {
   if (isFromRoot()) {
     detail::canonicalize(m_PathName);
   } else if (isFromPWD()) {

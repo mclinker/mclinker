@@ -15,16 +15,15 @@ namespace mcld {
 
 class MipsGNULDBackend;
 
-class MipsELFDynamic : public ELFDynamic
-{
-public:
+class MipsELFDynamic : public ELFDynamic {
+ public:
   MipsELFDynamic(const MipsGNULDBackend& pParent, const LinkerConfig& pConfig);
 
-private:
+ private:
   const MipsGNULDBackend& m_pParent;
   const LinkerConfig& m_pConfig;
 
-private:
+ private:
   void reserveTargetEntries(const ELFFileFormat& pFormat);
   void applyTargetEntries(const ELFFileFormat& pFormat);
 
@@ -34,6 +33,6 @@ private:
   uint64_t getBaseAddress();
 };
 
-} // namespace mcld
+}  // namespace mcld
 
 #endif  // TARGET_MIPS_MIPSELFDYNAMIC_H_

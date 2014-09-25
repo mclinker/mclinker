@@ -15,6 +15,6 @@ void Initialize();
 
 void Finalize();
 
-} // namespace mcld
+}  // namespace mcld
 
 #endif  // MCLD_ENVIRONMENT_H_

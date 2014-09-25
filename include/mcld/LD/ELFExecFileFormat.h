@@ -17,13 +17,12 @@ class ObjectBuilder;
 /** \class ELFExecFileFormat
  *  \brief ELFExecFileFormat describes the format for ELF dynamic objects.
  */
-class ELFExecFileFormat : public ELFFileFormat
-{
+class ELFExecFileFormat : public ELFFileFormat {
   /// initObjectFormat - initialize sections that are dependent on executable
   /// objects.
   void initObjectFormat(ObjectBuilder& pBuilder, unsigned int pBitClass);
 };
 
-} // namespace mcld
+}  // namespace mcld
 
 #endif  // MCLD_LD_ELFEXECFILEFORMAT_H_

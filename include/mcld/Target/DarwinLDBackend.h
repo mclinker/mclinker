@@ -9,8 +9,7 @@
 #ifndef MCLD_TARGET_DARWINLDBACKEND_H_
 #define MCLD_TARGET_DARWINLDBACKEND_H_
 
-namespace mcld
-{
+namespace mcld {
 
 /** \class DarwinLDBackend
  *  \brief DarwinLDBackend provides a common interface for all Darwin OS
@@ -18,11 +17,8 @@ namespace mcld
  *
  *  \see
  */
-class DarwinLDBackend
-{
+class DarwinLDBackend {};
 
-};
-
-} // namespace mcld
+}  // namespace mcld
 
 #endif  // MCLD_TARGET_DARWINLDBACKEND_H_

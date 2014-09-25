@@ -20,34 +20,28 @@ static llvm::ManagedStatic<FileTokenFactory> g_FileTokenFactory;
 //===----------------------------------------------------------------------===//
 // FileToken
 //===----------------------------------------------------------------------===//
-FileToken::FileToken()
-{
+FileToken::FileToken() {
 }
 
 FileToken::FileToken(const std::string& pName, bool pAsNeeded)
-    : InputToken(InputToken::File, pName, pAsNeeded)
-{
+    : InputToken(InputToken::File, pName, pAsNeeded) {
 }
 
-FileToken::~FileToken()
-{
+FileToken::~FileToken() {
 }
 
-FileToken* FileToken::create(const std::string& pName, bool pAsNeeded)
-{
+FileToken* FileToken::create(const std::string& pName, bool pAsNeeded) {
   FileToken* result = g_FileTokenFactory->allocate();
   new (result) FileToken(pName, pAsNeeded);
   return result;
 }
 
-void FileToken::destroy(FileToken*& pFileToken)
-{
+void FileToken::destroy(FileToken*& pFileToken) {
   g_FileTokenFactory->destroy(pFileToken);
   g_FileTokenFactory->deallocate(pFileToken);
   pFileToken = NULL;
 }
 
-void FileToken::clear()
-{
+void FileToken::clear() {
   g_FileTokenFactory->clear();
 }

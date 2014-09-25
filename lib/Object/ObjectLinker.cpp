@@ -67,8 +67,7 @@ ObjectLinker::ObjectLinker(const LinkerConfig& pConfig,
       m_pWriter(NULL) {
 }
 
-ObjectLinker::~ObjectLinker()
-{
+ObjectLinker::~ObjectLinker() {
   delete m_pObjectReader;
   delete m_pDynObjReader;
   delete m_pArchiveReader;
@@ -78,26 +77,23 @@ ObjectLinker::~ObjectLinker()
   delete m_pWriter;
 }
 
-bool ObjectLinker::initialize(Module& pModule, IRBuilder& pBuilder)
-{
+bool ObjectLinker::initialize(Module& pModule, IRBuilder& pBuilder) {
   m_pModule = &pModule;
   m_pBuilder = &pBuilder;
 
   // initialize the readers and writers
-  m_pObjectReader  = m_LDBackend.createObjectReader(*m_pBuilder);
+  m_pObjectReader = m_LDBackend.createObjectReader(*m_pBuilder);
   m_pArchiveReader = m_LDBackend.createArchiveReader(*m_pModule);
-  m_pDynObjReader  = m_LDBackend.createDynObjReader(*m_pBuilder);
-  m_pBinaryReader  = m_LDBackend.createBinaryReader(*m_pBuilder);
-  m_pGroupReader   = new GroupReader(*m_pModule,
-                                     *m_pObjectReader,
-                                     *m_pDynObjReader,
-                                     *m_pArchiveReader,
-                                     *m_pBinaryReader);
-  m_pScriptReader  = new ScriptReader(*m_pObjectReader,
-                                      *m_pArchiveReader,
-                                      *m_pDynObjReader,
-                                      *m_pGroupReader);
-  m_pWriter        = m_LDBackend.createWriter();
+  m_pDynObjReader = m_LDBackend.createDynObjReader(*m_pBuilder);
+  m_pBinaryReader = m_LDBackend.createBinaryReader(*m_pBuilder);
+  m_pGroupReader = new GroupReader(*m_pModule,
+                                   *m_pObjectReader,
+                                   *m_pDynObjReader,
+                                   *m_pArchiveReader,
+                                   *m_pBinaryReader);
+  m_pScriptReader = new ScriptReader(
+      *m_pObjectReader, *m_pArchiveReader, *m_pDynObjReader, *m_pGroupReader);
+  m_pWriter = m_LDBackend.createWriter();
 
   // initialize Relocator
   m_LDBackend.initRelocator();
@@ -106,8 +102,7 @@ bool ObjectLinker::initialize(Module& pModule, IRBuilder& pBuilder)
 }
 
 /// initStdSections - initialize standard sections
-bool ObjectLinker::initStdSections()
-{
+bool ObjectLinker::initStdSections() {
   ObjectBuilder builder(*m_pModule);
 
   // initialize standard sections
@@ -120,21 +115,20 @@ bool ObjectLinker::initStdSections()
   return true;
 }
 
-void ObjectLinker::addUndefinedSymbols()
-{
+void ObjectLinker::addUndefinedSymbols() {
   // Add the symbol set by -u as an undefind global symbol into symbol pool
   GeneralOptions::const_undef_sym_iterator usym;
   GeneralOptions::const_undef_sym_iterator usymEnd =
       m_Config.options().undef_sym_end();
   for (usym = m_Config.options().undef_sym_begin(); usym != usymEnd; ++usym) {
     Resolver::Result result;
-    m_pModule->getNamePool().insertSymbol(*usym, // name
-                                          false, // isDyn
+    m_pModule->getNamePool().insertSymbol(*usym,  // name
+                                          false,  // isDyn
                                           ResolveInfo::NoType,
                                           ResolveInfo::Undefined,
                                           ResolveInfo::Global,
-                                          0x0, // size
-                                          0x0, // value
+                                          0x0,  // size
+                                          0x0,  // value
                                           ResolveInfo::Default,
                                           NULL,
                                           result);
@@ -151,15 +145,14 @@ void ObjectLinker::addUndefinedSymbols()
   }
 }
 
-void ObjectLinker::normalize()
-{
+void ObjectLinker::normalize() {
   // -----  set up inputs  ----- //
   Module::input_iterator input, inEnd = m_pModule->input_end();
-  for (input = m_pModule->input_begin(); input!=inEnd; ++input) {
+  for (input = m_pModule->input_begin(); input != inEnd; ++input) {
     // is a group node
     if (isGroup(input)) {
-      getGroupReader()->readGroup(input, inEnd, m_pBuilder->getInputBuilder(),
-                                  m_Config);
+      getGroupReader()->readGroup(
+          input, inEnd, m_pBuilder->getInputBuilder(), m_Config);
       continue;
     }
 
@@ -186,23 +179,23 @@ void ObjectLinker::normalize()
       (*input)->setType(Input::Object);
       getBinaryReader()->readBinary(**input);
       m_pModule->getObjectList().push_back(*input);
-    } else if (doContinue && getObjectReader()->isMyFormat(**input,
-                                                           doContinue)) {
+    } else if (doContinue &&
+               getObjectReader()->isMyFormat(**input, doContinue)) {
       // is a relocatable object file
       (*input)->setType(Input::Object);
       getObjectReader()->readHeader(**input);
       getObjectReader()->readSections(**input);
       getObjectReader()->readSymbols(**input);
       m_pModule->getObjectList().push_back(*input);
-    } else if (doContinue && getDynObjReader()->isMyFormat(**input,
-                                                           doContinue)) {
+    } else if (doContinue &&
+               getDynObjReader()->isMyFormat(**input, doContinue)) {
       // is a shared object file
       (*input)->setType(Input::DynObj);
       getDynObjReader()->readHeader(**input);
       getDynObjReader()->readSymbols(**input);
       m_pModule->getLibraryList().push_back(*input);
-    } else if (doContinue && getArchiveReader()->isMyFormat(**input,
-                                                            doContinue)) {
+    } else if (doContinue &&
+               getArchiveReader()->isMyFormat(**input, doContinue)) {
       // is an archive
       (*input)->setType(Input::Archive);
       if (m_Config.options().isInExcludeLIBS(**input)) {
@@ -210,34 +203,32 @@ void ObjectLinker::normalize()
       }
       Archive archive(**input, m_pBuilder->getInputBuilder());
       getArchiveReader()->readArchive(m_Config, archive);
-      if(archive.numOfObjectMember() > 0) {
+      if (archive.numOfObjectMember() > 0) {
         m_pModule->getInputTree().merge<InputTree::Inclusive>(input,
                                                               archive.inputs());
       }
-    } else if (doContinue && getScriptReader()->isMyFormat(**input,
-                                                           doContinue)) {
+    } else if (doContinue &&
+               getScriptReader()->isMyFormat(**input, doContinue)) {
       // try to parse input as a linker script
-      ScriptFile script(ScriptFile::LDScript,
-                        **input,
-                        m_pBuilder->getInputBuilder());
+      ScriptFile script(
+          ScriptFile::LDScript, **input, m_pBuilder->getInputBuilder());
       if (getScriptReader()->readScript(m_Config, script)) {
         (*input)->setType(Input::Script);
         script.activate(*m_pModule);
         if (script.inputs().size() > 0) {
-          m_pModule->getInputTree().merge<InputTree::Inclusive>(input,
-              script.inputs());
+          m_pModule->getInputTree().merge<InputTree::Inclusive>(
+              input, script.inputs());
         }
       }
     } else {
       if (m_Config.options().warnMismatch())
-        warning(diag::warn_unrecognized_input_file) << (*input)->path()
-            << m_Config.targets().triple().str();
+        warning(diag::warn_unrecognized_input_file)
+            << (*input)->path() << m_Config.targets().triple().str();
     }
-  } // end of for
+  }  // end of for
 }
 
-bool ObjectLinker::linkable() const
-{
+bool ObjectLinker::linkable() const {
   // check we have input and output files
   if (m_pModule->getInputTree().empty()) {
     error(diag::err_no_inputs);
@@ -247,9 +238,9 @@ bool ObjectLinker::linkable() const
   // can not mix -static with shared objects
   Module::const_lib_iterator lib, libEnd = m_pModule->lib_end();
   for (lib = m_pModule->lib_begin(); lib != libEnd; ++lib) {
-    if((*lib)->attribute()->isStatic()) {
+    if ((*lib)->attribute()->isStatic()) {
       error(diag::err_mixed_shared_static_objects) << (*lib)->name()
-          << (*lib)->path();
+                                                   << (*lib)->path();
       return false;
     }
   }
@@ -272,8 +263,7 @@ bool ObjectLinker::linkable() const
   return true;
 }
 
-void ObjectLinker::dataStrippingOpt()
-{
+void ObjectLinker::dataStrippingOpt() {
   // Garbege collection
   if (m_Config.options().GCSections()) {
     GarbageCollection GC(m_Config, m_LDBackend, *m_pModule);
@@ -291,12 +281,12 @@ void ObjectLinker::dataStrippingOpt()
 /// readRelocations - read all relocation entries
 ///
 /// All symbols should be read and resolved before this function.
-bool ObjectLinker::readRelocations()
-{
+bool ObjectLinker::readRelocations() {
   // Bitcode is read by the other path. This function reads relocation sections
   // in object files.
-  mcld::InputTree::bfs_iterator input, inEnd = m_pModule->getInputTree().bfs_end();
-  for (input=m_pModule->getInputTree().bfs_begin(); input!=inEnd; ++input) {
+  mcld::InputTree::bfs_iterator input,
+      inEnd = m_pModule->getInputTree().bfs_end();
+  for (input = m_pModule->getInputTree().bfs_begin(); input != inEnd; ++input) {
     if ((*input)->type() == Input::Object && (*input)->hasMemArea()) {
       if (!getObjectReader()->readRelocations(**input))
         return false;
@@ -307,8 +297,7 @@ bool ObjectLinker::readRelocations()
 }
 
 /// mergeSections - put allinput sections into output sections
-bool ObjectLinker::mergeSections()
-{
+bool ObjectLinker::mergeSections() {
   // Set up input/output from ldscript requirement if any
   {
     RpnEvaluator evaluator(*m_pModule, m_LDBackend);
@@ -331,14 +320,14 @@ bool ObjectLinker::mergeSections()
         LDSection* in_sect = (*in)->getSection();
         if ((*out)->prolog().hasSubAlign())
           in_sect->setAlign(in_align);
-      } // for each input section description
+      }  // for each input section description
 
       // force output alignment from ldscript if any
       if ((*out)->prolog().hasAlign()) {
         evaluator.eval((*out)->prolog().align(), out_align);
         out_sect->setAlign(out_align);
       }
-    } // for each output section description
+    }  // for each output section description
   }
 
   ObjectBuilder builder(*m_pModule);
@@ -358,7 +347,7 @@ bool ObjectLinker::mergeSections()
           continue;
         case LDFileFormat::Relocation: {
           if (!(*sect)->hasRelocData())
-            continue; // skip
+            continue;  // skip
 
           if ((*sect)->getLink()->kind() == LDFileFormat::Ignore ||
               (*sect)->getLink()->kind() == LDFileFormat::Folded)
@@ -374,7 +363,7 @@ bool ObjectLinker::mergeSections()
           break;
         case LDFileFormat::EhFrame: {
           if (!(*sect)->hasEhFrame())
-            continue; // skip
+            continue;  // skip
 
           LDSection* out_sect = NULL;
           if ((out_sect = builder.MergeSection(**obj, **sect)) != NULL) {
@@ -388,7 +377,7 @@ bool ObjectLinker::mergeSections()
         }
         default: {
           if (!(*sect)->hasSectionData())
-            continue; // skip
+            continue;  // skip
 
           LDSection* out_sect = NULL;
           if ((out_sect = builder.MergeSection(**obj, **sect)) != NULL) {
@@ -400,9 +389,9 @@ bool ObjectLinker::mergeSections()
           }
           break;
         }
-      } // end of switch
-    } // for each section
-  } // for each obj
+      }  // end of switch
+    }    // for each section
+  }      // for each obj
 
   {
     SectionMap::iterator out, outBegin, outEnd;
@@ -421,7 +410,7 @@ bool ObjectLinker::mergeSections()
           builder.UpdateSectionAlign(*out_sect, *in_sect);
           m_LDBackend.updateSectionFlags(*out_sect, *in_sect);
         }
-      } // for each input section description
+      }  // for each input section description
 
       if ((*out)->hasContent()) {
         LDSection* target = m_pModule->getSection((*out)->name());
@@ -432,14 +421,13 @@ bool ObjectLinker::mergeSections()
           m_LDBackend.updateSectionFlags(*target, *out_sect);
         }
       }
-    } // for each output section description
+    }  // for each output section description
   }
 
   return true;
 }
 
-void ObjectLinker::addSymbolToOutput(ResolveInfo& pInfo, Module& pModule)
-{
+void ObjectLinker::addSymbolToOutput(ResolveInfo& pInfo, Module& pModule) {
   // section symbols will be defined by linker later, we should not add section
   // symbols to output here
   if (ResolveInfo::Section == pInfo.type() || pInfo.outSymbol() == NULL)
@@ -447,8 +435,14 @@ void ObjectLinker::addSymbolToOutput(ResolveInfo& pInfo, Module& pModule)
 
   // if the symbols defined in the Ignore sections (e.g. discared by GC), then
   // not to put them to output
-  if (pInfo.outSymbol()->hasFragRef() && LDFileFormat::Ignore ==
-        pInfo.outSymbol()->fragRef()->frag()->getParent()->getSection().kind())
+  if (pInfo.outSymbol()->hasFragRef() &&
+      LDFileFormat::Ignore ==
+          pInfo.outSymbol()
+              ->fragRef()
+              ->frag()
+              ->getParent()
+              ->getSection()
+              .kind())
     return;
 
   if (pInfo.shouldForceLocal(m_Config))
@@ -457,31 +451,27 @@ void ObjectLinker::addSymbolToOutput(ResolveInfo& pInfo, Module& pModule)
     pModule.getSymbolTable().add(*pInfo.outSymbol());
 }
 
-void ObjectLinker::addSymbolsToOutput(Module& pModule)
-{
+void ObjectLinker::addSymbolsToOutput(Module& pModule) {
   // Traverse all the free ResolveInfo and add the output symobols to output
   NamePool::freeinfo_iterator free_it,
-                              free_end = pModule.getNamePool().freeinfo_end();
+      free_end = pModule.getNamePool().freeinfo_end();
   for (free_it = pModule.getNamePool().freeinfo_begin(); free_it != free_end;
        ++free_it)
     addSymbolToOutput(**free_it, pModule);
 
-
   // Traverse all the resolveInfo and add the output symbol to output
   NamePool::syminfo_iterator info_it,
-                             info_end = pModule.getNamePool().syminfo_end();
+      info_end = pModule.getNamePool().syminfo_end();
   for (info_it = pModule.getNamePool().syminfo_begin(); info_it != info_end;
        ++info_it)
     addSymbolToOutput(*info_it.getEntry(), pModule);
 }
 
-
 /// addStandardSymbols - shared object and executable files need some
 /// standard symbols
 ///   @return if there are some input symbols with the same name to the
 ///   standard symbols, return false
-bool ObjectLinker::addStandardSymbols()
-{
+bool ObjectLinker::addStandardSymbols() {
   // create and add section symbols for each output section
   Module::iterator iter, iterEnd = m_pModule->end();
   for (iter = m_pModule->begin(); iter != iterEnd; ++iter) {
@@ -495,25 +485,23 @@ bool ObjectLinker::addStandardSymbols()
 /// target-dependent symbols
 ///   @return if there are some input symbols with the same name to the
 ///   target symbols, return false
-bool ObjectLinker::addTargetSymbols()
-{
+bool ObjectLinker::addTargetSymbols() {
   m_LDBackend.initTargetSymbols(*m_pBuilder, *m_pModule);
   return true;
 }
 
 /// addScriptSymbols - define symbols from the command line option or linker
 /// scripts.
-bool ObjectLinker::addScriptSymbols()
-{
+bool ObjectLinker::addScriptSymbols() {
   LinkerScript& script = m_pModule->getScript();
   LinkerScript::Assignments::iterator it, ie = script.assignments().end();
   // go through the entire symbol assignments
   for (it = script.assignments().begin(); it != ie; ++it) {
     LDSymbol* symbol = NULL;
     assert((*it).second.symbol().type() == Operand::SYMBOL);
-    const llvm::StringRef symName =  (*it).second.symbol().name();
-    ResolveInfo::Type       type = ResolveInfo::NoType;
-    ResolveInfo::Visibility vis  = ResolveInfo::Default;
+    const llvm::StringRef symName = (*it).second.symbol().name();
+    ResolveInfo::Type type = ResolveInfo::NoType;
+    ResolveInfo::Visibility vis = ResolveInfo::Default;
     size_t size = 0;
     ResolveInfo* old_info = m_pModule->getNamePool().findInfo(symName);
     // if the symbol does not exist, we can set type to NOTYPE
@@ -531,33 +519,32 @@ bool ObjectLinker::addScriptSymbols()
     switch ((*it).second.type()) {
       case Assignment::HIDDEN:
         vis = ResolveInfo::Hidden;
-        // Fall through
+      // Fall through
       case Assignment::DEFAULT:
-        symbol =
-            m_pBuilder->AddSymbol<IRBuilder::Force,
-                                  IRBuilder::Unresolve>(symName,
-                                                        type,
-                                                        ResolveInfo::Define,
-                                                        ResolveInfo::Absolute,
-                                                        size,
-                                                        0x0,
-                                                        FragmentRef::Null(),
-                                                        vis);
+        symbol = m_pBuilder->AddSymbol<IRBuilder::Force, IRBuilder::Unresolve>(
+            symName,
+            type,
+            ResolveInfo::Define,
+            ResolveInfo::Absolute,
+            size,
+            0x0,
+            FragmentRef::Null(),
+            vis);
         break;
       case Assignment::PROVIDE_HIDDEN:
         vis = ResolveInfo::Hidden;
-        // Fall through
+      // Fall through
       case Assignment::PROVIDE:
         symbol =
-          m_pBuilder->AddSymbol<IRBuilder::AsReferred,
-                                IRBuilder::Unresolve>(symName,
-                                                      type,
-                                                      ResolveInfo::Define,
-                                                      ResolveInfo::Absolute,
-                                                      size,
-                                                      0x0,
-                                                      FragmentRef::Null(),
-                                                      vis);
+            m_pBuilder->AddSymbol<IRBuilder::AsReferred, IRBuilder::Unresolve>(
+                symName,
+                type,
+                ResolveInfo::Define,
+                ResolveInfo::Absolute,
+                size,
+                0x0,
+                FragmentRef::Null(),
+                vis);
         break;
     }
     // Set symbol of this assignment.
@@ -566,8 +553,7 @@ bool ObjectLinker::addScriptSymbols()
   return true;
 }
 
-bool ObjectLinker::scanRelocations()
-{
+bool ObjectLinker::scanRelocations() {
   // apply all relocations of all inputs
   Module::obj_iterator input, inEnd = m_pModule->obj_end();
   for (input = m_pModule->obj_begin(); input != inEnd; ++input) {
@@ -590,30 +576,25 @@ bool ObjectLinker::scanRelocations()
         if (!info->outSymbol()->hasFragRef() &&
             ResolveInfo::Section == info->type() &&
             ResolveInfo::Undefined == info->desc())
-           continue;
+          continue;
 
         // scan relocation
         if (LinkerConfig::Object != m_Config.codeGenType()) {
-          m_LDBackend.getRelocator()->scanRelocation(*relocation,
-                                                     *m_pBuilder,
-                                                     *m_pModule,
-                                                     **rs,
-                                                     **input);
+          m_LDBackend.getRelocator()->scanRelocation(
+              *relocation, *m_pBuilder, *m_pModule, **rs, **input);
         } else {
-          m_LDBackend.getRelocator()->partialScanRelocation(*relocation,
-                                                            *m_pModule,
-                                                            **rs);
+          m_LDBackend.getRelocator()->partialScanRelocation(
+              *relocation, *m_pModule, **rs);
         }
-      } // for all relocations
-    } // for all relocation section
+      }  // for all relocations
+    }    // for all relocation section
     m_LDBackend.getRelocator()->finalizeScan(**input);
-  } // for all inputs
+  }  // for all inputs
   return true;
 }
 
 /// initStubs - initialize stub-related stuff.
-bool ObjectLinker::initStubs()
-{
+bool ObjectLinker::initStubs() {
   // initialize BranchIslandFactory
   m_LDBackend.initBRIslandFactory();
 
@@ -627,8 +608,7 @@ bool ObjectLinker::initStubs()
 
 /// allocateCommonSymobols - allocate fragments for common symbols to the
 /// corresponding sections
-bool ObjectLinker::allocateCommonSymbols()
-{
+bool ObjectLinker::allocateCommonSymbols() {
   if (LinkerConfig::Object != m_Config.codeGenType() ||
       m_Config.options().isDefineCommon())
     return m_LDBackend.allocateCommonSymbols(*m_pModule);
@@ -636,13 +616,13 @@ bool ObjectLinker::allocateCommonSymbols()
 }
 
 /// prelayout - help backend to do some modification before layout
-bool ObjectLinker::prelayout()
-{
+bool ObjectLinker::prelayout() {
   // finalize the section symbols, set their fragment reference and push them
   // into output symbol table
   Module::iterator sect, sEnd = m_pModule->end();
   for (sect = m_pModule->begin(); sect != sEnd; ++sect) {
-    m_pModule->getSectionSymbolSet().finalize(**sect,
+    m_pModule->getSectionSymbolSet().finalize(
+        **sect,
         m_pModule->getSymbolTable(),
         m_Config.codeGenType() == LinkerConfig::Object);
   }
@@ -652,15 +632,15 @@ bool ObjectLinker::prelayout()
   /// check program interpreter - computer the name size of the runtime dyld
   if (!m_Config.isCodeStatic() &&
       (LinkerConfig::Exec == m_Config.codeGenType() ||
-       m_Config.options().isPIE() ||
-       m_Config.options().hasDyld()))
+       m_Config.options().isPIE() || m_Config.options().hasDyld()))
     m_LDBackend.sizeInterp();
 
   /// measure NamePools - compute the size of name pool sections
   /// In ELF, will compute  the size of.symtab, .strtab, .dynsym, .dynstr,
   /// .hash and .shstrtab sections.
   ///
-  /// dump all symbols and strings from ObjectLinker and build the format-dependent
+  /// dump all symbols and strings from ObjectLinker and build the
+  /// format-dependent
   /// hash table.
   /// @note sizeNamePools replies on LinkerConfig::CodePosition. Must determine
   /// code position model before calling GNULDBackend::sizeNamePools()
@@ -680,27 +660,24 @@ bool ObjectLinker::prelayout()
 ///   Because we do not support instruction relaxing in this early version,
 ///   if there is a branch can not jump to its target, we return false
 ///   directly
-bool ObjectLinker::layout()
-{
+bool ObjectLinker::layout() {
   m_LDBackend.layout(*m_pModule);
   return true;
 }
 
 /// prelayout - help backend to do some modification after layout
-bool ObjectLinker::postlayout()
-{
+bool ObjectLinker::postlayout() {
   m_LDBackend.postLayout(*m_pModule, *m_pBuilder);
   return true;
 }
 
 /// finalizeSymbolValue - finalize the resolved symbol value.
-///   Before relocate(), after layout(), ObjectLinker should correct value of all
+///   Before relocate(), after layout(), ObjectLinker should correct value of
+///   all
 ///   symbol.
-bool ObjectLinker::finalizeSymbolValue()
-{
+bool ObjectLinker::finalizeSymbolValue() {
   Module::sym_iterator symbol, symEnd = m_pModule->sym_end();
   for (symbol = m_pModule->sym_begin(); symbol != symEnd; ++symbol) {
-
     if ((*symbol)->resolveInfo()->isAbsolute() ||
         (*symbol)->resolveInfo()->type() == ResolveInfo::File) {
       // absolute symbols should just use its value directly (i.e., the result
@@ -744,7 +721,7 @@ bool ObjectLinker::finalizeSymbolValue()
       break;
 
     symbol->setValue(assignment.symbol().value());
-  } // for each script symbol assignment
+  }  // for each script symbol assignment
 
   bool assertionsPassed = true;
   LinkerScript::Assertions::iterator assert, assertEnd;
@@ -754,7 +731,7 @@ bool ObjectLinker::finalizeSymbolValue()
     evaluator.eval((*assert).getRpnExpr(), res);
     if (res == 0x0)
       fatal(diag::err_assert_failed) << (*assert).message();
-  } // for each assertion in ldscript
+  }  // for each assertion in ldscript
 
   return finalized && scriptSymsFinalized && assertionsPassed;
 }
@@ -764,8 +741,7 @@ bool ObjectLinker::finalizeSymbolValue()
 /// Create relocation section, asking TargetLDBackend to
 /// read the relocation information into RelocationEntry
 /// and push_back into the relocation section
-bool ObjectLinker::relocation()
-{
+bool ObjectLinker::relocation() {
   // when producing relocatables, no need to apply relocation
   if (LinkerConfig::Object == m_Config.codeGenType())
     return true;
@@ -795,10 +771,10 @@ bool ObjectLinker::relocation()
           continue;
 
         relocation->apply(*m_LDBackend.getRelocator());
-      } // for all relocations
-    } // for all relocation section
+      }  // for all relocations
+    }    // for all relocation section
     m_LDBackend.getRelocator()->finalizeApply(**input);
-  } // for all inputs
+  }  // for all inputs
 
   // apply relocations created by relaxation
   BranchIslandFactory* br_factory = m_LDBackend.getBRIslandFactory();
@@ -813,15 +789,12 @@ bool ObjectLinker::relocation()
 }
 
 /// emitOutput - emit the output file.
-bool ObjectLinker::emitOutput(FileOutputBuffer& pOutput)
-{
+bool ObjectLinker::emitOutput(FileOutputBuffer& pOutput) {
   return std::error_code() == getWriter()->writeObject(*m_pModule, pOutput);
 }
 
-
 /// postProcessing - do modification after all processes
-bool ObjectLinker::postProcessing(FileOutputBuffer& pOutput)
-{
+bool ObjectLinker::postProcessing(FileOutputBuffer& pOutput) {
   if (LinkerConfig::Object != m_Config.codeGenType())
     normalSyncRelocationResult(pOutput);
   else
@@ -834,8 +807,7 @@ bool ObjectLinker::postProcessing(FileOutputBuffer& pOutput)
   return true;
 }
 
-void ObjectLinker::normalSyncRelocationResult(FileOutputBuffer& pOutput)
-{
+void ObjectLinker::normalSyncRelocationResult(FileOutputBuffer& pOutput) {
   uint8_t* data = pOutput.getBufferStart();
 
   // sync all relocations of all inputs
@@ -870,9 +842,9 @@ void ObjectLinker::normalSyncRelocationResult(FileOutputBuffer& pOutput)
         if (relocation->type() == 0x0)
           continue;
         writeRelocationResult(*relocation, data);
-      } // for all relocations
-    } // for all relocation section
-  } // for all inputs
+      }  // for all relocations
+    }    // for all relocation section
+  }      // for all inputs
 
   // sync relocations created by relaxation
   BranchIslandFactory* br_factory = m_LDBackend.getBRIslandFactory();
@@ -887,8 +859,7 @@ void ObjectLinker::normalSyncRelocationResult(FileOutputBuffer& pOutput)
   }
 }
 
-void ObjectLinker::partialSyncRelocationResult(FileOutputBuffer& pOutput)
-{
+void ObjectLinker::partialSyncRelocationResult(FileOutputBuffer& pOutput) {
   uint8_t* data = pOutput.getBufferStart();
 
   // traverse outputs' LDSection to get RelocData
@@ -915,8 +886,7 @@ void ObjectLinker::partialSyncRelocationResult(FileOutputBuffer& pOutput)
   }
 }
 
-void ObjectLinker::writeRelocationResult(Relocation& pReloc, uint8_t* pOutput)
-{
+void ObjectLinker::writeRelocationResult(Relocation& pReloc, uint8_t* pOutput) {
   // get output file offset
   size_t out_offset =
       pReloc.targetRef().frag()->getParent()->getSection().offset() +
@@ -924,34 +894,35 @@ void ObjectLinker::writeRelocationResult(Relocation& pReloc, uint8_t* pOutput)
 
   uint8_t* target_addr = pOutput + out_offset;
   // byte swapping if target and host has different endian, and then write back
-  if(llvm::sys::IsLittleEndianHost != m_Config.targets().isLittleEndian()) {
-     uint64_t tmp_data = 0;
+  if (llvm::sys::IsLittleEndianHost != m_Config.targets().isLittleEndian()) {
+    uint64_t tmp_data = 0;
 
-     switch(pReloc.size(*m_LDBackend.getRelocator())) {
-       case 8u:
-         std::memcpy(target_addr, &pReloc.target(), 1);
-         break;
+    switch (pReloc.size(*m_LDBackend.getRelocator())) {
+      case 8u:
+        std::memcpy(target_addr, &pReloc.target(), 1);
+        break;
 
-       case 16u:
-         tmp_data = mcld::bswap16(pReloc.target());
-         std::memcpy(target_addr, &tmp_data, 2);
-         break;
+      case 16u:
+        tmp_data = mcld::bswap16(pReloc.target());
+        std::memcpy(target_addr, &tmp_data, 2);
+        break;
 
-       case 32u:
-         tmp_data = mcld::bswap32(pReloc.target());
-         std::memcpy(target_addr, &tmp_data, 4);
-         break;
+      case 32u:
+        tmp_data = mcld::bswap32(pReloc.target());
+        std::memcpy(target_addr, &tmp_data, 4);
+        break;
 
-       case 64u:
-         tmp_data = mcld::bswap64(pReloc.target());
-         std::memcpy(target_addr, &tmp_data, 8);
-         break;
+      case 64u:
+        tmp_data = mcld::bswap64(pReloc.target());
+        std::memcpy(target_addr, &tmp_data, 8);
+        break;
 
-       default:
-         break;
+      default:
+        break;
     }
   } else {
-    std::memcpy(target_addr, &pReloc.target(),
-                pReloc.size(*m_LDBackend.getRelocator())/8);
+    std::memcpy(target_addr,
+                &pReloc.target(),
+                pReloc.size(*m_LDBackend.getRelocator()) / 8);
   }
 }

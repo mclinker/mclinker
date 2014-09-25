@@ -68,8 +68,7 @@ ARMGNULDBackend::ARMGNULDBackend(const LinkerConfig& pConfig, GNUInfo* pInfo)
       m_pAttributes(NULL) {
 }
 
-ARMGNULDBackend::~ARMGNULDBackend()
-{
+ARMGNULDBackend::~ARMGNULDBackend() {
   delete m_pRelocator;
   delete m_pGOT;
   delete m_pPLT;
@@ -80,21 +79,20 @@ ARMGNULDBackend::~ARMGNULDBackend()
 }
 
 void ARMGNULDBackend::initTargetSections(Module& pModule,
-                                         ObjectBuilder& pBuilder)
-{
- // FIXME: Currently we set exidx and extab to "Exception" and directly emit
- // them from input
-  m_pEXIDX      = pBuilder.CreateSection(".ARM.exidx",
-                                         LDFileFormat::Target,
-                                         llvm::ELF::SHT_ARM_EXIDX,
-                                         llvm::ELF::SHF_ALLOC |
-                                             llvm::ELF::SHF_LINK_ORDER,
-                                         config().targets().bitclass() / 8);
-  m_pEXTAB      = pBuilder.CreateSection(".ARM.extab",
-                                         LDFileFormat::Target,
-                                         llvm::ELF::SHT_PROGBITS,
-                                         llvm::ELF::SHF_ALLOC,
-                                         0x1);
+                                         ObjectBuilder& pBuilder) {
+  // FIXME: Currently we set exidx and extab to "Exception" and directly emit
+  // them from input
+  m_pEXIDX =
+      pBuilder.CreateSection(".ARM.exidx",
+                             LDFileFormat::Target,
+                             llvm::ELF::SHT_ARM_EXIDX,
+                             llvm::ELF::SHF_ALLOC | llvm::ELF::SHF_LINK_ORDER,
+                             config().targets().bitclass() / 8);
+  m_pEXTAB = pBuilder.CreateSection(".ARM.extab",
+                                    LDFileFormat::Target,
+                                    llvm::ELF::SHT_PROGBITS,
+                                    llvm::ELF::SHF_ALLOC,
+                                    0x1);
   m_pAttributes = pBuilder.CreateSection(".ARM.attributes",
                                          LDFileFormat::Target,
                                          llvm::ELF::SHT_ARM_ATTRIBUTES,
@@ -128,8 +126,7 @@ void ARMGNULDBackend::initTargetSections(Module& pModule,
   }
 }
 
-void ARMGNULDBackend::initTargetSymbols(IRBuilder& pBuilder, Module& pModule)
-{
+void ARMGNULDBackend::initTargetSymbols(IRBuilder& pBuilder, Module& pModule) {
   // Define the symbol _GLOBAL_OFFSET_TABLE_ if there is a symbol with the
   // same name in input
   if (LinkerConfig::Object != config().codeGenType()) {
@@ -147,29 +144,28 @@ void ARMGNULDBackend::initTargetSymbols(IRBuilder& pBuilder, Module& pModule)
   if (m_pEXIDX != NULL && m_pEXIDX->size() != 0x0) {
     FragmentRef* exidx_start =
         FragmentRef::Create(m_pEXIDX->getSectionData()->front(), 0x0);
-    FragmentRef* exidx_end =
-        FragmentRef::Create(m_pEXIDX->getSectionData()->front(),
-                            m_pEXIDX->size());
+    FragmentRef* exidx_end = FragmentRef::Create(
+        m_pEXIDX->getSectionData()->front(), m_pEXIDX->size());
     m_pEXIDXStart =
         pBuilder.AddSymbol<IRBuilder::AsReferred, IRBuilder::Resolve>(
             "__exidx_start",
             ResolveInfo::Object,
             ResolveInfo::Define,
             ResolveInfo::Local,
-            0x0, // size
-            0x0, // value
-            exidx_start, // FragRef
+            0x0,          // size
+            0x0,          // value
+            exidx_start,  // FragRef
             ResolveInfo::Default);
 
     m_pEXIDXEnd = pBuilder.AddSymbol<IRBuilder::AsReferred, IRBuilder::Resolve>(
-                     "__exidx_end",
-                     ResolveInfo::Object,
-                     ResolveInfo::Define,
-                     ResolveInfo::Local,
-                     0x0, // size
-                     0x0, // value
-                     exidx_end, // FragRef
-                     ResolveInfo::Default);
+        "__exidx_end",
+        ResolveInfo::Object,
+        ResolveInfo::Define,
+        ResolveInfo::Local,
+        0x0,        // size
+        0x0,        // value
+        exidx_end,  // FragRef
+        ResolveInfo::Default);
     // change __exidx_start/_end to local dynamic category
     if (m_pEXIDXStart != NULL)
       pModule.getSymbolTable().changeToDynamic(*m_pEXIDXStart);
@@ -182,45 +178,41 @@ void ARMGNULDBackend::initTargetSymbols(IRBuilder& pBuilder, Module& pModule)
             ResolveInfo::NoType,
             ResolveInfo::Define,
             ResolveInfo::Absolute,
-            0x0, // size
-            0x0, // value
+            0x0,  // size
+            0x0,  // value
             FragmentRef::Null(),
             ResolveInfo::Default);
 
     m_pEXIDXEnd = pBuilder.AddSymbol<IRBuilder::AsReferred, IRBuilder::Resolve>(
-                     "__exidx_end",
-                     ResolveInfo::NoType,
-                     ResolveInfo::Define,
-                     ResolveInfo::Absolute,
-                     0x0, // size
-                     0x0, // value
-                     FragmentRef::Null(),
-                     ResolveInfo::Default);
+        "__exidx_end",
+        ResolveInfo::NoType,
+        ResolveInfo::Define,
+        ResolveInfo::Absolute,
+        0x0,  // size
+        0x0,  // value
+        FragmentRef::Null(),
+        ResolveInfo::Default);
   }
 }
 
-bool ARMGNULDBackend::initRelocator()
-{
+bool ARMGNULDBackend::initRelocator() {
   if (m_pRelocator == NULL) {
     m_pRelocator = new ARMRelocator(*this, config());
   }
   return true;
 }
 
-const Relocator* ARMGNULDBackend::getRelocator() const
-{
+const Relocator* ARMGNULDBackend::getRelocator() const {
   assert(m_pRelocator != NULL);
   return m_pRelocator;
 }
 
-Relocator* ARMGNULDBackend::getRelocator()
-{
+Relocator* ARMGNULDBackend::getRelocator() {
   assert(m_pRelocator != NULL);
   return m_pRelocator;
 }
 
-void ARMGNULDBackend::doPreLayout(IRBuilder& pBuilder)
-{
+void ARMGNULDBackend::doPreLayout(IRBuilder& pBuilder) {
   // initialize .dynamic data
   if (!config().isCodeStatic() && m_pDynamic == NULL)
     m_pDynamic = new ARMELFDynamic(*this, config());
@@ -231,8 +223,7 @@ void ARMGNULDBackend::doPreLayout(IRBuilder& pBuilder)
   // set .got size
   // when building shared object, the .got section is must
   if (LinkerConfig::Object != config().codeGenType()) {
-    if (LinkerConfig::DynObj == config().codeGenType() ||
-        m_pGOT->hasGOT1() ||
+    if (LinkerConfig::DynObj == config().codeGenType() || m_pGOT->hasGOT1() ||
         m_pGOTSymbol != NULL) {
       m_pGOT->finalizeSectionSize();
       defineGOTSymbol(pBuilder);
@@ -245,25 +236,26 @@ void ARMGNULDBackend::doPreLayout(IRBuilder& pBuilder)
     ELFFileFormat* file_format = getOutputFormat();
     // set .rel.dyn size
     if (!m_pRelDyn->empty()) {
-      assert(!config().isCodeStatic() &&
-            "static linkage should not result in a dynamic relocation section");
+      assert(
+          !config().isCodeStatic() &&
+          "static linkage should not result in a dynamic relocation section");
       file_format->getRelDyn().setSize(m_pRelDyn->numOfRelocs() *
                                        getRelEntrySize());
     }
 
     // set .rel.plt size
     if (!m_pRelPLT->empty()) {
-      assert(!config().isCodeStatic() &&
-            "static linkage should not result in a dynamic relocation section");
+      assert(
+          !config().isCodeStatic() &&
+          "static linkage should not result in a dynamic relocation section");
       file_format->getRelPlt().setSize(m_pRelPLT->numOfRelocs() *
                                        getRelEntrySize());
     }
   }
 }
 
-void ARMGNULDBackend::doPostLayout(Module& pModule, IRBuilder& pBuilder)
-{
-  const ELFFileFormat *file_format = getOutputFormat();
+void ARMGNULDBackend::doPostLayout(Module& pModule, IRBuilder& pBuilder) {
+  const ELFFileFormat* file_format = getOutputFormat();
 
   // apply PLT
   if (file_format->hasPLT()) {
@@ -289,22 +281,19 @@ void ARMGNULDBackend::doPostLayout(Module& pModule, IRBuilder& pBuilder)
 
 /// dynamic - the dynamic section of the target machine.
 /// Use co-variant return type to return its own dynamic section.
-ARMELFDynamic& ARMGNULDBackend::dynamic()
-{
+ARMELFDynamic& ARMGNULDBackend::dynamic() {
   assert(m_pDynamic != NULL);
   return *m_pDynamic;
 }
 
 /// dynamic - the dynamic section of the target machine.
 /// Use co-variant return type to return its own dynamic section.
-const ARMELFDynamic& ARMGNULDBackend::dynamic() const
-{
+const ARMELFDynamic& ARMGNULDBackend::dynamic() const {
   assert(m_pDynamic != NULL);
   return *m_pDynamic;
 }
 
-void ARMGNULDBackend::defineGOTSymbol(IRBuilder& pBuilder)
-{
+void ARMGNULDBackend::defineGOTSymbol(IRBuilder& pBuilder) {
   // define symbol _GLOBAL_OFFSET_TABLE_ when .got create
   if (m_pGOTSymbol != NULL) {
     pBuilder.AddSymbol<IRBuilder::Force, IRBuilder::Unresolve>(
@@ -312,28 +301,25 @@ void ARMGNULDBackend::defineGOTSymbol(IRBuilder& pBuilder)
         ResolveInfo::Object,
         ResolveInfo::Define,
         ResolveInfo::Local,
-        0x0, // size
-        0x0, // value
+        0x0,  // size
+        0x0,  // value
+        FragmentRef::Create(*(m_pGOT->begin()), 0x0),
+        ResolveInfo::Hidden);
+  } else {
+    m_pGOTSymbol = pBuilder.AddSymbol<IRBuilder::Force, IRBuilder::Resolve>(
+        "_GLOBAL_OFFSET_TABLE_",
+        ResolveInfo::Object,
+        ResolveInfo::Define,
+        ResolveInfo::Local,
+        0x0,  // size
+        0x0,  // value
         FragmentRef::Create(*(m_pGOT->begin()), 0x0),
         ResolveInfo::Hidden);
   }
-  else {
-    m_pGOTSymbol = pBuilder.AddSymbol<IRBuilder::Force, IRBuilder::Resolve>(
-                      "_GLOBAL_OFFSET_TABLE_",
-                      ResolveInfo::Object,
-                      ResolveInfo::Define,
-                      ResolveInfo::Local,
-                      0x0, // size
-                      0x0, // value
-                      FragmentRef::Create(*(m_pGOT->begin()), 0x0),
-                      ResolveInfo::Hidden);
-  }
-
 }
 
 uint64_t ARMGNULDBackend::emitSectionData(const LDSection& pSection,
-                                          MemoryRegion& pRegion) const
-{
+                                          MemoryRegion& pRegion) const {
   assert(pRegion.size() && "Size of MemoryRegion is zero!");
 
   const ELFFileFormat* file_format = getOutputFormat();
@@ -359,10 +345,9 @@ uint64_t ARMGNULDBackend::emitSectionData(const LDSection& pSection,
   uint8_t* out_offset = pRegion.begin();
   for (frag_iter = sect_data->begin(); frag_iter != frag_end; ++frag_iter) {
     size_t size = frag_iter->size();
-    switch(frag_iter->getKind()) {
+    switch (frag_iter->getKind()) {
       case Fragment::Fillment: {
-        const FillFragment& fill_frag =
-          llvm::cast<FillFragment>(*frag_iter);
+        const FillFragment& fill_frag = llvm::cast<FillFragment>(*frag_iter);
         if (fill_frag.getValueSize() == 0) {
           // virtual fillment, ignore it.
           break;
@@ -389,7 +374,7 @@ uint64_t ARMGNULDBackend::emitSectionData(const LDSection& pSection,
             llvm::report_fatal_error(
                 "unsupported value size for align fragment emission yet.\n");
             break;
-        } // end switch
+        }  // end switch
         break;
       }
       case Fragment::Null: {
@@ -399,22 +384,20 @@ uint64_t ARMGNULDBackend::emitSectionData(const LDSection& pSection,
       default:
         llvm::report_fatal_error("unsupported fragment type.\n");
         break;
-    } // end switch
+    }  // end switch
     out_offset += size;
-  } // end for
+  }  // end for
   return pRegion.size();
 }
 
 /// finalizeSymbol - finalize the symbol value
-bool ARMGNULDBackend::finalizeTargetSymbols()
-{
+bool ARMGNULDBackend::finalizeTargetSymbols() {
   return true;
 }
 
 bool ARMGNULDBackend::mergeSection(Module& pModule,
                                    const Input& pInput,
-                                   LDSection& pSection)
-{
+                                   LDSection& pSection) {
   switch (pSection.type()) {
     case llvm::ELF::SHT_ARM_ATTRIBUTES: {
       return attribute().merge(pInput, pSection);
@@ -435,19 +418,19 @@ bool ARMGNULDBackend::mergeSection(Module& pModule,
       builder.MergeSection(pInput, pSection);
       return true;
     }
-  } // end of switch
+  }  // end of switch
   return true;
 }
 
-void ARMGNULDBackend::setUpReachedSectionsForGC(const Module& pModule,
-    GarbageCollection::SectionReachedListMap& pSectReachedListMap) const
-{
+void ARMGNULDBackend::setUpReachedSectionsForGC(
+    const Module& pModule,
+    GarbageCollection::SectionReachedListMap& pSectReachedListMap) const {
   // traverse all the input relocations to find the relocation sections applying
   // .ARM.exidx sections
   Module::const_obj_iterator input, inEnd = pModule.obj_end();
   for (input = pModule.obj_begin(); input != inEnd; ++input) {
     LDContext::const_sect_iterator rs,
-                                   rsEnd = (*input)->context()->relocSectEnd();
+        rsEnd = (*input)->context()->relocSectEnd();
     for (rs = (*input)->context()->relocSectBegin(); rs != rsEnd; ++rs) {
       // bypass the discarded relocation section
       // 1. its section kind is changed to Ignore. (The target section is a
@@ -503,8 +486,7 @@ void ARMGNULDBackend::setUpReachedSectionsForGC(const Module& pModule,
   }
 }
 
-bool ARMGNULDBackend::readSection(Input& pInput, SectionData& pSD)
-{
+bool ARMGNULDBackend::readSection(Input& pInput, SectionData& pSD) {
   Fragment* frag = NULL;
   uint32_t offset = pInput.fileOffset() + pSD.getSection().offset();
   uint32_t size = pSD.getSection().size();
@@ -514,8 +496,7 @@ bool ARMGNULDBackend::readSection(Input& pInput, SectionData& pSD)
     // If the input section's size is zero, we got a NULL region.
     // use a virtual fill fragment
     frag = new FillFragment(0x0, 0, 0);
-  }
-  else {
+  } else {
     frag = new RegionFragment(region);
   }
 
@@ -523,69 +504,58 @@ bool ARMGNULDBackend::readSection(Input& pInput, SectionData& pSD)
   return true;
 }
 
-ARMGOT& ARMGNULDBackend::getGOT()
-{
+ARMGOT& ARMGNULDBackend::getGOT() {
   assert(m_pGOT != NULL && "GOT section not exist");
   return *m_pGOT;
 }
 
-const ARMGOT& ARMGNULDBackend::getGOT() const
-{
+const ARMGOT& ARMGNULDBackend::getGOT() const {
   assert(m_pGOT != NULL && "GOT section not exist");
   return *m_pGOT;
 }
 
-ARMPLT& ARMGNULDBackend::getPLT()
-{
+ARMPLT& ARMGNULDBackend::getPLT() {
   assert(m_pPLT != NULL && "PLT section not exist");
   return *m_pPLT;
 }
 
-const ARMPLT& ARMGNULDBackend::getPLT() const
-{
+const ARMPLT& ARMGNULDBackend::getPLT() const {
   assert(m_pPLT != NULL && "PLT section not exist");
   return *m_pPLT;
 }
 
-OutputRelocSection& ARMGNULDBackend::getRelDyn()
-{
+OutputRelocSection& ARMGNULDBackend::getRelDyn() {
   assert(m_pRelDyn != NULL && ".rel.dyn section not exist");
   return *m_pRelDyn;
 }
 
-const OutputRelocSection& ARMGNULDBackend::getRelDyn() const
-{
+const OutputRelocSection& ARMGNULDBackend::getRelDyn() const {
   assert(m_pRelDyn != NULL && ".rel.dyn section not exist");
   return *m_pRelDyn;
 }
 
-OutputRelocSection& ARMGNULDBackend::getRelPLT()
-{
+OutputRelocSection& ARMGNULDBackend::getRelPLT() {
   assert(m_pRelPLT != NULL && ".rel.plt section not exist");
   return *m_pRelPLT;
 }
 
-const OutputRelocSection& ARMGNULDBackend::getRelPLT() const
-{
+const OutputRelocSection& ARMGNULDBackend::getRelPLT() const {
   assert(m_pRelPLT != NULL && ".rel.plt section not exist");
   return *m_pRelPLT;
 }
 
-ARMELFAttributeData& ARMGNULDBackend::getAttributeData()
-{
+ARMELFAttributeData& ARMGNULDBackend::getAttributeData() {
   assert(m_pAttrData != NULL && ".ARM.attributes section not exist");
   return *m_pAttrData;
 }
 
-const ARMELFAttributeData& ARMGNULDBackend::getAttributeData() const
-{
+const ARMELFAttributeData& ARMGNULDBackend::getAttributeData() const {
   assert(m_pAttrData != NULL && ".ARM.attributes section not exist");
   return *m_pAttrData;
 }
 
-unsigned int
-ARMGNULDBackend::getTargetSectionOrder(const LDSection& pSectHdr) const
-{
+unsigned int ARMGNULDBackend::getTargetSectionOrder(
+    const LDSection& pSectHdr) const {
   const ELFFileFormat* file_format = getOutputFormat();
 
   if (file_format->hasGOT() && (&pSectHdr == &file_format->getGOT())) {
@@ -606,9 +576,9 @@ ARMGNULDBackend::getTargetSectionOrder(const LDSection& pSectHdr) const
 }
 
 /// doRelax
-bool
-ARMGNULDBackend::doRelax(Module& pModule, IRBuilder& pBuilder, bool& pFinished)
-{
+bool ARMGNULDBackend::doRelax(Module& pModule,
+                              IRBuilder& pBuilder,
+                              bool& pFinished) {
   assert(getStubFactory() != NULL && getBRIslandFactory() != NULL);
 
   bool isRelaxed = false;
@@ -639,17 +609,18 @@ ARMGNULDBackend::doRelax(Module& pModule, IRBuilder& pBuilder, bool& pFinished)
             if (symbol->hasFragRef()) {
               uint64_t value = symbol->fragRef()->getOutputOffset();
               uint64_t addr =
-                symbol->fragRef()->frag()->getParent()->getSection().addr();
+                  symbol->fragRef()->frag()->getParent()->getSection().addr();
               sym_value = addr + value;
             }
             if ((relocation->symInfo()->reserved() &
-                    ARMRelocator::ReservePLT) != 0x0) {
-              // FIXME: we need to find out the address of the specific plt entry
+                 ARMRelocator::ReservePLT) != 0x0) {
+              // FIXME: we need to find out the address of the specific plt
+              // entry
               assert(file_format->hasPLT());
               sym_value = file_format->getPLT().addr();
             }
-            Stub* stub = getStubFactory()->create(*relocation, // relocation
-                                                  sym_value, // symbol value
+            Stub* stub = getStubFactory()->create(*relocation,  // relocation
+                                                  sym_value,    // symbol value
                                                   pBuilder,
                                                   *getBRIslandFactory());
             if (stub != NULL) {
@@ -665,13 +636,16 @@ ARMGNULDBackend::doRelax(Module& pModule, IRBuilder& pBuilder, bool& pFinished)
 
                   // increase the size of .symtab and .strtab if needed
                   if (config().targets().is32Bits())
-                    symtab.setSize(symtab.size() + sizeof(llvm::ELF::Elf32_Sym));
+                    symtab.setSize(symtab.size() +
+                                   sizeof(llvm::ELF::Elf32_Sym));
                   else
-                    symtab.setSize(symtab.size() + sizeof(llvm::ELF::Elf64_Sym));
+                    symtab.setSize(symtab.size() +
+                                   sizeof(llvm::ELF::Elf64_Sym));
                   symtab.setInfo(symtab.getInfo() + 1);
-                  strtab.setSize(strtab.size() + stub->symInfo()->nameSize() + 1);
+                  strtab.setSize(strtab.size() + stub->symInfo()->nameSize() +
+                                 1);
                 }
-              } // end of switch
+              }  // end of switch
               isRelaxed = true;
             }
             break;
@@ -681,17 +655,18 @@ ARMGNULDBackend::doRelax(Module& pModule, IRBuilder& pBuilder, bool& pFinished)
             break;
           default:
             break;
-        } // end of switch
+        }  // end of switch
 
-      } // for all relocations
-    } // for all relocation section
-  } // for all inputs
+      }  // for all relocations
+    }    // for all relocation section
+  }      // for all inputs
 
   // find the first fragment w/ invalid offset due to stub insertion
   Fragment* invalid = NULL;
   pFinished = true;
   for (BranchIslandFactory::iterator island = getBRIslandFactory()->begin(),
-          island_end = getBRIslandFactory()->end(); island != island_end;
+                                     island_end = getBRIslandFactory()->end();
+       island != island_end;
        ++island) {
     if ((*island).end() == file_format->getText().getSectionData()->end())
       break;
@@ -721,8 +696,7 @@ ARMGNULDBackend::doRelax(Module& pModule, IRBuilder& pBuilder, bool& pFinished)
 }
 
 /// initTargetStubs
-bool ARMGNULDBackend::initTargetStubs()
-{
+bool ARMGNULDBackend::initTargetStubs() {
   if (getStubFactory() != NULL) {
     getStubFactory()->addPrototype(new ARMToARMStub(config().isCodeIndep()));
     getStubFactory()->addPrototype(new ARMToTHMStub(config().isCodeIndep()));
@@ -736,8 +710,7 @@ bool ARMGNULDBackend::initTargetStubs()
 }
 
 /// maxFwdBranchOffset
-int64_t ARMGNULDBackend::maxFwdBranchOffset()
-{
+int64_t ARMGNULDBackend::maxFwdBranchOffset() {
   if (m_pAttrData->usingThumb2()) {
     return THM2_MAX_FWD_BRANCH_OFFSET;
   } else {
@@ -746,8 +719,7 @@ int64_t ARMGNULDBackend::maxFwdBranchOffset()
 }
 
 /// maxBwdBranchOffset
-int64_t ARMGNULDBackend::maxBwdBranchOffset()
-{
+int64_t ARMGNULDBackend::maxBwdBranchOffset() {
   if (m_pAttrData->usingThumb2()) {
     return THM2_MAX_BWD_BRANCH_OFFSET;
   } else {
@@ -757,35 +729,30 @@ int64_t ARMGNULDBackend::maxBwdBranchOffset()
 
 /// doCreateProgramHdrs - backend can implement this function to create the
 /// target-dependent segments
-void ARMGNULDBackend::doCreateProgramHdrs(Module& pModule)
-{
-   if (m_pEXIDX != NULL && m_pEXIDX->size() != 0x0) {
-     // make PT_ARM_EXIDX
-     ELFSegment* exidx_seg = elfSegmentTable().produce(llvm::ELF::PT_ARM_EXIDX,
-                                                       llvm::ELF::PF_R);
-     exidx_seg->append(m_pEXIDX);
-   }
+void ARMGNULDBackend::doCreateProgramHdrs(Module& pModule) {
+  if (m_pEXIDX != NULL && m_pEXIDX->size() != 0x0) {
+    // make PT_ARM_EXIDX
+    ELFSegment* exidx_seg =
+        elfSegmentTable().produce(llvm::ELF::PT_ARM_EXIDX, llvm::ELF::PF_R);
+    exidx_seg->append(m_pEXIDX);
+  }
 }
 
 /// mayHaveUnsafeFunctionPointerAccess - check if the section may have unsafe
 /// function pointer access
 bool ARMGNULDBackend::mayHaveUnsafeFunctionPointerAccess(
-    const LDSection& pSection) const
-{
+    const LDSection& pSection) const {
   llvm::StringRef name(pSection.name());
-  return !name.startswith(".ARM.exidx") &&
-         !name.startswith(".ARM.extab") &&
+  return !name.startswith(".ARM.exidx") && !name.startswith(".ARM.extab") &&
          GNULDBackend::mayHaveUnsafeFunctionPointerAccess(pSection);
 }
-
 
 namespace mcld {
 
 //===----------------------------------------------------------------------===//
 /// createARMLDBackend - the help funtion to create corresponding ARMLDBackend
 ///
-TargetLDBackend* createARMLDBackend(const LinkerConfig& pConfig)
-{
+TargetLDBackend* createARMLDBackend(const LinkerConfig& pConfig) {
   if (pConfig.targets().triple().isOSDarwin()) {
     assert(0 && "MachO linker is not supported yet");
     /**
@@ -806,7 +773,7 @@ TargetLDBackend* createARMLDBackend(const LinkerConfig& pConfig)
                              new ARMGNUInfo(pConfig.targets().triple()));
 }
 
-} // namespace mcld
+}  // namespace mcld
 
 //===----------------------------------------------------------------------===//
 // Force static initialization.

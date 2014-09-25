@@ -22,16 +22,16 @@ class LinkerConfig;
  *  relocation
  *
  */
-class RelocationFactory : public GCFactory<Relocation, MCLD_RELOCATIONS_PER_INPUT>
-{
-public:
+class RelocationFactory
+    : public GCFactory<Relocation, MCLD_RELOCATIONS_PER_INPUT> {
+ public:
   typedef Relocation::Type Type;
   typedef Relocation::Address Address;
   typedef Relocation::DWord DWord;
   typedef Relocation::SWord SWord;
 
-public:
-  explicit RelocationFactory();
+ public:
+  RelocationFactory();
 
   void setConfig(const LinkerConfig& pConfig);
 
@@ -40,9 +40,7 @@ public:
   /// @param pType - the type of the relocation entry
   /// @param pFragRef - the place to apply the relocation
   /// @param pAddend - the addend of the relocation entry
-  Relocation* produce(Type pType,
-                      FragmentRef& pFragRef,
-                      Address pAddend = 0);
+  Relocation* produce(Type pType, FragmentRef& pFragRef, Address pAddend = 0);
 
   /// produceEmptyEntry - produce an empty relocation which
   /// occupied memory space but all contents set to zero.
@@ -50,10 +48,10 @@ public:
 
   void destroy(Relocation* pRelocation);
 
-private:
+ private:
   const LinkerConfig* m_pConfig;
 };
 
-} // namespace mcld
+}  // namespace mcld
 
 #endif  // MCLD_LD_RELOCATIONFACTORY_H_

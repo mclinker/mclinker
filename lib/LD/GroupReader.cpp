@@ -28,19 +28,16 @@ GroupReader::GroupReader(Module& pModule,
       m_ObjectReader(pObjectReader),
       m_DynObjReader(pDynObjReader),
       m_ArchiveReader(pArchiveReader),
-      m_BinaryReader(pBinaryReader)
-{
+      m_BinaryReader(pBinaryReader) {
 }
 
-GroupReader::~GroupReader()
-{
+GroupReader::~GroupReader() {
 }
 
 bool GroupReader::readGroup(Module::input_iterator pRoot,
                             Module::input_iterator pEnd,
                             InputBuilder& pBuilder,
-                            const LinkerConfig& pConfig)
-{
+                            const LinkerConfig& pConfig) {
   // record the number of total objects included in this sub-tree
   size_t cur_obj_cnt = 0;
   size_t last_obj_cnt = 0;
@@ -105,8 +102,8 @@ bool GroupReader::readGroup(Module::input_iterator pRoot,
       m_DynObjReader.readSymbols(**input);
       m_Module.getLibraryList().push_back(*input);
     } else {
-      warning(diag::warn_unrecognized_input_file) << (*input)->path()
-          << pConfig.targets().triple().str();
+      warning(diag::warn_unrecognized_input_file)
+          << (*input)->path() << pConfig.targets().triple().str();
     }
     ++input;
   }

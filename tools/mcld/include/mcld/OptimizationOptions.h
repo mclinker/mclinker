@@ -16,14 +16,13 @@ namespace mcld {
 
 class LinkerConfig;
 
-class OptimizationOptions
-{
-public:
+class OptimizationOptions {
+ public:
   OptimizationOptions();
 
   bool parse(LinkerConfig& pConfig);
 
-private:
+ private:
   bool& m_GCSections;
   bool& m_PrintGCSections;
   bool& m_GenUnwindInfo;
@@ -35,7 +34,6 @@ private:
   llvm::cl::list<std::string>& m_PluginOpt;
 };
 
-} // namespace of mcld
+}  // namespace of mcld
 
 #endif
-

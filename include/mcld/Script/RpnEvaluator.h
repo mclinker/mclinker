@@ -20,19 +20,18 @@ class TargetLDBackend;
 /** \class RpnEvaluator
  *  \brief RpnEvaluator evaluate a rpn expression
  */
-class RpnEvaluator
-{
-public:
+class RpnEvaluator {
+ public:
   RpnEvaluator(const Module& pModule, const TargetLDBackend& pBackend);
 
   // evaluate a valid expression and set the value in the second parameter
   bool eval(const RpnExpr& pExpr, uint64_t& pResult);
 
-private:
+ private:
   const Module& m_Module;
   const TargetLDBackend& m_Backend;
 };
 
-} // namespace mcld
+}  // namespace mcld
 
 #endif  // MCLD_SCRIPT_RPNEVALUATOR_H_

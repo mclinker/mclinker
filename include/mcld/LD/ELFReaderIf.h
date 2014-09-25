@@ -27,14 +27,11 @@ class SectionData;
 /** \class ELFReaderIF
  *  \brief ELFReaderIF provides common interface for all kind of ELF readers.
  */
-class ELFReaderIF
-{
-public:
-  ELFReaderIF(GNULDBackend& pBackend)
-      : m_Backend(pBackend)
-  { }
+class ELFReaderIF {
+ public:
+  explicit ELFReaderIF(GNULDBackend& pBackend) : m_Backend(pBackend) {}
 
-  virtual ~ELFReaderIF() { }
+  virtual ~ELFReaderIF() {}
 
   /// ELFHeaderSize - return the size of the ELFHeader
   virtual size_t getELFHeaderSize() const = 0;
@@ -53,8 +50,7 @@ public:
 
   /// target - the target backend
   const GNULDBackend& target() const { return m_Backend; }
-  GNULDBackend&       target()       { return m_Backend; }
-
+  GNULDBackend& target() { return m_Backend; }
 
   /// readSectionHeaders - read ELF section header table and create LDSections
   virtual bool readSectionHeaders(Input& pInput,
@@ -88,7 +84,7 @@ public:
   /// readDynamic - read ELF .dynamic in input dynobj
   virtual bool readDynamic(Input& pInput) const = 0;
 
-protected:
+ protected:
   /// LinkInfo - some section needs sh_link and sh_info, remember them.
   struct LinkInfo {
     LDSection* section;
@@ -98,7 +94,7 @@ protected:
 
   typedef std::vector<LinkInfo> LinkInfoList;
 
-protected:
+ protected:
   ResolveInfo::Type getSymType(uint8_t pInfo, uint16_t pShndx) const;
 
   ResolveInfo::Desc getSymDesc(uint16_t pShndx, const Input& pInput) const;
@@ -117,10 +113,10 @@ protected:
 
   ResolveInfo::Visibility getSymVisibility(uint8_t pVis) const;
 
-protected:
+ protected:
   GNULDBackend& m_Backend;
 };
 
-} // namespace mcld
+}  // namespace mcld
 
 #endif  // MCLD_LD_ELFREADERIF_H_

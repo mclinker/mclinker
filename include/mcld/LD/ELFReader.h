@@ -27,31 +27,28 @@ class SectionData;
 /** \class ELFReader
  *  \brief ELFReader is a template scaffolding for partial specification.
  */
-template<size_t BIT, bool LITTLEENDIAN>
-class ELFReader
-{ };
+template <size_t BIT, bool LITTLEENDIAN>
+class ELFReader {};
 
 /** \class ELFReader<32, true>
  *  \brief ELFReader<32, true> is a 32-bit, little endian ELFReader.
  */
-template<>
-class ELFReader<32, true> : public ELFReaderIF
-{
-public:
+template <>
+class ELFReader<32, true> : public ELFReaderIF {
+ public:
   typedef llvm::ELF::Elf32_Ehdr ELFHeader;
   typedef llvm::ELF::Elf32_Shdr SectionHeader;
-  typedef llvm::ELF::Elf32_Sym  Symbol;
-  typedef llvm::ELF::Elf32_Rel  Rel;
+  typedef llvm::ELF::Elf32_Sym Symbol;
+  typedef llvm::ELF::Elf32_Rel Rel;
   typedef llvm::ELF::Elf32_Rela Rela;
 
-public:
-  ELFReader(GNULDBackend& pBackend);
+ public:
+  explicit ELFReader(GNULDBackend& pBackend);
 
   ~ELFReader();
 
   /// ELFHeaderSize - return the size of the ELFHeader
-  size_t getELFHeaderSize() const
-  { return sizeof(ELFHeader); }
+  size_t getELFHeaderSize() const { return sizeof(ELFHeader); }
 
   /// isELF - is this a ELF file
   bool isELF(const void* pELFHeader) const;
@@ -96,16 +93,15 @@ public:
   /// readDynamic - read ELF .dynamic in input dynobj
   bool readDynamic(Input& pInput) const;
 
-private:
+ private:
   struct AliasInfo {
-    LDSymbol* pt_alias; ///potential alias
+    LDSymbol* pt_alias;  /// potential alias
     uint64_t ld_value;
     ResolveInfo::Binding ld_binding;
   };
 
   /// comparison function to sort symbols for analyzing weak alias.
   /// sort symbols by symbol value and then weak before strong.
-  /// ref. to gold symtabl.cc 1595
   static bool less(AliasInfo p1, AliasInfo p2) {
     if (p1.ld_value != p2.ld_value)
       return (p1.ld_value < p2.ld_value);
@@ -122,24 +118,22 @@ private:
 /** \class ELFReader<64, true>
  *  \brief ELFReader<64, true> is a 64-bit, little endian ELFReader.
  */
-template<>
-class ELFReader<64, true> : public ELFReaderIF
-{
-public:
+template <>
+class ELFReader<64, true> : public ELFReaderIF {
+ public:
   typedef llvm::ELF::Elf64_Ehdr ELFHeader;
   typedef llvm::ELF::Elf64_Shdr SectionHeader;
-  typedef llvm::ELF::Elf64_Sym  Symbol;
-  typedef llvm::ELF::Elf64_Rel  Rel;
+  typedef llvm::ELF::Elf64_Sym Symbol;
+  typedef llvm::ELF::Elf64_Rel Rel;
   typedef llvm::ELF::Elf64_Rela Rela;
 
-public:
-  ELFReader(GNULDBackend& pBackend);
+ public:
+  explicit ELFReader(GNULDBackend& pBackend);
 
   ~ELFReader();
 
   /// ELFHeaderSize - return the size of the ELFHeader
-  size_t getELFHeaderSize() const
-  { return sizeof(ELFHeader); }
+  size_t getELFHeaderSize() const { return sizeof(ELFHeader); }
 
   /// isELF - is this a ELF file
   bool isELF(const void* pELFHeader) const;
@@ -184,29 +178,28 @@ public:
   /// readDynamic - read ELF .dynamic in input dynobj
   bool readDynamic(Input& pInput) const;
 
-private:
+ private:
   struct AliasInfo {
-    LDSymbol* pt_alias; ///potential alias
+    LDSymbol* pt_alias;  /// potential alias
     uint64_t ld_value;
     ResolveInfo::Binding ld_binding;
   };
 
   /// comparison function to sort symbols for analyzing weak alias.
   /// sort symbols by symbol value and then weak before strong.
-  /// ref. to gold symtabl.cc 1595
   static bool less(AliasInfo p1, AliasInfo p2) {
     if (p1.ld_value != p2.ld_value)
       return (p1.ld_value < p2.ld_value);
     if (p1.ld_binding != p2.ld_binding) {
-      if (ResolveInfo::Weak==p1.ld_binding)
+      if (ResolveInfo::Weak == p1.ld_binding)
         return true;
-      else if (ResolveInfo::Weak==p2.ld_binding)
+      else if (ResolveInfo::Weak == p2.ld_binding)
         return false;
     }
     return p1.pt_alias->str() < p2.pt_alias->str();
   }
 };
 
-} // namespace mcld
+}  // namespace mcld
 
 #endif  // MCLD_LD_ELFREADER_H_

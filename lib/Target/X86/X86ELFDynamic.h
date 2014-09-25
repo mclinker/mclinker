@@ -13,17 +13,16 @@
 
 namespace mcld {
 
-class X86ELFDynamic : public ELFDynamic
-{
-public:
+class X86ELFDynamic : public ELFDynamic {
+ public:
   X86ELFDynamic(const GNULDBackend& pParent, const LinkerConfig& pConfig);
   ~X86ELFDynamic();
 
-private:
+ private:
   void reserveTargetEntries(const ELFFileFormat& pFormat);
   void applyTargetEntries(const ELFFileFormat& pFormat);
 };
 
-} // namespace mcld
+}  // namespace mcld
 
 #endif  // TARGET_X86_X86ELFDYNAMIC_H_

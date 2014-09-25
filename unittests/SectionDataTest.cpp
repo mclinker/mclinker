@@ -15,43 +15,37 @@
 using namespace mcld;
 using namespace mcldtest;
 
-
 // Constructor can do set-up work for all test here.
-SectionDataTest::SectionDataTest()
-{
+SectionDataTest::SectionDataTest() {
 }
 
 // Destructor can do clean-up work that doesn't throw exceptions here.
-SectionDataTest::~SectionDataTest()
-{
+SectionDataTest::~SectionDataTest() {
 }
 
 // SetUp() will be called immediately before each test.
-void SectionDataTest::SetUp()
-{
+void SectionDataTest::SetUp() {
 }
 
 // TearDown() will be called immediately after each test.
-void SectionDataTest::TearDown()
-{
+void SectionDataTest::TearDown() {
 }
 
 //===----------------------------------------------------------------------===//
 // Testcases
 //===----------------------------------------------------------------------===//
 
-TEST_F( SectionDataTest, constructor_and_trivial_func ) {
+TEST_F(SectionDataTest, constructor_and_trivial_func) {
   LDSection* test = LDSection::Create("test", LDFileFormat::Null, 0, 0);
 
   SectionData* s = SectionData::Create(*test);
-  EXPECT_TRUE(s->getSection().name() == "test" && \
+  EXPECT_TRUE(s->getSection().name() == "test" &&
               s->getSection().kind() == LDFileFormat::Null);
-
 
   LDSection::Destroy(test);
 }
 
-TEST_F( SectionDataTest, Fragment_list_and_iterator ) {
+TEST_F(SectionDataTest, Fragment_list_and_iterator) {
   LDSection* test = LDSection::Create("test", LDFileFormat::Null, 0, 0);
   SectionData* s = SectionData::Create(*test);
   EXPECT_TRUE(s->empty());
@@ -63,8 +57,8 @@ TEST_F( SectionDataTest, Fragment_list_and_iterator ) {
   new Fragment(Fragment::Target, s);
   EXPECT_TRUE(5 == s->size());
 
-  //iterator
-  llvm::iplist<Fragment>::iterator iter=s->begin();
+  // iterator
+  llvm::iplist<Fragment>::iterator iter = s->begin();
   EXPECT_TRUE(Fragment::Alignment == iter->getKind());
   ++iter;
   EXPECT_TRUE(Fragment::Alignment == iter->getKind());

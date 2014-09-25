@@ -14,8 +14,8 @@
 
 namespace mcld {
 
-static bool MCLDEmulateAArch64ELF(LinkerScript& pScript, LinkerConfig& pConfig)
-{
+static bool MCLDEmulateAArch64ELF(LinkerScript& pScript,
+                                  LinkerConfig& pConfig) {
   if (!MCLDEmulateELF(pScript, pConfig))
     return false;
 
@@ -44,8 +44,7 @@ static bool MCLDEmulateAArch64ELF(LinkerScript& pScript, LinkerConfig& pConfig)
 //===----------------------------------------------------------------------===//
 // emulateAArch64LD - the help function to emulate AArch64 ld
 //===----------------------------------------------------------------------===//
-bool emulateAArch64LD(LinkerScript& pScript, LinkerConfig& pConfig)
-{
+bool emulateAArch64LD(LinkerScript& pScript, LinkerConfig& pConfig) {
   if (pConfig.targets().triple().isOSDarwin()) {
     assert(0 && "MachO linker has not supported yet");
     return false;
@@ -58,7 +57,7 @@ bool emulateAArch64LD(LinkerScript& pScript, LinkerConfig& pConfig)
   return MCLDEmulateAArch64ELF(pScript, pConfig);
 }
 
-} // namespace mcld
+}  // namespace mcld
 
 //===----------------------------------------------------------------------===//
 // AArch64Emulation

@@ -22,20 +22,19 @@ class ResolveInfo;
 class Relocator;
 class LinkerConfig;
 
-class Relocation : public llvm::ilist_node<Relocation>
-{
-friend class RelocationFactory;
-friend class GCFactoryListTraits<Relocation>;
-friend class Chunk<Relocation, MCLD_RELOCATIONS_PER_INPUT>;
+class Relocation : public llvm::ilist_node<Relocation> {
+  friend class RelocationFactory;
+  friend class GCFactoryListTraits<Relocation>;
+  friend class Chunk<Relocation, MCLD_RELOCATIONS_PER_INPUT>;
 
-public:
-  typedef uint64_t Address; // FIXME: use SizeTrait<T>::Address instead
-  typedef uint64_t DWord;   // FIXME: use SizeTrait<T>::Word instead
-  typedef int64_t  SWord;   // FIXME: use SizeTrait<T>::SWord instead
+ public:
+  typedef uint64_t Address;  // FIXME: use SizeTrait<T>::Address instead
+  typedef uint64_t DWord;    // FIXME: use SizeTrait<T>::Word instead
+  typedef int64_t SWord;     // FIXME: use SizeTrait<T>::SWord instead
   typedef uint32_t Type;
   typedef uint32_t Size;
 
-private:
+ private:
   Relocation();
 
   Relocation(Type pType,
@@ -45,7 +44,7 @@ private:
 
   ~Relocation();
 
-public:
+ public:
   /// Initialize - set up the relocation factory
   static void SetUp(const LinkerConfig& pConfig);
 
@@ -67,15 +66,13 @@ public:
   static void Destroy(Relocation*& pRelocation);
 
   /// type - relocation type
-  Type type() const
-  { return m_Type; }
+  Type type() const { return m_Type; }
 
   /// symValue - S value - the symbol address
   Address symValue() const;
 
   /// addend - A value
-  Address addend() const
-  { return m_Addend; }
+  Address addend() const { return m_Addend; }
 
   /// place - P value - address of the place being relocated
   Address place() const;
@@ -85,15 +82,15 @@ public:
 
   /// symbol info - binding, type
   const ResolveInfo* symInfo() const { return m_pSymInfo; }
-  ResolveInfo*       symInfo()       { return m_pSymInfo; }
+  ResolveInfo* symInfo() { return m_pSymInfo; }
 
   /// target - the target data to relocate
   const DWord& target() const { return m_TargetData; }
-  DWord&       target()       { return m_TargetData; }
+  DWord& target() { return m_TargetData; }
 
   /// targetRef - the reference of the target data
   const FragmentRef& targetRef() const { return m_TargetAddress; }
-  FragmentRef&       targetRef()       { return m_TargetAddress; }
+  FragmentRef& targetRef() { return m_TargetAddress; }
 
   void apply(Relocator& pRelocator);
 
@@ -108,7 +105,7 @@ public:
 
   void setSymInfo(ResolveInfo* pSym);
 
-private:
+ private:
   /// m_Type - the type of the relocation entries
   Type m_Type;
 
@@ -125,6 +122,6 @@ private:
   Address m_Addend;
 };
 
-} // namespace mcld
+}  // namespace mcld
 
 #endif  // MCLD_FRAGMENT_RELOCATION_H_

@@ -11,23 +11,20 @@
 
 #include <gtest.h>
 
-namespace mcld
-{
+namespace mcld {
 class FileHandle;
 
-} // namespace for mcld
+}  // namespace for mcld
 
-namespace mcldtest
-{
+namespace mcldtest {
 
 /** \class FileHandleTest
  *  \brief
  *
  *  \see FileHandle
  */
-class FileHandleTest : public ::testing::Test
-{
-public:
+class FileHandleTest : public ::testing::Test {
+ public:
   // Constructor can do set-up work for all test here.
   FileHandleTest();
 
@@ -40,11 +37,10 @@ public:
   // TearDown() will be called immediately after each test.
   virtual void TearDown();
 
-protected:
+ protected:
   mcld::FileHandle* m_pTestee;
 };
 
-} // namespace of mcldtest
+}  // namespace of mcldtest
 
 #endif
-

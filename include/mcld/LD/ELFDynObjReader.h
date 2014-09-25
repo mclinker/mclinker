@@ -22,9 +22,8 @@ class LinkerConfig;
  *  \brief ELFDynObjReader reads ELF dynamic shared objects.
  *
  */
-class ELFDynObjReader : public DynObjReader
-{
-public:
+class ELFDynObjReader : public DynObjReader {
+ public:
   ELFDynObjReader(GNULDBackend& pBackend,
                   IRBuilder& pBuilder,
                   const LinkerConfig& pConfig);
@@ -38,11 +37,11 @@ public:
 
   bool readSymbols(Input& pInput);
 
-private:
+ private:
   ELFReaderIF* m_pELFReader;
   IRBuilder& m_Builder;
 };
 
-} // namespace mcld
+}  // namespace mcld
 
 #endif  // MCLD_LD_ELFDYNOBJREADER_H_

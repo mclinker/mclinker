@@ -15,8 +15,7 @@
 
 #include <llvm/ADT/StringMap.h>
 
-namespace mcld
-{
+namespace mcld {
 
 /** \class MemoryAreaFactory
  *  \brief MemoryAreaFactory avoids creating duplicated MemoryAreas of the
@@ -36,16 +35,14 @@ namespace mcld
  *
  *  @see MemoryRegion
  */
-class MemoryAreaFactory : public GCFactory<MemoryArea, 0>
-{
-public:
+class MemoryAreaFactory : public GCFactory<MemoryArea, 0> {
+ public:
   explicit MemoryAreaFactory(size_t pNum);
 
   virtual ~MemoryAreaFactory();
 
   // produce - create a MemoryArea and open its file.
-  MemoryArea* produce(const sys::fs::Path& pPath,
-                      FileHandle::OpenMode pMode);
+  MemoryArea* produce(const sys::fs::Path& pPath, FileHandle::OpenMode pMode);
 
   // produce - create a MemoryArea and open its file.
   MemoryArea* produce(const sys::fs::Path& pPath,
@@ -61,10 +58,11 @@ public:
   MemoryArea* produce(int pFD, FileHandle::OpenMode pMode);
 
   void destruct(MemoryArea* pArea);
-private:
+
+ private:
   llvm::StringMap<MemoryArea*> m_AreaMap;
 };
 
-} // namespace mcld
+}  // namespace mcld
 
 #endif  // MCLD_SUPPORT_MEMORYAREAFACTORY_H_

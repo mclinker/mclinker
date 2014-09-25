@@ -10,7 +10,7 @@
 #include <mcld/Support/raw_ostream.h>
 
 #if defined(HAVE_UNISTD_H)
-# include <unistd.h>
+#include <unistd.h>
 #endif
 
 #if defined(__CYGWIN__)
@@ -20,13 +20,13 @@
 #if defined(_MSC_VER) || defined(__MINGW32__)
 #include <io.h>
 #ifndef STDIN_FILENO
-# define STDIN_FILENO 0
+#define STDIN_FILENO 0
 #endif
 #ifndef STDOUT_FILENO
-# define STDOUT_FILENO 1
+#define STDOUT_FILENO 1
 #endif
 #ifndef STDERR_FILENO
-# define STDERR_FILENO 2
+#define STDERR_FILENO 2
 #endif
 #endif
 
@@ -35,8 +35,8 @@ using namespace mcld;
 //===----------------------------------------------------------------------===//
 // raw_ostream
 //===----------------------------------------------------------------------===//
-mcld::raw_fd_ostream::raw_fd_ostream(const char *pFilename,
-                                     std::error_code &pErrorCode,
+mcld::raw_fd_ostream::raw_fd_ostream(const char* pFilename,
+                                     std::error_code& pErrorCode,
                                      llvm::sys::fs::OpenFlags pFlags)
     : llvm::raw_fd_ostream(pFilename, pErrorCode, pFlags),
       m_bConfigColor(false),
@@ -51,42 +51,36 @@ mcld::raw_fd_ostream::raw_fd_ostream(int pFD,
       m_bSetColor(false) {
 }
 
-mcld::raw_fd_ostream::~raw_fd_ostream()
-{
+mcld::raw_fd_ostream::~raw_fd_ostream() {
 }
 
-void mcld::raw_fd_ostream::setColor(bool pEnable)
-{
+void mcld::raw_fd_ostream::setColor(bool pEnable) {
   m_bConfigColor = true;
   m_bSetColor = pEnable;
 }
 
-llvm::raw_ostream &
-mcld::raw_fd_ostream::changeColor(enum llvm::raw_ostream::Colors pColor,
-                                  bool pBold,
-                                  bool pBackground)
-{
+llvm::raw_ostream& mcld::raw_fd_ostream::changeColor(
+    enum llvm::raw_ostream::Colors pColor,
+    bool pBold,
+    bool pBackground) {
   if (!is_displayed())
     return *this;
   return llvm::raw_fd_ostream::changeColor(pColor, pBold, pBackground);
 }
 
-llvm::raw_ostream& mcld::raw_fd_ostream::resetColor()
-{
+llvm::raw_ostream& mcld::raw_fd_ostream::resetColor() {
   if (!is_displayed())
     return *this;
   return llvm::raw_fd_ostream::resetColor();
 }
 
-llvm::raw_ostream& mcld::raw_fd_ostream::reverseColor()
-{
+llvm::raw_ostream& mcld::raw_fd_ostream::reverseColor() {
   if (!is_displayed())
     return *this;
   return llvm::raw_ostream::reverseColor();
 }
 
-bool mcld::raw_fd_ostream::is_displayed() const
-{
+bool mcld::raw_fd_ostream::is_displayed() const {
   if (m_bConfigColor)
     return m_bSetColor;
 

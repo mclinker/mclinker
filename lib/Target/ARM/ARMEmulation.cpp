@@ -14,8 +14,7 @@
 
 namespace mcld {
 
-static bool MCLDEmulateARMELF(LinkerScript& pScript, LinkerConfig& pConfig)
-{
+static bool MCLDEmulateARMELF(LinkerScript& pScript, LinkerConfig& pConfig) {
   if (!MCLDEmulateELF(pScript, pConfig))
     return false;
 
@@ -46,8 +45,7 @@ static bool MCLDEmulateARMELF(LinkerScript& pScript, LinkerConfig& pConfig)
 //===----------------------------------------------------------------------===//
 // emulateARMLD - the help function to emulate ARM ld
 //===----------------------------------------------------------------------===//
-bool emulateARMLD(LinkerScript& pScript, LinkerConfig& pConfig)
-{
+bool emulateARMLD(LinkerScript& pScript, LinkerConfig& pConfig) {
   if (pConfig.targets().triple().isOSDarwin()) {
     assert(0 && "MachO linker has not supported yet");
     return false;
@@ -60,7 +58,7 @@ bool emulateARMLD(LinkerScript& pScript, LinkerConfig& pConfig)
   return MCLDEmulateARMELF(pScript, pConfig);
 }
 
-} // namespace mcld
+}  // namespace mcld
 
 //===----------------------------------------------------------------------===//
 // ARMEmulation

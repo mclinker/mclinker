@@ -14,15 +14,15 @@
 namespace mcld {
 
 class AArch64ELFDynamic : public ELFDynamic {
-public:
+ public:
   AArch64ELFDynamic(const GNULDBackend& pParent, const LinkerConfig& pConfig);
   ~AArch64ELFDynamic();
 
-private:
+ private:
   void reserveTargetEntries(const ELFFileFormat& pFormat);
   void applyTargetEntries(const ELFFileFormat& pFormat);
 };
 
-} // namespace mcld
+}  // namespace mcld
 
 #endif  // TARGET_AARCH64_AARCH64ELFDYNAMIC_H_

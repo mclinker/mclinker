@@ -18,4 +18,4 @@ extern "C" void MCLDInitializeAArch64LDTargetInfo() {
   mcld::RegisterTarget<llvm::Triple::aarch64> X(TheAArch64Target, "aarch64");
 }
 
-} // namespace mcld
+}  // namespace mcld

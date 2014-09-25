@@ -27,11 +27,11 @@
 #include <queue>
 #if !defined(MCLD_ON_WIN32)
 #include <fnmatch.h>
-#define fnmatch0(pattern,string) (fnmatch(pattern,string,0) == 0)
+#define fnmatch0(pattern, string) (fnmatch(pattern, string, 0) == 0)
 #else
 #include <windows.h>
 #include <shlwapi.h>
-#define fnmatch0(pattern,string) (PathMatchSpec(string, pattern) == true)
+#define fnmatch0(pattern, string) (PathMatchSpec(string, pattern) == true)
 #endif
 
 using namespace mcld;
@@ -42,17 +42,13 @@ using namespace mcld;
 // FIXME: these rules should be added into SectionMap, while currently adding to
 // SectionMap will cause the output order change in .text section and leads to
 // the .ARM.exidx order incorrect. We should sort the .ARM.exidx.
-static const char* pattern_to_keep[] =
-{
-  ".text*personality*",
-  ".data*personality*",
-  ".gnu.linkonce.d*personality*",
-  ".sdata*personality*"
-};
+static const char* pattern_to_keep[] = {".text*personality*",
+                                        ".data*personality*",
+                                        ".gnu.linkonce.d*personality*",
+                                        ".sdata*personality*"};
 
 /// shouldKeep - check the section name for the keep sections
-static bool shouldKeep(const std::string& pName)
-{
+static bool shouldKeep(const std::string& pName) {
   static const unsigned int pattern_size =
       sizeof(pattern_to_keep) / sizeof(pattern_to_keep[0]);
   for (unsigned int i = 0; i < pattern_size; ++i) {
@@ -63,8 +59,7 @@ static bool shouldKeep(const std::string& pName)
 }
 
 /// shouldProcessGC - check if the section kind is handled in GC
-static bool mayProcessGC(const LDSection& pSection)
-{
+static bool mayProcessGC(const LDSection& pSection) {
   if (pSection.kind() == LDFileFormat::TEXT ||
       pSection.kind() == LDFileFormat::DATA ||
       pSection.kind() == LDFileFormat::BSS ||
@@ -76,24 +71,21 @@ static bool mayProcessGC(const LDSection& pSection)
 //===----------------------------------------------------------------------===//
 // GarbageCollection::SectionReachedListMap
 //===----------------------------------------------------------------------===//
-void
-GarbageCollection::SectionReachedListMap::addReference(const LDSection& pFrom,
-                                                       const LDSection& pTo)
-{
+void GarbageCollection::SectionReachedListMap::addReference(
+    const LDSection& pFrom,
+    const LDSection& pTo) {
   m_ReachedSections[&pFrom].insert(&pTo);
 }
 
 GarbageCollection::SectionListTy&
 GarbageCollection::SectionReachedListMap::getReachedList(
-    const LDSection& pSection)
-{
+    const LDSection& pSection) {
   return m_ReachedSections[&pSection];
 }
 
 GarbageCollection::SectionListTy*
 GarbageCollection::SectionReachedListMap::findReachedList(
-    const LDSection& pSection)
-{
+    const LDSection& pSection) {
   ReachedSectionsTy::iterator it = m_ReachedSections.find(&pSection);
   if (it == m_ReachedSections.end())
     return NULL;
@@ -106,16 +98,13 @@ GarbageCollection::SectionReachedListMap::findReachedList(
 GarbageCollection::GarbageCollection(const LinkerConfig& pConfig,
                                      const TargetLDBackend& pBackend,
                                      Module& pModule)
-    : m_Config(pConfig), m_Backend(pBackend), m_Module(pModule)
-{
+    : m_Config(pConfig), m_Backend(pBackend), m_Module(pModule) {
 }
 
-GarbageCollection::~GarbageCollection()
-{
+GarbageCollection::~GarbageCollection() {
 }
 
-bool GarbageCollection::run()
-{
+bool GarbageCollection::run() {
   // 1. traverse all the relocations to set up the reached sections of each
   // section
   setUpReachedSections();
@@ -133,8 +122,7 @@ bool GarbageCollection::run()
   return true;
 }
 
-void GarbageCollection::setUpReachedSections()
-{
+void GarbageCollection::setUpReachedSections() {
   // traverse all the input relocations to setup the reached sections
   Module::obj_iterator input, inEnd = m_Module.obj_end();
   for (input = m_Module.obj_begin(); input != inEnd; ++input) {
@@ -190,8 +178,7 @@ void GarbageCollection::setUpReachedSections()
   }
 }
 
-void GarbageCollection::getEntrySections(SectionVecTy& pEntry)
-{
+void GarbageCollection::getEntrySections(SectionVecTy& pEntry) {
   // all the KEEP sections defined in ldscript are entries, traverse all the
   // input sections and check the SectionMap to find the KEEP sections
   Module::obj_iterator obj, objEnd = m_Module.obj_end();
@@ -224,7 +211,7 @@ void GarbageCollection::getEntrySections(SectionVecTy& pEntry)
 
     // 2. the symbols have been seen in dynamice objects are entries
     NamePool::syminfo_iterator info_it,
-                               info_end = m_Module.getNamePool().syminfo_end();
+        info_end = m_Module.getNamePool().syminfo_end();
     for (info_it = m_Module.getNamePool().syminfo_begin(); info_it != info_end;
          ++info_it) {
       ResolveInfo* info = info_it.getEntry();
@@ -250,12 +237,11 @@ void GarbageCollection::getEntrySections(SectionVecTy& pEntry)
   } else {
     // when building shared objects, the global define symbols are entries
     NamePool::syminfo_iterator info_it,
-                               info_end = m_Module.getNamePool().syminfo_end();
+        info_end = m_Module.getNamePool().syminfo_end();
     for (info_it = m_Module.getNamePool().syminfo_begin(); info_it != info_end;
          ++info_it) {
       ResolveInfo* info = info_it.getEntry();
-      if (!info->isDefine() ||
-          info->isLocal()   ||
+      if (!info->isDefine() || info->isLocal() ||
           info->shouldForceLocal(m_Config))
         continue;
       LDSymbol* sym = info->outSymbol();
@@ -291,8 +277,7 @@ void GarbageCollection::getEntrySections(SectionVecTy& pEntry)
   }
 }
 
-void GarbageCollection::findReferencedSections(SectionVecTy& pEntry)
-{
+void GarbageCollection::findReferencedSections(SectionVecTy& pEntry) {
   // list of sections waiting to be processed
   typedef std::queue<const LDSection*> WorkListTy;
   WorkListTy work_list;
@@ -330,8 +315,7 @@ void GarbageCollection::findReferencedSections(SectionVecTy& pEntry)
   }
 }
 
-void GarbageCollection::stripSections()
-{
+void GarbageCollection::stripSections() {
   // Traverse all the input Regular and BSS sections, if a section is not found
   // in the ReferencedSections, then it should be garbage collected
   Module::obj_iterator obj, objEnd = m_Module.obj_end();

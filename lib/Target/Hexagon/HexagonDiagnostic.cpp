@@ -16,13 +16,12 @@ namespace mcld {
 // createHexagonDiagnostic - the help function to create corresponding
 // HexagonDiagnostic
 //===----------------------------------------------------------------------===//
-DiagnosticLineInfo*
-createHexagonDiagLineInfo(const Target& pTarget, const std::string &pTriple)
-{
+DiagnosticLineInfo* createHexagonDiagLineInfo(const Target& pTarget,
+                                              const std::string& pTriple) {
   return new DWARFLineInfo();
 }
 
-} // namespace mcld
+}  // namespace mcld
 
 using namespace mcld;
 

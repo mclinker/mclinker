@@ -15,12 +15,10 @@ using namespace mcld::sys::fs;
 //===----------------------------------------------------------------------===//
 // MCLDDirectory
 //===----------------------------------------------------------------------===//
-MCLDDirectory::MCLDDirectory()
-    : Directory(), m_Name(), m_bInSysroot(false) {
+MCLDDirectory::MCLDDirectory() : Directory(), m_Name(), m_bInSysroot(false) {
 }
 
-MCLDDirectory::MCLDDirectory(const char* pName)
-    : Directory(), m_Name(pName) {
+MCLDDirectory::MCLDDirectory(const char* pName) : Directory(), m_Name(pName) {
   Directory::m_Path.assign(pName);
 
   if (!Directory::m_Path.empty())
@@ -33,7 +31,7 @@ MCLDDirectory::MCLDDirectory(const char* pName)
     detail::open_dir(*this);
 }
 
-MCLDDirectory::MCLDDirectory(const std::string &pName)
+MCLDDirectory::MCLDDirectory(const std::string& pName)
     : Directory(), m_Name(pName) {
   Directory::m_Path.assign(pName);
 
@@ -61,8 +59,7 @@ MCLDDirectory::MCLDDirectory(llvm::StringRef pName)
     detail::open_dir(*this);
 }
 
-MCLDDirectory &MCLDDirectory::assign(llvm::StringRef pName)
-{
+MCLDDirectory& MCLDDirectory::assign(llvm::StringRef pName) {
   m_Name.assign(pName.data(), pName.size());
   Directory::m_Path.assign(pName.str());
 
@@ -81,17 +78,14 @@ MCLDDirectory &MCLDDirectory::assign(llvm::StringRef pName)
   return (*this);
 }
 
-MCLDDirectory::~MCLDDirectory()
-{
+MCLDDirectory::~MCLDDirectory() {
 }
 
-bool MCLDDirectory::isInSysroot() const
-{
+bool MCLDDirectory::isInSysroot() const {
   return m_bInSysroot;
 }
 
-void MCLDDirectory::setSysroot(const sys::fs::Path& pSysroot)
-{
+void MCLDDirectory::setSysroot(const sys::fs::Path& pSysroot) {
   if (m_bInSysroot) {
     std::string old_path = Directory::m_Path.native();
     Directory::m_Path.native() = pSysroot.native();

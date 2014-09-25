@@ -16,29 +16,27 @@
 namespace mcld {
 
 /** forward declaration **/
-template<typename HashTableImplTy>
+template <typename HashTableImplTy>
 class ChainIteratorBase;
 
-template<typename HashTableImplTy>
+template <typename HashTableImplTy>
 class EntryIteratorBase;
 
 /** \class HashBucket
  *  \brief HashBucket is an entry in the hash table.
  */
-template<typename HashEntryTy>
-class HashBucket
-{
-public:
+template <typename HashEntryTy>
+class HashBucket {
+ public:
   typedef HashEntryTy entry_type;
 
-public:
+ public:
   unsigned int FullHashValue;
-  entry_type *Entry;
+  entry_type* Entry;
 
-public:
+ public:
   static entry_type* getEmptyBucket();
   static entry_type* getTombstone();
-
 };
 
 /** \class HashTableImpl
@@ -62,14 +60,12 @@ public:
  *  than static linkers. HashTableImpl also provides a template argument to
  *  change the hash functions.
  */
-template<typename HashEntryTy,
-         typename HashFunctionTy>
-class HashTableImpl
-{
-private:
+template <typename HashEntryTy, typename HashFunctionTy>
+class HashTableImpl {
+ private:
   static const unsigned int NumOfInitBuckets = 16;
 
-public:
+ public:
   typedef size_t size_type;
   typedef HashFunctionTy hasher;
   typedef HashEntryTy entry_type;
@@ -77,8 +73,7 @@ public:
   typedef HashBucket<HashEntryTy> bucket_type;
   typedef HashTableImpl<HashEntryTy, HashFunctionTy> Self;
 
-
-public:
+ public:
   HashTableImpl();
   explicit HashTableImpl(unsigned int pInitSize);
   virtual ~HashTableImpl();
@@ -86,19 +81,15 @@ public:
   // -----  observers  ----- //
   bool empty() const;
 
-  size_t numOfBuckets() const
-  { return m_NumOfBuckets; }
+  size_t numOfBuckets() const { return m_NumOfBuckets; }
 
-  size_t numOfEntries() const
-  { return m_NumOfEntries; }
+  size_t numOfEntries() const { return m_NumOfEntries; }
 
-  hasher& hash()
-  { return m_Hasher; }
+  hasher& hash() { return m_Hasher; }
 
-  const hasher& hash() const
-  { return m_Hasher; }
+  const hasher& hash() const { return m_Hasher; }
 
-protected:
+ protected:
   /// initialize the hash table.
   void init(unsigned int pInitSize);
 
@@ -119,11 +110,12 @@ protected:
   /// buckets
   void doRehash(unsigned int pNewSize);
 
-friend class ChainIteratorBase<Self>;
-friend class ChainIteratorBase<const Self>;
-friend class EntryIteratorBase<Self>;
-friend class EntryIteratorBase<const Self>;
-protected:
+  friend class ChainIteratorBase<Self>;
+  friend class ChainIteratorBase<const Self>;
+  friend class EntryIteratorBase<Self>;
+  friend class EntryIteratorBase<const Self>;
+
+ protected:
   // Array of Buckets
   bucket_type* m_Buckets;
   unsigned int m_NumOfBuckets;
@@ -134,6 +126,6 @@ protected:
 
 #include "HashBase.tcc"
 
-} // namespace mcld
+}  // namespace mcld
 
 #endif  // MCLD_ADT_HASHBASE_H_

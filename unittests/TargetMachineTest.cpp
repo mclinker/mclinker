@@ -11,32 +11,26 @@
 using namespace mcld;
 using namespace mcldTEST;
 
-
 // Constructor can do set-up work for all test here.
-TargetMachineTest::TargetMachineTest()
-{
+TargetMachineTest::TargetMachineTest() {
 }
 
 // Destructor can do clean-up work that doesn't throw exceptions here.
-TargetMachineTest::~TargetMachineTest()
-{
+TargetMachineTest::~TargetMachineTest() {
 }
 
 // SetUp() will be called immediately before each test.
-void TargetMachineTest::SetUp()
-{
+void TargetMachineTest::SetUp() {
 }
 
 // TearDown() will be called immediately after each test.
-void TargetMachineTest::TearDown()
-{
+void TargetMachineTest::TearDown() {
 }
 
 //==========================================================================//
 // Testcases
 //
 
-TEST_F( TargetMachineTest, addPassesToEmitFile ) {
-	mcld::addPassesToEmitFile();
+TEST_F(TargetMachineTest, addPassesToEmitFile) {
+  mcld::addPassesToEmitFile();
 }
-

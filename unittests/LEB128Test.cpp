@@ -16,36 +16,31 @@
 using namespace mcld;
 using namespace mcldtest;
 
-
 // Constructor can do set-up work for all test here.
-LEB128Test::LEB128Test()
-{
-	// Initialize the seed for random number generator using during the tests.
+LEB128Test::LEB128Test() {
+  // Initialize the seed for random number generator using during the tests.
   sys::SetRandomSeed(::time(NULL));
 }
 
 // Destructor can do clean-up work that doesn't throw exceptions here.
-LEB128Test::~LEB128Test()
-{
+LEB128Test::~LEB128Test() {
 }
 
 // SetUp() will be called immediately before each test.
-void LEB128Test::SetUp()
-{
+void LEB128Test::SetUp() {
 }
 
 // TearDown() will be called immediately after each test.
-void LEB128Test::TearDown()
-{
+void LEB128Test::TearDown() {
 }
 
 //==========================================================================//
 // Testcases
 //
 
-TEST_F( LEB128Test, EncodeULEB_Example_from_Dwarf3_Figure22_Using_32bits) {
+TEST_F(LEB128Test, EncodeULEB_Example_from_Dwarf3_Figure22_Using_32bits) {
   leb128::ByteType buffer[2];
-  leb128::ByteType *result;
+  leb128::ByteType* result;
   size_t size;
 
   result = buffer;
@@ -89,9 +84,9 @@ TEST_F( LEB128Test, EncodeULEB_Example_from_Dwarf3_Figure22_Using_32bits) {
   ASSERT_TRUE(size == 2);
 }
 
-TEST_F( LEB128Test, EncodeULEB_Example_from_Dwarf3_Figure22_Using_64bits) {
+TEST_F(LEB128Test, EncodeULEB_Example_from_Dwarf3_Figure22_Using_64bits) {
   leb128::ByteType buffer[2];
-  leb128::ByteType *result;
+  leb128::ByteType* result;
   size_t size;
 
   result = buffer;
@@ -135,9 +130,9 @@ TEST_F( LEB128Test, EncodeULEB_Example_from_Dwarf3_Figure22_Using_64bits) {
   ASSERT_TRUE(size == 2);
 }
 
-TEST_F( LEB128Test, EncodeSLEB_Example_from_Dwarf3_Figure22) {
+TEST_F(LEB128Test, EncodeSLEB_Example_from_Dwarf3_Figure22) {
   leb128::ByteType buffer[2];
-  leb128::ByteType *result;
+  leb128::ByteType* result;
   size_t size;
 
   result = buffer;
@@ -195,7 +190,7 @@ TEST_F( LEB128Test, EncodeSLEB_Example_from_Dwarf3_Figure22) {
   ASSERT_TRUE(size == 2);
 }
 
-TEST_F( LEB128Test, DecodeULEB_Example_from_Dwarf3_Figure22) {
+TEST_F(LEB128Test, DecodeULEB_Example_from_Dwarf3_Figure22) {
   leb128::ByteType buffer[2];
   size_t size;
 
@@ -228,10 +223,9 @@ TEST_F( LEB128Test, DecodeULEB_Example_from_Dwarf3_Figure22) {
   buffer[1] = 100;
   ASSERT_TRUE(leb128::decode<uint64_t>(buffer, size) == 12857);
   ASSERT_TRUE(size == 2);
-
 }
 
-TEST_F( LEB128Test, DecodeSLEB_Example_from_Dwarf3_Figure22) {
+TEST_F(LEB128Test, DecodeSLEB_Example_from_Dwarf3_Figure22) {
   leb128::ByteType buffer[2];
   size_t size;
 
@@ -276,9 +270,9 @@ TEST_F( LEB128Test, DecodeSLEB_Example_from_Dwarf3_Figure22) {
   ASSERT_TRUE(size == 2);
 }
 
-TEST_F( LEB128Test, DecodeULEB_Tests_Found_in_Android_dalvik_dx) {
+TEST_F(LEB128Test, DecodeULEB_Tests_Found_in_Android_dalvik_dx) {
   leb128::ByteType content[2];
-  const leb128::ByteType *p;
+  const leb128::ByteType* p;
 
   content[0] = 0;
   p = content;
@@ -297,9 +291,9 @@ TEST_F( LEB128Test, DecodeULEB_Tests_Found_in_Android_dalvik_dx) {
   ASSERT_EQ(p, content + 2);
 }
 
-TEST_F( LEB128Test, EncodeULEB_Tests_Found_in_Android_dalvik_dx) {
+TEST_F(LEB128Test, EncodeULEB_Tests_Found_in_Android_dalvik_dx) {
   leb128::ByteType buffer[5];
-  leb128::ByteType *result;
+  leb128::ByteType* result;
   size_t size;
 
   result = buffer;
@@ -389,9 +383,9 @@ TEST_F( LEB128Test, EncodeULEB_Tests_Found_in_Android_dalvik_dx) {
   ASSERT_TRUE(size == 5);
 }
 
-TEST_F( LEB128Test, DecodeSLEB_Tests_Found_in_Android_dalvik_dx) {
+TEST_F(LEB128Test, DecodeSLEB_Tests_Found_in_Android_dalvik_dx) {
   leb128::ByteType content[2];
-  const leb128::ByteType *p;
+  const leb128::ByteType* p;
 
   content[0] = 0;
   p = content;
@@ -414,9 +408,9 @@ TEST_F( LEB128Test, DecodeSLEB_Tests_Found_in_Android_dalvik_dx) {
   ASSERT_EQ(p, content + 1);
 }
 
-TEST_F( LEB128Test, EncodeSLEB_Tests_Found_in_Android_dalvik_dx) {
+TEST_F(LEB128Test, EncodeSLEB_Tests_Found_in_Android_dalvik_dx) {
   leb128::ByteType buffer[5];
-  leb128::ByteType *result;
+  leb128::ByteType* result;
   size_t size;
 
   result = buffer;
@@ -456,14 +450,14 @@ TEST_F( LEB128Test, EncodeSLEB_Tests_Found_in_Android_dalvik_dx) {
   ASSERT_TRUE(size == 1);
 }
 
-TEST_F( LEB128Test, Random_Regression_Test) {
+TEST_F(LEB128Test, Random_Regression_Test) {
   leb128::ByteType buffer[9];
 
   for (int i = 0; i < 20; i++) {
     unsigned long int value = sys::GetRandomNum();
     uint64_t value2 = value * value;
     int64_t value3 = value * value;
-    leb128::ByteType *result;
+    leb128::ByteType* result;
     size_t encode_size, decode_size;
 
     // Test encode<uint32_t> and decode<uint64_t> on value
@@ -496,9 +490,9 @@ TEST_F( LEB128Test, Random_Regression_Test) {
   }
 }
 
-TEST_F( LEB128Test, Other_Test) {
+TEST_F(LEB128Test, Other_Test) {
   leb128::ByteType buffer[5];
-  leb128::ByteType *result;
+  leb128::ByteType* result;
   size_t size;
 
   result = buffer;
@@ -512,9 +506,9 @@ TEST_F( LEB128Test, Other_Test) {
   ASSERT_TRUE(size == 3);
 }
 
-TEST_F( LEB128Test, Type_Conversion_Test) {
+TEST_F(LEB128Test, Type_Conversion_Test) {
   char buffer[5];
-  char *result;
+  char* result;
   size_t size;
 
   result = buffer;
@@ -527,7 +521,7 @@ TEST_F( LEB128Test, Type_Conversion_Test) {
   ASSERT_TRUE(leb128::decode<uint64_t>(buffer, size) == 154452);
   ASSERT_TRUE(size == 3);
 
-  const char *p = buffer;
+  const char* p = buffer;
   ASSERT_TRUE(leb128::decode<uint64_t>(p) == 154452);
   ASSERT_TRUE(p == (buffer + 3));
 }

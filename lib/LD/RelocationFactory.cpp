@@ -26,15 +26,13 @@ RelocationFactory::RelocationFactory()
     : GCFactory<Relocation, MCLD_RELOCATIONS_PER_INPUT>(), m_pConfig(NULL) {
 }
 
-void RelocationFactory::setConfig(const LinkerConfig& pConfig)
-{
+void RelocationFactory::setConfig(const LinkerConfig& pConfig) {
   m_pConfig = &pConfig;
 }
 
 Relocation* RelocationFactory::produce(RelocationFactory::Type pType,
                                        FragmentRef& pFragRef,
-                                       Address pAddend)
-{
+                                       Address pAddend) {
   if (m_pConfig == NULL) {
     fatal(diag::reloc_factory_has_not_config);
     return NULL;
@@ -66,7 +64,7 @@ Relocation* RelocationFactory::produce(RelocationFactory::Type pType,
                                           << m_pConfig->targets().bitclass();
         return NULL;
       }
-    } // end of switch
+    }  // end of switch
   } else {
     pFragRef.memcpy(&target_data, (m_pConfig->targets().bitclass() / 8));
   }
@@ -76,14 +74,12 @@ Relocation* RelocationFactory::produce(RelocationFactory::Type pType,
   return result;
 }
 
-Relocation* RelocationFactory::produceEmptyEntry()
-{
+Relocation* RelocationFactory::produceEmptyEntry() {
   Relocation* result = allocate();
   new (result) Relocation(0, 0, 0, 0);
   return result;
 }
 
-void RelocationFactory::destroy(Relocation* pRelocation)
-{
-   /** GCFactory will recycle the relocation **/
+void RelocationFactory::destroy(Relocation* pRelocation) {
+  /** GCFactory will recycle the relocation **/
 }

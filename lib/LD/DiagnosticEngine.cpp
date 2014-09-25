@@ -28,8 +28,7 @@ DiagnosticEngine::DiagnosticEngine()
       m_OwnPrinter(false) {
 }
 
-DiagnosticEngine::~DiagnosticEngine()
-{
+DiagnosticEngine::~DiagnosticEngine() {
   if (m_OwnPrinter && m_pPrinter != NULL)
     delete m_pPrinter;
 
@@ -39,22 +38,19 @@ DiagnosticEngine::~DiagnosticEngine()
   delete m_pLineInfo;
 }
 
-void DiagnosticEngine::reset(const LinkerConfig& pConfig)
-{
+void DiagnosticEngine::reset(const LinkerConfig& pConfig) {
   m_pConfig = &pConfig;
   delete m_pInfoMap;
   m_pInfoMap = new DiagnosticInfos(*m_pConfig);
   m_State.reset();
 }
 
-void DiagnosticEngine::setLineInfo(DiagnosticLineInfo& pLineInfo)
-{
+void DiagnosticEngine::setLineInfo(DiagnosticLineInfo& pLineInfo) {
   m_pLineInfo = &pLineInfo;
 }
 
 void DiagnosticEngine::setPrinter(DiagnosticPrinter& pPrinter,
-                                  bool pShouldOwnPrinter)
-{
+                                  bool pShouldOwnPrinter) {
   if (m_OwnPrinter && m_pPrinter != NULL)
     delete m_pPrinter;
   m_pPrinter = &pPrinter;
@@ -62,17 +58,15 @@ void DiagnosticEngine::setPrinter(DiagnosticPrinter& pPrinter,
 }
 
 // emit - process current diagnostic.
-bool DiagnosticEngine::emit()
-{
+bool DiagnosticEngine::emit() {
   assert(m_pInfoMap != NULL);
   bool emitted = m_pInfoMap->process(*this);
   m_State.reset();
   return emitted;
 }
 
-MsgHandler
-DiagnosticEngine::report(uint16_t pID, DiagnosticEngine::Severity pSeverity)
-{
+MsgHandler DiagnosticEngine::report(uint16_t pID,
+                                    DiagnosticEngine::Severity pSeverity) {
   m_State.ID = pID;
   m_State.severity = pSeverity;
 

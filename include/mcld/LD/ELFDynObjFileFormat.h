@@ -17,13 +17,12 @@ class ObjectBuilder;
 /** \class ELFDynObjFileFormat
  *  \brief ELFDynObjFileFormat describes the format for ELF dynamic objects.
  */
-class ELFDynObjFileFormat : public ELFFileFormat
-{
+class ELFDynObjFileFormat : public ELFFileFormat {
   /// initObjectFormat - initialize sections that are dependent on shared
   /// objects.
   void initObjectFormat(ObjectBuilder& pBuilder, unsigned int pBitClass);
 };
 
-} // namespace mcld
+}  // namespace mcld
 
 #endif  // MCLD_LD_ELFDYNOBJFILEFORMAT_H_

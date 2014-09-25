@@ -21,17 +21,14 @@ using namespace mcld;
 //===----------------------------------------------------------------------===//
 // GOT
 //===----------------------------------------------------------------------===//
-GOT::GOT(LDSection& pSection)
-    : m_Section(pSection) {
+GOT::GOT(LDSection& pSection) : m_Section(pSection) {
   m_SectionData = IRBuilder::CreateSectionData(pSection);
 }
 
-GOT::~GOT()
-{
+GOT::~GOT() {
 }
 
-void GOT::finalizeSectionSize()
-{
+void GOT::finalizeSectionSize() {
   uint32_t offset = 0;
   SectionData::iterator frag, fragEnd = m_SectionData->end();
   for (frag = m_SectionData->begin(); frag != fragEnd; ++frag) {

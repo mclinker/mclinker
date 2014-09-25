@@ -15,14 +15,13 @@ namespace mcld {
 
 class LinkerConfig;
 
-class SymbolOptions
-{
-public:
+class SymbolOptions {
+ public:
   SymbolOptions();
 
   bool parse(LinkerConfig& pConfig);
 
-private:
+ private:
   // not supported yet
   llvm::cl::list<std::string>& m_ForceUndefined;
   llvm::cl::opt<std::string>& m_VersionScript;
@@ -30,7 +29,6 @@ private:
   llvm::cl::opt<bool>& m_DefineCommon;
 };
 
-} // namespace of mcld
+}  // namespace of mcld
 
 #endif
-

@@ -32,11 +32,9 @@ class TargetLDBackend;
 
 /** \class ObjectLinker
  */
-class ObjectLinker
-{
-public:
-  ObjectLinker(const LinkerConfig& pConfig,
-               TargetLDBackend& pLDBackend);
+class ObjectLinker {
+ public:
+  ObjectLinker(const LinkerConfig& pConfig, TargetLDBackend& pLDBackend);
 
   ~ObjectLinker();
 
@@ -126,28 +124,28 @@ public:
   bool postProcessing(FileOutputBuffer& pOutput);
 
   // -----  readers and writers  ----- //
-  const ObjectReader*  getObjectReader () const { return m_pObjectReader;  }
-  ObjectReader*        getObjectReader ()       { return m_pObjectReader;  }
+  const ObjectReader* getObjectReader() const { return m_pObjectReader; }
+  ObjectReader* getObjectReader() { return m_pObjectReader; }
 
-  const DynObjReader*  getDynObjReader () const { return m_pDynObjReader;  }
-  DynObjReader*        getDynObjReader ()       { return m_pDynObjReader;  }
+  const DynObjReader* getDynObjReader() const { return m_pDynObjReader; }
+  DynObjReader* getDynObjReader() { return m_pDynObjReader; }
 
   const ArchiveReader* getArchiveReader() const { return m_pArchiveReader; }
-  ArchiveReader*       getArchiveReader()       { return m_pArchiveReader; }
+  ArchiveReader* getArchiveReader() { return m_pArchiveReader; }
 
-  const GroupReader*   getGroupReader  () const { return m_pGroupReader;   }
-  GroupReader*         getGroupReader  ()       { return m_pGroupReader;   }
+  const GroupReader* getGroupReader() const { return m_pGroupReader; }
+  GroupReader* getGroupReader() { return m_pGroupReader; }
 
-  const BinaryReader*  getBinaryReader () const { return m_pBinaryReader;  }
-  BinaryReader*        getBinaryReader ()       { return m_pBinaryReader;  }
+  const BinaryReader* getBinaryReader() const { return m_pBinaryReader; }
+  BinaryReader* getBinaryReader() { return m_pBinaryReader; }
 
-  const ScriptReader*  getScriptReader () const { return m_pScriptReader;  }
-  ScriptReader*        getScriptReader ()       { return m_pScriptReader;  }
+  const ScriptReader* getScriptReader() const { return m_pScriptReader; }
+  ScriptReader* getScriptReader() { return m_pScriptReader; }
 
-  const ObjectWriter*  getWriter () const { return m_pWriter;  }
-  ObjectWriter*        getWriter ()       { return m_pWriter;  }
+  const ObjectWriter* getWriter() const { return m_pWriter; }
+  ObjectWriter* getWriter() { return m_pWriter; }
 
-private:
+ private:
   /// normalSyncRelocationResult - sync relocation result when producing shared
   /// objects or executables
   void normalSyncRelocationResult(FileOutputBuffer& pOutput);
@@ -164,23 +162,23 @@ private:
   /// section symbol and not defined in the discarded section
   void addSymbolToOutput(ResolveInfo& pInfo, Module& pModule);
 
-private:
+ private:
   const LinkerConfig& m_Config;
   Module* m_pModule;
   IRBuilder* m_pBuilder;
 
-  TargetLDBackend &m_LDBackend;
+  TargetLDBackend& m_LDBackend;
 
   // -----  readers and writers  ----- //
-  ObjectReader*  m_pObjectReader;
-  DynObjReader*  m_pDynObjReader;
+  ObjectReader* m_pObjectReader;
+  DynObjReader* m_pDynObjReader;
   ArchiveReader* m_pArchiveReader;
-  GroupReader*   m_pGroupReader;
-  BinaryReader*  m_pBinaryReader;
-  ScriptReader*  m_pScriptReader;
-  ObjectWriter*  m_pWriter;
+  GroupReader* m_pGroupReader;
+  BinaryReader* m_pBinaryReader;
+  ScriptReader* m_pScriptReader;
+  ObjectWriter* m_pWriter;
 };
 
-} // namespace mcld
+}  // namespace mcld
 
 #endif  // MCLD_OBJECT_OBJECTLINKER_H_

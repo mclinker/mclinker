@@ -21,58 +21,53 @@ using namespace mcld;
 //===----------------------------------------------------------------------===//
 // UnaryOp
 //===----------------------------------------------------------------------===//
-template<>
-IntOperand* UnaryOp<Operator::UNARY_PLUS>::eval(const Module& pModule,
-                                                const TargetLDBackend& pBackend)
-{
+template <>
+IntOperand* UnaryOp<Operator::UNARY_PLUS>::eval(
+    const Module& pModule,
+    const TargetLDBackend& pBackend) {
   IntOperand* res = result();
-  res->setValue(+ m_pOperand->value());
+  res->setValue(+m_pOperand->value());
   return res;
 }
 
-template<>
-IntOperand*
-UnaryOp<Operator::UNARY_MINUS>::eval(const Module& pModule,
-                                     const TargetLDBackend& pBackend)
-{
+template <>
+IntOperand* UnaryOp<Operator::UNARY_MINUS>::eval(
+    const Module& pModule,
+    const TargetLDBackend& pBackend) {
   IntOperand* res = result();
-  res->setValue(- m_pOperand->value());
+  res->setValue(-m_pOperand->value());
   return res;
 }
 
-template<>
-IntOperand*
-UnaryOp<Operator::LOGICAL_NOT>::eval(const Module& pModule,
-                                     const TargetLDBackend& pBackend)
-{
+template <>
+IntOperand* UnaryOp<Operator::LOGICAL_NOT>::eval(
+    const Module& pModule,
+    const TargetLDBackend& pBackend) {
   IntOperand* res = result();
-  res->setValue(! m_pOperand->value());
+  res->setValue(!m_pOperand->value());
   return res;
 }
 
-template<>
-IntOperand*
-UnaryOp<Operator::BITWISE_NOT>::eval(const Module& pModule,
-                                     const TargetLDBackend& pBackend)
-{
+template <>
+IntOperand* UnaryOp<Operator::BITWISE_NOT>::eval(
+    const Module& pModule,
+    const TargetLDBackend& pBackend) {
   IntOperand* res = result();
-  res->setValue(~ m_pOperand->value());
+  res->setValue(~m_pOperand->value());
   return res;
 }
 
-template<>
+template <>
 IntOperand* UnaryOp<Operator::ABSOLUTE>::eval(const Module& pModule,
-                                              const TargetLDBackend& pBackend)
-{
+                                              const TargetLDBackend& pBackend) {
   // TODO
   assert(0);
   return result();
 }
 
-template<>
+template <>
 IntOperand* UnaryOp<Operator::ADDR>::eval(const Module& pModule,
-                                          const TargetLDBackend& pBackend)
-{
+                                          const TargetLDBackend& pBackend) {
   IntOperand* res = result();
   const LDSection* sect = NULL;
   switch (m_pOperand->type()) {
@@ -92,10 +87,9 @@ IntOperand* UnaryOp<Operator::ADDR>::eval(const Module& pModule,
   return res;
 }
 
-template<>
+template <>
 IntOperand* UnaryOp<Operator::ALIGNOF>::eval(const Module& pModule,
-                                             const TargetLDBackend& pBackend)
-{
+                                             const TargetLDBackend& pBackend) {
   IntOperand* res = result();
   const LDSection* sect = NULL;
   switch (m_pOperand->type()) {
@@ -115,65 +109,58 @@ IntOperand* UnaryOp<Operator::ALIGNOF>::eval(const Module& pModule,
   return res;
 }
 
-template<>
-IntOperand*
-UnaryOp<Operator::DATA_SEGMENT_END>::eval(const Module& pModule,
-                                          const TargetLDBackend& pBackend)
-{
+template <>
+IntOperand* UnaryOp<Operator::DATA_SEGMENT_END>::eval(
+    const Module& pModule,
+    const TargetLDBackend& pBackend) {
   IntOperand* res = result();
   res->setValue(m_pOperand->value());
   return res;
 }
 
-template<>
+template <>
 IntOperand* UnaryOp<Operator::DEFINED>::eval(const Module& pModule,
-                                             const TargetLDBackend& pBackend)
-{
+                                             const TargetLDBackend& pBackend) {
   // TODO
   assert(0);
   return result();
 }
 
-template<>
+template <>
 IntOperand* UnaryOp<Operator::LENGTH>::eval(const Module& pModule,
-                                            const TargetLDBackend& pBackend)
-{
+                                            const TargetLDBackend& pBackend) {
   // TODO
   assert(0);
   return result();
 }
 
-template<>
+template <>
 IntOperand* UnaryOp<Operator::LOADADDR>::eval(const Module& pModule,
-                                              const TargetLDBackend& pBackend)
-{
+                                              const TargetLDBackend& pBackend) {
   // TODO
   assert(0);
   return result();
 }
 
-template<>
+template <>
 IntOperand* UnaryOp<Operator::NEXT>::eval(const Module& pModule,
-                                          const TargetLDBackend& pBackend)
-{
+                                          const TargetLDBackend& pBackend) {
   // TODO
   assert(0);
   return result();
 }
 
-template<>
+template <>
 IntOperand* UnaryOp<Operator::ORIGIN>::eval(const Module& pModule,
-                                            const TargetLDBackend& pBackend)
-{
+                                            const TargetLDBackend& pBackend) {
   // TODO
   assert(0);
   return result();
 }
 
-template<>
+template <>
 IntOperand* UnaryOp<Operator::SIZEOF>::eval(const Module& pModule,
-                                            const TargetLDBackend& pBackend)
-{
+                                            const TargetLDBackend& pBackend) {
   IntOperand* res = result();
   const LDSection* sect = NULL;
   switch (m_pOperand->type()) {

@@ -16,6 +16,5 @@ TargetLDBackend::TargetLDBackend(const LinkerConfig& pConfig)
     : m_Config(pConfig) {
 }
 
-TargetLDBackend::~TargetLDBackend()
-{
+TargetLDBackend::~TargetLDBackend() {
 }

@@ -11,8 +11,8 @@
 #include <string>
 
 namespace llvm {
-  class Target;
-} // namespace llvm
+class Target;
+}  // namespace llvm
 
 namespace mcld {
 
@@ -24,6 +24,6 @@ extern mcld::Target TheX86_64Target;
 
 TargetLDBackend* createX86LDBackend(const llvm::Target&, const std::string&);
 
-} // namespace mcld
+}  // namespace mcld
 
 #endif  // TARGET_X86_X86_H_

@@ -20,4 +20,4 @@ extern "C" void MCLDInitializeMipsLDTargetInfo() {
                                                   "mips64el");
 }
 
-} // namespace mcld
+}  // namespace mcld

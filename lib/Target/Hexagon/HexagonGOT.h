@@ -19,28 +19,25 @@ class SectionData;
 /** \class HexagonGOTEntry
  *  \brief GOT Entry with size of 4 bytes
  */
-class HexagonGOTEntry : public GOT::Entry<4>
-{
-public:
+class HexagonGOTEntry : public GOT::Entry<4> {
+ public:
   HexagonGOTEntry(uint64_t pContent, SectionData* pParent)
-      : GOT::Entry<4>(pContent, pParent)
-  { }
+      : GOT::Entry<4>(pContent, pParent) {}
 };
 
 /** \class HexagonGOT
  *  \brief Hexagon Global Offset Table.
  */
 
-class HexagonGOT : public GOT
-{
-public:
-  HexagonGOT(LDSection& pSection);
+class HexagonGOT : public GOT {
+ public:
+  explicit HexagonGOT(LDSection& pSection);
 
   ~HexagonGOT();
 
   HexagonGOTEntry* create();
 };
 
-} // namespace mcld
+}  // namespace mcld
 
 #endif  // TARGET_HEXAGON_HEXAGONGOT_H_

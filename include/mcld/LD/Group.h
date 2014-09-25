@@ -9,16 +9,13 @@
 #ifndef MCLD_LD_GROUP_H_
 #define MCLD_LD_GROUP_H_
 
-namespace mcld
-{
+namespace mcld {
 
 /** \class Group
  *  \brief Group records the grouping of all regions
  */
-class Group
-{
-};
+class Group {};
 
-} // namespace mcld
+}  // namespace mcld
 
 #endif  // MCLD_LD_GROUP_H_

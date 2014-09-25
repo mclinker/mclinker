@@ -1,4 +1,4 @@
-//===- HashEntryFactory.h --------------------------------------------------===//
+//===- HashEntryFactory.h -------------------------------------------------===//
 //
 //                     The MCLinker Project
 //
@@ -15,21 +15,20 @@ namespace mcld {
  *  \brief HashEntryFactoy is a factory wrapper for those entries who have
  *  factory methods.
  */
-template<typename HashEntryTy>
-class HashEntryFactory
-{
-public:
+template <typename HashEntryTy>
+class HashEntryFactory {
+ public:
   typedef HashEntryTy entry_type;
   typedef typename HashEntryTy::key_type key_type;
 
-public:
-  entry_type* produce(const key_type& pKey)
-  { return HashEntryTy::Create(pKey); }
+ public:
+  entry_type* produce(const key_type& pKey) {
+    return HashEntryTy::Create(pKey);
+  }
 
-  void destroy(entry_type*& pEntry)
-  { HashEntryTy::Destroy(pEntry); }
+  void destroy(entry_type*& pEntry) { HashEntryTy::Destroy(pEntry); }
 };
 
-} // namespace mcld
+}  // namespace mcld
 
 #endif  // MCLD_ADT_HASHENTRYFACTORY_H_

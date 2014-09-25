@@ -24,9 +24,8 @@ class ResolveInfo;
  *  \brief X86Relocator creates and destroys the X86 relocations.
  *
  */
-class X86Relocator : public Relocator
-{
-public:
+class X86Relocator : public Relocator {
+ public:
   typedef KeyEntryMap<ResolveInfo, PLTEntryBase> SymPLTMap;
 
   /** \enum ReservedEntryType
@@ -48,10 +47,10 @@ public:
    *
    */
   enum ReservedEntryType {
-    None         = 0,
-    ReserveRel   = 1,
-    ReserveGOT   = 2,
-    ReservePLT   = 4,
+    None = 0,
+    ReserveRel = 1,
+    ReserveGOT = 2,
+    ReservePLT = 4,
   };
 
   /** \enum EntryValue
@@ -59,13 +58,10 @@ public:
    *  layout, so we mark the entry during scanRelocation and fill up the actual
    *  value when applying relocations.
    */
-  enum EntryValue {
-    Default = 0,
-    SymVal  = 1
-  };
+  enum EntryValue { Default = 0, SymVal = 1 };
 
-public:
-  X86Relocator(const LinkerConfig& pConfig);
+ public:
+  explicit X86Relocator(const LinkerConfig& pConfig);
   ~X86Relocator();
 
   virtual Result applyRelocation(Relocation& pRelocation) = 0;
@@ -73,7 +69,7 @@ public:
   virtual const char* getName(Relocation::Type pType) const = 0;
 
   const SymPLTMap& getSymPLTMap() const { return m_SymPLTMap; }
-  SymPLTMap&       getSymPLTMap()       { return m_SymPLTMap; }
+  SymPLTMap& getSymPLTMap() { return m_SymPLTMap; }
 
   /// scanRelocation - determine the empty entries are needed or not and create
   /// the empty entries if needed.
@@ -87,7 +83,7 @@ public:
                       LDSection& pSection,
                       Input& pInput);
 
-protected:
+ protected:
   /// addCopyReloc - add a copy relocation into .rel.dyn for pSym
   /// @param pSym - A resolved copy symbol that defined in BSS section
   void addCopyReloc(ResolveInfo& pSym, X86GNULDBackend& pTarget);
@@ -99,7 +95,7 @@ protected:
                                      const ResolveInfo& pSym,
                                      X86GNULDBackend& pTarget);
 
-private:
+ private:
   virtual void scanLocalReloc(Relocation& pReloc,
                               IRBuilder& pBuilder,
                               Module& pModule,
@@ -110,7 +106,7 @@ private:
                                Module& pModule,
                                LDSection& pSection) = 0;
 
-private:
+ private:
   SymPLTMap m_SymPLTMap;
 };
 
@@ -118,36 +114,33 @@ private:
  *  \brief X86_32Relocator creates and destroys the X86-32 relocations.
  *
  */
-class X86_32Relocator : public X86Relocator
-{
-public:
+class X86_32Relocator : public X86Relocator {
+ public:
   typedef KeyEntryMap<ResolveInfo, X86_32GOTEntry> SymGOTMap;
   typedef KeyEntryMap<ResolveInfo, X86_32GOTEntry> SymGOTPLTMap;
 
   enum {
-    R_386_TLS_OPT = 44 // mcld internal relocation type
+    R_386_TLS_OPT = 44  // mcld internal relocation type
   };
 
-public:
+ public:
   X86_32Relocator(X86_32GNULDBackend& pParent, const LinkerConfig& pConfig);
 
   Result applyRelocation(Relocation& pRelocation);
 
-  X86_32GNULDBackend& getTarget()
-  { return m_Target; }
+  X86_32GNULDBackend& getTarget() { return m_Target; }
 
-  const X86_32GNULDBackend& getTarget() const
-  { return m_Target; }
+  const X86_32GNULDBackend& getTarget() const { return m_Target; }
 
   const char* getName(Relocation::Type pType) const;
 
   Size getSize(Relocation::Type pType) const;
 
   const SymGOTMap& getSymGOTMap() const { return m_SymGOTMap; }
-  SymGOTMap&       getSymGOTMap()       { return m_SymGOTMap; }
+  SymGOTMap& getSymGOTMap() { return m_SymGOTMap; }
 
   const SymGOTPLTMap& getSymGOTPLTMap() const { return m_SymGOTPLTMap; }
-  SymGOTPLTMap&       getSymGOTPLTMap()       { return m_SymGOTPLTMap; }
+  SymGOTPLTMap& getSymGOTPLTMap() { return m_SymGOTPLTMap; }
 
   X86_32GOTEntry& getTLSModuleID();
 
@@ -155,7 +148,7 @@ public:
   /// access a function pointer.
   virtual bool mayHaveFunctionPointerAccess(const Relocation& pReloc) const;
 
-private:
+ private:
   void scanLocalReloc(Relocation& pReloc,
                       IRBuilder& pBuilder,
                       Module& pModule,
@@ -170,7 +163,7 @@ private:
   /// convert R_386_TLS_IE to R_386_TLS_LE
   void convertTLSIEtoLE(Relocation& pReloc, LDSection& pSection);
 
-private:
+ private:
   X86_32GNULDBackend& m_Target;
   SymGOTMap m_SymGOTMap;
   SymGOTPLTMap m_SymGOTPLTMap;
@@ -180,42 +173,39 @@ private:
  *  \brief X86_64Relocator creates and destroys the X86-64 relocations.
  *
  */
-class X86_64Relocator : public X86Relocator
-{
-public:
+class X86_64Relocator : public X86Relocator {
+ public:
   typedef KeyEntryMap<ResolveInfo, X86_64GOTEntry> SymGOTMap;
   typedef KeyEntryMap<ResolveInfo, X86_64GOTEntry> SymGOTPLTMap;
   typedef KeyEntryMap<Relocation, Relocation> RelRelMap;
 
-public:
+ public:
   X86_64Relocator(X86_64GNULDBackend& pParent, const LinkerConfig& pConfig);
 
   Result applyRelocation(Relocation& pRelocation);
 
-  X86_64GNULDBackend& getTarget()
-  { return m_Target; }
+  X86_64GNULDBackend& getTarget() { return m_Target; }
 
-  const X86_64GNULDBackend& getTarget() const
-  { return m_Target; }
+  const X86_64GNULDBackend& getTarget() const { return m_Target; }
 
   const char* getName(Relocation::Type pType) const;
 
   Size getSize(Relocation::Type pType) const;
 
   const SymGOTMap& getSymGOTMap() const { return m_SymGOTMap; }
-  SymGOTMap&       getSymGOTMap()       { return m_SymGOTMap; }
+  SymGOTMap& getSymGOTMap() { return m_SymGOTMap; }
 
   const SymGOTPLTMap& getSymGOTPLTMap() const { return m_SymGOTPLTMap; }
-  SymGOTPLTMap&       getSymGOTPLTMap()       { return m_SymGOTPLTMap; }
+  SymGOTPLTMap& getSymGOTPLTMap() { return m_SymGOTPLTMap; }
 
   const RelRelMap& getRelRelMap() const { return m_RelRelMap; }
-  RelRelMap&       getRelRelMap()       { return m_RelRelMap; }
+  RelRelMap& getRelRelMap() { return m_RelRelMap; }
 
   /// mayHaveFunctionPointerAccess - check if the given reloc would possibly
   /// access a function pointer.
   virtual bool mayHaveFunctionPointerAccess(const Relocation& pReloc) const;
 
-private:
+ private:
   void scanLocalReloc(Relocation& pReloc,
                       IRBuilder& pBuilder,
                       Module& pModule,
@@ -226,13 +216,13 @@ private:
                        Module& pModule,
                        LDSection& pSection);
 
-private:
+ private:
   X86_64GNULDBackend& m_Target;
   SymGOTMap m_SymGOTMap;
   SymGOTPLTMap m_SymGOTPLTMap;
   RelRelMap m_RelRelMap;
 };
 
-} // namespace mcld
+}  // namespace mcld
 
 #endif  // TARGET_X86_X86RELOCATOR_H_

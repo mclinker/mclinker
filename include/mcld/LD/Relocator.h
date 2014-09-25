@@ -11,8 +11,7 @@
 
 #include <mcld/Fragment/Relocation.h>
 
-namespace mcld
-{
+namespace mcld {
 
 class Input;
 class IRBuilder;
@@ -22,28 +21,19 @@ class TargetLDBackend;
 /** \class Relocator
  *  \brief Relocator provides the interface of performing relocations
  */
-class Relocator
-{
-public:
-  typedef Relocation::Type    Type;
+class Relocator {
+ public:
+  typedef Relocation::Type Type;
   typedef Relocation::Address Address;
-  typedef Relocation::DWord   DWord;
-  typedef Relocation::SWord   SWord;
-  typedef Relocation::Size    Size;
+  typedef Relocation::DWord DWord;
+  typedef Relocation::SWord SWord;
+  typedef Relocation::Size Size;
 
-public:
-  enum Result {
-    OK,
-    BadReloc,
-    Overflow,
-    Unsupport,
-    Unknown
-  };
+ public:
+  enum Result { OK, BadReloc, Overflow, Unsupport, Unknown };
 
-public:
-  Relocator(const LinkerConfig& pConfig)
-      : m_Config(pConfig)
-  { }
+ public:
+  explicit Relocator(const LinkerConfig& pConfig) : m_Config(pConfig) {}
 
   virtual ~Relocator() = 0;
 
@@ -64,7 +54,8 @@ public:
                               LDSection& pSection,
                               Input& pInput) = 0;
 
-  /// issueUndefRefError - Provides a basic version for undefined reference dump.
+  /// issueUndefRefError - Provides a basic version for undefined reference
+  /// dump.
   /// It will handle the filename and function name automatically.
   /// @param pReloc - a read in relocation entry
   /// @param pSection - the section of relocation applying target
@@ -75,23 +66,19 @@ public:
 
   /// initializeScan - do initialization before scan relocations in pInput
   /// @return - return true for initialization success
-  virtual bool initializeScan(Input& pInput)
-  { return true; }
+  virtual bool initializeScan(Input& pInput) { return true; }
 
   /// finalizeScan - do finalization after scan relocations in pInput
   /// @return - return true for finalization success
-  virtual bool finalizeScan(Input& pInput)
-  { return true; }
+  virtual bool finalizeScan(Input& pInput) { return true; }
 
   /// initializeApply - do initialization before apply relocations in pInput
   /// @return - return true for initialization success
-  virtual bool initializeApply(Input& pInput)
-  { return true; }
+  virtual bool initializeApply(Input& pInput) { return true; }
 
   /// finalizeApply - do finalization after apply relocations in pInput
   /// @return - return true for finalization success
-  virtual bool finalizeApply(Input& pInput)
-  { return true; }
+  virtual bool finalizeApply(Input& pInput) { return true; }
 
   /// partialScanRelocation - When doing partial linking, backend can do any
   /// modification to relocation to fix the relocation offset after section
@@ -118,16 +105,17 @@ public:
   /// access a function pointer.
   /// Note: Each target relocator should override this function, or be
   /// conservative and return true to avoid getting folded.
-  virtual bool mayHaveFunctionPointerAccess(const Relocation& pReloc) const
-  { return true; }
+  virtual bool mayHaveFunctionPointerAccess(const Relocation& pReloc) const {
+    return true;
+  }
 
-protected:
+ protected:
   const LinkerConfig& config() const { return m_Config; }
 
-private:
+ private:
   const LinkerConfig& m_Config;
 };
 
-} // namespace mcld
+}  // namespace mcld
 
 #endif  // MCLD_LD_RELOCATOR_H_

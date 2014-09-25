@@ -22,29 +22,21 @@ class SectionData;
 /** \class Fragment
  *  \brief Fragment is the minimun linking unit of MCLinker.
  */
-class Fragment : public llvm::ilist_node<Fragment>
-{
-public:
-  enum Type {
-    Alignment,
-    Fillment,
-    Region,
-    Target,
-    Stub,
-    Null
-  };
+class Fragment : public llvm::ilist_node<Fragment> {
+ public:
+  enum Type { Alignment, Fillment, Region, Target, Stub, Null };
 
-public:
+ public:
   Fragment();
 
-  Fragment(Type pKind, SectionData* pParent = NULL);
+  explicit Fragment(Type pKind, SectionData* pParent = NULL);
 
   virtual ~Fragment();
 
   Type getKind() const { return m_Kind; }
 
   const SectionData* getParent() const { return m_pParent; }
-  SectionData*       getParent()       { return m_pParent; }
+  SectionData* getParent() { return m_pParent; }
 
   void setParent(SectionData* pValue) { m_pParent = pValue; }
 
@@ -61,11 +53,11 @@ public:
     return 0;
   }
 
-private:
-  Fragment(const Fragment&);            // DO NOT IMPLEMENT
-  Fragment& operator=(const Fragment&); // DO NOT IMPLEMENT
+ private:
+  Fragment(const Fragment&);             // DO NOT IMPLEMENT
+  Fragment& operator=(const Fragment&);  // DO NOT IMPLEMENT
 
-private:
+ private:
   Type m_Kind;
 
   SectionData* m_pParent;
@@ -73,6 +65,6 @@ private:
   uint64_t m_Offset;
 };
 
-} // namespace mcld
+}  // namespace mcld
 
 #endif  // MCLD_FRAGMENT_FRAGMENT_H_

@@ -15,16 +15,13 @@ using namespace mcld;
 
 AArch64ELFDynamic::AArch64ELFDynamic(const GNULDBackend& pParent,
                                      const LinkerConfig& pConfig)
-    : ELFDynamic(pParent, pConfig)
-{
+    : ELFDynamic(pParent, pConfig) {
 }
 
-AArch64ELFDynamic::~AArch64ELFDynamic()
-{
+AArch64ELFDynamic::~AArch64ELFDynamic() {
 }
 
-void AArch64ELFDynamic::reserveTargetEntries(const ELFFileFormat& pFormat)
-{
+void AArch64ELFDynamic::reserveTargetEntries(const ELFFileFormat& pFormat) {
   // reservePLTGOT
   if (config().options().hasNow()) {
     if (pFormat.hasGOT())
@@ -35,8 +32,7 @@ void AArch64ELFDynamic::reserveTargetEntries(const ELFFileFormat& pFormat)
   }
 }
 
-void AArch64ELFDynamic::applyTargetEntries(const ELFFileFormat& pFormat)
-{
+void AArch64ELFDynamic::applyTargetEntries(const ELFFileFormat& pFormat) {
   // applyPLTGOT
   if (config().options().hasNow()) {
     if (pFormat.hasGOT())

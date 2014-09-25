@@ -18,47 +18,42 @@
 #include <string>
 #include <vector>
 
-namespace mcld
-{
+namespace mcld {
 
 class Relocation;
 class ResolveInfo;
 
-class Stub: public Fragment
-{
-public:
+class Stub : public Fragment {
+ public:
   typedef Relocation::DWord DWord;
   typedef Relocation::SWord SWord;
-  typedef Relocation::Type  Type;
+  typedef Relocation::Type Type;
 
-  class Fixup
-  {
-  public:
+  class Fixup {
+   public:
     Fixup(DWord pOffset, SWord pAddend, Type pType)
-       : m_Offset(pOffset), m_Addend(pAddend), m_Type(pType)
-    { }
+        : m_Offset(pOffset), m_Addend(pAddend), m_Type(pType) {}
 
-    ~Fixup()
-    { }
+    ~Fixup() {}
 
     DWord offset() const { return m_Offset; }
 
     SWord addend() const { return m_Addend; }
 
-    Type  type() const   { return m_Type; }
+    Type type() const { return m_Type; }
 
-  private:
+   private:
     DWord m_Offset;
     SWord m_Addend;
-    Type  m_Type;
+    Type m_Type;
   };
 
-public:
+ public:
   typedef std::vector<Fixup*> FixupListType;
   typedef FixupListType::iterator fixup_iterator;
   typedef FixupListType::const_iterator const_fixup_iterator;
 
-public:
+ public:
   Stub();
 
   virtual ~Stub();
@@ -85,48 +80,48 @@ public:
   virtual size_t alignment() const = 0;
 
   /// symInfo - ResolveInfo of this Stub
-  ResolveInfo* symInfo()             { return m_pSymInfo; }
+  ResolveInfo* symInfo() { return m_pSymInfo; }
 
   const ResolveInfo* symInfo() const { return m_pSymInfo; }
 
   /// symValue - initial value for stub's symbol
-  virtual uint64_t initSymValue() const  { return 0x0; }
+  virtual uint64_t initSymValue() const { return 0x0; }
 
   ///  -----  Fixup  -----  ///
-  fixup_iterator       fixup_begin()       { return m_FixupList.begin(); }
+  fixup_iterator fixup_begin() { return m_FixupList.begin(); }
 
   const_fixup_iterator fixup_begin() const { return m_FixupList.begin(); }
 
-  fixup_iterator       fixup_end()         { return m_FixupList.end();   }
+  fixup_iterator fixup_end() { return m_FixupList.end(); }
 
-  const_fixup_iterator fixup_end()   const { return m_FixupList.end();   }
+  const_fixup_iterator fixup_end() const { return m_FixupList.end(); }
 
   /// ----- modifiers ----- ///
   void setSymInfo(ResolveInfo* pSymInfo);
 
   // Stub is a kind of Fragment with type of Stub
-  static bool classof(const Fragment* F)
-  { return F->getKind() == Fragment::Stub; }
+  static bool classof(const Fragment* F) {
+    return F->getKind() == Fragment::Stub;
+  }
 
-  static bool classof(const Stub *)
-  { return true; }
+  static bool classof(const Stub*) { return true; }
 
-protected:
+ protected:
   /// addFixup - add a fixup for this stub to build a relocation
   void addFixup(DWord pOffset, SWord pAddend, Type pType);
 
   /// addFixup - add a fixup from a existing fixup of the prototype
   void addFixup(const Fixup& pFixup);
 
-private:
+ private:
   /// doClone - when adding a backend stub, we should implement this function
   virtual Stub* doClone() = 0;
 
-private:
+ private:
   ResolveInfo* m_pSymInfo;
   FixupListType m_FixupList;
 };
 
-} // namespace mcld
+}  // namespace mcld
 
 #endif  // MCLD_FRAGMENT_STUB_H_

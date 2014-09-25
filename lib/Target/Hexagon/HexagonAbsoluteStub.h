@@ -1,4 +1,4 @@
-//===- HexagonAbsoluteStub.h -----------------------------------------------===//
+//===- HexagonAbsoluteStub.h ----------------------------------------------===//
 //
 //                     The MCLinker Project
 //
@@ -14,8 +14,7 @@
 #include <string>
 #include <vector>
 
-namespace mcld
-{
+namespace mcld {
 
 class Relocation;
 class ResolveInfo;
@@ -24,10 +23,9 @@ class ResolveInfo;
  *  \brief Hexagon stub for abs long call from source to target
  *
  */
-class HexagonAbsoluteStub : public Stub
-{
-public:
-  HexagonAbsoluteStub(bool pIsOutputPIC);
+class HexagonAbsoluteStub : public Stub {
+ public:
+  explicit HexagonAbsoluteStub(bool pIsOutputPIC);
 
   ~HexagonAbsoluteStub();
 
@@ -45,7 +43,7 @@ public:
 
   size_t alignment() const;
 
-private:
+ private:
   HexagonAbsoluteStub(const HexagonAbsoluteStub&);
 
   HexagonAbsoluteStub& operator=(const HexagonAbsoluteStub&);
@@ -59,13 +57,13 @@ private:
   /// doClone
   Stub* doClone();
 
-private:
+ private:
   std::string m_Name;
   static const uint32_t TEMPLATE[];
   const uint32_t* m_pData;
   size_t m_Size;
 };
 
-} // namespace mcld
+}  // namespace mcld
 
 #endif  // TARGET_HEXAGON_HEXAGONABSOLUTESTUB_H_

@@ -11,8 +11,7 @@
 
 #include <mcld/Fragment/Stub.h>
 
-namespace mcld
-{
+namespace mcld {
 
 class MipsGNULDBackend;
 class Relocation;
@@ -23,12 +22,11 @@ class Relocation;
 /** \class MipsLA25Stub
  *  \brief Mips stub for a non-PIC interface to a PIC function.
  */
-class MipsLA25Stub : public Stub
-{
-public:
-  MipsLA25Stub(const MipsGNULDBackend& pTarget);
+class MipsLA25Stub : public Stub {
+ public:
+  explicit MipsLA25Stub(const MipsGNULDBackend& pTarget);
 
-private:
+ private:
   // Stub
   Stub* doClone();
   bool isMyDuty(const Relocation& pReloc,
@@ -39,7 +37,7 @@ private:
   size_t size() const;
   size_t alignment() const;
 
-private:
+ private:
   MipsLA25Stub(const MipsLA25Stub&);
   MipsLA25Stub& operator=(const MipsLA25Stub&);
 
@@ -49,13 +47,13 @@ private:
                const_fixup_iterator pBegin,
                const_fixup_iterator pEnd);
 
-private:
+ private:
   const MipsGNULDBackend& m_Target;
   const std::string m_Name;
   const uint32_t* m_pData;
   const size_t m_Size;
 };
 
-} // namespace mcld
+}  // namespace mcld
 
 #endif  // TARGET_MIPS_MIPSLA25STUB_H_

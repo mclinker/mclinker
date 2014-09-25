@@ -20,13 +20,12 @@ class ObjectBuilder;
 /** \class LDFileFormat
  *  \brief LDFileFormat describes the common file formats.
  */
-class LDFileFormat
-{
-public:
+class LDFileFormat {
+ public:
   enum Kind {
     Null,
-    TEXT, // Executable regular sections
-    DATA, // Non-executable regular sections
+    TEXT,  // Executable regular sections
+    DATA,  // Non-executable regular sections
     BSS,
     NamePool,
     Relocation,
@@ -46,10 +45,10 @@ public:
     Folded
   };
 
-protected:
+ protected:
   LDFileFormat();
 
-public:
+ public:
   virtual ~LDFileFormat();
 
   /// initStdSections - initialize all standard section headers.
@@ -99,14 +98,14 @@ public:
     return *f_pReadOnlySection;
   }
 
-protected:
+ protected:
   //         variable name         :  ELF               MachO
-  LDSection* f_pTextSection;       // .text             __text
-  LDSection* f_pDataSection;       // .data             __data
-  LDSection* f_pBSSSection;        // .bss              __bss
-  LDSection* f_pReadOnlySection;   // .rodata           __const
+  LDSection* f_pTextSection;      // .text             __text
+  LDSection* f_pDataSection;      // .data             __data
+  LDSection* f_pBSSSection;       // .bss              __bss
+  LDSection* f_pReadOnlySection;  // .rodata           __const
 };
 
-} // namespace mcld
+}  // namespace mcld
 
 #endif  // MCLD_LD_LDFILEFORMAT_H_

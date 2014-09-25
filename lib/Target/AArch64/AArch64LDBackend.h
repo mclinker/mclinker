@@ -24,17 +24,16 @@ class GNUInfo;
 //===----------------------------------------------------------------------===//
 /// AArch64GNULDBackend - linker backend of AArch64 target of GNU ELF format
 ///
-class AArch64GNULDBackend : public GNULDBackend
-{
-public:
+class AArch64GNULDBackend : public GNULDBackend {
+ public:
   static const int64_t AARCH64_MAX_FWD_BRANCH_OFFSET = (((1 << 25) - 1) << 2);
   static const int64_t AARCH64_MAX_BWD_BRANCH_OFFSET = (-((1 << 25) << 2));
 
-public:
+ public:
   AArch64GNULDBackend(const LinkerConfig& pConfig, GNUInfo* pInfo);
   ~AArch64GNULDBackend();
 
-public:
+ public:
   /// initTargetSections - initialize target dependent sections in output.
   void initTargetSections(Module& pModule, ObjectBuilder& pBuilder);
 
@@ -61,7 +60,6 @@ public:
   /// dynamic - the dynamic section of the target machine.
   /// Use co-variant return type to return its own dynamic section.
   const AArch64ELFDynamic& dynamic() const;
-
 
   /// emitSectionData - write out the section data into the memory region.
   /// When writers get a LDSection whose kind is LDFileFormat::Target, writers
@@ -96,10 +94,11 @@ public:
   OutputRelocSection& getRelaPLT();
   const OutputRelocSection& getRelaPLT() const;
 
-  LDSymbol* getGOTSymbol()             { return m_pGOTSymbol; }
+  LDSymbol* getGOTSymbol() { return m_pGOTSymbol; }
   const LDSymbol* getGOTSymbol() const { return m_pGOTSymbol; }
 
-  /// getTargetSectionOrder - compute the layout order of AArch64 target sections
+  /// getTargetSectionOrder - compute the layout order of AArch64 target
+  /// sections
   unsigned int getTargetSectionOrder(const LDSection& pSectHdr) const;
 
   /// finalizeTargetSymbols - finalize the symbol value
@@ -111,7 +110,7 @@ public:
   /// readSection - read target dependent sections
   bool readSection(Input& pInput, SectionData& pSD);
 
-private:
+ private:
   void defineGOTSymbol(IRBuilder& pBuilder);
 
   int64_t maxFwdBranchOffset() { return AARCH64_MAX_FWD_BRANCH_OFFSET; }
@@ -130,18 +129,16 @@ private:
   bool initTargetStubs();
 
   /// getRelEntrySize - the size in BYTE of rel type relocation
-  size_t getRelEntrySize()
-  { return 16; }
+  size_t getRelEntrySize() { return 16; }
 
   /// getRelEntrySize - the size in BYTE of rela type relocation
-  size_t getRelaEntrySize()
-  { return 24; }
+  size_t getRelaEntrySize() { return 24; }
 
   /// doCreateProgramHdrs - backend can implement this function to create the
   /// target-dependent segments
   virtual void doCreateProgramHdrs(Module& pModule);
 
-private:
+ private:
   Relocator* m_pRelocator;
 
   AArch64GOT* m_pGOT;
@@ -165,6 +162,6 @@ private:
   // LDSection* m_pOverlayTable;    // .AArch64.overlay_table
 };
 
-} // namespace mcld
+}  // namespace mcld
 
 #endif  // TARGET_AARCH64_AARCH64LDBACKEND_H_

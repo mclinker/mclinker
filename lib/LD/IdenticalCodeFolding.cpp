@@ -34,8 +34,7 @@
 #include <zlib.h>
 using namespace mcld;
 
-static bool isSymCtorOrDtor(const ResolveInfo& pSym)
-{
+static bool isSymCtorOrDtor(const ResolveInfo& pSym) {
   // We can always fold ctors and dtors since accessing function pointer in C++
   // is forbidden.
   llvm::StringRef name(pSym.name(), pSym.nameSize());
@@ -48,12 +47,10 @@ static bool isSymCtorOrDtor(const ResolveInfo& pSym)
 IdenticalCodeFolding::IdenticalCodeFolding(const LinkerConfig& pConfig,
                                            const TargetLDBackend& pBackend,
                                            Module& pModule)
-    : m_Config(pConfig), m_Backend(pBackend), m_Module(pModule)
-{
+    : m_Config(pConfig), m_Backend(pBackend), m_Module(pModule) {
 }
 
-void IdenticalCodeFolding::foldIdenticalCode()
-{
+void IdenticalCodeFolding::foldIdenticalCode() {
   // 1. Find folding candidates.
   FoldingCandidates candidate_list;
   findCandidates(candidate_list);
@@ -91,8 +88,7 @@ void IdenticalCodeFolding::foldIdenticalCode()
         KeptSections::iterator it = m_KeptSections.begin() + kept_index;
         LDSection* kept_sect = (*it).first;
         Input* kept_obj = (*it).second.first;
-        debug(diag::debug_icf_folded_section) << sect->name()
-                                              << obj->name()
+        debug(diag::debug_icf_folded_section) << sect->name() << obj->name()
                                               << kept_sect->name()
                                               << kept_obj->name();
       }
@@ -110,18 +106,16 @@ void IdenticalCodeFolding::foldIdenticalCode()
         LDSection* sect = &(frag_ref->frag()->getParent()->getSection());
         if (sect->kind() == LDFileFormat::Folded) {
           size_t kept_index = m_KeptSections[sect].second;
-          LDSection* kept_sect =
-              (*(m_KeptSections.begin() + kept_index)).first;
+          LDSection* kept_sect = (*(m_KeptSections.begin() + kept_index)).first;
           frag_ref->assign(kept_sect->getSectionData()->front(),
                            frag_ref->offset());
         }
       }
-    } // for each symbol
-  } // for each folded object
+    }  // for each symbol
+  }    // for each folded object
 }
 
-void IdenticalCodeFolding::findCandidates(FoldingCandidates& pCandidateList)
-{
+void IdenticalCodeFolding::findCandidates(FoldingCandidates& pCandidateList) {
   Module::obj_iterator obj, objEnd = m_Module.obj_end();
   for (obj = m_Module.obj_begin(); obj != objEnd; ++obj) {
     std::set<const LDSection*> funcptr_access_set;
@@ -150,22 +144,23 @@ void IdenticalCodeFolding::findCandidates(FoldingCandidates& pCandidateList)
                     &sym->fragRef()->frag()->getParent()->getSection();
                 if (!isSymCtorOrDtor(*rel->symInfo()) &&
                     m_Backend.mayHaveUnsafeFunctionPointerAccess(*target) &&
-                    m_Backend.
-                         getRelocator()->mayHaveFunctionPointerAccess(*rel)) {
+                    m_Backend.getRelocator()
+                        ->mayHaveFunctionPointerAccess(*rel)) {
                   funcptr_access_set.insert(def);
                 }
               }
-            } // for each reloc
+            }  // for each reloc
           }
 
           break;
         }
         default: {
           // skip
-          break;;
+          break;
+          ;
         }
-      } // end of switch
-    } // for each section
+      }  // end of switch
+    }    // for each section
 
     CandidateMap::iterator candidate, candidateEnd = candidate_map.end();
     for (candidate = candidate_map.begin(); candidate != candidateEnd;
@@ -174,25 +169,23 @@ void IdenticalCodeFolding::findCandidates(FoldingCandidates& pCandidateList)
           (funcptr_access_set.count(candidate->first) == 0)) {
         size_t index = m_KeptSections.size();
         m_KeptSections[candidate->first] = ObjectAndId(*obj, index);
-        pCandidateList.push_back(FoldingCandidate(candidate->first,
-                                                  candidate->second,
-                                                  *obj));
+        pCandidateList.push_back(
+            FoldingCandidate(candidate->first, candidate->second, *obj));
       }
-    } // for each possible candidate
+    }  // for each possible candidate
 
-  } // for each obj
+  }  // for each obj
 }
 
-bool IdenticalCodeFolding::matchCandidates(FoldingCandidates& pCandidateList)
-{
+bool IdenticalCodeFolding::matchCandidates(FoldingCandidates& pCandidateList) {
   typedef std::multimap<uint32_t, size_t> ChecksumMap;
   ChecksumMap checksum_map;
   std::vector<std::string> contents(pCandidateList.size());
   bool converged = true;
 
   for (size_t index = 0; index < pCandidateList.size(); ++index) {
-    contents[index] = pCandidateList[index].
-                          getContentWithVariables(m_Backend, m_KeptSections);
+    contents[index] = pCandidateList[index].getContentWithVariables(
+        m_Backend, m_KeptSections);
     uint32_t checksum = ::crc32(0xFFFFFFFF,
                                 (const uint8_t*)contents[index].c_str(),
                                 contents[index].length());
@@ -219,8 +212,7 @@ bool IdenticalCodeFolding::matchCandidates(FoldingCandidates& pCandidateList)
 
 void IdenticalCodeFolding::FoldingCandidate::initConstantContent(
     const TargetLDBackend& pBackend,
-    const IdenticalCodeFolding::KeptSections& pKeptSections)
-{
+    const IdenticalCodeFolding::KeptSections& pKeptSections) {
   // Get the static content from text.
   assert(sect != NULL && sect->hasSectionData());
   SectionData::const_iterator frag, fragEnd = sect->getSectionData()->end();
@@ -242,10 +234,14 @@ void IdenticalCodeFolding::FoldingCandidate::initConstantContent(
   if (reloc_sect != NULL && reloc_sect->hasRelocData()) {
     RelocData::iterator rel, relEnd = reloc_sect->getRelocData()->end();
     for (rel = reloc_sect->getRelocData()->begin(); rel != relEnd; ++rel) {
-      llvm::format_object4<Relocation::Type, Relocation::Address,
-                           Relocation::Address, Relocation::Address>
-          rel_info("%x%llx%llx%llx", rel->type(), rel->symValue(),
-                   rel->addend(), rel->place());
+      llvm::format_object4<Relocation::Type,
+                           Relocation::Address,
+                           Relocation::Address,
+                           Relocation::Address> rel_info("%x%llx%llx%llx",
+                                                         rel->type(),
+                                                         rel->symValue(),
+                                                         rel->addend(),
+                                                         rel->place());
       char rel_str[48];
       rel_info.print(rel_str, sizeof(rel_str));
       content.append(rel_str);
@@ -259,11 +255,10 @@ void IdenticalCodeFolding::FoldingCandidate::initConstantContent(
         }
       }
 
-      if (!pBackend.isSymbolPreemptible(*rel->symInfo()) &&
-          sym->hasFragRef() &&
+      if (!pBackend.isSymbolPreemptible(*rel->symInfo()) && sym->hasFragRef() &&
           (pKeptSections.find(
-              &sym->fragRef()->frag()->getParent()->getSection()) !=
-              pKeptSections.end())) {
+               &sym->fragRef()->frag()->getParent()->getSection()) !=
+           pKeptSections.end())) {
         // Mark this reloc as a variable.
         variable_relocs.push_back(rel);
       } else {
@@ -271,9 +266,8 @@ void IdenticalCodeFolding::FoldingCandidate::initConstantContent(
         if ((sym->binding() == ResolveInfo::Local) ||
             (sym->binding() == ResolveInfo::Absolute)) {
           // ABS or Local symbols.
-          content.append(sym->name())
-                 .append(obj->name())
-                 .append(obj->path().native());
+          content.append(sym->name()).append(obj->name()).append(
+              obj->path().native());
         } else {
           content.append(sym->name());
         }
@@ -284,8 +278,7 @@ void IdenticalCodeFolding::FoldingCandidate::initConstantContent(
 
 std::string IdenticalCodeFolding::FoldingCandidate::getContentWithVariables(
     const TargetLDBackend& pBackend,
-    const IdenticalCodeFolding::KeptSections& pKeptSections)
-{
+    const IdenticalCodeFolding::KeptSections& pKeptSections) {
   std::string result(content);
   // Compute the variable content from relocs.
   std::vector<Relocation*>::const_iterator rel, relEnd = variable_relocs.end();

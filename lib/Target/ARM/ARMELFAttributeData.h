@@ -23,82 +23,82 @@ namespace mcld {
  *
  */
 class ARMELFAttributeData : public ELFAttributeData {
-public:
+ public:
   enum Tag {
     // 0-3 are generic and are defined in ELFAttributeData.
-    Tag_CPU_raw_name                = 4,
-    Tag_CPU_name                    = 5,
-    Tag_CPU_arch                    = 6,
-    Tag_CPU_arch_profile            = 7,
-    Tag_ARM_ISA_use                 = 8,
-    Tag_THUMB_ISA_use               = 9,
-    Tag_FP_arch                     = 10,
-    Tag_WMMX_arch                   = 11,
-    Tag_Advanced_SIMD_arch          = 12,
-    Tag_PCS_config                  = 13,
-    Tag_ABI_PCS_R9_use              = 14,
-    Tag_ABI_PCS_RW_data             = 15,
-    Tag_ABI_PCS_RO_data             = 16,
-    Tag_ABI_PCS_GOT_use             = 17,
-    Tag_ABI_PCS_wchar_t             = 18,
-    Tag_ABI_FP_rounding             = 19,
-    Tag_ABI_FP_denormal             = 20,
-    Tag_ABI_FP_exceptions           = 21,
-    Tag_ABI_FP_user_exceptions      = 22,
-    Tag_ABI_FP_number_model         = 23,
-    Tag_ABI_align_needed            = 24,
-    Tag_ABI_align_preserved         = 25,
-    Tag_ABI_enum_size               = 26,
-    Tag_ABI_HardFP_use              = 27,
-    Tag_ABI_VFP_args                = 28,
-    Tag_ABI_WMMX_args               = 29,
-    Tag_ABI_optimization_goals      = 30,
-    Tag_ABI_FP_optimization_goals   = 31,
-    Tag_compatibility               = 32,
+    Tag_CPU_raw_name = 4,
+    Tag_CPU_name = 5,
+    Tag_CPU_arch = 6,
+    Tag_CPU_arch_profile = 7,
+    Tag_ARM_ISA_use = 8,
+    Tag_THUMB_ISA_use = 9,
+    Tag_FP_arch = 10,
+    Tag_WMMX_arch = 11,
+    Tag_Advanced_SIMD_arch = 12,
+    Tag_PCS_config = 13,
+    Tag_ABI_PCS_R9_use = 14,
+    Tag_ABI_PCS_RW_data = 15,
+    Tag_ABI_PCS_RO_data = 16,
+    Tag_ABI_PCS_GOT_use = 17,
+    Tag_ABI_PCS_wchar_t = 18,
+    Tag_ABI_FP_rounding = 19,
+    Tag_ABI_FP_denormal = 20,
+    Tag_ABI_FP_exceptions = 21,
+    Tag_ABI_FP_user_exceptions = 22,
+    Tag_ABI_FP_number_model = 23,
+    Tag_ABI_align_needed = 24,
+    Tag_ABI_align_preserved = 25,
+    Tag_ABI_enum_size = 26,
+    Tag_ABI_HardFP_use = 27,
+    Tag_ABI_VFP_args = 28,
+    Tag_ABI_WMMX_args = 29,
+    Tag_ABI_optimization_goals = 30,
+    Tag_ABI_FP_optimization_goals = 31,
+    Tag_compatibility = 32,
 
-    Tag_CPU_unaligned_access        = 34,
+    Tag_CPU_unaligned_access = 34,
 
-    Tag_FP_HP_extension             = 36,
+    Tag_FP_HP_extension = 36,
 
-    Tag_ABI_FP_16bit_format         = 38,
+    Tag_ABI_FP_16bit_format = 38,
 
-    Tag_MPextension_use             = 42,
+    Tag_MPextension_use = 42,
 
-    Tag_DIV_use                     = 44,
+    Tag_DIV_use = 44,
 
-    Tag_nodefaults                  = 64,
-    Tag_also_compatible_with        = 65,
-    Tag_T2EE_use                    = 66,
-    Tag_conformance                 = 67,
-    Tag_Virtualization_use          = 68,
+    Tag_nodefaults = 64,
+    Tag_also_compatible_with = 65,
+    Tag_T2EE_use = 66,
+    Tag_conformance = 67,
+    Tag_Virtualization_use = 68,
 
-    Tag_MPextension_use_legacy      = 70,
+    Tag_MPextension_use_legacy = 70,
 
     Tag_Max = Tag_MPextension_use_legacy,
 
     // Alias
-    Tag_VFP_arch                    = Tag_FP_arch,
-    Tag_ABI_align8_needed           = Tag_ABI_align_needed,
-    Tag_ABI_align8_preserved        = Tag_ABI_align_preserved,
-    Tag_VFP_HP_extension            = Tag_FP_HP_extension
+    Tag_VFP_arch = Tag_FP_arch,
+    Tag_ABI_align8_needed = Tag_ABI_align_needed,
+    Tag_ABI_align8_preserved = Tag_ABI_align_preserved,
+    Tag_VFP_HP_extension = Tag_FP_HP_extension
   };
 
   // For Tag_CPU_arch
   enum {
     CPU_Arch_ARM_Pre_V4,
-    CPU_Arch_ARM_V4,    // e.g., SA110
-    CPU_Arch_ARM_V4T,   // e.g., ARM7TDMI
-    CPU_Arch_ARM_V5T,   // e.g., ARM9TDMI
-    CPU_Arch_ARM_V5TE,  // e.g., ARM946E-S
-    CPU_Arch_ARM_V5TEJ, // e.g., ARM926EJ-S
-    CPU_Arch_ARM_V6,    // e.g., ARM1136J-S
-    CPU_Arch_ARM_V6KZ,  // e.g., ARM1176JZ-S
-    CPU_Arch_ARM_V6T2,  // e.g., ARM1156T2F-S
-    CPU_Arch_ARM_V6K,   // e.g., ARM1136J-S
-    CPU_Arch_ARM_V7,    // e.g., Cortex A8, Cortex M3
-    CPU_Arch_ARM_V6_M,  // e.g., Cortex M1
-    CPU_Arch_ARM_V6S_M, // e.g., v6-M with the value of System extensions
-    CPU_Arch_ARM_V7E_M, // e.g., v7-M with DSP extensions
+    CPU_Arch_ARM_V4,     // e.g., SA110
+    CPU_Arch_ARM_V4T,    // e.g., ARM7TDMI
+    CPU_Arch_ARM_V5T,    // e.g., ARM9TDMI
+    CPU_Arch_ARM_V5TE,   // e.g., ARM946E-S
+    CPU_Arch_ARM_V5TEJ,  // e.g., ARM926EJ-S
+    CPU_Arch_ARM_V6,     // e.g., ARM1136J-S
+    CPU_Arch_ARM_V6KZ,   // e.g., ARM1176JZ-S
+    CPU_Arch_ARM_V6T2,   // e.g., ARM1156T2F-S
+    CPU_Arch_ARM_V6K,    // e.g., ARM1136J-S
+    CPU_Arch_ARM_V7,     // e.g., Cortex A8, Cortex M3
+    CPU_Arch_ARM_V6_M,   // e.g., Cortex M1
+    CPU_Arch_ARM_V6S_M,  // e.g., v6-M with the value of System extensions
+    CPU_Arch_ARM_V7E_M,  // e.g., v7-M with DSP extensions
     CPU_Arch_ARM_V8,
 
     CPU_Arch_Max = CPU_Arch_ARM_V8,
@@ -113,11 +113,11 @@ public:
 
   // For Tag_CPU_arch_profile
   enum {
-    Arch_Profile_None             = 0,
-    Arch_Profile_Application      = 'A',
-    Arch_Profile_Realtime         = 'R',
-    Arch_Profile_Microcontroller  = 'M',
-    Arch_Profile_RealOrApp        = 'S'
+    Arch_Profile_None = 0,
+    Arch_Profile_Application = 'A',
+    Arch_Profile_Realtime = 'R',
+    Arch_Profile_Microcontroller = 'M',
+    Arch_Profile_RealOrApp = 'S'
   };
 
   // For Tag_ABI_enum_size
@@ -129,12 +129,7 @@ public:
   };
 
   // For Tag_ABI_PCS_R9_use
-  enum {
-    R9_V6,
-    R9_SB,
-    R9_TLS,
-    R9_Unused
-  };
+  enum { R9_V6, R9_SB, R9_TLS, R9_Unused };
 
   // For Tag_ABI_PCS_RW_data
   enum {
@@ -144,20 +139,21 @@ public:
     RW_data_unused
   };
 
-public:
+ public:
   // ARM [ABI-addenda], 2.2.2: A public attributes subsection is named aeabi.
   ARMELFAttributeData()
-    : ELFAttributeData("aeabi"), m_CurrentCPUArch(-1),
-      m_DIVUseInitialized(false), m_HardFPUseInitialized(false) { }
+      : ELFAttributeData("aeabi"),
+        m_CurrentCPUArch(-1),
+        m_DIVUseInitialized(false),
+        m_HardFPUseInitialized(false) {}
 
-public:
-  virtual const ELFAttributeValue *getAttributeValue(TagType pTag) const;
+ public:
+  virtual const ELFAttributeValue* getAttributeValue(TagType pTag) const;
 
-  virtual std::pair<ELFAttributeValue*, bool>
-      getOrCreateAttributeValue(TagType pTag);
+  virtual std::pair<ELFAttributeValue*, bool> getOrCreateAttributeValue(
+      TagType pTag);
 
-  virtual bool preMerge(const Input& pInput)
-  {
+  virtual bool preMerge(const Input& pInput) {
     // Reset states.
     m_CPUArch = -1;
     m_CPUName.clear();
@@ -171,24 +167,26 @@ public:
     return true;
   }
 
-  virtual bool merge(const LinkerConfig& pConfig, const Input& pInput,
-                     TagType pTag, const ELFAttributeValue& pInAttr);
+  virtual bool merge(const LinkerConfig& pConfig,
+                     const Input& pInput,
+                     TagType pTag,
+                     const ELFAttributeValue& pInAttr);
 
   virtual bool postMerge(const LinkerConfig& pConfig, const Input& pInput);
 
   virtual size_t sizeOutput() const;
 
-  virtual size_t emit(char *pBuf) const;
+  virtual size_t emit(char* pBuf) const;
 
   virtual bool usingThumb() const;
 
   virtual bool usingThumb2() const;
 
-private:
+ private:
   /// GetAttributeValueType - obtain the value type of the indicated tag.
   static unsigned int GetAttributeValueType(TagType pTag);
 
-private:
+ private:
   // The storage for known tags which is indexed by the tag
   ELFAttributeValue m_Attrs[Tag_Max + 1];
 
@@ -231,13 +229,14 @@ private:
   // Record the value of input Tag_ABI_VFP_args.
   int m_VFPArgs;
 
-  // Record the value of input Tag_MPextension_use and Tag_MPextension_use_legacy.
+  // Record the value of input Tag_MPextension_use and
+  // Tag_MPextension_use_legacy.
   int m_MPextensionUse;
 
   // Record the value of input Tag_DIV_use.
   int m_DIVUse;
 };
 
-} // namespace mcld
+}  // namespace mcld
 
 #endif  // TARGET_ARM_ARMELFATTRIBUTEDATA_H_

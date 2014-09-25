@@ -11,8 +11,7 @@
 
 #include <mcld/Script/ScriptCommand.h>
 
-namespace mcld
-{
+namespace mcld {
 
 class ArchiveReader;
 class DynObjReader;
@@ -26,9 +25,8 @@ class StringList;
  *  \brief This class defines the interfaces to Input command.
  */
 
-class InputCmd : public ScriptCommand
-{
-public:
+class InputCmd : public ScriptCommand {
+ public:
   InputCmd(StringList& pStringList,
            InputTree& pInputTree,
            InputBuilder& pBuilder,
@@ -40,14 +38,13 @@ public:
 
   void dump() const;
 
-  static bool classof(const ScriptCommand* pCmd)
-  {
+  static bool classof(const ScriptCommand* pCmd) {
     return pCmd->getKind() == ScriptCommand::INPUT;
   }
 
   void activate(Module& pModule);
 
-private:
+ private:
   StringList& m_StringList;
   InputTree& m_InputTree;
   InputBuilder& m_Builder;
@@ -57,6 +54,6 @@ private:
   const LinkerConfig& m_Config;
 };
 
-} // namespace mcld
+}  // namespace mcld
 
 #endif  // MCLD_SCRIPT_INPUTCMD_H_

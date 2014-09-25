@@ -20,34 +20,28 @@ static llvm::ManagedStatic<NameSpecFactory> g_NameSpecFactory;
 //===----------------------------------------------------------------------===//
 // NameSpec
 //===----------------------------------------------------------------------===//
-NameSpec::NameSpec()
-{
+NameSpec::NameSpec() {
 }
 
 NameSpec::NameSpec(const std::string& pName, bool pAsNeeded)
-    : InputToken(InputToken::NameSpec, pName, pAsNeeded)
-{
+    : InputToken(InputToken::NameSpec, pName, pAsNeeded) {
 }
 
-NameSpec::~NameSpec()
-{
+NameSpec::~NameSpec() {
 }
 
-NameSpec* NameSpec::create(const std::string& pName, bool pAsNeeded)
-{
+NameSpec* NameSpec::create(const std::string& pName, bool pAsNeeded) {
   NameSpec* result = g_NameSpecFactory->allocate();
   new (result) NameSpec(pName, pAsNeeded);
   return result;
 }
 
-void NameSpec::destroy(NameSpec*& pNameSpec)
-{
+void NameSpec::destroy(NameSpec*& pNameSpec) {
   g_NameSpecFactory->destroy(pNameSpec);
   g_NameSpecFactory->deallocate(pNameSpec);
   pNameSpec = NULL;
 }
 
-void NameSpec::clear()
-{
+void NameSpec::clear() {
   g_NameSpecFactory->clear();
 }

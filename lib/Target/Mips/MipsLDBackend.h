@@ -25,12 +25,11 @@ class SectionMap;
 /** \class MipsGNULDBackend
  *  \brief Base linker backend of Mips target of GNU ELF format.
  */
-class MipsGNULDBackend : public GNULDBackend
-{
-public:
+class MipsGNULDBackend : public GNULDBackend {
+ public:
   typedef std::vector<LDSymbol*> SymbolListType;
 
-public:
+ public:
   MipsGNULDBackend(const LinkerConfig& pConfig, MipsGNUInfo* pInfo);
   ~MipsGNULDBackend();
 
@@ -39,7 +38,7 @@ public:
   void addNonPICBranchSym(ResolveInfo* rsym);
   bool hasNonPICBranch(const ResolveInfo* rsym) const;
 
-public:
+ public:
   /// initTargetSections - initialize target dependent sections in output
   void initTargetSections(Module& pModule, ObjectBuilder& pBuilder);
 
@@ -105,13 +104,13 @@ public:
   OutputRelocSection& getRelDyn();
   const OutputRelocSection& getRelDyn() const;
 
-  LDSymbol*             getGOTSymbol()           { return m_pGOTSymbol;    }
-  const LDSymbol*       getGOTSymbol() const     { return m_pGOTSymbol;    }
+  LDSymbol* getGOTSymbol() { return m_pGOTSymbol; }
+  const LDSymbol* getGOTSymbol() const { return m_pGOTSymbol; }
 
-  LDSymbol*             getGpDispSymbol()        { return m_pGpDispSymbol; }
-  const LDSymbol*       getGpDispSymbol() const  { return m_pGpDispSymbol; }
+  LDSymbol* getGpDispSymbol() { return m_pGpDispSymbol; }
+  const LDSymbol* getGpDispSymbol() const { return m_pGpDispSymbol; }
 
-  SymbolListType&       getGlobalGOTSyms()       { return m_GlobalGOTSyms; }
+  SymbolListType& getGlobalGOTSyms() { return m_GlobalGOTSyms; }
   const SymbolListType& getGlobalGOTSyms() const { return m_GlobalGOTSyms; }
 
   /// getTargetSectionOrder - compute the layout order of ARM target sections
@@ -128,7 +127,7 @@ public:
   /// in the specified input.
   uint64_t getGP0(const Input& pInput) const;
 
-private:
+ private:
   void defineGOTSymbol(IRBuilder& pBuilder);
   void defineGOTPLTSymbol(IRBuilder& pBuilder);
 
@@ -209,21 +208,21 @@ private:
                       uint64_t pOffset,
                       int64_t pAddend) const;
 
-private:
+ private:
   typedef llvm::DenseSet<const ResolveInfo*> ResolveInfoSetType;
   typedef llvm::DenseMap<const Input*, llvm::ELF::Elf64_Addr> GP0MapType;
 
-protected:
+ protected:
   Relocator* m_pRelocator;
-  MipsGOT* m_pGOT;                      // .got
-  MipsPLT* m_pPLT;                      // .plt
-  MipsGOTPLT* m_pGOTPLT;                // .got.plt
+  MipsGOT* m_pGOT;        // .got
+  MipsPLT* m_pPLT;        // .plt
+  MipsGOTPLT* m_pGOTPLT;  // .got.plt
 
-private:
+ private:
   MipsGNUInfo& m_pInfo;
 
-  OutputRelocSection* m_pRelPlt;        // .rel.plt
-  OutputRelocSection* m_pRelDyn;        // .rel.dyn
+  OutputRelocSection* m_pRelPlt;  // .rel.plt
+  OutputRelocSection* m_pRelDyn;  // .rel.dyn
 
   MipsELFDynamic* m_pDynamic;
   LDSymbol* m_pGOTSymbol;
@@ -238,12 +237,11 @@ private:
 /** \class Mips32GNULDBackend
  *  \brief Base linker backend of Mips 32-bit target of GNU ELF format.
  */
-class Mips32GNULDBackend : public MipsGNULDBackend
-{
-public:
+class Mips32GNULDBackend : public MipsGNULDBackend {
+ public:
   Mips32GNULDBackend(const LinkerConfig& pConfig, MipsGNUInfo* pInfo);
 
-private:
+ private:
   // MipsGNULDBackend
 
   bool initRelocator();
@@ -255,12 +253,11 @@ private:
 /** \class Mips64GNULDBackend
  *  \brief Base linker backend of Mips 64-bit target of GNU ELF format.
  */
-class Mips64GNULDBackend : public MipsGNULDBackend
-{
-public:
+class Mips64GNULDBackend : public MipsGNULDBackend {
+ public:
   Mips64GNULDBackend(const LinkerConfig& pConfig, MipsGNUInfo* pInfo);
 
-private:
+ private:
   // MipsGNULDBackend
 
   bool initRelocator();
@@ -269,6 +266,6 @@ private:
   size_t getRelaEntrySize();
 };
 
-} // namespace mcld
+}  // namespace mcld
 
 #endif  // TARGET_MIPS_MIPSLDBACKEND_H_

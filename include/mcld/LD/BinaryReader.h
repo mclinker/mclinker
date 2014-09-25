@@ -18,13 +18,11 @@ class Input;
  *  \brief BinaryReader provides an common interface for different Binary
  *  formats.
  */
-class BinaryReader : public LDReader
-{
-public:
+class BinaryReader : public LDReader {
+ public:
   virtual ~BinaryReader() = 0;
 
-  virtual bool isMyFormat(Input& pInput, bool& pContinue) const
-  {
+  virtual bool isMyFormat(Input& pInput, bool& pContinue) const {
     pContinue = true;
     return false;
   }
@@ -32,6 +30,6 @@ public:
   virtual bool readBinary(Input& pFile) = 0;
 };
 
-} // namespace mcld
+}  // namespace mcld
 
 #endif  // MCLD_LD_BINARYREADER_H_

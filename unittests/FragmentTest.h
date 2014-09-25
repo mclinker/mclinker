@@ -11,23 +11,20 @@
 
 #include <gtest.h>
 
-namespace mcld
-{
+namespace mcld {
 class Fragment;
 
-} // namespace for mcld
+}  // namespace for mcld
 
-namespace mcldtest
-{
+namespace mcldtest {
 
 /** \class FragmentTest
  *  \brief Unit test for mcld::Fragment.
  *
  *  \see Fragment
  */
-class FragmentTest : public ::testing::Test
-{
-public:
+class FragmentTest : public ::testing::Test {
+ public:
   // Constructor can do set-up work for all test here.
   FragmentTest();
 
@@ -40,11 +37,10 @@ public:
   // TearDown() will be called immediately after each test.
   virtual void TearDown();
 
-protected:
+ protected:
   mcld::Fragment* m_pTestee;
 };
 
-} // namespace of mcldtest
+}  // namespace of mcldtest
 
 #endif
-

@@ -22,44 +22,37 @@ class ResolveInfo;
 /** \class GOT
  *  \brief The Global Offset Table
  */
-class GOT
-{
-protected:
-  GOT(LDSection& pSection);
+class GOT {
+ protected:
+  explicit GOT(LDSection& pSection);
 
-public:
+ public:
   typedef SectionData::iterator iterator;
   typedef SectionData::const_iterator const_iterator;
 
-  template<size_t SIZE>
-  class Entry : public TargetFragment
-  {
-  public:
+  template <size_t SIZE>
+  class Entry : public TargetFragment {
+   public:
     enum { EntrySize = SIZE };
 
-  public:
+   public:
     Entry(uint64_t pValue, SectionData* pParent)
-        : TargetFragment(Fragment::Target, pParent),
-          f_Value(pValue) {
-    }
+        : TargetFragment(Fragment::Target, pParent), f_Value(pValue) {}
 
     virtual ~Entry() {}
 
-    uint64_t getValue() const
-    { return f_Value; }
+    uint64_t getValue() const { return f_Value; }
 
-    void setValue(uint64_t pValue)
-    { f_Value = pValue; }
+    void setValue(uint64_t pValue) { f_Value = pValue; }
 
     // Override pure virtual function
-    size_t size() const
-    { return EntrySize; }
+    size_t size() const { return EntrySize; }
 
-  protected:
+   protected:
     uint64_t f_Value;
   };
 
-public:
+ public:
   virtual ~GOT();
 
   // ----- observers -----//
@@ -67,21 +60,20 @@ public:
   uint64_t size() const { return m_Section.size(); }
 
   const_iterator begin() const { return m_SectionData->begin(); }
-  iterator       begin()       { return m_SectionData->begin(); }
-  const_iterator end  () const { return m_SectionData->end();   }
-  iterator       end  ()       { return m_SectionData->end();   }
+  iterator begin() { return m_SectionData->begin(); }
+  const_iterator end() const { return m_SectionData->end(); }
+  iterator end() { return m_SectionData->end(); }
 
-  bool empty() const
-  { return m_SectionData->empty(); }
+  bool empty() const { return m_SectionData->empty(); }
 
   // finalizeSectionSize - set LDSection size
   virtual void finalizeSectionSize();
 
-protected:
+ protected:
   LDSection& m_Section;
   SectionData* m_SectionData;
 };
 
-} // namespace mcld
+}  // namespace mcld
 
 #endif  // MCLD_TARGET_GOT_H_

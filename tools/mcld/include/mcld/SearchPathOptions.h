@@ -18,33 +18,26 @@ namespace mcld {
 class LinkerConfig;
 class LinkerScript;
 
-class SearchPathOptions
-{
-public:
+class SearchPathOptions {
+ public:
   SearchPathOptions();
 
   bool parse(LinkerConfig& pConfig, LinkerScript& pScript);
 
-private:
+ private:
   llvm::cl::opt<mcld::sys::fs::Path,
-              false,
-              llvm::cl::parser<mcld::sys::fs::Path> >& m_SysRoot;
-  llvm::cl::list<std::string,
-               bool,
-               llvm::cl::SearchDirParser>& m_SearchDirList;
+                false,
+                llvm::cl::parser<mcld::sys::fs::Path> >& m_SysRoot;
+  llvm::cl::list<std::string, bool, llvm::cl::SearchDirParser>& m_SearchDirList;
   llvm::cl::opt<bool>& m_NoStdlib;
-  llvm::cl::list<std::string,
-               bool,
-               llvm::cl::SearchDirParser>& m_RuntimePath;
+  llvm::cl::list<std::string, bool, llvm::cl::SearchDirParser>& m_RuntimePath;
 
   // not supported yet
-  llvm::cl::list<std::string,
-               bool,
-               llvm::cl::SearchDirParser>& m_RuntimePathLink;
+  llvm::cl::list<std::string, bool, llvm::cl::SearchDirParser>&
+      m_RuntimePathLink;
   llvm::cl::list<std::string>& m_Y;
 };
 
-} // namespace of mcld
+}  // namespace of mcld
 
 #endif
-

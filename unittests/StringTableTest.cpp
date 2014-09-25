@@ -13,10 +13,8 @@
 using namespace mcld;
 using namespace mcldtest;
 
-
 // Constructor can do set-up work for all test here.
-StringTableTest::StringTableTest()
-{
+StringTableTest::StringTableTest() {
   // create testee. modify it if need
   Resolver* R = new Resolver();
   StrSymPool* Pool = new StrSymPool(1, 1, *R);
@@ -24,26 +22,23 @@ StringTableTest::StringTableTest()
 }
 
 // Destructor can do clean-up work that doesn't throw exceptions here.
-StringTableTest::~StringTableTest()
-{
+StringTableTest::~StringTableTest() {
   delete m_pTestee;
 }
 
 // SetUp() will be called immediately before each test.
-void StringTableTest::SetUp()
-{
+void StringTableTest::SetUp() {
 }
 
 // TearDown() will be called immediately after each test.
-void StringTableTest::TearDown()
-{
+void StringTableTest::TearDown() {
 }
 
 //==========================================================================//
 // Testcases
 //
 TEST_F(StringTableTest, different_string_size) {
-  int size = 127-32;
+  int size = 127 - 32;
   for (int i = 32; i < 127; ++i) {
     char c[2];
     c[0] = i;

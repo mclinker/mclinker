@@ -25,14 +25,12 @@ using namespace mcld;
 //===----------------------------------------------------------------------===//
 // Relocator
 //===----------------------------------------------------------------------===//
-Relocator::~Relocator()
-{
+Relocator::~Relocator() {
 }
 
 void Relocator::partialScanRelocation(Relocation& pReloc,
                                       Module& pModule,
-                                      const LDSection& pSection)
-{
+                                      const LDSection& pSection) {
   // if we meet a section symbol
   if (pReloc.symInfo()->type() == ResolveInfo::Section) {
     LDSymbol* input_sym = pReloc.symInfo()->outSymbol();
@@ -55,8 +53,7 @@ void Relocator::partialScanRelocation(Relocation& pReloc,
 
 void Relocator::issueUndefRef(Relocation& pReloc,
                               LDSection& pSection,
-                              Input& pInput)
-{
+                              Input& pInput) {
   FragmentRef::Offset undef_sym_pos = pReloc.targetRef().offset();
   std::string sect_name(pSection.name());
   // Drop .rel(a) prefix
@@ -71,9 +68,7 @@ void Relocator::issueUndefRef(Relocation& pReloc,
 
   if (sect_name.substr(0, 5) != ".text") {
     // Function name is only valid for text section
-    fatal(diag::undefined_reference) << reloc_sym
-                                     << pInput.path()
-                                     << sect_name
+    fatal(diag::undefined_reference) << reloc_sym << pInput.path() << sect_name
                                      << undef_sym_pos_hex;
     return;
   }
@@ -81,7 +76,9 @@ void Relocator::issueUndefRef(Relocation& pReloc,
   std::string caller_file_name;
   std::string caller_func_name;
   for (LDContext::sym_iterator i = pInput.context()->symTabBegin(),
-          e = pInput.context()->symTabEnd(); i != e; ++i) {
+                               e = pInput.context()->symTabEnd();
+       i != e;
+       ++i) {
     LDSymbol& sym = **i;
     if (sym.resolveInfo()->type() == ResolveInfo::File)
       caller_file_name = sym.resolveInfo()->name();
@@ -96,8 +93,6 @@ void Relocator::issueUndefRef(Relocation& pReloc,
 
   caller_func_name = demangleName(caller_func_name);
 
-  fatal(diag::undefined_reference_text) << reloc_sym
-                                        << pInput.path()
-                                        << caller_file_name
-                                        << caller_func_name;
+  fatal(diag::undefined_reference_text) << reloc_sym << pInput.path()
+                                        << caller_file_name << caller_func_name;
 }

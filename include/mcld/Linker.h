@@ -26,9 +26,8 @@ class TargetLDBackend;
 /** \class Linker
 *  \brief Linker is a modular linker.
 */
-class Linker
-{
-public:
+class Linker {
+ public:
   Linker();
 
   ~Linker();
@@ -60,7 +59,7 @@ public:
 
   bool reset();
 
-private:
+ private:
   bool initTarget();
 
   bool initBackend();
@@ -69,7 +68,7 @@ private:
 
   bool initEmulator(LinkerScript& pScript);
 
-private:
+ private:
   LinkerConfig* m_pConfig;
   IRBuilder* m_pIRBuilder;
 
@@ -78,6 +77,6 @@ private:
   ObjectLinker* m_pObjLinker;
 };
 
-} // namespace MC Linker
+}  // namespace mcld
 
 #endif  // MCLD_LINKER_H_

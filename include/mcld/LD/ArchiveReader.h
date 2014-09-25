@@ -10,8 +10,7 @@
 #define MCLD_LD_ARCHIVEREADER_H_
 #include <mcld/LD/LDReader.h>
 
-namespace mcld
-{
+namespace mcld {
 
 class Archive;
 class LinkerConfig;
@@ -26,15 +25,14 @@ class LinkerConfig;
  *  3. All archive headers are the same size.
  */
 
-class ArchiveReader : public LDReader
-{
-public:
+class ArchiveReader : public LDReader {
+ public:
   ArchiveReader();
   virtual ~ArchiveReader();
 
   virtual bool readArchive(const LinkerConfig& pConfig, Archive& pArchive) = 0;
 };
 
-} // namespace mcld
+}  // namespace mcld
 
 #endif  // MCLD_LD_ARCHIVEREADER_H_

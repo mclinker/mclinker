@@ -16,27 +16,26 @@
 #include <string>
 
 namespace llvm {
-  class TargetMachine;
-  class MCCodeEmitter;
-  class MCContext;
-  class AsmPrinter;
-} // namespace llvm
+class TargetMachine;
+class MCCodeEmitter;
+class MCContext;
+class AsmPrinter;
+}  // namespace llvm
 
 namespace mcld {
 
 /** \class TargetRegistry
  *  \brief TargetRegistry is an object adapter of llvm::TargetRegistry
  */
-class TargetRegistry
-{
-public:
+class TargetRegistry {
+ public:
   typedef std::list<mcld::Target*> TargetListTy;
   typedef TargetListTy::iterator iterator;
 
-private:
+ private:
   static TargetListTy s_TargetList;
 
-public:
+ public:
   static iterator begin() { return s_TargetList.begin(); }
   static iterator end() { return s_TargetList.end(); }
 
@@ -60,9 +59,8 @@ public:
   ///
   /// @param T - the target being registered
   /// @param Fn - A emulation function
-  static void RegisterEmulation(mcld::Target &T,
-                                mcld::Target::EmulationFnTy Fn)
-  {
+  static void RegisterEmulation(mcld::Target& T,
+                                mcld::Target::EmulationFnTy Fn) {
     if (!T.EmulationFn)
       T.EmulationFn = Fn;
   }
@@ -72,9 +70,8 @@ public:
   ///
   /// @param T - The target being registered
   /// @param Fn - A function to create TargetLDBackend for the target
-  static void RegisterTargetLDBackend(mcld::Target &T,
-                                      mcld::Target::TargetLDBackendCtorTy Fn)
-  {
+  static void RegisterTargetLDBackend(mcld::Target& T,
+                                      mcld::Target::TargetLDBackendCtorTy Fn) {
     if (!T.TargetLDBackendCtorFn)
       T.TargetLDBackendCtorFn = Fn;
   }
@@ -84,10 +81,9 @@ public:
   ///
   /// @param T - The target being registered
   /// @param Fn - A function to create DiagnosticLineInfo for the target
-  static
-  void RegisterDiagnosticLineInfo(mcld::Target &T,
-                                  mcld::Target::DiagnosticLineInfoCtorTy Fn)
-  {
+  static void RegisterDiagnosticLineInfo(
+      mcld::Target& T,
+      mcld::Target::DiagnosticLineInfoCtorTy Fn) {
     if (!T.DiagnosticLineInfoCtorFn)
       T.DiagnosticLineInfoCtorFn = Fn;
   }
@@ -96,7 +92,7 @@ public:
   ///
   /// @param Triple - The Triple string
   /// @param Error  - The returned error message
-  static const mcld::Target *lookupTarget(const std::string& pTriple,
+  static const mcld::Target* lookupTarget(const std::string& pTriple,
                                           std::string& pError);
 
   /// lookupTarget - Look up MCLinker target by an architecture name
@@ -107,9 +103,9 @@ public:
   /// @param pArch   - The architecture name
   /// @param pTriple - The target triple
   /// @param pError  - The returned error message
-  static const mcld::Target *lookupTarget(const std::string& pArchName,
+  static const mcld::Target* lookupTarget(const std::string& pArchName,
                                           llvm::Triple& pTriple,
-                                          std::string &Error);
+                                          std::string& Error);
 };
 
 /// RegisterTarget - Helper function for registering a target, for use in the
@@ -120,11 +116,10 @@ public:
 /// extern "C" void MCLDInitializeFooTargetInfo() {
 ///   RegisterTarget<llvm::Foo> X(TheFooTarget, "foo", "Foo description");
 /// }
-template<llvm::Triple::ArchType TargetArchType = llvm::Triple::UnknownArch>
-struct RegisterTarget
-{
-public:
-  RegisterTarget(mcld::Target &pTarget, const char* pName) {
+template <llvm::Triple::ArchType TargetArchType = llvm::Triple::UnknownArch>
+struct RegisterTarget {
+ public:
+  RegisterTarget(mcld::Target& pTarget, const char* pName) {
     // if we've registered one, then return immediately.
     TargetRegistry::iterator target, ie = TargetRegistry::end();
     for (target = TargetRegistry::begin(); target != ie; ++target) {
@@ -142,6 +137,6 @@ public:
   }
 };
 
-} // namespace mcld
+}  // namespace mcld
 
 #endif  // MCLD_SUPPORT_TARGETREGISTRY_H_

@@ -1,4 +1,4 @@
-//===- FileOutputBuffer.cpp ------------------------------------------------===//
+//===- FileOutputBuffer.cpp -----------------------------------------------===//
 //
 //                     The MCLinker Project
 //
@@ -15,27 +15,26 @@ using llvm::sys::fs::mapped_file_region;
 
 FileOutputBuffer::FileOutputBuffer(llvm::sys::fs::mapped_file_region* pRegion,
                                    FileHandle& pFileHandle)
-    : m_pRegion(pRegion), m_FileHandle(pFileHandle)
-{
+    : m_pRegion(pRegion), m_FileHandle(pFileHandle) {
 }
 
-FileOutputBuffer::~FileOutputBuffer()
-{
+FileOutputBuffer::~FileOutputBuffer() {
   // Unmap buffer, letting OS flush dirty pages to file on disk.
   m_pRegion.reset(0);
 }
 
-std::error_code FileOutputBuffer::create(FileHandle& pFileHandle,
-    size_t pSize, std::unique_ptr<FileOutputBuffer>& pResult)
-{
+std::error_code FileOutputBuffer::create(
+    FileHandle& pFileHandle,
+    size_t pSize,
+    std::unique_ptr<FileOutputBuffer>& pResult) {
   std::error_code ec;
-  std::unique_ptr<mapped_file_region>
-      mapped_file(new mapped_file_region(pFileHandle.handler(),
-                                         false,
-                                         mapped_file_region::readwrite,
-                                         pSize,
-                                         0,
-                                         ec));
+  std::unique_ptr<mapped_file_region> mapped_file(
+      new mapped_file_region(pFileHandle.handler(),
+                             false,
+                             mapped_file_region::readwrite,
+                             pSize,
+                             0,
+                             ec));
 
   if (ec)
     return ec;
@@ -46,14 +45,12 @@ std::error_code FileOutputBuffer::create(FileHandle& pFileHandle,
   return std::error_code();
 }
 
-MemoryRegion FileOutputBuffer::request(size_t pOffset, size_t pLength)
-{
+MemoryRegion FileOutputBuffer::request(size_t pOffset, size_t pLength) {
   if (pOffset > getBufferSize() || (pOffset + pLength) > getBufferSize())
     return MemoryRegion();
   return MemoryRegion(getBufferStart() + pOffset, pLength);
 }
 
-llvm::StringRef FileOutputBuffer::getPath() const
-{
+llvm::StringRef FileOutputBuffer::getPath() const {
   return m_FileHandle.path().native();
 }

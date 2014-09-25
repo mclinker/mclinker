@@ -11,8 +11,7 @@
 
 #include <mcld/Script/ScriptCommand.h>
 
-namespace mcld
-{
+namespace mcld {
 
 class InputTree;
 class InputBuilder;
@@ -24,9 +23,8 @@ class StringList;
  *  \brief This class defines the interfaces to Group command.
  */
 
-class GroupCmd : public ScriptCommand
-{
-public:
+class GroupCmd : public ScriptCommand {
+ public:
   GroupCmd(StringList& pStringList,
            InputTree& pInputTree,
            InputBuilder& pBuilder,
@@ -36,14 +34,13 @@ public:
 
   void dump() const;
 
-  static bool classof(const ScriptCommand* pCmd)
-  {
+  static bool classof(const ScriptCommand* pCmd) {
     return pCmd->getKind() == ScriptCommand::GROUP;
   }
 
   void activate(Module& pModule);
 
-private:
+ private:
   StringList& m_StringList;
   InputTree& m_InputTree;
   InputBuilder& m_Builder;
@@ -51,6 +48,6 @@ private:
   const LinkerConfig& m_Config;
 };
 
-} // namespace mcld
+}  // namespace mcld
 
 #endif  // MCLD_SCRIPT_GROUPCMD_H_

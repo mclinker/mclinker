@@ -15,37 +15,34 @@
 
 #include <string>
 
-namespace mcld
-{
+namespace mcld {
 
 /** \class MCLDDirectory
  *  \brief MCLDDirectory is an directory entry for library search.
  *
  */
-class MCLDDirectory : public sys::fs::Directory
-{
-public:
+class MCLDDirectory : public sys::fs::Directory {
+ public:
   MCLDDirectory();
-  MCLDDirectory(const char* pName);
-  MCLDDirectory(const std::string& pName);
-  MCLDDirectory(llvm::StringRef pName);
+  explicit MCLDDirectory(const char* pName);
+  explicit MCLDDirectory(const std::string& pName);
+  explicit MCLDDirectory(llvm::StringRef pName);
   virtual ~MCLDDirectory();
 
-public:
-  MCLDDirectory &assign(llvm::StringRef pName);
+ public:
+  MCLDDirectory& assign(llvm::StringRef pName);
   bool isInSysroot() const;
 
   /// setSysroot - if MCLDDirectory is in sysroot, modify the path.
   void setSysroot(const sys::fs::Path& pPath);
 
-  const std::string& name() const
-  { return m_Name; }
+  const std::string& name() const { return m_Name; }
 
-private:
+ private:
   std::string m_Name;
   bool m_bInSysroot;
 };
 
-} // namespace mcld
+}  // namespace mcld
 
 #endif  // MCLD_MC_MCLDDIRECTORY_H_

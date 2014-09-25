@@ -18,12 +18,11 @@ class Module;
 /** \class ObjectWriter
  *  \brief ObjectWriter provides a common interface for object file writers.
  */
-class ObjectWriter
-{
-protected:
+class ObjectWriter {
+ protected:
   ObjectWriter();
 
-public:
+ public:
   virtual ~ObjectWriter();
 
   virtual std::error_code writeObject(Module& pModule,
@@ -32,6 +31,6 @@ public:
   virtual size_t getOutputSize(const Module& pModule) const = 0;
 };
 
-} // namespace mcld
+}  // namespace mcld
 
 #endif  // MCLD_LD_OBJECTWRITER_H_

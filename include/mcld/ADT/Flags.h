@@ -9,41 +9,31 @@
 #ifndef MCLD_ADT_FLAGS_H_
 #define MCLD_ADT_FLAGS_H_
 
-namespace mcld
-{
+namespace mcld {
 
-template<typename Enum>
-class Flags
-{
-public:
+template <typename Enum>
+class Flags {
+ public:
   typedef Enum enum_type;
 
-public:
-  Flags(const Flags& pOther)
-      : m_Data(pOther.m_Data) { }
+ public:
+  Flags(const Flags& pOther) : m_Data(pOther.m_Data) {}
 
-  Flags(Enum pFlag)
-      : m_Data(pFlag) { }
+  Flags(Enum pFlag) : m_Data(pFlag) {}
 
-  Flags(unsigned int pFlag = 0x0)
-      : m_Data(pFlag) { }
+  Flags(unsigned int pFlag = 0x0) : m_Data(pFlag) {}
 
-  operator unsigned int () const
-  { return m_Data; }
+  operator unsigned int() const { return m_Data; }
 
-  bool operator! () const
-  { return (m_Data == 0x0); }
+  bool operator!() const { return (m_Data == 0x0); }
 
-  Flags operator& (int pMask ) const
-  { return Flags(m_Data & pMask); }
+  Flags operator&(int pMask) const { return Flags(m_Data & pMask); }
 
-  Flags operator& (unsigned int pMask ) const
-  { return Flags(m_Data & pMask); }
+  Flags operator&(unsigned int pMask) const { return Flags(m_Data & pMask); }
 
-  Flags operator& (Enum pMask ) const
-  { return Flags(m_Data & pMask); }
+  Flags operator&(Enum pMask) const { return Flags(m_Data & pMask); }
 
-  Flags& operator&= (unsigned int pMask ) {
+  Flags& operator&=(unsigned int pMask) {
     m_Data &= pMask;
     return *this;
   }
@@ -53,45 +43,40 @@ public:
     return *this;
   }
 
-  Flags operator^ (Flags pOther) const
-  { return Flags(m_Data^pOther.m_Data); }
+  Flags operator^(Flags pOther) const { return Flags(m_Data ^ pOther.m_Data); }
 
-  Flags operator^ (Enum pOther) const
-  { return Flags(m_Data^pOther); }
+  Flags operator^(Enum pOther) const { return Flags(m_Data ^ pOther); }
 
-  Flags& operator^= (Flags pOther) {
+  Flags& operator^=(Flags pOther) {
     m_Data ^= pOther.m_Data;
     return *this;
   }
 
-  Flags& operator^= (Enum pOther) {
+  Flags& operator^=(Enum pOther) {
     m_Data ^= pOther;
     return *this;
   }
 
-  Flags operator| (Flags pOther) const
-  { return Flags(m_Data | pOther.m_Data); }
+  Flags operator|(Flags pOther) const { return Flags(m_Data | pOther.m_Data); }
 
-  Flags operator| (Enum pOther ) const
-  { return Flags(m_Data | pOther); }
+  Flags operator|(Enum pOther) const { return Flags(m_Data | pOther); }
 
-  Flags& operator|= (Flags pOther) {
+  Flags& operator|=(Flags pOther) {
     m_Data |= pOther.m_Data;
     return *this;
   }
 
-  Flags& operator|= (Enum pOther) {
+  Flags& operator|=(Enum pOther) {
     m_Data |= pOther;
     return *this;
   }
 
-  Flags operator~ () const
-  { return Flags(~m_Data); }
+  Flags operator~() const { return Flags(~m_Data); }
 
-private:
+ private:
   unsigned int m_Data;
 };
 
-} // namespace mcld
+}  // namespace mcld
 
 #endif  // MCLD_ADT_FLAGS_H_

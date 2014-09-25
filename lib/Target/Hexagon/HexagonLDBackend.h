@@ -28,9 +28,8 @@ class LinkerConfig;
 //===----------------------------------------------------------------------===//
 /// HexagonLDBackend - linker backend of Hexagon target of GNU ELF format
 ///
-class HexagonLDBackend : public GNULDBackend
-{
-public:
+class HexagonLDBackend : public GNULDBackend {
+ public:
   HexagonLDBackend(const LinkerConfig& pConfig, HexagonGNUInfo* pInfo);
 
   ~HexagonLDBackend();
@@ -86,8 +85,7 @@ public:
   const Relocator* getRelocator() const;
   Relocator* getRelocator();
 
-  ResolveInfo::Desc getSymDesc(uint16_t shndx) const
-  {
+  ResolveInfo::Desc getSymDesc(uint16_t shndx) const {
     if (shndx >= llvm::ELF::SHN_HEXAGON_SCOMMON &&
         shndx <= llvm::ELF::SHN_HEXAGON_SCOMMON_8)
       return ResolveInfo::Common;
@@ -132,7 +130,7 @@ public:
   /// readSection - read target dependent sections
   bool readSection(Input& pInput, SectionData& pSD);
 
-  bool MoveCommonData(SectionData &pFrom, SectionData &pTo);
+  bool MoveCommonData(SectionData& pFrom, SectionData& pTo);
 
   bool MoveSectionDataAndSort(SectionData& pFrom, SectionData& pTo);
 
@@ -140,23 +138,19 @@ public:
 
   uint32_t getGP() { return m_psdata->addr(); }
 
-  Relocation::Type getCopyRelType() const { return m_CopyRel;    }
+  Relocation::Type getCopyRelType() const { return m_CopyRel; }
 
-  virtual uint32_t getGOTSymbolAddr() {
-    return m_pGOTSymbol->value();
-  }
+  virtual uint32_t getGOTSymbolAddr() { return m_pGOTSymbol->value(); }
 
-protected:
+ protected:
   void defineGOTSymbol(IRBuilder& pBuilder, Fragment&);
 
-private:
+ private:
   /// getRelEntrySize - the size in BYTE of rela type relocation
-  size_t getRelEntrySize()
-  { return 0; }
+  size_t getRelEntrySize() { return 0; }
 
   /// getRelaEntrySize - the size in BYTE of rela type relocation
-  size_t getRelaEntrySize()
-  { return 12; }
+  size_t getRelaEntrySize() { return 12; }
 
   /// doCreateProgramHdrs - backend can implement this function to create the
   /// target-dependent segments
@@ -175,7 +169,7 @@ private:
   virtual void setRelaDynSize();
   virtual void setRelaPLTSize();
 
-private:
+ private:
   Relocator* m_pRelocator;
   HexagonGOT* m_pGOT;
   HexagonGOTPLT* m_pGOTPLT;
@@ -200,6 +194,6 @@ private:
   Relocation::Type m_CopyRel;
 };
 
-} // namespace mcld
+}  // namespace mcld
 
 #endif  // TARGET_HEXAGON_HEXAGONLDBACKEND_H_

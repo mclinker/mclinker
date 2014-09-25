@@ -12,20 +12,17 @@
 
 #include <gtest.h>
 
-namespace mcld
-{
+namespace mcld {
 class LDSymbol;
 
-} // namespace for mcld
+}  // namespace for mcld
 
-namespace mcldtest
-{
+namespace mcldtest {
 
 /** \class LDSymbolTest
  */
-class LDSymbolTest : public ::testing::Test
-{
-public:
+class LDSymbolTest : public ::testing::Test {
+ public:
   // Constructor can do set-up work for all test here.
   LDSymbolTest();
 
@@ -37,10 +34,8 @@ public:
 
   // TearDown() will be called immediately after each test.
   virtual void TearDown();
-
 };
 
-} // namespace of mcldtest
+}  // namespace of mcldtest
 
 #endif
-

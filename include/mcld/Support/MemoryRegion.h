@@ -22,6 +22,6 @@ typedef ConstTraits<uint8_t>::pointer ConstAddress;
 typedef llvm::ArrayRef<uint8_t> ConstMemoryRegion;
 typedef llvm::MutableArrayRef<uint8_t> MemoryRegion;
 
-} // namespace mcld
+}  // namespace mcld
 
 #endif  // MCLD_SUPPORT_MEMORYREGION_H_

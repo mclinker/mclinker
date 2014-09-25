@@ -17,21 +17,17 @@ using namespace mcld;
 //===----------------------------------------------------------------------===//
 // SectionsCmd
 //===----------------------------------------------------------------------===//
-SectionsCmd::SectionsCmd()
-    : ScriptCommand(ScriptCommand::SECTIONS)
-{
+SectionsCmd::SectionsCmd() : ScriptCommand(ScriptCommand::SECTIONS) {
 }
 
-SectionsCmd::~SectionsCmd()
-{
+SectionsCmd::~SectionsCmd() {
   for (iterator it = begin(), ie = end(); it != ie; ++it) {
     if (*it != NULL)
       delete *it;
   }
 }
 
-void SectionsCmd::dump() const
-{
+void SectionsCmd::dump() const {
   mcld::outs() << "SECTIONS\n{\n";
 
   for (const_iterator it = begin(), ie = end(); it != ie; ++it) {
@@ -51,8 +47,7 @@ void SectionsCmd::dump() const
   mcld::outs() << "}\n";
 }
 
-void SectionsCmd::push_back(ScriptCommand* pCommand)
-{
+void SectionsCmd::push_back(ScriptCommand* pCommand) {
   switch (pCommand->getKind()) {
     case ScriptCommand::ENTRY:
     case ScriptCommand::ASSIGNMENT:
@@ -65,8 +60,7 @@ void SectionsCmd::push_back(ScriptCommand* pCommand)
   }
 }
 
-void SectionsCmd::activate(Module& pModule)
-{
+void SectionsCmd::activate(Module& pModule) {
   // Assignment between output sections
   SectionCommands assignments;
 

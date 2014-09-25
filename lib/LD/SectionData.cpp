@@ -22,29 +22,24 @@ static llvm::ManagedStatic<SectDataFactory> g_SectDataFactory;
 //===----------------------------------------------------------------------===//
 // SectionData
 //===----------------------------------------------------------------------===//
-SectionData::SectionData()
-    : m_pSection(NULL) {
+SectionData::SectionData() : m_pSection(NULL) {
 }
 
-SectionData::SectionData(LDSection &pSection)
-    : m_pSection(&pSection) {
+SectionData::SectionData(LDSection& pSection) : m_pSection(&pSection) {
 }
 
-SectionData* SectionData::Create(LDSection& pSection)
-{
+SectionData* SectionData::Create(LDSection& pSection) {
   SectionData* result = g_SectDataFactory->allocate();
   new (result) SectionData(pSection);
   return result;
 }
 
-void SectionData::Destroy(SectionData*& pSection)
-{
+void SectionData::Destroy(SectionData*& pSection) {
   pSection->~SectionData();
   g_SectDataFactory->deallocate(pSection);
   pSection = NULL;
 }
 
-void SectionData::Clear()
-{
+void SectionData::Clear() {
   g_SectDataFactory->clear();
 }

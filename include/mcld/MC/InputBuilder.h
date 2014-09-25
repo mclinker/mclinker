@@ -29,9 +29,8 @@ class MemoryAreaFactory;
  *
  *  InputBuilder build input tree and inputs.
  */
-class InputBuilder
-{
-public:
+class InputBuilder {
+ public:
   explicit InputBuilder(const LinkerConfig& pConfig);
 
   InputBuilder(const LinkerConfig& pConfig,
@@ -44,15 +43,15 @@ public:
 
   // -----  input tree operations  ----- //
   const InputTree& getCurrentTree() const;
-  InputTree&       getCurrentTree();
+  InputTree& getCurrentTree();
 
   void setCurrentTree(InputTree& pInputTree);
 
   // -----  root of input tree  ----- //
   const InputTree::iterator& getCurrentNode() const { return m_Root; }
-  InputTree::iterator&       getCurrentNode()       { return m_Root; }
+  InputTree::iterator& getCurrentNode() { return m_Root; }
 
-  template<InputTree::Direction DIRECTION>
+  template <InputTree::Direction DIRECTION>
   InputTree& createNode(const std::string& pName,
                         const sys::fs::Path& pPath,
                         unsigned int pType = Input::Unknown);
@@ -67,7 +66,7 @@ public:
 
   bool setMemory(Input& pInput,
                  FileHandle::OpenMode pMode,
-		 FileHandle::Permission pPerm = FileHandle::System);
+                 FileHandle::Permission pPerm = FileHandle::System);
 
   bool setMemory(Input& pInput, void* pMemBuffer, size_t pSize);
 
@@ -80,9 +79,9 @@ public:
   const AttrConstraint& getConstraint() const;
 
   const AttributeProxy& getAttributes() const;
-  AttributeProxy&       getAttributes();
+  AttributeProxy& getAttributes();
 
-private:
+ private:
   const LinkerConfig& m_Config;
 
   InputFactory* m_pInputFactory;
@@ -95,17 +94,16 @@ private:
   std::stack<InputTree::iterator> m_ReturnStack;
 
   bool m_bOwnFactory;
-
 };
 
 //===----------------------------------------------------------------------===//
 // Template implement
 //===----------------------------------------------------------------------===//
-template<> inline InputTree&
-InputBuilder::createNode<InputTree::Inclusive>(const std::string& pName,
-                                               const sys::fs::Path& pPath,
-                                               unsigned int pType)
-{
+template <>
+inline InputTree& InputBuilder::createNode<InputTree::Inclusive>(
+    const std::string& pName,
+    const sys::fs::Path& pPath,
+    unsigned int pType) {
   assert(m_pCurrentTree != NULL && m_pMove != NULL);
 
   Input* input = createInput(pName, pPath, pType);
@@ -116,11 +114,11 @@ InputBuilder::createNode<InputTree::Inclusive>(const std::string& pName,
   return *m_pCurrentTree;
 }
 
-template<> inline InputTree&
-InputBuilder::createNode<InputTree::Positional>(const std::string& pName,
-                                               const sys::fs::Path& pPath,
-                                               unsigned int pType)
-{
+template <>
+inline InputTree& InputBuilder::createNode<InputTree::Positional>(
+    const std::string& pName,
+    const sys::fs::Path& pPath,
+    unsigned int pType) {
   assert(m_pCurrentTree != NULL && m_pMove != NULL);
 
   Input* input = createInput(pName, pPath, pType);
@@ -131,6 +129,6 @@ InputBuilder::createNode<InputTree::Positional>(const std::string& pName,
   return *m_pCurrentTree;
 }
 
-} // namespace mcld
+}  // namespace mcld
 
 #endif  // MCLD_MC_INPUTBUILDER_H_

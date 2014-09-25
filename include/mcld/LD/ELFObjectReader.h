@@ -24,17 +24,16 @@ class LinkerConfig;
 /** \lclass ELFObjectReader
  *  \brief ELFObjectReader reads target-independent parts of ELF object file
  */
-class ELFObjectReader : public ObjectReader
-{
-public:
+class ELFObjectReader : public ObjectReader {
+ public:
   enum ReadFlagType {
-    ParseEhFrame    = 0x1, ///< parse .eh_frame section if the bit is set.
-    NumOfReadFlags  = 1
+    ParseEhFrame = 0x1,  ///< parse .eh_frame section if the bit is set.
+    NumOfReadFlags = 1
   };
 
   typedef Flags<ReadFlagType> ReadFlag;
 
-public:
+ public:
   ELFObjectReader(GNULDBackend& pBackend,
                   IRBuilder& pBuilder,
                   const LinkerConfig& pConfig);
@@ -56,7 +55,7 @@ public:
   /// This function should be called after symbol resolution.
   virtual bool readRelocations(Input& pFile);
 
-private:
+ private:
   ELFReaderIF* m_pELFReader;
   EhFrameReader* m_pEhFrameReader;
   IRBuilder& m_Builder;
@@ -65,6 +64,6 @@ private:
   const LinkerConfig& m_Config;
 };
 
-} // namespace mcld
+}  // namespace mcld
 
 #endif  // MCLD_LD_ELFOBJECTREADER_H_

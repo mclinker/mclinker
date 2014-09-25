@@ -17,7 +17,6 @@
 #include <llvm/Support/Allocator.h>
 #include <cstddef>
 
-
 namespace mcld {
 namespace sys {
 namespace fs {
@@ -29,24 +28,28 @@ class DirIterator;
  *   non-symbolic link status, and a FileStatus object for symbolic link
  *   status. The FileStatus objects act as value caches.
  */
-class Directory
-{
-friend mcld::sys::fs::PathCache::entry_type*
-    detail::bring_one_into_cache(DirIterator& pIter);
-friend void detail::open_dir(Directory& pDir);
-friend void detail::close_dir(Directory& pDir);
-private:
+class Directory {
+  friend mcld::sys::fs::PathCache::entry_type* detail::bring_one_into_cache(
+      DirIterator& pIter);
+  friend void detail::open_dir(Directory& pDir);
+  friend void detail::close_dir(Directory& pDir);
+
+ private:
   friend class DirIterator;
 
-public:
+ public:
   typedef DirIterator iterator;
 
-public:
+ public:
   /// default constructor
   Directory();
 
   /// constructor - a directory whose path is pPath
   explicit Directory(const Path& pPath,
+                     FileStatus st = FileStatus(),
+                     FileStatus symlink_st = FileStatus());
+
+  explicit Directory(const char* pPath,
                      FileStatus st = FileStatus(),
                      FileStatus symlink_st = FileStatus());
 
@@ -72,8 +75,7 @@ public:
   bool isGood() const;
 
   /// path - the path of the directory
-  const Path& path() const
-  { return m_Path; }
+  const Path& path() const { return m_Path; }
 
   FileStatus status() const;
   FileStatus symlinkStatus() const;
@@ -84,7 +86,7 @@ public:
   iterator begin();
   iterator end();
 
-protected:
+ protected:
   mcld::sys::fs::Path m_Path;
   mutable FileStatus m_FileStatus;
   mutable FileStatus m_SymLinkStatus;
@@ -104,29 +106,28 @@ protected:
  *
  *  @see Directory
  */
-class DirIterator
-{
-friend mcld::sys::fs::PathCache::entry_type*
-    detail::bring_one_into_cache(DirIterator& pIter);
-friend class Directory;
-public:
+class DirIterator {
+  friend mcld::sys::fs::PathCache::entry_type* detail::bring_one_into_cache(
+      DirIterator& pIter);
+  friend class Directory;
+
+ public:
   typedef mcld::sys::fs::PathCache DirCache;
 
-public:
-  typedef Directory                 value_type;
-  typedef ConstTraits<Directory>    const_traits;
+ public:
+  typedef Directory value_type;
+  typedef ConstTraits<Directory> const_traits;
   typedef NonConstTraits<Directory> non_const_traits;
-  typedef std::input_iterator_tag   iterator_category;
-  typedef size_t                    size_type;
-  typedef ptrdiff_t                 difference_type;
+  typedef std::input_iterator_tag iterator_category;
+  typedef size_t size_type;
+  typedef ptrdiff_t difference_type;
 
-private:
-  explicit DirIterator(Directory* pParent,
-                       const DirCache::iterator& pIter);
+ private:
+  explicit DirIterator(Directory* pParent, const DirCache::iterator& pIter);
 
-public:
+ public:
   // Since StringMapIterator has no default constructor, we also have none.
-  DirIterator(const DirIterator &X);
+  DirIterator(const DirIterator& X);
   ~DirIterator();
   DirIterator& operator=(const DirIterator& pCopy);
 
@@ -141,14 +142,14 @@ public:
   bool operator==(const DirIterator& y) const;
   bool operator!=(const DirIterator& y) const;
 
-private:
-  Directory* m_pParent; // get handler
-  DirCache::iterator m_Iter; // for full situation
+ private:
+  Directory* m_pParent;       // get handler
+  DirCache::iterator m_Iter;  // for full situation
   DirCache::entry_type* m_pEntry;
 };
 
-} // namespace fs
-} // namespace sys
-} // namespace mcld
+}  // namespace fs
+}  // namespace sys
+}  // namespace mcld
 
 #endif  // MCLD_SUPPORT_DIRECTORY_H_

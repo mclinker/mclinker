@@ -15,46 +15,40 @@
 #include <llvm/Support/Casting.h>
 
 namespace {
-  const unsigned int ARMGOT0Num = 3;
-} // end of anonymous namespace
+const unsigned int ARMGOT0Num = 3;
+}  // end of anonymous namespace
 
 using namespace mcld;
 
 //===----------------------------------------------------------------------===//
 // ARMGOT
 ARMGOT::ARMGOT(LDSection& pSection)
-    : GOT(pSection), m_pGOTPLTFront(NULL), m_pGOTFront(NULL)
-{
+    : GOT(pSection), m_pGOTPLTFront(NULL), m_pGOTFront(NULL) {
   // create GOT0, and put them into m_SectionData immediately
   for (unsigned int i = 0; i < ARMGOT0Num; ++i)
     new ARMGOTEntry(0, m_SectionData);
 }
 
-ARMGOT::~ARMGOT()
-{
+ARMGOT::~ARMGOT() {
 }
 
-bool ARMGOT::hasGOT1() const
-{
+bool ARMGOT::hasGOT1() const {
   return ((!m_GOT.empty()) || (!m_GOTPLT.empty()));
 }
 
-ARMGOTEntry* ARMGOT::createGOT()
-{
+ARMGOTEntry* ARMGOT::createGOT() {
   ARMGOTEntry* entry = new ARMGOTEntry(0, NULL);
   m_GOT.push_back(entry);
   return entry;
 }
 
-ARMGOTEntry* ARMGOT::createGOTPLT()
-{
+ARMGOTEntry* ARMGOT::createGOTPLT() {
   ARMGOTEntry* entry = new ARMGOTEntry(0, NULL);
   m_GOTPLT.push_back(entry);
   return entry;
 }
 
-void ARMGOT::finalizeSectionSize()
-{
+void ARMGOT::finalizeSectionSize() {
   uint32_t offset = 0;
   SectionData::FragmentListType& frag_list = m_SectionData->getFragmentList();
   // setup GOT0 offset
@@ -96,14 +90,12 @@ void ARMGOT::finalizeSectionSize()
   m_Section.setSize(offset);
 }
 
-void ARMGOT::applyGOT0(uint64_t pAddress)
-{
-  llvm::cast<ARMGOTEntry>
-    (*(m_SectionData->getFragmentList().begin())).setValue(pAddress);
+void ARMGOT::applyGOT0(uint64_t pAddress) {
+  llvm::cast<ARMGOTEntry>(*(m_SectionData->getFragmentList().begin()))
+      .setValue(pAddress);
 }
 
-void ARMGOT::applyGOTPLT(uint64_t pPLTBase)
-{
+void ARMGOT::applyGOTPLT(uint64_t pPLTBase) {
   if (m_pGOTPLTFront == NULL)
     return;
 
@@ -120,8 +112,7 @@ void ARMGOT::applyGOTPLT(uint64_t pPLTBase)
   }
 }
 
-uint64_t ARMGOT::emit(MemoryRegion& pRegion)
-{
+uint64_t ARMGOT::emit(MemoryRegion& pRegion) {
   uint32_t* buffer = reinterpret_cast<uint32_t*>(pRegion.begin());
 
   ARMGOTEntry* got = NULL;

@@ -21,8 +21,7 @@ LinkerConfig::LinkerConfig()
       m_Targets(),
       m_Attribute(),
       m_CodeGenType(Unknown),
-      m_CodePosition(Unset)
-{
+      m_CodePosition(Unset) {
   // FIXME: is here the right place to hold this?
   InitializeDiagnosticEngine(*this);
 }
@@ -32,19 +31,16 @@ LinkerConfig::LinkerConfig(const std::string& pTripleString)
       m_Targets(pTripleString),
       m_Attribute(),
       m_CodeGenType(Unknown),
-      m_CodePosition(Unset)
-{
+      m_CodePosition(Unset) {
   // FIXME: is here the right place to hold this?
   InitializeDiagnosticEngine(*this);
 }
 
-LinkerConfig::~LinkerConfig()
-{
+LinkerConfig::~LinkerConfig() {
   // FIXME: is here the right place to hold this?
   FinalizeDiagnosticEngine();
 }
 
-const char* LinkerConfig::version()
-{
+const char* LinkerConfig::version() {
   return MCLD_VERSION;
 }

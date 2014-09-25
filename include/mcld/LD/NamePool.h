@@ -28,9 +28,8 @@ namespace mcld {
  *
  *  - MCLinker is responsed for creating NamePool.
  */
-class NamePool : private Uncopyable
-{
-public:
+class NamePool : private Uncopyable {
+ public:
   typedef HashTable<ResolveInfo, hash::StringHash<hash::DJB> > Table;
   typedef Table::iterator syminfo_iterator;
   typedef Table::const_iterator const_syminfo_iterator;
@@ -41,7 +40,7 @@ public:
 
   typedef size_t size_type;
 
-public:
+ public:
   explicit NamePool(size_type pSize = 3);
 
   ~NamePool();
@@ -49,14 +48,14 @@ public:
   // -----  modifiers  ----- //
   /// createSymbol - create a symbol but do not insert into the pool.
   /// The created symbol did not go through the path of symbol resolution.
-  ResolveInfo*
-  createSymbol(const llvm::StringRef& pName,
-               bool pIsDyn,
-               ResolveInfo::Type pType,
-               ResolveInfo::Desc pDesc,
-               ResolveInfo::Binding pBinding,
-               ResolveInfo::SizeType pSize,
-               ResolveInfo::Visibility pVisibility = ResolveInfo::Default);
+  ResolveInfo* createSymbol(
+      const llvm::StringRef& pName,
+      bool pIsDyn,
+      ResolveInfo::Type pType,
+      ResolveInfo::Desc pDesc,
+      ResolveInfo::Binding pBinding,
+      ResolveInfo::SizeType pSize,
+      ResolveInfo::Visibility pVisibility = ResolveInfo::Default);
 
   /// insertSymbol - insert a symbol and resolve the symbol immediately
   /// @param pOldInfo - if pOldInfo is not NULL, the old ResolveInfo being
@@ -77,11 +76,11 @@ public:
 
   /// findSymbol - find the resolved output LDSymbol
   const LDSymbol* findSymbol(const llvm::StringRef& pName) const;
-  LDSymbol*       findSymbol(const llvm::StringRef& pName);
+  LDSymbol* findSymbol(const llvm::StringRef& pName);
 
   /// findInfo - find the resolved ResolveInfo
   const ResolveInfo* findInfo(const llvm::StringRef& pName) const;
-  ResolveInfo*       findInfo(const llvm::StringRef& pName);
+  ResolveInfo* findInfo(const llvm::StringRef& pName);
 
   /// insertString - insert a string
   /// if the string has existed, modify pString to the existing string
@@ -89,50 +88,42 @@ public:
   llvm::StringRef insertString(const llvm::StringRef& pString);
 
   // -----  observers  ----- //
-  size_type size() const
-  { return m_Table.numOfEntries(); }
+  size_type size() const { return m_Table.numOfEntries(); }
 
-  bool empty() const
-  { return m_Table.empty(); }
+  bool empty() const { return m_Table.empty(); }
 
   // syminfo_iterator - traverse the ResolveInfo in the resolved HashTable
-  syminfo_iterator syminfo_begin()
-  { return m_Table.begin(); }
+  syminfo_iterator syminfo_begin() { return m_Table.begin(); }
 
-  syminfo_iterator syminfo_end()
-  { return m_Table.end(); }
+  syminfo_iterator syminfo_end() { return m_Table.end(); }
 
-  const_syminfo_iterator syminfo_begin() const
-  { return m_Table.begin(); }
+  const_syminfo_iterator syminfo_begin() const { return m_Table.begin(); }
 
-  const_syminfo_iterator syminfo_end() const
-  { return m_Table.end(); }
+  const_syminfo_iterator syminfo_end() const { return m_Table.end(); }
 
   // freeinfo_iterator - traverse the ResolveInfo those do not need to be
   // resolved, for example, local symbols
-  freeinfo_iterator freeinfo_begin()
-  { return m_FreeInfoSet.begin(); }
+  freeinfo_iterator freeinfo_begin() { return m_FreeInfoSet.begin(); }
 
-  freeinfo_iterator freeinfo_end()
-  { return m_FreeInfoSet.end(); }
+  freeinfo_iterator freeinfo_end() { return m_FreeInfoSet.end(); }
 
-  const_freeinfo_iterator freeinfo_begin() const
-  { return m_FreeInfoSet.begin(); }
+  const_freeinfo_iterator freeinfo_begin() const {
+    return m_FreeInfoSet.begin();
+  }
 
-  const_freeinfo_iterator freeinfo_end() const
-  { return m_FreeInfoSet.end(); }
+  const_freeinfo_iterator freeinfo_end() const { return m_FreeInfoSet.end(); }
 
   // -----  capacity  ----- //
   void reserve(size_type pN);
 
   size_type capacity() const;
 
-private:
+ private:
   Resolver* m_pResolver;
   Table m_Table;
   FreeInfoSet m_FreeInfoSet;
 };
 
-} // namespace mcld
+}  // namespace mcld
 
 #endif  // MCLD_LD_NAMEPOOL_H_

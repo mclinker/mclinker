@@ -11,8 +11,7 @@
 
 #include <mcld/LD/RelocData.h>
 
-namespace mcld
-{
+namespace mcld {
 
 class LDSymbol;
 class Module;
@@ -22,9 +21,8 @@ class RelocationFactory;
 /** \class OutputRelocSection
  *  \brief Dynamic relocation section for ARM .rel.dyn and .rel.plt
  */
-class OutputRelocSection
-{
-public:
+class OutputRelocSection {
+ public:
   OutputRelocSection(Module& pModule, LDSection& pSection);
 
   ~OutputRelocSection();
@@ -32,7 +30,7 @@ public:
   /// create - create an dynamic relocation entry
   Relocation* create();
 
-  void reserveEntry(size_t pNum=1);
+  void reserveEntry(size_t pNum = 1);
 
   Relocation* consumeEntry();
 
@@ -41,15 +39,14 @@ public:
   bool addSymbolToDynSym(LDSymbol& pSymbol);
 
   // ----- observers ----- //
-  bool empty()
-  { return m_pRelocData->empty(); }
+  bool empty() { return m_pRelocData->empty(); }
 
   size_t numOfRelocs();
 
-private:
+ private:
   typedef RelocData::iterator RelocIterator;
 
-private:
+ private:
   Module& m_Module;
 
   /// m_RelocData - the output RelocData which contains the dynamic
@@ -63,6 +60,6 @@ private:
   RelocIterator m_ValidEntryIterator;
 };
 
-} // namespace mcld
+}  // namespace mcld
 
 #endif  // MCLD_TARGET_OUTPUTRELOCSECTION_H_

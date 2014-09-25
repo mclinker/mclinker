@@ -28,48 +28,39 @@ class AttributeSet;
  *  which have identical attributes share common attribute. AttributeBase is
  *  the shared storage for attribute.
  */
-class AttributeBase
-{
-public:
+class AttributeBase {
+ public:
   AttributeBase()
       : m_WholeArchive(false),
         m_AsNeeded(false),
         m_AddNeeded(true),
-        m_Static(false)
-  { }
+        m_Static(false) {}
 
   AttributeBase(const AttributeBase& pBase)
       : m_WholeArchive(pBase.m_WholeArchive),
         m_AsNeeded(pBase.m_AsNeeded),
         m_AddNeeded(pBase.m_AddNeeded),
-        m_Static(pBase.m_Static)
-  { }
+        m_Static(pBase.m_Static) {}
 
-  virtual ~AttributeBase()
-  { }
+  virtual ~AttributeBase() {}
 
   // ----- observers  ----- //
   // represent GNU ld --whole-archive/--no-whole-archive options
-  bool isWholeArchive() const
-  { return m_WholeArchive; }
+  bool isWholeArchive() const { return m_WholeArchive; }
 
   // represent GNU ld --as-needed/--no-as-needed options
-  bool isAsNeeded() const
-  { return m_AsNeeded; }
+  bool isAsNeeded() const { return m_AsNeeded; }
 
   // represent GNU ld --add-needed/--no-add-needed options
-  bool isAddNeeded() const
-  { return m_AddNeeded; }
+  bool isAddNeeded() const { return m_AddNeeded; }
 
   // represent GNU ld -static option
-  bool isStatic() const
-  { return m_Static; }
+  bool isStatic() const { return m_Static; }
 
   // represent GNU ld -call_shared option
-  bool isDynamic() const
-  { return !m_Static; }
+  bool isDynamic() const { return !m_Static; }
 
-public:
+ public:
   bool m_WholeArchive : 1;
   bool m_AsNeeded : 1;
   bool m_AddNeeded : 1;
@@ -83,33 +74,24 @@ public:
  *  For conventience and producing less bugs, we move the stoarges of attributes
  *  onto AttributeBase, and modifiers remains with the class Attribute.
  */
-class Attribute : public AttributeBase
-{
-public:
+class Attribute : public AttributeBase {
+ public:
   // -----  modifiers  ----- //
-  void setWholeArchive()
-  { m_WholeArchive = true; }
+  void setWholeArchive() { m_WholeArchive = true; }
 
-  void unsetWholeArchive()
-  { m_WholeArchive = false; }
+  void unsetWholeArchive() { m_WholeArchive = false; }
 
-  void setAsNeeded()
-  { m_AsNeeded = true; }
+  void setAsNeeded() { m_AsNeeded = true; }
 
-  void unsetAsNeeded()
-  { m_AsNeeded = false; }
+  void unsetAsNeeded() { m_AsNeeded = false; }
 
-  void setAddNeeded()
-  { m_AddNeeded = true; }
+  void setAddNeeded() { m_AddNeeded = true; }
 
-  void unsetAddNeeded()
-  { m_AddNeeded = false; }
+  void unsetAddNeeded() { m_AddNeeded = false; }
 
-  void setStatic()
-  { m_Static = true; }
+  void setStatic() { m_Static = true; }
 
-  void setDynamic()
-  { m_Static = false; }
+  void setDynamic() { m_Static = false; }
 };
 
 /** \class AttrConstraint
@@ -124,38 +106,27 @@ public:
  *
  *  @see SectLinker
  */
-class AttrConstraint : public AttributeBase
-{
-public:
-  void enableWholeArchive()
-  { m_WholeArchive = true; }
+class AttrConstraint : public AttributeBase {
+ public:
+  void enableWholeArchive() { m_WholeArchive = true; }
 
-  void disableWholeArchive()
-  { m_WholeArchive = false; }
+  void disableWholeArchive() { m_WholeArchive = false; }
 
-  void enableAsNeeded()
-  { m_AsNeeded = true; }
+  void enableAsNeeded() { m_AsNeeded = true; }
 
-  void disableAsNeeded()
-  { m_AsNeeded = false; }
+  void disableAsNeeded() { m_AsNeeded = false; }
 
-  void enableAddNeeded()
-  { m_AddNeeded = true; }
+  void enableAddNeeded() { m_AddNeeded = true; }
 
-  void disableAddNeeded()
-  { m_AddNeeded = false; }
+  void disableAddNeeded() { m_AddNeeded = false; }
 
-  void setSharedSystem()
-  { m_Static = false; }
+  void setSharedSystem() { m_Static = false; }
 
-  void setStaticSystem()
-  { m_Static = true; }
+  void setStaticSystem() { m_Static = true; }
 
-  bool isSharedSystem() const
-  { return !m_Static; }
+  bool isSharedSystem() const { return !m_Static; }
 
-  bool isStaticSystem() const
-  { return m_Static; }
+  bool isStaticSystem() const { return m_Static; }
 
   bool isLegal(const Attribute& pAttr) const;
 };
@@ -175,9 +146,8 @@ public:
  *  the attribute of the input file. If the searching fails, AttributeProxy
  *  requests a new attribute from the AttributeSet.
  */
-class AttributeProxy
-{
-public:
+class AttributeProxy {
+ public:
   AttributeProxy(AttributeSet& pParent,
                  const Attribute& pBase,
                  const AttrConstraint& pConstraint);
@@ -195,8 +165,7 @@ public:
 
   bool isDynamic() const;
 
-  const Attribute* attr() const
-  { return m_pBase; }
+  const Attribute* attr() const { return m_pBase; }
 
   // -----  modifiers  ----- //
   void setWholeArchive();
@@ -210,27 +179,24 @@ public:
 
   AttributeProxy& assign(Attribute* pBase);
 
-private:
-  AttributeSet &m_AttrPool;
-  const Attribute *m_pBase;
+ private:
+  AttributeSet& m_AttrPool;
+  const Attribute* m_pBase;
   const AttrConstraint& m_Constraint;
 };
 
-
 // -----  comparisons  ----- //
-inline bool operator== (const Attribute& pLHS, const Attribute& pRHS)
-{
+inline bool operator==(const Attribute& pLHS, const Attribute& pRHS) {
   return ((pLHS.isWholeArchive() == pRHS.isWholeArchive()) &&
           (pLHS.isAsNeeded() == pRHS.isAsNeeded()) &&
           (pLHS.isAddNeeded() == pRHS.isAddNeeded()) &&
           (pLHS.isStatic() == pRHS.isStatic()));
 }
 
-inline bool operator!= (const Attribute& pLHS, const Attribute& pRHS)
-{
+inline bool operator!=(const Attribute& pLHS, const Attribute& pRHS) {
   return !(pLHS == pRHS);
 }
 
-} // namespace mcld
+}  // namespace mcld
 
 #endif  // MCLD_MC_ATTRIBUTE_H_

@@ -22,27 +22,27 @@ using namespace mcld;
 
 namespace {
 
-struct DiagStaticInfo
-{
-public:
+struct DiagStaticInfo {
+ public:
   uint16_t ID;
   DiagnosticEngine::Severity Severity;
   uint16_t DescriptionLen;
   const char* DescriptionStr;
 
-public:
-  llvm::StringRef getDescription() const
-  { return llvm::StringRef(DescriptionStr, DescriptionLen); }
+ public:
+  llvm::StringRef getDescription() const {
+    return llvm::StringRef(DescriptionStr, DescriptionLen);
+  }
 
-  bool operator<(const DiagStaticInfo& pRHS) const
-  { return (ID < pRHS.ID); }
+  bool operator<(const DiagStaticInfo& pRHS) const { return (ID < pRHS.ID); }
 };
 
-} // namespace anonymous
+}  // anonymous namespace
 
 static const DiagStaticInfo DiagCommonInfo[] = {
-#define DIAG(ENUM, CLASS, ADDRDESC, LOCDESC) \
-  { diag::ENUM, CLASS, STR_SIZE(ADDRDESC, uint16_t), ADDRDESC },
+#define DIAG(ENUM, CLASS, ADDRDESC, LOCDESC)                    \
+  { diag::ENUM, CLASS, STR_SIZE(ADDRDESC, uint16_t), ADDRDESC } \
+  ,
 #include "mcld/LD/DiagAttribute.inc"
 #include "mcld/LD/DiagCommonKinds.inc"
 #include "mcld/LD/DiagReaders.inc"
@@ -52,15 +52,15 @@ static const DiagStaticInfo DiagCommonInfo[] = {
 #include "mcld/LD/DiagGOTPLT.inc"
 #include "mcld/LD/DiagLDScript.inc"
 #undef DIAG
-  { 0, DiagnosticEngine::None, 0, 0}
-};
+    {0, DiagnosticEngine::None, 0, 0}};
 
 static const unsigned int DiagCommonInfoSize =
-    sizeof(DiagCommonInfo) / sizeof(DiagCommonInfo[0])-1;
+    sizeof(DiagCommonInfo) / sizeof(DiagCommonInfo[0]) - 1;
 
 static const DiagStaticInfo DiagLoCInfo[] = {
-#define DIAG(ENUM, CLASS, ADDRDESC, LOCDESC) \
-  { diag::ENUM, CLASS, STR_SIZE(LOCDESC, uint16_t), LOCDESC },
+#define DIAG(ENUM, CLASS, ADDRDESC, LOCDESC)                  \
+  { diag::ENUM, CLASS, STR_SIZE(LOCDESC, uint16_t), LOCDESC } \
+  ,
 #include "mcld/LD/DiagAttribute.inc"
 #include "mcld/LD/DiagCommonKinds.inc"
 #include "mcld/LD/DiagReaders.inc"
@@ -70,24 +70,18 @@ static const DiagStaticInfo DiagLoCInfo[] = {
 #include "mcld/LD/DiagGOTPLT.inc"
 #include "mcld/LD/DiagLDScript.inc"
 #undef DIAG
-  { 0, DiagnosticEngine::None, 0, 0}
-};
+    {0, DiagnosticEngine::None, 0, 0}};
 
 static const unsigned int DiagLoCInfoSize =
-    sizeof(DiagLoCInfo) / sizeof(DiagLoCInfo[0])-1;
+    sizeof(DiagLoCInfo) / sizeof(DiagLoCInfo[0]) - 1;
 
-
-static const DiagStaticInfo* getDiagInfo(unsigned int pID, bool pInLoC = false)
-{
-  const DiagStaticInfo* static_info = (pInLoC)?DiagLoCInfo:DiagCommonInfo;
+static const DiagStaticInfo* getDiagInfo(unsigned int pID,
+                                         bool pInLoC = false) {
+  const DiagStaticInfo* static_info = (pInLoC) ? DiagLoCInfo : DiagCommonInfo;
   unsigned int info_size = (pInLoC) ? DiagLoCInfoSize : DiagCommonInfoSize;
 
   DiagStaticInfo key = {
-    static_cast<uint16_t>(pID),
-    DiagnosticEngine::None,
-    0,
-    0
-  };
+      static_cast<uint16_t>(pID), DiagnosticEngine::None, 0, 0};
 
   const DiagStaticInfo* result =
       std::lower_bound(static_info, static_info + info_size, key);
@@ -105,18 +99,15 @@ DiagnosticInfos::DiagnosticInfos(const LinkerConfig& pConfig)
     : m_Config(pConfig) {
 }
 
-DiagnosticInfos::~DiagnosticInfos()
-{
+DiagnosticInfos::~DiagnosticInfos() {
 }
 
 llvm::StringRef DiagnosticInfos::getDescription(unsigned int pID,
-                                                bool pInLoC) const
-{
+                                                bool pInLoC) const {
   return getDiagInfo(pID, pInLoC)->getDescription();
 }
 
-bool DiagnosticInfos::process(DiagnosticEngine& pEngine) const
-{
+bool DiagnosticInfos::process(DiagnosticEngine& pEngine) const {
   Diagnostic info(pEngine);
 
   unsigned int ID = info.getID();
@@ -138,7 +129,7 @@ bool DiagnosticInfos::process(DiagnosticEngine& pEngine) const
       // we have not implement --unresolved-symbols=method yet. So far, MCLinker
       // provides the easier --allow-shlib-undefined and --no-undefined (i.e.
       // -z defs)
-      switch(m_Config.codeGenType()) {
+      switch (m_Config.codeGenType()) {
         case LinkerConfig::Object:
           if (m_Config.options().isNoUndefined())
             severity = DiagnosticEngine::Error;
@@ -164,7 +155,7 @@ bool DiagnosticInfos::process(DiagnosticEngine& pEngine) const
     }
     default:
       break;
-  } // end of switch
+  }  // end of switch
 
   // If --fatal-warnings is turned on, then switch warnings and errors to fatal
   if (m_Config.options().isFatalWarnings()) {

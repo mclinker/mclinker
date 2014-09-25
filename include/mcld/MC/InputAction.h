@@ -20,30 +20,30 @@ class InputBuilder;
 /** \class InputAction
  *  \brief InputAction is a command object to construct mcld::InputTree.
  */
-class InputAction
-{
-protected:
+class InputAction {
+ protected:
   explicit InputAction(unsigned int pPosition);
 
-public:
+ public:
   virtual ~InputAction();
 
   virtual bool activate(InputBuilder&) const = 0;
 
   unsigned int position() const { return m_Position; }
 
-  bool operator<(const InputAction& pOther) const
-  { return (position() < pOther.position()); }
+  bool operator<(const InputAction& pOther) const {
+    return (position() < pOther.position());
+  }
 
-private:
+ private:
   InputAction();                               // DO_NOT_IMPLEMENT
-  InputAction(const InputAction& );            // DO_NOT_IMPLEMENT
-  InputAction& operator=(const InputAction& ); // DO_NOT_IMPLEMENT
+  InputAction(const InputAction&);             // DO_NOT_IMPLEMENT
+  InputAction& operator=(const InputAction&);  // DO_NOT_IMPLEMENT
 
-private:
+ private:
   unsigned int m_Position;
 };
 
-} // namespace mcld
+}  // namespace mcld
 
 #endif  // MCLD_MC_INPUTACTION_H_

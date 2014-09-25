@@ -13,8 +13,7 @@
 
 #include <cstddef>
 
-namespace mcld
-{
+namespace mcld {
 
 class IntOperand;
 class Module;
@@ -25,45 +24,40 @@ class TargetLDBackend;
  *  \brief This class defines the interfaces to an binary operator token.
  */
 
-template<Operator::Type TYPE>
-class TernaryOp : public Operator
-{
-private:
+template <Operator::Type TYPE>
+class TernaryOp : public Operator {
+ private:
   friend class Operator;
 
-  TernaryOp()
-      : Operator(Operator::TERNARY, TYPE)
-  {
+  TernaryOp() : Operator(Operator::TERNARY, TYPE) {
     m_pOperand[0] = m_pOperand[1] = m_pOperand[2] = NULL;
   }
 
-public:
-  ~TernaryOp()
-  { }
+ public:
+  ~TernaryOp() {}
 
   IntOperand* eval(const Module& pModule, const TargetLDBackend& pBackend);
 
-  void appendOperand(Operand* pOperand)
-  {
+  void appendOperand(Operand* pOperand) {
     m_pOperand[m_Size++] = pOperand;
     if (m_Size == 3)
       m_Size = 0;
   }
 
-private:
+ private:
   size_t m_Size;
   Operand* m_pOperand[3];
 };
 
-template<>
+template <>
 IntOperand* TernaryOp<Operator::TERNARY_IF>::eval(const Module&,
                                                   const TargetLDBackend&);
 
-template<>
-IntOperand*
-TernaryOp<Operator::DATA_SEGMENT_ALIGN>::eval(const Module&,
-                                              const TargetLDBackend&);
+template <>
+IntOperand* TernaryOp<Operator::DATA_SEGMENT_ALIGN>::eval(
+    const Module&,
+    const TargetLDBackend&);
 
-} // namespace mcld
+}  // namespace mcld
 
 #endif  // MCLD_SCRIPT_TERNARYOP_H_

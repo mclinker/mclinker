@@ -41,22 +41,21 @@ class StubFactory;
 //===----------------------------------------------------------------------===//
 /// TargetLDBackend - Generic interface to target specific assembler backends.
 //===----------------------------------------------------------------------===//
-class TargetLDBackend
-{
-  TargetLDBackend(const TargetLDBackend&);   // DO NOT IMPLEMENT
-  void operator=(const TargetLDBackend&);  // DO NOT IMPLEMENT
+class TargetLDBackend {
+  TargetLDBackend(const TargetLDBackend&);  // DO NOT IMPLEMENT
+  void operator=(const TargetLDBackend&);   // DO NOT IMPLEMENT
 
-protected:
-  TargetLDBackend(const LinkerConfig& pConfig);
+ protected:
+  explicit TargetLDBackend(const LinkerConfig& pConfig);
 
-public:
+ public:
   virtual ~TargetLDBackend();
 
   // -----  target dependent  ----- //
-  virtual void initTargetSegments(IRBuilder& pBuilder) { }
-  virtual void initTargetSections(Module& pModule, ObjectBuilder& pBuilder) { }
-  virtual void initTargetSymbols(IRBuilder& pBuilder, Module& pModule) { }
-  virtual void initTargetRelocation(IRBuilder& pBuilder) { }
+  virtual void initTargetSegments(IRBuilder& pBuilder) {}
+  virtual void initTargetSections(Module& pModule, ObjectBuilder& pBuilder) {}
+  virtual void initTargetSymbols(IRBuilder& pBuilder, Module& pModule) {}
+  virtual void initTargetRelocation(IRBuilder& pBuilder) {}
   virtual bool initStandardSymbols(IRBuilder& pBuilder, Module& pModule) = 0;
 
   virtual bool initRelocator() = 0;
@@ -66,10 +65,10 @@ public:
 
   // -----  format dependent  ----- //
   virtual ArchiveReader* createArchiveReader(Module&) = 0;
-  virtual ObjectReader*  createObjectReader(IRBuilder&) = 0;
-  virtual DynObjReader*  createDynObjReader(IRBuilder&) = 0;
-  virtual BinaryReader*  createBinaryReader(IRBuilder&) = 0;
-  virtual ObjectWriter*  createWriter() = 0;
+  virtual ObjectReader* createObjectReader(IRBuilder&) = 0;
+  virtual DynObjReader* createDynObjReader(IRBuilder&) = 0;
+  virtual BinaryReader* createBinaryReader(IRBuilder&) = 0;
+  virtual ObjectWriter* createWriter() = 0;
 
   virtual bool initStdSections(ObjectBuilder& pBuilder) = 0;
 
@@ -113,25 +112,27 @@ public:
   /// mergeSection - merge target dependent sections.
   virtual bool mergeSection(Module& pModule,
                             const Input& pInputFile,
-                            LDSection& pInputSection)
-  { return true; }
+                            LDSection& pInputSection) {
+    return true;
+  }
 
   /// setUpReachedSectionsForGC - set the reference between two sections for
   /// some special target sections. GC will set up the reference for the Regular
   /// and BSS sections. Backends can also set up the reference if need.
-  virtual void setUpReachedSectionsForGC(const Module& pModule,
-        GarbageCollection::SectionReachedListMap& pSectReachedListMap) const { }
+  virtual void setUpReachedSectionsForGC(
+      const Module& pModule,
+      GarbageCollection::SectionReachedListMap& pSectReachedListMap) const {}
 
   /// updateSectionFlags - update pTo's flags when merging pFrom
   /// update the output section flags based on input section flags.
   /// FIXME: (Luba) I know ELF need to merge flags, but I'm not sure if
   /// MachO and COFF also need this.
-  virtual bool updateSectionFlags(LDSection& pTo, const LDSection& pFrom)
-  { return true; }
+  virtual bool updateSectionFlags(LDSection& pTo, const LDSection& pFrom) {
+    return true;
+  }
 
   /// readSection - read a target dependent section
-  virtual bool readSection(Input& pInput, SectionData& pSD)
-  { return true; }
+  virtual bool readSection(Input& pInput, SectionData& pSD) { return true; }
 
   /// sizeInterp - compute the size of program interpreter's name
   /// In ELF executables, this is the length of dynamic linker's path name
@@ -146,7 +147,7 @@ public:
   virtual bool initTargetStubs() { return true; }
 
   virtual BranchIslandFactory* getBRIslandFactory() = 0;
-  virtual StubFactory*         getStubFactory() = 0;
+  virtual StubFactory* getStubFactory() = 0;
 
   /// relax - the relaxation pass
   virtual bool relax(Module& pModule, IRBuilder& pBuilder) = 0;
@@ -174,16 +175,16 @@ public:
 
   /// mayHaveUnsafeFunctionPointerAccess - check if the section may have unsafe
   /// function pointer access
-  virtual bool mayHaveUnsafeFunctionPointerAccess(const LDSection& pSection)
-      const = 0;
+  virtual bool mayHaveUnsafeFunctionPointerAccess(
+      const LDSection& pSection) const = 0;
 
-protected:
+ protected:
   const LinkerConfig& config() const { return m_Config; }
 
-private:
+ private:
   const LinkerConfig& m_Config;
 };
 
-} // namespace mcld
+}  // namespace mcld
 
 #endif  // MCLD_TARGET_TARGETLDBACKEND_H_

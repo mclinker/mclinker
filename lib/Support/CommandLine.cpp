@@ -24,11 +24,10 @@ static const size_t MaxOptWidth = 8;  // arbitrary spacing for printOptionDiff
 // SearchDirParser
 //===----------------------------------------------------------------------===//
 // parse - Return true on error.
-bool SearchDirParser::parse(Option &pOption,
+bool SearchDirParser::parse(Option& pOption,
                             StringRef pArgName,
                             StringRef pArg,
-                            std::string &pValue)
-{
+                            std::string& pValue) {
   char separator = *(pArgName.data() + 1);
   if (separator == '=')
     pValue = '=';
@@ -36,14 +35,14 @@ bool SearchDirParser::parse(Option &pOption,
   return false;
 }
 
-void SearchDirParser::printOptionDiff(const Option &pOption,
+void SearchDirParser::printOptionDiff(const Option& pOption,
                                       StringRef pValue,
                                       OptVal pDefault,
-                                      size_t pGlobalWidth) const
-{
+                                      size_t pGlobalWidth) const {
   printOptionName(pOption, pGlobalWidth);
   outs() << "= " << pValue;
-  size_t NumSpaces = MaxOptWidth > pValue.size()?MaxOptWidth - pValue.size():0;
+  size_t NumSpaces =
+      MaxOptWidth > pValue.size() ? MaxOptWidth - pValue.size() : 0;
   outs().indent(NumSpaces) << " (default: ";
   if (pDefault.hasValue())
     outs() << pDefault.getValue();
@@ -52,28 +51,26 @@ void SearchDirParser::printOptionDiff(const Option &pOption,
   outs() << ")\n";
 }
 
-void SearchDirParser::anchor()
-{
+void SearchDirParser::anchor() {
   // do nothing
 }
 
 //===----------------------------------------------------------------------===//
 // parser<mcld::sys::fs::Path>
 //===----------------------------------------------------------------------===//
-bool parser<mcld::sys::fs::Path>::parse(llvm::cl::Option &O,
-                       llvm::StringRef ArgName,
-                       llvm::StringRef Arg,
-                       mcld::sys::fs::Path &Val)
-{
+bool parser<mcld::sys::fs::Path>::parse(llvm::cl::Option& O,
+                                        llvm::StringRef ArgName,
+                                        llvm::StringRef Arg,
+                                        mcld::sys::fs::Path& Val) {
   Val.assign<llvm::StringRef::const_iterator>(Arg.begin(), Arg.end());
   return false;
 }
 
-void parser<mcld::sys::fs::Path>::printOptionDiff(const llvm::cl::Option &O,
-    const mcld::sys::fs::Path &V,
+void parser<mcld::sys::fs::Path>::printOptionDiff(
+    const llvm::cl::Option& O,
+    const mcld::sys::fs::Path& V,
     parser<mcld::sys::fs::Path>::OptVal Default,
-    size_t GlobalWidth) const
-{
+    size_t GlobalWidth) const {
   printOptionName(O, GlobalWidth);
   outs() << "= " << V;
   size_t VSize = V.native().size();
@@ -86,19 +83,17 @@ void parser<mcld::sys::fs::Path>::printOptionDiff(const llvm::cl::Option &O,
   outs() << ")\n";
 }
 
-void parser<mcld::sys::fs::Path>::anchor()
-{
+void parser<mcld::sys::fs::Path>::anchor() {
   // do nothing
 }
 
 //===----------------------------------------------------------------------===//
 // parser<mcld::ZOption>
 //===----------------------------------------------------------------------===//
-bool parser<mcld::ZOption>::parse(llvm::cl::Option &O,
+bool parser<mcld::ZOption>::parse(llvm::cl::Option& O,
                                   llvm::StringRef ArgName,
                                   llvm::StringRef Arg,
-                                  mcld::ZOption &Val)
-{
+                                  mcld::ZOption& Val) {
   if (0 == Arg.compare("combreloc"))
     Val.setKind(ZOption::CombReloc);
   else if (0 == Arg.compare("nocombreloc"))
@@ -150,22 +145,19 @@ bool parser<mcld::ZOption>::parse(llvm::cl::Option &O,
   }
 
   if (ZOption::Unknown == Val.kind())
-    llvm::report_fatal_error(llvm::Twine("unknown -z option: `") +
-                             Arg +
+    llvm::report_fatal_error(llvm::Twine("unknown -z option: `") + Arg +
                              llvm::Twine("'\n"));
   return false;
 }
 
-void
-parser<mcld::ZOption>::printOptionDiff(const llvm::cl::Option &O,
-                                       const mcld::ZOption &V,
-                                       parser<mcld::ZOption>::OptVal Default,
-                                       size_t GlobalWidth) const
-{
+void parser<mcld::ZOption>::printOptionDiff(
+    const llvm::cl::Option& O,
+    const mcld::ZOption& V,
+    parser<mcld::ZOption>::OptVal Default,
+    size_t GlobalWidth) const {
   // TODO
 }
 
-void parser<mcld::ZOption>::anchor()
-{
+void parser<mcld::ZOption>::anchor() {
   // do nothing
 }

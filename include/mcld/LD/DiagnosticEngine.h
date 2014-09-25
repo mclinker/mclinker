@@ -33,9 +33,8 @@ class MsgHandler;
  *  - remember the argument string for MsgHandler
  *  - choice the severity of a message by options
  */
-class DiagnosticEngine
-{
-public:
+class DiagnosticEngine {
+ public:
   enum Severity {
     Unreachable,
     Fatal,
@@ -56,7 +55,7 @@ public:
     ak_bool         // bool
   };
 
-public:
+ public:
   DiagnosticEngine();
 
   ~DiagnosticEngine();
@@ -68,16 +67,14 @@ public:
   void setPrinter(DiagnosticPrinter& pPrinter, bool pShouldOwnPrinter = true);
 
   const DiagnosticPrinter* getPrinter() const { return m_pPrinter; }
-  DiagnosticPrinter*       getPrinter()       { return m_pPrinter; }
-
+  DiagnosticPrinter* getPrinter() { return m_pPrinter; }
 
   DiagnosticPrinter* takePrinter() {
     m_OwnPrinter = false;
     return m_pPrinter;
   }
 
-  bool ownPrinter() const
-  { return m_OwnPrinter; }
+  bool ownPrinter() const { return m_OwnPrinter; }
 
   // -----  emission  ----- //
   // emit - process the message to printer
@@ -86,7 +83,7 @@ public:
   // report - issue the message to the printer
   MsgHandler report(uint16_t pID, Severity pSeverity);
 
-private:
+ private:
   friend class MsgHandler;
   friend class Diagnostic;
 
@@ -96,11 +93,10 @@ private:
     MaxArguments = 10
   };
 
-  struct State
-  {
-  public:
-    State() : numArgs(0), ID(-1), severity(None), file(NULL) { }
-    ~State() { }
+  struct State {
+   public:
+    State() : numArgs(0), ID(-1), severity(None), file(NULL) {}
+    ~State() {}
 
     void reset() {
       numArgs = 0;
@@ -109,7 +105,7 @@ private:
       file = NULL;
     }
 
-  public:
+   public:
     std::string ArgumentStrs[MaxArguments];
     intptr_t ArgumentVals[MaxArguments];
     uint8_t ArgumentKinds[MaxArguments];
@@ -119,12 +115,10 @@ private:
     Input* file;
   };
 
-private:
-  State& state()
-  { return m_State; }
+ private:
+  State& state() { return m_State; }
 
-  const State& state() const
-  { return m_State; }
+  const State& state() const { return m_State; }
 
   DiagnosticInfos& infoMap() {
     assert(m_pInfoMap != NULL && "DiagnosticEngine was not initialized!");
@@ -136,7 +130,7 @@ private:
     return *m_pInfoMap;
   }
 
-private:
+ private:
   const LinkerConfig* m_pConfig;
   DiagnosticLineInfo* m_pLineInfo;
   DiagnosticPrinter* m_pPrinter;
@@ -146,6 +140,6 @@ private:
   State m_State;
 };
 
-} // namespace mcld
+}  // namespace mcld
 
 #endif  // MCLD_LD_DIAGNOSTICENGINE_H_

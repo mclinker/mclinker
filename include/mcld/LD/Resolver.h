@@ -13,8 +13,7 @@
 #include <string>
 #include <utility>
 
-namespace mcld
-{
+namespace mcld {
 
 class NamePool;
 class ResolveInfo;
@@ -27,15 +26,9 @@ class ResolveInfo;
  *  two symbols depends on their type, binding and whether it is belonging to
  *  a shared object.
  */
-class Resolver
-{
-public:
-  enum Action {
-    Success,
-    Warning,
-    Abort,
-    LastAction
-  };
+class Resolver {
+ public:
+  enum Action { Success, Warning, Abort, LastAction };
 
   /** \class Resolver::Result
    *  \brief the result of symbol resolution
@@ -49,7 +42,7 @@ public:
     bool overriden;
   };
 
-public:
+ public:
   virtual ~Resolver();
 
   /// shouldOverride - Can resolver override the symbol pOld by the symbol pNew?
@@ -75,6 +68,6 @@ public:
   }
 };
 
-} // namespace mcld
+}  // namespace mcld
 
 #endif  // MCLD_LD_RESOLVER_H_

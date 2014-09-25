@@ -13,14 +13,12 @@
 
 namespace mcld {
 class SectionData;
-} // namespace for mcld
+}  // namespace for mcld
 
-namespace mcldtest
-{
+namespace mcldtest {
 
-class SectionDataTest : public ::testing::Test
-{
-public:
+class SectionDataTest : public ::testing::Test {
+ public:
   // Constructor can do set-up work for all test here.
   SectionDataTest();
 
@@ -34,7 +32,6 @@ public:
   virtual void TearDown();
 };
 
-} // namespace of mcldtest
+}  // namespace of mcldtest
 
 #endif
-

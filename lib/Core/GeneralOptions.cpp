@@ -17,60 +17,58 @@ using namespace mcld;
 // GeneralOptions
 //===----------------------------------------------------------------------===//
 GeneralOptions::GeneralOptions()
-  : m_Verbose(-1),
-    m_MaxErrorNum(-1),
-    m_MaxWarnNum(-1),
-    m_ExecStack(Unknown),
-    m_NoUndefined(Unknown),
-    m_MulDefs(Unknown),
-    m_CommPageSize(0x0),
-    m_MaxPageSize(0x0),
-    m_bCombReloc(true),
-    m_bInitFirst(false),
-    m_bInterPose(false),
-    m_bLoadFltr(false),
-    m_bNoCopyReloc(false),
-    m_bNoDefaultLib(false),
-    m_bNoDelete(false),
-    m_bNoDLOpen(false),
-    m_bNoDump(false),
-    m_bRelro(false),
-    m_bNow(false),
-    m_bOrigin(false),
-    m_bTrace(false),
-    m_Bsymbolic(false),
-    m_Bgroup(false),
-    m_bPIE(false),
-    m_bColor(true),
-    m_bCreateEhFrameHdr(false),
-    m_bNMagic(false),
-    m_bOMagic(false),
-    m_bStripDebug(false),
-    m_bExportDynamic(false),
-    m_bWarnSharedTextrel(false),
-    m_bBinaryInput(false),
-    m_bDefineCommon(false),
-    m_bFatalWarnings(false),
-    m_bNewDTags(false),
-    m_bNoStdlib(false),
-    m_bWarnMismatch(true),
-    m_bGCSections(false),
-    m_bPrintGCSections(false),
-    m_bGenUnwindInfo(true),
-    m_bPrintICFSections(false),
-    m_ICF(ICF_None),
-    m_ICFIterations(0) ,
-    m_GPSize(8),
-    m_StripSymbols(KeepAllSymbols),
-    m_HashStyle(SystemV) {
+    : m_Verbose(-1),
+      m_MaxErrorNum(-1),
+      m_MaxWarnNum(-1),
+      m_ExecStack(Unknown),
+      m_NoUndefined(Unknown),
+      m_MulDefs(Unknown),
+      m_CommPageSize(0x0),
+      m_MaxPageSize(0x0),
+      m_bCombReloc(true),
+      m_bInitFirst(false),
+      m_bInterPose(false),
+      m_bLoadFltr(false),
+      m_bNoCopyReloc(false),
+      m_bNoDefaultLib(false),
+      m_bNoDelete(false),
+      m_bNoDLOpen(false),
+      m_bNoDump(false),
+      m_bRelro(false),
+      m_bNow(false),
+      m_bOrigin(false),
+      m_bTrace(false),
+      m_Bsymbolic(false),
+      m_Bgroup(false),
+      m_bPIE(false),
+      m_bColor(true),
+      m_bCreateEhFrameHdr(false),
+      m_bNMagic(false),
+      m_bOMagic(false),
+      m_bStripDebug(false),
+      m_bExportDynamic(false),
+      m_bWarnSharedTextrel(false),
+      m_bBinaryInput(false),
+      m_bDefineCommon(false),
+      m_bFatalWarnings(false),
+      m_bNewDTags(false),
+      m_bNoStdlib(false),
+      m_bWarnMismatch(true),
+      m_bGCSections(false),
+      m_bPrintGCSections(false),
+      m_bGenUnwindInfo(true),
+      m_bPrintICFSections(false),
+      m_ICF(ICF_None),
+      m_ICFIterations(0),
+      m_GPSize(8),
+      m_StripSymbols(KeepAllSymbols),
+      m_HashStyle(SystemV) {
 }
 
-GeneralOptions::~GeneralOptions()
-{
+GeneralOptions::~GeneralOptions() {
 }
 
-void GeneralOptions::setSOName(const std::string& pName)
-{
+void GeneralOptions::setSOName(const std::string& pName) {
   size_t pos = pName.find_last_of(sys::fs::separator);
   if (std::string::npos == pos)
     m_SOName = pName;
@@ -78,8 +76,7 @@ void GeneralOptions::setSOName(const std::string& pName)
     m_SOName = pName.substr(pos + 1);
 }
 
-void GeneralOptions::addZOption(const ZOption& pOption)
-{
+void GeneralOptions::addZOption(const ZOption& pOption) {
   switch (pOption.kind()) {
     case ZOption::CombReloc:
       m_bCombReloc = true;
@@ -151,8 +148,7 @@ void GeneralOptions::addZOption(const ZOption& pOption)
   }
 }
 
-bool GeneralOptions::isInExcludeLIBS(const Input& pInput) const
-{
+bool GeneralOptions::isInExcludeLIBS(const Input& pInput) const {
   assert(pInput.type() == Input::Archive);
 
   if (m_ExcludeLIBS.empty()) {

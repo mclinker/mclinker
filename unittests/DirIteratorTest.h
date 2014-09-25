@@ -18,35 +18,33 @@ class Directory;
 class DirIterator;
 }
 }
-} // namespace for mcld
+}  // namespace for mcld
 
-namespace mcldtest
-{
+namespace mcldtest {
 
 /** \class DirIteratorTest
  *  \brief
  *
  *  \see DirIterator
  */
-class DirIteratorTest : public ::testing::Test
-{
-public:
-	// Constructor can do set-up work for all test here.
-	DirIteratorTest();
+class DirIteratorTest : public ::testing::Test {
+ public:
+  // Constructor can do set-up work for all test here.
+  DirIteratorTest();
 
-	// Destructor can do clean-up work that doesn't throw exceptions here.
-	virtual ~DirIteratorTest();
+  // Destructor can do clean-up work that doesn't throw exceptions here.
+  virtual ~DirIteratorTest();
 
-	// SetUp() will be called immediately before each test.
-	virtual void SetUp();
+  // SetUp() will be called immediately before each test.
+  virtual void SetUp();
 
-	// TearDown() will be called immediately after each test.
-	virtual void TearDown();
-protected:
-	mcld::sys::fs::Directory *m_pDir;
+  // TearDown() will be called immediately after each test.
+  virtual void TearDown();
+
+ protected:
+  mcld::sys::fs::Directory* m_pDir;
 };
 
-} // namespace of mcldtest
+}  // namespace of mcldtest
 
 #endif
-

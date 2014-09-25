@@ -20,6 +20,5 @@ LDFileFormat::LDFileFormat()
       f_pReadOnlySection(NULL) {
 }
 
-LDFileFormat::~LDFileFormat()
-{
+LDFileFormat::~LDFileFormat() {
 }

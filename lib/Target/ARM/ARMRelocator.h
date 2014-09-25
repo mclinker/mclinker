@@ -20,9 +20,8 @@ namespace mcld {
  *  \brief ARMRelocator creates and destroys the ARM relocations.
  *
  */
-class ARMRelocator : public Relocator
-{
-public:
+class ARMRelocator : public Relocator {
+ public:
   typedef KeyEntryMap<ResolveInfo, ARMGOTEntry> SymGOTMap;
   typedef KeyEntryMap<ResolveInfo, ARMPLT1> SymPLTMap;
 
@@ -45,10 +44,10 @@ public:
    *
    */
   enum ReservedEntryType {
-    None         = 0,
-    ReserveRel   = 1,
-    ReserveGOT   = 2,
-    ReservePLT   = 4,
+    None = 0,
+    ReserveRel = 1,
+    ReserveGOT = 2,
+    ReservePLT = 4,
   };
 
   /** \enum EntryValue
@@ -56,35 +55,30 @@ public:
    *  layout, so we mark the entry during scanRelocation and fill up the actual
    *  value when applying relocations.
    */
-  enum EntryValue {
-    Default = 0,
-    SymVal  = 1
-  };
+  enum EntryValue { Default = 0, SymVal = 1 };
 
-public:
+ public:
   ARMRelocator(ARMGNULDBackend& pParent, const LinkerConfig& pConfig);
   ~ARMRelocator();
 
   Result applyRelocation(Relocation& pRelocation);
 
-  ARMGNULDBackend& getTarget()
-  { return m_Target; }
+  ARMGNULDBackend& getTarget() { return m_Target; }
 
-  const ARMGNULDBackend& getTarget() const
-  { return m_Target; }
+  const ARMGNULDBackend& getTarget() const { return m_Target; }
 
   const char* getName(Relocation::Type pType) const;
 
   Size getSize(Relocation::Type pType) const;
 
   const SymGOTMap& getSymGOTMap() const { return m_SymGOTMap; }
-  SymGOTMap&       getSymGOTMap()       { return m_SymGOTMap; }
+  SymGOTMap& getSymGOTMap() { return m_SymGOTMap; }
 
   const SymPLTMap& getSymPLTMap() const { return m_SymPLTMap; }
-  SymPLTMap&       getSymPLTMap()       { return m_SymPLTMap; }
+  SymPLTMap& getSymPLTMap() { return m_SymPLTMap; }
 
   const SymGOTMap& getSymGOTPLTMap() const { return m_SymGOTPLTMap; }
-  SymGOTMap&       getSymGOTPLTMap()       { return m_SymGOTPLTMap; }
+  SymGOTMap& getSymGOTPLTMap() { return m_SymGOTPLTMap; }
 
   /// scanRelocation - determine the empty entries are needed or not and create
   /// the empty entries if needed.
@@ -98,12 +92,11 @@ public:
                       LDSection& pSection,
                       Input& pInput);
 
-
   /// mayHaveFunctionPointerAccess - check if the given reloc would possibly
   /// access a function pointer.
   virtual bool mayHaveFunctionPointerAccess(const Relocation& pReloc) const;
 
-private:
+ private:
   void scanLocalReloc(Relocation& pReloc, const LDSection& pSection);
 
   void scanGlobalReloc(Relocation& pReloc,
@@ -122,13 +115,13 @@ private:
   LDSymbol& defineSymbolforCopyReloc(IRBuilder& pLinker,
                                      const ResolveInfo& pSym);
 
-private:
+ private:
   ARMGNULDBackend& m_Target;
   SymGOTMap m_SymGOTMap;
   SymPLTMap m_SymPLTMap;
   SymGOTMap m_SymGOTPLTMap;
 };
 
-} // namespace mcld
+}  // namespace mcld
 
 #endif  // TARGET_ARM_ARMRELOCATOR_H_

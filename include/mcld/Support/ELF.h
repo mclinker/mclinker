@@ -20,9 +20,9 @@ enum SHF {
 
   // Section with data that is GP relative addressable.
   SHF_MIPS_GPREL = 0x10000000
-}; // enum SHF
+};  // enum SHF
 
-} // namespace ELF
-} // namespace mcld
+}  // namespace ELF
+}  // namespace mcld
 
 #endif  // MCLD_SUPPORT_ELF_H_

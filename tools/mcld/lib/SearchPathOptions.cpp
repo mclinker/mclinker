@@ -15,52 +15,53 @@ namespace {
 
 llvm::cl::opt<mcld::sys::fs::Path,
               false,
-              llvm::cl::parser<mcld::sys::fs::Path> > ArgSysRoot("sysroot",
-  llvm::cl::desc("Use directory as the location of the sysroot"),
-  llvm::cl::value_desc("directory"),
-  llvm::cl::ValueRequired);
+              llvm::cl::parser<mcld::sys::fs::Path> >
+    ArgSysRoot("sysroot",
+               llvm::cl::desc("Use directory as the location of the sysroot"),
+               llvm::cl::value_desc("directory"),
+               llvm::cl::ValueRequired);
 
-llvm::cl::list<std::string,
-               bool,
-               llvm::cl::SearchDirParser> ArgSearchDirList("L",
-  llvm::cl::ZeroOrMore,
-  llvm::cl::desc("Add [searchdir] to the list of search paths"),
-  llvm::cl::value_desc("searchdir"),
-  llvm::cl::Prefix);
+llvm::cl::list<std::string, bool, llvm::cl::SearchDirParser> ArgSearchDirList(
+    "L",
+    llvm::cl::ZeroOrMore,
+    llvm::cl::desc("Add [searchdir] to the list of search paths"),
+    llvm::cl::value_desc("searchdir"),
+    llvm::cl::Prefix);
 
 llvm::cl::alias ArgSearchDirListAlias("library-path",
-  llvm::cl::desc("alias for -L"),
-  llvm::cl::aliasopt(ArgSearchDirList));
+                                      llvm::cl::desc("alias for -L"),
+                                      llvm::cl::aliasopt(ArgSearchDirList));
 
-llvm::cl::opt<bool> ArgNoStdlib("nostdlib",
-  llvm::cl::desc("Only search lib dirs explicitly specified on cmdline"),
-  llvm::cl::init(false));
+llvm::cl::opt<bool> ArgNoStdlib(
+    "nostdlib",
+    llvm::cl::desc("Only search lib dirs explicitly specified on cmdline"),
+    llvm::cl::init(false));
 
-llvm::cl::list<std::string,
-               bool,
-               llvm::cl::SearchDirParser> ArgRuntimePath("rpath",
-  llvm::cl::ZeroOrMore,
-  llvm::cl::desc("Add a directory to the runtime library search path"),
-  llvm::cl::value_desc("dir"));
+llvm::cl::list<std::string, bool, llvm::cl::SearchDirParser> ArgRuntimePath(
+    "rpath",
+    llvm::cl::ZeroOrMore,
+    llvm::cl::desc("Add a directory to the runtime library search path"),
+    llvm::cl::value_desc("dir"));
 
 llvm::cl::alias ArgRuntimePathAlias("R",
-  llvm::cl::desc("alias for --rpath"),
-  llvm::cl::aliasopt(ArgRuntimePath), llvm::cl::Prefix);
+                                    llvm::cl::desc("alias for --rpath"),
+                                    llvm::cl::aliasopt(ArgRuntimePath),
+                                    llvm::cl::Prefix);
 
 // Not supported yet {
-llvm::cl::list<std::string,
-               bool,
-               llvm::cl::SearchDirParser> ArgRuntimePathLink("rpath-link",
-  llvm::cl::ZeroOrMore,
-  llvm::cl::desc("Add a directory to the link time library search path"),
-  llvm::cl::value_desc("dir"));
+llvm::cl::list<std::string, bool, llvm::cl::SearchDirParser> ArgRuntimePathLink(
+    "rpath-link",
+    llvm::cl::ZeroOrMore,
+    llvm::cl::desc("Add a directory to the link time library search path"),
+    llvm::cl::value_desc("dir"));
 
-llvm::cl::list<std::string> ArgY("Y",
-  llvm::cl::desc("Add path to the default library search path"),
-  llvm::cl::value_desc("default-search-path"));
+llvm::cl::list<std::string> ArgY(
+    "Y",
+    llvm::cl::desc("Add path to the default library search path"),
+    llvm::cl::value_desc("default-search-path"));
 // } Not supported yet
 
-} // anonymous namespace
+}  // anonymous namespace
 
 using namespace mcld;
 
@@ -68,16 +69,15 @@ using namespace mcld;
 // SearchPathOptions
 //===----------------------------------------------------------------------===//
 SearchPathOptions::SearchPathOptions()
-  : m_SysRoot(ArgSysRoot),
-    m_SearchDirList(ArgSearchDirList),
-    m_NoStdlib(ArgNoStdlib),
-    m_RuntimePath(ArgRuntimePath),
-    m_RuntimePathLink(ArgRuntimePathLink),
-    m_Y(ArgY) {
+    : m_SysRoot(ArgSysRoot),
+      m_SearchDirList(ArgSearchDirList),
+      m_NoStdlib(ArgNoStdlib),
+      m_RuntimePath(ArgRuntimePath),
+      m_RuntimePathLink(ArgRuntimePathLink),
+      m_Y(ArgY) {
 }
 
-bool SearchPathOptions::parse(LinkerConfig& pConfig, LinkerScript& pScript)
-{
+bool SearchPathOptions::parse(LinkerConfig& pConfig, LinkerScript& pScript) {
   // set --sysroot
   if (!m_SysRoot.empty()) {
     if (exists(m_SysRoot) && is_directory(m_SysRoot))
@@ -90,9 +90,7 @@ bool SearchPathOptions::parse(LinkerConfig& pConfig, LinkerScript& pScript)
   for (sd = m_SearchDirList.begin(); sd != sdEnd; ++sd) {
     if (!pScript.directories().insert(*sd)) {
       // FIXME: need a warning function
-      errs() << "WARNING: can not open search directory `-L"
-             << *sd
-             << "'.\n";
+      errs() << "WARNING: can not open search directory `-L" << *sd << "'.\n";
     }
   }
 
@@ -108,4 +106,3 @@ bool SearchPathOptions::parse(LinkerConfig& pConfig, LinkerScript& pScript)
 
   return true;
 }
-

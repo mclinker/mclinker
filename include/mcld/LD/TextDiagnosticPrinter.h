@@ -12,17 +12,15 @@
 
 #include <llvm/Support/raw_ostream.h>
 
-namespace mcld
-{
+namespace mcld {
 
 class LinkerConfig;
 
 /** \class TextDiagnosticPrinter
  *  \brief The plain, text-based DiagnosticPrinter.
  */
-class TextDiagnosticPrinter : public DiagnosticPrinter
-{
-public:
+class TextDiagnosticPrinter : public DiagnosticPrinter {
+ public:
   TextDiagnosticPrinter(llvm::raw_ostream& pOStream,
                         const LinkerConfig& pConfig);
 
@@ -37,12 +35,12 @@ public:
 
   virtual void endInput();
 
-private:
+ private:
   llvm::raw_ostream& m_OStream;
   const LinkerConfig& m_Config;
   const Input* m_pInput;
 };
 
-} // namespace mcld
+}  // namespace mcld
 
 #endif  // MCLD_LD_TEXTDIAGNOSTICPRINTER_H_

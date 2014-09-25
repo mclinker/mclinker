@@ -48,20 +48,19 @@ InputCmd::InputCmd(StringList& pStringList,
       m_ObjectReader(pObjectReader),
       m_ArchiveReader(pArchiveReader),
       m_DynObjReader(pDynObjReader),
-      m_Config(pConfig)
-{
+      m_Config(pConfig) {
 }
 
-InputCmd::~InputCmd()
-{
+InputCmd::~InputCmd() {
 }
 
-void InputCmd::dump() const
-{
+void InputCmd::dump() const {
   mcld::outs() << "INPUT ( ";
   bool prev = false, cur = false;
   for (StringList::const_iterator it = m_StringList.begin(),
-       ie = m_StringList.end(); it != ie; ++it) {
+                                  ie = m_StringList.end();
+       it != ie;
+       ++it) {
     assert((*it)->kind() == StrToken::Input);
     InputToken* input = llvm::cast<InputToken>(*it);
     cur = input->asNeeded();
@@ -83,8 +82,7 @@ void InputCmd::dump() const
   mcld::outs() << " )\n";
 }
 
-void InputCmd::activate(Module& pModule)
-{
+void InputCmd::activate(Module& pModule) {
   LinkerScript& script = pModule.getScript();
   // construct the INPUT tree
   m_Builder.setCurrentTree(m_InputTree);
@@ -93,8 +91,9 @@ void InputCmd::activate(Module& pModule)
   InputTree::iterator input_begin;
 
   for (StringList::const_iterator it = m_StringList.begin(),
-       ie = m_StringList.end(); it != ie; ++it) {
-
+                                  ie = m_StringList.end();
+       it != ie;
+       ++it) {
     assert((*it)->kind() == StrToken::Input);
     InputToken* token = llvm::cast<InputToken>(*it);
     if (token->asNeeded())
@@ -110,15 +109,15 @@ void InputCmd::activate(Module& pModule)
         // configured and the filename starts with '/'
         if (script.hasSysroot() &&
             (token->name().size() > 0 && token->name()[0] == '/')) {
-            path = script.sysroot();
-            path.append(token->name());
+          path = script.sysroot();
+          path.append(token->name());
         } else {
           // 2. Try to open the file in CWD
           path.assign(token->name());
           if (!sys::fs::exists(path)) {
             // 3. Search through the library search path
-            sys::fs::Path* p = script.directories().find(token->name(),
-                                                         Input::Script);
+            sys::fs::Path* p =
+                script.directories().find(token->name(), Input::Script);
             if (p != NULL)
               path = *p;
           }
@@ -127,9 +126,8 @@ void InputCmd::activate(Module& pModule)
         if (!sys::fs::exists(path))
           fatal(diag::err_cannot_open_input) << path.filename() << path;
 
-        m_Builder.createNode<InputTree::Positional>(path.filename().native(),
-                                                    path,
-                                                    Input::Unknown);
+        m_Builder.createNode<InputTree::Positional>(
+            path.filename().native(), path, Input::Unknown);
         break;
       }
       case InputToken::NameSpec: {
@@ -155,15 +153,14 @@ void InputCmd::activate(Module& pModule)
         if (path == NULL)
           fatal(diag::err_cannot_find_namespec) << token->name();
 
-        m_Builder.createNode<InputTree::Positional>(token->name(),
-                                                    *path,
-                                                    Input::Unknown);
+        m_Builder.createNode<InputTree::Positional>(
+            token->name(), *path, Input::Unknown);
         break;
       }
       default:
         assert(0 && "Invalid script token in INPUT!");
         break;
-    } // end of switch
+    }  // end of switch
 
     InputTree::iterator input = m_Builder.getCurrentNode();
     if (!is_begin_marked) {
@@ -179,7 +176,8 @@ void InputCmd::activate(Module& pModule)
   }
 
   for (InputTree::iterator input = input_begin, ie = m_InputTree.end();
-       input != ie; ++input) {
+       input != ie;
+       ++input) {
     bool doContinue = false;
     if (m_ObjectReader.isMyFormat(**input, doContinue)) {
       (*input)->setType(Input::Object);
@@ -199,13 +197,13 @@ void InputCmd::activate(Module& pModule)
       }
       Archive archive(**input, m_Builder);
       m_ArchiveReader.readArchive(m_Config, archive);
-      if(archive.numOfObjectMember() > 0) {
+      if (archive.numOfObjectMember() > 0) {
         m_InputTree.merge<InputTree::Inclusive>(input, archive.inputs());
       }
     } else {
       if (m_Config.options().warnMismatch())
-        warning(diag::warn_unrecognized_input_file) << (*input)->path()
-            << m_Config.targets().triple().str();
+        warning(diag::warn_unrecognized_input_file)
+            << (*input)->path() << m_Config.targets().triple().str();
     }
   }
 }

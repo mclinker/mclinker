@@ -22,38 +22,37 @@ class Attribute;
  *  Clients delegates Attributes to AttributeSet. AttributeSet deletes delegated
  *  Attributes during destruction.
  */
-class AttributeSet : private Uncopyable
-{
-private:
+class AttributeSet : private Uncopyable {
+ private:
   typedef std::vector<Attribute*> AttrSet;
 
-public:
+ public:
   typedef AttrSet::iterator iterator;
   typedef AttrSet::const_iterator const_iterator;
 
-public:
+ public:
   AttributeSet(unsigned int pNum, const Attribute& pPredefined);
 
   ~AttributeSet();
 
   // -----  iterators  ----- //
   const_iterator begin() const { return m_AttrSet.begin(); }
-  iterator       begin()       { return m_AttrSet.begin(); }
-  const_iterator end  () const { return m_AttrSet.end(); }
-  iterator       end  ()       { return m_AttrSet.end(); }
+  iterator begin() { return m_AttrSet.begin(); }
+  const_iterator end() const { return m_AttrSet.end(); }
+  iterator end() { return m_AttrSet.end(); }
 
   // exists- return the recorded attribute whose content is identical to the
   // input attribute.
-  Attribute *exists(const Attribute& pAttr) const;
+  Attribute* exists(const Attribute& pAttr) const;
 
   // record - record the attribute no mater if it has been recorded.
   void record(Attribute& pAttr);
 
-private:
+ private:
   AttrSet m_AttrSet;
   const Attribute& m_Predefined;
 };
 
-} // namespace mcld
+}  // namespace mcld
 
 #endif  // MCLD_MC_ATTRIBUTESET_H_

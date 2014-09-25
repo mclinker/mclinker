@@ -26,20 +26,17 @@ static llvm::ManagedStatic<RelocationFactory> g_RelocationFactory;
 // Relocation Factory Methods
 //===----------------------------------------------------------------------===//
 /// Initialize - set up the relocation factory
-void Relocation::SetUp(const LinkerConfig& pConfig)
-{
+void Relocation::SetUp(const LinkerConfig& pConfig) {
   g_RelocationFactory->setConfig(pConfig);
 }
 
 /// Clear - Clean up the relocation factory
-void Relocation::Clear()
-{
+void Relocation::Clear() {
   g_RelocationFactory->clear();
 }
 
 /// Create - produce an empty relocation entry
-Relocation* Relocation::Create()
-{
+Relocation* Relocation::Create() {
   return g_RelocationFactory->produceEmptyEntry();
 }
 
@@ -49,14 +46,12 @@ Relocation* Relocation::Create()
 /// @param pAddend  [in] the addend of the relocation entry
 Relocation* Relocation::Create(Type pType,
                                FragmentRef& pFragRef,
-                               Address pAddend)
-{
+                               Address pAddend) {
   return g_RelocationFactory->produce(pType, pFragRef, pAddend);
 }
 
 /// Destroy - destroy a relocation entry
-void Relocation::Destroy(Relocation*& pRelocation)
-{
+void Relocation::Destroy(Relocation*& pRelocation) {
   g_RelocationFactory->destroy(pRelocation);
   pRelocation = NULL;
 }
@@ -75,24 +70,20 @@ Relocation::Relocation(Relocation::Type pType,
     : m_Type(pType),
       m_TargetData(pTargetData),
       m_pSymInfo(NULL),
-      m_Addend(pAddend)
-{
+      m_Addend(pAddend) {
   if (pTargetRef != NULL)
-    m_TargetAddress.assign(*pTargetRef->frag(), pTargetRef->offset()) ;
+    m_TargetAddress.assign(*pTargetRef->frag(), pTargetRef->offset());
 }
 
-Relocation::~Relocation()
-{
+Relocation::~Relocation() {
 }
 
-Relocation::Address Relocation::place() const
-{
+Relocation::Address Relocation::place() const {
   Address sect_addr = m_TargetAddress.frag()->getParent()->getSection().addr();
   return sect_addr + m_TargetAddress.getOutputOffset();
 }
 
-Relocation::Address Relocation::symValue() const
-{
+Relocation::Address Relocation::symValue() const {
   if (m_pSymInfo->type() == ResolveInfo::Section &&
       m_pSymInfo->outSymbol()->hasFragRef()) {
     const FragmentRef* fragRef = m_pSymInfo->outSymbol()->fragRef();
@@ -102,8 +93,7 @@ Relocation::Address Relocation::symValue() const
   return m_pSymInfo->outSymbol()->value();
 }
 
-void Relocation::apply(Relocator& pRelocator)
-{
+void Relocation::apply(Relocator& pRelocator) {
   Relocator::Result result = pRelocator.applyRelocation(*this);
 
   switch (result) {
@@ -130,31 +120,26 @@ void Relocation::apply(Relocator& pRelocator)
       fatal(diag::unknown_relocation) << type() << symInfo()->name();
       return;
     }
-  } // end of switch
+  }  // end of switch
 }
 
-void Relocation::setType(Type pType)
-{
+void Relocation::setType(Type pType) {
   m_Type = pType;
 }
 
-void Relocation::setAddend(Address pAddend)
-{
+void Relocation::setAddend(Address pAddend) {
   m_Addend = pAddend;
 }
 
-void Relocation::setSymInfo(ResolveInfo* pSym)
-{
+void Relocation::setSymInfo(ResolveInfo* pSym) {
   m_pSymInfo = pSym;
 }
 
-Relocation::Size Relocation::size(Relocator& pRelocator) const
-{
+Relocation::Size Relocation::size(Relocator& pRelocator) const {
   return pRelocator.getSize(m_Type);
 }
 
-void Relocation::updateAddend()
-{
+void Relocation::updateAddend() {
   // Update value keep in addend if we meet a section symbol
   if (m_pSymInfo->type() == ResolveInfo::Section) {
     uint32_t offset = m_pSymInfo->outSymbol()->fragRef()->getOutputOffset();

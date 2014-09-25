@@ -1,4 +1,4 @@
-//===- ARMPLT.cpp -----------------------------------------------------------===//
+//===- ARMPLT.cpp ---------------------------------------------------------===//
 //
 //                     The MCLinker Project
 //
@@ -18,33 +18,30 @@
 
 using namespace mcld;
 
-ARMPLT0::ARMPLT0(SectionData& pParent)
-    : PLT::Entry<sizeof(arm_plt0)>(pParent) {}
+ARMPLT0::ARMPLT0(SectionData& pParent) : PLT::Entry<sizeof(arm_plt0)>(pParent) {
+}
 
-ARMPLT1::ARMPLT1(SectionData& pParent)
-    : PLT::Entry<sizeof(arm_plt1)>(pParent) {}
+ARMPLT1::ARMPLT1(SectionData& pParent) : PLT::Entry<sizeof(arm_plt1)>(pParent) {
+}
 
 //===----------------------------------------------------------------------===//
 // ARMPLT
 
-ARMPLT::ARMPLT(LDSection& pSection, ARMGOT &pGOTPLT)
+ARMPLT::ARMPLT(LDSection& pSection, ARMGOT& pGOTPLT)
     : PLT(pSection), m_GOT(pGOTPLT) {
   new ARMPLT0(*m_pSectionData);
 }
 
-ARMPLT::~ARMPLT()
-{
+ARMPLT::~ARMPLT() {
 }
 
-bool ARMPLT::hasPLT1() const
-{
+bool ARMPLT::hasPLT1() const {
   return (m_pSectionData->size() > 1);
 }
 
-void ARMPLT::finalizeSectionSize()
-{
-  uint64_t size = (m_pSectionData->size() - 1) * sizeof(arm_plt1) +
-                  sizeof(arm_plt0);
+void ARMPLT::finalizeSectionSize() {
+  uint64_t size =
+      (m_pSectionData->size() - 1) * sizeof(arm_plt1) + sizeof(arm_plt0);
   m_Section.setSize(size);
 
   uint32_t offset = 0;
@@ -55,16 +52,14 @@ void ARMPLT::finalizeSectionSize()
   }
 }
 
-ARMPLT1* ARMPLT::create()
-{
+ARMPLT1* ARMPLT::create() {
   ARMPLT1* plt1_entry = new (std::nothrow) ARMPLT1(*m_pSectionData);
   if (!plt1_entry)
     fatal(diag::fail_allocate_memory_plt);
   return plt1_entry;
 }
 
-void ARMPLT::applyPLT0()
-{
+void ARMPLT::applyPLT0() {
   uint64_t plt_base = m_Section.addr();
   assert(plt_base && ".plt base address is NULL!");
 
@@ -97,8 +92,7 @@ void ARMPLT::applyPLT0()
   plt0->setValue(reinterpret_cast<unsigned char*>(data));
 }
 
-void ARMPLT::applyPLT1()
-{
+void ARMPLT::applyPLT1() {
   uint64_t plt_base = m_Section.addr();
   assert(plt_base && ".plt base address is NULL!");
 
@@ -110,11 +104,11 @@ void ARMPLT::applyPLT1()
   assert(it != ie && "FragmentList is empty, applyPLT1 failed!");
 
   uint32_t GOTEntrySize = ARMGOTEntry::EntrySize;
-  uint32_t GOTEntryAddress = got_base +  GOTEntrySize * 3;
+  uint32_t GOTEntryAddress = got_base + GOTEntrySize * 3;
 
-  uint64_t PLTEntryAddress = plt_base + ARMPLT0::EntrySize; //Offset of PLT0
+  uint64_t PLTEntryAddress = plt_base + ARMPLT0::EntrySize;  // Offset of PLT0
 
-  ++it; //skip PLT0
+  ++it;  // skip PLT0
   uint64_t PLT1EntrySize = ARMPLT1::EntrySize;
   ARMPLT1* plt1 = NULL;
 
@@ -144,8 +138,7 @@ void ARMPLT::applyPLT1()
   m_GOT.applyGOTPLT(plt_base);
 }
 
-uint64_t ARMPLT::emit(MemoryRegion& pRegion)
-{
+uint64_t ARMPLT::emit(MemoryRegion& pRegion) {
   uint64_t result = 0x0;
   iterator it = begin();
 

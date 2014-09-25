@@ -28,13 +28,11 @@ using namespace mcld;
 // X86_32 Relocation helper function
 //===--------------------------------------------------------------------===//
 /// helper_DynRel - Get an relocation entry in .rel.dyn
-static
-Relocation& helper_DynRel_init(ResolveInfo* pSym,
-                               Fragment& pFrag,
-                               uint64_t pOffset,
-                               Relocator::Type pType,
-                               X86_32Relocator& pParent)
-{
+static Relocation& helper_DynRel_init(ResolveInfo* pSym,
+                                      Fragment& pFrag,
+                                      uint64_t pOffset,
+                                      Relocator::Type pType,
+                                      X86_32Relocator& pParent) {
   X86_32GNULDBackend& ld_backend = pParent.getTarget();
   Relocation& rel_entry = *ld_backend.getRelDyn().create();
   rel_entry.setType(pType);
@@ -54,8 +52,7 @@ static bool helper_use_relative_reloc(const ResolveInfo& pSym,
 
 {
   // if symbol is dynamic or undefine or preemptible
-  if (pSym.isDyn() ||
-      pSym.isUndef() ||
+  if (pSym.isDyn() || pSym.isUndef() ||
       pFactory.getTarget().isSymbolPreemptible(pSym))
     return false;
   return true;
@@ -63,8 +60,7 @@ static bool helper_use_relative_reloc(const ResolveInfo& pSym,
 
 static X86_32GOTEntry& helper_GOT_init(Relocation& pReloc,
                                        bool pHasRel,
-                                       X86_32Relocator& pParent)
-{
+                                       X86_32Relocator& pParent) {
   // rsym - The relocation target symbol
   ResolveInfo* rsym = pReloc.symInfo();
   X86_32GNULDBackend& ld_backend = pParent.getTarget();
@@ -79,34 +75,31 @@ static X86_32GOTEntry& helper_GOT_init(Relocation& pReloc,
   } else {
     // Initialize got_entry content and the corresponding dynamic relocation.
     if (helper_use_relative_reloc(*rsym, pParent)) {
-      helper_DynRel_init(rsym, *got_entry, 0x0, llvm::ELF::R_386_RELATIVE,
-                         pParent);
+      helper_DynRel_init(
+          rsym, *got_entry, 0x0, llvm::ELF::R_386_RELATIVE, pParent);
       got_entry->setValue(X86Relocator::SymVal);
     } else {
-      helper_DynRel_init(rsym, *got_entry, 0x0, llvm::ELF::R_386_GLOB_DAT,
-                         pParent);
+      helper_DynRel_init(
+          rsym, *got_entry, 0x0, llvm::ELF::R_386_GLOB_DAT, pParent);
       got_entry->setValue(0x0);
     }
   }
   return *got_entry;
 }
 
-static Relocator::Address helper_GOT_ORG(X86_32Relocator& pParent)
-{
+static Relocator::Address helper_GOT_ORG(X86_32Relocator& pParent) {
   return pParent.getTarget().getGOTPLT().addr();
 }
 
 static Relocator::Address helper_get_GOT_address(Relocation& pReloc,
-                                                 X86_32Relocator& pParent)
-{
+                                                 X86_32Relocator& pParent) {
   X86_32GOTEntry* got_entry = pParent.getSymGOTMap().lookUp(*pReloc.symInfo());
   assert(got_entry != NULL);
   return pParent.getTarget().getGOT().addr() + got_entry->getOffset();
 }
 
-static
-PLTEntryBase& helper_PLT_init(Relocation& pReloc, X86_32Relocator& pParent)
-{
+static PLTEntryBase& helper_PLT_init(Relocation& pReloc,
+                                     X86_32Relocator& pParent) {
   // rsym - The relocation target symbol
   ResolveInfo* rsym = pReloc.symInfo();
   X86_32GNULDBackend& ld_backend = pParent.getTarget();
@@ -130,8 +123,7 @@ PLTEntryBase& helper_PLT_init(Relocation& pReloc, X86_32Relocator& pParent)
 }
 
 static Relocator::Address helper_get_PLT_address(ResolveInfo& pSym,
-                                                 X86_32Relocator& pParent)
-{
+                                                 X86_32Relocator& pParent) {
   PLTEntryBase* plt_entry = pParent.getSymPLTMap().lookUp(pSym);
   assert(plt_entry != NULL);
   return pParent.getTarget().getPLT().addr() + plt_entry->getOffset();
@@ -147,8 +139,7 @@ typedef Relocator::Result (*X86_32ApplyFunctionType)(Relocation& pReloc,
                                                      X86_32Relocator& pParent);
 
 // the table entry of applying functions
-struct X86_32ApplyFunctionTriple
-{
+struct X86_32ApplyFunctionTriple {
   X86_32ApplyFunctionType func;
   unsigned int type;
   const char* name;
@@ -157,26 +148,22 @@ struct X86_32ApplyFunctionTriple
 
 // declare the table of applying functions
 static const X86_32ApplyFunctionTriple X86_32ApplyFunctions[] = {
-  DECL_X86_32_APPLY_RELOC_FUNC_PTRS
-};
+    DECL_X86_32_APPLY_RELOC_FUNC_PTRS};
 
 //===--------------------------------------------------------------------===//
 // X86Relocator
 //===--------------------------------------------------------------------===//
-X86Relocator::X86Relocator(const LinkerConfig& pConfig)
-    : Relocator(pConfig) {
+X86Relocator::X86Relocator(const LinkerConfig& pConfig) : Relocator(pConfig) {
 }
 
-X86Relocator::~X86Relocator()
-{
+X86Relocator::~X86Relocator() {
 }
 
 void X86Relocator::scanRelocation(Relocation& pReloc,
                                   IRBuilder& pLinker,
                                   Module& pModule,
                                   LDSection& pSection,
-                                  Input& pInput)
-{
+                                  Input& pInput) {
   if (LinkerConfig::Object == config().codeGenType())
     return;
   // rsym - The relocation target symbol
@@ -190,9 +177,9 @@ void X86Relocator::scanRelocation(Relocation& pReloc,
 
   // Scan relocation type to determine if the GOT/PLT/Dynamic Relocation
   // entries should be created.
-  if (rsym->isLocal()) // rsym is local
+  if (rsym->isLocal())  // rsym is local
     scanLocalReloc(pReloc, pLinker, pModule, pSection);
-  else // rsym is external
+  else  // rsym is external
     scanGlobalReloc(pReloc, pLinker, pModule, pSection);
 
   // check if we should issue undefined reference for the relocation target
@@ -201,8 +188,7 @@ void X86Relocator::scanRelocation(Relocation& pReloc,
     issueUndefRef(pReloc, pSection, pInput);
 }
 
-void X86Relocator::addCopyReloc(ResolveInfo& pSym, X86GNULDBackend& pTarget)
-{
+void X86Relocator::addCopyReloc(ResolveInfo& pSym, X86GNULDBackend& pTarget) {
   Relocation& rel_entry = *pTarget.getRelDyn().create();
   rel_entry.setType(pTarget.getCopyRelType());
   assert(pSym.outSymbol()->hasFragRef());
@@ -217,8 +203,7 @@ void X86Relocator::addCopyReloc(ResolveInfo& pSym, X86GNULDBackend& pTarget)
 /// @note This is executed at `scan relocation' stage.
 LDSymbol& X86Relocator::defineSymbolforCopyReloc(IRBuilder& pBuilder,
                                                  const ResolveInfo& pSym,
-                                                 X86GNULDBackend& pTarget)
-{
+                                                 X86GNULDBackend& pTarget) {
   // get or create corresponding BSS LDSection
   LDSection* bss_sect_hdr = NULL;
   ELFFileFormat* file_format = pTarget.getOutputFormat();
@@ -241,9 +226,7 @@ LDSymbol& X86Relocator::defineSymbolforCopyReloc(IRBuilder& pBuilder,
 
   // allocate space in BSS for the copy symbol
   Fragment* frag = new FillFragment(0x0, 1, pSym.size());
-  uint64_t size = ObjectBuilder::AppendFragment(*frag,
-                                                *bss_section,
-                                                addralign);
+  uint64_t size = ObjectBuilder::AppendFragment(*frag, *bss_section, addralign);
   bss_sect_hdr->setSize(bss_sect_hdr->size() + size);
 
   // change symbol binding to Global if it's a weak symbol
@@ -253,17 +236,17 @@ LDSymbol& X86Relocator::defineSymbolforCopyReloc(IRBuilder& pBuilder,
 
   // Define the copy symbol in the bss section and resolve it
   LDSymbol* cpy_sym = pBuilder.AddSymbol<IRBuilder::Force, IRBuilder::Resolve>(
-                         pSym.name(),
-                         (ResolveInfo::Type)pSym.type(),
-                         ResolveInfo::Define,
-                         binding,
-                         pSym.size(),  // size
-                         0x0,          // value
-                         FragmentRef::Create(*frag, 0x0),
-                         (ResolveInfo::Visibility)pSym.other());
+      pSym.name(),
+      (ResolveInfo::Type)pSym.type(),
+      ResolveInfo::Define,
+      binding,
+      pSym.size(),  // size
+      0x0,          // value
+      FragmentRef::Create(*frag, 0x0),
+      (ResolveInfo::Visibility)pSym.other());
 
   // output all other alias symbols if any
-  Module &pModule = pBuilder.getModule();
+  Module& pModule = pBuilder.getModule();
   Module::AliasList* alias_list = pModule.getAliasList(pSym);
   if (alias_list != NULL) {
     Module::alias_iterator it, it_e = alias_list->end();
@@ -276,7 +259,7 @@ LDSymbol& X86Relocator::defineSymbolforCopyReloc(IRBuilder& pBuilder,
             ResolveInfo::Define,
             binding,
             alias->size(),  // size
-            0x0,          // value
+            0x0,            // value
             FragmentRef::Create(*frag, 0x0),
             (ResolveInfo::Visibility)alias->other());
       }
@@ -294,8 +277,7 @@ X86_32Relocator::X86_32Relocator(X86_32GNULDBackend& pParent,
     : X86Relocator(pConfig), m_Target(pParent) {
 }
 
-Relocator::Result X86_32Relocator::applyRelocation(Relocation& pRelocation)
-{
+Relocator::Result X86_32Relocator::applyRelocation(Relocation& pRelocation) {
   Relocation::Type type = pRelocation.type();
 
   if (type >= sizeof(X86_32ApplyFunctions) / sizeof(X86_32ApplyFunctions[0])) {
@@ -306,19 +288,17 @@ Relocator::Result X86_32Relocator::applyRelocation(Relocation& pRelocation)
   return X86_32ApplyFunctions[type].func(pRelocation, *this);
 }
 
-const char* X86_32Relocator::getName(Relocation::Type pType) const
-{
+const char* X86_32Relocator::getName(Relocation::Type pType) const {
   return X86_32ApplyFunctions[pType].name;
 }
 
-Relocator::Size X86_32Relocator::getSize(Relocation::Type pType) const
-{
-  return X86_32ApplyFunctions[pType].size;;
+Relocator::Size X86_32Relocator::getSize(Relocation::Type pType) const {
+  return X86_32ApplyFunctions[pType].size;
+  ;
 }
 
-bool
-X86_32Relocator::mayHaveFunctionPointerAccess(const Relocation& pReloc) const
-{
+bool X86_32Relocator::mayHaveFunctionPointerAccess(
+    const Relocation& pReloc) const {
   switch (pReloc.type()) {
     case llvm::ELF::R_386_32:
     case llvm::ELF::R_386_16:
@@ -327,22 +307,18 @@ X86_32Relocator::mayHaveFunctionPointerAccess(const Relocation& pReloc) const
     case llvm::ELF::R_386_GOT32: {
       return true;
     }
-    default: {
-      return false;
-    }
+    default: { return false; }
   }
 }
 
 void X86_32Relocator::scanLocalReloc(Relocation& pReloc,
                                      IRBuilder& pBuilder,
                                      Module& pModule,
-                                     LDSection& pSection)
-{
+                                     LDSection& pSection) {
   // rsym - The relocation target symbol
   ResolveInfo* rsym = pReloc.symInfo();
 
-  switch(pReloc.type()){
-
+  switch (pReloc.type()) {
     case llvm::ELF::R_386_32:
       // If buiding PIC object (shared library or PIC executable),
       // a dynamic relocations with RELATIVE type to this location is needed.
@@ -367,8 +343,11 @@ void X86_32Relocator::scanLocalReloc(Relocation& pReloc,
       // Reserve an entry in .rel.dyn
       if (config().isCodeIndep()) {
         // set up the dyn rel directly
-        helper_DynRel_init(rsym, *pReloc.targetRef().frag(),
-                           pReloc.targetRef().offset(), pReloc.type(), *this);
+        helper_DynRel_init(rsym,
+                           *pReloc.targetRef().frag(),
+                           pReloc.targetRef().offset(),
+                           pReloc.type(),
+                           *this);
         // set Rel bit
         rsym->setReserved(rsym->reserved() | ReserveRel);
         getTarget().checkAndSetHasTextRel(*pSection.getLink());
@@ -445,9 +424,8 @@ void X86_32Relocator::scanLocalReloc(Relocation& pReloc,
       got_entry1->setValue(0x0);
 
       // setup dyn rel for got_entry1
-      Relocation& rel_entry1 =
-          helper_DynRel_init(rsym, *got_entry1, 0x0,
-                             llvm::ELF::R_386_TLS_DTPMOD32, *this);
+      Relocation& rel_entry1 = helper_DynRel_init(
+          rsym, *got_entry1, 0x0, llvm::ELF::R_386_TLS_DTPMOD32, *this);
       // for local tls symbol, add rel entry against the section symbol this
       // symbol belong to (.tdata or .tbss)
       rel_entry1.setSymInfo(sect_sym->resolveInfo());
@@ -465,9 +443,11 @@ void X86_32Relocator::scanLocalReloc(Relocation& pReloc,
 
       // if building shared object, a RELATIVE dynamic relocation is needed
       if (LinkerConfig::DynObj == config().codeGenType()) {
-         helper_DynRel_init(rsym, *pReloc.targetRef().frag(),
-                            pReloc.targetRef().offset(),
-                            llvm::ELF::R_386_RELATIVE, *this);
+        helper_DynRel_init(rsym,
+                           *pReloc.targetRef().frag(),
+                           pReloc.targetRef().offset(),
+                           llvm::ELF::R_386_RELATIVE,
+                           *this);
         rsym->setReserved(rsym->reserved() | ReserveRel);
         getTarget().checkAndSetHasTextRel(*pSection.getLink());
       } else {
@@ -483,8 +463,8 @@ void X86_32Relocator::scanLocalReloc(Relocation& pReloc,
       X86_32GOTEntry* got_entry = getTarget().getGOT().create();
       getSymGOTMap().record(*rsym, *got_entry);
       got_entry->setValue(0x0);
-      helper_DynRel_init(rsym, *got_entry, 0x0, llvm::ELF::R_386_TLS_TPOFF,
-                         *this);
+      helper_DynRel_init(
+          rsym, *got_entry, 0x0, llvm::ELF::R_386_TLS_TPOFF, *this);
       // set GOT bit
       rsym->setReserved(rsym->reserved() | ReserveGOT);
       // add symbol to dyn sym table
@@ -500,8 +480,8 @@ void X86_32Relocator::scanLocalReloc(Relocation& pReloc,
       X86_32GOTEntry* got_entry = getTarget().getGOT().create();
       getSymGOTMap().record(*rsym, *got_entry);
       got_entry->setValue(0x0);
-      helper_DynRel_init(rsym, *got_entry, 0x0, llvm::ELF::R_386_TLS_TPOFF,
-                         *this);
+      helper_DynRel_init(
+          rsym, *got_entry, 0x0, llvm::ELF::R_386_TLS_TPOFF, *this);
       // set GOT bit
       rsym->setReserved(rsym->reserved() | ReserveGOT);
       getTarget().getRelDyn().addSymbolToDynSym(*rsym->outSymbol());
@@ -531,18 +511,17 @@ void X86_32Relocator::scanLocalReloc(Relocation& pReloc,
       fatal(diag::unsupported_relocation) << (int)pReloc.type()
                                           << "mclinker@googlegroups.com";
       break;
-  } // end switch
+  }  // end switch
 }
 
 void X86_32Relocator::scanGlobalReloc(Relocation& pReloc,
                                       IRBuilder& pBuilder,
                                       Module& pModule,
-                                      LDSection& pSection)
-{
+                                      LDSection& pSection) {
   // rsym - The relocation target symbol
   ResolveInfo* rsym = pReloc.symInfo();
 
-  switch(pReloc.type()) {
+  switch (pReloc.type()) {
     case llvm::ELF::R_386_32:
     case llvm::ELF::R_386_16:
     case llvm::ELF::R_386_8:
@@ -550,7 +529,7 @@ void X86_32Relocator::scanGlobalReloc(Relocation& pReloc,
       // dynamic relocation entry
       if (getTarget().symbolNeedsPLT(*rsym)) {
         // create plt for this symbol if it does not have one
-        if (!(rsym->reserved() & ReservePLT)){
+        if (!(rsym->reserved() & ReservePLT)) {
           // Symbol needs PLT entry, we need a PLT entry
           // and the corresponding GOT and dynamic relocation entry
           // in .got and .rel.plt.
@@ -560,11 +539,13 @@ void X86_32Relocator::scanGlobalReloc(Relocation& pReloc,
         }
       }
 
-      if (getTarget().symbolNeedsDynRel(*rsym, (rsym->reserved() & ReservePLT),
-                                        true)) {
+      if (getTarget()
+              .symbolNeedsDynRel(
+                  *rsym, (rsym->reserved() & ReservePLT), true)) {
         // symbol needs dynamic relocation entry, set up the dynrel entry
         if (getTarget().symbolNeedsCopyReloc(pReloc, *rsym)) {
-          LDSymbol& cpy_sym = defineSymbolforCopyReloc(pBuilder, *rsym, getTarget());
+          LDSymbol& cpy_sym =
+              defineSymbolforCopyReloc(pBuilder, *rsym, getTarget());
           addCopyReloc(*cpy_sym.resolveInfo(), getTarget());
         } else {
           // set Rel bit and the dyn rel
@@ -641,7 +622,7 @@ void X86_32Relocator::scanGlobalReloc(Relocation& pReloc,
       if (getTarget().symbolNeedsPLT(*rsym) &&
           LinkerConfig::DynObj != config().codeGenType()) {
         // create plt for this symbol if it does not have one
-        if (!(rsym->reserved() & ReservePLT)){
+        if (!(rsym->reserved() & ReservePLT)) {
           // Symbol needs PLT entry, we need a PLT entry
           // and the corresponding GOT and dynamic relocation entry
           // in .got and .rel.plt.
@@ -651,8 +632,9 @@ void X86_32Relocator::scanGlobalReloc(Relocation& pReloc,
         }
       }
 
-      if (getTarget().symbolNeedsDynRel(*rsym, (rsym->reserved() & ReservePLT),
-                                        false)) {
+      if (getTarget()
+              .symbolNeedsDynRel(
+                  *rsym, (rsym->reserved() & ReservePLT), false)) {
         // symbol needs dynamic relocation entry, setup an entry in .rel.dyn
         if (getTarget().symbolNeedsCopyReloc(pReloc, *rsym)) {
           LDSymbol& cpy_sym =
@@ -692,10 +674,10 @@ void X86_32Relocator::scanGlobalReloc(Relocation& pReloc,
       got_entry1->setValue(0x0);
       got_entry2->setValue(0x0);
       // setup dyn rel for got entries against rsym
-      helper_DynRel_init(rsym, *got_entry1, 0x0, llvm::ELF::R_386_TLS_DTPMOD32,
-                         *this);
-      helper_DynRel_init(rsym, *got_entry2, 0x0, llvm::ELF::R_386_TLS_DTPOFF32,
-                         *this);
+      helper_DynRel_init(
+          rsym, *got_entry1, 0x0, llvm::ELF::R_386_TLS_DTPMOD32, *this);
+      helper_DynRel_init(
+          rsym, *got_entry2, 0x0, llvm::ELF::R_386_TLS_DTPOFF32, *this);
 
       // add the rsym to dynamic symbol table
       getTarget().getRelDyn().addSymbolToDynSym(*rsym->outSymbol());
@@ -715,9 +697,11 @@ void X86_32Relocator::scanGlobalReloc(Relocation& pReloc,
       getTarget().setHasStaticTLS();
       // if buildint shared object, a RELATIVE dynamic relocation is needed
       if (LinkerConfig::DynObj == config().codeGenType()) {
-        helper_DynRel_init(rsym, *pReloc.targetRef().frag(),
+        helper_DynRel_init(rsym,
+                           *pReloc.targetRef().frag(),
                            pReloc.targetRef().offset(),
-                           llvm::ELF::R_386_RELATIVE, *this);
+                           llvm::ELF::R_386_RELATIVE,
+                           *this);
         rsym->setReserved(rsym->reserved() | ReserveRel);
         getTarget().checkAndSetHasTextRel(*pSection.getLink());
       } else {
@@ -733,8 +717,8 @@ void X86_32Relocator::scanGlobalReloc(Relocation& pReloc,
       X86_32GOTEntry* got_entry = getTarget().getGOT().create();
       getSymGOTMap().record(*rsym, *got_entry);
       got_entry->setValue(0x0);
-      helper_DynRel_init(rsym, *got_entry, 0x0, llvm::ELF::R_386_TLS_TPOFF,
-                         *this);
+      helper_DynRel_init(
+          rsym, *got_entry, 0x0, llvm::ELF::R_386_TLS_TPOFF, *this);
       // set GOT bit
       rsym->setReserved(rsym->reserved() | ReserveGOT);
       return;
@@ -748,8 +732,8 @@ void X86_32Relocator::scanGlobalReloc(Relocation& pReloc,
       X86_32GOTEntry* got_entry = getTarget().getGOT().create();
       getSymGOTMap().record(*rsym, *got_entry);
       got_entry->setValue(0x0);
-      helper_DynRel_init(rsym, *got_entry, 0x0, llvm::ELF::R_386_TLS_TPOFF,
-                         *this);
+      helper_DynRel_init(
+          rsym, *got_entry, 0x0, llvm::ELF::R_386_TLS_TPOFF, *this);
       getTarget().getRelDyn().addSymbolToDynSym(*rsym->outSymbol());
       // set GOT bit
       rsym->setReserved(rsym->reserved() | ReserveGOT);
@@ -777,12 +761,11 @@ void X86_32Relocator::scanGlobalReloc(Relocation& pReloc,
                                           << "mclinker@googlegroups.com";
       break;
     }
-  } // end switch
+  }  // end switch
 }
 
 // Create a GOT entry for the TLS module index
-X86_32GOTEntry& X86_32Relocator::getTLSModuleID()
-{
+X86_32GOTEntry& X86_32Relocator::getTLSModuleID() {
   static X86_32GOTEntry* got_entry = NULL;
   if (got_entry != NULL)
     return *got_entry;
@@ -791,14 +774,14 @@ X86_32GOTEntry& X86_32Relocator::getTLSModuleID()
   got_entry = getTarget().getGOT().create();
   getTarget().getGOT().create()->setValue(0x0);
 
-  helper_DynRel_init(NULL, *got_entry, 0x0, llvm::ELF::R_386_TLS_DTPMOD32,
-                     *this);
+  helper_DynRel_init(
+      NULL, *got_entry, 0x0, llvm::ELF::R_386_TLS_DTPMOD32, *this);
   return *got_entry;
 }
 
 /// convert R_386_TLS_IE to R_386_TLS_LE
-void X86_32Relocator::convertTLSIEtoLE(Relocation& pReloc, LDSection& pSection)
-{
+void X86_32Relocator::convertTLSIEtoLE(Relocation& pReloc,
+                                       LDSection& pSection) {
   assert(pReloc.type() == llvm::ELF::R_386_TLS_IE);
   assert(pReloc.targetRef().frag() != NULL);
 
@@ -812,15 +795,16 @@ void X86_32Relocator::convertTLSIEtoLE(Relocation& pReloc, LDSection& pSection)
   reloc->setSymInfo(pReloc.symInfo());
 
   // 2. modify the opcodes to the appropriate ones
-  uint8_t* op =  (reinterpret_cast<uint8_t*>(&reloc->target()));
+  uint8_t* op = (reinterpret_cast<uint8_t*>(&reloc->target()));
   if (op[0] == 0xa1) {
     op[0] = 0xb8;
   } else {
     // create the new reloc (move 1 byte forward).
-    reloc = Relocation::Create(X86_32Relocator::R_386_TLS_OPT,
-                               *FragmentRef::Create(*pReloc.targetRef().frag(),
-                                   pReloc.targetRef().offset() - 2),
-                               0x0);
+    reloc = Relocation::Create(
+        X86_32Relocator::R_386_TLS_OPT,
+        *FragmentRef::Create(*pReloc.targetRef().frag(),
+                             pReloc.targetRef().offset() - 2),
+        0x0);
     reloc->setSymInfo(pReloc.symInfo());
     op = (reinterpret_cast<uint8_t*>(&reloc->target()));
     switch (op[0]) {
@@ -843,7 +827,7 @@ void X86_32Relocator::convertTLSIEtoLE(Relocation& pReloc, LDSection& pSection)
   // 3. insert the new relocs "BEFORE" the original reloc.
   assert(reloc != NULL);
   pSection.getRelocData()->getRelocationList().insert(
-    RelocData::iterator(pReloc), reloc);
+      RelocData::iterator(pReloc), reloc);
 
   // 4. change the type of the original reloc
   pReloc.setType(llvm::ELF::R_386_TLS_LE);
@@ -854,24 +838,19 @@ void X86_32Relocator::convertTLSIEtoLE(Relocation& pReloc, LDSection& pSection)
 //================================================//
 
 // R_386_NONE
-Relocator::Result none(Relocation& pReloc, X86_32Relocator& pParent)
-{
+Relocator::Result none(Relocation& pReloc, X86_32Relocator& pParent) {
   return Relocator::OK;
 }
 
 // R_386_32: S + A
 // R_386_16
 // R_386_8
-Relocator::Result abs(Relocation& pReloc, X86_32Relocator& pParent)
-{
+Relocator::Result abs(Relocation& pReloc, X86_32Relocator& pParent) {
   ResolveInfo* rsym = pReloc.symInfo();
   Relocator::DWord A = pReloc.target() + pReloc.addend();
   Relocator::DWord S = pReloc.symValue();
   bool has_dyn_rel = pParent.getTarget().symbolNeedsDynRel(
-                        *rsym,
-                        (rsym->reserved() & X86Relocator::ReservePLT),
-                        true);
-
+      *rsym, (rsym->reserved() & X86Relocator::ReservePLT), true);
 
   LDSection& target_sect = pReloc.targetRef().frag()->getParent()->getSection();
   // If the flag of target section is not ALLOC, we will not scan this
@@ -903,19 +882,17 @@ Relocator::Result abs(Relocation& pReloc, X86_32Relocator& pParent)
 // R_386_PC32: S + A - P
 // R_386_PC16
 // R_386_PC8
-Relocator::Result rel(Relocation& pReloc, X86_32Relocator& pParent)
-{
+Relocator::Result rel(Relocation& pReloc, X86_32Relocator& pParent) {
   ResolveInfo* rsym = pReloc.symInfo();
   Relocator::DWord A = pReloc.target() + pReloc.addend();
   Relocator::DWord S = pReloc.symValue();
   Relocator::DWord P = pReloc.place();
   bool has_dyn_rel = pParent.getTarget().symbolNeedsDynRel(
-                        *rsym,
-                        (rsym->reserved() & X86Relocator::ReservePLT),
-                        true);
+      *rsym, (rsym->reserved() & X86Relocator::ReservePLT), true);
 
   LDSection& target_sect = pReloc.targetRef().frag()->getParent()->getSection();
-  // If the flag of target section is not ALLOC, we will not scan this relocation
+  // If the flag of target section is not ALLOC, we will not scan this
+  // relocation
   // but perform static relocation. (e.g., applying .debug section)
   if ((llvm::ELF::SHF_ALLOC & target_sect.flag()) == 0x0) {
     pReloc.target() = S + A - P;
@@ -933,14 +910,13 @@ Relocator::Result rel(Relocation& pReloc, X86_32Relocator& pParent)
         return Relocator::OK;
   }
 
-   // perform static relocation
+  // perform static relocation
   pReloc.target() = S + A - P;
   return Relocator::OK;
 }
 
 // R_386_GOTOFF: S + A - GOT_ORG
-Relocator::Result gotoff32(Relocation& pReloc, X86_32Relocator& pParent)
-{
+Relocator::Result gotoff32(Relocation& pReloc, X86_32Relocator& pParent) {
   Relocator::DWord A = pReloc.target() + pReloc.addend();
   Relocator::Address GOT_ORG = helper_GOT_ORG(pParent);
   Relocator::Address S = pReloc.symValue();
@@ -950,8 +926,7 @@ Relocator::Result gotoff32(Relocation& pReloc, X86_32Relocator& pParent)
 }
 
 // R_386_GOTPC: GOT_ORG + A - P
-Relocator::Result gotpc32(Relocation& pReloc, X86_32Relocator& pParent)
-{
+Relocator::Result gotpc32(Relocation& pReloc, X86_32Relocator& pParent) {
   Relocator::DWord A = pReloc.target() + pReloc.addend();
   Relocator::Address GOT_ORG = helper_GOT_ORG(pParent);
   // Apply relocation.
@@ -960,8 +935,7 @@ Relocator::Result gotpc32(Relocation& pReloc, X86_32Relocator& pParent)
 }
 
 // R_386_GOT32: GOT(S) + A - GOT_ORG
-Relocator::Result got32(Relocation& pReloc, X86_32Relocator& pParent)
-{
+Relocator::Result got32(Relocation& pReloc, X86_32Relocator& pParent) {
   ResolveInfo* rsym = pReloc.symInfo();
   if (!(rsym->reserved() & (X86Relocator::ReserveGOT)))
     return Relocator::BadReloc;
@@ -973,8 +947,8 @@ Relocator::Result got32(Relocation& pReloc, X86_32Relocator& pParent)
   if (got_entry->getValue() == X86Relocator::SymVal)
     got_entry->setValue(pReloc.symValue());
 
-  Relocator::Address GOT_S   = helper_get_GOT_address(pReloc, pParent);
-  Relocator::DWord      A    = pReloc.target() + pReloc.addend();
+  Relocator::Address GOT_S = helper_get_GOT_address(pReloc, pParent);
+  Relocator::DWord A = pReloc.target() + pReloc.addend();
   Relocator::Address GOT_ORG = helper_GOT_ORG(pParent);
   // Apply relocation.
   pReloc.target() = GOT_S + A - GOT_ORG;
@@ -982,23 +956,21 @@ Relocator::Result got32(Relocation& pReloc, X86_32Relocator& pParent)
 }
 
 // R_386_PLT32: PLT(S) + A - P
-Relocator::Result plt32(Relocation& pReloc, X86_32Relocator& pParent)
-{
+Relocator::Result plt32(Relocation& pReloc, X86_32Relocator& pParent) {
   // PLT_S depends on if there is a PLT entry.
   Relocator::Address PLT_S;
   if ((pReloc.symInfo()->reserved() & X86Relocator::ReservePLT))
     PLT_S = helper_get_PLT_address(*pReloc.symInfo(), pParent);
   else
     PLT_S = pReloc.symValue();
-  Relocator::DWord   A = pReloc.target() + pReloc.addend();
+  Relocator::DWord A = pReloc.target() + pReloc.addend();
   Relocator::Address P = pReloc.place();
   pReloc.target() = PLT_S + A - P;
   return Relocator::OK;
 }
 
 // R_386_TLS_GD:
-Relocator::Result tls_gd(Relocation& pReloc, X86_32Relocator& pParent)
-{
+Relocator::Result tls_gd(Relocation& pReloc, X86_32Relocator& pParent) {
   // global-dynamic
   ResolveInfo* rsym = pReloc.symInfo();
   // must reserve two pairs of got and dynamic relocation
@@ -1014,8 +986,8 @@ Relocator::Result tls_gd(Relocation& pReloc, X86_32Relocator& pParent)
 
   // set the got_entry2 value to symbol value
   if (rsym->isLocal())
-    pParent.getSymGOTMap().lookUpSecondEntry(
-        *rsym)->setValue(pReloc.symValue());
+    pParent.getSymGOTMap().lookUpSecondEntry(*rsym)->setValue(
+        pReloc.symValue());
 
   // perform relocation to the first got entry
   Relocator::DWord A = pReloc.target() + pReloc.addend();
@@ -1029,15 +1001,14 @@ Relocator::Result tls_gd(Relocation& pReloc, X86_32Relocator& pParent)
 }
 
 // R_386_TLS_LDM
-Relocator::Result tls_ldm(Relocation& pReloc, X86_32Relocator& pParent)
-{
+Relocator::Result tls_ldm(Relocation& pReloc, X86_32Relocator& pParent) {
   // FIXME: no linker optimization for TLS relocation
   const X86_32GOTEntry& got_entry = pParent.getTLSModuleID();
 
   // All GOT offsets are relative to the end of the GOT.
-  X86Relocator::SWord GOT_S = got_entry.getOffset() -
-                              (pParent.getTarget().getGOTPLT().addr() -
-                              pParent.getTarget().getGOT().addr());
+  X86Relocator::SWord GOT_S =
+      got_entry.getOffset() - (pParent.getTarget().getGOTPLT().addr() -
+                               pParent.getTarget().getGOT().addr());
   Relocator::DWord A = pReloc.target() + pReloc.addend();
   pReloc.target() = GOT_S + A;
 
@@ -1045,8 +1016,7 @@ Relocator::Result tls_ldm(Relocation& pReloc, X86_32Relocator& pParent)
 }
 
 // R_386_TLS_LDO_32
-Relocator::Result tls_ldo_32(Relocation& pReloc, X86_32Relocator& pParent)
-{
+Relocator::Result tls_ldo_32(Relocation& pReloc, X86_32Relocator& pParent) {
   // FIXME: no linker optimization for TLS relocation
   Relocator::DWord A = pReloc.target() + pReloc.addend();
   Relocator::Address S = pReloc.symValue();
@@ -1055,11 +1025,10 @@ Relocator::Result tls_ldo_32(Relocation& pReloc, X86_32Relocator& pParent)
 }
 
 // R_X86_TLS_IE
-Relocator::Result tls_ie(Relocation& pReloc, X86_32Relocator& pParent)
-{
+Relocator::Result tls_ie(Relocation& pReloc, X86_32Relocator& pParent) {
   ResolveInfo* rsym = pReloc.symInfo();
   if (!(rsym->reserved() & X86Relocator::ReserveGOT)) {
-     return Relocator::BadReloc;
+    return Relocator::BadReloc;
   }
 
   // set up the got and dynamic relocation entries if not exist
@@ -1076,11 +1045,10 @@ Relocator::Result tls_ie(Relocation& pReloc, X86_32Relocator& pParent)
 }
 
 // R_386_TLS_GOTIE
-Relocator::Result tls_gotie(Relocation& pReloc, X86_32Relocator& pParent)
-{
+Relocator::Result tls_gotie(Relocation& pReloc, X86_32Relocator& pParent) {
   ResolveInfo* rsym = pReloc.symInfo();
   if (!(rsym->reserved() & X86Relocator::ReserveGOT)) {
-     return Relocator::BadReloc;
+    return Relocator::BadReloc;
   }
 
   // set up the got and dynamic relocation entries if not exist
@@ -1088,9 +1056,9 @@ Relocator::Result tls_gotie(Relocation& pReloc, X86_32Relocator& pParent)
   assert(got_entry != NULL);
 
   // All GOT offsets are relative to the end of the GOT.
-  X86Relocator::SWord GOT_S = got_entry->getOffset() -
-                              (pParent.getTarget().getGOTPLT().addr() -
-                              pParent.getTarget().getGOT().addr());
+  X86Relocator::SWord GOT_S =
+      got_entry->getOffset() - (pParent.getTarget().getGOTPLT().addr() -
+                                pParent.getTarget().getGOT().addr());
   Relocator::DWord A = pReloc.target() + pReloc.addend();
   pReloc.target() = GOT_S + A;
 
@@ -1098,17 +1066,15 @@ Relocator::Result tls_gotie(Relocation& pReloc, X86_32Relocator& pParent)
 }
 
 // R_X86_TLS_LE
-Relocator::Result tls_le(Relocation& pReloc, X86_32Relocator& pParent)
-{
+Relocator::Result tls_le(Relocation& pReloc, X86_32Relocator& pParent) {
   if (pReloc.symInfo()->reserved() & X86Relocator::ReserveRel)
     return Relocator::OK;
 
   // perform static relocation
   // get TLS segment
   ELFSegmentFactory::const_iterator tls_seg =
-      pParent.getTarget().elfSegmentTable().find(llvm::ELF::PT_TLS,
-                                                 llvm::ELF::PF_R,
-                                                 0x0);
+      pParent.getTarget().elfSegmentTable().find(
+          llvm::ELF::PT_TLS, llvm::ELF::PF_R, 0x0);
   assert(tls_seg != pParent.getTarget().elfSegmentTable().end());
   Relocator::DWord A = pReloc.target() + pReloc.addend();
   Relocator::Address S = pReloc.symValue();
@@ -1116,8 +1082,7 @@ Relocator::Result tls_le(Relocation& pReloc, X86_32Relocator& pParent)
   return Relocator::OK;
 }
 
-Relocator::Result unsupport(Relocation& pReloc, X86_32Relocator& pParent)
-{
+Relocator::Result unsupport(Relocation& pReloc, X86_32Relocator& pParent) {
   return Relocator::Unsupport;
 }
 
@@ -1129,8 +1094,7 @@ static Relocation& helper_DynRel_init(ResolveInfo* pSym,
                                       Fragment& pFrag,
                                       uint64_t pOffset,
                                       Relocator::Type pType,
-                                      X86_64Relocator& pParent)
-{
+                                      X86_64Relocator& pParent) {
   X86_64GNULDBackend& ld_backend = pParent.getTarget();
   Relocation& rel_entry = *ld_backend.getRelDyn().create();
   rel_entry.setType(pType);
@@ -1143,7 +1107,6 @@ static Relocation& helper_DynRel_init(ResolveInfo* pSym,
   return rel_entry;
 }
 
-
 /// helper_use_relative_reloc - Check if symbol can use relocation
 /// R_X86_64_RELATIVE
 static bool helper_use_relative_reloc(const ResolveInfo& pSym,
@@ -1151,8 +1114,7 @@ static bool helper_use_relative_reloc(const ResolveInfo& pSym,
 
 {
   // if symbol is dynamic or undefine or preemptible
-  if (pSym.isDyn() ||
-      pSym.isUndef() ||
+  if (pSym.isDyn() || pSym.isUndef() ||
       pFactory.getTarget().isSymbolPreemptible(pSym))
     return false;
   return true;
@@ -1160,8 +1122,7 @@ static bool helper_use_relative_reloc(const ResolveInfo& pSym,
 
 static X86_64GOTEntry& helper_GOT_init(Relocation& pReloc,
                                        bool pHasRel,
-                                       X86_64Relocator& pParent)
-{
+                                       X86_64Relocator& pParent) {
   // rsym - The relocation target symbol
   ResolveInfo* rsym = pReloc.symInfo();
   X86_64GNULDBackend& ld_backend = pParent.getTarget();
@@ -1177,44 +1138,39 @@ static X86_64GOTEntry& helper_GOT_init(Relocation& pReloc,
   } else {
     // Initialize got_entry content and the corresponding dynamic relocation.
     if (helper_use_relative_reloc(*rsym, pParent)) {
-       Relocation& rel_entry =
-           helper_DynRel_init(rsym, *got_entry, 0x0,
-                              llvm::ELF::R_X86_64_RELATIVE, pParent);
-       rel_entry.setAddend(X86Relocator::SymVal);
-       pParent.getRelRelMap().record(pReloc, rel_entry);
+      Relocation& rel_entry = helper_DynRel_init(
+          rsym, *got_entry, 0x0, llvm::ELF::R_X86_64_RELATIVE, pParent);
+      rel_entry.setAddend(X86Relocator::SymVal);
+      pParent.getRelRelMap().record(pReloc, rel_entry);
     } else {
-       helper_DynRel_init(rsym, *got_entry, 0x0, llvm::ELF::R_X86_64_GLOB_DAT,
-                          pParent);
+      helper_DynRel_init(
+          rsym, *got_entry, 0x0, llvm::ELF::R_X86_64_GLOB_DAT, pParent);
     }
     got_entry->setValue(0);
   }
   return *got_entry;
 }
 
-static Relocator::Address helper_GOT_ORG(X86_64Relocator& pParent)
-{
+static Relocator::Address helper_GOT_ORG(X86_64Relocator& pParent) {
   return pParent.getTarget().getGOT().addr();
 }
 
 static Relocator::Address helper_get_GOT_address(Relocation& pReloc,
-                                                 X86_64Relocator& pParent)
-{
+                                                 X86_64Relocator& pParent) {
   X86_64GOTEntry* got_entry = pParent.getSymGOTMap().lookUp(*pReloc.symInfo());
   assert(got_entry != NULL);
   return got_entry->getOffset();
 }
 
 static Relocator::Address helper_get_PLT_address(ResolveInfo& pSym,
-                                                 X86_64Relocator& pParent)
-{
+                                                 X86_64Relocator& pParent) {
   PLTEntryBase* plt_entry = pParent.getSymPLTMap().lookUp(pSym);
   assert(plt_entry != NULL);
   return pParent.getTarget().getPLT().addr() + plt_entry->getOffset();
 }
 
-static
-PLTEntryBase& helper_PLT_init(Relocation& pReloc, X86_64Relocator& pParent)
-{
+static PLTEntryBase& helper_PLT_init(Relocation& pReloc,
+                                     X86_64Relocator& pParent) {
   // rsym - The relocation target symbol
   ResolveInfo* rsym = pReloc.symInfo();
   X86_64GNULDBackend& ld_backend = pParent.getTarget();
@@ -1247,8 +1203,7 @@ typedef Relocator::Result (*X86_64ApplyFunctionType)(Relocation& pReloc,
                                                      X86_64Relocator& pParent);
 
 // the table entry of applying functions
-struct X86_64ApplyFunctionTriple
-{
+struct X86_64ApplyFunctionTriple {
   X86_64ApplyFunctionType func;
   unsigned int type;
   const char* name;
@@ -1257,8 +1212,7 @@ struct X86_64ApplyFunctionTriple
 
 // declare the table of applying functions
 static const X86_64ApplyFunctionTriple X86_64ApplyFunctions[] = {
-  DECL_X86_64_APPLY_RELOC_FUNC_PTRS
-};
+    DECL_X86_64_APPLY_RELOC_FUNC_PTRS};
 
 //===--------------------------------------------------------------------===//
 // X86_64Relocator
@@ -1268,8 +1222,7 @@ X86_64Relocator::X86_64Relocator(X86_64GNULDBackend& pParent,
     : X86Relocator(pConfig), m_Target(pParent) {
 }
 
-Relocator::Result X86_64Relocator::applyRelocation(Relocation& pRelocation)
-{
+Relocator::Result X86_64Relocator::applyRelocation(Relocation& pRelocation) {
   Relocation::Type type = pRelocation.type();
 
   if (type >= sizeof(X86_64ApplyFunctions) / sizeof(X86_64ApplyFunctions[0])) {
@@ -1280,19 +1233,16 @@ Relocator::Result X86_64Relocator::applyRelocation(Relocation& pRelocation)
   return X86_64ApplyFunctions[type].func(pRelocation, *this);
 }
 
-const char* X86_64Relocator::getName(Relocation::Type pType) const
-{
+const char* X86_64Relocator::getName(Relocation::Type pType) const {
   return X86_64ApplyFunctions[pType].name;
 }
 
-Relocator::Size X86_64Relocator::getSize(Relocation::Type pType) const
-{
+Relocator::Size X86_64Relocator::getSize(Relocation::Type pType) const {
   return X86_64ApplyFunctions[pType].size;
 }
 
-bool
-X86_64Relocator::mayHaveFunctionPointerAccess(const Relocation& pReloc) const
-{
+bool X86_64Relocator::mayHaveFunctionPointerAccess(
+    const Relocation& pReloc) const {
   bool possible_funcptr_reloc = false;
   switch (pReloc.type()) {
     case llvm::ELF::R_X86_64_64:
@@ -1314,25 +1264,24 @@ X86_64Relocator::mayHaveFunctionPointerAccess(const Relocation& pReloc) const
     }
   }
 
- if (pReloc.symInfo()->isGlobal()) {
-   return (config().codeGenType() == LinkerConfig::DynObj) &&
-          ((pReloc.symInfo()->visibility() != ResolveInfo::Default) ||
-           possible_funcptr_reloc);
- } else {
-   return (config().codeGenType() == LinkerConfig::DynObj) ||
-          possible_funcptr_reloc;
- }
+  if (pReloc.symInfo()->isGlobal()) {
+    return (config().codeGenType() == LinkerConfig::DynObj) &&
+           ((pReloc.symInfo()->visibility() != ResolveInfo::Default) ||
+            possible_funcptr_reloc);
+  } else {
+    return (config().codeGenType() == LinkerConfig::DynObj) ||
+           possible_funcptr_reloc;
+  }
 }
 
 void X86_64Relocator::scanLocalReloc(Relocation& pReloc,
                                      IRBuilder& pBuilder,
                                      Module& pModule,
-                                     LDSection& pSection)
-{
+                                     LDSection& pSection) {
   // rsym - The relocation target symbol
   ResolveInfo* rsym = pReloc.symInfo();
 
-  switch(pReloc.type()){
+  switch (pReloc.type()) {
     case llvm::ELF::R_X86_64_64:
       // If buiding PIC object (shared library or PIC executable),
       // a dynamic relocations with RELATIVE type to this location is needed.
@@ -1394,18 +1343,17 @@ void X86_64Relocator::scanLocalReloc(Relocation& pReloc,
       fatal(diag::unsupported_relocation) << (int)pReloc.type()
                                           << "mclinker@googlegroups.com";
       break;
-  } // end switch
+  }  // end switch
 }
 
 void X86_64Relocator::scanGlobalReloc(Relocation& pReloc,
                                       IRBuilder& pBuilder,
                                       Module& pModule,
-                                      LDSection& pSection)
-{
+                                      LDSection& pSection) {
   // rsym - The relocation target symbol
   ResolveInfo* rsym = pReloc.symInfo();
 
-  switch(pReloc.type()) {
+  switch (pReloc.type()) {
     case llvm::ELF::R_X86_64_64:
     case llvm::ELF::R_X86_64_32:
     case llvm::ELF::R_X86_64_16:
@@ -1415,7 +1363,7 @@ void X86_64Relocator::scanGlobalReloc(Relocation& pReloc,
       // dynamic relocation entry
       if (getTarget().symbolNeedsPLT(*rsym)) {
         // create plt for this symbol if it does not have one
-        if (!(rsym->reserved() & ReservePLT)){
+        if (!(rsym->reserved() & ReservePLT)) {
           // Symbol needs PLT entry, we need to reserve a PLT entry
           // and the corresponding GOT and dynamic relocation entry
           // in .got and .rela.plt.
@@ -1425,8 +1373,9 @@ void X86_64Relocator::scanGlobalReloc(Relocation& pReloc,
         }
       }
 
-      if (getTarget().symbolNeedsDynRel(*rsym, (rsym->reserved() & ReservePLT),
-                                        true)) {
+      if (getTarget()
+              .symbolNeedsDynRel(
+                  *rsym, (rsym->reserved() & ReservePLT), true)) {
         // symbol needs dynamic relocation entry, set up the dynrel entry
         if (getTarget().symbolNeedsCopyReloc(pReloc, *rsym)) {
           LDSymbol& cpy_sym =
@@ -1505,7 +1454,7 @@ void X86_64Relocator::scanGlobalReloc(Relocation& pReloc,
       if (getTarget().symbolNeedsPLT(*rsym) &&
           LinkerConfig::DynObj != config().codeGenType()) {
         // create plt for this symbol if it does not have one
-        if (!(rsym->reserved() & ReservePLT)){
+        if (!(rsym->reserved() & ReservePLT)) {
           // Symbol needs PLT entry, we need a PLT entry
           // and the corresponding GOT and dynamic relocation entry
           // in .got and .rel.plt.
@@ -1521,10 +1470,10 @@ void X86_64Relocator::scanGlobalReloc(Relocation& pReloc,
       // All other dynamic relocations may lead to run-time relocation
       // overflow.
       if (getTarget().isDynamicSymbol(*rsym) &&
-          getTarget().symbolNeedsDynRel(*rsym,
-                                        (rsym->reserved() & ReservePLT),
-                                        false) &&
-        getTarget().symbolNeedsCopyReloc(pReloc, *rsym)) {
+          getTarget()
+              .symbolNeedsDynRel(
+                  *rsym, (rsym->reserved() & ReservePLT), false) &&
+          getTarget().symbolNeedsCopyReloc(pReloc, *rsym)) {
         LDSymbol& cpy_sym =
             defineSymbolforCopyReloc(pBuilder, *rsym, getTarget());
         addCopyReloc(*cpy_sym.resolveInfo(), getTarget());
@@ -1535,12 +1484,11 @@ void X86_64Relocator::scanGlobalReloc(Relocation& pReloc,
       fatal(diag::unsupported_relocation) << (int)pReloc.type()
                                           << "mclinker@googlegroups.com";
       break;
-  } // end switch
+  }  // end switch
 }
 
 // R_X86_64_NONE
-Relocator::Result none(Relocation& pReloc, X86_64Relocator& pParent)
-{
+Relocator::Result none(Relocation& pReloc, X86_64Relocator& pParent) {
   return Relocator::OK;
 }
 
@@ -1548,8 +1496,7 @@ Relocator::Result none(Relocation& pReloc, X86_64Relocator& pParent)
 // R_X86_64_32:
 // R_X86_64_16:
 // R_X86_64_8
-Relocator::Result abs(Relocation& pReloc, X86_64Relocator& pParent)
-{
+Relocator::Result abs(Relocation& pReloc, X86_64Relocator& pParent) {
   ResolveInfo* rsym = pReloc.symInfo();
   Relocator::DWord A = pReloc.target() + pReloc.addend();
   Relocator::DWord S = pReloc.symValue();
@@ -1595,8 +1542,7 @@ Relocator::Result abs(Relocation& pReloc, X86_64Relocator& pParent)
 }
 
 // R_X86_64_32S: S + A
-Relocator::Result signed32(Relocation& pReloc, X86_64Relocator& pParent)
-{
+Relocator::Result signed32(Relocation& pReloc, X86_64Relocator& pParent) {
   ResolveInfo* rsym = pReloc.symInfo();
   Relocator::DWord A = pReloc.target() + pReloc.addend();
   Relocator::DWord S = pReloc.symValue();
@@ -1609,8 +1555,8 @@ Relocator::Result signed32(Relocation& pReloc, X86_64Relocator& pParent)
   // If the flag of target section is not ALLOC, we will not scan this
   // relocation but perform static relocation. (e.g., applying .debug section)
   // An external symbol may need PLT and dynamic relocation
-  if ((llvm::ELF::SHF_ALLOC & target_sect.flag()) != 0x0 &&
-      !rsym->isLocal() && rsym->reserved() & X86Relocator::ReservePLT)
+  if ((llvm::ELF::SHF_ALLOC & target_sect.flag()) != 0x0 && !rsym->isLocal() &&
+      rsym->reserved() & X86Relocator::ReservePLT)
     S = helper_get_PLT_address(*rsym, pParent);
 
 #if notyet
@@ -1626,8 +1572,7 @@ Relocator::Result signed32(Relocation& pReloc, X86_64Relocator& pParent)
 }
 
 // R_X86_64_GOTPCREL: GOT(S) + GOT_ORG + A - P
-Relocator::Result gotpcrel(Relocation& pReloc, X86_64Relocator& pParent)
-{
+Relocator::Result gotpcrel(Relocation& pReloc, X86_64Relocator& pParent) {
   if (!(pReloc.symInfo()->reserved() & X86Relocator::ReserveGOT)) {
     return Relocator::BadReloc;
   }
@@ -1643,8 +1588,8 @@ Relocator::Result gotpcrel(Relocation& pReloc, X86_64Relocator& pParent)
     dyn_rel->setAddend(pReloc.symValue());
   }
 
-  Relocator::Address GOT_S   = helper_get_GOT_address(pReloc, pParent);
-  Relocator::DWord      A    = pReloc.target() + pReloc.addend();
+  Relocator::Address GOT_S = helper_get_GOT_address(pReloc, pParent);
+  Relocator::DWord A = pReloc.target() + pReloc.addend();
   Relocator::Address GOT_ORG = helper_GOT_ORG(pParent);
   // Apply relocation.
   pReloc.target() = GOT_S + GOT_ORG + A - pReloc.place();
@@ -1652,15 +1597,14 @@ Relocator::Result gotpcrel(Relocation& pReloc, X86_64Relocator& pParent)
 }
 
 // R_X86_64_PLT32: PLT(S) + A - P
-Relocator::Result plt32(Relocation& pReloc, X86_64Relocator& pParent)
-{
+Relocator::Result plt32(Relocation& pReloc, X86_64Relocator& pParent) {
   // PLT_S depends on if there is a PLT entry.
   Relocator::Address PLT_S;
   if ((pReloc.symInfo()->reserved() & X86Relocator::ReservePLT))
     PLT_S = helper_get_PLT_address(*pReloc.symInfo(), pParent);
   else
     PLT_S = pReloc.symValue();
-  Relocator::DWord   A = pReloc.target() + pReloc.addend();
+  Relocator::DWord A = pReloc.target() + pReloc.addend();
   Relocator::Address P = pReloc.place();
   pReloc.target() = PLT_S + A - P;
   return Relocator::OK;
@@ -1669,8 +1613,7 @@ Relocator::Result plt32(Relocation& pReloc, X86_64Relocator& pParent)
 // R_X86_64_PC32: S + A - P
 // R_X86_64_PC16
 // R_X86_64_PC8
-Relocator::Result rel(Relocation& pReloc, X86_64Relocator& pParent)
-{
+Relocator::Result rel(Relocation& pReloc, X86_64Relocator& pParent) {
   ResolveInfo* rsym = pReloc.symInfo();
   Relocator::DWord A = pReloc.target() + pReloc.addend();
   Relocator::DWord S = pReloc.symValue();
@@ -1693,22 +1636,20 @@ Relocator::Result rel(Relocation& pReloc, X86_64Relocator& pParent)
   // An external symbol may need PLT and dynamic relocation
   if (!rsym->isLocal()) {
     if (rsym->reserved() & X86Relocator::ReservePLT) {
-       S = helper_get_PLT_address(*rsym, pParent);
+      S = helper_get_PLT_address(*rsym, pParent);
     }
-    if (pParent.getTarget().symbolNeedsDynRel(
-           *rsym,
-           (rsym->reserved() & X86Relocator::ReservePLT),
-           false)) {
+    if (pParent.getTarget()
+            .symbolNeedsDynRel(
+                *rsym, (rsym->reserved() & X86Relocator::ReservePLT), false)) {
       return Relocator::Overflow;
     }
   }
 
-   // perform static relocation
+  // perform static relocation
   pReloc.target() = S + A - P;
   return Relocator::OK;
 }
 
-Relocator::Result unsupport(Relocation& pReloc, X86_64Relocator& pParent)
-{
+Relocator::Result unsupport(Relocation& pReloc, X86_64Relocator& pParent) {
   return Relocator::Unsupport;
 }

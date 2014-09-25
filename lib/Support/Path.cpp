@@ -25,92 +25,78 @@ using namespace mcld::sys::fs;
 //===--------------------------------------------------------------------===//
 namespace {
 #if defined(MCLD_ON_WIN32)
-bool is_separator(char value)
-{
+bool is_separator(char value) {
   return (value == separator || value == preferred_separator);
 }
 
 const Path::StringType separator_str("/");
 
 #else
-bool is_separator(char value)
-{
+bool is_separator(char value) {
   return (value == separator);
 }
 
 const Path::StringType separator_str("/");
 
 #endif
-} // anonymous namespace
-
+}  // anonymous namespace
 
 //===--------------------------------------------------------------------===//
 // Path
 //===--------------------------------------------------------------------===//
-Path::Path()
-    : m_PathName() {
+Path::Path() : m_PathName() {
 }
 
-Path::Path(const Path::ValueType* s)
-    : m_PathName(s) {
+Path::Path(const Path::ValueType* s) : m_PathName(s) {
 }
 
-Path::Path(const Path::StringType& s)
-    : m_PathName(s) {
+Path::Path(const Path::StringType& s) : m_PathName(s) {
 }
 
-Path::Path(const Path& pCopy)
-    : m_PathName(pCopy.m_PathName) {
+Path::Path(const Path& pCopy) : m_PathName(pCopy.m_PathName) {
 }
 
-Path::~Path()
-{
+Path::~Path() {
 }
 
-bool Path::isFromRoot() const
-{
+bool Path::isFromRoot() const {
   if (m_PathName.empty())
     return false;
   return (separator == m_PathName[0]);
 }
 
-bool Path::isFromPWD() const
-{
+bool Path::isFromPWD() const {
   if (m_PathName.size() < 2)
     return false;
   return ('.' == m_PathName[0] && separator == m_PathName[1]);
 }
 
-Path& Path::assign(const Path::StringType &s)
-{
+Path& Path::assign(const Path::StringType& s) {
   m_PathName.assign(s);
   return *this;
 }
 
-Path& Path::assign(const Path::ValueType* s, unsigned int length)
-{
+Path& Path::assign(const Path::ValueType* s, unsigned int length) {
   if (s == 0 || length == 0)
     assert(0 && "assign a null or empty string to Path");
   m_PathName.assign(s, length);
   return *this;
 }
 
-//a,/b a/,b a/,b/ a,b is a/b
-Path& Path::append(const Path& pPath)
-{
-  //first path is a/,second path is /b
-  if(m_PathName[m_PathName.length() - 1] == separator &&
-     pPath.native()[0] == separator) {
+// a,/b a/,b a/,b/ a,b is a/b
+Path& Path::append(const Path& pPath) {
+  // first path is a/,second path is /b
+  if (m_PathName[m_PathName.length() - 1] == separator &&
+      pPath.native()[0] == separator) {
     unsigned int old_size = m_PathName.size() - 1;
     unsigned int new_size = old_size + pPath.native().size();
 
     m_PathName.resize(new_size);
-    strcpy(const_cast<ValueType*>(m_PathName.data()+old_size),
-                                  pPath.native().data());
-  }
-  //first path is a,second path is b
-  else if(this->native()[this->native().size() - 1] != separator &&
-          pPath.native()[0] != separator) {
+    strcpy(const_cast<ValueType*>(m_PathName.data() + old_size),
+           pPath.native().data());
+  } else if (this->native()[this->native().size() - 1] != separator &&
+             pPath.native()[0] != separator) {
+    // first path is a,second path is b
     m_PathName.append(separator_str);
     m_PathName.append(pPath.native());
   } else {
@@ -120,33 +106,35 @@ Path& Path::append(const Path& pPath)
   return *this;
 }
 
-bool Path::empty() const
-{
+// a,/b a/,b a/,b/ a,b is a/b
+Path& Path::append(const StringType& pPath) {
+  Path path(pPath);
+  this->append(path);
+  return *this;
+}
+
+bool Path::empty() const {
   return m_PathName.empty();
 }
 
-Path::StringType Path::generic_string() const
-{
+Path::StringType Path::generic_string() const {
   StringType result = m_PathName;
   detail::canonicalize(result);
   return result;
 }
 
-bool Path::canonicalize()
-{
+bool Path::canonicalize() {
   return detail::canonicalize(m_PathName);
 }
 
-Path::StringType::size_type Path::m_append_separator_if_needed()
-{
+Path::StringType::size_type Path::m_append_separator_if_needed() {
 #if defined(MCLD_ON_WIN32)
   // On Windows platform, path can not append separator.
   return 0;
 #endif
 
   StringType::value_type last_char = m_PathName[m_PathName.size() - 1];
-  if (!m_PathName.empty() &&
-      !is_separator(last_char)) {
+  if (!m_PathName.empty() && !is_separator(last_char)) {
     StringType::size_type tmp(m_PathName.size());
     m_PathName += separator_str;
     return tmp;
@@ -154,11 +142,10 @@ Path::StringType::size_type Path::m_append_separator_if_needed()
   return 0;
 }
 
-void Path::m_erase_redundant_separator(Path::StringType::size_type pSepPos)
-{
-  size_t begin=pSepPos;
+void Path::m_erase_redundant_separator(Path::StringType::size_type pSepPos) {
+  size_t begin = pSepPos;
   // skip '/' or '\\'
-  while(separator == m_PathName[pSepPos]) {
+  while (separator == m_PathName[pSepPos]) {
 #if defined(MCLD_ON_WIN32)
     pSepPos += 2;
 #else
@@ -166,20 +153,18 @@ void Path::m_erase_redundant_separator(Path::StringType::size_type pSepPos)
 #endif
   }
 
-  if(begin!=pSepPos)
-    m_PathName.erase(begin+1,pSepPos-begin-1);
+  if (begin != pSepPos)
+    m_PathName.erase(begin + 1, pSepPos - begin - 1);
 }
 
-Path Path::parent_path() const
-{
+Path Path::parent_path() const {
   size_t end_pos = m_PathName.find_last_of(separator);
   if (end_pos != StringType::npos)
     return Path(m_PathName.substr(0, end_pos));
   return Path();
 }
 
-Path Path::filename() const
-{
+Path Path::filename() const {
   size_t pos = m_PathName.find_last_of(separator);
   if (pos != StringType::npos) {
     ++pos;
@@ -188,16 +173,14 @@ Path Path::filename() const
   return Path(*this);
 }
 
-Path Path::stem() const
-{
+Path Path::stem() const {
   size_t begin_pos = m_PathName.find_last_of(separator) + 1;
-  size_t end_pos   = m_PathName.find_last_of(dot);
+  size_t end_pos = m_PathName.find_last_of(dot);
   Path result_path(m_PathName.substr(begin_pos, end_pos - begin_pos));
   return result_path;
 }
 
-Path Path::extension() const
-{
+Path Path::extension() const {
   size_t pos = m_PathName.find_last_of('.');
   if (pos == StringType::npos)
     return Path();
@@ -207,18 +190,15 @@ Path Path::extension() const
 //===--------------------------------------------------------------------===//
 // non-member functions
 //===--------------------------------------------------------------------===//
-bool mcld::sys::fs::operator==(const Path& pLHS,const Path& pRHS)
-{
-  return (pLHS.generic_string()==pRHS.generic_string());
+bool mcld::sys::fs::operator==(const Path& pLHS, const Path& pRHS) {
+  return (pLHS.generic_string() == pRHS.generic_string());
 }
 
-bool mcld::sys::fs::operator!=(const Path& pLHS,const Path& pRHS)
-{
-  return !(pLHS==pRHS);
+bool mcld::sys::fs::operator!=(const Path& pLHS, const Path& pRHS) {
+  return !(pLHS == pRHS);
 }
 
-Path mcld::sys::fs::operator+(const Path& pLHS, const Path& pRHS)
-{
+Path mcld::sys::fs::operator+(const Path& pLHS, const Path& pRHS) {
   mcld::sys::fs::Path result = pLHS;
   result.append(pRHS);
   return result;

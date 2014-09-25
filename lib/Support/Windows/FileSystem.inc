@@ -19,30 +19,29 @@
 #include <windows.h>
 
 #ifndef STDIN_FILENO
-# define STDIN_FILENO 0
+#define STDIN_FILENO 0
 #endif
 #ifndef STDOUT_FILENO
-# define STDOUT_FILENO 1
+#define STDOUT_FILENO 1
 #endif
 #ifndef STDERR_FILENO
-# define STDERR_FILENO 2
+#define STDERR_FILENO 2
 #endif
 
-namespace mcld{
-namespace sys{
-namespace fs{
-namespace detail{
+namespace mcld {
+namespace sys {
+namespace fs {
+namespace detail {
 
 // FIXME: the extension depends on target machine, not host machine.
 Path::StringType static_library_extension = ".a";
 Path::StringType shared_library_extension = ".so";
-Path::StringType executable_extension     = ".exe";
-Path::StringType relocatable_extension    = ".o";
-Path::StringType assembly_extension       = ".s";
-Path::StringType bitcode_extension        = ".bc";
+Path::StringType executable_extension = ".exe";
+Path::StringType relocatable_extension = ".o";
+Path::StringType assembly_extension = ".s";
+Path::StringType bitcode_extension = ".bc";
 
-void open_dir(Directory& pDir)
-{
+void open_dir(Directory& pDir) {
   fs::Path file_filter(pDir.path());
   file_filter.append("*");
 
@@ -64,40 +63,34 @@ void open_dir(Directory& pDir)
     entry->setValue(path);
 }
 
-void close_dir(Directory& pDir)
-{
+void close_dir(Directory& pDir) {
   if (pDir.m_Handler)
     FindClose(reinterpret_cast<HANDLE>(pDir.m_Handler));
   pDir.m_Handler = 0;
 }
 
-int open(const Path& pPath, int pOFlag)
-{
+int open(const Path& pPath, int pOFlag) {
   return ::_open(pPath.native().c_str(), pOFlag | _O_BINARY);
 }
 
-int open(const Path& pPath, int pOFlag, int pPerm)
-{
+int open(const Path& pPath, int pOFlag, int pPerm) {
   int perm = 0;
-  if (pPerm & FileHandle::ReadOwner ||
-      pPerm & FileHandle::ReadGroup ||
+  if (pPerm & FileHandle::ReadOwner || pPerm & FileHandle::ReadGroup ||
       pPerm & FileHandle::ReadOther)
     perm |= _S_IREAD;
 
-  if (pPerm & FileHandle::WriteOwner ||
-      pPerm & FileHandle::WriteGroup ||
+  if (pPerm & FileHandle::WriteOwner || pPerm & FileHandle::WriteGroup ||
       pPerm & FileHandle::WriteOther)
     perm |= _S_IWRITE;
 
   return ::_open(pPath.native().c_str(), pOFlag | _O_BINARY, perm);
 }
 
-ssize_t pread(int pFD, void* pBuf, size_t pCount, off_t pOffset)
-{
+ssize_t pread(int pFD, void* pBuf, size_t pCount, off_t pOffset) {
   ssize_t ret;
   off_t old_pos;
   if (-1 == (old_pos = ::lseek(pFD, 0, SEEK_CUR)))
-     return -1;
+    return -1;
 
   if (-1 == ::lseek(pFD, pOffset, SEEK_SET))
     return -1;
@@ -106,7 +99,7 @@ ssize_t pread(int pFD, void* pBuf, size_t pCount, off_t pOffset)
     int err = errno;
     ::lseek(pFD, old_pos, SEEK_SET);
     errno = err;
-     return -1;
+    return -1;
   }
 
   if (-1 == ::lseek(pFD, old_pos, SEEK_SET))
@@ -115,8 +108,7 @@ ssize_t pread(int pFD, void* pBuf, size_t pCount, off_t pOffset)
   return ret;
 }
 
-ssize_t pwrite(int pFD, const void* pBuf, size_t pCount, off_t pOffset)
-{
+ssize_t pwrite(int pFD, const void* pBuf, size_t pCount, off_t pOffset) {
   ssize_t ret;
   off_t old_pos;
   if (-1 == (old_pos = ::lseek(pFD, 0, SEEK_CUR)))
@@ -138,37 +130,33 @@ ssize_t pwrite(int pFD, const void* pBuf, size_t pCount, off_t pOffset)
   return ret;
 }
 
-int ftruncate(int pFD, size_t pLength)
-{
+int ftruncate(int pFD, size_t pLength) {
   return ::_chsize(pFD, pLength);
 }
 
-void get_pwd(Path& pPWD)
-{
+void get_pwd(Path& pPWD) {
   char* pwd = (char*)malloc(PATH_MAX);
   pPWD.assign(_getcwd(pwd, PATH_MAX));
   free(pwd);
 }
 
-} // namespace detail
-} // namespace fs
-} // namespace sys
+}  // namespace detail
+}  // namespace fs
+}  // namespace sys
 
 //===----------------------------------------------------------------------===//
 // FileHandle
 //===----------------------------------------------------------------------===//
-bool FileHandle::mmap(void*& pMemBuffer, size_t pStartOffset, size_t pLength)
-{
+bool FileHandle::mmap(void*& pMemBuffer, size_t pStartOffset, size_t pLength) {
   // FIXME: This implementation reduces mmap to read. Use Windows APIs.
   pMemBuffer = (void*)::malloc(pLength);
   return read(pMemBuffer, pStartOffset, pLength);
 }
 
-bool FileHandle::munmap(void* pMemBuffer, size_t pLength)
-{
+bool FileHandle::munmap(void* pMemBuffer, size_t pLength) {
   // FIXME: This implementation reduces mmap to read. Use Windows APIs.
   free(pMemBuffer);
   return true;
 }
 
-} // namespace mcld
+}  // namespace mcld

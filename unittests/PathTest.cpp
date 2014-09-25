@@ -15,34 +15,29 @@ using namespace mcld;
 using namespace mcld::sys::fs;
 using namespace mcldtest;
 
-
 // Constructor can do set-up work for all test here.
-PathTest::PathTest()
-{
-	// create testee. modify it if need
-	m_pTestee = new Path();
+PathTest::PathTest() {
+  // create testee. modify it if need
+  m_pTestee = new Path();
 }
 
 // Destructor can do clean-up work that doesn't throw exceptions here.
-PathTest::~PathTest()
-{
-	delete m_pTestee;
+PathTest::~PathTest() {
+  delete m_pTestee;
 }
 
 // SetUp() will be called immediately before each test.
-void PathTest::SetUp()
-{
+void PathTest::SetUp() {
 }
 
 // TearDown() will be called immediately after each test.
-void PathTest::TearDown()
-{
+void PathTest::TearDown() {
 }
 
 //==========================================================================//
 // Testcases
 //
-TEST_F( PathTest, should_exist ) {
+TEST_F(PathTest, should_exist) {
   std::string root(TOPDIR);
   root += "/test/lit.cfg";
   m_pTestee->assign(root);
@@ -53,7 +48,7 @@ TEST_F( PathTest, should_exist ) {
   EXPECT_TRUE(exists(*m_pTestee));
 }
 
-TEST_F( PathTest, should_not_exist ) {
+TEST_F(PathTest, should_not_exist) {
   const std::string root = "/luck";
   m_pTestee->assign(root);
   EXPECT_FALSE(exists(*m_pTestee));
@@ -63,7 +58,7 @@ TEST_F( PathTest, should_not_exist ) {
   EXPECT_FALSE(exists(*m_pTestee));
 }
 
-TEST_F( PathTest, should_is_directory ) {
+TEST_F(PathTest, should_is_directory) {
   const std::string root = "../././..";
   m_pTestee->assign(root);
   EXPECT_TRUE(exists(*m_pTestee));
@@ -74,7 +69,7 @@ TEST_F( PathTest, should_is_directory ) {
   EXPECT_TRUE(is_directory(*m_pTestee));
 }
 
-TEST_F( PathTest, should_not_is_directory ) {
+TEST_F(PathTest, should_not_is_directory) {
   const std::string root = "/luck";
   m_pTestee->assign(root);
   EXPECT_FALSE(exists(*m_pTestee));
@@ -85,60 +80,59 @@ TEST_F( PathTest, should_not_is_directory ) {
   EXPECT_FALSE(is_directory(*m_pTestee));
 }
 
-TEST_F( PathTest, should_equal ) {
+TEST_F(PathTest, should_equal) {
   const std::string root = "aaa/bbb/../../ccc/";
   m_pTestee->assign(root);
 
   Path* p2 = new Path("ccc///////");
 
-  EXPECT_TRUE(*m_pTestee==*p2);
+  EXPECT_TRUE(*m_pTestee == *p2);
 
   delete m_pTestee;
   m_pTestee = new Path(root);
-  EXPECT_TRUE(*m_pTestee==*m_pTestee);
+  EXPECT_TRUE(*m_pTestee == *m_pTestee);
   delete p2;
 }
 
-TEST_F( PathTest, should_not_equal ) {
+TEST_F(PathTest, should_not_equal) {
   const std::string root = "aa/";
-  Path* p2=new Path("aaa//");
-//  p2->assign(root);
+  Path* p2 = new Path("aaa//");
+  //  p2->assign(root);
   m_pTestee->assign(root);
-  EXPECT_TRUE(*m_pTestee!=*p2);
+  EXPECT_TRUE(*m_pTestee != *p2);
 
   delete m_pTestee;
   m_pTestee = new Path(root);
-  EXPECT_TRUE(*m_pTestee!=*p2);
+  EXPECT_TRUE(*m_pTestee != *p2);
   delete p2;
 }
 
-TEST_F( PathTest, append_success ) {
-
+TEST_F(PathTest, append_success) {
   const std::string root = "aa/";
   m_pTestee->assign(root);
   m_pTestee->append("aaa");
   std::string a("aa/aaa");
-  EXPECT_TRUE(m_pTestee->native()=="aa/aaa");
+  EXPECT_TRUE(m_pTestee->native() == "aa/aaa");
   delete m_pTestee;
   m_pTestee = new Path("aa/");
   m_pTestee->append("/aaa");
-  EXPECT_TRUE(m_pTestee->native()=="aa/aaa");
+  EXPECT_TRUE(m_pTestee->native() == "aa/aaa");
   delete m_pTestee;
   m_pTestee = new Path("aa");
   m_pTestee->append("/aaa");
-  EXPECT_TRUE(m_pTestee->native()=="aa/aaa");
+  EXPECT_TRUE(m_pTestee->native() == "aa/aaa");
   delete m_pTestee;
   m_pTestee = new Path("aa");
   m_pTestee->append("aaa");
-  EXPECT_TRUE(m_pTestee->native()=="aa/aaa");
+  EXPECT_TRUE(m_pTestee->native() == "aa/aaa");
 }
 
-TEST_F( PathTest, should_become_generic_string ) {
+TEST_F(PathTest, should_become_generic_string) {
   m_pTestee->assign("/etc/../dev/../usr//lib//");
   EXPECT_STREQ("/usr/lib/", m_pTestee->generic_string().c_str());
 }
 
-TEST_F( PathTest, parent_path ) {
+TEST_F(PathTest, parent_path) {
   m_pTestee->assign("aa/bb/cc/dd");
   EXPECT_STREQ("aa/bb/cc", m_pTestee->parent_path().c_str());
   delete m_pTestee;

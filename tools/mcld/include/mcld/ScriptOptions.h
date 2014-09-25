@@ -20,14 +20,13 @@ class LinkerScript;
  *  positional options, such as --defsym, also can modify default link script
  *  is not listed here. These special options belong to Positional Options.
  */
-class ScriptOptions
-{
-public:
+class ScriptOptions {
+ public:
   ScriptOptions();
 
   bool parse(LinkerScript& pScript);
 
-private:
+ private:
   llvm::cl::list<std::string>& m_WrapList;
   llvm::cl::list<std::string>& m_PortList;
   llvm::cl::list<std::string>& m_AddressMapList;
@@ -36,7 +35,6 @@ private:
   llvm::cl::opt<unsigned long long>& m_TextSegAddr;
 };
 
-} // namespace of mcld
+}  // namespace of mcld
 
 #endif
-

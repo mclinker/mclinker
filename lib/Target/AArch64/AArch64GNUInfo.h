@@ -14,10 +14,9 @@
 
 namespace mcld {
 
-class AArch64GNUInfo : public GNUInfo
-{
-public:
-  AArch64GNUInfo(const llvm::Triple& pTriple) : GNUInfo(pTriple) { }
+class AArch64GNUInfo : public GNUInfo {
+ public:
+  explicit AArch64GNUInfo(const llvm::Triple& pTriple) : GNUInfo(pTriple) {}
 
   uint32_t machine() const { return llvm::ELF::EM_AARCH64; }
 
@@ -29,6 +28,6 @@ public:
   uint64_t flags() const { return 0x0; }
 };
 
-} // namespace mcld
+}  // namespace mcld
 
 #endif  // TARGET_AARCH64_AARCH64GNUINFO_H_

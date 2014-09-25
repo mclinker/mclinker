@@ -9,8 +9,7 @@
 #ifndef MCLD_LD_LDREADER_H_
 #define MCLD_LD_LDREADER_H_
 
-namespace mcld
-{
+namespace mcld {
 
 class Input;
 
@@ -18,23 +17,19 @@ class Input;
  *  \brief LDReader provides the basic interfaces for all readers. It also
  *  provides basic functions to read data stream.
  */
-class LDReader
-{
-public:
-  enum Endian {
-    LittleEndian,
-    BigEndian
-  };
+class LDReader {
+ public:
+  enum Endian { LittleEndian, BigEndian };
 
-protected:
-  LDReader() { }
+ protected:
+  LDReader() {}
 
-public:
-  virtual ~LDReader() { }
+ public:
+  virtual ~LDReader() {}
 
   virtual bool isMyFormat(Input& pInput, bool& pContinue) const = 0;
 };
 
-} // namespace mcld
+}  // namespace mcld
 
 #endif  // MCLD_LD_LDREADER_H_

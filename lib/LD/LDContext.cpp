@@ -17,8 +17,7 @@ using namespace mcld;
 //===----------------------------------------------------------------------===//
 // LDContext
 //===----------------------------------------------------------------------===//
-LDContext& LDContext::appendSection(LDSection& pSection)
-{
+LDContext& LDContext::appendSection(LDSection& pSection) {
   if (LDFileFormat::Relocation == pSection.kind())
     m_RelocSections.push_back(&pSection);
   pSection.setIndex(m_SectionTable.size());
@@ -26,42 +25,37 @@ LDContext& LDContext::appendSection(LDSection& pSection)
   return *this;
 }
 
-LDSection* LDContext::getSection(unsigned int pIdx)
-{
+LDSection* LDContext::getSection(unsigned int pIdx) {
   if (pIdx >= m_SectionTable.size())
     return NULL;
   return m_SectionTable[pIdx];
 }
 
-const LDSection* LDContext::getSection(unsigned int pIdx) const
-{
+const LDSection* LDContext::getSection(unsigned int pIdx) const {
   if (pIdx >= m_SectionTable.size())
     return NULL;
   return m_SectionTable[pIdx];
 }
 
-LDSection* LDContext::getSection(const std::string& pName)
-{
+LDSection* LDContext::getSection(const std::string& pName) {
   sect_iterator sect_iter, sect_end = sectEnd();
   for (sect_iter = sectBegin(); sect_iter != sect_end; ++sect_iter) {
-    if(*sect_iter != NULL && (*sect_iter)->name() == pName)
+    if (*sect_iter != NULL && (*sect_iter)->name() == pName)
       return *sect_iter;
   }
   return NULL;
 }
 
-const LDSection* LDContext::getSection(const std::string& pName) const
-{
+const LDSection* LDContext::getSection(const std::string& pName) const {
   const_sect_iterator sect_iter, sect_end = sectEnd();
   for (sect_iter = sectBegin(); sect_iter != sect_end; ++sect_iter) {
-    if(*sect_iter != NULL && (*sect_iter)->name() == pName)
+    if (*sect_iter != NULL && (*sect_iter)->name() == pName)
       return *sect_iter;
   }
   return NULL;
 }
 
-size_t LDContext::getSectionIdx(const std::string& pName) const
-{
+size_t LDContext::getSectionIdx(const std::string& pName) const {
   size_t result = 1;
   size_t size = m_SectionTable.size();
   for (; result != size; ++result)
@@ -70,23 +64,19 @@ size_t LDContext::getSectionIdx(const std::string& pName) const
   return 0;
 }
 
-LDSymbol* LDContext::getSymbol(unsigned int pIdx)
-{
+LDSymbol* LDContext::getSymbol(unsigned int pIdx) {
   if (pIdx >= m_SymTab.size())
     return NULL;
   return m_SymTab[pIdx];
 }
 
-const LDSymbol* LDContext::getSymbol(unsigned int pIdx) const
-{
+const LDSymbol* LDContext::getSymbol(unsigned int pIdx) const {
   if (pIdx >= m_SymTab.size())
     return NULL;
   return m_SymTab[pIdx];
 }
 
-
-LDSymbol* LDContext::getSymbol(const llvm::StringRef& pName)
-{
+LDSymbol* LDContext::getSymbol(const llvm::StringRef& pName) {
   size_t sym = 1;
   size_t size = m_SymTab.size();
   for (; sym < size; ++sym)
@@ -95,8 +85,7 @@ LDSymbol* LDContext::getSymbol(const llvm::StringRef& pName)
   return NULL;
 }
 
-const LDSymbol* LDContext::getSymbol(const llvm::StringRef& pName) const
-{
+const LDSymbol* LDContext::getSymbol(const llvm::StringRef& pName) const {
   size_t sym = 1;
   size_t size = m_SymTab.size();
   for (; sym < size; ++sym)

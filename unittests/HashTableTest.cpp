@@ -16,70 +16,55 @@ using namespace std;
 using namespace mcld;
 using namespace mcldtest;
 
-
 // Constructor can do set-up work for all test here.
-HashTableTest::HashTableTest()
-{
+HashTableTest::HashTableTest() {
 }
 
 // Destructor can do clean-up work that doesn't throw exceptions here.
-HashTableTest::~HashTableTest()
-{
+HashTableTest::~HashTableTest() {
 }
 
 // SetUp() will be called immediately before each test.
-void HashTableTest::SetUp()
-{
+void HashTableTest::SetUp() {
 }
 
 // TearDown() will be called immediately after each test.
-void HashTableTest::TearDown()
-{
+void HashTableTest::TearDown() {
 }
 
 //==========================================================================//
 // Testcases
 //
-struct IntCompare
-{
-  bool operator()(int X, int Y) const
-  { return (X==Y); }
+struct IntCompare {
+  bool operator()(int X, int Y) const { return (X == Y); }
 };
 
-struct PtrCompare
-{
-  bool operator()(const int* X, const int* Y) const
-  { return (X==Y); }
+struct PtrCompare {
+  bool operator()(const int* X, const int* Y) const { return (X == Y); }
 };
 
-struct PtrHash
-{
-  size_t operator()(const int* pKey) const
-  {
-    return (unsigned((uintptr_t)pKey) >> 4) ^
-           (unsigned((uintptr_t)pKey) >> 9);
+struct PtrHash {
+  size_t operator()(const int* pKey) const {
+    return (unsigned((uintptr_t)pKey) >> 4) ^ (unsigned((uintptr_t)pKey) >> 9);
   }
 };
 
-struct IntHash
-{
-  size_t operator()(int pKey) const
-  { return pKey; }
+struct IntHash {
+  size_t operator()(int pKey) const { return pKey; }
 };
 
-struct IntMod3Hash
-{
-  size_t operator()(int pKey) const
-  { return pKey % 3; }
+struct IntMod3Hash {
+  size_t operator()(int pKey) const { return pKey % 3; }
 };
 
-TEST_F( HashTableTest, ptr_entry ) {
+TEST_F(HashTableTest, ptr_entry) {
   int A = 1;
   int* pA = &A;
 
   typedef HashEntry<int*, int, PtrCompare> HashEntryType;
-  typedef HashTable<HashEntryType, PtrHash, EntryFactory<HashEntryType> > HashTableTy;
-  HashTableTy *hashTable = new HashTableTy(0);
+  typedef HashTable<HashEntryType, PtrHash, EntryFactory<HashEntryType> >
+      HashTableTy;
+  HashTableTy* hashTable = new HashTableTy(0);
 
   bool exist;
   HashTableTy::entry_type* entry = 0;
@@ -90,11 +75,11 @@ TEST_F( HashTableTest, ptr_entry ) {
 
   HashTableTy::iterator iter;
   iter = hashTable->find(NULL);
-  EXPECT_TRUE(iter==hashTable->end());
+  EXPECT_TRUE(iter == hashTable->end());
   delete hashTable;
 }
 
-TEST_F( HashTableTest, constructor ) {
+TEST_F(HashTableTest, constructor) {
   typedef HashEntry<int, int, IntCompare> HashEntryType;
   HashTable<HashEntryType, IntHash, EntryFactory<HashEntryType> > hashTable(16);
   EXPECT_TRUE(17 == hashTable.numOfBuckets());
@@ -102,10 +87,11 @@ TEST_F( HashTableTest, constructor ) {
   EXPECT_TRUE(0 == hashTable.numOfEntries());
 }
 
-TEST_F( HashTableTest, allocattion ) {
+TEST_F(HashTableTest, allocattion) {
   typedef HashEntry<int, int, IntCompare> HashEntryType;
-  typedef HashTable<HashEntryType, IntHash, EntryFactory<HashEntryType> > HashTableTy;
-  HashTableTy *hashTable = new HashTableTy(22);
+  typedef HashTable<HashEntryType, IntHash, EntryFactory<HashEntryType> >
+      HashTableTy;
+  HashTableTy* hashTable = new HashTableTy(22);
 
   bool exist;
   int key = 100;
@@ -119,20 +105,21 @@ TEST_F( HashTableTest, allocattion ) {
   delete hashTable;
 }
 
-TEST_F( HashTableTest, alloc100 ) {
+TEST_F(HashTableTest, alloc100) {
   typedef HashEntry<int, int, IntCompare> HashEntryType;
-  typedef HashTable<HashEntryType, IntHash, EntryFactory<HashEntryType> > HashTableTy;
-  HashTableTy *hashTable = new HashTableTy(22);
+  typedef HashTable<HashEntryType, IntHash, EntryFactory<HashEntryType> >
+      HashTableTy;
+  HashTableTy* hashTable = new HashTableTy(22);
 
   bool exist;
   HashTableTy::entry_type* entry = 0;
-  for (int key=0; key<100; ++key) {
+  for (int key = 0; key < 100; ++key) {
     entry = hashTable->insert(key, exist);
     EXPECT_FALSE(hashTable->empty());
     EXPECT_FALSE(exist);
     EXPECT_FALSE(NULL == entry);
     EXPECT_TRUE(key == entry->key());
-    entry->setValue(key+10);
+    entry->setValue(key + 10);
   }
 
   EXPECT_FALSE(hashTable->empty());
@@ -141,21 +128,22 @@ TEST_F( HashTableTest, alloc100 ) {
   delete hashTable;
 }
 
-TEST_F( HashTableTest, erase100 ) {
+TEST_F(HashTableTest, erase100) {
   typedef HashEntry<int, int, IntCompare> HashEntryType;
-  typedef HashTable<HashEntryType, IntHash, EntryFactory<HashEntryType> > HashTableTy;
-  HashTableTy *hashTable = new HashTableTy(0);
+  typedef HashTable<HashEntryType, IntHash, EntryFactory<HashEntryType> >
+      HashTableTy;
+  HashTableTy* hashTable = new HashTableTy(0);
 
   bool exist;
   HashTableTy::entry_type* entry = 0;
-  for (unsigned int key=0; key<100; ++key)
+  for (unsigned int key = 0; key < 100; ++key)
     entry = hashTable->insert(key, exist);
 
   EXPECT_FALSE(hashTable->empty());
 
   int count;
   HashTableTy::iterator iter;
-  for (unsigned int key=0; key<100; ++key) {
+  for (unsigned int key = 0; key < 100; ++key) {
     count = hashTable->erase(key);
     EXPECT_EQ(1, count);
     iter = hashTable->find(key);
@@ -166,21 +154,22 @@ TEST_F( HashTableTest, erase100 ) {
   delete hashTable;
 }
 
-TEST_F( HashTableTest, clear) {
+TEST_F(HashTableTest, clear) {
   typedef HashEntry<int, int, IntCompare> HashEntryType;
-  typedef HashTable<HashEntryType, IntHash, EntryFactory<HashEntryType> > HashTableTy;
-  HashTableTy *hashTable = new HashTableTy(22);
+  typedef HashTable<HashEntryType, IntHash, EntryFactory<HashEntryType> >
+      HashTableTy;
+  HashTableTy* hashTable = new HashTableTy(22);
 
   bool exist;
   HashTableTy::entry_type* entry = 0;
-  for (unsigned int key=0; key<100; ++key) {
+  for (unsigned int key = 0; key < 100; ++key) {
     entry = hashTable->insert(key, exist);
   }
 
   hashTable->clear();
 
   HashTableTy::iterator iter;
-  for (unsigned int key=0; key<100; ++key) {
+  for (unsigned int key = 0; key < 100; ++key) {
     iter = hashTable->find(key);
     EXPECT_TRUE(iter == hashTable->end());
   }
@@ -189,21 +178,22 @@ TEST_F( HashTableTest, clear) {
   delete hashTable;
 }
 
-TEST_F( HashTableTest, tombstone ) {
+TEST_F(HashTableTest, tombstone) {
   typedef HashEntry<int, int, IntCompare> HashEntryType;
-  typedef HashTable<HashEntryType, IntMod3Hash, EntryFactory<HashEntryType> > HashTableTy;
-  HashTableTy *hashTable = new HashTableTy();
+  typedef HashTable<HashEntryType, IntMod3Hash, EntryFactory<HashEntryType> >
+      HashTableTy;
+  HashTableTy* hashTable = new HashTableTy();
 
   bool exist;
   HashTableTy::entry_type* entry = 0;
-  for (unsigned int key=0; key<100; ++key) {
+  for (unsigned int key = 0; key < 100; ++key) {
     entry = hashTable->insert(key, exist);
   }
   EXPECT_FALSE(hashTable->empty());
 
   int count;
   HashTableTy::iterator iter;
-  for (unsigned int key=0; key<20; ++key) {
+  for (unsigned int key = 0; key < 20; ++key) {
     count = hashTable->erase(key);
     EXPECT_EQ(1, count);
     iter = hashTable->find(key);
@@ -211,12 +201,12 @@ TEST_F( HashTableTest, tombstone ) {
   }
   EXPECT_TRUE(80 == hashTable->numOfEntries());
 
-  for (unsigned int key=20; key<100; ++key) {
+  for (unsigned int key = 20; key < 100; ++key) {
     iter = hashTable->find(key);
     EXPECT_TRUE(iter != hashTable->end());
   }
 
-  for (unsigned int key=0; key<20; ++key) {
+  for (unsigned int key = 0; key < 20; ++key) {
     entry = hashTable->insert(key, exist);
   }
   EXPECT_TRUE(100 == hashTable->numOfEntries());
@@ -225,66 +215,68 @@ TEST_F( HashTableTest, tombstone ) {
   delete hashTable;
 }
 
-TEST_F( HashTableTest, rehash_test ) {
+TEST_F(HashTableTest, rehash_test) {
   typedef HashEntry<int, int, IntCompare> HashEntryType;
-  typedef HashTable<HashEntryType, IntHash, EntryFactory<HashEntryType> > HashTableTy;
-  HashTableTy *hashTable = new HashTableTy(0);
+  typedef HashTable<HashEntryType, IntHash, EntryFactory<HashEntryType> >
+      HashTableTy;
+  HashTableTy* hashTable = new HashTableTy(0);
 
   bool exist;
   HashTableTy::entry_type* entry = 0;
-  for (unsigned int key=0; key<400000; ++key) {
+  for (unsigned int key = 0; key < 400000; ++key) {
     entry = hashTable->insert(key, exist);
-    entry->setValue(key+10);
+    entry->setValue(key + 10);
   }
 
   HashTableTy::iterator iter;
-  for (int key=0; key<400000; ++key) {
+  for (int key = 0; key < 400000; ++key) {
     iter = hashTable->find(key);
-    EXPECT_EQ((key+10), iter.getEntry()->value());
+    EXPECT_EQ((key + 10), iter.getEntry()->value());
   }
 
   delete hashTable;
 }
 
-TEST_F( HashTableTest, bucket_iterator ) {
+TEST_F(HashTableTest, bucket_iterator) {
   typedef HashEntry<int, int, IntCompare> HashEntryType;
-  typedef HashTable<HashEntryType, IntHash, EntryFactory<HashEntryType> > HashTableTy;
-  HashTableTy *hashTable = new HashTableTy(0);
+  typedef HashTable<HashEntryType, IntHash, EntryFactory<HashEntryType> >
+      HashTableTy;
+  HashTableTy* hashTable = new HashTableTy(0);
 
   bool exist;
   HashTableTy::entry_type* entry = 0;
-  for (unsigned int key=0; key<400000; ++key) {
+  for (unsigned int key = 0; key < 400000; ++key) {
     entry = hashTable->insert(key, exist);
-    entry->setValue(key+10);
+    entry->setValue(key + 10);
   }
 
   HashTableTy::iterator iter, iEnd = hashTable->end();
   int counter = 0;
   for (iter = hashTable->begin(); iter != iEnd; ++iter) {
-    EXPECT_EQ(iter.getEntry()->key()+10, iter.getEntry()->value());
+    EXPECT_EQ(iter.getEntry()->key() + 10, iter.getEntry()->value());
     ++counter;
   }
   EXPECT_EQ(400000, counter);
   delete hashTable;
 }
 
-
-TEST_F( HashTableTest, chain_iterator_single ) {
+TEST_F(HashTableTest, chain_iterator_single) {
   typedef HashEntry<int, int, IntCompare> HashEntryType;
-  typedef HashTable<HashEntryType, IntHash, EntryFactory<HashEntryType> > HashTableTy;
-  HashTableTy *hashTable = new HashTableTy();
+  typedef HashTable<HashEntryType, IntHash, EntryFactory<HashEntryType> >
+      HashTableTy;
+  HashTableTy* hashTable = new HashTableTy();
 
   bool exist;
   HashTableTy::entry_type* entry = 0;
-  for (int key=0; key<16; ++key) {
-    entry = hashTable->insert(key*37, exist);
-    entry->setValue(key+10);
+  for (int key = 0; key < 16; ++key) {
+    entry = hashTable->insert(key * 37, exist);
+    entry->setValue(key + 10);
   }
-  for (int key=0; key<16; ++key) {
+  for (int key = 0; key < 16; ++key) {
     int counter = 0;
-    HashTableTy::chain_iterator iter, iEnd = hashTable->end(key*37);
-    for (iter = hashTable->begin(key*37); iter != iEnd; ++iter) {
-      EXPECT_EQ(key+10, iter.getEntry()->value());
+    HashTableTy::chain_iterator iter, iEnd = hashTable->end(key * 37);
+    for (iter = hashTable->begin(key * 37); iter != iEnd; ++iter) {
+      EXPECT_EQ(key + 10, iter.getEntry()->value());
       ++counter;
     }
     EXPECT_EQ(1, counter);
@@ -292,22 +284,19 @@ TEST_F( HashTableTest, chain_iterator_single ) {
   delete hashTable;
 }
 
-struct FixHash
-{
-  size_t operator()(int pKey) const {
-    return 10;
-  }
+struct FixHash {
+  size_t operator()(int pKey) const { return 10; }
 };
 
-
-TEST_F( HashTableTest, chain_iterator_list ) {
+TEST_F(HashTableTest, chain_iterator_list) {
   typedef HashEntry<int, int, IntCompare> HashEntryType;
-  typedef HashTable<HashEntryType, FixHash, EntryFactory<HashEntryType> > HashTableTy;
-  HashTableTy *hashTable = new HashTableTy();
+  typedef HashTable<HashEntryType, FixHash, EntryFactory<HashEntryType> >
+      HashTableTy;
+  HashTableTy* hashTable = new HashTableTy();
 
   bool exist;
   HashTableTy::entry_type* entry = 0;
-  for (unsigned int key=0; key<16; ++key) {
+  for (unsigned int key = 0; key < 16; ++key) {
     entry = hashTable->insert(key, exist);
     ASSERT_FALSE(exist);
     entry->setValue(key);

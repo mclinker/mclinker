@@ -21,12 +21,10 @@ using namespace elf_dynamic;
 //===----------------------------------------------------------------------===//
 // elf_dynamic::EntryIF
 //===----------------------------------------------------------------------===//
-EntryIF::EntryIF()
-{
+EntryIF::EntryIF() {
 }
 
-EntryIF::~EntryIF()
-{
+EntryIF::~EntryIF() {
 }
 
 //===----------------------------------------------------------------------===//
@@ -47,9 +45,7 @@ ELFDynamic::ELFDynamic(const GNULDBackend& pParent, const LinkerConfig& pConfig)
   }
 }
 
-
-ELFDynamic::~ELFDynamic()
-{
+ELFDynamic::~ELFDynamic() {
   if (m_pEntryFactory != NULL)
     delete m_pEntryFactory;
 
@@ -66,37 +62,31 @@ ELFDynamic::~ELFDynamic()
   }
 }
 
-size_t ELFDynamic::size() const
-{
+size_t ELFDynamic::size() const {
   return (m_NeedList.size() + m_EntryList.size());
 }
 
-size_t ELFDynamic::numOfBytes() const
-{
-  return size()*entrySize();
+size_t ELFDynamic::numOfBytes() const {
+  return size() * entrySize();
 }
 
-size_t ELFDynamic::entrySize() const
-{
+size_t ELFDynamic::entrySize() const {
   return m_pEntryFactory->size();
 }
 
-void ELFDynamic::reserveOne(uint64_t pTag)
-{
+void ELFDynamic::reserveOne(uint64_t pTag) {
   assert(m_pEntryFactory != NULL);
   m_EntryList.push_back(m_pEntryFactory->clone());
 }
 
-void ELFDynamic::applyOne(uint64_t pTag, uint64_t pValue)
-{
+void ELFDynamic::applyOne(uint64_t pTag, uint64_t pValue) {
   assert(m_Idx < m_EntryList.size());
   m_EntryList[m_Idx]->setValue(pTag, pValue);
   ++m_Idx;
 }
 
 /// reserveEntries - reserve entries
-void ELFDynamic::reserveEntries(const ELFFileFormat& pFormat)
-{
+void ELFDynamic::reserveEntries(const ELFFileFormat& pFormat) {
   if (LinkerConfig::DynObj == m_Config.codeGenType()) {
     reserveOne(llvm::ELF::DT_SONAME);
 
@@ -181,16 +171,12 @@ void ELFDynamic::reserveEntries(const ELFFileFormat& pFormat)
   if (m_Backend.hasTextRel())
     reserveOne(llvm::ELF::DT_TEXTREL);
 
-  if (m_Config.options().hasNow()          ||
-      m_Config.options().hasLoadFltr()     ||
-      m_Config.options().hasOrigin()       ||
-      m_Config.options().hasInterPose()    ||
-      m_Config.options().hasNoDefaultLib() ||
-      m_Config.options().hasNoDump()       ||
-      m_Config.options().Bgroup()          ||
+  if (m_Config.options().hasNow() || m_Config.options().hasLoadFltr() ||
+      m_Config.options().hasOrigin() || m_Config.options().hasInterPose() ||
+      m_Config.options().hasNoDefaultLib() || m_Config.options().hasNoDump() ||
+      m_Config.options().Bgroup() ||
       ((LinkerConfig::DynObj == m_Config.codeGenType()) &&
-       (m_Config.options().hasNoDelete()  ||
-        m_Config.options().hasInitFirst() ||
+       (m_Config.options().hasNoDelete() || m_Config.options().hasInitFirst() ||
         m_Config.options().hasNoDLOpen()))) {
     reserveOne(llvm::ELF::DT_FLAGS_1);
   }
@@ -199,11 +185,10 @@ void ELFDynamic::reserveEntries(const ELFFileFormat& pFormat)
 }
 
 /// applyEntries - apply entries
-void ELFDynamic::applyEntries(const ELFFileFormat& pFormat)
-{
+void ELFDynamic::applyEntries(const ELFFileFormat& pFormat) {
   if (LinkerConfig::DynObj == m_Config.codeGenType() &&
       m_Config.options().Bsymbolic()) {
-      applyOne(llvm::ELF::DT_SYMBOLIC, 0x0);
+    applyOne(llvm::ELF::DT_SYMBOLIC, 0x0);
   }
 
   if (pFormat.hasInit())
@@ -322,20 +307,17 @@ void ELFDynamic::applyEntries(const ELFFileFormat& pFormat)
 }
 
 /// symbolSize
-size_t ELFDynamic::symbolSize() const
-{
+size_t ELFDynamic::symbolSize() const {
   return m_pEntryFactory->symbolSize();
 }
 
 /// reserveNeedEntry - reserve on DT_NEED entry.
-void ELFDynamic::reserveNeedEntry()
-{
+void ELFDynamic::reserveNeedEntry() {
   m_NeedList.push_back(m_pEntryFactory->clone());
 }
 
 /// emit
-void ELFDynamic::emit(const LDSection& pSection, MemoryRegion& pRegion) const
-{
+void ELFDynamic::emit(const LDSection& pSection, MemoryRegion& pRegion) const {
   if (pRegion.size() < pSection.size()) {
     llvm::report_fatal_error(llvm::Twine("the given memory is smaller") +
                              llvm::Twine(" than the section's demaind.\n"));
@@ -351,7 +333,6 @@ void ELFDynamic::emit(const LDSection& pSection, MemoryRegion& pRegion) const
     address += (*entry)->emit(address);
 }
 
-void ELFDynamic::applySoname(uint64_t pStrTabIdx)
-{
+void ELFDynamic::applySoname(uint64_t pStrTabIdx) {
   applyOne(llvm::ELF::DT_SONAME, pStrTabIdx);
 }

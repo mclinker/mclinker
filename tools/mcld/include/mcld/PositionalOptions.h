@@ -33,9 +33,8 @@ class LinkerScript;
  *      in groups until there is no new undefined symbols.
  *   5. Definitions of symbols. --defsym option depends on
  */
-class PositionalOptions
-{
-public:
+class PositionalOptions {
+ public:
   PositionalOptions();
 
   size_t numOfInputs() const;
@@ -44,10 +43,10 @@ public:
              LinkerConfig& pConfig,
              const LinkerScript& pScript);
 
-private:
+ private:
   size_t numOfActions() const;
 
-private:
+ private:
   llvm::cl::list<mcld::sys::fs::Path>& m_InputObjectFiles;
   llvm::cl::list<std::string>& m_LinkerScript;
   llvm::cl::list<std::string>& m_NameSpecList;
@@ -62,10 +61,8 @@ private:
   llvm::cl::list<bool>& m_StartGroupList;
   llvm::cl::list<bool>& m_EndGroupList;
   llvm::cl::list<std::string>& m_DefSymList;
-
 };
 
-} // namespace of mcld
+}  // namespace of mcld
 
 #endif
-

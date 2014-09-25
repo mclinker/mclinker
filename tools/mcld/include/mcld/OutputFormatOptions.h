@@ -20,16 +20,15 @@ namespace mcld {
 
 class Module;
 
-class OutputFormatOptions
-{
-public:
+class OutputFormatOptions {
+ public:
   OutputFormatOptions();
 
   bool parse(Module& pModule, LinkerConfig& pConfig);
 
   bool parseOutput(Module& pModule, LinkerConfig& pConfig);
 
-private:
+ private:
   llvm::cl::opt<mcld::sys::fs::Path,
                 false,
                 llvm::cl::parser<mcld::sys::fs::Path> >& m_OutputFilename;
@@ -55,7 +54,6 @@ private:
   llvm::cl::opt<bool>& m_NoWarnMismatch;
 };
 
-} // namespace of mcld
+}  // namespace of mcld
 
 #endif
-

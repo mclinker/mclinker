@@ -14,39 +14,32 @@
 
 #include <string>
 
-namespace mcld
-{
+namespace mcld {
 
 /** \class StrToken
  *  \brief This class defines the interfaces to a element in EXCLUDE_FILE list
  *         or in Output Section Phdr, or be a base class of other str token.
  */
 
-class StrToken
-{
-public:
-  enum Kind {
-    Unknown,
-    String,
-    Input,
-    Wildcard
-  };
+class StrToken {
+ public:
+  enum Kind { Unknown, String, Input, Wildcard };
 
-private:
+ private:
   friend class Chunk<StrToken, MCLD_SYMBOLS_PER_INPUT>;
-protected:
+
+ protected:
   StrToken();
   StrToken(Kind pKind, const std::string& pString);
 
-public:
+ public:
   virtual ~StrToken();
 
   Kind kind() const { return m_Kind; }
 
   const std::string& name() const { return m_Name; }
 
-  static bool classof(const StrToken* pToken)
-  {
+  static bool classof(const StrToken* pToken) {
     return pToken->kind() == StrToken::String;
   }
 
@@ -55,11 +48,11 @@ public:
   static void destroy(StrToken*& pToken);
   static void clear();
 
-private:
+ private:
   Kind m_Kind;
   std::string m_Name;
 };
 
-} // namepsace mcld
+}  // namespace mcld
 
 #endif  // MCLD_SCRIPT_STRTOKEN_H_

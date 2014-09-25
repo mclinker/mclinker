@@ -17,9 +17,8 @@ class Linker;
 
 namespace test {
 
-class LinkerTest : public ::testing::Test
-{
-public:
+class LinkerTest : public ::testing::Test {
+ public:
   // Constructor can do set-up work for all test here.
   LinkerTest();
 
@@ -33,8 +32,7 @@ public:
   virtual void TearDown();
 };
 
-} // namespace of test
-} // namespace for mcld
+}  // namespace of test
+}  // namespace for mcld
 
 #endif
-

@@ -20,7 +20,7 @@ AlignFragment::AlignFragment(unsigned int pAlignment,
                              int64_t pValue,
                              unsigned int pValueSize,
                              unsigned int pMaxBytesToEmit,
-                             SectionData *pSD)
+                             SectionData* pSD)
     : Fragment(Fragment::Alignment, pSD),
       m_Alignment(pAlignment),
       m_Value(pValue),
@@ -29,8 +29,7 @@ AlignFragment::AlignFragment(unsigned int pAlignment,
       m_bEmitNops(false) {
 }
 
-size_t AlignFragment::size() const
-{
+size_t AlignFragment::size() const {
   assert(hasOffset() &&
          "AlignFragment::size() should not be called before layout.");
   uint64_t size = llvm::OffsetToAlignment(getOffset(), m_Alignment);

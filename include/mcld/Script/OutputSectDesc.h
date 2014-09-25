@@ -16,8 +16,7 @@
 
 #include <cassert>
 
-namespace mcld
-{
+namespace mcld {
 
 class RpnExpr;
 class StringList;
@@ -26,11 +25,10 @@ class StringList;
  *  \brief This class defines the interfaces to output section description.
  */
 
-class OutputSectDesc : public ScriptCommand
-{
-public:
+class OutputSectDesc : public ScriptCommand {
+ public:
   enum Type {
-    LOAD, // ALLOC
+    LOAD,  // ALLOC
     NOLOAD,
     DSECT,
     COPY,
@@ -38,11 +36,7 @@ public:
     OVERLAY
   };
 
-  enum Constraint {
-    NO_CONSTRAINT,
-    ONLY_IF_RO,
-    ONLY_IF_RW
-  };
+  enum Constraint { NO_CONSTRAINT, ONLY_IF_RO, ONLY_IF_RW };
 
   struct Prolog {
     bool hasVMA() const { return m_pVMA != NULL; }
@@ -55,9 +49,7 @@ public:
       return *m_pVMA;
     }
 
-    void setType(Type pType) {
-      m_Type = pType;
-    }
+    void setType(Type pType) { m_Type = pType; }
 
     Type type() const { return m_Type; }
 
@@ -93,7 +85,7 @@ public:
         return false;
       if (m_Type != pRHS.m_Type)
         return false;
-      if (m_pLMA!= pRHS.m_pLMA)
+      if (m_pLMA != pRHS.m_pLMA)
         return false;
       if (m_pAlign != pRHS.m_pAlign)
         return false;
@@ -164,19 +156,19 @@ public:
   typedef OutputSectCmds::const_reference const_reference;
   typedef OutputSectCmds::reference reference;
 
-public:
+ public:
   OutputSectDesc(const std::string& pName, const Prolog& pProlog);
   ~OutputSectDesc();
 
-  const_iterator  begin() const { return m_OutputSectCmds.begin(); }
-  iterator        begin()       { return m_OutputSectCmds.begin(); }
-  const_iterator  end()   const { return m_OutputSectCmds.end(); }
-  iterator        end()         { return m_OutputSectCmds.end(); }
+  const_iterator begin() const { return m_OutputSectCmds.begin(); }
+  iterator begin() { return m_OutputSectCmds.begin(); }
+  const_iterator end() const { return m_OutputSectCmds.end(); }
+  iterator end() { return m_OutputSectCmds.end(); }
 
   const_reference front() const { return m_OutputSectCmds.front(); }
-  reference       front()       { return m_OutputSectCmds.front(); }
-  const_reference back()  const { return m_OutputSectCmds.back(); }
-  reference       back()        { return m_OutputSectCmds.back(); }
+  reference front() { return m_OutputSectCmds.front(); }
+  const_reference back() const { return m_OutputSectCmds.back(); }
+  reference back() { return m_OutputSectCmds.back(); }
 
   const std::string& name() const { return m_Name; }
 
@@ -186,8 +178,7 @@ public:
 
   void dump() const;
 
-  static bool classof(const ScriptCommand* pCmd)
-  {
+  static bool classof(const ScriptCommand* pCmd) {
     return pCmd->getKind() == ScriptCommand::OUTPUT_SECT_DESC;
   }
 
@@ -201,13 +192,13 @@ public:
 
   const Epilog& epilog() const { return m_Epilog; }
 
-private:
+ private:
   OutputSectCmds m_OutputSectCmds;
   std::string m_Name;
   Prolog m_Prolog;
   Epilog m_Epilog;
 };
 
-} // namespace mcld
+}  // namespace mcld
 
 #endif  // MCLD_SCRIPT_OUTPUTSECTDESC_H_

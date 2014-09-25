@@ -15,28 +15,23 @@
 using namespace mcld;
 using namespace mcldtest;
 
-
 // Constructor can do set-up work for all test here.
-FileHandleTest::FileHandleTest()
-{
+FileHandleTest::FileHandleTest() {
   // create testee. modify it if need
   m_pTestee = new FileHandle();
 }
 
 // Destructor can do clean-up work that doesn't throw exceptions here.
-FileHandleTest::~FileHandleTest()
-{
+FileHandleTest::~FileHandleTest() {
   delete m_pTestee;
 }
 
 // SetUp() will be called immediately before each test.
-void FileHandleTest::SetUp()
-{
+void FileHandleTest::SetUp() {
 }
 
 // TearDown() will be called immediately after each test.
-void FileHandleTest::TearDown()
-{
+void FileHandleTest::TearDown() {
 }
 
 //===----------------------------------------------------------------------===//

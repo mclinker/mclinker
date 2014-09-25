@@ -16,9 +16,8 @@ class Module;
 /** \class ScriptCommand
  *  \brief This class defines the interfaces to a script command.
  */
-class ScriptCommand
-{
-public:
+class ScriptCommand {
+ public:
   enum Kind {
     ASSERT,
     ASSIGNMENT,
@@ -34,12 +33,10 @@ public:
     SECTIONS
   };
 
-protected:
-  ScriptCommand(Kind pKind)
-      : m_Kind(pKind)
-  { }
+ protected:
+  explicit ScriptCommand(Kind pKind) : m_Kind(pKind) {}
 
-public:
+ public:
   virtual ~ScriptCommand() = 0;
 
   virtual void dump() const = 0;
@@ -48,10 +45,10 @@ public:
 
   Kind getKind() const { return m_Kind; }
 
-private:
+ private:
   Kind m_Kind;
 };
 
-} // namespace mcld
+}  // namespace mcld
 
 #endif  // MCLD_SCRIPT_SCRIPTCOMMAND_H_

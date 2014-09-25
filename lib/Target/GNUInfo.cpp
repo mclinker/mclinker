@@ -13,12 +13,10 @@ using namespace mcld;
 //===----------------------------------------------------------------------===//
 // GNUInfo
 //===----------------------------------------------------------------------===//
-GNUInfo::GNUInfo(const llvm::Triple& pTriple)
-    : m_Triple(pTriple) {
+GNUInfo::GNUInfo(const llvm::Triple& pTriple) : m_Triple(pTriple) {
 }
 
-uint8_t GNUInfo::OSABI() const
-{
+uint8_t GNUInfo::OSABI() const {
   switch (m_Triple.getOS()) {
     case llvm::Triple::FreeBSD:
       return llvm::ELF::ELFOSABI_FREEBSD;

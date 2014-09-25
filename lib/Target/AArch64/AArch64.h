@@ -12,7 +12,7 @@
 
 namespace llvm {
 class Target;
-} // namespace llvm
+}  // namespace llvm
 
 namespace mcld {
 
@@ -24,6 +24,6 @@ extern mcld::Target TheAArch64Target;
 TargetLDBackend* createAArch64LDBackend(const llvm::Target&,
                                         const std::string&);
 
-} // namespace mcld
+}  // namespace mcld
 
 #endif  // TARGET_AARCH64_AARCH64_H_

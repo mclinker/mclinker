@@ -20,10 +20,9 @@ class LDSection;
 /** \class MipsGOTPLT
  *  \brief Mips .got.plt section.
  */
-class MipsGOTPLT : public GOT
-{
-public:
-  MipsGOTPLT(LDSection &pSection);
+class MipsGOTPLT : public GOT {
+ public:
+  explicit MipsGOTPLT(LDSection& pSection);
 
   // hasGOT1 - return if this section has any GOT1 entry
   bool hasGOT1() const;
@@ -36,15 +35,15 @@ public:
 
   void applyAllGOTPLT(uint64_t pltAddr);
 
-public:
+ public:
   // GOT
   void reserve(size_t pNum = 1);
 
-private:
+ private:
   // the last consumed entry.
   SectionData::iterator m_Last;
 };
 
-} // namespace mcld
+}  // namespace mcld
 
 #endif  // TARGET_MIPS_MIPSGOTPLT_H_

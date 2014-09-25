@@ -18,30 +18,27 @@ using namespace mcld;
 // AttributeSet
 //===----------------------------------------------------------------------===//
 AttributeSet::AttributeSet(unsigned int pNum, const Attribute& pPredefined)
-    : m_AttrSet(),
-      m_Predefined(pPredefined) {
-      m_AttrSet.reserve(pNum);
+    : m_AttrSet(), m_Predefined(pPredefined) {
+  m_AttrSet.reserve(pNum);
 }
 
-AttributeSet::~AttributeSet()
-{
+AttributeSet::~AttributeSet() {
   iterator cur = m_AttrSet.begin();
   iterator aEnd = m_AttrSet.end();
 
-  while(cur != aEnd) {
+  while (cur != aEnd) {
     delete (*cur);
     ++cur;
   }
 }
 
-Attribute* AttributeSet::exists(const Attribute& pAttr) const
-{
+Attribute* AttributeSet::exists(const Attribute& pAttr) const {
   if (m_Predefined == pAttr)
     return const_cast<Attribute*>(&m_Predefined);
 
   const_iterator cur = m_AttrSet.begin();
   const_iterator aEnd = m_AttrSet.end();
-  while(cur != aEnd) {
+  while (cur != aEnd) {
     if (*(*cur) == pAttr) {
       return *cur;
     }
@@ -50,7 +47,6 @@ Attribute* AttributeSet::exists(const Attribute& pAttr) const
   return NULL;
 }
 
-void AttributeSet::record(mcld::Attribute &pAttr)
-{
+void AttributeSet::record(mcld::Attribute& pAttr) {
   m_AttrSet.push_back(&pAttr);
 }

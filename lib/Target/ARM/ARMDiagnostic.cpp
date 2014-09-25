@@ -17,12 +17,11 @@ namespace mcld {
 // createARMDiagnostic - the help function to create corresponding ARMDiagnostic
 //===----------------------------------------------------------------------===//
 DiagnosticLineInfo* createARMDiagLineInfo(const mcld::Target& pTarget,
-                                          const std::string& pTriple)
-{
+                                          const std::string& pTriple) {
   return new DWARFLineInfo();
 }
 
-} // namespace mcld
+}  // namespace mcld
 
 //===----------------------------------------------------------------------===//
 // InitializeARMDiagnostic

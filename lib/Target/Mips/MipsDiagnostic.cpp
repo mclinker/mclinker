@@ -17,12 +17,11 @@ namespace {
 // MipsDiagnostic
 //===----------------------------------------------------------------------===//
 mcld::DiagnosticLineInfo* createMipsDiagLineInfo(const mcld::Target& pTarget,
-                                                 const std::string &pTriple)
-{
+                                                 const std::string& pTriple) {
   return new mcld::DWARFLineInfo();
 }
 
-} // namespace mcld
+}  // anonymous namespace
 
 //===----------------------------------------------------------------------===//
 // InitializeMipsDiagnostic

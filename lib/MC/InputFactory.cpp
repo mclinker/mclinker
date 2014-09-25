@@ -18,16 +18,14 @@ using namespace mcld;
 // InputFactory
 //===----------------------------------------------------------------------===//
 InputFactory::InputFactory(size_t pNum, const LinkerConfig& pConfig)
-    : GCFactory<Input,0>(pNum) {
-
+    : GCFactory<Input, 0>(pNum) {
   m_pAttrSet = new AttributeSet(16, pConfig.attribute().predefined());
   m_pLast = new AttributeProxy(*m_pAttrSet,
                                pConfig.attribute().predefined(),
                                pConfig.attribute().constraint());
 }
 
-InputFactory::~InputFactory()
-{
+InputFactory::~InputFactory() {
   delete m_pAttrSet;
   delete m_pLast;
 }
@@ -35,9 +33,17 @@ InputFactory::~InputFactory()
 Input* InputFactory::produce(llvm::StringRef pName,
                              const sys::fs::Path& pPath,
                              unsigned int pType,
-                             off_t pFileOffset)
-{
+                             off_t pFileOffset) {
   Input* result = Alloc::allocate();
   new (result) Input(pName, pPath, *m_pLast, pType, pFileOffset);
+  return result;
+}
+
+Input* InputFactory::produce(llvm::StringRef pName,
+                             const char* pPath,
+                             unsigned int pType,
+                             off_t pFileOffset) {
+  Input* result = Alloc::allocate();
+  new (result) Input(pName, sys::fs::Path(pPath), *m_pLast, pType, pFileOffset);
   return result;
 }

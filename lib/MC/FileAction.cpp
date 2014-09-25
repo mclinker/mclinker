@@ -16,22 +16,18 @@ using namespace mcld;
 //===----------------------------------------------------------------------===//
 // ContextAction
 //===----------------------------------------------------------------------===//
-ContextAction::ContextAction(unsigned int pPosition)
-    : InputAction(pPosition) {
+ContextAction::ContextAction(unsigned int pPosition) : InputAction(pPosition) {
 }
 
-bool ContextAction::activate(InputBuilder& pBuilder) const
-{
+bool ContextAction::activate(InputBuilder& pBuilder) const {
   Input* input = *pBuilder.getCurrentNode();
 
   if (input->hasContext())
     return false;
 
   // already got type - for example, bitcode
-  if (input->type() == Input::Script ||
-      input->type() == Input::Object ||
-      input->type() == Input::DynObj ||
-      input->type() == Input::Archive)
+  if (input->type() == Input::Script || input->type() == Input::Object ||
+      input->type() == Input::DynObj || input->type() == Input::Archive)
     return false;
 
   return pBuilder.setContext(*input);
@@ -46,18 +42,15 @@ MemoryAreaAction::MemoryAreaAction(unsigned int pPosition,
     : InputAction(pPosition), m_Mode(pMode), m_Permission(pPerm) {
 }
 
-bool MemoryAreaAction::activate(InputBuilder& pBuilder) const
-{
+bool MemoryAreaAction::activate(InputBuilder& pBuilder) const {
   Input* input = *pBuilder.getCurrentNode();
 
   if (input->hasMemArea())
     return false;
 
   // already got type - for example, bitcode
-  if (input->type() == Input::Script ||
-      input->type() == Input::Object ||
-      input->type() == Input::DynObj ||
-      input->type() == Input::Archive)
+  if (input->type() == Input::Script || input->type() == Input::Object ||
+      input->type() == Input::DynObj || input->type() == Input::Archive)
     return false;
 
   return pBuilder.setMemory(*input, m_Mode, m_Permission);

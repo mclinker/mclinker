@@ -17,6 +17,6 @@ std::string demangleName(const std::string& mangled_name);
 
 bool isCtorOrDtor(const char* pName, size_t pLength);
 
-} // namespace mcld
+}  // namespace mcld
 
 #endif  // MCLD_SUPPORT_DEMANGLE_H_

@@ -1,4 +1,4 @@
-//===- HashTable.h ---------------------------------------------------------===//
+//===- HashTable.h --------------------------------------------------------===//
 //
 //                     The MCLinker Project
 //
@@ -28,42 +28,40 @@ namespace mcld {
  *  the memory space of the entries by itself. Instead, entries are allocated
  *  outside and then emplaced into the hash table.
  */
-template<typename HashEntryTy,
-         typename HashFunctionTy,
-         typename EntryFactoryTy = HashEntryFactory<HashEntryTy> >
+template <typename HashEntryTy,
+          typename HashFunctionTy,
+          typename EntryFactoryTy = HashEntryFactory<HashEntryTy> >
 class HashTable : public HashTableImpl<HashEntryTy, HashFunctionTy>,
-                  private Uncopyable
-{
-private:
+                  private Uncopyable {
+ private:
   typedef HashTableImpl<HashEntryTy, HashFunctionTy> BaseTy;
 
-public:
+ public:
   typedef size_t size_type;
   typedef HashFunctionTy hasher;
   typedef HashEntryTy entry_type;
   typedef typename BaseTy::bucket_type bucket_type;
   typedef typename HashEntryTy::key_type key_type;
 
-  typedef HashIterator<ChainIteratorBase<BaseTy>,
-                       NonConstTraits<HashEntryTy> > chain_iterator;
+  typedef HashIterator<ChainIteratorBase<BaseTy>, NonConstTraits<HashEntryTy> >
+      chain_iterator;
   typedef HashIterator<ChainIteratorBase<const BaseTy>,
-                       ConstTraits<HashEntryTy> >    const_chain_iterator;
+                       ConstTraits<HashEntryTy> > const_chain_iterator;
 
-  typedef HashIterator<EntryIteratorBase<BaseTy>,
-                       NonConstTraits<HashEntryTy> > entry_iterator;
+  typedef HashIterator<EntryIteratorBase<BaseTy>, NonConstTraits<HashEntryTy> >
+      entry_iterator;
   typedef HashIterator<EntryIteratorBase<const BaseTy>,
-                       ConstTraits<HashEntryTy> >    const_entry_iterator;
+                       ConstTraits<HashEntryTy> > const_entry_iterator;
 
-  typedef entry_iterator                             iterator;
-  typedef const_entry_iterator                       const_iterator;
+  typedef entry_iterator iterator;
+  typedef const_entry_iterator const_iterator;
 
-public:
+ public:
   // -----  constructor  ----- //
-  explicit HashTable(size_type pSize=3);
+  explicit HashTable(size_type pSize = 3);
   ~HashTable();
 
-  EntryFactoryTy& getEntryFactory()
-  { return m_EntryFactory; }
+  EntryFactoryTy& getEntryFactory() { return m_EntryFactory; }
 
   // -----  modifiers  ----- //
   void clear();
@@ -110,12 +108,12 @@ public:
   const_chain_iterator begin(const key_type& pKey) const;
   const_chain_iterator end(const key_type& pKey) const;
 
-private:
+ private:
   EntryFactoryTy m_EntryFactory;
 };
 
 #include "HashTable.tcc"
 
-} // namespace mcld
+}  // namespace mcld
 
 #endif  // MCLD_ADT_HASHTABLE_H_

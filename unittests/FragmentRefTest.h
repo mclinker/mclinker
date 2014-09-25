@@ -12,23 +12,20 @@
 
 #include <gtest.h>
 
-namespace mcld
-{
+namespace mcld {
 class FragmentRef;
 
-} // namespace for mcld
+}  // namespace for mcld
 
-namespace mcldtest
-{
+namespace mcldtest {
 
 /** \class FragmentRefTest
  *  \brief Reference Test
  *
  *  \see FragmentRef
  */
-class FragmentRefTest : public ::testing::Test
-{
-public:
+class FragmentRefTest : public ::testing::Test {
+ public:
   // Constructor can do set-up work for all test here.
   FragmentRefTest();
 
@@ -42,7 +39,6 @@ public:
   virtual void TearDown();
 };
 
-} // namespace of mcldtest
+}  // namespace of mcldtest
 
 #endif
-

@@ -15,17 +15,12 @@
 
 namespace mcld {
 
-class HexagonGNUInfo : public GNUInfo
-{
-public:
-  enum CPUType {
-    V3 = 0x2,
-    V4 = 0x3,
-    V5
-  };
+class HexagonGNUInfo : public GNUInfo {
+ public:
+  enum CPUType { V3 = 0x2, V4 = 0x3, V5 };
 
-public:
-  HexagonGNUInfo(const TargetOptions& pTargetOptions);
+ public:
+  explicit HexagonGNUInfo(const TargetOptions& pTargetOptions);
 
   uint32_t machine() const { return llvm::ELF::EM_HEXAGON; }
 
@@ -34,10 +29,10 @@ public:
   /// flags - the value of ElfXX_Ehdr::e_flags
   uint64_t flags() const;
 
-private:
+ private:
   const TargetOptions& m_Options;
 };
 
-} // namespace mcld
+}  // namespace mcld
 
 #endif  // TARGET_HEXAGON_HEXAGONGNUINFO_H_

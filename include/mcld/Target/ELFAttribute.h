@@ -26,34 +26,33 @@ class LinkerConfig;
 /** \class ELFAttribute
  *  \brief ELFAttribute is the attribute section in an ELF file.
  */
-class ELFAttribute
-{
-public:
+class ELFAttribute {
+ public:
   // ARM [ABI-addenda], 2.2.3.
-  static const char   FormatVersion = 'A';
-  static const size_t FormatVersionFieldSize = sizeof(FormatVersion); // a byte
-  static const size_t SubsectionLengthFieldSize = 4; // a 4-byte integer
+  static const char FormatVersion = 'A';
+  static const size_t FormatVersionFieldSize = sizeof(FormatVersion);  // a byte
+  static const size_t SubsectionLengthFieldSize = 4;  // a 4-byte integer
 
   // MinimalELFAttributeSubsectionSize is the minimal number of bytes a valid
   // subsection in ELF attribute section should have.
-  static const size_t MinimalELFAttributeSubsectionSize
-      = 1 /* Tag_File, see ARM [ABI-addenda], 2.2.4 */ +
-        4 /* byte-size, see ARM [ABI-addenda], 2.2.4 */;
+  static const size_t MinimalELFAttributeSubsectionSize =
+      1 /* Tag_File, see ARM [ABI-addenda], 2.2.4 */ +
+      4 /* byte-size, see ARM [ABI-addenda], 2.2.4 */;
 
   // MinimalELFAttributeSectionSize is the minimal number of bytes a valid ELF
   // attribute section should have.
-  static const size_t MinimalELFAttributeSectionSize
-      = FormatVersionFieldSize + SubsectionLengthFieldSize +
-        2 /* vendor-name, a char plus '\0', see ARM [ABI-addenda], 2.2.3 */ +
-        1 * MinimalELFAttributeSubsectionSize;
+  static const size_t MinimalELFAttributeSectionSize =
+      FormatVersionFieldSize + SubsectionLengthFieldSize +
+      2 /* vendor-name, a char plus '\0', see ARM [ABI-addenda], 2.2.3 */ +
+      1 * MinimalELFAttributeSubsectionSize;
 
-public:
+ public:
   ELFAttribute(const GNULDBackend& pBackend, const LinkerConfig& pConfig)
-      : m_Backend(pBackend), m_Config(pConfig) { }
+      : m_Backend(pBackend), m_Config(pConfig) {}
 
   ~ELFAttribute();
 
-public:
+ public:
   /// merge - merge attributes from input (attribute) section
   bool merge(const Input& pInput, LDSection& pInputAttrSectHdr);
 
@@ -71,19 +70,18 @@ public:
   // Place vendor's attribute data under the management.
   void registerAttributeData(ELFAttributeData& pAttrData);
 
-private:
+ private:
   /** \class Subsection
    *  \brief A helper class to wrap ELFAttributeData and to provide general
    *  interfaces for ELFAttribute to operate on
    */
   class Subsection {
-  public:
+   public:
     Subsection(ELFAttribute& pParent, ELFAttributeData& pAttrData)
-        : m_Parent(pParent), m_AttrData(pAttrData) { }
+        : m_Parent(pParent), m_AttrData(pAttrData) {}
 
-  public:
-    bool isMyAttribute(llvm::StringRef pVendorName) const
-    {
+   public:
+    bool isMyAttribute(llvm::StringRef pVendorName) const {
       return (m_AttrData.getVendorName() == pVendorName);
     }
 
@@ -95,9 +93,9 @@ private:
     size_t sizeOutput() const;
 
     /// emit - write out this attribute subsection to the buffer.
-    size_t emit(char *pBuf) const;
+    size_t emit(char* pBuf) const;
 
-  private:
+   private:
     // The attribute section this subsection belongs to
     ELFAttribute& m_Parent;
 
@@ -108,15 +106,15 @@ private:
   // Obtain the corresponding subsection of the specified vendor
   Subsection* getSubsection(llvm::StringRef pVendorName) const;
 
-private:
-  const GNULDBackend &m_Backend;
+ private:
+  const GNULDBackend& m_Backend;
 
-  const LinkerConfig &m_Config;
+  const LinkerConfig& m_Config;
 
   // There is at most two subsections ("aeabi" and "gnu") in most cases.
   llvm::SmallVector<Subsection*, 2> m_Subsections;
 };
 
-} // namespace mcld
+}  // namespace mcld
 
 #endif  // MCLD_TARGET_ELFATTRIBUTE_H_

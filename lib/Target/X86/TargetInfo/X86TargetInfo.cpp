@@ -20,4 +20,4 @@ extern "C" void MCLDInitializeX86LDTargetInfo() {
   mcld::RegisterTarget<llvm::Triple::x86_64> Y(TheX86_64Target, "x86-64");
 }
 
-} // namespace mcld
+}  // namespace mcld

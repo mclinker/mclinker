@@ -26,22 +26,23 @@ class SectionData;
 /** \class ObjectBuilder
  *  \brief ObjectBuilder recieve ObjectAction and build the mcld::Module.
  */
-class ObjectBuilder
-{
-public:
-  ObjectBuilder(Module& pTheModule);
+class ObjectBuilder {
+ public:
+  explicit ObjectBuilder(Module& pTheModule);
 
-/// @}
-/// @name Section Methods
-/// @{
+  /// @}
+  /// @name Section Methods
+  /// @{
   /// CreateSection - To create an output LDSection in mcld::Module.
   /// Link scripts and command line options define some SECTIONS commands that
-  /// specify where input sections are placed into output sections. This function
+  /// specify where input sections are placed into output sections. This
+  /// function
   /// checks SECTIONS commands to change given name to the output section name.
   /// This function creates a new LDSection and push the created LDSection into
   /// @ref mcld::Module.
   ///
-  /// To create an input LDSection in mcld::LDContext, use @ref LDSection::Create().
+  /// To create an input LDSection in mcld::LDContext, use @ref
+  /// LDSection::Create().
   ///
   /// @see SectionMap
   ///
@@ -73,9 +74,9 @@ public:
   static void UpdateSectionAlign(LDSection& pSection,
                                  uint32_t pAlignConstraint);
 
-/// @}
-/// @name Fragment Methods
-/// @{
+  /// @}
+  /// @name Fragment Methods
+  /// @{
   /// AppendFragment - To append pFrag to the given SectionData pSD.
   /// In order to keep the alignment of pFrag, This function inserts an
   /// AlignFragment before pFrag if pAlignConstraint is larger than 1.
@@ -87,13 +88,14 @@ public:
   /// @param [in, out] pSD The section data being appended.
   /// @param [in] pAlignConstraint The alignment constraint.
   /// @return Total size of the inserted fragments.
-  static uint64_t AppendFragment(Fragment& pFrag, SectionData& pSD,
+  static uint64_t AppendFragment(Fragment& pFrag,
+                                 SectionData& pSD,
                                  uint32_t pAlignConstraint = 1);
 
-private:
+ private:
   Module& m_Module;
 };
 
-} // namespace mcld
+}  // namespace mcld
 
 #endif  // MCLD_OBJECT_OBJECTBUILDER_H_

@@ -26,8 +26,7 @@ using namespace mcld;
 //===----------------------------------------------------------------------===//
 // ObjectBuilder
 //===----------------------------------------------------------------------===//
-ObjectBuilder::ObjectBuilder(Module& pTheModule)
-    : m_Module(pTheModule) {
+ObjectBuilder::ObjectBuilder(Module& pTheModule) : m_Module(pTheModule) {
 }
 
 /// CreateSection - create an output section.
@@ -35,8 +34,7 @@ LDSection* ObjectBuilder::CreateSection(const std::string& pName,
                                         LDFileFormat::Kind pKind,
                                         uint32_t pType,
                                         uint32_t pFlag,
-                                        uint32_t pAlign)
-{
+                                        uint32_t pAlign) {
   // try to get one from output LDSection
   SectionMap::const_mapping pair =
       m_Module.getScript().sectionMap().find("*", pName);
@@ -54,19 +52,17 @@ LDSection* ObjectBuilder::CreateSection(const std::string& pName,
 
 /// MergeSection - merge the pInput section to the pOutput section
 LDSection* ObjectBuilder::MergeSection(const Input& pInputFile,
-                                       LDSection& pInputSection)
-{
-  SectionMap::mapping pair =
-      m_Module.getScript().sectionMap().find(pInputFile.path().native(),
-                                             pInputSection.name());
+                                       LDSection& pInputSection) {
+  SectionMap::mapping pair = m_Module.getScript().sectionMap().find(
+      pInputFile.path().native(), pInputSection.name());
 
   if (pair.first != NULL && pair.first->isDiscard()) {
     pInputSection.setKind(LDFileFormat::Ignore);
     return NULL;
   }
 
-  std::string output_name = (pair.first == NULL) ?
-                            pInputSection.name() : pair.first->name();
+  std::string output_name =
+      (pair.first == NULL) ? pInputSection.name() : pair.first->name();
   LDSection* target = m_Module.getSection(output_name);
 
   if (target == NULL) {
@@ -119,19 +115,19 @@ LDSection* ObjectBuilder::MergeSection(const Input& pInputFile,
 }
 
 /// MoveSectionData - move the fragments of pTO section data to pTo
-bool ObjectBuilder::MoveSectionData(SectionData& pFrom, SectionData& pTo)
-{
+bool ObjectBuilder::MoveSectionData(SectionData& pFrom, SectionData& pTo) {
   assert(&pFrom != &pTo && "Cannot move section data to itself!");
 
   uint64_t offset = pTo.getSection().size();
   AlignFragment* align = NULL;
   if (pFrom.getSection().align() > 1) {
     // if the align constraint is larger than 1, append an alignment
-    align = new AlignFragment(pFrom.getSection().align(), // alignment
-                              0x0, // the filled value
-                              1u,  // the size of filled value
-                              pFrom.getSection().align() - 1 // max bytes to emit
-                              );
+    align =
+        new AlignFragment(pFrom.getSection().align(),  // alignment
+                          0x0,                         // the filled value
+                          1u,  // the size of filled value
+                          pFrom.getSection().align() - 1  // max bytes to emit
+                          );
     align->setOffset(offset);
     align->setParent(&pTo);
     pTo.getFragmentList().push_back(align);
@@ -156,16 +152,14 @@ bool ObjectBuilder::MoveSectionData(SectionData& pFrom, SectionData& pTo)
 }
 
 /// UpdateSectionAlign - update alignment for input section
-void ObjectBuilder::UpdateSectionAlign(LDSection& pTo, const LDSection& pFrom)
-{
+void ObjectBuilder::UpdateSectionAlign(LDSection& pTo, const LDSection& pFrom) {
   if (pFrom.align() > pTo.align())
     pTo.setAlign(pFrom.align());
 }
 
 /// UpdateSectionAlign - update alignment for input section
 void ObjectBuilder::UpdateSectionAlign(LDSection& pSection,
-                                       uint32_t pAlignConstraint)
-{
+                                       uint32_t pAlignConstraint) {
   if (pSection.align() < pAlignConstraint)
     pSection.setAlign(pAlignConstraint);
 }
@@ -173,8 +167,7 @@ void ObjectBuilder::UpdateSectionAlign(LDSection& pSection,
 /// AppendFragment - To append pFrag to the given SectionData pSD.
 uint64_t ObjectBuilder::AppendFragment(Fragment& pFrag,
                                        SectionData& pSD,
-                                       uint32_t pAlignConstraint)
-{
+                                       uint32_t pAlignConstraint) {
   // get initial offset.
   uint64_t offset = 0;
   if (!pSD.empty())
@@ -183,10 +176,10 @@ uint64_t ObjectBuilder::AppendFragment(Fragment& pFrag,
   AlignFragment* align = NULL;
   if (pAlignConstraint > 1) {
     // if the align constraint is larger than 1, append an alignment
-    align = new AlignFragment(pAlignConstraint, // alignment
-                              0x0, // the filled value
-                              1u,  // the size of filled value
-                              pAlignConstraint - 1 // max bytes to emit
+    align = new AlignFragment(pAlignConstraint,     // alignment
+                              0x0,                  // the filled value
+                              1u,                   // the size of filled value
+                              pAlignConstraint - 1  // max bytes to emit
                               );
     align->setOffset(offset);
     align->setParent(&pSD);

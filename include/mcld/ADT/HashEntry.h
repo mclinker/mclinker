@@ -1,4 +1,4 @@
-//===- HashEntry.h ---------------------------------------------------------===//
+//===- HashEntry.h --------------------------------------------------------===//
 //
 //                     The MCLinker Project
 //
@@ -13,7 +13,7 @@
 namespace mcld {
 
 /** forward declaration **/
-template<typename HashEntryTy>
+template <typename HashEntryTy>
 class EntryFactory;
 
 /** \class HashEntry
@@ -30,53 +30,46 @@ class EntryFactory;
  *  are doing when you let a new class inherit from mcld::HashEntry.
  */
 template <typename KeyType, typename ValueType, typename KeyCompare>
-class HashEntry
-{
-public:
+class HashEntry {
+ public:
   typedef KeyType key_type;
   typedef ValueType value_type;
   typedef KeyCompare key_compare;
 
-private:
+ private:
   typedef HashEntry<KeyType, ValueType, KeyCompare> Self;
   friend class EntryFactory<Self>;
 
-private:
-  HashEntry(const KeyType& pKey);
+ private:
+  explicit HashEntry(const KeyType& pKey);
   ~HashEntry();
 
-public:
-  KeyType& key()
-  { return m_Key; }
+ public:
+  KeyType& key() { return m_Key; }
 
-  const KeyType& key() const
-  { return m_Key; }
+  const KeyType& key() const { return m_Key; }
 
-  ValueType& value()
-  { return m_Value; }
+  ValueType& value() { return m_Value; }
 
-  const ValueType& value() const
-  { return m_Value; }
+  const ValueType& value() const { return m_Value; }
 
-  void setValue(const ValueType& pValue)
-  { m_Value = pValue; }
+  void setValue(const ValueType& pValue) { m_Value = pValue; }
 
   bool compare(const key_type& pKey);
 
-public:
+ public:
   KeyType m_Key;
   ValueType m_Value;
 };
 
 template <typename HashEntryTy>
-class EntryFactory
-{
-public:
-  typedef HashEntryTy                      entry_type;
-  typedef typename HashEntryTy::key_type   key_type;
+class EntryFactory {
+ public:
+  typedef HashEntryTy entry_type;
+  typedef typename HashEntryTy::key_type key_type;
   typedef typename HashEntryTy::value_type value_type;
 
-public:
+ public:
   EntryFactory();
   ~EntryFactory();
 
@@ -86,6 +79,6 @@ public:
 
 #include "HashEntry.tcc"
 
-} // namespace mcld
+}  // namespace mcld
 
 #endif  // MCLD_ADT_HASHENTRY_H_

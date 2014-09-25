@@ -20,4 +20,4 @@ extern "C" void MCLDInitializeARMLDTargetInfo() {
   mcld::RegisterTarget<llvm::Triple::thumb> Y(TheThumbTarget, "thumb");
 }
 
-} // namespace mcld
+}  // namespace mcld

@@ -13,8 +13,7 @@
 #include <mcld/ADT/HashEntry.h>
 #include <mcld/MC/SymbolCategory.h>
 
-namespace mcld
-{
+namespace mcld {
 
 class LDSection;
 class NamePool;
@@ -24,12 +23,11 @@ class LDSymbol;
  *  \brief SectionSymbolSet contains the section symbols defined by linker for
  *   the output sections
  */
-class SectionSymbolSet
-{
-public:
+class SectionSymbolSet {
+ public:
   typedef SymbolCategory SymbolTable;
 
-public:
+ public:
   SectionSymbolSet();
   ~SectionSymbolSet();
 
@@ -45,19 +43,17 @@ public:
   LDSymbol* get(const LDSection& pOutSect);
   const LDSymbol* get(const LDSection& pOutSect) const;
 
-private:
+ private:
   /// sectCompare - hash compare function for LDSection*
-  struct SectCompare
-  {
-    bool operator()(const LDSection* X, const LDSection* Y) const
-    { return (X==Y); }
+  struct SectCompare {
+    bool operator()(const LDSection* X, const LDSection* Y) const {
+      return (X == Y);
+    }
   };
 
   /// SectPtrHash - hash function for LDSection*
-  struct SectPtrHash
-  {
-    size_t operator()(const LDSection* pKey) const
-    {
+  struct SectPtrHash {
+    size_t operator()(const LDSection* pKey) const {
       return (unsigned((uintptr_t)pKey) >> 4) ^
              (unsigned((uintptr_t)pKey) >> 9);
     }
@@ -68,10 +64,10 @@ private:
                     SectPtrHash,
                     EntryFactory<SectHashEntryType> > SectHashTableType;
 
-private:
+ private:
   SectHashTableType* m_pSectionSymbolMap;
 };
 
-} // namespace mcld
+}  // namespace mcld
 
 #endif  // MCLD_LD_SECTIONSYMBOLSET_H_

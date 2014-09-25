@@ -20,18 +20,15 @@ using namespace mcld;
 
 //===----------------------------------------------------------------------===//
 //  Diagnostic
-Diagnostic::Diagnostic(DiagnosticEngine& pEngine)
-    : m_Engine(pEngine) {
+Diagnostic::Diagnostic(DiagnosticEngine& pEngine) : m_Engine(pEngine) {
 }
 
-Diagnostic::~Diagnostic()
-{
+Diagnostic::~Diagnostic() {
 }
 
 // format - format this diagnostic into string, subsituting the formal
 // arguments. The result is appended at on the pOutStr.
-void Diagnostic::format(std::string& pOutStr) const
-{
+void Diagnostic::format(std::string& pOutStr) const {
   // we've not implemented DWARF LOC messages yet. So, keep pIsLoC false
   llvm::StringRef desc = m_Engine.infoMap().getDescription(getID(), false);
 
@@ -40,8 +37,7 @@ void Diagnostic::format(std::string& pOutStr) const
 
 const char* Diagnostic::findMatch(char pVal,
                                   const char* pBegin,
-                                  const char* pEnd ) const
-{
+                                  const char* pEnd) const {
   unsigned int depth = 0;
   for (; pBegin != pEnd; ++pBegin) {
     if (depth == 0 && *pBegin == pVal)
@@ -65,7 +61,7 @@ const char* Diagnostic::findMatch(char pVal,
           ++depth;
       }
     }
-  } // end of for
+  }  // end of for
   return pEnd;
 }
 
@@ -73,8 +69,7 @@ const char* Diagnostic::findMatch(char pVal,
 // arguments. The result is appended at on the pOutStr.
 void Diagnostic::format(const char* pBegin,
                         const char* pEnd,
-                        std::string& pOutStr) const
-{
+                        std::string& pOutStr) const {
   const char* cur_char = pBegin;
   while (cur_char != pEnd) {
     if (*cur_char != '%') {
@@ -82,8 +77,7 @@ void Diagnostic::format(const char* pBegin,
       pOutStr.append(cur_char, new_end);
       cur_char = new_end;
       continue;
-    }
-    else if (ispunct(cur_char[1])) {
+    } else if (ispunct(cur_char[1])) {
       pOutStr.push_back(cur_char[1]);  // %% -> %.
       cur_char += 2;
       continue;
@@ -104,17 +98,17 @@ void Diagnostic::format(const char* pBegin,
 
       // we get an argument
       if (*cur_char == '{') {
-        ++cur_char; // skip '{'
+        ++cur_char;  // skip '{'
         cur_char = findMatch('}', cur_char, pEnd);
 
         if (cur_char == pEnd) {
           // DIAG's format error
           llvm::report_fatal_error(
               llvm::Twine("Mismatched {} in the diagnostic: ") +
-                          llvm::Twine(getID()));
+              llvm::Twine(getID()));
         }
 
-        ++cur_char; // skip '}'
+        ++cur_char;  // skip '}'
       }
     }
     if (!isdigit(*cur_char)) {
@@ -125,15 +119,14 @@ void Diagnostic::format(const char* pBegin,
     }
 
     unsigned int arg_no = *cur_char - '0';
-    ++cur_char; // skip argument number
+    ++cur_char;  // skip argument number
 
     DiagnosticEngine::ArgumentKind kind = getArgKind(arg_no);
     switch (kind) {
       case DiagnosticEngine::ak_std_string: {
         if (modifier_len != 0) {
           llvm::report_fatal_error(
-              llvm::Twine("In diagnostic: ") +
-              llvm::Twine(getID()) +
+              llvm::Twine("In diagnostic: ") + llvm::Twine(getID()) +
               llvm::Twine(": ") + llvm::Twine(pBegin) +
               llvm::Twine("\nNo modifiers for strings yet\n"));
         }
@@ -144,8 +137,7 @@ void Diagnostic::format(const char* pBegin,
       case DiagnosticEngine::ak_c_string: {
         if (modifier_len != 0) {
           llvm::report_fatal_error(
-              llvm::Twine("In diagnostic: ") +
-              llvm::Twine(getID()) +
+              llvm::Twine("In diagnostic: ") + llvm::Twine(getID()) +
               llvm::Twine(": ") + llvm::Twine(pBegin) +
               llvm::Twine("\nNo modifiers for strings yet\n"));
         }
@@ -178,6 +170,6 @@ void Diagnostic::format(const char* pBegin,
           pOutStr.append("false");
         break;
       }
-    } // end of switch
-  } // end of while
+    }  // end of switch
+  }    // end of while
 }

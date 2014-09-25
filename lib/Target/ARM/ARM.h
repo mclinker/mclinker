@@ -12,7 +12,7 @@
 
 namespace llvm {
 class Target;
-} // namespace llvm
+}  // namespace llvm
 
 namespace mcld {
 
@@ -22,8 +22,8 @@ class TargetLDBackend;
 extern mcld::Target TheARMTarget;
 extern mcld::Target TheThumbTarget;
 
-TargetLDBackend *createARMLDBackend(const llvm::Target&, const std::string&);
+TargetLDBackend* createARMLDBackend(const llvm::Target&, const std::string&);
 
-} // namespace mcld
+}  // namespace mcld
 
 #endif  // TARGET_ARM_ARM_H_

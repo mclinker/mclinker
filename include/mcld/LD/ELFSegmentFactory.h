@@ -14,8 +14,7 @@
 
 #include <vector>
 
-namespace mcld
-{
+namespace mcld {
 
 class ELFSegment;
 class LDSection;
@@ -23,22 +22,21 @@ class LDSection;
 /** \class ELFSegmentFactory
  *  \brief provide the interface to create and delete an ELFSegment
  */
-class ELFSegmentFactory
-{
-public:
+class ELFSegmentFactory {
+ public:
   typedef std::vector<ELFSegment*> Segments;
   typedef Segments::const_iterator const_iterator;
   typedef Segments::iterator iterator;
 
   const_iterator begin() const { return m_Segments.begin(); }
-  iterator       begin()       { return m_Segments.begin(); }
-  const_iterator end()   const { return m_Segments.end(); }
-  iterator       end()         { return m_Segments.end(); }
+  iterator begin() { return m_Segments.begin(); }
+  const_iterator end() const { return m_Segments.end(); }
+  iterator end() { return m_Segments.end(); }
 
   const ELFSegment* front() const { return m_Segments.front(); }
-  ELFSegment*       front()       { return m_Segments.front(); }
-  const ELFSegment* back()  const { return m_Segments.back(); }
-  ELFSegment*       back()        { return m_Segments.back(); }
+  ELFSegment* front() { return m_Segments.front(); }
+  const ELFSegment* back() const { return m_Segments.back(); }
+  ELFSegment* back() { return m_Segments.back(); }
 
   size_t size() const { return m_Segments.size(); }
 
@@ -46,10 +44,11 @@ public:
 
   iterator find(uint32_t pType, uint32_t pFlagSet, uint32_t pFlagClear);
 
-  const_iterator
-  find(uint32_t pType, uint32_t pFlagSet, uint32_t pFlagClear) const;
+  const_iterator find(uint32_t pType,
+                      uint32_t pFlagSet,
+                      uint32_t pFlagClear) const;
 
-  iterator       find(uint32_t pType, const LDSection* pSection);
+  iterator find(uint32_t pType, const LDSection* pSection);
 
   const_iterator find(uint32_t pType, const LDSection* pSection) const;
 
@@ -60,10 +59,10 @@ public:
 
   void erase(iterator pSegment);
 
-private:
+ private:
   Segments m_Segments;
 };
 
-} // namespace mcld
+}  // namespace mcld
 
 #endif  // MCLD_LD_ELFSEGMENTFACTORY_H_

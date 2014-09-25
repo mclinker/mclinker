@@ -22,59 +22,51 @@ using namespace mcld;
 // PLT entry data
 //===----------------------------------------------------------------------===//
 X86_32DynPLT0::X86_32DynPLT0(SectionData& pParent)
-    : PLT::Entry<sizeof(x86_32_dyn_plt0)>(pParent)
-{
+    : PLT::Entry<sizeof(x86_32_dyn_plt0)>(pParent) {
 }
 
 X86_32DynPLT1::X86_32DynPLT1(SectionData& pParent)
-    : PLT::Entry<sizeof(x86_32_dyn_plt1)>(pParent)
-{
+    : PLT::Entry<sizeof(x86_32_dyn_plt1)>(pParent) {
 }
 
 X86_32ExecPLT0::X86_32ExecPLT0(SectionData& pParent)
-    : PLT::Entry<sizeof(x86_32_exec_plt0)>(pParent)
-{
+    : PLT::Entry<sizeof(x86_32_exec_plt0)>(pParent) {
 }
 
 X86_32ExecPLT1::X86_32ExecPLT1(SectionData& pParent)
-    : PLT::Entry<sizeof(x86_32_exec_plt1)>(pParent)
-{
+    : PLT::Entry<sizeof(x86_32_exec_plt1)>(pParent) {
 }
 
 X86_64PLT0::X86_64PLT0(SectionData& pParent)
-    : PLT::Entry<sizeof(x86_64_plt0)>(pParent)
-{
+    : PLT::Entry<sizeof(x86_64_plt0)>(pParent) {
 }
 
 X86_64PLT1::X86_64PLT1(SectionData& pParent)
-    : PLT::Entry<sizeof(x86_64_plt1)>(pParent)
-{
+    : PLT::Entry<sizeof(x86_64_plt1)>(pParent) {
 }
 
 //===----------------------------------------------------------------------===//
 // X86PLT
 //===----------------------------------------------------------------------===//
 X86PLT::X86PLT(LDSection& pSection, const LinkerConfig& pConfig, int got_size)
-    : PLT(pSection),
-      m_Config(pConfig)
-{
+    : PLT(pSection), m_Config(pConfig) {
   assert(LinkerConfig::DynObj == m_Config.codeGenType() ||
-         LinkerConfig::Exec   == m_Config.codeGenType() ||
+         LinkerConfig::Exec == m_Config.codeGenType() ||
          LinkerConfig::Binary == m_Config.codeGenType());
 
   if (got_size == 32) {
     if (LinkerConfig::DynObj == m_Config.codeGenType()) {
       m_PLT0 = x86_32_dyn_plt0;
       m_PLT1 = x86_32_dyn_plt1;
-      m_PLT0Size = sizeof (x86_32_dyn_plt0);
-      m_PLT1Size = sizeof (x86_32_dyn_plt1);
+      m_PLT0Size = sizeof(x86_32_dyn_plt0);
+      m_PLT1Size = sizeof(x86_32_dyn_plt1);
       // create PLT0
       new X86_32DynPLT0(*m_pSectionData);
     } else {
       m_PLT0 = x86_32_exec_plt0;
       m_PLT1 = x86_32_exec_plt1;
-      m_PLT0Size = sizeof (x86_32_exec_plt0);
-      m_PLT1Size = sizeof (x86_32_exec_plt1);
+      m_PLT0Size = sizeof(x86_32_exec_plt0);
+      m_PLT1Size = sizeof(x86_32_exec_plt1);
       // create PLT0
       new X86_32ExecPLT0(*m_pSectionData);
     }
@@ -82,19 +74,17 @@ X86PLT::X86PLT(LDSection& pSection, const LinkerConfig& pConfig, int got_size)
     assert(got_size == 64);
     m_PLT0 = x86_64_plt0;
     m_PLT1 = x86_64_plt1;
-    m_PLT0Size = sizeof (x86_64_plt0);
-    m_PLT1Size = sizeof (x86_64_plt1);
+    m_PLT0Size = sizeof(x86_64_plt0);
+    m_PLT1Size = sizeof(x86_64_plt1);
     // create PLT0
     new X86_64PLT0(*m_pSectionData);
   }
 }
 
-X86PLT::~X86PLT()
-{
+X86PLT::~X86PLT() {
 }
 
-void X86PLT::finalizeSectionSize()
-{
+void X86PLT::finalizeSectionSize() {
   uint64_t size = 0;
   // plt0 size
   size = getPLT0()->size();
@@ -117,21 +107,18 @@ void X86PLT::finalizeSectionSize()
   }
 }
 
-bool X86PLT::hasPLT1() const
-{
+bool X86PLT::hasPLT1() const {
   return (m_pSectionData->size() > 1);
 }
 
-PLTEntryBase* X86PLT::create()
-{
+PLTEntryBase* X86PLT::create() {
   if (LinkerConfig::DynObj == m_Config.codeGenType())
     return new X86_32DynPLT1(*m_pSectionData);
   else
     return new X86_32ExecPLT1(*m_pSectionData);
 }
 
-PLTEntryBase* X86PLT::getPLT0() const
-{
+PLTEntryBase* X86PLT::getPLT0() const {
   iterator first = m_pSectionData->getFragmentList().begin();
 
   assert(first != m_pSectionData->getFragmentList().end() &&
@@ -148,13 +135,11 @@ PLTEntryBase* X86PLT::getPLT0() const
 X86_32PLT::X86_32PLT(LDSection& pSection,
                      X86_32GOTPLT& pGOTPLT,
                      const LinkerConfig& pConfig)
-    : X86PLT(pSection, pConfig, 32),
-      m_GOTPLT(pGOTPLT) {
+    : X86PLT(pSection, pConfig, 32), m_GOTPLT(pGOTPLT) {
 }
 
 // FIXME: It only works on little endian machine.
-void X86_32PLT::applyPLT0()
-{
+void X86_32PLT::applyPLT0() {
   PLTEntryBase* plt0 = getPLT0();
 
   unsigned char* data = 0;
@@ -166,7 +151,7 @@ void X86_32PLT::applyPLT0()
   memcpy(data, m_PLT0, plt0->size());
 
   if (m_PLT0 == x86_32_exec_plt0) {
-    uint32_t *offset = reinterpret_cast<uint32_t*>(data + 2);
+    uint32_t* offset = reinterpret_cast<uint32_t*>(data + 2);
     *offset = m_GOTPLT.addr() + 4;
     offset = reinterpret_cast<uint32_t*>(data + 8);
     *offset = m_GOTPLT.addr() + 8;
@@ -176,8 +161,7 @@ void X86_32PLT::applyPLT0()
 }
 
 // FIXME: It only works on little endian machine.
-void X86_32PLT::applyPLT1()
-{
+void X86_32PLT::applyPLT1() {
   assert(m_Section.addr() && ".plt base address is NULL!");
 
   X86PLT::iterator it = m_pSectionData->begin();
@@ -191,7 +175,7 @@ void X86_32PLT::applyPLT1()
   if (LinkerConfig::Exec == m_Config.codeGenType())
     GOTEntryOffset += m_GOTPLT.addr();
 
-  //skip PLT0
+  // skip PLT0
   uint64_t PLTEntryOffset = m_PLT0Size;
   ++it;
 
@@ -201,7 +185,7 @@ void X86_32PLT::applyPLT1()
 
   while (it != ie) {
     plt1 = &(llvm::cast<PLTEntryBase>(*it));
-    unsigned char *data;
+    unsigned char* data;
     data = static_cast<unsigned char*>(malloc(plt1->size()));
 
     if (!data)
@@ -217,7 +201,7 @@ void X86_32PLT::applyPLT1()
 
     offset = reinterpret_cast<uint32_t*>(data + 7);
     *offset = PLTRelOffset;
-    PLTRelOffset += sizeof (llvm::ELF::Elf32_Rel);
+    PLTRelOffset += sizeof(llvm::ELF::Elf32_Rel);
 
     offset = reinterpret_cast<uint32_t*>(data + 12);
     *offset = -(PLTEntryOffset + 12 + 4);
@@ -234,13 +218,11 @@ void X86_32PLT::applyPLT1()
 X86_64PLT::X86_64PLT(LDSection& pSection,
                      X86_64GOTPLT& pGOTPLT,
                      const LinkerConfig& pConfig)
-    : X86PLT(pSection, pConfig, 64),
-      m_GOTPLT(pGOTPLT) {
+    : X86PLT(pSection, pConfig, 64), m_GOTPLT(pGOTPLT) {
 }
 
 // FIXME: It only works on little endian machine.
-void X86_64PLT::applyPLT0()
-{
+void X86_64PLT::applyPLT0() {
   PLTEntryBase* plt0 = getPLT0();
 
   unsigned char* data = 0;
@@ -252,7 +234,7 @@ void X86_64PLT::applyPLT0()
   memcpy(data, m_PLT0, plt0->size());
 
   // pushq GOT + 8(%rip)
-  uint32_t *offset = reinterpret_cast<uint32_t*>(data + 2);
+  uint32_t* offset = reinterpret_cast<uint32_t*>(data + 2);
   *offset = m_GOTPLT.addr() - addr() + 8 - 6;
   // jmq *GOT + 16(%rip)
   offset = reinterpret_cast<uint32_t*>(data + 8);
@@ -262,8 +244,7 @@ void X86_64PLT::applyPLT0()
 }
 
 // FIXME: It only works on little endian machine.
-void X86_64PLT::applyPLT1()
-{
+void X86_64PLT::applyPLT1() {
   assert(m_Section.addr() && ".plt base address is NULL!");
 
   X86PLT::iterator it = m_pSectionData->begin();
@@ -291,7 +272,7 @@ void X86_64PLT::applyPLT1()
 
   while (it != ie) {
     plt1 = &(llvm::cast<PLTEntryBase>(*it));
-    unsigned char *data;
+    unsigned char* data;
     data = static_cast<unsigned char*>(malloc(plt1->size()));
 
     if (!data)

@@ -28,12 +28,10 @@ static llvm::ManagedStatic<LDSymbolFactory> g_LDSymbolFactory;
 //===----------------------------------------------------------------------===//
 // LDSymbol
 //===----------------------------------------------------------------------===//
-LDSymbol::LDSymbol()
-    : m_pResolveInfo(NULL), m_pFragRef(NULL), m_Value(0) {
+LDSymbol::LDSymbol() : m_pResolveInfo(NULL), m_pFragRef(NULL), m_Value(0) {
 }
 
-LDSymbol::~LDSymbol()
-{
+LDSymbol::~LDSymbol() {
 }
 
 LDSymbol::LDSymbol(const LDSymbol& pCopy)
@@ -42,36 +40,31 @@ LDSymbol::LDSymbol(const LDSymbol& pCopy)
       m_Value(pCopy.m_Value) {
 }
 
-LDSymbol& LDSymbol::operator=(const LDSymbol& pCopy)
-{
+LDSymbol& LDSymbol::operator=(const LDSymbol& pCopy) {
   m_pResolveInfo = pCopy.m_pResolveInfo;
   m_pFragRef = pCopy.m_pFragRef;
   m_Value = pCopy.m_Value;
   return (*this);
 }
 
-LDSymbol* LDSymbol::Create(ResolveInfo& pResolveInfo)
-{
+LDSymbol* LDSymbol::Create(ResolveInfo& pResolveInfo) {
   LDSymbol* result = g_LDSymbolFactory->allocate();
   new (result) LDSymbol();
   result->setResolveInfo(pResolveInfo);
   return result;
 }
 
-void LDSymbol::Destroy(LDSymbol*& pSymbol)
-{
+void LDSymbol::Destroy(LDSymbol*& pSymbol) {
   pSymbol->~LDSymbol();
   g_LDSymbolFactory->deallocate(pSymbol);
   pSymbol = NULL;
 }
 
-void LDSymbol::Clear()
-{
+void LDSymbol::Clear() {
   g_LDSymbolFactory->clear();
 }
 
-LDSymbol* LDSymbol::Null()
-{
+LDSymbol* LDSymbol::Null() {
   // lazy initialization
   if (g_NullSymbol->resolveInfo() == NULL) {
     g_NullSymbol->setResolveInfo(*ResolveInfo::Null());
@@ -81,22 +74,18 @@ LDSymbol* LDSymbol::Null()
   return &*g_NullSymbol;
 }
 
-void LDSymbol::setFragmentRef(FragmentRef* pFragmentRef)
-{
+void LDSymbol::setFragmentRef(FragmentRef* pFragmentRef) {
   m_pFragRef = pFragmentRef;
 }
 
-void LDSymbol::setResolveInfo(const ResolveInfo& pInfo)
-{
+void LDSymbol::setResolveInfo(const ResolveInfo& pInfo) {
   m_pResolveInfo = const_cast<ResolveInfo*>(&pInfo);
 }
 
-bool LDSymbol::isNull() const
-{
+bool LDSymbol::isNull() const {
   return (this == Null());
 }
 
-bool LDSymbol::hasFragRef() const
-{
+bool LDSymbol::hasFragRef() const {
   return !m_pFragRef->isNull();
 }

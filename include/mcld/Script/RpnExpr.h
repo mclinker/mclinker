@@ -15,8 +15,7 @@
 
 #include <vector>
 
-namespace mcld
-{
+namespace mcld {
 
 class ExprToken;
 class Fragment;
@@ -25,24 +24,23 @@ class Fragment;
  *  \brief This class defines the interfaces to a rpn expression.
  */
 
-class RpnExpr
-{
-public:
+class RpnExpr {
+ public:
   typedef std::vector<ExprToken*> TokenQueue;
   typedef TokenQueue::const_iterator const_iterator;
   typedef TokenQueue::iterator iterator;
 
-private:
+ private:
   friend class Chunk<RpnExpr, MCLD_SYMBOLS_PER_INPUT>;
   RpnExpr();
 
-public:
+ public:
   ~RpnExpr();
 
   const_iterator begin() const { return m_TokenQueue.begin(); }
-  iterator       begin()       { return m_TokenQueue.begin(); }
-  const_iterator end()   const { return m_TokenQueue.end(); }
-  iterator       end()         { return m_TokenQueue.end(); }
+  iterator begin() { return m_TokenQueue.begin(); }
+  const_iterator end() const { return m_TokenQueue.end(); }
+  iterator end() { return m_TokenQueue.end(); }
 
   size_t size() const { return m_TokenQueue.size(); }
 
@@ -69,10 +67,10 @@ public:
   // buildHelperExpr - build the helper expr: `fragment'
   static RpnExpr* buildHelperExpr(Fragment& pFrag);
 
-private:
+ private:
   TokenQueue m_TokenQueue;
 };
 
-} // namespace mcld
+}  // namespace mcld
 
 #endif  // MCLD_SCRIPT_RPNEXPR_H_

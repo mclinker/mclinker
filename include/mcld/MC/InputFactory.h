@@ -26,12 +26,11 @@ class LinkerConfig;
  *
  *  \see llvm::sys::Path
  */
-class InputFactory : public GCFactory<Input,0>
-{
-public:
+class InputFactory : public GCFactory<Input, 0> {
+ public:
   typedef GCFactory<Input, 0> Alloc;
 
-public:
+ public:
   InputFactory(size_t pNum, const LinkerConfig& pConfig);
 
   ~InputFactory();
@@ -42,16 +41,21 @@ public:
                  unsigned int pType = Input::Unknown,
                  off_t pFileOffset = 0);
 
+  Input* produce(llvm::StringRef pName,
+                 const char* pPath,
+                 unsigned int pType = Input::Unknown,
+                 off_t pFileOffset = 0);
+
   // -----  attributes  ----- //
   /// attr - the last touched attribute.
   const AttributeProxy& attr() const { return *m_pLast; }
-  AttributeProxy&       attr()       { return *m_pLast; }
+  AttributeProxy& attr() { return *m_pLast; }
 
-private:
+ private:
   AttributeProxy* m_pLast;
   AttributeSet* m_pAttrSet;
 };
 
-} // namespace mcld
+}  // namespace mcld
 
 #endif  // MCLD_MC_INPUTFACTORY_H_

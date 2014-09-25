@@ -9,17 +9,13 @@
 #ifndef MCLD_LD_DYNOBJFILEFORMAT_H_
 #define MCLD_LD_DYNOBJFILEFORMAT_H_
 
-namespace mcld
-{
+namespace mcld {
 
 /** \class DynObjFormat
  *  \brief DynObjFormat describes the file format for dynamic objects.
  */
-class DynObjFormat : public LDFileFormat
-{
+class DynObjFormat : public LDFileFormat {};
 
-};
-
-} // namespace mcld
+}  // namespace mcld
 
 #endif  // MCLD_LD_DYNOBJFILEFORMAT_H_

@@ -22,42 +22,35 @@ using namespace mcld;
 // PLT entry data
 //===----------------------------------------------------------------------===//
 HexagonPLT0::HexagonPLT0(SectionData& pParent)
-    : PLT::Entry<sizeof(hexagon_plt0)>(pParent)
-{
+    : PLT::Entry<sizeof(hexagon_plt0)>(pParent) {
 }
 
 HexagonPLT1::HexagonPLT1(SectionData& pParent)
-    : PLT::Entry<sizeof(hexagon_plt1)>(pParent)
-{
+    : PLT::Entry<sizeof(hexagon_plt1)>(pParent) {
 }
 
 //===----------------------------------------------------------------------===//
 // HexagonPLT
 //===----------------------------------------------------------------------===//
 HexagonPLT::HexagonPLT(LDSection& pSection,
-               HexagonGOTPLT &pGOTPLT,
-               const LinkerConfig& pConfig)
-    : PLT(pSection),
-      m_GOTPLT(pGOTPLT),
-      m_Config(pConfig)
-{
+                       HexagonGOTPLT& pGOTPLT,
+                       const LinkerConfig& pConfig)
+    : PLT(pSection), m_GOTPLT(pGOTPLT), m_Config(pConfig) {
   assert(LinkerConfig::DynObj == m_Config.codeGenType() ||
-         LinkerConfig::Exec   == m_Config.codeGenType() ||
+         LinkerConfig::Exec == m_Config.codeGenType() ||
          LinkerConfig::Binary == m_Config.codeGenType());
 
   m_PLT0 = hexagon_plt0;
-  m_PLT0Size = sizeof (hexagon_plt0);
+  m_PLT0Size = sizeof(hexagon_plt0);
   // create PLT0
   new HexagonPLT0(*m_pSectionData);
   pSection.setAlign(16);
 }
 
-HexagonPLT::~HexagonPLT()
-{
+HexagonPLT::~HexagonPLT() {
 }
 
-PLTEntryBase* HexagonPLT::getPLT0() const
-{
+PLTEntryBase* HexagonPLT::getPLT0() const {
   iterator first = m_pSectionData->getFragmentList().begin();
 
   assert(first != m_pSectionData->getFragmentList().end() &&
@@ -68,8 +61,7 @@ PLTEntryBase* HexagonPLT::getPLT0() const
   return plt0;
 }
 
-void HexagonPLT::finalizeSectionSize()
-{
+void HexagonPLT::finalizeSectionSize() {
   uint64_t size = 0;
   // plt0 size
   size = getPLT0()->size();
@@ -92,18 +84,15 @@ void HexagonPLT::finalizeSectionSize()
   }
 }
 
-bool HexagonPLT::hasPLT1() const
-{
+bool HexagonPLT::hasPLT1() const {
   return (m_pSectionData->size() > 1);
 }
 
-HexagonPLT1* HexagonPLT::create()
-{
+HexagonPLT1* HexagonPLT::create() {
   return new HexagonPLT1(*m_pSectionData);
 }
 
-void HexagonPLT::applyPLT0()
-{
+void HexagonPLT::applyPLT0() {
   PLTEntryBase* plt0 = getPLT0();
   uint64_t pltBase = m_Section.addr();
 
@@ -116,8 +105,8 @@ void HexagonPLT::applyPLT0()
   memcpy(data, m_PLT0, plt0->size());
   uint32_t gotpltAddr = m_GOTPLT.addr();
 
-  int32_t *dest = (int32_t *)data;
-  int32_t result = ((gotpltAddr - pltBase ) >> 6);
+  int32_t* dest = (int32_t*)data;
+  int32_t result = ((gotpltAddr - pltBase) >> 6);
   *dest |= ApplyMask<int32_t>(0xfff3fff, result);
   dest = dest + 1;
   // Already calculated using pltBase
@@ -128,7 +117,6 @@ void HexagonPLT::applyPLT0()
 }
 
 void HexagonPLT::applyPLT1() {
-
   uint64_t plt_base = m_Section.addr();
   assert(plt_base && ".plt base address is NULL!");
 
@@ -140,11 +128,12 @@ void HexagonPLT::applyPLT1() {
   assert(it != ie && "FragmentList is empty, applyPLT1 failed!");
 
   uint32_t GOTEntrySize = HexagonGOTEntry::EntrySize;
-  uint32_t GOTEntryAddress = got_base +  GOTEntrySize * 4;
+  uint32_t GOTEntryAddress = got_base + GOTEntrySize * 4;
 
-  uint64_t PLTEntryAddress = plt_base + HexagonPLT0::EntrySize; //Offset of PLT0
+  uint64_t PLTEntryAddress =
+      plt_base + HexagonPLT0::EntrySize;  // Offset of PLT0
 
-  ++it; //skip PLT0
+  ++it;  // skip PLT0
   uint64_t PLT1EntrySize = HexagonPLT1::EntrySize;
   HexagonPLT1* plt1 = NULL;
 
@@ -158,8 +147,8 @@ void HexagonPLT::applyPLT1() {
 
     memcpy(Out, hexagon_plt1, plt1->size());
 
-    int32_t *dest = (int32_t *)Out;
-    int32_t result = ((GOTEntryAddress - PLTEntryAddress ) >> 6);
+    int32_t* dest = (int32_t*)Out;
+    int32_t result = ((GOTEntryAddress - PLTEntryAddress) >> 6);
     *dest |= ApplyMask<int32_t>(0xfff3fff, result);
     dest = dest + 1;
     result = (GOTEntryAddress - PLTEntryAddress);
@@ -176,13 +165,13 @@ void HexagonPLT::applyPLT1() {
   }
 }
 
-uint64_t HexagonPLT::emit(MemoryRegion& pRegion)
-{
+uint64_t HexagonPLT::emit(MemoryRegion& pRegion) {
   uint64_t result = 0x0;
   iterator it = begin();
 
   unsigned char* buffer = pRegion.begin();
-  memcpy(buffer, llvm::cast<HexagonPLT0>((*it)).getValue(),
+  memcpy(buffer,
+         llvm::cast<HexagonPLT0>((*it)).getValue(),
          HexagonPLT0::EntrySize);
   result += HexagonPLT0::EntrySize;
   ++it;

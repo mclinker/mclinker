@@ -13,26 +13,23 @@
 #include <mcld/Script/InputToken.h>
 #include <mcld/Support/Allocators.h>
 
-namespace mcld
-{
+namespace mcld {
 
 /** \class NameSpec
  *  \brief This class defines the interfaces to a namespec in INPUT/GROUP
  *         command.
  */
 
-class NameSpec : public InputToken
-{
-private:
+class NameSpec : public InputToken {
+ private:
   friend class Chunk<NameSpec, MCLD_SYMBOLS_PER_INPUT>;
   NameSpec();
   NameSpec(const std::string& pName, bool pAsNeeded);
 
-public:
+ public:
   ~NameSpec();
 
-  static bool classof(const InputToken* pToken)
-  {
+  static bool classof(const InputToken* pToken) {
     return pToken->type() == InputToken::NameSpec;
   }
 
@@ -42,6 +39,6 @@ public:
   static void clear();
 };
 
-} // namepsace mcld
+}  // namespace mcld
 
 #endif  // MCLD_SCRIPT_NAMESPEC_H_

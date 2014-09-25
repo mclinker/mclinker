@@ -21,60 +21,47 @@ class ResolveInfo;
 /** \class PLTEntryDefaultBase
  *  \brief PLTEntryDefaultBase provides the default interface for PLT Entry
  */
-class PLTEntryBase : public TargetFragment
-{
-public:
-  PLTEntryBase(SectionData& pParent)
-      : TargetFragment(Fragment::Target, &pParent), m_pValue(NULL)
-  { }
+class PLTEntryBase : public TargetFragment {
+ public:
+  explicit PLTEntryBase(SectionData& pParent)
+      : TargetFragment(Fragment::Target, &pParent), m_pValue(NULL) {}
 
-  virtual ~PLTEntryBase()
-  {
-    free(m_pValue);
-  }
+  virtual ~PLTEntryBase() { free(m_pValue); }
 
-  void setValue(unsigned char* pValue)
-  { m_pValue = pValue; }
+  void setValue(unsigned char* pValue) { m_pValue = pValue; }
 
-  const unsigned char* getValue() const
-  { return m_pValue; }
+  const unsigned char* getValue() const { return m_pValue; }
 
-  //Used by llvm::cast<>.
-  static bool classof(const Fragment *O)
-  { return true; }
+  // Used by llvm::cast<>.
+  static bool classof(const Fragment* O) { return true; }
 
-protected:
+ protected:
   unsigned char* m_pValue;
 };
 
 /** \class PLT
  *  \brief Procedure linkage table
  */
-class PLT
-{
-public:
+class PLT {
+ public:
   typedef SectionData::iterator iterator;
   typedef SectionData::const_iterator const_iterator;
 
-  template<size_t SIZE, typename EntryBase = PLTEntryBase>
-  class Entry : public EntryBase
-  {
-  public:
+  template <size_t SIZE, typename EntryBase = PLTEntryBase>
+  class Entry : public EntryBase {
+   public:
     enum { EntrySize = SIZE };
 
-  public:
-    Entry(SectionData& pParent)
-        : EntryBase(pParent)
-    { }
+   public:
+    explicit Entry(SectionData& pParent) : EntryBase(pParent) {}
 
     virtual ~Entry() {}
 
-    size_t size() const
-    { return EntrySize; }
+    size_t size() const { return EntrySize; }
   };
 
-public:
-  PLT(LDSection& pSection);
+ public:
+  explicit PLT(LDSection& pSection);
 
   virtual ~PLT();
 
@@ -84,15 +71,15 @@ public:
   uint64_t addr() const { return m_Section.addr(); }
 
   const_iterator begin() const { return m_pSectionData->begin(); }
-  iterator       begin()       { return m_pSectionData->begin(); }
-  const_iterator end  () const { return m_pSectionData->end();   }
-  iterator       end  ()       { return m_pSectionData->end();   }
+  iterator begin() { return m_pSectionData->begin(); }
+  const_iterator end() const { return m_pSectionData->end(); }
+  iterator end() { return m_pSectionData->end(); }
 
-protected:
+ protected:
   LDSection& m_Section;
   SectionData* m_pSectionData;
 };
 
-} // namespace mcld
+}  // namespace mcld
 
 #endif  // MCLD_TARGET_PLT_H_

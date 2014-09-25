@@ -71,8 +71,7 @@ Input::Input(llvm::StringRef pName,
       m_pContext(NULL) {
 }
 
-Input::~Input()
-{
+Input::~Input() {
   // Attribute is deleted by AttributeFactory
   // MemoryArea is deleted by MemoryAreaFactory
 }

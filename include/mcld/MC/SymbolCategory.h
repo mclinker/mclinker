@@ -11,24 +11,22 @@
 #include <cstddef>
 #include <vector>
 
-namespace mcld
-{
+namespace mcld {
 
 class LDSymbol;
 class ResolveInfo;
 /** \class SymbolCategory
  *  \brief SymbolCategory groups output LDSymbol into different categories.
  */
-class SymbolCategory
-{
-private:
+class SymbolCategory {
+ private:
   typedef std::vector<LDSymbol*> OutputSymbols;
 
-public:
+ public:
   typedef OutputSymbols::iterator iterator;
   typedef OutputSymbols::const_iterator const_iterator;
 
-public:
+ public:
   SymbolCategory();
 
   ~SymbolCategory();
@@ -45,17 +43,17 @@ public:
   SymbolCategory& changeToDynamic(LDSymbol& pSymbol);
 
   // -----  access  ----- //
-  LDSymbol& at(size_t pPosition)
-  { return *m_OutputSymbols.at(pPosition); }
+  LDSymbol& at(size_t pPosition) { return *m_OutputSymbols.at(pPosition); }
 
-  const LDSymbol& at(size_t pPosition) const
-  { return *m_OutputSymbols.at(pPosition); }
+  const LDSymbol& at(size_t pPosition) const {
+    return *m_OutputSymbols.at(pPosition);
+  }
 
-  LDSymbol& operator[](size_t pPosition)
-  { return *m_OutputSymbols[pPosition]; }
+  LDSymbol& operator[](size_t pPosition) { return *m_OutputSymbols[pPosition]; }
 
-  const LDSymbol& operator[](size_t pPosition) const
-  { return *m_OutputSymbols[pPosition]; }
+  const LDSymbol& operator[](size_t pPosition) const {
+    return *m_OutputSymbols[pPosition];
+  }
 
   // -----  observers  ----- //
   size_t numOfSymbols() const;
@@ -122,20 +120,12 @@ public:
   const_iterator regularBegin() const;
   const_iterator regularEnd() const;
 
-private:
-  class Category
-  {
-  public:
-    enum Type {
-      File,
-      Local,
-      LocalDyn,
-      Common,
-      Dynamic,
-      Regular
-    };
+ private:
+  class Category {
+   public:
+    enum Type { File, Local, LocalDyn, Common, Dynamic, Regular };
 
-  public:
+   public:
     Type type;
 
     size_t begin;
@@ -144,38 +134,29 @@ private:
     Category* prev;
     Category* next;
 
-  public:
-    Category(Type pType)
-        : type(pType),
-          begin(0),
-          end(0),
-          prev(NULL),
-          next(NULL) {
-    }
+   public:
+    explicit Category(Type pType)
+        : type(pType), begin(0), end(0), prev(NULL), next(NULL) {}
 
-    size_t size() const
-    { return (end - begin); }
+    size_t size() const { return (end - begin); }
 
-    bool empty() const
-    { return (begin == end); }
+    bool empty() const { return (begin == end); }
 
-    bool isFirst() const
-    { return (prev == NULL); }
+    bool isFirst() const { return (prev == NULL); }
 
-    bool isLast() const
-    { return (next == NULL); }
+    bool isLast() const { return (next == NULL); }
 
     static Type categorize(const ResolveInfo& pInfo);
   };
 
-private:
+ private:
   SymbolCategory& add(LDSymbol& pSymbol, Category::Type pTarget);
 
   SymbolCategory& arrange(LDSymbol& pSymbol,
                           Category::Type pSource,
                           Category::Type pTarget);
 
-private:
+ private:
   OutputSymbols m_OutputSymbols;
 
   Category* m_pFile;
@@ -186,6 +167,6 @@ private:
   Category* m_pRegular;
 };
 
-} // namespace mcld
+}  // namespace mcld
 
 #endif  // MCLD_MC_SYMBOLCATEGORY_H_

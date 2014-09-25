@@ -27,25 +27,21 @@ ScriptReader::ScriptReader(ObjectReader& pObjectReader,
     : m_ObjectReader(pObjectReader),
       m_ArchiveReader(pArchiveReader),
       m_DynObjReader(pDynObjReader),
-      m_GroupReader(pGroupReader)
-{
+      m_GroupReader(pGroupReader) {
 }
 
-ScriptReader::~ScriptReader()
-{
+ScriptReader::~ScriptReader() {
 }
 
 /// isMyFormat
-bool ScriptReader::isMyFormat(Input& input, bool &doContinue) const
-{
+bool ScriptReader::isMyFormat(Input& input, bool& doContinue) const {
   doContinue = true;
   // always return true now
   return true;
 }
 
 bool ScriptReader::readScript(const LinkerConfig& pConfig,
-                              ScriptFile& pScriptFile)
-{
+                              ScriptFile& pScriptFile) {
   Input& input = pScriptFile.input();
   size_t size = input.memArea()->size();
   llvm::StringRef region = input.memArea()->request(input.fileOffset(), size);
@@ -53,7 +49,12 @@ bool ScriptReader::readScript(const LinkerConfig& pConfig,
 
   std::istream in(&buf);
   ScriptScanner scanner(&in);
-  ScriptParser parser(pConfig, pScriptFile, scanner, m_ObjectReader,
-                      m_ArchiveReader, m_DynObjReader, m_GroupReader);
+  ScriptParser parser(pConfig,
+                      pScriptFile,
+                      scanner,
+                      m_ObjectReader,
+                      m_ArchiveReader,
+                      m_DynObjReader,
+                      m_GroupReader);
   return parser.parse() == 0;
 }

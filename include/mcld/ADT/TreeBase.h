@@ -17,110 +17,98 @@
 
 namespace mcld {
 
-class NodeBase
-{
-public:
-  NodeBase *left;
-  NodeBase *right;
+class NodeBase {
+ public:
+  NodeBase* left;
+  NodeBase* right;
 
-public:
-  NodeBase()
-      : left(NULL), right(NULL)
-  { }
+ public:
+  NodeBase() : left(NULL), right(NULL) {}
 };
 
-class TreeIteratorBase
-{
-public:
-  enum Direct {
-    Leftward,
-    Rightward
-  };
+class TreeIteratorBase {
+ public:
+  enum Direct { Leftward, Rightward };
 
   typedef size_t size_type;
   typedef ptrdiff_t difference_type;
   typedef std::bidirectional_iterator_tag iterator_category;
 
-public:
+ public:
   NodeBase* m_pNode;
 
-public:
-  TreeIteratorBase()
-      : m_pNode(NULL)
-  { }
+ public:
+  TreeIteratorBase() : m_pNode(NULL) {}
 
-  TreeIteratorBase(NodeBase *X)
-      : m_pNode(X)
-  { }
+  TreeIteratorBase(NodeBase* X) : m_pNode(X) {}
 
   virtual ~TreeIteratorBase(){};
 
-  template<size_t DIRECT>
-  void move() { assert(0 && "not allowed"); }
+  template <size_t DIRECT>
+  void move() {
+    assert(0 && "not allowed");
+  }
 
-  template<size_t DIRECT>
-  void hook(NodeBase* pNode) { assert(0 && "not allowed"); }
+  template <size_t DIRECT>
+  void hook(NodeBase* pNode) {
+    assert(0 && "not allowed");
+  }
 
-  bool isRoot() const
-  { return (m_pNode->right == m_pNode); }
+  bool isRoot() const { return (m_pNode->right == m_pNode); }
 
-  bool hasRightChild() const
-  { return ((m_pNode->right) != (m_pNode->right->right)); }
+  bool hasRightChild() const {
+    return ((m_pNode->right) != (m_pNode->right->right));
+  }
 
-  bool hasLeftChild() const
-  { return ((m_pNode->left) != (m_pNode->left->right)); }
+  bool hasLeftChild() const {
+    return ((m_pNode->left) != (m_pNode->left->right));
+  }
 
-  bool operator==(const TreeIteratorBase& y) const
-  { return this->m_pNode == y.m_pNode; }
+  bool operator==(const TreeIteratorBase& y) const {
+    return this->m_pNode == y.m_pNode;
+  }
 
-  bool operator!=(const TreeIteratorBase& y) const
-  { return this->m_pNode != y.m_pNode; }
+  bool operator!=(const TreeIteratorBase& y) const {
+    return this->m_pNode != y.m_pNode;
+  }
 };
 
-template<> inline
-void TreeIteratorBase::move<TreeIteratorBase::Leftward>()
-{
+template <>
+inline void TreeIteratorBase::move<TreeIteratorBase::Leftward>() {
   this->m_pNode = this->m_pNode->left;
 }
 
-template<> inline
-void TreeIteratorBase::move<TreeIteratorBase::Rightward>()
-{
+template <>
+inline void TreeIteratorBase::move<TreeIteratorBase::Rightward>() {
   this->m_pNode = this->m_pNode->right;
 }
 
-template<> inline
-void TreeIteratorBase::hook<TreeIteratorBase::Leftward>(NodeBase* pOther)
-{
+template <>
+inline void TreeIteratorBase::hook<TreeIteratorBase::Leftward>(
+    NodeBase* pOther) {
   this->m_pNode->left = pOther;
 }
 
-template<> inline
-void TreeIteratorBase::hook<TreeIteratorBase::Rightward>(NodeBase* pOther)
-{
+template <>
+inline void TreeIteratorBase::hook<TreeIteratorBase::Rightward>(
+    NodeBase* pOther) {
   this->m_pNode->right = pOther;
 }
 
-template<typename DataType>
-class Node : public NodeBase
-{
-public:
+template <typename DataType>
+class Node : public NodeBase {
+ public:
   typedef DataType value_type;
 
-public:
+ public:
   value_type* data;
 
-public:
-  Node()
-      : NodeBase(), data(NULL)
-  { }
+ public:
+  Node() : NodeBase(), data(NULL) {}
 
-  Node(const value_type& pValue)
-      : NodeBase(), data(&pValue)
-  { }
-
+  Node(const value_type& pValue) : NodeBase(), data(&pValue) {}
 };
 
-} // namespace mcld
+}  // namespace mcld
 
 #endif  // MCLD_ADT_TREEBASE_H_

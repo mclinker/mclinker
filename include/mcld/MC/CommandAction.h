@@ -25,158 +25,145 @@ class LinkerConfig;
 // Derived InputAction
 //===----------------------------------------------------------------------===//
 /// InputFileAction
-class InputFileAction : public InputAction
-{
-public:
-  explicit InputFileAction(unsigned int pPosition, const sys::fs::Path &pPath);
+class InputFileAction : public InputAction {
+ public:
+  InputFileAction(unsigned int pPosition, const sys::fs::Path& pPath);
+
+  InputFileAction(unsigned int pPosition, const char* pPath);
 
   const sys::fs::Path& path() const { return m_Path; }
 
   bool activate(InputBuilder&) const;
 
-private:
+ private:
   sys::fs::Path m_Path;
 };
 
 /// NamespecAction
-class NamespecAction : public InputAction
-{
-public:
+class NamespecAction : public InputAction {
+ public:
   NamespecAction(unsigned int pPosition,
-                 const std::string &pNamespec,
+                 const std::string& pNamespec,
                  const SearchDirs& pSearchDirs);
 
-  const std::string &namespec() const { return m_Namespec; }
+  const std::string& namespec() const { return m_Namespec; }
 
   bool activate(InputBuilder&) const;
 
-private:
+ private:
   std::string m_Namespec;
   const SearchDirs& m_SearchDirs;
 };
 
 /// BitcodeAction
-class BitcodeAction : public InputAction
-{
-public:
-  BitcodeAction(unsigned int pPosition, const sys::fs::Path &pPath);
+class BitcodeAction : public InputAction {
+ public:
+  BitcodeAction(unsigned int pPosition, const sys::fs::Path& pPath);
 
   const sys::fs::Path& path() const { return m_Path; }
 
   bool activate(InputBuilder&) const;
 
-private:
+ private:
   sys::fs::Path m_Path;
 };
 
 /// StartGroupAction
-class StartGroupAction : public InputAction
-{
-public:
+class StartGroupAction : public InputAction {
+ public:
   explicit StartGroupAction(unsigned int pPosition);
 
   bool activate(InputBuilder&) const;
 };
 
 /// EndGroupAction
-class EndGroupAction : public InputAction
-{
-public:
+class EndGroupAction : public InputAction {
+ public:
   explicit EndGroupAction(unsigned int pPosition);
 
   bool activate(InputBuilder&) const;
 };
 
 /// WholeArchiveAction
-class WholeArchiveAction : public InputAction
-{
-public:
+class WholeArchiveAction : public InputAction {
+ public:
   explicit WholeArchiveAction(unsigned int pPosition);
 
   bool activate(InputBuilder&) const;
 };
 
 /// NoWholeArchiveAction
-class NoWholeArchiveAction : public InputAction
-{
-public:
+class NoWholeArchiveAction : public InputAction {
+ public:
   explicit NoWholeArchiveAction(unsigned int pPosition);
 
   bool activate(InputBuilder&) const;
 };
 
 /// AsNeededAction
-class AsNeededAction : public InputAction
-{
-public:
+class AsNeededAction : public InputAction {
+ public:
   explicit AsNeededAction(unsigned int pPosition);
 
   bool activate(InputBuilder&) const;
 };
 
 /// NoAsNeededAction
-class NoAsNeededAction : public InputAction
-{
-public:
+class NoAsNeededAction : public InputAction {
+ public:
   explicit NoAsNeededAction(unsigned int pPosition);
 
   bool activate(InputBuilder&) const;
 };
 
 /// AddNeededAction
-class AddNeededAction : public InputAction
-{
-public:
+class AddNeededAction : public InputAction {
+ public:
   explicit AddNeededAction(unsigned int pPosition);
 
   bool activate(InputBuilder&) const;
 };
 
 /// NoAddNeededAction
-class NoAddNeededAction : public InputAction
-{
-public:
+class NoAddNeededAction : public InputAction {
+ public:
   explicit NoAddNeededAction(unsigned int pPosition);
 
   bool activate(InputBuilder&) const;
 };
 
 /// BDynamicAction
-class BDynamicAction : public InputAction
-{
-public:
+class BDynamicAction : public InputAction {
+ public:
   explicit BDynamicAction(unsigned int pPosition);
 
   bool activate(InputBuilder&) const;
 };
 
 /// BStaticAction
-class BStaticAction : public InputAction
-{
-public:
+class BStaticAction : public InputAction {
+ public:
   explicit BStaticAction(unsigned int pPosition);
 
   bool activate(InputBuilder&) const;
 };
 
 /// DefSymAction
-class DefSymAction : public InputAction
-{
-public:
+class DefSymAction : public InputAction {
+ public:
   explicit DefSymAction(unsigned int pPosition, std::string& pAssignment);
 
   bool activate(InputBuilder&) const;
 
   const std::string& assignment() const { return m_Assignment; }
 
-private:
+ private:
   std::string& m_Assignment;
 };
 
 /// ScriptAction
-class ScriptAction : public InputAction
-{
-public:
+class ScriptAction : public InputAction {
+ public:
   ScriptAction(unsigned int pPosition,
                const std::string& pFileName,
                ScriptFile::Kind pKind,
@@ -188,12 +175,12 @@ public:
 
   ScriptFile::Kind kind() const { return m_Kind; }
 
-private:
+ private:
   std::string m_FileName;
   ScriptFile::Kind m_Kind;
   const SearchDirs& m_SearchDirs;
 };
 
-} // namespace mcld
+}  // namespace mcld
 
 #endif  // MCLD_MC_COMMANDACTION_H_

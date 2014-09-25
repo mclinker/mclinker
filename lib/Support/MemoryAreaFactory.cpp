@@ -19,13 +19,11 @@ MemoryAreaFactory::MemoryAreaFactory(size_t pNum)
     : GCFactory<MemoryArea, 0>(pNum) {
 }
 
-MemoryAreaFactory::~MemoryAreaFactory()
-{
+MemoryAreaFactory::~MemoryAreaFactory() {
 }
 
 MemoryArea* MemoryAreaFactory::produce(const sys::fs::Path& pPath,
-                                       FileHandle::OpenMode pMode)
-{
+                                       FileHandle::OpenMode pMode) {
   llvm::StringRef name(pPath.native());
   if (m_AreaMap.find(name) == m_AreaMap.end()) {
     MemoryArea* result = allocate();
@@ -39,8 +37,7 @@ MemoryArea* MemoryAreaFactory::produce(const sys::fs::Path& pPath,
 
 MemoryArea* MemoryAreaFactory::produce(const sys::fs::Path& pPath,
                                        FileHandle::OpenMode pMode,
-                                       FileHandle::Permission pPerm)
-{
+                                       FileHandle::Permission pPerm) {
   llvm::StringRef name(pPath.native());
   if (m_AreaMap.find(name) == m_AreaMap.end()) {
     MemoryArea* result = allocate();
@@ -52,8 +49,7 @@ MemoryArea* MemoryAreaFactory::produce(const sys::fs::Path& pPath,
   return m_AreaMap[name];
 }
 
-MemoryArea* MemoryAreaFactory::produce(void* pMemBuffer, size_t pSize)
-{
+MemoryArea* MemoryAreaFactory::produce(void* pMemBuffer, size_t pSize) {
   const char* base = reinterpret_cast<const char*>(pMemBuffer);
   llvm::StringRef name(base, pSize);
   if (m_AreaMap.find(name) == m_AreaMap.end()) {
@@ -66,14 +62,12 @@ MemoryArea* MemoryAreaFactory::produce(void* pMemBuffer, size_t pSize)
   return m_AreaMap[name];
 }
 
-MemoryArea* MemoryAreaFactory::produce(int pFD, FileHandle::OpenMode pMode)
-{
+MemoryArea* MemoryAreaFactory::produce(int pFD, FileHandle::OpenMode pMode) {
   // TODO
   return NULL;
 }
 
-void MemoryAreaFactory::destruct(MemoryArea* pArea)
-{
+void MemoryAreaFactory::destruct(MemoryArea* pArea) {
   destroy(pArea);
   deallocate(pArea);
 }

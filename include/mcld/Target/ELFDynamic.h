@@ -27,12 +27,11 @@ namespace elf_dynamic {
 *  \brief EntryIF provides a common interface for one entry in the dynamic
 *  section
 */
-class EntryIF
-{
-protected:
+class EntryIF {
+ protected:
   EntryIF();
 
-public:
+ public:
   virtual ~EntryIF();
 
   virtual EntryIF* clone() const = 0;
@@ -44,100 +43,86 @@ public:
   virtual void setValue(uint64_t pTag, uint64_t pValue) = 0;
 };
 
-template<size_t BITNUMBER, bool LITTLEENDIAN>
-class Entry
-{ };
+template <size_t BITNUMBER, bool LITTLEENDIAN>
+class Entry {};
 
-template<>
-class Entry<32, true> : public EntryIF
-{
-public:
-  typedef llvm::ELF::Elf32_Dyn  Pair;
-  typedef llvm::ELF::Elf32_Sym  Symbol;
-  typedef llvm::ELF::Elf32_Rel  Rel;
+template <>
+class Entry<32, true> : public EntryIF {
+ public:
+  typedef llvm::ELF::Elf32_Dyn Pair;
+  typedef llvm::ELF::Elf32_Sym Symbol;
+  typedef llvm::ELF::Elf32_Rel Rel;
   typedef llvm::ELF::Elf32_Rela Rela;
 
-public:
+ public:
   inline Entry();
 
   inline ~Entry();
 
-  Entry* clone() const
-  { return new Entry(); }
+  Entry* clone() const { return new Entry(); }
 
-  size_t size() const
-  { return sizeof(Pair); }
+  size_t size() const { return sizeof(Pair); }
 
-  size_t symbolSize() const
-  { return sizeof(Symbol); }
+  size_t symbolSize() const { return sizeof(Symbol); }
 
-  size_t relSize() const
-  { return sizeof(Rel); }
+  size_t relSize() const { return sizeof(Rel); }
 
-  size_t relaSize() const
-  { return sizeof(Rela); }
+  size_t relaSize() const { return sizeof(Rela); }
 
   inline void setValue(uint64_t pTag, uint64_t pValue);
 
   inline size_t emit(uint8_t* pAddress) const;
 
-private:
+ private:
   Pair m_Pair;
 };
 
-template<>
-class Entry<64, true> : public EntryIF
-{
-public:
-  typedef llvm::ELF::Elf64_Dyn  Pair;
-  typedef llvm::ELF::Elf64_Sym  Symbol;
-  typedef llvm::ELF::Elf64_Rel  Rel;
+template <>
+class Entry<64, true> : public EntryIF {
+ public:
+  typedef llvm::ELF::Elf64_Dyn Pair;
+  typedef llvm::ELF::Elf64_Sym Symbol;
+  typedef llvm::ELF::Elf64_Rel Rel;
   typedef llvm::ELF::Elf64_Rela Rela;
 
-public:
+ public:
   inline Entry();
 
   inline ~Entry();
 
-  Entry* clone() const
-  { return new Entry(); }
+  Entry* clone() const { return new Entry(); }
 
-  size_t size() const
-  { return sizeof(Pair); }
+  size_t size() const { return sizeof(Pair); }
 
-  size_t symbolSize() const
-  { return sizeof(Symbol); }
+  size_t symbolSize() const { return sizeof(Symbol); }
 
-  size_t relSize() const
-  { return sizeof(Rel); }
+  size_t relSize() const { return sizeof(Rel); }
 
-  size_t relaSize() const
-  { return sizeof(Rela); }
+  size_t relaSize() const { return sizeof(Rela); }
 
   inline void setValue(uint64_t pTag, uint64_t pValue);
 
   inline size_t emit(uint8_t* pAddress) const;
 
-private:
+ private:
   Pair m_Pair;
 };
 
 #include "ELFDynamic.tcc"
 
-} // namespace elf_dynamic
+}  // namespace elf_dynamic
 
 /** \class ELFDynamic
  *  \brief ELFDynamic is the .dynamic section in ELF shared and executable
  *  files.
  */
-class ELFDynamic
-{
-public:
+class ELFDynamic {
+ public:
   typedef std::vector<elf_dynamic::EntryIF*> EntryListType;
   typedef EntryListType::iterator iterator;
   typedef EntryListType::const_iterator const_iterator;
 
-public:
+ public:
   ELFDynamic(const GNULDBackend& pBackend, const LinkerConfig& pConfig);
 
   virtual ~ELFDynamic();
@@ -160,22 +145,22 @@ public:
   void applySoname(uint64_t pStrTabIdx);
 
   const_iterator needBegin() const { return m_NeedList.begin(); }
-  iterator       needBegin()       { return m_NeedList.begin(); }
+  iterator needBegin() { return m_NeedList.begin(); }
 
   const_iterator needEnd() const { return m_NeedList.end(); }
-  iterator       needEnd()       { return m_NeedList.end(); }
+  iterator needEnd() { return m_NeedList.end(); }
 
   /// emit
   void emit(const LDSection& pSection, MemoryRegion& pRegion) const;
 
-protected:
+ protected:
   /// reserveTargetEntries - reserve target dependent entries
   virtual void reserveTargetEntries(const ELFFileFormat& pFormat) = 0;
 
   /// applyTargetEntries - apply target-dependant
   virtual void applyTargetEntries(const ELFFileFormat& pFormat) = 0;
 
-protected:
+ protected:
   void reserveOne(uint64_t pTag);
 
   void applyOne(uint64_t pTag, uint64_t pValue);
@@ -184,7 +169,7 @@ protected:
 
   const LinkerConfig& config() const { return m_Config; }
 
-private:
+ private:
   EntryListType m_EntryList;
   EntryListType m_NeedList;
   elf_dynamic::EntryIF* m_pEntryFactory;
@@ -197,6 +182,6 @@ private:
   size_t m_Idx;
 };
 
-} // namespace mcld
+}  // namespace mcld
 
 #endif  // MCLD_TARGET_ELFDYNAMIC_H_

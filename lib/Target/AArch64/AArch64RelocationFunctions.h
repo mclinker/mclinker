@@ -9,21 +9,22 @@
 #ifndef TARGET_AARCH64_AARCH64RELOCATIONFUNCTIONS_H_
 #define TARGET_AARCH64_AARCH64RELOCATIONFUNCTIONS_H_
 
-#define DECL_AARCH64_APPLY_RELOC_FUNC(Name) \
-static AArch64Relocator::Result Name (Relocation& pEntry, AArch64Relocator& pParent);
+#define DECL_AARCH64_APPLY_RELOC_FUNC(Name)                \
+  static AArch64Relocator::Result Name(Relocation& pEntry, \
+                                       AArch64Relocator& pParent);
 
-#define DECL_AARCH64_APPLY_RELOC_FUNCS \
-DECL_AARCH64_APPLY_RELOC_FUNC(none) \
-DECL_AARCH64_APPLY_RELOC_FUNC(abs) \
-DECL_AARCH64_APPLY_RELOC_FUNC(rel) \
-DECL_AARCH64_APPLY_RELOC_FUNC(call) \
-DECL_AARCH64_APPLY_RELOC_FUNC(condbr) \
-DECL_AARCH64_APPLY_RELOC_FUNC(adr_prel_pg_hi21) \
-DECL_AARCH64_APPLY_RELOC_FUNC(add_abs_lo12) \
-DECL_AARCH64_APPLY_RELOC_FUNC(adr_got_page) \
-DECL_AARCH64_APPLY_RELOC_FUNC(ld64_got_lo12) \
-DECL_AARCH64_APPLY_RELOC_FUNC(ldst_abs_lo12) \
-DECL_AARCH64_APPLY_RELOC_FUNC(unsupport)
+#define DECL_AARCH64_APPLY_RELOC_FUNCS            \
+  DECL_AARCH64_APPLY_RELOC_FUNC(none)             \
+  DECL_AARCH64_APPLY_RELOC_FUNC(abs)              \
+  DECL_AARCH64_APPLY_RELOC_FUNC(rel)              \
+  DECL_AARCH64_APPLY_RELOC_FUNC(call)             \
+  DECL_AARCH64_APPLY_RELOC_FUNC(condbr)           \
+  DECL_AARCH64_APPLY_RELOC_FUNC(adr_prel_pg_hi21) \
+  DECL_AARCH64_APPLY_RELOC_FUNC(add_abs_lo12)     \
+  DECL_AARCH64_APPLY_RELOC_FUNC(adr_got_page)     \
+  DECL_AARCH64_APPLY_RELOC_FUNC(ld64_got_lo12)    \
+  DECL_AARCH64_APPLY_RELOC_FUNC(ldst_abs_lo12)    \
+  DECL_AARCH64_APPLY_RELOC_FUNC(unsupport)
 
 #define DECL_AARCH64_APPLY_RELOC_FUNC_PTRS(ValueType, MappedType) \
   ValueType(0x0,   MappedType(&none, "R_AARCH64_NULL")), \

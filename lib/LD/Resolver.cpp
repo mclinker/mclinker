@@ -12,6 +12,5 @@ using namespace mcld;
 
 //==========================
 // Resolver
-Resolver::~Resolver()
-{
+Resolver::~Resolver() {
 }

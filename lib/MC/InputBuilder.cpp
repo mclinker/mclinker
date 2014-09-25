@@ -43,8 +43,7 @@ InputBuilder::InputBuilder(const LinkerConfig& pConfig,
       m_bOwnFactory(pDelegate) {
 }
 
-InputBuilder::~InputBuilder()
-{
+InputBuilder::~InputBuilder() {
   if (m_bOwnFactory) {
     delete m_pInputFactory;
     delete m_pContextFactory;
@@ -55,13 +54,11 @@ InputBuilder::~InputBuilder()
 Input* InputBuilder::createInput(const std::string& pName,
                                  const sys::fs::Path& pPath,
                                  unsigned int pType,
-                                 off_t pFileOffset)
-{
+                                 off_t pFileOffset) {
   return m_pInputFactory->produce(pName, pPath, pType, pFileOffset);
 }
 
-InputTree& InputBuilder::enterGroup()
-{
+InputTree& InputBuilder::enterGroup() {
   assert(m_pCurrentTree != NULL && m_pMove != NULL);
 
   m_pCurrentTree->enterGroup(m_Root, *m_pMove);
@@ -72,8 +69,7 @@ InputTree& InputBuilder::enterGroup()
   return *m_pCurrentTree;
 }
 
-InputTree& InputBuilder::exitGroup()
-{
+InputTree& InputBuilder::exitGroup() {
   assert(m_pCurrentTree != NULL && m_pMove != NULL);
 
   m_Root = m_ReturnStack.top();
@@ -83,32 +79,27 @@ InputTree& InputBuilder::exitGroup()
   return *m_pCurrentTree;
 }
 
-bool InputBuilder::isInGroup() const
-{
+bool InputBuilder::isInGroup() const {
   return !m_ReturnStack.empty();
 }
 
-const InputTree& InputBuilder::getCurrentTree() const
-{
+const InputTree& InputBuilder::getCurrentTree() const {
   assert(m_pCurrentTree != NULL && m_pMove != NULL);
   return *m_pCurrentTree;
 }
 
-InputTree& InputBuilder::getCurrentTree()
-{
+InputTree& InputBuilder::getCurrentTree() {
   assert(m_pCurrentTree != NULL && m_pMove != NULL);
   return *m_pCurrentTree;
 }
 
-void InputBuilder::setCurrentTree(InputTree& pInputTree)
-{
+void InputBuilder::setCurrentTree(InputTree& pInputTree) {
   m_pCurrentTree = &pInputTree;
   m_Root = m_pCurrentTree->root();
   m_pMove = &InputTree::Downward;
 }
 
-bool InputBuilder::setContext(Input& pInput, bool pCheck)
-{
+bool InputBuilder::setContext(Input& pInput, bool pCheck) {
   // The object files in an archive have common path. Every object files in an
   // archive needs a individual context. We identify the object files in an
   // archive by its file offset. Their file offsets are not zero.
@@ -129,31 +120,26 @@ bool InputBuilder::setContext(Input& pInput, bool pCheck)
 
 bool InputBuilder::setMemory(Input& pInput,
                              FileHandle::OpenMode pMode,
-                             FileHandle::Permission pPerm)
-{
-  MemoryArea *memory = m_pMemFactory->produce(pInput.path(), pMode, pPerm);
+                             FileHandle::Permission pPerm) {
+  MemoryArea* memory = m_pMemFactory->produce(pInput.path(), pMode, pPerm);
   pInput.setMemArea(memory);
   return true;
 }
 
-bool InputBuilder::setMemory(Input& pInput, void* pMemBuffer, size_t pSize)
-{
-  MemoryArea *memory = m_pMemFactory->produce(pMemBuffer, pSize);
+bool InputBuilder::setMemory(Input& pInput, void* pMemBuffer, size_t pSize) {
+  MemoryArea* memory = m_pMemFactory->produce(pMemBuffer, pSize);
   pInput.setMemArea(memory);
   return true;
 }
 
-const AttrConstraint& InputBuilder::getConstraint() const
-{
+const AttrConstraint& InputBuilder::getConstraint() const {
   return m_Config.attribute().constraint();
 }
 
-const AttributeProxy& InputBuilder::getAttributes() const
-{
+const AttributeProxy& InputBuilder::getAttributes() const {
   return m_pInputFactory->attr();
 }
 
-AttributeProxy& InputBuilder::getAttributes()
-{
+AttributeProxy& InputBuilder::getAttributes() {
   return m_pInputFactory->attr();
 }

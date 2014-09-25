@@ -12,23 +12,22 @@
 
 namespace mcld {
 
-class AttributeOption
-{
-public:
+class AttributeOption {
+ public:
   AttributeOption();
   ~AttributeOption();
 
   const Attribute& predefined() const { return m_Predefined; }
-  Attribute&       predefined()       { return m_Predefined; }
+  Attribute& predefined() { return m_Predefined; }
 
   const AttrConstraint& constraint() const { return m_Constraint; }
-  AttrConstraint&       constraint()       { return m_Constraint; }
+  AttrConstraint& constraint() { return m_Constraint; }
 
-private:
+ private:
   Attribute m_Predefined;
   AttrConstraint m_Constraint;
 };
 
-} // namespace mcld
+}  // namespace mcld
 
 #endif  // MCLD_ATTRIBUTEOPTION_H_

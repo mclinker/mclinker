@@ -19,19 +19,14 @@ namespace mcld {
  *  \brief TargetOptions collects the options that dependent on a target
  *  backend.
  */
-class TargetOptions
-{
-public:
-  enum Endian {
-    Little,
-    Big,
-    Unknown
-  };
+class TargetOptions {
+ public:
+  enum Endian { Little, Big, Unknown };
 
-public:
+ public:
   TargetOptions();
 
-  TargetOptions(const std::string& pTriple);
+  explicit TargetOptions(const std::string& pTriple);
 
   ~TargetOptions();
 
@@ -58,7 +53,7 @@ public:
   void setEndian(Endian pEndian) { m_Endian = pEndian; }
 
   bool isLittleEndian() const { return (Little == m_Endian); }
-  bool isBigEndian   () const { return (Big    == m_Endian); }
+  bool isBigEndian() const { return (Big == m_Endian); }
 
   unsigned int bitclass() const { return m_BitClass; }
 
@@ -67,16 +62,15 @@ public:
   bool is32Bits() const { return (32 == m_BitClass); }
   bool is64Bits() const { return (64 == m_BitClass); }
 
-private:
+ private:
   llvm::Triple m_Triple;
   std::string m_ArchName;
   std::string m_TargetCPU;
   std::string m_TargetFS;
   Endian m_Endian;
   unsigned int m_BitClass;
-
 };
 
-} // namespace mcld
+}  // namespace mcld
 
 #endif  // MCLD_TARGETOPTIONS_H_

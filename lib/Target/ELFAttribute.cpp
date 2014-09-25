@@ -30,14 +30,12 @@ using namespace mcld;
 //===----------------------------------------------------------------------===//
 // ELFAttribute
 //===----------------------------------------------------------------------===//
-ELFAttribute::~ELFAttribute()
-{
+ELFAttribute::~ELFAttribute() {
   llvm::DeleteContainerPointers(m_Subsections);
   return;
 }
 
-bool ELFAttribute::merge(const Input& pInput, LDSection& pInputAttrSectHdr)
-{
+bool ELFAttribute::merge(const Input& pInput, LDSection& pInputAttrSectHdr) {
   // Skip corrupt subsection
   if (pInputAttrSectHdr.size() < MinimalELFAttributeSectionSize)
     return true;
@@ -63,7 +61,7 @@ bool ELFAttribute::merge(const Input& pInput, LDSection& pInputAttrSectHdr)
   // [ <uint32: subsection-length> NTBS: vendor-name
   //   <bytes: vendor-data>
   // ]*
-  const char *attribute_data = region.begin();
+  const char* attribute_data = region.begin();
 
   // format-version
   if (attribute_data[0] != FormatVersion) {
@@ -76,13 +74,13 @@ bool ELFAttribute::merge(const Input& pInput, LDSection& pInputAttrSectHdr)
 
   // Iterate all subsections containing in this attribute section.
   do {
-    const char *subsection_data = region.begin() + subsection_offset;
+    const char* subsection_data = region.begin() + subsection_offset;
 
     // subsection-length
     uint32_t subsection_length =
         *reinterpret_cast<const uint32_t*>(subsection_data);
 
-    if(llvm::sys::IsLittleEndianHost != m_Config.targets().isLittleEndian())
+    if (llvm::sys::IsLittleEndianHost != m_Config.targets().isLittleEndian())
       bswap32(subsection_length);
 
     // vendor-name
@@ -95,19 +93,18 @@ bool ELFAttribute::merge(const Input& pInput, LDSection& pInputAttrSectHdr)
       return true;
 
     // Select the attribute subsection.
-    Subsection *subsection = getSubsection(vendor_name);
+    Subsection* subsection = getSubsection(vendor_name);
 
     // Only process the subsections whose vendor can be recognized.
     if (subsection == NULL) {
-      warning(diag::warn_unrecognized_vendor_subsection)
-          << vendor_name << pInput.name();
+      warning(diag::warn_unrecognized_vendor_subsection) << vendor_name
+                                                         << pInput.name();
     } else {
       // vendor-data
-      size_t vendor_data_offset = subsection_offset +
-                                  SubsectionLengthFieldSize +
-                                  vendor_name_length;
-      size_t vendor_data_size = subsection_length - SubsectionLengthFieldSize -
-                                vendor_name_length;
+      size_t vendor_data_offset =
+          subsection_offset + SubsectionLengthFieldSize + vendor_name_length;
+      size_t vendor_data_size =
+          subsection_length - SubsectionLengthFieldSize - vendor_name_length;
 
       ConstAddress vendor_data =
           reinterpret_cast<ConstAddress>(region.begin()) + vendor_data_offset;
@@ -118,25 +115,26 @@ bool ELFAttribute::merge(const Input& pInput, LDSection& pInputAttrSectHdr)
     }
 
     subsection_offset += subsection_length;
-  } while ((subsection_offset + SubsectionLengthFieldSize) < pInputAttrSectHdr.size());
+  } while ((subsection_offset + SubsectionLengthFieldSize) <
+           pInputAttrSectHdr.size());
 
   return true;
 }
 
-size_t ELFAttribute::sizeOutput() const
-{
+size_t ELFAttribute::sizeOutput() const {
   size_t total_size = FormatVersionFieldSize;
 
   for (llvm::SmallVectorImpl<Subsection*>::const_iterator
-          subsec_it = m_Subsections.begin(), subsec_end = m_Subsections.end();
-       subsec_it != subsec_end; ++subsec_it) {
+           subsec_it = m_Subsections.begin(),
+           subsec_end = m_Subsections.end();
+       subsec_it != subsec_end;
+       ++subsec_it) {
     total_size += (*subsec_it)->sizeOutput();
   }
   return total_size;
 }
 
-size_t ELFAttribute::emit(MemoryRegion& pRegion) const
-{
+size_t ELFAttribute::emit(MemoryRegion& pRegion) const {
   // ARM [ABI-addenda], 2.2.3
   uint64_t total_size = 0;
 
@@ -146,8 +144,10 @@ size_t ELFAttribute::emit(MemoryRegion& pRegion) const
   total_size += FormatVersionFieldSize;
 
   for (llvm::SmallVectorImpl<Subsection*>::const_iterator
-          subsec_it = m_Subsections.begin(), subsec_end = m_Subsections.end();
-       subsec_it != subsec_end; ++subsec_it) {
+           subsec_it = m_Subsections.begin(),
+           subsec_end = m_Subsections.end();
+       subsec_it != subsec_end;
+       ++subsec_it) {
     // Write out subsection.
     total_size += (*subsec_it)->emit(buffer + total_size);
   }
@@ -155,21 +155,21 @@ size_t ELFAttribute::emit(MemoryRegion& pRegion) const
   return total_size;
 }
 
-void ELFAttribute::registerAttributeData(ELFAttributeData& pAttrData)
-{
+void ELFAttribute::registerAttributeData(ELFAttributeData& pAttrData) {
   assert((getSubsection(pAttrData.getVendorName()) == NULL) &&
          "Multiple attribute data for a vendor!");
   m_Subsections.push_back(new Subsection(*this, pAttrData));
   return;
 }
 
-ELFAttribute::Subsection *
-ELFAttribute::getSubsection(llvm::StringRef pVendorName) const
-{
+ELFAttribute::Subsection* ELFAttribute::getSubsection(
+    llvm::StringRef pVendorName) const {
   // Search m_Subsections linearly.
   for (llvm::SmallVectorImpl<Subsection*>::const_iterator
-          subsec_it = m_Subsections.begin(), subsec_end = m_Subsections.end();
-       subsec_it != subsec_end; ++subsec_it) {
+           subsec_it = m_Subsections.begin(),
+           subsec_end = m_Subsections.end();
+       subsec_it != subsec_end;
+       ++subsec_it) {
     Subsection* const subsection = *subsec_it;
     if (subsection->isMyAttribute(pVendorName)) {
       return subsection;
@@ -185,10 +185,9 @@ ELFAttribute::getSubsection(llvm::StringRef pVendorName) const
 //===----------------------------------------------------------------------===//
 bool ELFAttribute::Subsection::merge(const Input& pInput,
                                      ConstAddress pData,
-                                     size_t pSize)
-{
+                                     size_t pSize) {
   const bool need_swap = (llvm::sys::IsLittleEndianHost !=
-                              m_Parent.config().targets().isLittleEndian());
+                          m_Parent.config().targets().isLittleEndian());
   // Read attribute sub-subsection from vendor data.
   //
   // ARM [ABI-addenda], 2.2.4:
@@ -197,7 +196,7 @@ bool ELFAttribute::Subsection::merge(const Input& pInput,
   //   | Tag_Section (=2) <uint32: byte-size> <section number>* 0 <attribute>*
   //   | Tag_symbol  (=3) <unit32: byte-size> <symbol number>* 0 <attribute>*
   // ] +
-  const char *subsubsection_data = reinterpret_cast<const char*>(pData);
+  const char* subsubsection_data = reinterpret_cast<const char*>(pData);
   size_t remaining_size = pSize;
 
   if (!m_AttrData.preMerge(pInput)) {
@@ -238,7 +237,7 @@ bool ELFAttribute::Subsection::merge(const Input& pInput,
           if (!ELFAttributeData::ReadTag(tag, attr_buf, attr_size))
             break;
 
-          ELFAttributeValue *out_attr;
+          ELFAttributeValue* out_attr;
           bool is_newly_created;
 
           std::tie(out_attr, is_newly_created) =
@@ -277,42 +276,37 @@ bool ELFAttribute::Subsection::merge(const Input& pInput,
       case ELFAttributeData::Tag_Section:
       case ELFAttributeData::Tag_Symbol:
       // Skip any unknown tags.
-      default: {
-        break;
-      }
+      default: { break; }
     }
 
     // Update subsubsection_data and remaining_size for next.
     subsubsection_data += subsubsection_length;
     remaining_size -= subsubsection_length;
-  } // while (remaining_size > ELFAttribute::MinimalELFAttributeSubsectionSize)
+  }  // while (remaining_size > ELFAttribute::MinimalELFAttributeSubsectionSize)
 
   return m_AttrData.postMerge(m_Parent.config(), pInput);
 }
 
-size_t ELFAttribute::Subsection::sizeOutput() const
-{
+size_t ELFAttribute::Subsection::sizeOutput() const {
   // ARM [ABI-addenda], 2.2.3 and 2.2.4
   return ELFAttribute::SubsectionLengthFieldSize +
-            m_AttrData.getVendorName().length() /* vendor-name */ +
-            1 /* NULL-terminator for vendor-name */ +
-            1 /* Tag_File */ +
-            sizeof(uint32_t) /* length of sub-subsection */ +
-            m_AttrData.sizeOutput();
+         m_AttrData.getVendorName().length() /* vendor-name */ +
+         1 /* NULL-terminator for vendor-name */ + 1 /* Tag_File */ +
+         sizeof(uint32_t) /* length of sub-subsection */ +
+         m_AttrData.sizeOutput();
 }
 
-size_t ELFAttribute::Subsection::emit(char *pBuf) const
-{
+size_t ELFAttribute::Subsection::emit(char* pBuf) const {
   // ARM [ABI-addenda], 2.2.3 and 2.2.4
   const bool need_swap = (llvm::sys::IsLittleEndianHost !=
-                              m_Parent.config().targets().isLittleEndian());
+                          m_Parent.config().targets().isLittleEndian());
 
-  char *buffer = pBuf;
+  char* buffer = pBuf;
 
   // The subsection-length and byte-size field in sub-subsection will be patched
   // later after writing out all attribute data.
-  char *subsection_length_hole = NULL;
-  char *subsubsection_length_hole = NULL;
+  char* subsection_length_hole = NULL;
+  char* subsubsection_length_hole = NULL;
 
   // Reserve space for subsection-length.
   subsection_length_hole = buffer;
@@ -348,13 +342,13 @@ size_t ELFAttribute::Subsection::emit(char *pBuf) const
   // Patch subsubsection_length_hole.
   assert(subsubsection_length_hole != NULL);
 
-  if(need_swap)
+  if (need_swap)
     bswap32(subsubsection_length);
 
   ::memcpy(subsubsection_length_hole, &subsubsection_length, sizeof(uint32_t));
 
   // Write subsection-length in subsection_length_hole.
-  if(need_swap)
+  if (need_swap)
     bswap32(subsection_length);
 
   assert(subsection_length_hole != NULL);

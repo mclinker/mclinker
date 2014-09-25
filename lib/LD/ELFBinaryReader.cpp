@@ -25,29 +25,22 @@ using namespace mcld;
 /// constructor
 ELFBinaryReader::ELFBinaryReader(IRBuilder& pBuilder,
                                  const LinkerConfig& pConfig)
-    : m_Builder(pBuilder),
-      m_Config(pConfig) {
+    : m_Builder(pBuilder), m_Config(pConfig) {
 }
 
 /// destructor
-ELFBinaryReader::~ELFBinaryReader()
-{
+ELFBinaryReader::~ELFBinaryReader() {
 }
 
-bool ELFBinaryReader::isMyFormat(Input& pInput, bool &pContinue) const
-{
+bool ELFBinaryReader::isMyFormat(Input& pInput, bool& pContinue) const {
   pContinue = true;
   return m_Config.options().isBinaryInput();
 }
 
-bool ELFBinaryReader::readBinary(Input& pInput)
-{
+bool ELFBinaryReader::readBinary(Input& pInput) {
   // section: NULL
-  m_Builder.CreateELFHeader(pInput,
-                            "",
-                            LDFileFormat::Null,
-                            llvm::ELF::SHT_NULL,
-                            0x0);
+  m_Builder.CreateELFHeader(
+      pInput, "", LDFileFormat::Null, llvm::ELF::SHT_NULL, 0x0);
 
   // section: .data
   LDSection* data_sect =
@@ -63,11 +56,8 @@ bool ELFBinaryReader::readBinary(Input& pInput)
   m_Builder.AppendFragment(*frag, *data);
 
   // section: .shstrtab
-  m_Builder.CreateELFHeader(pInput,
-                            ".shstrtab",
-                            LDFileFormat::NamePool,
-                            llvm::ELF::SHT_STRTAB,
-                            0x1);
+  m_Builder.CreateELFHeader(
+      pInput, ".shstrtab", LDFileFormat::NamePool, llvm::ELF::SHT_STRTAB, 0x1);
 
   // section: .symtab
   m_Builder.CreateELFHeader(pInput,
@@ -89,8 +79,9 @@ bool ELFBinaryReader::readBinary(Input& pInput)
   // Note: in Win32, the filename is wstring. Is it correct to convert
   // filename to std::string?
   std::string mangled_name = pInput.path().filename().native();
-  for (std::string::iterator it = mangled_name.begin(),
-          ie = mangled_name.end(); it != ie; ++it) {
+  for (std::string::iterator it = mangled_name.begin(), ie = mangled_name.end();
+       it != ie;
+       ++it) {
     if (isalnum(*it) == 0)
       *it = '_';
   }
@@ -126,11 +117,8 @@ bool ELFBinaryReader::readBinary(Input& pInput)
                       data_sect);
 
   // section: .strtab
-  m_Builder.CreateELFHeader(pInput,
-                            ".strtab",
-                            LDFileFormat::NamePool,
-                            llvm::ELF::SHT_STRTAB,
-                            0x1);
+  m_Builder.CreateELFHeader(
+      pInput, ".strtab", LDFileFormat::NamePool, llvm::ELF::SHT_STRTAB, 0x1);
 
   return true;
 }

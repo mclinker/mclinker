@@ -21,23 +21,20 @@ Fragment::Fragment()
     : m_Kind(Type(~0)), m_pParent(NULL), m_Offset(~uint64_t(0)) {
 }
 
-Fragment::Fragment(Type pKind, SectionData *pParent)
+Fragment::Fragment(Type pKind, SectionData* pParent)
     : m_Kind(pKind), m_pParent(pParent), m_Offset(~uint64_t(0)) {
   if (m_pParent != NULL)
     m_pParent->getFragmentList().push_back(this);
 }
 
-Fragment::~Fragment()
-{
+Fragment::~Fragment() {
 }
 
-uint64_t Fragment::getOffset() const
-{
+uint64_t Fragment::getOffset() const {
   assert(hasOffset() && "Cannot getOffset() before setting it up.");
   return m_Offset;
 }
 
-bool Fragment::hasOffset() const
-{
+bool Fragment::hasOffset() const {
   return (m_Offset != ~uint64_t(0));
 }

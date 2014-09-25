@@ -18,16 +18,12 @@ using namespace mcld;
 //===----------------------------------------------------------------------===//
 // HexagonGOT
 //===----------------------------------------------------------------------===//
-HexagonGOT::HexagonGOT(LDSection& pSection)
-    : GOT(pSection)
-{
+HexagonGOT::HexagonGOT(LDSection& pSection) : GOT(pSection) {
 }
 
-HexagonGOT::~HexagonGOT()
-{
+HexagonGOT::~HexagonGOT() {
 }
 
-HexagonGOTEntry* HexagonGOT::create()
-{
+HexagonGOTEntry* HexagonGOT::create() {
   return new HexagonGOTEntry(0, m_SectionData);
 }

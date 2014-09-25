@@ -15,13 +15,11 @@ HashEntry<KeyType, ValueType, KeyCompare>::HashEntry(const KeyType& pKey)
 }
 
 template <typename KeyType, typename ValueType, typename KeyCompare>
-HashEntry<KeyType, ValueType, KeyCompare>::~HashEntry()
-{
+HashEntry<KeyType, ValueType, KeyCompare>::~HashEntry() {
 }
 
 template <typename KeyType, typename ValueType, typename KeyCompare>
-bool HashEntry<KeyType, ValueType, KeyCompare>::compare(const KeyType& pKey)
-{
+bool HashEntry<KeyType, ValueType, KeyCompare>::compare(const KeyType& pKey) {
   static KeyCompare comparator;
   return comparator(m_Key, pKey);
 }
@@ -29,24 +27,20 @@ bool HashEntry<KeyType, ValueType, KeyCompare>::compare(const KeyType& pKey)
 //===--------------------------------------------------------------------===//
 // template implementation of EntryFactory
 template <typename HashEntryTy>
-EntryFactory<HashEntryTy>::EntryFactory()
-{
+EntryFactory<HashEntryTy>::EntryFactory() {
 }
 
 template <typename HashEntryTy>
-EntryFactory<HashEntryTy>::~EntryFactory()
-{
+EntryFactory<HashEntryTy>::~EntryFactory() {
 }
 
 template <typename HashEntryTy>
-void EntryFactory<HashEntryTy>::destroy(HashEntryTy* pEntry)
-{
+void EntryFactory<HashEntryTy>::destroy(HashEntryTy* pEntry) {
   delete pEntry;
 }
 
 template <typename HashEntryTy>
 HashEntryTy* EntryFactory<HashEntryTy>::produce(
-    const typename EntryFactory<HashEntryTy>::key_type& pKey)
-{
+    const typename EntryFactory<HashEntryTy>::key_type& pKey) {
   return new HashEntryTy(pKey);
 }

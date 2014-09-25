@@ -20,9 +20,8 @@ class LinkerConfig;
 /** \lclass ELFBinaryReader
  *  \brief ELFBinaryReader reads target-independent parts of Binary file
  */
-class ELFBinaryReader : public BinaryReader
-{
-public:
+class ELFBinaryReader : public BinaryReader {
+ public:
   ELFBinaryReader(IRBuilder& pBuilder, const LinkerConfig& pConfig);
 
   ~ELFBinaryReader();
@@ -31,11 +30,11 @@ public:
 
   bool readBinary(Input& pInput);
 
-private:
+ private:
   IRBuilder& m_Builder;
   const LinkerConfig& m_Config;
 };
 
-} // namespace mcld
+}  // namespace mcld
 
 #endif  // MCLD_LD_ELFBINARYREADER_H_

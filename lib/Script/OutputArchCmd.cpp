@@ -15,21 +15,16 @@ using namespace mcld;
 // OutputArchCmd
 //===----------------------------------------------------------------------===//
 OutputArchCmd::OutputArchCmd(const std::string& pArch)
-    : ScriptCommand(ScriptCommand::OUTPUT_ARCH),
-      m_Arch(pArch)
-{
+    : ScriptCommand(ScriptCommand::OUTPUT_ARCH), m_Arch(pArch) {
 }
 
-OutputArchCmd::~OutputArchCmd()
-{
+OutputArchCmd::~OutputArchCmd() {
 }
 
-void OutputArchCmd::dump() const
-{
+void OutputArchCmd::dump() const {
   mcld::outs() << "OUTPUT_ARCH ( " << m_Arch << " )\n";
 }
 
-void OutputArchCmd::activate(Module& pModule)
-{
+void OutputArchCmd::activate(Module& pModule) {
   // TODO
 }

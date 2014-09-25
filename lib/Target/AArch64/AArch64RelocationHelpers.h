@@ -17,9 +17,8 @@ namespace mcld {
 // Relocation helper functions
 //===----------------------------------------------------------------------===//
 // Return true if overflow
-static inline bool
-helper_check_signed_overflow(Relocator::DWord pValue, unsigned bits)
-{
+static inline bool helper_check_signed_overflow(Relocator::DWord pValue,
+                                                unsigned bits) {
   if (bits >= sizeof(int64_t) * 8)
     return false;
   int64_t signed_val = static_cast<int64_t>(pValue);
@@ -30,80 +29,68 @@ helper_check_signed_overflow(Relocator::DWord pValue, unsigned bits)
   return false;
 }
 
-static inline Relocator::Address
-helper_get_page_address(Relocator::Address pValue)
-{
-  return (pValue & ~ (Relocator::Address) 0xFFF);
+static inline Relocator::Address helper_get_page_address(
+    Relocator::Address pValue) {
+  return (pValue & ~(Relocator::Address)0xFFF);
 }
 
-static inline Relocator::Address
-helper_get_page_offset(Relocator::Address pValue)
-{
-  return (pValue & (Relocator::Address) 0xFFF);
+static inline Relocator::Address helper_get_page_offset(
+    Relocator::Address pValue) {
+  return (pValue & (Relocator::Address)0xFFF);
 }
 
-static inline uint32_t get_mask(uint32_t pValue)
-{
+static inline uint32_t get_mask(uint32_t pValue) {
   return ((1u << (pValue)) - 1);
 }
 
-static inline uint32_t
-helper_reencode_adr_imm(uint32_t pInst, uint32_t pImm)
-{
-  return (pInst & ~((get_mask(2) << 29) | (get_mask(19) << 5)))
-      | ((pImm & get_mask(2)) << 29) | ((pImm & (get_mask(19) << 2)) << 3);
+static inline uint32_t helper_reencode_adr_imm(uint32_t pInst, uint32_t pImm) {
+  return (pInst & ~((get_mask(2) << 29) | (get_mask(19) << 5))) |
+         ((pImm & get_mask(2)) << 29) | ((pImm & (get_mask(19) << 2)) << 3);
 }
 
 // Reencode the imm field of add immediate.
-static inline uint32_t helper_reencode_add_imm(uint32_t pInst, uint32_t pImm)
-{
+static inline uint32_t helper_reencode_add_imm(uint32_t pInst, uint32_t pImm) {
   return (pInst & ~(get_mask(12) << 10)) | ((pImm & get_mask(12)) << 10);
 }
 
 // Encode the 26-bit offset of unconditional branch.
-static inline uint32_t
-helper_reencode_branch_offset_26(uint32_t pInst, uint32_t pOff)
-{
+static inline uint32_t helper_reencode_branch_offset_26(uint32_t pInst,
+                                                        uint32_t pOff) {
   return (pInst & ~get_mask(26)) | (pOff & get_mask(26));
 }
 
 // Encode the 19-bit offset of conditional branch and compare & branch.
-static inline uint32_t
-helper_reencode_cond_branch_ofs_19(uint32_t pInst, uint32_t pOff)
-{
+static inline uint32_t helper_reencode_cond_branch_ofs_19(uint32_t pInst,
+                                                          uint32_t pOff) {
   return (pInst & ~(get_mask(19) << 5)) | ((pOff & get_mask(19)) << 5);
 }
 
 // Reencode the imm field of ld/st pos immediate.
-static inline uint32_t
-helper_reencode_ldst_pos_imm (uint32_t pInst, uint32_t pImm)
-{
+static inline uint32_t helper_reencode_ldst_pos_imm(uint32_t pInst,
+                                                    uint32_t pImm) {
   return (pInst & ~(get_mask(12) << 10)) | ((pImm & get_mask(12)) << 10);
 }
 
-static inline uint32_t helper_get_upper32(Relocator::DWord pData)
-{
+static inline uint32_t helper_get_upper32(Relocator::DWord pData) {
   if (llvm::sys::IsLittleEndianHost)
     return pData >> 32;
   return pData & 0xFFFFFFFF;
 }
 
-static inline void helper_put_upper32(uint32_t pData, Relocator::DWord& pDes)
-{
+static inline void helper_put_upper32(uint32_t pData, Relocator::DWord& pDes) {
   *(reinterpret_cast<uint32_t*>(&pDes)) = pData;
 }
 
-static inline Relocator::Address
-helper_get_PLT_address(ResolveInfo& pSym, AArch64Relocator& pParent)
-{
+static inline Relocator::Address helper_get_PLT_address(
+    ResolveInfo& pSym,
+    AArch64Relocator& pParent) {
   PLTEntryBase* plt_entry = pParent.getSymPLTMap().lookUp(pSym);
   assert(plt_entry != NULL);
   return pParent.getTarget().getPLT().addr() + plt_entry->getOffset();
 }
 
-static inline AArch64PLT1&
-helper_PLT_init(Relocation& pReloc, AArch64Relocator& pParent)
-{
+static inline AArch64PLT1& helper_PLT_init(Relocation& pReloc,
+                                           AArch64Relocator& pParent) {
   // rsym - The relocation target symbol
   ResolveInfo* rsym = pReloc.symInfo();
   AArch64GNULDBackend& ld_backend = pParent.getTarget();
@@ -131,8 +118,7 @@ static inline Relocation& helper_DynRela_init(ResolveInfo* pSym,
                                               Fragment& pFrag,
                                               uint64_t pOffset,
                                               Relocator::Type pType,
-                                              AArch64Relocator& pParent)
-{
+                                              AArch64Relocator& pParent) {
   AArch64GNULDBackend& ld_backend = pParent.getTarget();
   Relocation& rel_entry = *ld_backend.getRelaDyn().create();
   rel_entry.setType(pType);
@@ -152,29 +138,27 @@ static inline bool helper_use_relative_reloc(const ResolveInfo& pSym,
 
 {
   // if symbol is dynamic or undefine or preemptible
-  if (pSym.isDyn() ||
-      pSym.isUndef() ||
+  if (pSym.isDyn() || pSym.isUndef() ||
       pParent.getTarget().isSymbolPreemptible(pSym))
     return false;
   return true;
 }
 
-static inline Relocator::Address
-helper_get_GOT_address(ResolveInfo& pSym, AArch64Relocator& pParent)
-{
+static inline Relocator::Address helper_get_GOT_address(
+    ResolveInfo& pSym,
+    AArch64Relocator& pParent) {
   AArch64GOTEntry* got_entry = pParent.getSymGOTMap().lookUp(pSym);
   assert(got_entry != NULL);
   return pParent.getTarget().getGOT().addr() + got_entry->getOffset();
 }
 
-static inline Relocator::Address helper_GOT_ORG(AArch64Relocator& pParent)
-{
+static inline Relocator::Address helper_GOT_ORG(AArch64Relocator& pParent) {
   return pParent.getTarget().getGOT().addr();
 }
 
-static inline AArch64GOTEntry&
-helper_GOT_init(Relocation& pReloc, bool pHasRel, AArch64Relocator& pParent)
-{
+static inline AArch64GOTEntry& helper_GOT_init(Relocation& pReloc,
+                                               bool pHasRel,
+                                               AArch64Relocator& pParent) {
   // rsym - The relocation target symbol
   ResolveInfo* rsym = pReloc.symInfo();
   AArch64GNULDBackend& ld_backend = pParent.getTarget();
@@ -191,8 +175,8 @@ helper_GOT_init(Relocation& pReloc, bool pHasRel, AArch64Relocator& pParent)
     // Initialize got_entry content and the corresponding dynamic relocation.
     if (helper_use_relative_reloc(*rsym, pParent)) {
       got_entry->setValue(AArch64Relocator::SymVal);
-      Relocation& rel_entry = helper_DynRela_init(rsym, *got_entry, 0x0,
-                                                  R_AARCH64_RELATIVE, pParent);
+      Relocation& rel_entry = helper_DynRela_init(
+          rsym, *got_entry, 0x0, R_AARCH64_RELATIVE, pParent);
       rel_entry.setAddend(AArch64Relocator::SymVal);
       pParent.getRelRelMap().record(pReloc, rel_entry);
     } else {
@@ -203,5 +187,6 @@ helper_GOT_init(Relocation& pReloc, bool pHasRel, AArch64Relocator& pParent)
   return *got_entry;
 }
 
-}
+}  // namespace mcld
+
 #endif  // TARGET_AARCH64_AARCH64RELOCATIONHELPERS_H_

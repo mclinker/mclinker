@@ -19,10 +19,10 @@ using namespace mcld;
 //===--------------------------------------------------------------------===//
 // MemoryArea
 //===--------------------------------------------------------------------===//
-MemoryArea::MemoryArea(llvm::StringRef pFilename)
-{
-  llvm::ErrorOr<std::unique_ptr<llvm::MemoryBuffer>> buffer_or_error =
-      llvm::MemoryBuffer::getFile(pFilename, /*FileSize*/ -1,
+MemoryArea::MemoryArea(llvm::StringRef pFilename) {
+  llvm::ErrorOr<std::unique_ptr<llvm::MemoryBuffer> > buffer_or_error =
+      llvm::MemoryBuffer::getFile(pFilename,
+                                  /*FileSize*/ -1,
                                   /*RequiresNullTerminator*/ false);
   if (!buffer_or_error) {
     fatal(diag::fatal_cannot_read_input) << pFilename.str();
@@ -30,20 +30,18 @@ MemoryArea::MemoryArea(llvm::StringRef pFilename)
   m_pMemoryBuffer = std::move(buffer_or_error.get());
 }
 
-MemoryArea::MemoryArea(const char* pMemBuffer, size_t pSize)
-{
+MemoryArea::MemoryArea(const char* pMemBuffer, size_t pSize) {
   llvm::StringRef mem(pMemBuffer, pSize);
   m_pMemoryBuffer =
-      llvm::MemoryBuffer::getMemBuffer(mem, /*BufferName*/ "NaN",
+      llvm::MemoryBuffer::getMemBuffer(mem,
+                                       /*BufferName*/ "NaN",
                                        /*RequiresNullTerminator*/ false);
 }
 
-llvm::StringRef MemoryArea::request(size_t pOffset, size_t pLength)
-{
+llvm::StringRef MemoryArea::request(size_t pOffset, size_t pLength) {
   return llvm::StringRef(m_pMemoryBuffer->getBufferStart() + pOffset, pLength);
 }
 
-size_t MemoryArea::size() const
-{
+size_t MemoryArea::size() const {
   return m_pMemoryBuffer->getBufferSize();
 }

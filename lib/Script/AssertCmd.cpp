@@ -21,21 +21,17 @@ using namespace mcld;
 AssertCmd::AssertCmd(RpnExpr& pRpnExpr, const std::string& pMessage)
     : ScriptCommand(ScriptCommand::ASSERT),
       m_RpnExpr(pRpnExpr),
-      m_Message(pMessage)
-{
+      m_Message(pMessage) {
 }
 
-AssertCmd::~AssertCmd()
-{
+AssertCmd::~AssertCmd() {
 }
 
-AssertCmd& AssertCmd::operator=(const AssertCmd& pAssertCmd)
-{
+AssertCmd& AssertCmd::operator=(const AssertCmd& pAssertCmd) {
   return *this;
 }
 
-void AssertCmd::dump() const
-{
+void AssertCmd::dump() const {
   mcld::outs() << "Assert ( ";
 
   m_RpnExpr.dump();
@@ -43,7 +39,6 @@ void AssertCmd::dump() const
   mcld::outs() << " , " << m_Message << " )\n";
 }
 
-void AssertCmd::activate(Module& pModule)
-{
+void AssertCmd::activate(Module& pModule) {
   pModule.getScript().assertions().push_back(*this);
 }

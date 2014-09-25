@@ -21,30 +21,25 @@
 
 namespace mcld {
 
-template<class DataType>
+template <class DataType>
 class BinaryTree;
 
-class DFSIterator : public TreeIteratorBase
-{
-public:
-  DFSIterator()
-      : TreeIteratorBase()
-  { }
+class DFSIterator : public TreeIteratorBase {
+ public:
+  DFSIterator() : TreeIteratorBase() {}
 
-  DFSIterator(NodeBase *X)
-      : TreeIteratorBase(X) {
+  DFSIterator(NodeBase* X) : TreeIteratorBase(X) {
     if (hasRightChild())
       m_Stack.push(m_pNode->right);
     if (hasLeftChild())
       m_Stack.push(m_pNode->left);
   }
 
-  virtual ~DFSIterator()
-  { }
+  virtual ~DFSIterator() {}
 
   void advance() {
-    if (m_Stack.empty()) { // reach the end
-      m_pNode = m_pNode->right; // should be root
+    if (m_Stack.empty()) {       // reach the end
+      m_pNode = m_pNode->right;  // should be root
       return;
     }
     m_pNode = m_Stack.top();
@@ -55,31 +50,26 @@ public:
       m_Stack.push(m_pNode->left);
   }
 
-private:
+ private:
   std::stack<NodeBase*> m_Stack;
 };
 
-class BFSIterator : public TreeIteratorBase
-{
-public:
-  BFSIterator()
-      : TreeIteratorBase()
-  { }
+class BFSIterator : public TreeIteratorBase {
+ public:
+  BFSIterator() : TreeIteratorBase() {}
 
-  BFSIterator(NodeBase *X)
-      : TreeIteratorBase(X) {
+  BFSIterator(NodeBase* X) : TreeIteratorBase(X) {
     if (hasRightChild())
       m_Queue.push(m_pNode->right);
     if (hasLeftChild())
       m_Queue.push(m_pNode->left);
   }
 
-  virtual ~BFSIterator()
-  { }
+  virtual ~BFSIterator() {}
 
   void advance() {
-    if (m_Queue.empty()) { // reach the end
-      m_pNode = m_pNode->right; // should be root
+    if (m_Queue.empty()) {       // reach the end
+      m_pNode = m_pNode->right;  // should be root
       return;
     }
     m_pNode = m_Queue.front();
@@ -90,83 +80,75 @@ public:
       m_Queue.push(m_pNode->left);
   }
 
-private:
+ private:
   std::queue<NodeBase*> m_Queue;
 };
 
-template<class DataType, class Traits, class IteratorType>
-class PolicyIteratorBase : public IteratorType
-{
-public:
+template <class DataType, class Traits, class IteratorType>
+class PolicyIteratorBase : public IteratorType {
+ public:
   typedef DataType value_type;
   typedef Traits traits;
-  typedef typename traits::pointer   pointer;
+  typedef typename traits::pointer pointer;
   typedef typename traits::reference reference;
 
   typedef PolicyIteratorBase<value_type, Traits, IteratorType> Self;
   typedef Node<value_type> node_type;
 
   typedef typename traits::nonconst_traits nonconst_traits;
-  typedef typename traits::const_traits    const_traits;
+  typedef typename traits::const_traits const_traits;
 
-  typedef PolicyIteratorBase<value_type,
-                             nonconst_traits,
-                             IteratorType> iterator;
-  typedef PolicyIteratorBase<value_type,
-                             const_traits,
-                             IteratorType> const_iterator;
+  typedef PolicyIteratorBase<value_type, nonconst_traits, IteratorType>
+      iterator;
+  typedef PolicyIteratorBase<value_type, const_traits, IteratorType>
+      const_iterator;
 
   typedef std::forward_iterator_tag iterator_category;
   typedef size_t size_type;
   typedef ptrdiff_t difference_type;
 
-public:
-  PolicyIteratorBase()
-      : IteratorType() { }
+ public:
+  PolicyIteratorBase() : IteratorType() {}
 
-  PolicyIteratorBase(const iterator &X)
-      : IteratorType(X.m_pNode) { }
+  PolicyIteratorBase(const iterator& X) : IteratorType(X.m_pNode) {}
 
-  explicit PolicyIteratorBase(NodeBase* X)
-      : IteratorType(X) { }
+  explicit PolicyIteratorBase(NodeBase* X) : IteratorType(X) {}
 
-  virtual ~PolicyIteratorBase() { }
+  virtual ~PolicyIteratorBase() {}
 
   // -----  operators  ----- //
-  pointer operator*() const
-  { return static_cast<node_type*>(IteratorType::m_pNode)->data; }
+  pointer operator*() const {
+    return static_cast<node_type*>(IteratorType::m_pNode)->data;
+  }
 
-  reference operator->() const
-  { return *static_cast<node_type*>(IteratorType::m_pNode)->data; }
+  reference operator->() const {
+    return *static_cast<node_type*>(IteratorType::m_pNode)->data;
+  }
 
-  bool hasData() const
-  { return (!IteratorType::isRoot() &&
-           (0 != static_cast<node_type*>(IteratorType::m_pNode)->data)); }
-
+  bool hasData() const {
+    return (!IteratorType::isRoot() &&
+            (0 != static_cast<node_type*>(IteratorType::m_pNode)->data));
+  }
 };
 
-template<class DataType, class Traits, class IteratorType>
-class PolicyIterator : public PolicyIteratorBase<DataType, Traits, IteratorType>
-{
-public:
+template <class DataType, class Traits, class IteratorType>
+class PolicyIterator
+    : public PolicyIteratorBase<DataType, Traits, IteratorType> {
+ public:
   typedef PolicyIterator<DataType, Traits, IteratorType> Self;
   typedef PolicyIteratorBase<DataType, Traits, IteratorType> Base;
   typedef PolicyIterator<DataType,
                          typename Traits::nonconst_traits,
                          IteratorType> iterator;
-  typedef PolicyIterator<DataType,
-                         typename Traits::const_traits,
-                         IteratorType> const_iterator;
+  typedef PolicyIterator<DataType, typename Traits::const_traits, IteratorType>
+      const_iterator;
 
-public:
-  PolicyIterator()
-      : Base() { }
+ public:
+  PolicyIterator() : Base() {}
 
-  PolicyIterator(const iterator &X)
-      : Base(X.m_pNode) { }
+  PolicyIterator(const iterator& X) : Base(X.m_pNode) {}
 
-  explicit PolicyIterator(NodeBase* X)
-      : Base(X) { }
+  explicit PolicyIterator(NodeBase* X) : Base(X) {}
 
   virtual ~PolicyIterator() {}
 
@@ -182,7 +164,7 @@ public:
   }
 };
 
-template<class DataType>
+template <class DataType>
 class BinaryTree;
 
 /** \class TreeIterator
@@ -194,47 +176,44 @@ class BinaryTree;
  *
  *  @see TreeIteratorBase
  */
-template<class DataType, class Traits>
-struct TreeIterator : public TreeIteratorBase
-{
-public:
-  typedef DataType                       value_type;
-  typedef Traits                         traits;
-  typedef typename traits::pointer       pointer;
-  typedef typename traits::reference     reference;
+template <class DataType, class Traits>
+struct TreeIterator : public TreeIteratorBase {
+ public:
+  typedef DataType value_type;
+  typedef Traits traits;
+  typedef typename traits::pointer pointer;
+  typedef typename traits::reference reference;
 
-  typedef TreeIterator<value_type, Traits>          Self;
-  typedef Node<value_type>                          node_type;
+  typedef TreeIterator<value_type, Traits> Self;
+  typedef Node<value_type> node_type;
 
-  typedef typename traits::nonconst_traits          nonconst_traits;
+  typedef typename traits::nonconst_traits nonconst_traits;
   typedef TreeIterator<value_type, nonconst_traits> iterator;
-  typedef typename traits::const_traits             const_traits;
-  typedef TreeIterator<value_type, const_traits>    const_iterator;
-  typedef std::bidirectional_iterator_tag           iterator_category;
-  typedef size_t                                    size_type;
-  typedef ptrdiff_t                                 difference_type;
+  typedef typename traits::const_traits const_traits;
+  typedef TreeIterator<value_type, const_traits> const_iterator;
+  typedef std::bidirectional_iterator_tag iterator_category;
+  typedef size_t size_type;
+  typedef ptrdiff_t difference_type;
 
-public:
-  TreeIterator()
-      : TreeIteratorBase() { }
+ public:
+  TreeIterator() : TreeIteratorBase() {}
 
-  TreeIterator(const iterator &X)
-      : TreeIteratorBase(X.m_pNode) { }
+  TreeIterator(const iterator& X) : TreeIteratorBase(X.m_pNode) {}
 
   ~TreeIterator() {}
 
   // -----  operators  ----- //
-  pointer operator*() const
-  { return static_cast<node_type*>(m_pNode)->data; }
+  pointer operator*() const { return static_cast<node_type*>(m_pNode)->data; }
 
-  reference operator->() const
-  { return *static_cast<node_type*>(m_pNode)->data; }
+  reference operator->() const {
+    return *static_cast<node_type*>(m_pNode)->data;
+  }
 
-  bool isRoot() const
-  { return (m_pNode->right == m_pNode); }
+  bool isRoot() const { return (m_pNode->right == m_pNode); }
 
-  bool hasData() const
-  { return (!isRoot() && (0 != static_cast<node_type*>(m_pNode)->data)); }
+  bool hasData() const {
+    return (!isRoot() && (0 != static_cast<node_type*>(m_pNode)->data));
+  }
 
   Self& operator++() {
     this->move<TreeIteratorBase::Rightward>();
@@ -258,8 +237,7 @@ public:
     return tmp;
   }
 
-  explicit TreeIterator(NodeBase* X)
-      : TreeIteratorBase(X) { }
+  explicit TreeIterator(NodeBase* X) : TreeIteratorBase(X) {}
 };
 
 /** \class BinaryTreeBase
@@ -271,12 +249,12 @@ public:
  *
  *  @see BinaryTree
  */
-template<class DataType>
-class BinaryTreeBase : private Uncopyable
-{
-public:
+template <class DataType>
+class BinaryTreeBase : private Uncopyable {
+ public:
   typedef Node<DataType> NodeType;
-protected:
+
+ protected:
   /// TreeImpl - TreeImpl records the root node and the number of nodes
   //
   //    +---> Root(end) <---+
@@ -286,22 +264,17 @@ protected:
   //    |  Left     Right   |
   //    +---/         \-----+
   //
-  class TreeImpl : public NodeFactory<DataType>
-  {
-    typedef typename NodeFactory<DataType>::iterator       iterator;
+  class TreeImpl : public NodeFactory<DataType> {
+    typedef typename NodeFactory<DataType>::iterator iterator;
     typedef typename NodeFactory<DataType>::const_iterator const_iterator;
 
-  public:
+   public:
     NodeBase node;
 
-  public:
-    TreeImpl()
-        : NodeFactory<DataType>() {
-      node.left = node.right = &node;
-    }
+   public:
+    TreeImpl() : NodeFactory<DataType>() { node.left = node.right = &node; }
 
-    ~TreeImpl()
-    { }
+    ~TreeImpl() {}
 
     /// summon - change the final edges of pClient to our root
     void summon(TreeImpl& pClient) {
@@ -310,54 +283,45 @@ protected:
 
       iterator data;
       iterator dEnd = pClient.end();
-      for (data = pClient.begin(); data!=dEnd; ++data) {
+      for (data = pClient.begin(); data != dEnd; ++data) {
         if ((*data).left == &pClient.node)
           (*data).left = &node;
         if ((*data).right == &pClient.node)
           (*data).right = &node;
       }
     }
-  }; // TreeImpl
+  };  // TreeImpl
 
-protected:
+ protected:
   /// m_Root is a special object who responses:
   //  - the pointer of root
   //  - the simple factory of nodes.
   TreeImpl m_Root;
 
-protected:
-  NodeType *createNode() {
-    NodeType *result = m_Root.produce();
+ protected:
+  NodeType* createNode() {
+    NodeType* result = m_Root.produce();
     result->left = result->right = &m_Root.node;
     return result;
   }
 
-  void destroyNode(NodeType *pNode) {
+  void destroyNode(NodeType* pNode) {
     pNode->left = pNode->right = 0;
     pNode->data = 0;
     m_Root.deallocate(pNode);
   }
 
-public:
-  BinaryTreeBase()
-      : m_Root()
-  { }
+ public:
+  BinaryTreeBase() : m_Root() {}
 
-  virtual ~BinaryTreeBase()
-  { }
+  virtual ~BinaryTreeBase() {}
 
-  size_t size() const {
-    return m_Root.size();
-  }
+  size_t size() const { return m_Root.size(); }
 
-  bool empty() const {
-    return m_Root.empty();
-  }
+  bool empty() const { return m_Root.empty(); }
 
-protected:
-  void clear() {
-    m_Root.clear();
-  }
+ protected:
+  void clear() { m_Root.clear(); }
 };
 
 /** \class BinaryTree
@@ -365,90 +329,94 @@ protected:
  *
  *  @see mcld::InputTree
  */
-template<class DataType>
-class BinaryTree : public BinaryTreeBase<DataType>
-{
-public:
-  typedef size_t             size_type;
-  typedef ptrdiff_t          difference_type;
-  typedef DataType           value_type;
-  typedef value_type*        pointer;
-  typedef value_type&        reference;
-  typedef const value_type*  const_pointer;
-  typedef const value_type&  const_reference;
+template <class DataType>
+class BinaryTree : public BinaryTreeBase<DataType> {
+ public:
+  typedef size_t size_type;
+  typedef ptrdiff_t difference_type;
+  typedef DataType value_type;
+  typedef value_type* pointer;
+  typedef value_type& reference;
+  typedef const value_type* const_pointer;
+  typedef const value_type& const_reference;
 
-  typedef BinaryTree<DataType>  Self;
+  typedef BinaryTree<DataType> Self;
   typedef TreeIterator<value_type, NonConstTraits<value_type> > iterator;
-  typedef TreeIterator<value_type, ConstTraits<value_type> >    const_iterator;
+  typedef TreeIterator<value_type, ConstTraits<value_type> > const_iterator;
 
-  typedef PolicyIterator<value_type,
-                         NonConstTraits<value_type>,
-                         DFSIterator> dfs_iterator;
-  typedef PolicyIterator<value_type,
-                         ConstTraits<value_type>,
-                         DFSIterator> const_dfs_iterator;
+  typedef PolicyIterator<value_type, NonConstTraits<value_type>, DFSIterator>
+      dfs_iterator;
+  typedef PolicyIterator<value_type, ConstTraits<value_type>, DFSIterator>
+      const_dfs_iterator;
 
-  typedef PolicyIterator<value_type,
-                         NonConstTraits<value_type>,
-                         BFSIterator> bfs_iterator;
-  typedef PolicyIterator<value_type,
-                         ConstTraits<value_type>,
-                         BFSIterator> const_bfs_iterator;
+  typedef PolicyIterator<value_type, NonConstTraits<value_type>, BFSIterator>
+      bfs_iterator;
+  typedef PolicyIterator<value_type, ConstTraits<value_type>, BFSIterator>
+      const_bfs_iterator;
 
-protected:
+ protected:
   typedef Node<value_type> node_type;
 
-public:
+ public:
   // -----  constructors and destructor  ----- //
-  BinaryTree()
-      : BinaryTreeBase<DataType>()
-  { }
+  BinaryTree() : BinaryTreeBase<DataType>() {}
 
-  ~BinaryTree() {
-  }
+  ~BinaryTree() {}
 
   // -----  iterators  ----- //
-  bfs_iterator bfs_begin()
-  { return bfs_iterator(BinaryTreeBase<DataType>::m_Root.node.left); }
+  bfs_iterator bfs_begin() {
+    return bfs_iterator(BinaryTreeBase<DataType>::m_Root.node.left);
+  }
 
-  bfs_iterator bfs_end()
-  { return bfs_iterator(BinaryTreeBase<DataType>::m_Root.node.right); }
+  bfs_iterator bfs_end() {
+    return bfs_iterator(BinaryTreeBase<DataType>::m_Root.node.right);
+  }
 
-  const_bfs_iterator bfs_begin() const
-  { return const_bfs_iterator(BinaryTreeBase<DataType>::m_Root.node.left); }
+  const_bfs_iterator bfs_begin() const {
+    return const_bfs_iterator(BinaryTreeBase<DataType>::m_Root.node.left);
+  }
 
-  const_bfs_iterator bfs_end() const
-  { return const_bfs_iterator(BinaryTreeBase<DataType>::m_Root.node.right); }
+  const_bfs_iterator bfs_end() const {
+    return const_bfs_iterator(BinaryTreeBase<DataType>::m_Root.node.right);
+  }
 
-  dfs_iterator dfs_begin()
-  { return dfs_iterator(BinaryTreeBase<DataType>::m_Root.node.left); }
+  dfs_iterator dfs_begin() {
+    return dfs_iterator(BinaryTreeBase<DataType>::m_Root.node.left);
+  }
 
-  dfs_iterator dfs_end()
-  { return dfs_iterator(BinaryTreeBase<DataType>::m_Root.node.right); }
+  dfs_iterator dfs_end() {
+    return dfs_iterator(BinaryTreeBase<DataType>::m_Root.node.right);
+  }
 
-  const_dfs_iterator dfs_begin() const
-  { return const_dfs_iterator(BinaryTreeBase<DataType>::m_Root.node.left); }
+  const_dfs_iterator dfs_begin() const {
+    return const_dfs_iterator(BinaryTreeBase<DataType>::m_Root.node.left);
+  }
 
-  const_dfs_iterator dfs_end() const
-  { return const_dfs_iterator(BinaryTreeBase<DataType>::m_Root.node.right); }
+  const_dfs_iterator dfs_end() const {
+    return const_dfs_iterator(BinaryTreeBase<DataType>::m_Root.node.right);
+  }
 
-  iterator root()
-  { return iterator(&(BinaryTreeBase<DataType>::m_Root.node)); }
+  iterator root() { return iterator(&(BinaryTreeBase<DataType>::m_Root.node)); }
 
-  const_iterator root() const
-  { return const_iterator(&(BinaryTreeBase<DataType>::m_Root.node)); }
+  const_iterator root() const {
+    return const_iterator(&(BinaryTreeBase<DataType>::m_Root.node));
+  }
 
-  iterator begin()
-  { return iterator(BinaryTreeBase<DataType>::m_Root.node.left); }
+  iterator begin() {
+    return iterator(BinaryTreeBase<DataType>::m_Root.node.left);
+  }
 
-  iterator end()
-  { return iterator(BinaryTreeBase<DataType>::m_Root.node.right); }
+  iterator end() {
+    return iterator(BinaryTreeBase<DataType>::m_Root.node.right);
+  }
 
-  const_iterator begin() const
-  { return const_iterator(BinaryTreeBase<DataType>::m_Root.node.left); }
+  const_iterator begin() const {
+    return const_iterator(BinaryTreeBase<DataType>::m_Root.node.left);
+  }
 
-  const_iterator end() const
-  { return const_iterator(BinaryTreeBase<DataType>::m_Root.node.right); }
+  const_iterator end() const {
+    return const_iterator(BinaryTreeBase<DataType>::m_Root.node.right);
+  }
 
   // ----- modifiers  ----- //
   /// join - create a leaf node and merge it in the tree.
@@ -456,9 +424,9 @@ public:
   //  @param DIRECT the direction of the connecting edge of the parent node.
   //  @param position the parent node
   //  @param value the value being pushed.
-  template<size_t DIRECT>
+  template <size_t DIRECT>
   BinaryTree& join(TreeIteratorBase& pPosition, const DataType& pValue) {
-    node_type *node = BinaryTreeBase<DataType>::createNode();
+    node_type* node = BinaryTreeBase<DataType>::createNode();
     node->data = const_cast<DataType*>(&pValue);
 
     if (pPosition.isRoot())
@@ -474,7 +442,7 @@ public:
   //  @param position the parent node
   //  @param the tree being joined.
   //  @return the joined tree
-  template<size_t DIRECT>
+  template <size_t DIRECT>
   BinaryTree& merge(TreeIteratorBase& pPosition, BinaryTree& pTree) {
     if (this == &pTree)
       return *this;
@@ -490,6 +458,6 @@ public:
   }
 };
 
-} // namespace mcld
+}  // namespace mcld
 
 #endif  // MCLD_ADT_BINTREE_H_

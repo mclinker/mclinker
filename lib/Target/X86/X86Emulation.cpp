@@ -14,8 +14,7 @@
 
 namespace mcld {
 
-static bool MCLDEmulateX86ELF(LinkerScript& pScript, LinkerConfig& pConfig)
-{
+static bool MCLDEmulateX86ELF(LinkerScript& pScript, LinkerConfig& pConfig) {
   if (!MCLDEmulateELF(pScript, pConfig))
     return false;
 
@@ -23,7 +22,7 @@ static bool MCLDEmulateX86ELF(LinkerScript& pScript, LinkerConfig& pConfig)
   pConfig.targets().setEndian(TargetOptions::Little);
   unsigned int bitclass;
   llvm::Triple::ArchType arch = pConfig.targets().triple().getArch();
-  assert (arch == llvm::Triple::x86 || arch == llvm::Triple::x86_64);
+  assert(arch == llvm::Triple::x86 || arch == llvm::Triple::x86_64);
   if (arch == llvm::Triple::x86 ||
       pConfig.targets().triple().getEnvironment() == llvm::Triple::GNUX32) {
     bitclass = 32;
@@ -47,8 +46,7 @@ static bool MCLDEmulateX86ELF(LinkerScript& pScript, LinkerConfig& pConfig)
 //===----------------------------------------------------------------------===//
 // emulateX86LD - the help function to emulate X86 ld
 //===----------------------------------------------------------------------===//
-bool emulateX86LD(LinkerScript& pScript, LinkerConfig& pConfig)
-{
+bool emulateX86LD(LinkerScript& pScript, LinkerConfig& pConfig) {
   if (pConfig.targets().triple().isOSDarwin()) {
     assert(0 && "MachO linker has not supported yet");
     return false;
@@ -61,7 +59,7 @@ bool emulateX86LD(LinkerScript& pScript, LinkerConfig& pConfig)
   return MCLDEmulateX86ELF(pScript, pConfig);
 }
 
-} // namespace mcld
+}  // namespace mcld
 
 //===----------------------------------------------------------------------===//
 // X86Emulation

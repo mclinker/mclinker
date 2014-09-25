@@ -14,8 +14,7 @@
 
 #include <cassert>
 
-namespace mcld
-{
+namespace mcld {
 
 class OutputSectDesc;
 class WildcardPattern;
@@ -24,13 +23,9 @@ class WildcardPattern;
  *  \brief This class defines the interfaces to input section description.
  */
 
-class InputSectDesc : public ScriptCommand
-{
-public:
-  enum KeepPolicy {
-    Keep,
-    NoKeep
-  };
+class InputSectDesc : public ScriptCommand {
+ public:
+  enum KeepPolicy { Keep, NoKeep };
 
   struct Spec {
     bool hasFile() const { return m_pWildcardFile != NULL; }
@@ -73,7 +68,7 @@ public:
     StringList* m_pWildcardSections;
   };
 
-public:
+ public:
   InputSectDesc(KeepPolicy pPolicy,
                 const Spec& pSpec,
                 const OutputSectDesc& pOutputDesc);
@@ -85,19 +80,18 @@ public:
 
   void dump() const;
 
-  static bool classof(const ScriptCommand* pCmd)
-  {
+  static bool classof(const ScriptCommand* pCmd) {
     return pCmd->getKind() == ScriptCommand::INPUT_SECT_DESC;
   }
 
   void activate(Module& pModule);
 
-private:
+ private:
   KeepPolicy m_KeepPolicy;
   Spec m_Spec;
   const OutputSectDesc& m_OutputSectDesc;
 };
 
-} // namespace mcld
+}  // namespace mcld
 
 #endif  // MCLD_SCRIPT_INPUTSECTDESC_H_

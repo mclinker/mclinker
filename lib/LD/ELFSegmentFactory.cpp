@@ -15,9 +15,9 @@ using namespace mcld;
 // ELFSegmentFactory
 //===----------------------------------------------------------------------===//
 
-ELFSegmentFactory::iterator
-ELFSegmentFactory::find(uint32_t pType, uint32_t pFlagSet, uint32_t pFlagClear)
-{
+ELFSegmentFactory::iterator ELFSegmentFactory::find(uint32_t pType,
+                                                    uint32_t pFlagSet,
+                                                    uint32_t pFlagClear) {
   iterator segment, segEnd = end();
   for (segment = begin(); segment != segEnd; ++segment) {
     if ((*segment)->type() == pType &&
@@ -29,11 +29,10 @@ ELFSegmentFactory::find(uint32_t pType, uint32_t pFlagSet, uint32_t pFlagClear)
   return segEnd;
 }
 
-ELFSegmentFactory::const_iterator
-ELFSegmentFactory::find(uint32_t pType,
-                        uint32_t pFlagSet,
-                        uint32_t pFlagClear) const
-{
+ELFSegmentFactory::const_iterator ELFSegmentFactory::find(
+    uint32_t pType,
+    uint32_t pFlagSet,
+    uint32_t pFlagClear) const {
   const_iterator segment, segEnd = end();
   for (segment = begin(); segment != segEnd; ++segment) {
     if ((*segment)->type() == pType &&
@@ -45,9 +44,8 @@ ELFSegmentFactory::find(uint32_t pType,
   return segEnd;
 }
 
-ELFSegmentFactory::iterator
-ELFSegmentFactory::find(uint32_t pType, const LDSection* pSection)
-{
+ELFSegmentFactory::iterator ELFSegmentFactory::find(uint32_t pType,
+                                                    const LDSection* pSection) {
   iterator segment, segEnd = end();
   for (segment = begin(); segment != segEnd; ++segment) {
     if ((*segment)->type() == pType) {
@@ -55,15 +53,15 @@ ELFSegmentFactory::find(uint32_t pType, const LDSection* pSection)
       for (sect = (*segment)->begin(); sect != sectEnd; ++sect) {
         if (*sect == pSection)
           return segment;
-      } // for each section
+      }  // for each section
     }
-  } // for each segment
+  }  // for each segment
   return segEnd;
 }
 
-ELFSegmentFactory::const_iterator
-ELFSegmentFactory::find(uint32_t pType, const LDSection* pSection) const
-{
+ELFSegmentFactory::const_iterator ELFSegmentFactory::find(
+    uint32_t pType,
+    const LDSection* pSection) const {
   const_iterator segment, segEnd = end();
   for (segment = begin(); segment != segEnd; ++segment) {
     if ((*segment)->type() == pType) {
@@ -71,19 +69,17 @@ ELFSegmentFactory::find(uint32_t pType, const LDSection* pSection) const
       for (sect = (*segment)->begin(); sect != sectEnd; ++sect) {
         if (*sect == pSection)
           return segment;
-      } // for each section
+      }  // for each section
     }
-  } // for each segment
+  }  // for each segment
   return segEnd;
 }
 
-ELFSegment* ELFSegmentFactory::produce(uint32_t pType, uint32_t pFlag)
-{
+ELFSegment* ELFSegmentFactory::produce(uint32_t pType, uint32_t pFlag) {
   m_Segments.push_back(ELFSegment::Create(pType, pFlag));
   return back();
 }
 
-void ELFSegmentFactory::erase(iterator pSegment)
-{
+void ELFSegmentFactory::erase(iterator pSegment) {
   m_Segments.erase(pSegment);
 }

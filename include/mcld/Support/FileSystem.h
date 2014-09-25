@@ -25,8 +25,7 @@ namespace sys {
 
 namespace fs {
 
-enum FileType
-{
+enum FileType {
   StatusError,
   StatusUnknown = StatusError,
   FileNotFound,
@@ -46,19 +45,16 @@ enum FileType
 /** \class FileStatus
  *  \brief FileStatus
  */
-class FileStatus
-{
-public:
-  FileStatus()
-      : m_Value(StatusError) { }
+class FileStatus {
+ public:
+  FileStatus() : m_Value(StatusError) {}
 
-  explicit FileStatus(FileType v)
-      : m_Value(v) { }
+  explicit FileStatus(FileType v) : m_Value(v) {}
 
-  void setType(FileType v)   { m_Value = v; }
-  FileType type() const   { return m_Value; }
+  void setType(FileType v) { m_Value = v; }
+  FileType type() const { return m_Value; }
 
-private:
+ private:
   FileType m_Value;
 };
 
@@ -66,7 +62,7 @@ inline bool operator==(const FileStatus& rhs, const FileStatus& lhs) {
   return rhs.type() == lhs.type();
 }
 
-inline bool operator!=(const FileStatus& rhs, const FileStatus& lhs ) {
+inline bool operator!=(const FileStatus& rhs, const FileStatus& lhs) {
   return !(rhs == lhs);
 }
 
@@ -74,8 +70,8 @@ class Path;
 class DirIterator;
 class Directory;
 
-bool exists(const Path &pPath);
-bool is_directory(const Path &pPath);
+bool exists(const Path& pPath);
+bool is_directory(const Path& pPath);
 
 namespace detail {
 
@@ -100,13 +96,17 @@ int open(const Path& pPath, int pOFlag, int pPermission);
 ssize_t pread(int pFD, void* pBuf, size_t pCount, off_t pOffset);
 ssize_t pwrite(int pFD, const void* pBuf, size_t pCount, off_t pOffset);
 int ftruncate(int pFD, size_t pLength);
-void* mmap(void *pAddr, size_t pLen,
-           int pProt, int pFlags, int pFD, off_t pOffset);
-int munmap(void *pAddr, size_t pLen);
+void* mmap(void* pAddr,
+           size_t pLen,
+           int pProt,
+           int pFlags,
+           int pFD,
+           off_t pOffset);
+int munmap(void* pAddr, size_t pLen);
 
-} // namespace detail
-} // namespace fs
-} // namespace sys
-} // namespace mcld
+}  // namespace detail
+}  // namespace fs
+}  // namespace sys
+}  // namespace mcld
 
 #endif  // MCLD_SUPPORT_FILESYSTEM_H_

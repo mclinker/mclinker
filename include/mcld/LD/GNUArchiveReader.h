@@ -23,9 +23,8 @@ class Module;
 /** \class GNUArchiveReader
  *  \brief GNUArchiveReader reads GNU archive files.
  */
-class GNUArchiveReader : public ArchiveReader
-{
-public:
+class GNUArchiveReader : public ArchiveReader {
+ public:
   GNUArchiveReader(Module& pModule, ELFObjectReader& pELFObjectReader);
 
   ~GNUArchiveReader();
@@ -35,9 +34,9 @@ public:
   bool readArchive(const LinkerConfig& pConfig, Archive& pArchive);
 
   /// isMyFormat
-  bool isMyFormat(Input& input, bool &pContinue) const;
+  bool isMyFormat(Input& input, bool& pContinue) const;
 
-private:
+ private:
   /// isArchive
   bool isArchive(const char* pStr) const;
 
@@ -70,8 +69,8 @@ private:
 
   /// shouldIncludeSymbol - given a sym name from armap and check if we should
   /// include the corresponding archive member, and then return the decision
-  enum Archive::Symbol::Status
-  shouldIncludeSymbol(const llvm::StringRef& pSymName) const;
+  enum Archive::Symbol::Status shouldIncludeSymbol(
+      const llvm::StringRef& pSymName) const;
 
   /// includeMember - include the object member in the given file offset, and
   /// return the size of the object
@@ -86,11 +85,11 @@ private:
   /// --whole-archive is the attribute for this archive file.
   bool includeAllMembers(const LinkerConfig& pConfig, Archive& pArchive);
 
-private:
+ private:
   Module& m_Module;
   ELFObjectReader& m_ELFObjectReader;
 };
 
-} // namespace mcld
+}  // namespace mcld
 
 #endif  // MCLD_LD_GNUARCHIVEREADER_H_

@@ -13,8 +13,8 @@ namespace mcld {
 namespace leb128 {
 
 //===---------------------- LEB128 Encoding APIs -------------------------===//
-template<>
-size_t encode<uint64_t>(ByteType *&pBuf, uint64_t pValue) {
+template <>
+size_t encode<uint64_t>(ByteType*& pBuf, uint64_t pValue) {
   size_t size = 0;
   do {
     ByteType byte = pValue & 0x7f;
@@ -32,39 +32,39 @@ size_t encode<uint64_t>(ByteType *&pBuf, uint64_t pValue) {
  * Fast version for encoding 32-bit integer. This unrolls the loop in the
  * generic version defined above.
  */
-template<>
-size_t encode<uint32_t>(ByteType *&pBuf, uint32_t pValue) {
+template <>
+size_t encode<uint32_t>(ByteType*& pBuf, uint32_t pValue) {
   if ((pValue & ~0x7f) == 0) {
     *pBuf++ = static_cast<ByteType>(pValue);
     return 1;
-  } else if ((pValue & ~0x3fff) == 0){
-    *pBuf++ = static_cast<ByteType>((pValue         & 0x7f) | 0x80);
-    *pBuf++ = static_cast<ByteType>((pValue  >>  7) & 0x7f);
+  } else if ((pValue & ~0x3fff) == 0) {
+    *pBuf++ = static_cast<ByteType>((pValue & 0x7f) | 0x80);
+    *pBuf++ = static_cast<ByteType>((pValue >> 7) & 0x7f);
     return 2;
   } else if ((pValue & ~0x1fffff) == 0) {
-    *pBuf++ = static_cast<ByteType>((pValue         & 0x7f) | 0x80);
-    *pBuf++ = static_cast<ByteType>(((pValue >>  7) & 0x7f) | 0x80);
-    *pBuf++ = static_cast<ByteType>((pValue  >> 14) & 0x7f);
+    *pBuf++ = static_cast<ByteType>((pValue & 0x7f) | 0x80);
+    *pBuf++ = static_cast<ByteType>(((pValue >> 7) & 0x7f) | 0x80);
+    *pBuf++ = static_cast<ByteType>((pValue >> 14) & 0x7f);
     return 3;
   } else if ((pValue & ~0xfffffff) == 0) {
-    *pBuf++ = static_cast<ByteType>((pValue         & 0x7f) | 0x80);
-    *pBuf++ = static_cast<ByteType>(((pValue >>  7) & 0x7f) | 0x80);
+    *pBuf++ = static_cast<ByteType>((pValue & 0x7f) | 0x80);
+    *pBuf++ = static_cast<ByteType>(((pValue >> 7) & 0x7f) | 0x80);
     *pBuf++ = static_cast<ByteType>(((pValue >> 14) & 0x7f) | 0x80);
-    *pBuf++ = static_cast<ByteType>((pValue  >> 21) & 0x7f);
+    *pBuf++ = static_cast<ByteType>((pValue >> 21) & 0x7f);
     return 4;
   } else {
-    *pBuf++ = static_cast<ByteType>((pValue         & 0x7f) | 0x80);
-    *pBuf++ = static_cast<ByteType>(((pValue >>  7) & 0x7f) | 0x80);
+    *pBuf++ = static_cast<ByteType>((pValue & 0x7f) | 0x80);
+    *pBuf++ = static_cast<ByteType>(((pValue >> 7) & 0x7f) | 0x80);
     *pBuf++ = static_cast<ByteType>(((pValue >> 14) & 0x7f) | 0x80);
     *pBuf++ = static_cast<ByteType>(((pValue >> 21) & 0x7f) | 0x80);
-    *pBuf++ = static_cast<ByteType>((pValue  >> 28) & 0x7f);
+    *pBuf++ = static_cast<ByteType>((pValue >> 28) & 0x7f);
     return 5;
   }
   // unreachable
 }
 
-template<>
-size_t encode<int64_t>(ByteType *&pBuf, int64_t pValue) {
+template <>
+size_t encode<int64_t>(ByteType*& pBuf, int64_t pValue) {
   size_t size = 0;
   bool more = true;
 
@@ -72,7 +72,7 @@ size_t encode<int64_t>(ByteType *&pBuf, int64_t pValue) {
     ByteType byte = pValue & 0x7f;
     pValue >>= 7;
 
-    if (((pValue ==  0) && ((byte & 0x40) == 0)) ||
+    if (((pValue == 0) && ((byte & 0x40) == 0)) ||
         ((pValue == -1) && ((byte & 0x40) == 0x40)))
       more = false;
     else
@@ -85,15 +85,15 @@ size_t encode<int64_t>(ByteType *&pBuf, int64_t pValue) {
   return size;
 }
 
-template<>
-size_t encode<int32_t>(ByteType *&pBuf, int32_t pValue) {
+template <>
+size_t encode<int32_t>(ByteType*& pBuf, int32_t pValue) {
   return encode<int64_t>(pBuf, static_cast<int64_t>(pValue));
 }
 
 //===---------------------- LEB128 Decoding APIs -------------------------===//
 
-template<>
-uint64_t decode<uint64_t>(const ByteType *pBuf, size_t &pSize) {
+template <>
+uint64_t decode<uint64_t>(const ByteType* pBuf, size_t& pSize) {
   uint64_t result = 0;
 
   if ((*pBuf & 0x80) == 0) {
@@ -101,19 +101,15 @@ uint64_t decode<uint64_t>(const ByteType *pBuf, size_t &pSize) {
     return *pBuf;
   } else if ((*(pBuf + 1) & 0x80) == 0) {
     pSize = 2;
-    return ((*(pBuf + 1) & 0x7f) << 7) |
-           (*pBuf & 0x7f);
+    return ((*(pBuf + 1) & 0x7f) << 7) | (*pBuf & 0x7f);
   } else if ((*(pBuf + 2) & 0x80) == 0) {
     pSize = 3;
-    return ((*(pBuf + 2) & 0x7f) << 14) |
-           ((*(pBuf + 1) & 0x7f) <<  7) |
+    return ((*(pBuf + 2) & 0x7f) << 14) | ((*(pBuf + 1) & 0x7f) << 7) |
            (*pBuf & 0x7f);
   } else {
     pSize = 4;
-    result = ((*(pBuf + 3) & 0x7f) << 21) |
-             ((*(pBuf + 2) & 0x7f) << 14) |
-             ((*(pBuf + 1) & 0x7f) <<  7) |
-             (*pBuf & 0x7f);
+    result = ((*(pBuf + 3) & 0x7f) << 21) | ((*(pBuf + 2) & 0x7f) << 14) |
+             ((*(pBuf + 1) & 0x7f) << 7) | (*pBuf & 0x7f);
   }
 
   if ((*(pBuf + 3) & 0x80) != 0) {
@@ -136,8 +132,8 @@ uint64_t decode<uint64_t>(const ByteType *pBuf, size_t &pSize) {
   return result;
 }
 
-template<>
-uint64_t decode<uint64_t>(const ByteType *&pBuf) {
+template <>
+uint64_t decode<uint64_t>(const ByteType*& pBuf) {
   ByteType byte;
   uint64_t result;
 
@@ -147,7 +143,7 @@ uint64_t decode<uint64_t>(const ByteType *&pBuf) {
     return result;
   } else {
     byte = *pBuf++;
-    result |=  ((byte & 0x7f) << 7);
+    result |= ((byte & 0x7f) << 7);
     if ((byte & 0x80) == 0) {
       return result;
     } else {
@@ -184,8 +180,8 @@ uint64_t decode<uint64_t>(const ByteType *&pBuf) {
  * bit if necessary. This is rarely used, therefore we don't provide unrolling
  * version like decode() to save the code size.
  */
-template<>
-int64_t decode<int64_t>(const ByteType *pBuf, size_t &pSize) {
+template <>
+int64_t decode<int64_t>(const ByteType* pBuf, size_t& pSize) {
   uint64_t result = 0;
   ByteType byte;
   unsigned shift = 0;
@@ -205,8 +201,8 @@ int64_t decode<int64_t>(const ByteType *pBuf, size_t &pSize) {
   return result;
 }
 
-template<>
-int64_t decode<int64_t>(const ByteType *&pBuf) {
+template <>
+int64_t decode<int64_t>(const ByteType*& pBuf) {
   uint64_t result = 0;
   ByteType byte;
   unsigned shift = 0;
@@ -224,5 +220,5 @@ int64_t decode<int64_t>(const ByteType *&pBuf) {
   return result;
 }
 
-} // namespace leb128
-} // namespace mcld
+}  // namespace leb128
+}  // namespace mcld

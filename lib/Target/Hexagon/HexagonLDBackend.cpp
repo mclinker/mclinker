@@ -54,8 +54,7 @@ HexagonLDBackend::HexagonLDBackend(const LinkerConfig& pConfig,
       m_CopyRel(llvm::ELF::R_HEX_COPY) {
 }
 
-HexagonLDBackend::~HexagonLDBackend()
-{
+HexagonLDBackend::~HexagonLDBackend() {
   delete m_pRelocator;
   delete m_pGOT;
   delete m_pPLT;
@@ -64,28 +63,24 @@ HexagonLDBackend::~HexagonLDBackend()
   delete m_pDynamic;
 }
 
-bool HexagonLDBackend::initRelocator()
-{
+bool HexagonLDBackend::initRelocator() {
   if (m_pRelocator == NULL) {
     m_pRelocator = new HexagonRelocator(*this, config());
   }
   return true;
 }
 
-const Relocator* HexagonLDBackend::getRelocator() const
-{
+const Relocator* HexagonLDBackend::getRelocator() const {
   assert(m_pRelocator != NULL);
   return m_pRelocator;
 }
 
-Relocator* HexagonLDBackend::getRelocator()
-{
+Relocator* HexagonLDBackend::getRelocator() {
   assert(m_pRelocator != NULL);
   return m_pRelocator;
 }
 
-void HexagonLDBackend::doPreLayout(IRBuilder& pBuilder)
-{
+void HexagonLDBackend::doPreLayout(IRBuilder& pBuilder) {
   // initialize .dynamic data
   if (!config().isCodeStatic() && m_pDynamic == NULL)
     m_pDynamic = new HexagonELFDynamic(*this, config());
@@ -102,14 +97,16 @@ void HexagonLDBackend::doPreLayout(IRBuilder& pBuilder)
 
     // set .rela.dyn size
     if (!m_pRelaDyn->empty()) {
-      assert(!config().isCodeStatic() &&
-            "static linkage should not result in a dynamic relocation section");
+      assert(
+          !config().isCodeStatic() &&
+          "static linkage should not result in a dynamic relocation section");
       setRelaDynSize();
     }
     // set .rela.plt size
     if (!m_pRelaPLT->empty()) {
-      assert(!config().isCodeStatic() &&
-            "static linkage should not result in a dynamic relocation section");
+      assert(
+          !config().isCodeStatic() &&
+          "static linkage should not result in a dynamic relocation section");
       setRelaPLTSize();
     }
   }
@@ -118,29 +115,25 @@ void HexagonLDBackend::doPreLayout(IRBuilder& pBuilder)
     SetSDataSection();
 }
 
-void HexagonLDBackend::doPostLayout(Module& pModule, IRBuilder& pBuilder)
-{
+void HexagonLDBackend::doPostLayout(Module& pModule, IRBuilder& pBuilder) {
 }
 
 /// dynamic - the dynamic section of the target machine.
 /// Use co-variant return type to return its own dynamic section.
-HexagonELFDynamic& HexagonLDBackend::dynamic()
-{
+HexagonELFDynamic& HexagonLDBackend::dynamic() {
   assert(m_pDynamic != NULL);
   return *m_pDynamic;
 }
 
 /// dynamic - the dynamic section of the target machine.
 /// Use co-variant return type to return its own dynamic section.
-const HexagonELFDynamic& HexagonLDBackend::dynamic() const
-{
+const HexagonELFDynamic& HexagonLDBackend::dynamic() const {
   assert(m_pDynamic != NULL);
   return *m_pDynamic;
 }
 
 uint64_t HexagonLDBackend::emitSectionData(const LDSection& pSection,
-                                           MemoryRegion& pRegion) const
-{
+                                           MemoryRegion& pRegion) const {
   if (!pRegion.size())
     return 0;
 
@@ -151,7 +144,6 @@ uint64_t HexagonLDBackend::emitSectionData(const LDSection& pSection,
   if ((LinkerConfig::Object != config().codeGenType()) &&
       (!config().isCodeStatic())) {
     if (FileFormat->hasPLT() && (&pSection == &(FileFormat->getPLT()))) {
-
       unsigned char* buffer = pRegion.begin();
 
       m_pPLT->applyPLT0();
@@ -188,10 +180,9 @@ uint64_t HexagonLDBackend::emitSectionData(const LDSection& pSection,
   uint8_t* out_offset = pRegion.begin();
   for (frag_iter = sect_data->begin(); frag_iter != frag_end; ++frag_iter) {
     size_t size = frag_iter->size();
-    switch(frag_iter->getKind()) {
+    switch (frag_iter->getKind()) {
       case Fragment::Fillment: {
-        const FillFragment& fill_frag =
-            llvm::cast<FillFragment>(*frag_iter);
+        const FillFragment& fill_frag = llvm::cast<FillFragment>(*frag_iter);
         if (fill_frag.getValueSize() == 0) {
           // virtual fillment, ignore it.
           break;
@@ -201,7 +192,7 @@ uint64_t HexagonLDBackend::emitSectionData(const LDSection& pSection,
       }
       case Fragment::Region: {
         const RegionFragment& region_frag =
-          llvm::cast<RegionFragment>(*frag_iter);
+            llvm::cast<RegionFragment>(*frag_iter);
         const char* start = region_frag.getRegion().begin();
         memcpy(out_offset, start, size);
         break;
@@ -217,7 +208,7 @@ uint64_t HexagonLDBackend::emitSectionData(const LDSection& pSection,
             llvm::report_fatal_error(
                 "unsupported value size for align fragment emission yet.\n");
             break;
-        } // end switch
+        }  // end switch
         break;
       }
       case Fragment::Null: {
@@ -227,92 +218,78 @@ uint64_t HexagonLDBackend::emitSectionData(const LDSection& pSection,
       default:
         llvm::report_fatal_error("unsupported fragment type.\n");
         break;
-    } // end switch
+    }  // end switch
     out_offset += size;
-  } // end for
+  }  // end for
 
   return pRegion.size();
 }
 
-HexagonGOT& HexagonLDBackend::getGOT()
-{
+HexagonGOT& HexagonLDBackend::getGOT() {
   assert(m_pGOT != NULL);
   return *m_pGOT;
 }
 
-const HexagonGOT& HexagonLDBackend::getGOT() const
-{
+const HexagonGOT& HexagonLDBackend::getGOT() const {
   assert(m_pGOT != NULL);
   return *m_pGOT;
 }
 
-HexagonPLT& HexagonLDBackend::getPLT()
-{
+HexagonPLT& HexagonLDBackend::getPLT() {
   assert(m_pPLT != NULL && "PLT section not exist");
   return *m_pPLT;
 }
 
-const HexagonPLT& HexagonLDBackend::getPLT() const
-{
+const HexagonPLT& HexagonLDBackend::getPLT() const {
   assert(m_pPLT != NULL && "PLT section not exist");
   return *m_pPLT;
 }
 
-OutputRelocSection& HexagonLDBackend::getRelaDyn()
-{
+OutputRelocSection& HexagonLDBackend::getRelaDyn() {
   assert(m_pRelaDyn != NULL && ".rela.dyn section not exist");
   return *m_pRelaDyn;
 }
 
-const OutputRelocSection& HexagonLDBackend::getRelaDyn() const
-{
+const OutputRelocSection& HexagonLDBackend::getRelaDyn() const {
   assert(m_pRelaDyn != NULL && ".rela.dyn section not exist");
   return *m_pRelaDyn;
 }
 
-OutputRelocSection& HexagonLDBackend::getRelaPLT()
-{
+OutputRelocSection& HexagonLDBackend::getRelaPLT() {
   assert(m_pRelaPLT != NULL && ".rela.plt section not exist");
   return *m_pRelaPLT;
 }
 
-const OutputRelocSection& HexagonLDBackend::getRelaPLT() const
-{
+const OutputRelocSection& HexagonLDBackend::getRelaPLT() const {
   assert(m_pRelaPLT != NULL && ".rela.plt section not exist");
   return *m_pRelaPLT;
 }
 
-HexagonGOTPLT& HexagonLDBackend::getGOTPLT()
-{
+HexagonGOTPLT& HexagonLDBackend::getGOTPLT() {
   assert(m_pGOTPLT != NULL);
   return *m_pGOTPLT;
 }
 
-const HexagonGOTPLT& HexagonLDBackend::getGOTPLT() const
-{
+const HexagonGOTPLT& HexagonLDBackend::getGOTPLT() const {
   assert(m_pGOTPLT != NULL);
   return *m_pGOTPLT;
 }
 
-void HexagonLDBackend::setRelaDynSize()
-{
+void HexagonLDBackend::setRelaDynSize() {
   ELFFileFormat* file_format = getOutputFormat();
   file_format->getRelaDyn().setSize(m_pRelaDyn->numOfRelocs() *
                                     getRelaEntrySize());
 }
 
-void HexagonLDBackend::setRelaPLTSize()
-{
+void HexagonLDBackend::setRelaPLTSize() {
   ELFFileFormat* file_format = getOutputFormat();
   file_format->getRelaPlt().setSize(m_pRelaPLT->numOfRelocs() *
                                     getRelaEntrySize());
 }
 
-void HexagonLDBackend::setGOTSectionSize(IRBuilder& pBuilder)
-{
+void HexagonLDBackend::setGOTSectionSize(IRBuilder& pBuilder) {
   // set .got.plt size
-  if (LinkerConfig::DynObj == config().codeGenType() ||
-      m_pGOTPLT->hasGOT1() ||
+  if (LinkerConfig::DynObj == config().codeGenType() || m_pGOTPLT->hasGOT1() ||
       m_pGOTSymbol != NULL) {
     m_pGOTPLT->finalizeSectionSize();
     defineGOTSymbol(pBuilder, *(m_pGOTPLT->begin()));
@@ -323,9 +300,7 @@ void HexagonLDBackend::setGOTSectionSize(IRBuilder& pBuilder)
     m_pGOT->finalizeSectionSize();
 }
 
-uint64_t
-HexagonLDBackend::emitGOTSectionData(MemoryRegion& pRegion) const
-{
+uint64_t HexagonLDBackend::emitGOTSectionData(MemoryRegion& pRegion) const {
   assert(m_pGOT && "emitGOTSectionData failed, m_pGOT is NULL!");
 
   uint32_t* buffer = reinterpret_cast<uint32_t*>(pRegion.begin());
@@ -344,9 +319,7 @@ HexagonLDBackend::emitGOTSectionData(MemoryRegion& pRegion) const
   return RegionSize;
 }
 
-void HexagonLDBackend::defineGOTSymbol(IRBuilder& pBuilder,
-                                      Fragment& pFrag)
-{
+void HexagonLDBackend::defineGOTSymbol(IRBuilder& pBuilder, Fragment& pFrag) {
   // define symbol _GLOBAL_OFFSET_TABLE_
   if (m_pGOTSymbol != NULL) {
     pBuilder.AddSymbol<IRBuilder::Force, IRBuilder::Unresolve>(
@@ -354,26 +327,26 @@ void HexagonLDBackend::defineGOTSymbol(IRBuilder& pBuilder,
         ResolveInfo::Object,
         ResolveInfo::Define,
         ResolveInfo::Local,
-        0x0, // size
-        0x0, // value
+        0x0,  // size
+        0x0,  // value
         FragmentRef::Create(pFrag, 0x0),
         ResolveInfo::Hidden);
   } else {
     m_pGOTSymbol = pBuilder.AddSymbol<IRBuilder::Force, IRBuilder::Resolve>(
-                      "_GLOBAL_OFFSET_TABLE_",
-                      ResolveInfo::Object,
-                      ResolveInfo::Define,
-                      ResolveInfo::Local,
-                      0x0, // size
-                      0x0, // value
-                      FragmentRef::Create(pFrag, 0x0),
-                      ResolveInfo::Hidden);
+        "_GLOBAL_OFFSET_TABLE_",
+        ResolveInfo::Object,
+        ResolveInfo::Define,
+        ResolveInfo::Local,
+        0x0,  // size
+        0x0,  // value
+        FragmentRef::Create(pFrag, 0x0),
+        ResolveInfo::Hidden);
   }
 }
 
-uint64_t HexagonLDBackend::emitGOTPLTSectionData(MemoryRegion& pRegion,
-    const ELFFileFormat* FileFormat) const
-{
+uint64_t HexagonLDBackend::emitGOTPLTSectionData(
+    MemoryRegion& pRegion,
+    const ELFFileFormat* FileFormat) const {
   assert(m_pGOTPLT != NULL &&
          "emitGOTPLTSectionData failed, m_pGOTPLT is NULL!");
   m_pGOTPLT->applyGOT0(FileFormat->getDynamic().addr());
@@ -386,7 +359,8 @@ uint64_t HexagonLDBackend::emitGOTPLTSectionData(MemoryRegion& pRegion,
   uint64_t RegionSize = 0;
 
   for (HexagonGOTPLT::iterator it = m_pGOTPLT->begin(), ie = m_pGOTPLT->end();
-       it != ie; ++it, ++buffer) {
+       it != ie;
+       ++it, ++buffer) {
     got = &(llvm::cast<HexagonGOTEntry>((*it)));
     *buffer = static_cast<uint32_t>(got->getValue());
     RegionSize += EntrySize;
@@ -395,9 +369,8 @@ uint64_t HexagonLDBackend::emitGOTPLTSectionData(MemoryRegion& pRegion,
   return RegionSize;
 }
 
-unsigned int
-HexagonLDBackend::getTargetSectionOrder(const LDSection& pSectHdr) const
-{
+unsigned int HexagonLDBackend::getTargetSectionOrder(
+    const LDSection& pSectHdr) const {
   const ELFFileFormat* file_format = getOutputFormat();
 
   if (LinkerConfig::Object != config().codeGenType()) {
@@ -427,9 +400,7 @@ HexagonLDBackend::getTargetSectionOrder(const LDSection& pSectHdr) const
 }
 
 void HexagonLDBackend::initTargetSections(Module& pModule,
-                                          ObjectBuilder& pBuilder)
-{
-
+                                          ObjectBuilder& pBuilder) {
   if ((LinkerConfig::Object != config().codeGenType()) &&
       (!config().isCodeStatic())) {
     ELFFileFormat* file_format = getOutputFormat();
@@ -453,39 +424,42 @@ void HexagonLDBackend::initTargetSections(Module& pModule,
     // initialize .rela.dyn
     LDSection& reladyn = file_format->getRelaDyn();
     m_pRelaDyn = new OutputRelocSection(pModule, reladyn);
-
   }
   m_psdata = pBuilder.CreateSection(".sdata",
                                     LDFileFormat::Target,
                                     llvm::ELF::SHT_PROGBITS,
                                     llvm::ELF::SHF_ALLOC | llvm::ELF::SHF_WRITE,
-                                    4*1024);
-  m_pscommon_1 = pBuilder.CreateSection(".scommon.1",
-                                    LDFileFormat::Target,
-                                    llvm::ELF::SHT_PROGBITS,
-                                    llvm::ELF::SHF_ALLOC | llvm::ELF::SHF_WRITE,
-                                    1);
+                                    4 * 1024);
+  m_pscommon_1 =
+      pBuilder.CreateSection(".scommon.1",
+                             LDFileFormat::Target,
+                             llvm::ELF::SHT_PROGBITS,
+                             llvm::ELF::SHF_ALLOC | llvm::ELF::SHF_WRITE,
+                             1);
   IRBuilder::CreateSectionData(*m_pscommon_1);
 
-  m_pscommon_2 = pBuilder.CreateSection(".scommon.2",
-                                    LDFileFormat::Target,
-                                    llvm::ELF::SHT_PROGBITS,
-                                    llvm::ELF::SHF_ALLOC | llvm::ELF::SHF_WRITE,
-                                    2);
+  m_pscommon_2 =
+      pBuilder.CreateSection(".scommon.2",
+                             LDFileFormat::Target,
+                             llvm::ELF::SHT_PROGBITS,
+                             llvm::ELF::SHF_ALLOC | llvm::ELF::SHF_WRITE,
+                             2);
   IRBuilder::CreateSectionData(*m_pscommon_2);
 
-  m_pscommon_4 = pBuilder.CreateSection(".scommon.4",
-                                    LDFileFormat::Target,
-                                    llvm::ELF::SHT_PROGBITS,
-                                    llvm::ELF::SHF_ALLOC | llvm::ELF::SHF_WRITE,
-                                    4);
+  m_pscommon_4 =
+      pBuilder.CreateSection(".scommon.4",
+                             LDFileFormat::Target,
+                             llvm::ELF::SHT_PROGBITS,
+                             llvm::ELF::SHF_ALLOC | llvm::ELF::SHF_WRITE,
+                             4);
   IRBuilder::CreateSectionData(*m_pscommon_4);
 
-  m_pscommon_8 = pBuilder.CreateSection(".scommon.8",
-                                    LDFileFormat::Target,
-                                    llvm::ELF::SHT_PROGBITS,
-                                    llvm::ELF::SHF_ALLOC | llvm::ELF::SHF_WRITE,
-                                    8);
+  m_pscommon_8 =
+      pBuilder.CreateSection(".scommon.8",
+                             LDFileFormat::Target,
+                             llvm::ELF::SHT_PROGBITS,
+                             llvm::ELF::SHF_ALLOC | llvm::ELF::SHF_WRITE,
+                             8);
   IRBuilder::CreateSectionData(*m_pscommon_8);
 
   m_pstart = pBuilder.CreateSection(".start",
@@ -496,32 +470,31 @@ void HexagonLDBackend::initTargetSections(Module& pModule,
   IRBuilder::CreateSectionData(*m_pstart);
 }
 
-void HexagonLDBackend::initTargetSymbols(IRBuilder& pBuilder, Module& pModule)
-{
+void HexagonLDBackend::initTargetSymbols(IRBuilder& pBuilder, Module& pModule) {
   if (config().codeGenType() == LinkerConfig::Object)
     return;
 
   // Define the symbol _GLOBAL_OFFSET_TABLE_ if there is a symbol with the
   // same name in input
   m_pGOTSymbol = pBuilder.AddSymbol<IRBuilder::AsReferred, IRBuilder::Resolve>(
-                    "_GLOBAL_OFFSET_TABLE_",
-                    ResolveInfo::Object,
-                    ResolveInfo::Define,
-                    ResolveInfo::Local,
-                    0x0,  // size
-                    0x0,  // value
-                    FragmentRef::Null(),
-                    ResolveInfo::Hidden);
+      "_GLOBAL_OFFSET_TABLE_",
+      ResolveInfo::Object,
+      ResolveInfo::Define,
+      ResolveInfo::Local,
+      0x0,  // size
+      0x0,  // value
+      FragmentRef::Null(),
+      ResolveInfo::Hidden);
 
   m_psdabase = pBuilder.AddSymbol<IRBuilder::AsReferred, IRBuilder::Resolve>(
-                  "_SDA_BASE_",
-                  ResolveInfo::Object,
-                  ResolveInfo::Define,
-                  ResolveInfo::Absolute,
-                  0x0,  // size
-                  0x0,  // value
-                  FragmentRef::Null(),
-                  ResolveInfo::Hidden);
+      "_SDA_BASE_",
+      ResolveInfo::Object,
+      ResolveInfo::Define,
+      ResolveInfo::Absolute,
+      0x0,  // size
+      0x0,  // value
+      FragmentRef::Null(),
+      ResolveInfo::Hidden);
 
   pBuilder.AddSymbol<IRBuilder::AsReferred, IRBuilder::Resolve>(
       "__sbss_start",
@@ -544,8 +517,7 @@ void HexagonLDBackend::initTargetSymbols(IRBuilder& pBuilder, Module& pModule)
       ResolveInfo::Hidden);
 }
 
-bool HexagonLDBackend::initTargetStubs()
-{
+bool HexagonLDBackend::initTargetStubs() {
   if (getStubFactory() != NULL) {
     getStubFactory()->addPrototype(
         new HexagonAbsoluteStub(config().isCodeIndep()));
@@ -554,27 +526,24 @@ bool HexagonLDBackend::initTargetStubs()
   return false;
 }
 
-bool HexagonLDBackend::initBRIslandFactory()
-{
+bool HexagonLDBackend::initBRIslandFactory() {
   if (m_pBRIslandFactory == NULL) {
-    m_pBRIslandFactory = new BranchIslandFactory(maxFwdBranchOffset(),
-                                                 maxBwdBranchOffset(),
-                                                 0);
+    m_pBRIslandFactory =
+        new BranchIslandFactory(maxFwdBranchOffset(), maxBwdBranchOffset(), 0);
   }
   return true;
 }
 
-bool HexagonLDBackend::initStubFactory()
-{
+bool HexagonLDBackend::initStubFactory() {
   if (m_pStubFactory == NULL) {
     m_pStubFactory = new StubFactory();
   }
   return true;
 }
 
-bool HexagonLDBackend::doRelax(Module& pModule, IRBuilder& pBuilder,
-                               bool& pFinished)
-{
+bool HexagonLDBackend::doRelax(Module& pModule,
+                               IRBuilder& pBuilder,
+                               bool& pFinished) {
   assert(getStubFactory() != NULL && getBRIslandFactory() != NULL);
   bool isRelaxed = false;
   ELFFileFormat* file_format = getOutputFormat();
@@ -602,8 +571,8 @@ bool HexagonLDBackend::doRelax(Module& pModule, IRBuilder& pBuilder,
                   symbol->fragRef()->frag()->getParent()->getSection().addr();
               sym_value = addr + value;
             }
-            Stub* stub = getStubFactory()->create(*relocation, // relocation
-                                                  sym_value, //symbol value
+            Stub* stub = getStubFactory()->create(*relocation,  // relocation
+                                                  sym_value,  // symbol value
                                                   pBuilder,
                                                   *getBRIslandFactory());
             if (stub != NULL) {
@@ -615,8 +584,7 @@ bool HexagonLDBackend::doRelax(Module& pModule, IRBuilder& pBuilder,
               strtab.setSize(strtab.size() + stub->symInfo()->nameSize() + 1);
               isRelaxed = true;
             }
-          }
-          break;
+          } break;
 
           default:
             break;
@@ -629,7 +597,8 @@ bool HexagonLDBackend::doRelax(Module& pModule, IRBuilder& pBuilder,
   Fragment* invalid = NULL;
   pFinished = true;
   for (BranchIslandFactory::iterator island = getBRIslandFactory()->begin(),
-          island_end = getBRIslandFactory()->end(); island != island_end;
+                                     island_end = getBRIslandFactory()->end();
+       island != island_end;
        ++island) {
     if ((*island).end() == file_format->getText().getSectionData()->end())
       break;
@@ -659,17 +628,14 @@ bool HexagonLDBackend::doRelax(Module& pModule, IRBuilder& pBuilder,
 }
 
 /// finalizeSymbol - finalize the symbol value
-bool HexagonLDBackend::finalizeTargetSymbols()
-{
+bool HexagonLDBackend::finalizeTargetSymbols() {
   if (config().codeGenType() == LinkerConfig::Object)
     return true;
   if (m_psdabase)
     m_psdabase->setValue(m_psdata->addr());
 
-  ELFSegmentFactory::const_iterator edata =
-      elfSegmentTable().find(llvm::ELF::PT_LOAD,
-                             llvm::ELF::PF_W,
-                             llvm::ELF::PF_X);
+  ELFSegmentFactory::const_iterator edata = elfSegmentTable().find(
+      llvm::ELF::PT_LOAD, llvm::ELF::PF_W, llvm::ELF::PF_X);
   if (elfSegmentTable().end() != edata) {
     if (f_pEData != NULL && ResolveInfo::ThreadLocal != f_pEData->type()) {
       f_pEData->setValue((*edata)->vaddr() + (*edata)->filesz());
@@ -682,12 +648,10 @@ bool HexagonLDBackend::finalizeTargetSymbols()
       f_pBSSStart->setValue((*edata)->vaddr() + (*edata)->filesz());
     }
     if (f_pEnd != NULL && ResolveInfo::ThreadLocal != f_pEnd->type()) {
-      f_pEnd->setValue((((*edata)->vaddr() +
-                       (*edata)->memsz()) + 7) & ~7);
+      f_pEnd->setValue((((*edata)->vaddr() + (*edata)->memsz()) + 7) & ~7);
     }
     if (f_p_End != NULL && ResolveInfo::ThreadLocal != f_p_End->type()) {
-      f_p_End->setValue((((*edata)->vaddr() +
-                        (*edata)->memsz()) + 7) & ~7);
+      f_p_End->setValue((((*edata)->vaddr() + (*edata)->memsz()) + 7) & ~7);
     }
   }
   return true;
@@ -696,12 +660,11 @@ bool HexagonLDBackend::finalizeTargetSymbols()
 /// merge Input Sections
 bool HexagonLDBackend::mergeSection(Module& pModule,
                                     const Input& pInputFile,
-                                    LDSection& pInputSection)
-{
+                                    LDSection& pInputSection) {
   if ((pInputSection.flag() & llvm::ELF::SHF_HEX_GPREL) ||
       (pInputSection.kind() == LDFileFormat::LinkOnce) ||
       (pInputSection.kind() == LDFileFormat::Target)) {
-    SectionData *sd = NULL;
+    SectionData* sd = NULL;
     if (!m_psdata->hasSectionData()) {
       sd = IRBuilder::CreateSectionData(*m_psdata);
       m_psdata->setSectionData(sd);
@@ -716,7 +679,7 @@ bool HexagonLDBackend::mergeSection(Module& pModule,
 }
 
 bool HexagonLDBackend::SetSDataSection() {
-  SectionData *pTo = (m_psdata->getSectionData());
+  SectionData* pTo = (m_psdata->getSectionData());
 
   if (pTo) {
     MoveCommonData(*m_pscommon_1->getSectionData(), *pTo);
@@ -738,7 +701,8 @@ bool HexagonLDBackend::SetSDataSection() {
     SectionData::FragmentListType& newlist = pTo->getFragmentList();
 
     for (fragTo = newlist.begin(), fragToEnd = newlist.end();
-         fragTo != fragToEnd; ++fragTo) {
+         fragTo != fragToEnd;
+         ++fragTo) {
       fragTo->setParent(pTo);
     }
   }
@@ -748,9 +712,7 @@ bool HexagonLDBackend::SetSDataSection() {
 
 /// allocateCommonSymbols - allocate common symbols in the corresponding
 /// sections. This is called at pre-layout stage.
-/// @refer Google gold linker: common.cc: 214
-bool HexagonLDBackend::allocateCommonSymbols(Module& pModule)
-{
+bool HexagonLDBackend::allocateCommonSymbols(Module& pModule) {
   SymbolCategory& symbol_list = pModule.getSymbolTable();
 
   if (symbol_list.emptyCommons() && symbol_list.emptyLocals()) {
@@ -781,7 +743,7 @@ bool HexagonLDBackend::allocateCommonSymbols(Module& pModule)
     tbss_sect_data = IRBuilder::CreateSectionData(tbss_sect);
 
   // remember original BSS size
-  uint64_t bss_offset  = bss_sect.size();
+  uint64_t bss_offset = bss_sect.size();
   uint64_t tbss_offset = tbss_sect.size();
 
   // allocate all local common symbols
@@ -797,54 +759,48 @@ bool HexagonLDBackend::allocateCommonSymbols(Module& pModule)
       (*com_sym)->resolveInfo()->setDesc(ResolveInfo::Define);
       Fragment* frag = new FillFragment(0x0, 1, (*com_sym)->size());
 
-      switch((*com_sym)->size())  {
-      case 1:
-        if (maxGPSize <= 0)
+      switch ((*com_sym)->size()) {
+        case 1:
+          if (maxGPSize <= 0)
+            break;
+          ObjectBuilder::AppendFragment(
+              *frag, *(m_pscommon_1->getSectionData()), (*com_sym)->value());
+          (*com_sym)->setFragmentRef(FragmentRef::Create(*frag, 0));
+          continue;
+        case 2:
+          if (maxGPSize <= 1)
+            break;
+          ObjectBuilder::AppendFragment(
+              *frag, *(m_pscommon_2->getSectionData()), (*com_sym)->value());
+          (*com_sym)->setFragmentRef(FragmentRef::Create(*frag, 0));
+          continue;
+        case 4:
+          if (maxGPSize <= 3)
+            break;
+          ObjectBuilder::AppendFragment(
+              *frag, *(m_pscommon_4->getSectionData()), (*com_sym)->value());
+          (*com_sym)->setFragmentRef(FragmentRef::Create(*frag, 0));
+          continue;
+        case 8:
+          if (maxGPSize <= 7)
+            break;
+          ObjectBuilder::AppendFragment(
+              *frag, *(m_pscommon_8->getSectionData()), (*com_sym)->value());
+          (*com_sym)->setFragmentRef(FragmentRef::Create(*frag, 0));
+          continue;
+        default:
           break;
-        ObjectBuilder::AppendFragment(*frag,
-                                      *(m_pscommon_1->getSectionData()),
-                                      (*com_sym)->value());
-        (*com_sym)->setFragmentRef(FragmentRef::Create(*frag, 0));
-        continue;
-      case 2:
-        if (maxGPSize <= 1)
-          break;
-        ObjectBuilder::AppendFragment(*frag,
-                                      *(m_pscommon_2->getSectionData()),
-                                      (*com_sym)->value());
-        (*com_sym)->setFragmentRef(FragmentRef::Create(*frag, 0));
-        continue;
-      case 4:
-        if (maxGPSize <= 3)
-          break;
-        ObjectBuilder::AppendFragment(*frag,
-                                      *(m_pscommon_4->getSectionData()),
-                                      (*com_sym)->value());
-        (*com_sym)->setFragmentRef(FragmentRef::Create(*frag, 0));
-        continue;
-      case 8:
-        if (maxGPSize <= 7)
-          break;
-        ObjectBuilder::AppendFragment(*frag,
-                                      *(m_pscommon_8->getSectionData()),
-                                      (*com_sym)->value());
-        (*com_sym)->setFragmentRef(FragmentRef::Create(*frag, 0));
-        continue;
-      default:
-        break;
       }
 
       if (ResolveInfo::ThreadLocal == (*com_sym)->type()) {
         // allocate TLS common symbol in tbss section
-        tbss_offset += ObjectBuilder::AppendFragment(*frag,
-                                                     *tbss_sect_data,
-                                                     (*com_sym)->value());
+        tbss_offset += ObjectBuilder::AppendFragment(
+            *frag, *tbss_sect_data, (*com_sym)->value());
         (*com_sym)->setFragmentRef(FragmentRef::Create(*frag, 0));
       } else {
         // FIXME: how to identify small and large common symbols?
-        bss_offset += ObjectBuilder::AppendFragment(*frag,
-                                                    *bss_sect_data,
-                                                    (*com_sym)->value());
+        bss_offset += ObjectBuilder::AppendFragment(
+            *frag, *bss_sect_data, (*com_sym)->value());
         (*com_sym)->setFragmentRef(FragmentRef::Create(*frag, 0));
       }
     }
@@ -861,54 +817,48 @@ bool HexagonLDBackend::allocateCommonSymbols(Module& pModule)
     (*com_sym)->resolveInfo()->setDesc(ResolveInfo::Define);
     Fragment* frag = new FillFragment(0x0, 1, (*com_sym)->size());
 
-    switch((*com_sym)->size())  {
-    case 1:
-      if (maxGPSize <= 0)
+    switch ((*com_sym)->size()) {
+      case 1:
+        if (maxGPSize <= 0)
+          break;
+        ObjectBuilder::AppendFragment(
+            *frag, *(m_pscommon_1->getSectionData()), (*com_sym)->value());
+        (*com_sym)->setFragmentRef(FragmentRef::Create(*frag, 0));
+        continue;
+      case 2:
+        if (maxGPSize <= 1)
+          break;
+        ObjectBuilder::AppendFragment(
+            *frag, *(m_pscommon_2->getSectionData()), (*com_sym)->value());
+        (*com_sym)->setFragmentRef(FragmentRef::Create(*frag, 0));
+        continue;
+      case 4:
+        if (maxGPSize <= 3)
+          break;
+        ObjectBuilder::AppendFragment(
+            *frag, *(m_pscommon_4->getSectionData()), (*com_sym)->value());
+        (*com_sym)->setFragmentRef(FragmentRef::Create(*frag, 0));
+        continue;
+      case 8:
+        if (maxGPSize <= 7)
+          break;
+        ObjectBuilder::AppendFragment(
+            *frag, *(m_pscommon_8->getSectionData()), (*com_sym)->value());
+        (*com_sym)->setFragmentRef(FragmentRef::Create(*frag, 0));
+        continue;
+      default:
         break;
-      ObjectBuilder::AppendFragment(*frag,
-                                    *(m_pscommon_1->getSectionData()),
-                                    (*com_sym)->value());
-      (*com_sym)->setFragmentRef(FragmentRef::Create(*frag, 0));
-      continue;
-    case 2:
-      if (maxGPSize <= 1)
-        break;
-      ObjectBuilder::AppendFragment(*frag,
-                                    *(m_pscommon_2->getSectionData()),
-                                    (*com_sym)->value());
-      (*com_sym)->setFragmentRef(FragmentRef::Create(*frag, 0));
-      continue;
-    case 4:
-      if (maxGPSize <= 3)
-        break;
-      ObjectBuilder::AppendFragment(*frag,
-                                    *(m_pscommon_4->getSectionData()),
-                                    (*com_sym)->value());
-      (*com_sym)->setFragmentRef(FragmentRef::Create(*frag, 0));
-      continue;
-    case 8:
-      if (maxGPSize <= 7)
-        break;
-      ObjectBuilder::AppendFragment(*frag,
-                                    *(m_pscommon_8->getSectionData()),
-                                    (*com_sym)->value());
-      (*com_sym)->setFragmentRef(FragmentRef::Create(*frag, 0));
-      continue;
-    default:
-      break;
     }
 
     if (ResolveInfo::ThreadLocal == (*com_sym)->type()) {
       // allocate TLS common symbol in tbss section
-      tbss_offset += ObjectBuilder::AppendFragment(*frag,
-                                                   *tbss_sect_data,
-                                                   (*com_sym)->value());
+      tbss_offset += ObjectBuilder::AppendFragment(
+          *frag, *tbss_sect_data, (*com_sym)->value());
       (*com_sym)->setFragmentRef(FragmentRef::Create(*frag, 0));
     } else {
       // FIXME: how to identify small and large common symbols?
-      bss_offset += ObjectBuilder::AppendFragment(*frag,
-                                                  *bss_sect_data,
-                                                  (*com_sym)->value());
+      bss_offset += ObjectBuilder::AppendFragment(
+          *frag, *bss_sect_data, (*com_sym)->value());
       (*com_sym)->setFragmentRef(FragmentRef::Create(*frag, 0));
     }
   }
@@ -920,8 +870,7 @@ bool HexagonLDBackend::allocateCommonSymbols(Module& pModule)
   return true;
 }
 
-bool HexagonLDBackend::MoveCommonData(SectionData &pFrom, SectionData &pTo)
-{
+bool HexagonLDBackend::MoveCommonData(SectionData& pFrom, SectionData& pTo) {
   SectionData::FragmentListType& to_list = pTo.getFragmentList();
   SectionData::FragmentListType::iterator frag, fragEnd = to_list.end();
 
@@ -948,11 +897,12 @@ bool HexagonLDBackend::MoveCommonData(SectionData &pFrom, SectionData &pTo)
   AlignFragment* align = NULL;
   if (pFrom.getSection().align() > 1) {
     // if the align constraint is larger than 1, append an alignment
-    align = new AlignFragment(pFrom.getSection().align(), // alignment
-                              0x0, // the filled value
-                              1u,  // the size of filled value
-                              pFrom.getSection().align() - 1 // max bytes to emit
-                              );
+    align =
+        new AlignFragment(pFrom.getSection().align(),  // alignment
+                          0x0,                         // the filled value
+                          1u,  // the size of filled value
+                          pFrom.getSection().align() - 1  // max bytes to emit
+                          );
     pFrom.getFragmentList().push_front(align);
   }
   if (found)
@@ -963,8 +913,7 @@ bool HexagonLDBackend::MoveCommonData(SectionData &pFrom, SectionData &pTo)
   return true;
 }
 
-bool HexagonLDBackend::readSection(Input& pInput, SectionData& pSD)
-{
+bool HexagonLDBackend::readSection(Input& pInput, SectionData& pSD) {
   Fragment* frag = NULL;
   uint32_t offset = pInput.fileOffset() + pSD.getSection().offset();
   uint32_t size = pSD.getSection().size();
@@ -977,8 +926,7 @@ bool HexagonLDBackend::readSection(Input& pInput, SectionData& pSD)
       // If the input section's size is zero, we got a NULL region.
       // use a virtual fill fragment
       frag = new FillFragment(0x0, 0, 0);
-    }
-    else {
+    } else {
       frag = new RegionFragment(region);
     }
   }
@@ -988,8 +936,8 @@ bool HexagonLDBackend::readSection(Input& pInput, SectionData& pSD)
 }
 
 /// MoveSectionData - move the fragments of pTO section data to pTo
-bool HexagonLDBackend::MoveSectionDataAndSort(SectionData& pFrom, SectionData& pTo)
-{
+bool HexagonLDBackend::MoveSectionDataAndSort(SectionData& pFrom,
+                                              SectionData& pTo) {
   assert(&pFrom != &pTo && "Cannot move section data to itself!");
   SectionData::FragmentListType& to_list = pTo.getFragmentList();
   SectionData::FragmentListType::iterator frag, fragEnd = to_list.end();
@@ -1017,11 +965,12 @@ bool HexagonLDBackend::MoveSectionDataAndSort(SectionData& pFrom, SectionData& p
   AlignFragment* align = NULL;
   if (pFrom.getSection().align() > 1) {
     // if the align constraint is larger than 1, append an alignment
-    align = new AlignFragment(pFrom.getSection().align(), // alignment
-                              0x0, // the filled value
-                              1u,  // the size of filled value
-                              pFrom.getSection().align() - 1 // max bytes to emit
-                              );
+    align =
+        new AlignFragment(pFrom.getSection().align(),  // alignment
+                          0x0,                         // the filled value
+                          1u,  // the size of filled value
+                          pFrom.getSection().align() - 1  // max bytes to emit
+                          );
     pFrom.getFragmentList().push_front(align);
   }
   if (found)
@@ -1048,8 +997,7 @@ bool HexagonLDBackend::MoveSectionDataAndSort(SectionData& pFrom, SectionData& p
 
 /// doCreateProgramHdrs - backend can implement this function to create the
 /// target-dependent segments
-void HexagonLDBackend::doCreateProgramHdrs(Module& pModule)
-{
+void HexagonLDBackend::doCreateProgramHdrs(Module& pModule) {
   // TODO
 }
 
@@ -1058,8 +1006,7 @@ namespace mcld {
 //===----------------------------------------------------------------------===//
 /// createHexagonLDBackend - the help funtion to create corresponding
 /// HexagonLDBackend
-TargetLDBackend* createHexagonLDBackend(const LinkerConfig& pConfig)
-{
+TargetLDBackend* createHexagonLDBackend(const LinkerConfig& pConfig) {
   if (pConfig.targets().triple().isOSDarwin()) {
     assert(0 && "MachO linker is not supported yet");
     /**
@@ -1079,7 +1026,7 @@ TargetLDBackend* createHexagonLDBackend(const LinkerConfig& pConfig)
   return new HexagonLDBackend(pConfig, new HexagonGNUInfo(pConfig.targets()));
 }
 
-} // namespace mcld
+}  // namespace mcld
 
 //===----------------------------------------------------------------------===//
 // Force static initialization.

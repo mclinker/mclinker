@@ -45,12 +45,11 @@ class StubFactory;
  *  \brief GNULDBackend provides a common interface for all GNU Unix-OS
  *  LDBackend.
  */
-class GNULDBackend : public TargetLDBackend
-{
-protected:
+class GNULDBackend : public TargetLDBackend {
+ protected:
   GNULDBackend(const LinkerConfig& pConfig, GNUInfo* pInfo);
 
-public:
+ public:
   virtual ~GNULDBackend();
 
   // -----  readers/writers  ----- //
@@ -66,7 +65,7 @@ public:
 
   /// getOutputFormat - get the sections of the output file.
   const ELFFileFormat* getOutputFormat() const;
-  ELFFileFormat*       getOutputFormat();
+  ELFFileFormat* getOutputFormat();
 
   // -----  target symbols ----- //
   /// initStandardSymbols - initialize standard symbols.
@@ -98,7 +97,7 @@ public:
   size_t sectionStartOffset() const;
 
   const GNUInfo& getInfo() const { return *m_pInfo; }
-  GNUInfo&       getInfo()       { return *m_pInfo; }
+  GNUInfo& getInfo() { return *m_pInfo; }
 
   bool hasTextRel() const { return m_bHasTextRel; }
 
@@ -147,8 +146,7 @@ public:
   /// orderSymbolTable - order symbol table before emitting
   virtual void orderSymbolTable(Module& pModule);
 
-  void setHasStaticTLS(bool pVal = true)
-  { m_bHasStaticTLS = pVal; }
+  void setHasStaticTLS(bool pVal = true) { m_bHasStaticTLS = pVal; }
 
   /// getSectionOrder - compute the layout order of the section
   /// Layout calls this function to get the default order of the pSectHdr.
@@ -167,11 +165,12 @@ public:
   ///
   /// By default, this function returns the maximun order, and pSectHdr
   /// will be the last section to be laid out.
-  virtual unsigned int getTargetSectionOrder(const LDSection& pSectHdr) const
-  { return (unsigned int)-1; }
+  virtual unsigned int getTargetSectionOrder(const LDSection& pSectHdr) const {
+    return (unsigned int)-1;
+  }
 
   /// elfSegmentTable - return the reference of the elf segment table
-  ELFSegmentFactory&       elfSegmentTable();
+  ELFSegmentFactory& elfSegmentTable();
 
   /// elfSegmentTable - return the reference of the elf segment table
   const ELFSegmentFactory& elfSegmentTable() const;
@@ -277,10 +276,10 @@ public:
   }
 
   bool hasTDATASymbol() const { return (f_pTDATA != NULL); }
-  bool hasTBSSSymbol()  const { return (f_pTBSS != NULL);  }
+  bool hasTBSSSymbol() const { return (f_pTBSS != NULL); }
 
   void setTDATASymbol(LDSymbol& pTDATA) { f_pTDATA = &pTDATA; }
-  void setTBSSSymbol(LDSymbol& pTBSS)   { f_pTBSS  = &pTBSS;  }
+  void setTBSSSymbol(LDSymbol& pTBSS) { f_pTBSS = &pTBSS; }
 
   // getTDATASymbol - get section symbol of .tdata
   LDSymbol& getTDATASymbol();
@@ -335,7 +334,7 @@ public:
   /// function pointer access
   bool mayHaveUnsafeFunctionPointerAccess(const LDSection& pSection) const;
 
-protected:
+ protected:
   /// getRelEntrySize - the size in BYTE of rel type relocation
   virtual size_t getRelEntrySize() = 0;
 
@@ -373,7 +372,7 @@ protected:
                     size_t pStrtabsize,
                     size_t pSymtabIdx);
 
-private:
+ private:
   /// createProgramHdrs - base on output sections to create the program headers
   void createProgramHdrs(Module& pModule);
 
@@ -435,70 +434,66 @@ private:
   /// implementation. Return true if the output (e.g., .text) is "relaxed"
   /// (i.e. layout is changed), and set pFinished to true if everything is fit,
   /// otherwise set it to false.
-  virtual bool doRelax(Module& pModule, IRBuilder& pBuilder, bool& pFinished)
-  { return false; }
+  virtual bool doRelax(Module& pModule, IRBuilder& pBuilder, bool& pFinished) {
+    return false;
+  }
 
-protected:
+ protected:
   // Based on Kind in LDFileFormat to define basic section orders for ELF.
   enum SectionOrder {
-    SHO_NULL = 0,        // NULL
-    SHO_INTERP,          // .interp
-    SHO_RO_NOTE,         // .note.ABI-tag, .note.gnu.build-id
-    SHO_NAMEPOOL,        // *.hash, .dynsym, .dynstr
-    SHO_RELOCATION,      // .rel.*, .rela.*
-    SHO_REL_PLT,         // .rel.plt should come after other .rel.*
-    SHO_INIT,            // .init
-    SHO_PLT,             // .plt
-    SHO_TEXT,            // .text
-    SHO_FINI,            // .fini
-    SHO_RO,              // .rodata
-    SHO_EXCEPTION,       // .eh_frame_hdr, .eh_frame, .gcc_except_table
-    SHO_TLS_DATA,        // .tdata
-    SHO_TLS_BSS,         // .tbss
-    SHO_RELRO_LOCAL,     // .data.rel.ro.local
-    SHO_RELRO,           // .data.rel.ro,
-    SHO_RELRO_LAST,      // for x86 to adjust .got if needed
-    SHO_NON_RELRO_FIRST, // for x86 to adjust .got.plt if needed
-    SHO_DATA,            // .data
-    SHO_LARGE_DATA,      // .ldata
-    SHO_RW_NOTE,         //
-    SHO_SMALL_DATA,      // .sdata
-    SHO_SMALL_BSS,       // .sbss
-    SHO_BSS,             // .bss
-    SHO_LARGE_BSS,       // .lbss
-    SHO_UNDEFINED,       // default order
-    SHO_STRTAB           // .strtab
+    SHO_NULL = 0,         // NULL
+    SHO_INTERP,           // .interp
+    SHO_RO_NOTE,          // .note.ABI-tag, .note.gnu.build-id
+    SHO_NAMEPOOL,         // *.hash, .dynsym, .dynstr
+    SHO_RELOCATION,       // .rel.*, .rela.*
+    SHO_REL_PLT,          // .rel.plt should come after other .rel.*
+    SHO_INIT,             // .init
+    SHO_PLT,              // .plt
+    SHO_TEXT,             // .text
+    SHO_FINI,             // .fini
+    SHO_RO,               // .rodata
+    SHO_EXCEPTION,        // .eh_frame_hdr, .eh_frame, .gcc_except_table
+    SHO_TLS_DATA,         // .tdata
+    SHO_TLS_BSS,          // .tbss
+    SHO_RELRO_LOCAL,      // .data.rel.ro.local
+    SHO_RELRO,            // .data.rel.ro,
+    SHO_RELRO_LAST,       // for x86 to adjust .got if needed
+    SHO_NON_RELRO_FIRST,  // for x86 to adjust .got.plt if needed
+    SHO_DATA,             // .data
+    SHO_LARGE_DATA,       // .ldata
+    SHO_RW_NOTE,          //
+    SHO_SMALL_DATA,       // .sdata
+    SHO_SMALL_BSS,        // .sbss
+    SHO_BSS,              // .bss
+    SHO_LARGE_BSS,        // .lbss
+    SHO_UNDEFINED,        // default order
+    SHO_STRTAB            // .strtab
   };
 
   // for -z combreloc
-  struct RelocCompare
-  {
-    RelocCompare(const GNULDBackend& pBackend)
-      : m_Backend(pBackend) {
-    }
+  struct RelocCompare {
+    explicit RelocCompare(const GNULDBackend& pBackend) : m_Backend(pBackend) {}
     bool operator()(const Relocation* X, const Relocation* Y) const;
-  private:
+
+   private:
     const GNULDBackend& m_Backend;
   };
 
   // for gnu style hash table
-  struct DynsymCompare
-  {
+  struct DynsymCompare {
     bool needGNUHash(const LDSymbol& X) const;
 
     bool operator()(const LDSymbol* X, const LDSymbol* Y) const;
   };
 
-  struct SymCompare
-  {
-    bool operator()(const LDSymbol* X, const LDSymbol* Y) const
-    { return (X==Y); }
+  struct SymCompare {
+    bool operator()(const LDSymbol* X, const LDSymbol* Y) const {
+      return (X == Y);
+    }
   };
 
-  struct SymPtrHash
-  {
-    size_t operator()(const LDSymbol* pKey) const
-    {
+  struct SymPtrHash {
+    size_t operator()(const LDSymbol* pKey) const {
       return (unsigned((uintptr_t)pKey) >> 4) ^
              (unsigned((uintptr_t)pKey) >> 9);
     }
@@ -509,13 +504,12 @@ protected:
                     SymPtrHash,
                     EntryFactory<SymHashEntryType> > HashTableType;
 
-
-protected:
+ protected:
   ELFObjectReader* m_pObjectReader;
 
   // -----  file formats  ----- //
   ELFDynObjFileFormat* m_pDynObjFileFormat;
-  ELFExecFileFormat*   m_pExecFileFormat;
+  ELFExecFileFormat* m_pExecFileFormat;
   ELFObjectFileFormat* m_pObjectFileFormat;
 
   // GNUInfo
@@ -573,6 +567,6 @@ protected:
   LDSymbol* f_p_End;
 };
 
-} // namespace mcld
+}  // namespace mcld
 
 #endif  // MCLD_TARGET_GNULDBACKEND_H_

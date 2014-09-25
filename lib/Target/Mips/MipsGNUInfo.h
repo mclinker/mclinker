@@ -13,10 +13,9 @@
 #include <llvm/Support/ELF.h>
 namespace mcld {
 
-class MipsGNUInfo : public GNUInfo
-{
-public:
-  MipsGNUInfo(const llvm::Triple& pTriple);
+class MipsGNUInfo : public GNUInfo {
+ public:
+  explicit MipsGNUInfo(const llvm::Triple& pTriple);
 
   void setABIVersion(uint8_t ver);
   void setPICFlags(uint64_t flags);
@@ -30,11 +29,11 @@ public:
   const char* dyld() const;
   uint64_t abiPageSize() const;
 
-private:
+ private:
   uint8_t m_ABIVersion;
   uint64_t m_PICFlags;
 };
 
-} // namespace mcld
+}  // namespace mcld
 
 #endif  // TARGET_MIPS_MIPSGNUINFO_H_

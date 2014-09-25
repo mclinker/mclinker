@@ -26,9 +26,9 @@ std::string demangleName(const std::string& pName) {
   // it into this helper function.
   size_t output_leng;
   int status;
-  char* buffer = abi::__cxa_demangle(pName.c_str(), /*buffer=*/0,
-                                     &output_leng, &status);
-  if (status != 0) { // Failed
+  char* buffer =
+      abi::__cxa_demangle(pName.c_str(), /*buffer=*/0, &output_leng, &status);
+  if (status != 0) {  // Failed
     return pName;
   }
   std::string result(buffer);
@@ -40,8 +40,7 @@ std::string demangleName(const std::string& pName) {
 #endif
 }
 
-bool isCtorOrDtor(const char* pName, size_t pLength)
-{
+bool isCtorOrDtor(const char* pName, size_t pLength) {
   arena<bs> a;
   Db db(a);
   db.cv = 0;
@@ -54,10 +53,8 @@ bool isCtorOrDtor(const char* pName, size_t pLength)
   db.try_to_parse_template_args = true;
   int internal_status = success;
   demangle(pName, pName + pLength, db, internal_status);
-  if (internal_status == success &&
-      db.fix_forward_references &&
-      !db.template_param.empty() &&
-      !db.template_param.front().empty()) {
+  if (internal_status == success && db.fix_forward_references &&
+      !db.template_param.empty() && !db.template_param.front().empty()) {
     db.fix_forward_references = false;
     db.tag_templates = false;
     db.names.clear();
@@ -73,4 +70,4 @@ bool isCtorOrDtor(const char* pName, size_t pLength)
   return db.parsed_ctor_dtor_cv;
 }
 
-} // namespace mcld
+}  // namespace mcld

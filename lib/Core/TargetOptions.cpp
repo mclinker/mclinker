@@ -13,42 +13,32 @@ using namespace mcld;
 //===----------------------------------------------------------------------===//
 // TargetOptions
 //===----------------------------------------------------------------------===//
-TargetOptions::TargetOptions()
-    : m_Endian(Unknown),
-      m_BitClass(0) {
+TargetOptions::TargetOptions() : m_Endian(Unknown), m_BitClass(0) {
 }
 
 TargetOptions::TargetOptions(const std::string& pTriple)
-    : m_Triple(pTriple),
-      m_Endian(Unknown),
-      m_BitClass(0) {
+    : m_Triple(pTriple), m_Endian(Unknown), m_BitClass(0) {
 }
 
-TargetOptions::~TargetOptions()
-{
+TargetOptions::~TargetOptions() {
 }
 
-void TargetOptions::setTriple(const llvm::Triple& pTriple)
-{
+void TargetOptions::setTriple(const llvm::Triple& pTriple) {
   m_Triple = pTriple;
 }
 
-void TargetOptions::setTriple(const std::string& pTriple)
-{
+void TargetOptions::setTriple(const std::string& pTriple) {
   m_Triple.setTriple(pTriple);
 }
 
-void TargetOptions::setArch(const std::string& pArchName)
-{
+void TargetOptions::setArch(const std::string& pArchName) {
   m_ArchName = pArchName;
 }
 
-void TargetOptions::setTargetCPU(const std::string& pCPU)
-{
+void TargetOptions::setTargetCPU(const std::string& pCPU) {
   m_TargetCPU = pCPU;
 }
 
-void TargetOptions::setTargetFeatureString(const std::string& pFS)
-{
+void TargetOptions::setTargetFeatureString(const std::string& pFS) {
   m_TargetFS = pFS;
 }

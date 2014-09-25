@@ -30,12 +30,10 @@ static llvm::ManagedStatic<EhFrameFactory> g_EhFrameFactory;
 //===----------------------------------------------------------------------===//
 // EhFrame::Record
 //===----------------------------------------------------------------------===//
-EhFrame::Record::Record(llvm::StringRef pRegion)
-    : RegionFragment(pRegion) {
+EhFrame::Record::Record(llvm::StringRef pRegion) : RegionFragment(pRegion) {
 }
 
-EhFrame::Record::~Record()
-{
+EhFrame::Record::~Record() {
   // llvm::iplist will manage and delete the fragments
 }
 
@@ -50,8 +48,7 @@ EhFrame::CIE::CIE(llvm::StringRef pRegion)
       m_PersonalityOffset(0) {
 }
 
-EhFrame::CIE::~CIE()
-{
+EhFrame::CIE::~CIE() {
 }
 
 //===----------------------------------------------------------------------===//
@@ -61,12 +58,10 @@ EhFrame::FDE::FDE(llvm::StringRef pRegion, EhFrame::CIE& pCIE)
     : EhFrame::Record(pRegion), m_pCIE(&pCIE) {
 }
 
-EhFrame::FDE::~FDE()
-{
+EhFrame::FDE::~FDE() {
 }
 
-void EhFrame::FDE::setCIE(EhFrame::CIE& pCIE)
-{
+void EhFrame::FDE::setCIE(EhFrame::CIE& pCIE) {
   m_pCIE = &pCIE;
   m_pCIE->add(*this);
 }
@@ -78,71 +73,60 @@ EhFrame::GeneratedCIE::GeneratedCIE(llvm::StringRef pRegion)
     : EhFrame::CIE(pRegion) {
 }
 
-EhFrame::GeneratedCIE::~GeneratedCIE()
-{
+EhFrame::GeneratedCIE::~GeneratedCIE() {
 }
 
 //===----------------------------------------------------------------------===//
 // EhFrame::GeneratedFDE
 //===----------------------------------------------------------------------===//
-EhFrame::GeneratedFDE::GeneratedFDE(llvm::StringRef pRegion, CIE &pCIE)
+EhFrame::GeneratedFDE::GeneratedFDE(llvm::StringRef pRegion, CIE& pCIE)
     : EhFrame::FDE(pRegion, pCIE) {
 }
 
-EhFrame::GeneratedFDE::~GeneratedFDE()
-{
+EhFrame::GeneratedFDE::~GeneratedFDE() {
 }
 
 //===----------------------------------------------------------------------===//
 // EhFrame
 //===----------------------------------------------------------------------===//
-EhFrame::EhFrame()
-    : m_pSection(NULL), m_pSectionData(NULL) {
+EhFrame::EhFrame() : m_pSection(NULL), m_pSectionData(NULL) {
 }
 
 EhFrame::EhFrame(LDSection& pSection)
-    : m_pSection(&pSection),
-      m_pSectionData(NULL) {
+    : m_pSection(&pSection), m_pSectionData(NULL) {
   m_pSectionData = SectionData::Create(pSection);
 }
 
-EhFrame::~EhFrame()
-{
+EhFrame::~EhFrame() {
 }
 
-EhFrame* EhFrame::Create(LDSection& pSection)
-{
+EhFrame* EhFrame::Create(LDSection& pSection) {
   EhFrame* result = g_EhFrameFactory->allocate();
   new (result) EhFrame(pSection);
   return result;
 }
 
-void EhFrame::Destroy(EhFrame*& pSection)
-{
+void EhFrame::Destroy(EhFrame*& pSection) {
   pSection->~EhFrame();
   g_EhFrameFactory->deallocate(pSection);
   pSection = NULL;
 }
 
-void EhFrame::Clear()
-{
+void EhFrame::Clear() {
   g_EhFrameFactory->clear();
 }
 
-const LDSection& EhFrame::getSection() const
-{
+const LDSection& EhFrame::getSection() const {
   assert(m_pSection != NULL);
   return *m_pSection;
 }
 
-LDSection& EhFrame::getSection()
-{
+LDSection& EhFrame::getSection() {
   assert(m_pSection != NULL);
   return *m_pSection;
 }
 
-void EhFrame::addFragment(Fragment& pFrag)
-{
+void EhFrame::addFragment(Fragment& pFrag) {
   uint32_t offset = 0;
   if (!m_pSectionData->empty())
     offset = m_pSectionData->back().getOffset() + m_pSectionData->back().size();
@@ -152,22 +136,19 @@ void EhFrame::addFragment(Fragment& pFrag)
   pFrag.setOffset(offset);
 }
 
-void EhFrame::addCIE(EhFrame::CIE& pCIE, bool pAlsoAddFragment)
-{
+void EhFrame::addCIE(EhFrame::CIE& pCIE, bool pAlsoAddFragment) {
   m_CIEs.push_back(&pCIE);
   if (pAlsoAddFragment)
     addFragment(pCIE);
 }
 
-void EhFrame::addFDE(EhFrame::FDE& pFDE, bool pAlsoAddFragment)
-{
+void EhFrame::addFDE(EhFrame::FDE& pFDE, bool pAlsoAddFragment) {
   pFDE.getCIE().add(pFDE);
   if (pAlsoAddFragment)
     addFragment(pFDE);
 }
 
-size_t EhFrame::numOfFDEs() const
-{
+size_t EhFrame::numOfFDEs() const {
   // FDE number only used by .eh_frame_hdr computation, and the number of CIE
   // is usually not too many. It is worthy to compromise space by time
   size_t size = 0u;
@@ -176,9 +157,8 @@ size_t EhFrame::numOfFDEs() const
   return size;
 }
 
-EhFrame& EhFrame::merge(const Input& pInput, EhFrame& pFrame)
-{
-  assert (this != &pFrame);
+EhFrame& EhFrame::merge(const Input& pInput, EhFrame& pFrame) {
+  assert(this != &pFrame);
   if (pFrame.emptyCIEs()) {
     // May be a partial linking, or the eh_frame has no data.
     // Just append the fragments.
@@ -189,7 +169,9 @@ EhFrame& EhFrame::merge(const Input& pInput, EhFrame& pFrame)
   const LDContext& ctx = *pInput.context();
   const LDSection* rel_sec = 0;
   for (LDContext::const_sect_iterator ri = ctx.relocSectBegin(),
-       re = ctx.relocSectEnd(); ri != re; ++ri) {
+                                      re = ctx.relocSectEnd();
+       ri != re;
+       ++ri) {
     if ((*ri)->getLink() == &pFrame.getSection()) {
       rel_sec = *ri;
       break;
@@ -225,8 +207,7 @@ EhFrame& EhFrame::merge(const Input& pInput, EhFrame& pFrame)
   return *this;
 }
 
-void EhFrame::setupAttributes(const LDSection* rel_sec)
-{
+void EhFrame::setupAttributes(const LDSection* rel_sec) {
   for (cie_iterator i = cie_begin(), e = cie_end(); i != e; ++i) {
     CIE* cie = *i;
     removeDiscardedFDE(*cie, rel_sec);
@@ -237,16 +218,18 @@ void EhFrame::setupAttributes(const LDSection* rel_sec)
     } else {
       if (!rel_sec) {
         // No relocation to eh_frame section
-        assert (cie->getPersonalityName() != "" &&
-                "PR name should be a symbol address or offset");
+        assert(cie->getPersonalityName() != "" &&
+               "PR name should be a symbol address or offset");
         continue;
       }
       const RelocData* reloc_data = rel_sec->getRelocData();
       for (RelocData::const_iterator ri = reloc_data->begin(),
-           re = reloc_data->end(); ri != re; ++ri) {
+                                     re = reloc_data->end();
+           ri != re;
+           ++ri) {
         const Relocation& rel = *ri;
-        if (rel.targetRef().getOutputOffset() == cie->getOffset() +
-                                                 cie->getPersonalityOffset()) {
+        if (rel.targetRef().getOutputOffset() ==
+            cie->getOffset() + cie->getPersonalityOffset()) {
           cie->setMergeable();
           cie->setPersonalityName(rel.symInfo()->outSymbol()->name());
           cie->setRelocation(rel);
@@ -254,14 +237,13 @@ void EhFrame::setupAttributes(const LDSection* rel_sec)
         }
       }
 
-      assert (cie->getPersonalityName() != "" &&
-              "PR name should be a symbol address or offset");
+      assert(cie->getPersonalityName() != "" &&
+             "PR name should be a symbol address or offset");
     }
   }
 }
 
-void EhFrame::removeDiscardedFDE(CIE& pCIE, const LDSection* pRelocSect)
-{
+void EhFrame::removeDiscardedFDE(CIE& pCIE, const LDSection* pRelocSect) {
   if (!pRelocSect)
     return;
 
@@ -271,10 +253,12 @@ void EhFrame::removeDiscardedFDE(CIE& pCIE, const LDSection* pRelocSect)
   for (fde_iterator i = pCIE.begin(), e = pCIE.end(); i != e; ++i) {
     FDE& fde = **i;
     for (RelocData::const_iterator ri = reloc_data->begin(),
-         re = reloc_data->end(); ri != re; ++ri) {
+                                   re = reloc_data->end();
+         ri != re;
+         ++ri) {
       const Relocation& rel = *ri;
-      if (rel.targetRef().getOutputOffset() == fde.getOffset() +
-                                               getDataStartOffset<32>()) {
+      if (rel.targetRef().getOutputOffset() ==
+          fde.getOffset() + getDataStartOffset<32>()) {
         bool has_section = rel.symInfo()->outSymbol()->hasFragRef();
         if (!has_section)
           // The section was discarded, just ignore this FDE.
@@ -286,7 +270,9 @@ void EhFrame::removeDiscardedFDE(CIE& pCIE, const LDSection* pRelocSect)
   }
 
   for (FDERemoveList::iterator i = to_be_removed_fdes.begin(),
-          e = to_be_removed_fdes.end(); i != e; ++i) {
+                               e = to_be_removed_fdes.end();
+       i != e;
+       ++i) {
     FDE& fde = **i;
     fde.getCIE().remove(fde);
 
@@ -295,7 +281,8 @@ void EhFrame::removeDiscardedFDE(CIE& pCIE, const LDSection* pRelocSect)
     // order, so we can bookkeep the previously found relocation for next use.
     // Note: We must ensure FDE order is ordered.
     for (RelocData::const_iterator ri = reloc_data->begin(),
-            re = reloc_data->end(); ri != re; ) {
+                                   re = reloc_data->end();
+         ri != re;) {
       Relocation& rel = const_cast<Relocation&>(*ri++);
       if (rel.targetRef().getOutputOffset() >= fde.getOffset() &&
           rel.targetRef().getOutputOffset() < fde.getOffset() + fde.size()) {
@@ -305,9 +292,10 @@ void EhFrame::removeDiscardedFDE(CIE& pCIE, const LDSection* pRelocSect)
   }
 }
 
-void EhFrame::removeAndUpdateCIEForFDE(EhFrame& pInFrame, CIE& pInCIE,
-                                       CIE& pOutCIE, const LDSection* rel_sect)
-{
+void EhFrame::removeAndUpdateCIEForFDE(EhFrame& pInFrame,
+                                       CIE& pInCIE,
+                                       CIE& pOutCIE,
+                                       const LDSection* rel_sect) {
   // Make this relocation to be ignored.
   Relocation* rel = const_cast<Relocation*>(pInCIE.getRelocation());
   if (rel && rel_sect)
@@ -322,8 +310,7 @@ void EhFrame::removeAndUpdateCIEForFDE(EhFrame& pInFrame, CIE& pInCIE,
   pInCIE.clearFDEs();
 }
 
-void EhFrame::moveInputFragments(EhFrame& pInFrame)
-{
+void EhFrame::moveInputFragments(EhFrame& pInFrame) {
   SectionData& in_sd = *pInFrame.getSectionData();
   SectionData::FragmentListType& in_frag_list = in_sd.getFragmentList();
   SectionData& out_sd = *getSectionData();
@@ -336,9 +323,7 @@ void EhFrame::moveInputFragments(EhFrame& pInFrame)
   }
 }
 
-void EhFrame::moveInputFragments(EhFrame& pInFrame,
-                                 CIE& pInCIE, CIE* pOutCIE)
-{
+void EhFrame::moveInputFragments(EhFrame& pInFrame, CIE& pInCIE, CIE* pOutCIE) {
   SectionData& in_sd = *pInFrame.getSectionData();
   SectionData::FragmentListType& in_frag_list = in_sd.getFragmentList();
   SectionData& out_sd = *getSectionData();
@@ -358,7 +343,7 @@ void EhFrame::moveInputFragments(EhFrame& pInFrame,
   }
 
   SectionData::iterator cur_iter(*pOutCIE);
-  assert (cur_iter != out_frag_list.end());
+  assert(cur_iter != out_frag_list.end());
   for (fde_iterator i = pInCIE.begin(), e = pInCIE.end(); i != e; ++i) {
     Fragment* frag = in_frag_list.remove(SectionData::iterator(**i));
     cur_iter = out_frag_list.insertAfter(cur_iter, frag);
@@ -366,12 +351,12 @@ void EhFrame::moveInputFragments(EhFrame& pInFrame,
   }
 }
 
-size_t EhFrame::computeOffsetSize()
-{
+size_t EhFrame::computeOffsetSize() {
   size_t offset = 0u;
-  SectionData::FragmentListType& frag_list = getSectionData()->getFragmentList();
-  for (SectionData::iterator i = frag_list.begin(), e = frag_list.end();
-       i != e; ++i) {
+  SectionData::FragmentListType& frag_list =
+      getSectionData()->getFragmentList();
+  for (SectionData::iterator i = frag_list.begin(), e = frag_list.end(); i != e;
+       ++i) {
     Fragment& frag = *i;
     frag.setOffset(offset);
     offset += frag.size();
@@ -380,8 +365,7 @@ size_t EhFrame::computeOffsetSize()
   return offset;
 }
 
-bool mcld::operator==(const EhFrame::CIE& p1, const EhFrame::CIE& p2)
-{
+bool mcld::operator==(const EhFrame::CIE& p1, const EhFrame::CIE& p2) {
   return p1.getPersonalityName() == p2.getPersonalityName() &&
          p1.getAugmentationData() == p2.getAugmentationData();
 }

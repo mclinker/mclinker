@@ -17,12 +17,11 @@ namespace mcld {
 // createX86Diagnostic - the help function to create corresponding X86Diagnostic
 //===----------------------------------------------------------------------===//
 DiagnosticLineInfo* createX86DiagLineInfo(const mcld::Target& pTarget,
-                                          const std::string &pTriple)
-{
+                                          const std::string& pTriple) {
   return new DWARFLineInfo();
 }
 
-} // namespace mcld
+}  // namespace mcld
 
 //===----------------------------------------------------------------------===//
 // InitializeX86Diagnostic

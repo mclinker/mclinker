@@ -25,160 +25,185 @@ class ObjectBuilder;
  *  @ref "Object Format," Ch. 10, in ISO/IEC 23360 Part 1:2010(E), Linux
  *  Standard Base Core Specification 4.1.
  */
-class ELFFileFormat : public LDFileFormat
-{
-private:
+class ELFFileFormat : public LDFileFormat {
+ private:
   /// initObjectFormat - initialize sections that are dependent on object
   /// formats. (executable, shared objects or relocatable objects).
-  virtual void
-  initObjectFormat(ObjectBuilder& pBuilder, unsigned int pBitClass) = 0;
+  virtual void initObjectFormat(ObjectBuilder& pBuilder,
+                                unsigned int pBitClass) = 0;
 
-public:
+ public:
   ELFFileFormat();
 
   void initStdSections(ObjectBuilder& pBuilder, unsigned int pBitClass);
 
   // -----  capacity  ----- //
   /// @ref Special Sections, Ch. 4.17, System V ABI, 4th edition.
-  bool hasNULLSection() const
-  { return (f_pNULLSection != NULL) && (f_pNULLSection->size() != 0); }
+  bool hasNULLSection() const {
+    return (f_pNULLSection != NULL) && (f_pNULLSection->size() != 0);
+  }
 
-  bool hasGOT() const
-  { return (f_pGOT != NULL) && (f_pGOT->size() != 0); }
+  bool hasGOT() const { return (f_pGOT != NULL) && (f_pGOT->size() != 0); }
 
-  bool hasPLT() const
-  { return (f_pPLT != NULL) && (f_pPLT->size() != 0); }
+  bool hasPLT() const { return (f_pPLT != NULL) && (f_pPLT->size() != 0); }
 
-  bool hasRelDyn() const
-  { return (f_pRelDyn != NULL) && (f_pRelDyn->size() != 0); }
+  bool hasRelDyn() const {
+    return (f_pRelDyn != NULL) && (f_pRelDyn->size() != 0);
+  }
 
-  bool hasRelPlt() const
-  { return (f_pRelPlt != NULL) && (f_pRelPlt->size() != 0); }
+  bool hasRelPlt() const {
+    return (f_pRelPlt != NULL) && (f_pRelPlt->size() != 0);
+  }
 
-  bool hasRelaDyn() const
-  { return (f_pRelaDyn != NULL) && (f_pRelaDyn->size() != 0); }
+  bool hasRelaDyn() const {
+    return (f_pRelaDyn != NULL) && (f_pRelaDyn->size() != 0);
+  }
 
-  bool hasRelaPlt() const
-  { return (f_pRelaPlt != NULL) && (f_pRelaPlt->size() != 0); }
+  bool hasRelaPlt() const {
+    return (f_pRelaPlt != NULL) && (f_pRelaPlt->size() != 0);
+  }
 
   /// @ref 10.3.1.1, ISO/IEC 23360, Part 1:2010(E), p. 21.
-  bool hasComment() const
-  { return (f_pComment != NULL) && (f_pComment->size() != 0); }
+  bool hasComment() const {
+    return (f_pComment != NULL) && (f_pComment->size() != 0);
+  }
 
-  bool hasData1() const
-  { return (f_pData1 != NULL) && (f_pData1->size() != 0); }
+  bool hasData1() const {
+    return (f_pData1 != NULL) && (f_pData1->size() != 0);
+  }
 
-  bool hasDebug() const
-  { return (f_pDebug != NULL) && (f_pDebug->size() != 0); }
+  bool hasDebug() const {
+    return (f_pDebug != NULL) && (f_pDebug->size() != 0);
+  }
 
-  bool hasDynamic() const
-  { return (f_pDynamic != NULL) && (f_pDynamic->size() != 0); }
+  bool hasDynamic() const {
+    return (f_pDynamic != NULL) && (f_pDynamic->size() != 0);
+  }
 
-  bool hasDynStrTab() const
-  { return (f_pDynStrTab != NULL) && (f_pDynStrTab->size() != 0); }
+  bool hasDynStrTab() const {
+    return (f_pDynStrTab != NULL) && (f_pDynStrTab->size() != 0);
+  }
 
-  bool hasDynSymTab() const
-  { return (f_pDynSymTab != NULL) && (f_pDynSymTab->size() != 0); }
+  bool hasDynSymTab() const {
+    return (f_pDynSymTab != NULL) && (f_pDynSymTab->size() != 0);
+  }
 
-  bool hasFini() const
-  { return (f_pFini != NULL) && (f_pFini->size() != 0); }
+  bool hasFini() const { return (f_pFini != NULL) && (f_pFini->size() != 0); }
 
-  bool hasFiniArray() const
-  { return (f_pFiniArray != NULL) && (f_pFiniArray->size() != 0); }
+  bool hasFiniArray() const {
+    return (f_pFiniArray != NULL) && (f_pFiniArray->size() != 0);
+  }
 
-  bool hasHashTab() const
-  { return (f_pHashTab != NULL) && (f_pHashTab->size() != 0); }
+  bool hasHashTab() const {
+    return (f_pHashTab != NULL) && (f_pHashTab->size() != 0);
+  }
 
-  bool hasInit() const
-  { return (f_pInit != NULL) && (f_pInit->size() != 0); }
+  bool hasInit() const { return (f_pInit != NULL) && (f_pInit->size() != 0); }
 
-  bool hasInitArray() const
-  { return (f_pInitArray != NULL) && (f_pInitArray->size() != 0); }
+  bool hasInitArray() const {
+    return (f_pInitArray != NULL) && (f_pInitArray->size() != 0);
+  }
 
-  bool hasInterp() const
-  { return (f_pInterp != NULL) && (f_pInterp->size() != 0); }
+  bool hasInterp() const {
+    return (f_pInterp != NULL) && (f_pInterp->size() != 0);
+  }
 
-  bool hasLine() const
-  { return (f_pLine != NULL) && (f_pLine->size() != 0); }
+  bool hasLine() const { return (f_pLine != NULL) && (f_pLine->size() != 0); }
 
-  bool hasNote() const
-  { return (f_pNote != NULL) && (f_pNote->size() != 0); }
+  bool hasNote() const { return (f_pNote != NULL) && (f_pNote->size() != 0); }
 
-  bool hasPreInitArray() const
-  { return (f_pPreInitArray != NULL) && (f_pPreInitArray->size() != 0); }
+  bool hasPreInitArray() const {
+    return (f_pPreInitArray != NULL) && (f_pPreInitArray->size() != 0);
+  }
 
-  bool hasROData1() const
-  { return (f_pROData1 != NULL) && (f_pROData1->size() != 0); }
+  bool hasROData1() const {
+    return (f_pROData1 != NULL) && (f_pROData1->size() != 0);
+  }
 
-  bool hasShStrTab() const
-  { return (f_pShStrTab != NULL) && (f_pShStrTab->size() != 0); }
+  bool hasShStrTab() const {
+    return (f_pShStrTab != NULL) && (f_pShStrTab->size() != 0);
+  }
 
-  bool hasStrTab() const
-  { return (f_pStrTab != NULL) && (f_pStrTab->size() != 0); }
+  bool hasStrTab() const {
+    return (f_pStrTab != NULL) && (f_pStrTab->size() != 0);
+  }
 
-  bool hasSymTab() const
-  { return (f_pSymTab != NULL) && (f_pSymTab->size() != 0); }
+  bool hasSymTab() const {
+    return (f_pSymTab != NULL) && (f_pSymTab->size() != 0);
+  }
 
-  bool hasTBSS() const
-  { return (f_pTBSS != NULL) && (f_pTBSS->size() != 0); }
+  bool hasTBSS() const { return (f_pTBSS != NULL) && (f_pTBSS->size() != 0); }
 
-  bool hasTData() const
-  { return (f_pTData != NULL) && (f_pTData->size() != 0); }
+  bool hasTData() const {
+    return (f_pTData != NULL) && (f_pTData->size() != 0);
+  }
 
   /// @ref 10.3.1.2, ISO/IEC 23360, Part 1:2010(E), p. 24.
-  bool hasCtors() const
-  { return (f_pCtors != NULL) && (f_pCtors->size() != 0); }
+  bool hasCtors() const {
+    return (f_pCtors != NULL) && (f_pCtors->size() != 0);
+  }
 
-  bool hasDataRelRo() const
-  { return (f_pDataRelRo != NULL) && (f_pDataRelRo->size() != 0); }
+  bool hasDataRelRo() const {
+    return (f_pDataRelRo != NULL) && (f_pDataRelRo->size() != 0);
+  }
 
-  bool hasDtors() const
-  { return (f_pDtors != NULL) && (f_pDtors->size() != 0); }
+  bool hasDtors() const {
+    return (f_pDtors != NULL) && (f_pDtors->size() != 0);
+  }
 
-  bool hasEhFrame() const
-  { return (f_pEhFrame != NULL) && (f_pEhFrame->size() != 0); }
+  bool hasEhFrame() const {
+    return (f_pEhFrame != NULL) && (f_pEhFrame->size() != 0);
+  }
 
-  bool hasEhFrameHdr() const
-  { return (f_pEhFrameHdr != NULL) && (f_pEhFrameHdr->size() != 0); }
+  bool hasEhFrameHdr() const {
+    return (f_pEhFrameHdr != NULL) && (f_pEhFrameHdr->size() != 0);
+  }
 
-  bool hasGCCExceptTable() const
-  { return (f_pGCCExceptTable != NULL) && (f_pGCCExceptTable->size() != 0); }
+  bool hasGCCExceptTable() const {
+    return (f_pGCCExceptTable != NULL) && (f_pGCCExceptTable->size() != 0);
+  }
 
-  bool hasGNUVersion() const
-  { return (f_pGNUVersion != NULL) && (f_pGNUVersion->size() != 0); }
+  bool hasGNUVersion() const {
+    return (f_pGNUVersion != NULL) && (f_pGNUVersion->size() != 0);
+  }
 
-  bool hasGNUVersionD() const
-  { return (f_pGNUVersionD != NULL) && (f_pGNUVersionD->size() != 0); }
+  bool hasGNUVersionD() const {
+    return (f_pGNUVersionD != NULL) && (f_pGNUVersionD->size() != 0);
+  }
 
-  bool hasGNUVersionR() const
-  { return (f_pGNUVersionR != NULL) && (f_pGNUVersionR->size() != 0); }
+  bool hasGNUVersionR() const {
+    return (f_pGNUVersionR != NULL) && (f_pGNUVersionR->size() != 0);
+  }
 
-  bool hasGOTPLT() const
-  { return (f_pGOTPLT != NULL) && (f_pGOTPLT->size() != 0); }
+  bool hasGOTPLT() const {
+    return (f_pGOTPLT != NULL) && (f_pGOTPLT->size() != 0);
+  }
 
-  bool hasJCR() const
-  { return (f_pJCR != NULL) && (f_pJCR->size() != 0); }
+  bool hasJCR() const { return (f_pJCR != NULL) && (f_pJCR->size() != 0); }
 
-  bool hasNoteABITag() const
-  { return (f_pNoteABITag != NULL) && (f_pNoteABITag->size() != 0); }
+  bool hasNoteABITag() const {
+    return (f_pNoteABITag != NULL) && (f_pNoteABITag->size() != 0);
+  }
 
-  bool hasStab() const
-  { return (f_pStab != NULL) && (f_pStab->size() != 0); }
+  bool hasStab() const { return (f_pStab != NULL) && (f_pStab->size() != 0); }
 
-  bool hasStabStr() const
-  { return (f_pStabStr != NULL) && (f_pStabStr->size() != 0); }
+  bool hasStabStr() const {
+    return (f_pStabStr != NULL) && (f_pStabStr->size() != 0);
+  }
 
-  bool hasStack() const
-  { return (f_pStack != NULL) && (f_pStack->size() != 0); }
+  bool hasStack() const {
+    return (f_pStack != NULL) && (f_pStack->size() != 0);
+  }
 
-  bool hasStackNote() const
-  { return (f_pStackNote != NULL); }
+  bool hasStackNote() const { return (f_pStackNote != NULL); }
 
-  bool hasDataRelRoLocal() const
-  { return (f_pDataRelRoLocal != NULL) && (f_pDataRelRoLocal->size() != 0); }
+  bool hasDataRelRoLocal() const {
+    return (f_pDataRelRoLocal != NULL) && (f_pDataRelRoLocal->size() != 0);
+  }
 
-  bool hasGNUHashTab() const
-  { return (f_pGNUHashTab != NULL) && (f_pGNUHashTab->size() != 0); }
+  bool hasGNUHashTab() const {
+    return (f_pGNUHashTab != NULL) && (f_pGNUHashTab->size() != 0);
+  }
 
   // -----  access functions  ----- //
   /// @ref Special Sections, Ch. 4.17, System V ABI, 4th edition.
@@ -644,63 +669,63 @@ public:
     return *f_pGNUHashTab;
   }
 
-protected:
+ protected:
   //         variable name         :  ELF
   /// @ref Special Sections, Ch. 4.17, System V ABI, 4th edition.
   LDSection* f_pNULLSection;
-  LDSection* f_pGOT;               // .got
-  LDSection* f_pPLT;               // .plt
-  LDSection* f_pRelDyn;            // .rel.dyn
-  LDSection* f_pRelPlt;            // .rel.plt
-  LDSection* f_pRelaDyn;           // .rela.dyn
-  LDSection* f_pRelaPlt;           // .rela.plt
+  LDSection* f_pGOT;      // .got
+  LDSection* f_pPLT;      // .plt
+  LDSection* f_pRelDyn;   // .rel.dyn
+  LDSection* f_pRelPlt;   // .rel.plt
+  LDSection* f_pRelaDyn;  // .rela.dyn
+  LDSection* f_pRelaPlt;  // .rela.plt
 
   /// @ref 10.3.1.1, ISO/IEC 23360, Part 1:2010(E), p. 21.
-  LDSection* f_pComment;           // .comment
-  LDSection* f_pData1;             // .data1
-  LDSection* f_pDebug;             // .debug
-  LDSection* f_pDynamic;           // .dynamic
-  LDSection* f_pDynStrTab;         // .dynstr
-  LDSection* f_pDynSymTab;         // .dynsym
-  LDSection* f_pFini;              // .fini
-  LDSection* f_pFiniArray;         // .fini_array
-  LDSection* f_pHashTab;           // .hash
-  LDSection* f_pInit;              // .init
-  LDSection* f_pInitArray;         // .init_array
-  LDSection* f_pInterp;            // .interp
-  LDSection* f_pLine;              // .line
-  LDSection* f_pNote;              // .note
-  LDSection* f_pPreInitArray;      // .preinit_array
-  LDSection* f_pROData1;           // .rodata1
-  LDSection* f_pShStrTab;          // .shstrtab
-  LDSection* f_pStrTab;            // .strtab
-  LDSection* f_pSymTab;            // .symtab
-  LDSection* f_pTBSS;              // .tbss
-  LDSection* f_pTData;             // .tdata
+  LDSection* f_pComment;       // .comment
+  LDSection* f_pData1;         // .data1
+  LDSection* f_pDebug;         // .debug
+  LDSection* f_pDynamic;       // .dynamic
+  LDSection* f_pDynStrTab;     // .dynstr
+  LDSection* f_pDynSymTab;     // .dynsym
+  LDSection* f_pFini;          // .fini
+  LDSection* f_pFiniArray;     // .fini_array
+  LDSection* f_pHashTab;       // .hash
+  LDSection* f_pInit;          // .init
+  LDSection* f_pInitArray;     // .init_array
+  LDSection* f_pInterp;        // .interp
+  LDSection* f_pLine;          // .line
+  LDSection* f_pNote;          // .note
+  LDSection* f_pPreInitArray;  // .preinit_array
+  LDSection* f_pROData1;       // .rodata1
+  LDSection* f_pShStrTab;      // .shstrtab
+  LDSection* f_pStrTab;        // .strtab
+  LDSection* f_pSymTab;        // .symtab
+  LDSection* f_pTBSS;          // .tbss
+  LDSection* f_pTData;         // .tdata
 
   /// @ref 10.3.1.2, ISO/IEC 23360, Part 1:2010(E), p. 24.
-  LDSection* f_pCtors;             // .ctors
-  LDSection* f_pDataRelRo;         // .data.rel.ro
-  LDSection* f_pDtors;             // .dtors
-  LDSection* f_pEhFrame;           // .eh_frame
-  LDSection* f_pEhFrameHdr;        // .eh_frame_hdr
-  LDSection* f_pGCCExceptTable;    // .gcc_except_table
-  LDSection* f_pGNUVersion;        // .gnu.version
-  LDSection* f_pGNUVersionD;       // .gnu.version_d
-  LDSection* f_pGNUVersionR;       // .gnu.version_r
-  LDSection* f_pGOTPLT;            // .got.plt
-  LDSection* f_pJCR;               // .jcr
-  LDSection* f_pNoteABITag;        // .note.ABI-tag
-  LDSection* f_pStab;              // .stab
-  LDSection* f_pStabStr;           // .stabstr
+  LDSection* f_pCtors;           // .ctors
+  LDSection* f_pDataRelRo;       // .data.rel.ro
+  LDSection* f_pDtors;           // .dtors
+  LDSection* f_pEhFrame;         // .eh_frame
+  LDSection* f_pEhFrameHdr;      // .eh_frame_hdr
+  LDSection* f_pGCCExceptTable;  // .gcc_except_table
+  LDSection* f_pGNUVersion;      // .gnu.version
+  LDSection* f_pGNUVersionD;     // .gnu.version_d
+  LDSection* f_pGNUVersionR;     // .gnu.version_r
+  LDSection* f_pGOTPLT;          // .got.plt
+  LDSection* f_pJCR;             // .jcr
+  LDSection* f_pNoteABITag;      // .note.ABI-tag
+  LDSection* f_pStab;            // .stab
+  LDSection* f_pStabStr;         // .stabstr
 
   /// practical
-  LDSection* f_pStack;             // .stack
-  LDSection* f_pStackNote;         // .note.GNU-stack
-  LDSection* f_pDataRelRoLocal;    // .data.rel.ro.local
-  LDSection* f_pGNUHashTab;        // .gnu.hash
+  LDSection* f_pStack;           // .stack
+  LDSection* f_pStackNote;       // .note.GNU-stack
+  LDSection* f_pDataRelRoLocal;  // .data.rel.ro.local
+  LDSection* f_pGNUHashTab;      // .gnu.hash
 };
 
-} // namespace mcld
+}  // namespace mcld
 
 #endif  // MCLD_LD_ELFFILEFORMAT_H_

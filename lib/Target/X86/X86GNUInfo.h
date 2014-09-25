@@ -14,10 +14,9 @@
 
 namespace mcld {
 
-class X86_32GNUInfo : public GNUInfo
-{
-public:
-  X86_32GNUInfo(const llvm::Triple& pTriple) : GNUInfo(pTriple) { }
+class X86_32GNUInfo : public GNUInfo {
+ public:
+  explicit X86_32GNUInfo(const llvm::Triple& pTriple) : GNUInfo(pTriple) {}
 
   uint32_t machine() const { return llvm::ELF::EM_386; }
 
@@ -26,13 +25,11 @@ public:
   /// flags - the value of ElfXX_Ehdr::e_flags
   /// FIXME
   uint64_t flags() const { return 0x0; }
-
 };
 
-class X86_64GNUInfo : public GNUInfo
-{
-public:
-  X86_64GNUInfo(const llvm::Triple& pTriple) : GNUInfo(pTriple) { }
+class X86_64GNUInfo : public GNUInfo {
+ public:
+  explicit X86_64GNUInfo(const llvm::Triple& pTriple) : GNUInfo(pTriple) {}
 
   uint32_t machine() const { return llvm::ELF::EM_X86_64; }
 
@@ -41,9 +38,8 @@ public:
   /// flags - the value of ElfXX_Ehdr::e_flags
   /// FIXME
   uint64_t flags() const { return 0x0; }
-
 };
 
-} // namespace mcld
+}  // namespace mcld
 
 #endif  // TARGET_X86_X86GNUINFO_H_

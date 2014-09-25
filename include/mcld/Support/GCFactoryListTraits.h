@@ -20,44 +20,41 @@ namespace mcld {
  *  \brief GCFactoryListTraits provides trait class for llvm::iplist when
  *  the nodes in the list is produced by GCFactory.
  */
-template<typename DataType>
-class GCFactoryListTraits : public llvm::ilist_default_traits<DataType>
-{
-private:
-  class SentinelNode : public DataType
-  {
-  public:
-    SentinelNode() { }
+template <typename DataType>
+class GCFactoryListTraits : public llvm::ilist_default_traits<DataType> {
+ private:
+  class SentinelNode : public DataType {
+   public:
+    SentinelNode() {}
   };
 
-public:
+ public:
   // override the traits provided in llvm::ilist_sentinel_traits since we've
   // defined our own sentinel.
-  DataType *createSentinel() const
-  { return reinterpret_cast<DataType*>(&mSentinel); }
+  DataType* createSentinel() const {
+    return reinterpret_cast<DataType*>(&mSentinel);
+  }
 
-  static void destroySentinel(DataType*) { }
+  static void destroySentinel(DataType*) {}
 
-  DataType *provideInitialHead() const
-  { return createSentinel(); }
+  DataType* provideInitialHead() const { return createSentinel(); }
 
-  DataType *ensureHead(DataType*) const
-  { return createSentinel(); }
+  DataType* ensureHead(DataType*) const { return createSentinel(); }
 
-  static void noteHead(DataType*, DataType*) { }
+  static void noteHead(DataType*, DataType*) {}
 
   // override the traits provided in llvm::ilist_node_traits since
-  static DataType *createNode(const DataType &V) {
+  static DataType* createNode(const DataType& V) {
     assert(false && "Only GCFactory knows how to create a node.");
   }
-  static void deleteNode(DataType *V) {
+  static void deleteNode(DataType* V) {
     // No action. GCFactory will handle it by itself.
   }
 
-private:
+ private:
   mutable SentinelNode mSentinel;
 };
 
-} // namespace mcld
+}  // namespace mcld
 
 #endif  // MCLD_SUPPORT_GCFACTORYLISTTRAITS_H_

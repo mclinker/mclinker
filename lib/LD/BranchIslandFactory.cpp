@@ -26,21 +26,18 @@ using namespace mcld;
 BranchIslandFactory::BranchIslandFactory(int64_t pMaxFwdBranchRange,
                                          int64_t pMaxBwdBranchRange,
                                          size_t pMaxIslandSize)
-    : GCFactory<BranchIsland, 0>(1u), // magic number
+    : GCFactory<BranchIsland, 0>(1u),  // magic number
       m_MaxFwdBranchRange(pMaxFwdBranchRange - pMaxIslandSize),
       m_MaxBwdBranchRange(pMaxBwdBranchRange + pMaxIslandSize),
-      m_MaxIslandSize(pMaxIslandSize)
-{
+      m_MaxIslandSize(pMaxIslandSize) {
 }
 
-BranchIslandFactory::~BranchIslandFactory()
-{
+BranchIslandFactory::~BranchIslandFactory() {
 }
 
 /// group - group fragments and create islands when needed
 /// @param pSectionData - the SectionData holds fragments need to be grouped
-void BranchIslandFactory::group(Module& pModule)
-{
+void BranchIslandFactory::group(Module& pModule) {
   /* FIXME: Currently only support relaxing .text section! */
   LDSection* text = pModule.getSection(".text");
   if (text != NULL && text->hasSectionData()) {
@@ -65,27 +62,24 @@ void BranchIslandFactory::group(Module& pModule)
 
 /// produce - produce a island for the given fragment
 /// @param pFragment - the fragment needs a branch island
-BranchIsland* BranchIslandFactory::produce(Fragment& pFragment)
-{
-  BranchIsland *island = allocate();
-  new (island) BranchIsland(pFragment,       // entry fragment to the island
-                            m_MaxIslandSize, // the max size of the island
-                            size() - 1u);    // index in the island factory
+BranchIsland* BranchIslandFactory::produce(Fragment& pFragment) {
+  BranchIsland* island = allocate();
+  new (island) BranchIsland(pFragment,        // entry fragment to the island
+                            m_MaxIslandSize,  // the max size of the island
+                            size() - 1u);     // index in the island factory
   return island;
 }
 
 /// getIsland - find fwd and bwd islands for the fragment
 /// @param pFragment - the fragment needs a branch island
-std::pair<BranchIsland*, BranchIsland*>
-BranchIslandFactory::getIslands(const Fragment& pFragment)
-{
+std::pair<BranchIsland*, BranchIsland*> BranchIslandFactory::getIslands(
+    const Fragment& pFragment) {
   BranchIsland* fwd = NULL;
   BranchIsland* bwd = NULL;
   for (iterator it = begin(), ie = end(), prev = ie; it != ie;
        prev = it, ++it) {
     if ((pFragment.getOffset() < (*it).offset()) &&
         ((pFragment.getOffset() + m_MaxFwdBranchRange) >= (*it).offset())) {
-
       fwd = &*it;
 
       if (prev != ie) {

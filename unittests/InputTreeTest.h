@@ -27,9 +27,8 @@ namespace test {
  *
  *  \see InputTree
  */
-class InputTreeTest : public ::testing::Test
-{
-public:
+class InputTreeTest : public ::testing::Test {
+ public:
   // Constructor can do set-up work for all test here.
   InputTreeTest();
 
@@ -42,7 +41,7 @@ public:
   // TearDown() will be called immediately after each test.
   virtual void TearDown();
 
-protected:
+ protected:
   mcld::LinkerConfig* m_pConfig;
 
   mcld::InputFactory* m_pAlloc;
@@ -53,8 +52,7 @@ protected:
   mcld::InputTree* m_pTestee;
 };
 
-} // namespace of test
-} // namespace of mcld
+}  // namespace of test
+}  // namespace of mcld
 
 #endif
-

@@ -16,13 +16,19 @@
 
 using namespace mcld;
 
-static const enum llvm::raw_ostream::Colors UnreachableColor = llvm::raw_ostream::RED;
-static const enum llvm::raw_ostream::Colors FatalColor       = llvm::raw_ostream::YELLOW;
-static const enum llvm::raw_ostream::Colors ErrorColor       = llvm::raw_ostream::RED;
-static const enum llvm::raw_ostream::Colors WarningColor     = llvm::raw_ostream::MAGENTA;
-static const enum llvm::raw_ostream::Colors DebugColor       = llvm::raw_ostream::CYAN;
-static const enum llvm::raw_ostream::Colors NoteColor        = llvm::raw_ostream::GREEN;
-static const enum llvm::raw_ostream::Colors IgnoreColor      = llvm::raw_ostream::BLUE;
+static const enum llvm::raw_ostream::Colors UnreachableColor =
+    llvm::raw_ostream::RED;
+static const enum llvm::raw_ostream::Colors FatalColor =
+    llvm::raw_ostream::YELLOW;
+static const enum llvm::raw_ostream::Colors ErrorColor = llvm::raw_ostream::RED;
+static const enum llvm::raw_ostream::Colors WarningColor =
+    llvm::raw_ostream::MAGENTA;
+static const enum llvm::raw_ostream::Colors DebugColor =
+    llvm::raw_ostream::CYAN;
+static const enum llvm::raw_ostream::Colors NoteColor =
+    llvm::raw_ostream::GREEN;
+static const enum llvm::raw_ostream::Colors IgnoreColor =
+    llvm::raw_ostream::BLUE;
 
 //===----------------------------------------------------------------------===//
 // TextDiagnosticPrinter
@@ -31,16 +37,14 @@ TextDiagnosticPrinter::TextDiagnosticPrinter(llvm::raw_ostream& pOStream,
     : m_OStream(pOStream), m_Config(pConfig), m_pInput(NULL) {
 }
 
-TextDiagnosticPrinter::~TextDiagnosticPrinter()
-{
+TextDiagnosticPrinter::~TextDiagnosticPrinter() {
 }
 
 /// HandleDiagnostic - Handle this diagnostic, reporting it to the user or
 /// capturing it to a log as needed.
-void
-TextDiagnosticPrinter::handleDiagnostic(DiagnosticEngine::Severity pSeverity,
-                                        const Diagnostic& pInfo)
-{
+void TextDiagnosticPrinter::handleDiagnostic(
+    DiagnosticEngine::Severity pSeverity,
+    const Diagnostic& pInfo) {
   DiagnosticPrinter::handleDiagnostic(pSeverity, pInfo);
 
   std::string out_string;
@@ -119,8 +123,10 @@ TextDiagnosticPrinter::handleDiagnostic(DiagnosticEngine::Severity pSeverity,
     }
     /** fall through **/
     case DiagnosticEngine::Fatal: {
-      // If we reached here, we are failing ungracefully. Run the interrupt handlers
-      // to make sure any special cleanups get done, in particular that we remove
+      // If we reached here, we are failing ungracefully. Run the interrupt
+      // handlers
+      // to make sure any special cleanups get done, in particular that we
+      // remove
       // files registered with RemoveFileOnSignal.
       llvm::sys::RunInterruptHandlers();
       exit(1);
@@ -145,7 +151,8 @@ TextDiagnosticPrinter::handleDiagnostic(DiagnosticEngine::Severity pSeverity,
           (getNumWarnings() > static_cast<unsigned>(warning_limit))) {
         m_OStream << "\n\n";
         m_OStream.changeColor(llvm::raw_ostream::YELLOW);
-        m_OStream << "too many warning messages (>" << warning_limit << ")...\n";
+        m_OStream << "too many warning messages (>" << warning_limit
+                  << ")...\n";
         m_OStream.resetColor();
         llvm::sys::RunInterruptHandlers();
         exit(1);
@@ -156,12 +163,11 @@ TextDiagnosticPrinter::handleDiagnostic(DiagnosticEngine::Severity pSeverity,
   }
 }
 
-void TextDiagnosticPrinter::beginInput(const Input& pInput, const LinkerConfig& pConfig)
-{
+void TextDiagnosticPrinter::beginInput(const Input& pInput,
+                                       const LinkerConfig& pConfig) {
   m_pInput = &pInput;
 }
 
-void TextDiagnosticPrinter::endInput()
-{
+void TextDiagnosticPrinter::endInput() {
   m_pInput = NULL;
 }

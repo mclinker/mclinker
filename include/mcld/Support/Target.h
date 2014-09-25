@@ -11,10 +11,10 @@
 #include <string>
 
 namespace llvm {
-  class Target;
-  class Triple;
-  class TargetMachine;
-} // namespace llvm
+class Target;
+class Triple;
+class TargetMachine;
+}  // namespace llvm
 
 namespace mcld {
 
@@ -31,12 +31,11 @@ class TargetLDBackend;
 /** \class Target
  *  \brief Target collects target specific information
  */
-class Target
-{
+class Target {
   friend class mcld::MCLDTargetMachine;
   friend class mcld::TargetRegistry;
 
-public:
+ public:
   typedef unsigned int (*TripleMatchQualityFnTy)(const llvm::Triple& pTriple);
 
   typedef MCLDTargetMachine* (*TargetMachineCtorTy)(const llvm::Target&,
@@ -51,12 +50,12 @@ public:
 
   typedef bool (*EmulationFnTy)(LinkerScript&, LinkerConfig&);
 
-  typedef TargetLDBackend  *(*TargetLDBackendCtorTy)(const LinkerConfig&);
+  typedef TargetLDBackend* (*TargetLDBackendCtorTy)(const LinkerConfig&);
 
-  typedef DiagnosticLineInfo *(*DiagnosticLineInfoCtorTy)(const mcld::Target&,
+  typedef DiagnosticLineInfo* (*DiagnosticLineInfoCtorTy)(const mcld::Target&,
                                                           const std::string&);
 
-public:
+ public:
   Target();
 
   /// getName - get the target name
@@ -70,7 +69,7 @@ public:
                                          llvm::TargetMachine& pTM) const;
 
   /// createMCLinker - create target-specific MCLinker
-  MCLinker* createMCLinker(const std::string &pTriple,
+  MCLinker* createMCLinker(const std::string& pTriple,
                            LinkerConfig& pConfig,
                            Module& pModule,
                            FileHandle& pFileHandle) const;
@@ -83,10 +82,11 @@ public:
   TargetLDBackend* createLDBackend(const LinkerConfig& pConfig) const;
 
   /// createDiagnosticLineInfo - create target-specific DiagnosticLineInfo
-  DiagnosticLineInfo* createDiagnosticLineInfo(const mcld::Target& pTarget,
-                                               const std::string& pTriple) const;
+  DiagnosticLineInfo* createDiagnosticLineInfo(
+      const mcld::Target& pTarget,
+      const std::string& pTriple) const;
 
-private:
+ private:
   /// Name - The target name
   const char* Name;
 
@@ -98,6 +98,6 @@ private:
   DiagnosticLineInfoCtorTy DiagnosticLineInfoCtorFn;
 };
 
-} // namespace mcld
+}  // namespace mcld
 
 #endif  // MCLD_SUPPORT_TARGET_H_

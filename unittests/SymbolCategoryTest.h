@@ -11,23 +11,20 @@
 
 #include <gtest.h>
 
-namespace mcld
-{
+namespace mcld {
 class SymbolCategory;
 
-} // namespace for mcld
+}  // namespace for mcld
 
-namespace mcldtest
-{
+namespace mcldtest {
 
 /** \class SymbolCategoryTest
  *  \brief The testcases of symbol category.
  *
  *  \see SymbolCategory
  */
-class SymbolCategoryTest : public ::testing::Test
-{
-public:
+class SymbolCategoryTest : public ::testing::Test {
+ public:
   // Constructor can do set-up work for all test here.
   SymbolCategoryTest();
 
@@ -40,11 +37,10 @@ public:
   // TearDown() will be called immediately after each test.
   virtual void TearDown();
 
-protected:
+ protected:
   mcld::SymbolCategory* m_pTestee;
 };
 
-} // namespace of mcldtest
+}  // namespace of mcldtest
 
 #endif
-

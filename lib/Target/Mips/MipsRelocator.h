@@ -22,17 +22,16 @@ class MipsRelocationInfo;
 /** \class MipsRelocator
  *  \brief MipsRelocator creates and destroys the Mips relocations.
  */
-class MipsRelocator : public Relocator
-{
-public:
+class MipsRelocator : public Relocator {
+ public:
   enum ReservedEntryType {
-    None          = 0,  // no reserved entry
-    ReserveRel    = 1,  // reserve a dynamic relocation entry
-    ReserveGot    = 2,  // reserve a GOT entry
-    ReservePLT    = 4   // reserve a PLT entry
+    None = 0,        // no reserved entry
+    ReserveRel = 1,  // reserve a dynamic relocation entry
+    ReserveGot = 2,  // reserve a GOT entry
+    ReservePLT = 4   // reserve a PLT entry
   };
 
-public:
+ public:
   MipsRelocator(MipsGNULDBackend& pParent, const LinkerConfig& pConfig);
 
   /// scanRelocation - determine the empty entries are needed or not and
@@ -62,14 +61,11 @@ public:
 
   Result applyRelocation(Relocation& pReloc);
 
-  const Input& getApplyingInput() const
-  { return *m_pApplyingInput; }
+  const Input& getApplyingInput() const { return *m_pApplyingInput; }
 
-  MipsGNULDBackend& getTarget()
-  { return m_Target; }
+  MipsGNULDBackend& getTarget() { return m_Target; }
 
-  const MipsGNULDBackend& getTarget() const
-  { return m_Target; }
+  const MipsGNULDBackend& getTarget() const { return m_Target; }
 
   /// postponeRelocation - save R_MIPS_LO16 paired relocations
   /// like R_MISP_HI16 and R_MIPS_GOT16 for a future processing.
@@ -119,27 +115,27 @@ public:
 
   Size getSize(Relocation::Type pType) const;
 
-protected:
+ protected:
   /// setupRelDynEntry - create dynamic relocation entry.
   virtual void setupRelDynEntry(FragmentRef& pFragRef, ResolveInfo* pSym) = 0;
 
   /// isLocalReloc - handle relocation as a local symbol
   bool isLocalReloc(ResolveInfo& pSym) const;
 
-private:
+ private:
   typedef std::pair<Fragment*, Fragment*> PLTDescriptor;
   typedef llvm::DenseMap<const ResolveInfo*, PLTDescriptor> SymPLTMap;
   typedef llvm::DenseSet<Relocation*> RelocationSet;
   typedef llvm::DenseMap<const ResolveInfo*, RelocationSet> SymRelocSetMap;
 
-private:
+ private:
   MipsGNULDBackend& m_Target;
   SymPLTMap m_SymPLTMap;
   Input* m_pApplyingInput;
   SymRelocSetMap m_PostponedRelocs;
   MipsRelocationInfo* m_CurrentLo16Reloc;
 
-private:
+ private:
   void scanLocalReloc(MipsRelocationInfo& pReloc,
                       IRBuilder& pBuilder,
                       const LDSection& pSection);
@@ -168,12 +164,11 @@ private:
 /** \class Mips32Relocator
  *  \brief Mips32Relocator creates and destroys the Mips 32-bit relocations.
  */
-class Mips32Relocator : public MipsRelocator
-{
-public:
+class Mips32Relocator : public MipsRelocator {
+ public:
   Mips32Relocator(Mips32GNULDBackend& pParent, const LinkerConfig& pConfig);
 
-private:
+ private:
   // MipsRelocator
   void setupRelDynEntry(FragmentRef& pFragRef, ResolveInfo* pSym);
 };
@@ -181,16 +176,15 @@ private:
 /** \class Mips64Relocator
  *  \brief Mips64Relocator creates and destroys the Mips 64-bit relocations.
  */
-class Mips64Relocator : public MipsRelocator
-{
-public:
+class Mips64Relocator : public MipsRelocator {
+ public:
   Mips64Relocator(Mips64GNULDBackend& pParent, const LinkerConfig& pConfig);
 
-private:
+ private:
   // MipsRelocator
   void setupRelDynEntry(FragmentRef& pFragRef, ResolveInfo* pSym);
 };
 
-} // namespace mcld
+}  // namespace mcld
 
 #endif  // TARGET_MIPS_MIPSRELOCATOR_H_

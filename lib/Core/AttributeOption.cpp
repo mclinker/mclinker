@@ -13,10 +13,8 @@ using namespace mcld;
 //===----------------------------------------------------------------------===//
 // AttributeOption
 //===----------------------------------------------------------------------===//
-AttributeOption::AttributeOption()
-{
+AttributeOption::AttributeOption() {
 }
 
-AttributeOption::~AttributeOption()
-{
+AttributeOption::~AttributeOption() {
 }

@@ -18,19 +18,17 @@ class StaticResolver;
 class ResolveInfoFactory;
 class DiagnosticPrinter;
 
-} // namespace for mcld
+}  // namespace for mcld
 
-namespace mcldtest
-{
+namespace mcldtest {
 
 /** \class StaticResolverTest
  *  \brief The testcases for static resolver
  *
  *  \see StaticResolver
  */
-class StaticResolverTest : public ::testing::Test
-{
-public:
+class StaticResolverTest : public ::testing::Test {
+ public:
   // Constructor can do set-up work for all test here.
   StaticResolverTest();
 
@@ -43,13 +41,12 @@ public:
   // TearDown() will be called immediately after each test.
   virtual void TearDown();
 
-protected:
+ protected:
   mcld::StaticResolver* m_pResolver;
   mcld::LinkerConfig* m_pConfig;
   mcld::DiagnosticPrinter* m_pPrinter;
 };
 
-} // namespace of mcldtest
+}  // namespace of mcldtest
 
 #endif
-

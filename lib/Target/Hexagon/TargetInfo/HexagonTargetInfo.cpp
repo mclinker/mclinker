@@ -1,4 +1,4 @@
-//===- HexagonTargetInfo.cpp -----------------------------------------------===//
+//===- HexagonTargetInfo.cpp ----------------------------------------------===//
 //
 //                     The MCLinker Project
 //
@@ -18,4 +18,4 @@ extern "C" void MCLDInitializeHexagonLDTargetInfo() {
   mcld::RegisterTarget<llvm::Triple::hexagon> X(TheHexagonTarget, "hexagon");
 }
 
-} // namespace mcld
+}  // namespace mcld

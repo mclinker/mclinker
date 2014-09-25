@@ -37,9 +37,8 @@
 
 using namespace mcld;
 
-typedef HashEntry<std::string,
-                  void*,
-                  hash::StringCompare<std::string> > ParserStrEntry;
+typedef HashEntry<std::string, void*, hash::StringCompare<std::string> >
+    ParserStrEntry;
 typedef HashTable<ParserStrEntry,
                   hash::StringHash<hash::DJB>,
                   EntryFactory<ParserStrEntry> > ParserStrPool;
@@ -59,14 +58,12 @@ ScriptFile::ScriptFile(Kind pKind, Input& pInput, InputBuilder& pBuilder)
       m_bInOutputSectDesc(false),
       m_pRpnExpr(NULL),
       m_pStringList(NULL),
-      m_bAsNeeded(false)
-{
+      m_bAsNeeded(false) {
   // FIXME: move creation of input tree out of ScriptFile.
   m_pInputTree = new InputTree();
 }
 
-ScriptFile::~ScriptFile()
-{
+ScriptFile::~ScriptFile() {
   for (iterator it = begin(), ie = end(); it != ie; ++it) {
     if (*it != NULL)
       delete *it;
@@ -75,20 +72,17 @@ ScriptFile::~ScriptFile()
     delete m_pInputTree;
 }
 
-void ScriptFile::dump() const
-{
+void ScriptFile::dump() const {
   for (const_iterator it = begin(), ie = end(); it != ie; ++it)
     (*it)->dump();
 }
 
-void ScriptFile::activate(Module& pModule)
-{
+void ScriptFile::activate(Module& pModule) {
   for (const_iterator it = begin(), ie = end(); it != ie; ++it)
     (*it)->activate(pModule);
 }
 
-void ScriptFile::addEntryPoint(const std::string& pSymbol)
-{
+void ScriptFile::addEntryPoint(const std::string& pSymbol) {
   EntryCmd* entry = new EntryCmd(pSymbol);
 
   if (m_bInSectionsCmd) {
@@ -100,15 +94,13 @@ void ScriptFile::addEntryPoint(const std::string& pSymbol)
   }
 }
 
-void ScriptFile::addOutputFormatCmd(const std::string& pName)
-{
+void ScriptFile::addOutputFormatCmd(const std::string& pName) {
   m_CommandQueue.push_back(new OutputFormatCmd(pName));
 }
 
 void ScriptFile::addOutputFormatCmd(const std::string& pDefault,
                                     const std::string& pBig,
-                                    const std::string& pLittle)
-{
+                                    const std::string& pLittle) {
   m_CommandQueue.push_back(new OutputFormatCmd(pDefault, pBig, pLittle));
 }
 
@@ -117,46 +109,41 @@ void ScriptFile::addInputCmd(StringList& pStringList,
                              ArchiveReader& pArchiveReader,
                              DynObjReader& pDynObjReader,
                              const LinkerConfig& pConfig) {
-  m_CommandQueue.push_back(new InputCmd(pStringList, *m_pInputTree, m_Builder,
-                                        pObjectReader, pArchiveReader,
-                                        pDynObjReader, pConfig));
+  m_CommandQueue.push_back(new InputCmd(pStringList,
+                                        *m_pInputTree,
+                                        m_Builder,
+                                        pObjectReader,
+                                        pArchiveReader,
+                                        pDynObjReader,
+                                        pConfig));
 }
 
 void ScriptFile::addGroupCmd(StringList& pStringList,
                              GroupReader& pGroupReader,
-                             const LinkerConfig& pConfig)
-{
-  m_CommandQueue.push_back(new GroupCmd(pStringList,
-                                        *m_pInputTree,
-                                        m_Builder,
-                                        pGroupReader,
-                                        pConfig));
+                             const LinkerConfig& pConfig) {
+  m_CommandQueue.push_back(new GroupCmd(
+      pStringList, *m_pInputTree, m_Builder, pGroupReader, pConfig));
 }
 
-void ScriptFile::addOutputCmd(const std::string& pFileName)
-{
+void ScriptFile::addOutputCmd(const std::string& pFileName) {
   m_CommandQueue.push_back(new OutputCmd(pFileName));
 }
 
-void ScriptFile::addSearchDirCmd(const std::string& pPath)
-{
+void ScriptFile::addSearchDirCmd(const std::string& pPath) {
   m_CommandQueue.push_back(new SearchDirCmd(pPath));
 }
 
-void ScriptFile::addOutputArchCmd(const std::string& pArch)
-{
+void ScriptFile::addOutputArchCmd(const std::string& pArch) {
   m_CommandQueue.push_back(new OutputArchCmd(pArch));
 }
 
-void ScriptFile::addAssertCmd(RpnExpr& pRpnExpr, const std::string& pMessage)
-{
+void ScriptFile::addAssertCmd(RpnExpr& pRpnExpr, const std::string& pMessage) {
   m_CommandQueue.push_back(new AssertCmd(pRpnExpr, pMessage));
 }
 
 void ScriptFile::addAssignment(const std::string& pSymbolName,
                                RpnExpr& pRpnExpr,
-                               Assignment::Type pType)
-{
+                               Assignment::Type pType) {
   if (m_bInSectionsCmd) {
     assert(!m_CommandQueue.empty());
     SectionsCmd* sections = llvm::cast<SectionsCmd>(back());
@@ -182,26 +169,22 @@ void ScriptFile::addAssignment(const std::string& pSymbolName,
   }
 }
 
-bool ScriptFile::hasSectionsCmd() const
-{
+bool ScriptFile::hasSectionsCmd() const {
   return m_bHasSectionsCmd;
 }
 
-void ScriptFile::enterSectionsCmd()
-{
+void ScriptFile::enterSectionsCmd() {
   m_bHasSectionsCmd = true;
   m_bInSectionsCmd = true;
   m_CommandQueue.push_back(new SectionsCmd());
 }
 
-void ScriptFile::leaveSectionsCmd()
-{
+void ScriptFile::leaveSectionsCmd() {
   m_bInSectionsCmd = false;
 }
 
 void ScriptFile::enterOutputSectDesc(const std::string& pName,
-                                     const OutputSectDesc::Prolog& pProlog)
-{
+                                     const OutputSectDesc::Prolog& pProlog) {
   assert(!m_CommandQueue.empty());
   assert(m_bInSectionsCmd);
   SectionsCmd* sections = llvm::cast<SectionsCmd>(back());
@@ -210,8 +193,7 @@ void ScriptFile::enterOutputSectDesc(const std::string& pName,
   m_bInOutputSectDesc = true;
 }
 
-void ScriptFile::leaveOutputSectDesc(const OutputSectDesc::Epilog& pEpilog)
-{
+void ScriptFile::leaveOutputSectDesc(const OutputSectDesc::Epilog& pEpilog) {
   assert(!m_CommandQueue.empty());
   assert(m_bInSectionsCmd);
   SectionsCmd* sections = llvm::cast<SectionsCmd>(back());
@@ -224,8 +206,7 @@ void ScriptFile::leaveOutputSectDesc(const OutputSectDesc::Epilog& pEpilog)
 }
 
 void ScriptFile::addInputSectDesc(InputSectDesc::KeepPolicy pPolicy,
-                                  const InputSectDesc::Spec& pSpec)
-{
+                                  const InputSectDesc::Spec& pSpec) {
   assert(!m_CommandQueue.empty());
   assert(m_bInSectionsCmd);
   SectionsCmd* sections = llvm::cast<SectionsCmd>(back());
@@ -236,33 +217,28 @@ void ScriptFile::addInputSectDesc(InputSectDesc::KeepPolicy pPolicy,
   output_sect->push_back(new InputSectDesc(pPolicy, pSpec, *output_sect));
 }
 
-RpnExpr* ScriptFile::createRpnExpr()
-{
+RpnExpr* ScriptFile::createRpnExpr() {
   m_pRpnExpr = RpnExpr::create();
   return m_pRpnExpr;
 }
 
-StringList* ScriptFile::createStringList()
-{
+StringList* ScriptFile::createStringList() {
   m_pStringList = StringList::create();
   return m_pStringList;
 }
 
-void ScriptFile::setAsNeeded(bool pEnable)
-{
+void ScriptFile::setAsNeeded(bool pEnable) {
   m_bAsNeeded = pEnable;
 }
 
 const std::string& ScriptFile::createParserStr(const char* pText,
-                                               size_t pLength)
-{
+                                               size_t pLength) {
   bool exist = false;
-  ParserStrEntry* entry = g_ParserStrPool->insert(std::string(pText, pLength),
-                                                  exist);
+  ParserStrEntry* entry =
+      g_ParserStrPool->insert(std::string(pText, pLength), exist);
   return entry->key();
 }
 
-void ScriptFile::clearParserStrPool()
-{
+void ScriptFile::clearParserStrPool() {
   g_ParserStrPool->clear();
 }

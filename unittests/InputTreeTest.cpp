@@ -21,26 +21,19 @@
 using namespace mcld;
 using namespace mcld::test;
 
-
 // Constructor can do set-up work for all test here.
-InputTreeTest::InputTreeTest()
-  : m_MemFactory(10), m_ContextFactory(4) {
-
+InputTreeTest::InputTreeTest() : m_MemFactory(10), m_ContextFactory(4) {
   // create testee. modify it if need
   m_pConfig = new mcld::LinkerConfig("arm-none-linux-gnueabi");
-  m_pAlloc  = new mcld::InputFactory(10, *m_pConfig);
-  m_pBuilder = new mcld::InputBuilder(*m_pConfig,
-                                      *m_pAlloc,
-                                      m_ContextFactory,
-                                      m_MemFactory,
-                                      false);
+  m_pAlloc = new mcld::InputFactory(10, *m_pConfig);
+  m_pBuilder = new mcld::InputBuilder(
+      *m_pConfig, *m_pAlloc, m_ContextFactory, m_MemFactory, false);
   m_pTestee = new mcld::InputTree();
   m_pBuilder->setCurrentTree(*m_pTestee);
 }
 
 // Destructor can do clean-up work that doesn't throw exceptions here.
-InputTreeTest::~InputTreeTest()
-{
+InputTreeTest::~InputTreeTest() {
   delete m_pTestee;
   delete m_pAlloc;
   delete m_pBuilder;
@@ -48,20 +41,17 @@ InputTreeTest::~InputTreeTest()
 }
 
 // SetUp() will be called immediately before each test.
-void InputTreeTest::SetUp()
-{
+void InputTreeTest::SetUp() {
 }
 
 // TearDown() will be called immediately after each test.
-void InputTreeTest::TearDown()
-{
+void InputTreeTest::TearDown() {
 }
 
 //===----------------------------------------------------------------------===//
 // Testcases
 //
-TEST_F( InputTreeTest, Basic_operation ) {
-
+TEST_F(InputTreeTest, Basic_operation) {
   std::vector<InputAction*> actions;
 
   size_t position = 0;
@@ -96,22 +86,20 @@ TEST_F( InputTreeTest, Basic_operation ) {
   ASSERT_FALSE(isGroup(node));
   ASSERT_FALSE(isGroup(const_node2));
   ASSERT_FALSE(m_pAlloc->empty());
-  ASSERT_FALSE(m_pAlloc->size()==0);
+  ASSERT_FALSE(m_pAlloc->size() == 0);
 
-  ASSERT_TRUE(m_pTestee->size()==3);
+  ASSERT_TRUE(m_pTestee->size() == 3);
 }
 
-TEST_F( InputTreeTest, forLoop_TEST ) {
+TEST_F(InputTreeTest, forLoop_TEST) {
   InputTree::iterator node = m_pTestee->root();
-
 
   Input* input = m_pAlloc->produce("FileSpec", "path1");
   m_pTestee->insert<InputTree::Inclusive>(node, *input);
   InputTree::const_iterator const_node = node;
   --node;
 
-  for(int i=0 ; i<100 ; ++i)
-  {
+  for (int i = 0; i < 100; ++i) {
     Input* input = m_pAlloc->produce("FileSpec", "path1");
     m_pTestee->insert<InputTree::Inclusive>(node, *input);
     ++node;
@@ -123,16 +111,15 @@ TEST_F( InputTreeTest, forLoop_TEST ) {
   ASSERT_FALSE(node.isRoot());
   ASSERT_TRUE(isGroup(node));
   ASSERT_FALSE(m_pAlloc->empty());
-  ASSERT_FALSE(m_pAlloc->size()==100);
+  ASSERT_FALSE(m_pAlloc->size() == 100);
 
-  ASSERT_TRUE(m_pTestee->size()==102);
+  ASSERT_TRUE(m_pTestee->size() == 102);
 }
 
-TEST_F( InputTreeTest, Nesting_Case ) {
+TEST_F(InputTreeTest, Nesting_Case) {
   InputTree::iterator node = m_pTestee->root();
 
-  for(int i=0 ; i<50 ; ++i)
-  {
+  for (int i = 0; i < 50; ++i) {
     m_pTestee->enterGroup(node, InputTree::Downward);
     --node;
 
@@ -144,13 +131,11 @@ TEST_F( InputTreeTest, Nesting_Case ) {
   ASSERT_FALSE(node.isRoot());
   ASSERT_FALSE(isGroup(node));
   ASSERT_FALSE(m_pAlloc->empty());
-  ASSERT_TRUE(m_pAlloc->size()==50);
-  ASSERT_TRUE(m_pTestee->size()==100);
+  ASSERT_TRUE(m_pAlloc->size() == 50);
+  ASSERT_TRUE(m_pTestee->size() == 100);
 }
 
-TEST_F( InputTreeTest, DFSIterator_BasicTraversal)
-{
-
+TEST_F(InputTreeTest, DFSIterator_BasicTraversal) {
   InputTree::iterator node = m_pTestee->root();
   Input* input = m_pAlloc->produce("111", "/");
   m_pTestee->insert<InputTree::Inclusive>(node, *input);
@@ -176,6 +161,5 @@ TEST_F( InputTreeTest, DFSIterator_BasicTraversal)
   ++dfs_it;
   ASSERT_STREQ("10", (**dfs_it).name().c_str());
   ++dfs_it;
-  ASSERT_TRUE(dfs_it ==  dfs_end);
+  ASSERT_TRUE(dfs_it == dfs_end);
 }
-

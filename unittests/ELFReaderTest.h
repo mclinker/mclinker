@@ -19,15 +19,14 @@
 #include <mcld/MC/InputBuilder.h>
 
 namespace mcld {
-  template<> class ELFReader<64, true>;
-} // namespace for mcld
+template <>
+class ELFReader<64, true>;
+}  // namespace for mcld
 
-namespace mcldtest
-{
+namespace mcldtest {
 
-class ELFReaderTest : public ::testing::Test
-{
-public:
+class ELFReaderTest : public ::testing::Test {
+ public:
   // Constructor can do set-up work for all test here.
   ELFReaderTest();
 
@@ -40,7 +39,7 @@ public:
   // TearDown() will be called immediately after each test.
   virtual void TearDown();
 
-protected:
+ protected:
   mcld::Input* m_pInput;
   mcld::LinkerConfig* m_pConfig;
   mcld::LinkerScript* m_pScript;
@@ -52,7 +51,6 @@ protected:
   mcld::ELFObjectReader* m_pELFObjReader;
 };
 
-} // namespace of mcldtest
+}  // namespace of mcldtest
 
 #endif
-

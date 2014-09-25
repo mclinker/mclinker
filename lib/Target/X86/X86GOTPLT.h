@@ -23,10 +23,9 @@ const unsigned int X86GOTPLT0Num = 3;
 /** \class X86_32GOTPLT
  *  \brief X86_32 .got.plt section.
  */
-class X86_32GOTPLT : public X86_32GOT
-{
-public:
-  X86_32GOTPLT(LDSection &pSection);
+class X86_32GOTPLT : public X86_32GOT {
+ public:
+  explicit X86_32GOTPLT(LDSection& pSection);
 
   ~X86_32GOTPLT();
 
@@ -41,10 +40,9 @@ public:
 /** \class X86_64GOTPLT
  *  \brief X86_64 .got.plt section.
  */
-class X86_64GOTPLT : public X86_64GOT
-{
-public:
-  X86_64GOTPLT(LDSection &pSection);
+class X86_64GOTPLT : public X86_64GOT {
+ public:
+  explicit X86_64GOTPLT(LDSection& pSection);
 
   ~X86_64GOTPLT();
 
@@ -56,6 +54,6 @@ public:
   void applyAllGOTPLT(const X86PLT& pPLT);
 };
 
-} // namespace mcld
+}  // namespace mcld
 
 #endif  // TARGET_X86_X86GOTPLT_H_

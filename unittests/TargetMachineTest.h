@@ -11,31 +11,28 @@
 #include "mcld/Target/TargetMachine.h"
 #include <gtest.h>
 
-namespace mcldTEST
-{
+namespace mcldTEST {
 
 /** \class TargetMachineTest
  *  \brief
  *
  *  \see TargetMachine
  */
-class TargetMachineTest : public ::testing::Test
-{
-public:
-	// Constructor can do set-up work for all test here.
-	TargetMachineTest();
+class TargetMachineTest : public ::testing::Test {
+ public:
+  // Constructor can do set-up work for all test here.
+  TargetMachineTest();
 
-	// Destructor can do clean-up work that doesn't throw exceptions here.
-	virtual ~TargetMachineTest();
+  // Destructor can do clean-up work that doesn't throw exceptions here.
+  virtual ~TargetMachineTest();
 
-	// SetUp() will be called immediately before each test.
-	virtual void SetUp();
+  // SetUp() will be called immediately before each test.
+  virtual void SetUp();
 
-	// TearDown() will be called immediately after each test.
-	virtual void TearDown();
+  // TearDown() will be called immediately after each test.
+  virtual void TearDown();
 };
 
-} // namespace of BOLDTEST
+}  // namespace of BOLDTEST
 
 #endif
-

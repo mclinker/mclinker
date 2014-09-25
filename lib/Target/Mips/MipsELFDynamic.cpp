@@ -20,14 +20,10 @@ using namespace mcld;
 
 MipsELFDynamic::MipsELFDynamic(const MipsGNULDBackend& pParent,
                                const LinkerConfig& pConfig)
-    : ELFDynamic(pParent, pConfig),
-      m_pParent(pParent),
-      m_pConfig(pConfig)
-{
+    : ELFDynamic(pParent, pConfig), m_pParent(pParent), m_pConfig(pConfig) {
 }
 
-void MipsELFDynamic::reserveTargetEntries(const ELFFileFormat& pFormat)
-{
+void MipsELFDynamic::reserveTargetEntries(const ELFFileFormat& pFormat) {
   if (pFormat.hasGOT())
     reserveOne(llvm::ELF::DT_PLTGOT);
 
@@ -42,8 +38,7 @@ void MipsELFDynamic::reserveTargetEntries(const ELFFileFormat& pFormat)
     reserveOne(llvm::ELF::DT_MIPS_PLTGOT);
 }
 
-void MipsELFDynamic::applyTargetEntries(const ELFFileFormat& pFormat)
-{
+void MipsELFDynamic::applyTargetEntries(const ELFFileFormat& pFormat) {
   if (pFormat.hasGOT())
     applyOne(llvm::ELF::DT_PLTGOT, pFormat.getGOT().addr());
 
@@ -58,8 +53,7 @@ void MipsELFDynamic::applyTargetEntries(const ELFFileFormat& pFormat)
     applyOne(llvm::ELF::DT_MIPS_PLTGOT, pFormat.getGOTPLT().addr());
 }
 
-size_t MipsELFDynamic::getSymTabNum(const ELFFileFormat& pFormat) const
-{
+size_t MipsELFDynamic::getSymTabNum(const ELFFileFormat& pFormat) const {
   if (!pFormat.hasDynSymTab())
     return 0;
 
@@ -67,24 +61,21 @@ size_t MipsELFDynamic::getSymTabNum(const ELFFileFormat& pFormat) const
   return dynsym.size() / symbolSize();
 }
 
-size_t MipsELFDynamic::getGotSym(const ELFFileFormat& pFormat) const
-{
+size_t MipsELFDynamic::getGotSym(const ELFFileFormat& pFormat) const {
   if (!pFormat.hasGOT())
     return 0;
 
   return getSymTabNum(pFormat) - m_pParent.getGOT().getGlobalNum();
 }
 
-size_t MipsELFDynamic::getLocalGotNum(const ELFFileFormat& pFormat) const
-{
+size_t MipsELFDynamic::getLocalGotNum(const ELFFileFormat& pFormat) const {
   if (!pFormat.hasGOT())
     return 0;
 
   return m_pParent.getGOT().getLocalNum();
 }
 
-uint64_t MipsELFDynamic::getBaseAddress()
-{
+uint64_t MipsELFDynamic::getBaseAddress() {
   if (LinkerConfig::Exec != m_pConfig.codeGenType())
     return 0;
 

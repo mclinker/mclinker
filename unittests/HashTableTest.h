@@ -12,31 +12,28 @@
 
 #include <gtest.h>
 
-namespace mcldtest
-{
+namespace mcldtest {
 
 /** \class HashTableTest
  *  \brief Testcase for HashTable
  *
  *  \see HashTable
  */
-class HashTableTest : public ::testing::Test
-{
-public:
-	// Constructor can do set-up work for all test here.
-	HashTableTest();
+class HashTableTest : public ::testing::Test {
+ public:
+  // Constructor can do set-up work for all test here.
+  HashTableTest();
 
-	// Destructor can do clean-up work that doesn't throw exceptions here.
-	virtual ~HashTableTest();
+  // Destructor can do clean-up work that doesn't throw exceptions here.
+  virtual ~HashTableTest();
 
-	// SetUp() will be called immediately before each test.
-	virtual void SetUp();
+  // SetUp() will be called immediately before each test.
+  virtual void SetUp();
 
-	// TearDown() will be called immediately after each test.
-	virtual void TearDown();
+  // TearDown() will be called immediately after each test.
+  virtual void TearDown();
 };
 
-} // namespace of mcldtest
+}  // namespace of mcldtest
 
 #endif
-

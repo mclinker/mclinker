@@ -39,15 +39,13 @@ Linker::Linker()
       m_pObjLinker(NULL) {
 }
 
-Linker::~Linker()
-{
+Linker::~Linker() {
   reset();
 }
 
 /// emulate - To set up target-dependent options and default linker script.
 /// Follow GNU ld quirks.
-bool Linker::emulate(LinkerScript& pScript, LinkerConfig& pConfig)
-{
+bool Linker::emulate(LinkerScript& pScript, LinkerConfig& pConfig) {
   m_pConfig = &pConfig;
 
   if (!initTarget())
@@ -65,8 +63,7 @@ bool Linker::emulate(LinkerScript& pScript, LinkerConfig& pConfig)
   return true;
 }
 
-bool Linker::link(Module& pModule, IRBuilder& pBuilder)
-{
+bool Linker::link(Module& pModule, IRBuilder& pBuilder) {
   if (!normalize(pModule, pBuilder))
     return false;
 
@@ -77,8 +74,7 @@ bool Linker::link(Module& pModule, IRBuilder& pBuilder)
 }
 
 /// normalize - to convert the command line language to the input tree.
-bool Linker::normalize(Module& pModule, IRBuilder& pBuilder)
-{
+bool Linker::normalize(Module& pModule, IRBuilder& pBuilder) {
   assert(m_pConfig != NULL);
 
   m_pIRBuilder = &pBuilder;
@@ -110,33 +106,31 @@ bool Linker::normalize(Module& pModule, IRBuilder& pBuilder)
   if (m_pConfig->options().trace()) {
     static int counter = 0;
     mcld::outs() << "** name\ttype\tpath\tsize ("
-                 << pModule.getInputTree().size()
-                 << ")\n";
+                 << pModule.getInputTree().size() << ")\n";
 
     InputTree::const_dfs_iterator input,
-                                  inEnd = pModule.getInputTree().dfs_end();
-    for (input=pModule.getInputTree().dfs_begin(); input!=inEnd; ++input) {
+        inEnd = pModule.getInputTree().dfs_end();
+    for (input = pModule.getInputTree().dfs_begin(); input != inEnd; ++input) {
       mcld::outs() << counter++ << " *  " << (*input)->name();
-      switch((*input)->type()) {
-      case Input::Archive:
-        mcld::outs() << "\tarchive\t(";
-        break;
-      case Input::Object:
-        mcld::outs() << "\tobject\t(";
-        break;
-      case Input::DynObj:
-        mcld::outs() << "\tshared\t(";
-        break;
-      case Input::Script:
-        mcld::outs() << "\tscript\t(";
-        break;
-      case Input::External:
-        mcld::outs() << "\textern\t(";
-        break;
-      default:
-        unreachable(diag::err_cannot_trace_file) << (*input)->type()
-                                                 << (*input)->name()
-                                                 << (*input)->path();
+      switch ((*input)->type()) {
+        case Input::Archive:
+          mcld::outs() << "\tarchive\t(";
+          break;
+        case Input::Object:
+          mcld::outs() << "\tobject\t(";
+          break;
+        case Input::DynObj:
+          mcld::outs() << "\tshared\t(";
+          break;
+        case Input::Script:
+          mcld::outs() << "\tscript\t(";
+          break;
+        case Input::External:
+          mcld::outs() << "\textern\t(";
+          break;
+        default:
+          unreachable(diag::err_cannot_trace_file)
+              << (*input)->type() << (*input)->name() << (*input)->path();
       }
       mcld::outs() << (*input)->path() << ")\n";
     }
@@ -153,7 +147,8 @@ bool Linker::normalize(Module& pModule, IRBuilder& pBuilder)
     m_pConfig->setCodePosition(LinkerConfig::StaticDependent);
 
     if (LinkerConfig::Exec == m_pConfig->codeGenType()) {
-      // Since the output is static dependent, there should not have any undefined
+      // Since the output is static dependent, there should not have any
+      // undefined
       // references in the output module.
       m_pConfig->options().setNoUndefined();
     }
@@ -167,8 +162,7 @@ bool Linker::normalize(Module& pModule, IRBuilder& pBuilder)
   return true;
 }
 
-bool Linker::resolve(Module& pModule)
-{
+bool Linker::resolve(Module& pModule) {
   assert(m_pConfig != NULL);
   assert(m_pObjLinker != NULL);
 
@@ -179,7 +173,6 @@ bool Linker::resolve(Module& pModule)
   //
   //   To collect all edges in the reference graph.
   m_pObjLinker->readRelocations();
-
 
   // 7. - data stripping optimizations
   m_pObjLinker->dataStrippingOpt();
@@ -206,14 +199,12 @@ bool Linker::resolve(Module& pModule)
   return true;
 }
 
-bool Linker::layout()
-{
+bool Linker::layout() {
   assert(m_pConfig != NULL && m_pObjLinker != NULL);
 
   // 10. - add standard symbols, target-dependent symbols and script symbols
   if (!m_pObjLinker->addStandardSymbols() ||
-      !m_pObjLinker->addTargetSymbols() ||
-      !m_pObjLinker->addScriptSymbols())
+      !m_pObjLinker->addTargetSymbols() || !m_pObjLinker->addScriptSymbols())
     return false;
 
   // 11. - scan all relocation entries by output symbols.
@@ -248,8 +239,7 @@ bool Linker::layout()
   return true;
 }
 
-bool Linker::emit(FileOutputBuffer& pOutput)
-{
+bool Linker::emit(FileOutputBuffer& pOutput) {
   // 15. - write out output
   m_pObjLinker->emitOutput(pOutput);
 
@@ -262,8 +252,7 @@ bool Linker::emit(FileOutputBuffer& pOutput)
   return true;
 }
 
-bool Linker::emit(const Module& pModule, const std::string& pPath)
-{
+bool Linker::emit(const Module& pModule, const std::string& pPath) {
   FileHandle file;
   FileHandle::Permission perm;
   switch (m_pConfig->codeGenType()) {
@@ -276,11 +265,12 @@ bool Linker::emit(const Module& pModule, const std::string& pPath)
     case mcld::LinkerConfig::Binary:
       perm = mcld::FileHandle::Permission(0x755);
       break;
-    default: assert(0 && "Unknown file type");
+    default:
+      assert(0 && "Unknown file type");
   }
 
   bool result = file.open(
-      pPath,
+      sys::fs::Path(pPath),
       FileHandle::ReadWrite | FileHandle::Truncate | FileHandle::Create,
       perm);
   if (!result) {
@@ -289,30 +279,26 @@ bool Linker::emit(const Module& pModule, const std::string& pPath)
   }
 
   std::unique_ptr<FileOutputBuffer> output;
-  FileOutputBuffer::create(file,
-                           m_pObjLinker->getWriter()->getOutputSize(pModule),
-                           output);
+  FileOutputBuffer::create(
+      file, m_pObjLinker->getWriter()->getOutputSize(pModule), output);
 
   result = emit(*output.get());
   file.close();
   return result;
 }
 
-bool Linker::emit(const Module& pModule, int pFileDescriptor)
-{
+bool Linker::emit(const Module& pModule, int pFileDescriptor) {
   FileHandle file;
   file.delegate(pFileDescriptor);
 
   std::unique_ptr<FileOutputBuffer> output;
-  FileOutputBuffer::create(file,
-                           m_pObjLinker->getWriter()->getOutputSize(pModule),
-                           output);
+  FileOutputBuffer::create(
+      file, m_pObjLinker->getWriter()->getOutputSize(pModule), output);
 
   return emit(*output.get());
 }
 
-bool Linker::reset()
-{
+bool Linker::reset() {
   m_pConfig = NULL;
   m_pIRBuilder = NULL;
   m_pTarget = NULL;
@@ -336,16 +322,14 @@ bool Linker::reset()
   return true;
 }
 
-bool Linker::initTarget()
-{
+bool Linker::initTarget() {
   assert(m_pConfig != NULL);
 
   std::string error;
   llvm::Triple triple(m_pConfig->targets().triple());
 
-  m_pTarget = mcld::TargetRegistry::lookupTarget(m_pConfig->targets().getArch(),
-                                                 triple,
-                                                 error);
+  m_pTarget = mcld::TargetRegistry::lookupTarget(
+      m_pConfig->targets().getArch(), triple, error);
   m_pConfig->targets().setTriple(triple);
 
   if (m_pTarget == NULL) {
@@ -355,8 +339,7 @@ bool Linker::initTarget()
   return true;
 }
 
-bool Linker::initBackend()
-{
+bool Linker::initBackend() {
   assert(m_pTarget != NULL);
   m_pBackend = m_pTarget->createLDBackend(*m_pConfig);
   if (m_pBackend == NULL) {
@@ -367,8 +350,7 @@ bool Linker::initBackend()
   return true;
 }
 
-bool Linker::initOStream()
-{
+bool Linker::initOStream() {
   assert(m_pConfig != NULL);
 
   mcld::outs().setColor(m_pConfig->options().color());
@@ -377,8 +359,7 @@ bool Linker::initOStream()
   return true;
 }
 
-bool Linker::initEmulator(LinkerScript& pScript)
-{
+bool Linker::initEmulator(LinkerScript& pScript) {
   assert(m_pTarget != NULL && m_pConfig != NULL);
   return m_pTarget->emulate(pScript, *m_pConfig);
 }

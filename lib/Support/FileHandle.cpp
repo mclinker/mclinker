@@ -13,10 +13,10 @@
 #include <errno.h>
 
 #if defined(HAVE_UNISTD_H)
-# include <unistd.h>
+#include <unistd.h>
 #endif
 #if defined(HAVE_FCNTL_H)
-# include <fcntl.h>
+#include <fcntl.h>
 #endif
 
 #include <sys/stat.h>
@@ -34,14 +34,12 @@ FileHandle::FileHandle()
       m_OpenMode(NotOpen) {
 }
 
-FileHandle::~FileHandle()
-{
+FileHandle::~FileHandle() {
   if (isOpened())
     close();
 }
 
-inline static int oflag(FileHandle::OpenMode pMode)
-{
+inline static int oflag(FileHandle::OpenMode pMode) {
   int result = 0x0;
   if (FileHandle::Unknown == pMode)
     return result;
@@ -65,8 +63,7 @@ inline static int oflag(FileHandle::OpenMode pMode)
   return result;
 }
 
-inline static bool get_size(int pHandler, unsigned int &pSize)
-{
+inline static bool get_size(int pHandler, unsigned int& pSize) {
   struct ::stat file_stat;
   if (-1 == ::fstat(pHandler, &file_stat)) {
     pSize = 0;
@@ -78,8 +75,7 @@ inline static bool get_size(int pHandler, unsigned int &pSize)
 
 bool FileHandle::open(const sys::fs::Path& pPath,
                       FileHandle::OpenMode pMode,
-                      FileHandle::Permission pPerm)
-{
+                      FileHandle::Permission pPerm) {
   if (isOpened() || Unknown == pMode) {
     setState(BadBit);
     return false;
@@ -106,8 +102,7 @@ bool FileHandle::open(const sys::fs::Path& pPath,
   return true;
 }
 
-bool FileHandle::delegate(int pFD, FileHandle::OpenMode pMode)
-{
+bool FileHandle::delegate(int pFD, FileHandle::OpenMode pMode) {
   if (isOpened()) {
     setState(BadBit);
     return false;
@@ -125,8 +120,7 @@ bool FileHandle::delegate(int pFD, FileHandle::OpenMode pMode)
   return true;
 }
 
-bool FileHandle::close()
-{
+bool FileHandle::close() {
   if (!isOpened()) {
     setState(BadBit);
     return false;
@@ -146,8 +140,7 @@ bool FileHandle::close()
   return true;
 }
 
-bool FileHandle::truncate(size_t pSize)
-{
+bool FileHandle::truncate(size_t pSize) {
   if (!isOpened() || !isWritable()) {
     setState(BadBit);
     return false;
@@ -162,8 +155,7 @@ bool FileHandle::truncate(size_t pSize)
   return true;
 }
 
-bool FileHandle::read(void* pMemBuffer, size_t pStartOffset, size_t pLength)
-{
+bool FileHandle::read(void* pMemBuffer, size_t pStartOffset, size_t pLength) {
   if (!isOpened() || !isReadable()) {
     setState(BadBit);
     return false;
@@ -172,10 +164,8 @@ bool FileHandle::read(void* pMemBuffer, size_t pStartOffset, size_t pLength)
   if (pLength == 0)
     return true;
 
-  ssize_t read_bytes = sys::fs::detail::pread(m_Handler,
-                                              pMemBuffer,
-                                              pLength,
-                                              pStartOffset);
+  ssize_t read_bytes =
+      sys::fs::detail::pread(m_Handler, pMemBuffer, pLength, pStartOffset);
 
   if (read_bytes == -1) {
     setState(FailBit);
@@ -185,8 +175,9 @@ bool FileHandle::read(void* pMemBuffer, size_t pStartOffset, size_t pLength)
   return true;
 }
 
-bool FileHandle::write(const void* pMemBuffer, size_t pStartOffset, size_t pLength)
-{
+bool FileHandle::write(const void* pMemBuffer,
+                       size_t pStartOffset,
+                       size_t pLength) {
   if (!isOpened() || !isWritable()) {
     setState(BadBit);
     return false;
@@ -195,11 +186,8 @@ bool FileHandle::write(const void* pMemBuffer, size_t pStartOffset, size_t pLeng
   if (pLength == 0)
     return true;
 
-
-  ssize_t write_bytes = sys::fs::detail::pwrite(m_Handler,
-                                                pMemBuffer,
-                                                pLength,
-                                                pStartOffset);
+  ssize_t write_bytes =
+      sys::fs::detail::pwrite(m_Handler, pMemBuffer, pLength, pStartOffset);
 
   if (write_bytes == -1) {
     setState(FailBit);
@@ -209,18 +197,15 @@ bool FileHandle::write(const void* pMemBuffer, size_t pStartOffset, size_t pLeng
   return true;
 }
 
-void FileHandle::setState(FileHandle::IOState pState)
-{
+void FileHandle::setState(FileHandle::IOState pState) {
   m_State |= pState;
 }
 
-void FileHandle::cleanState(FileHandle::IOState pState)
-{
+void FileHandle::cleanState(FileHandle::IOState pState) {
   m_State = pState;
 }
 
-bool FileHandle::isOpened() const
-{
+bool FileHandle::isOpened() const {
   if (m_Handler != -1 && m_OpenMode != NotOpen && isGood())
     return true;
 
@@ -228,39 +213,32 @@ bool FileHandle::isOpened() const
 }
 
 // Assume Unknown OpenMode is readable
-bool FileHandle::isReadable() const
-{
+bool FileHandle::isReadable() const {
   return (m_OpenMode & ReadOnly);
 }
 
 // Assume Unknown OpenMode is writable
-bool FileHandle::isWritable() const
-{
+bool FileHandle::isWritable() const {
   return (m_OpenMode & WriteOnly);
 }
 
 // Assume Unknown OpenMode is both readable and writable
-bool FileHandle::isReadWrite() const
-{
+bool FileHandle::isReadWrite() const {
   return (FileHandle::ReadWrite == (m_OpenMode & FileHandle::ReadWrite));
 }
 
-bool FileHandle::isGood() const
-{
+bool FileHandle::isGood() const {
   return !(m_State & (BadBit | FailBit));
 }
 
-bool FileHandle::isBad() const
-{
+bool FileHandle::isBad() const {
   return (m_State & BadBit);
 }
 
-bool FileHandle::isFailed() const
-{
+bool FileHandle::isFailed() const {
   return (m_State & (BadBit | FailBit));
 }
 
-bool FileHandle::isOwned() const
-{
+bool FileHandle::isOwned() const {
   return !(m_State & DeputedBit);
 }

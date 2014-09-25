@@ -14,17 +14,15 @@
 #include <mcld/LD/DiagnosticPrinter.h>
 #include <gtest.h>
 
-namespace mcldtest
-{
+namespace mcldtest {
 
 /** \class UniqueGCFactoryBaseTest
  *  - check the unique of key.
  *  - make sure the key associates with the same storage of value.
  *  - check if all functions in the GCFactoryBase are available.
  */
-class UniqueGCFactoryBaseTest : public ::testing::Test
-{
-public:
+class UniqueGCFactoryBaseTest : public ::testing::Test {
+ public:
   // Constructor can do set-up work for all test here.
   UniqueGCFactoryBaseTest();
 
@@ -37,11 +35,10 @@ public:
   // TearDown() will be called immediately after each test.
   virtual void TearDown();
 
-private:
+ private:
   mcld::LinkerConfig* m_pConfig;
 };
 
-} // namespace of mcldtest
+}  // namespace of mcldtest
 
 #endif
-

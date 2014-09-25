@@ -18,21 +18,16 @@ using namespace mcld;
 // SearchDirCmd
 //===----------------------------------------------------------------------===//
 SearchDirCmd::SearchDirCmd(const std::string& pPath)
-    : ScriptCommand(ScriptCommand::SEARCH_DIR),
-      m_Path(pPath)
-{
+    : ScriptCommand(ScriptCommand::SEARCH_DIR), m_Path(pPath) {
 }
 
-SearchDirCmd::~SearchDirCmd()
-{
+SearchDirCmd::~SearchDirCmd() {
 }
 
-void SearchDirCmd::dump() const
-{
+void SearchDirCmd::dump() const {
   mcld::outs() << "SEARCH_DIR ( " << m_Path << " )\n";
 }
 
-void SearchDirCmd::activate(Module& pModule)
-{
+void SearchDirCmd::activate(Module& pModule) {
   pModule.getScript().directories().insert(m_Path);
 }

@@ -1,4 +1,4 @@
-//===- FragmentTest.cpp -------------------------------------------------------===//
+//===- FragmentTest.cpp ---------------------------------------------------===//
 //
 //                     The MCLinker Project
 //
@@ -15,31 +15,26 @@
 using namespace mcld;
 using namespace mcldtest;
 
-
 // Constructor can do set-up work for all test here.
-FragmentTest::FragmentTest()
-{
+FragmentTest::FragmentTest() {
 }
 
 // Destructor can do clean-up work that doesn't throw exceptions here.
-FragmentTest::~FragmentTest()
-{
+FragmentTest::~FragmentTest() {
 }
 
 // SetUp() will be called immediately before each test.
-void FragmentTest::SetUp()
-{
+void FragmentTest::SetUp() {
 }
 
 // TearDown() will be called immediately after each test.
-void FragmentTest::TearDown()
-{
+void FragmentTest::TearDown() {
 }
 
 //===----------------------------------------------------------------------===//
 // Testcases
 
-TEST_F( FragmentTest, Fragment_constructor ) {
+TEST_F(FragmentTest, Fragment_constructor) {
   LDSection* test = LDSection::Create("test", LDFileFormat::Null, 0, 0);
   SectionData* s = SectionData::Create(*test);
   new Fragment(Fragment::Alignment, s);
@@ -51,10 +46,10 @@ TEST_F( FragmentTest, Fragment_constructor ) {
   EXPECT_TRUE(5 == s->size());
 
   LDSection::Destroy(test);
-//  SectionData::Destroy(s);
+  //  SectionData::Destroy(s);
 }
 
-TEST_F( FragmentTest, Fragment_trivial_function ) {
+TEST_F(FragmentTest, Fragment_trivial_function) {
   LDSection* test = LDSection::Create("test", LDFileFormat::Null, 0, 0);
   SectionData* s = SectionData::Create(*test);
   Fragment* f = new Fragment(Fragment::Alignment, s);
@@ -64,11 +59,9 @@ TEST_F( FragmentTest, Fragment_trivial_function ) {
   f->setOffset(5566);
   EXPECT_TRUE(5566 == f->getOffset());
 
-  //always return true
-  EXPECT_TRUE(f->classof(new Fragment(Fragment::Region, s)) );
+  // always return true
+  EXPECT_TRUE(f->classof(new Fragment(Fragment::Region, s)));
 
   LDSection::Destroy(test);
-//  SectionData::Destroy(s);
+  //  SectionData::Destroy(s);
 }
-
-

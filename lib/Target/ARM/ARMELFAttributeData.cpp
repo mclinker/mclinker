@@ -16,9 +16,8 @@
 
 using namespace mcld;
 
-const ELFAttributeValue*
-ARMELFAttributeData::getAttributeValue(TagType pTag) const
-{
+const ELFAttributeValue* ARMELFAttributeData::getAttributeValue(
+    TagType pTag) const {
   if (pTag <= Tag_Max) {
     const ELFAttributeValue& attr_value = m_Attrs[pTag];
 
@@ -40,9 +39,8 @@ ARMELFAttributeData::getAttributeValue(TagType pTag) const
 }
 
 std::pair<ELFAttributeValue*, bool>
-ARMELFAttributeData::getOrCreateAttributeValue(TagType pTag)
-{
-  ELFAttributeValue *attr_value = NULL;
+ARMELFAttributeData::getOrCreateAttributeValue(TagType pTag) {
+  ELFAttributeValue* attr_value = NULL;
 
   if (pTag <= Tag_Max) {
     attr_value = &m_Attrs[pTag];
@@ -62,8 +60,7 @@ ARMELFAttributeData::getOrCreateAttributeValue(TagType pTag)
   }
 }
 
-unsigned int ARMELFAttributeData::GetAttributeValueType(TagType pTag)
-{
+unsigned int ARMELFAttributeData::GetAttributeValueType(TagType pTag) {
   // See ARM [ABI-addenda], 2.2.6.
   switch (pTag) {
     case Tag_compatibility: {
@@ -80,8 +77,8 @@ unsigned int ARMELFAttributeData::GetAttributeValueType(TagType pTag)
       if (pTag < 32)
         return ELFAttributeValue::Int;
       else
-        return ((pTag & 1) ? ELFAttributeValue::String :
-                             ELFAttributeValue::Int);
+        return ((pTag & 1) ? ELFAttributeValue::String
+                           : ELFAttributeValue::Int);
     }
   }
   // unreachable
@@ -98,9 +95,8 @@ namespace {
  *
  * @ref ARM [ABI-addenda], 2.3.7.3
  */
-static int
-decode_secondary_compatibility_attribute(const ELFAttributeValue& pValue)
-{
+static int decode_secondary_compatibility_attribute(
+    const ELFAttributeValue& pValue) {
   // The encoding of Tag_also_compatible_with is:
   //
   // Tag_also_compatible_with (=65), NTSB: data
@@ -137,18 +133,18 @@ decode_secondary_compatibility_attribute(const ELFAttributeValue& pValue)
  * This helper array keeps the ordering of the values in attributes such as
  * Tag_ABI_align_needed which are sored as 1 > 2 > 0.
  */
-static const int value_ordering_120[] = { 0, 2, 1 };
+static const int value_ordering_120[] = {0, 2, 1};
 
-} // anonymous namespace
+}  // anonymous namespace
 
 //===--------------------------------------------------------------------===//
 // End Helper Functions for merge()
 //===--------------------------------------------------------------------===//
 
 bool ARMELFAttributeData::merge(const LinkerConfig& pConfig,
-                                const Input& pInput, TagType pTag,
-                                const ELFAttributeValue& pInAttr)
-{
+                                const Input& pInput,
+                                TagType pTag,
+                                const ELFAttributeValue& pInAttr) {
   // Pre-condition
   //  1. The out_attr must be initailized and has value of the same type as
   //     pInAttr.
@@ -214,7 +210,7 @@ bool ARMELFAttributeData::merge(const LinkerConfig& pConfig,
     case Tag_T2EE_use: {
       assert((out_attr.type() == ELFAttributeValue::Int) &&
              (pInAttr.type() == ELFAttributeValue::Int) &&
-              "should have integer parameeter!");
+             "should have integer parameeter!");
       if (pInAttr.getIntValue() > out_attr.getIntValue())
         out_attr.setIntValue(pInAttr.getIntValue());
       break;
@@ -225,7 +221,7 @@ bool ARMELFAttributeData::merge(const LinkerConfig& pConfig,
     case Tag_ABI_PCS_RO_data: {
       assert((out_attr.type() == ELFAttributeValue::Int) &&
              (pInAttr.type() == ELFAttributeValue::Int) &&
-              "should have integer parameeter!");
+             "should have integer parameeter!");
       if (pInAttr.getIntValue() < out_attr.getIntValue())
         out_attr.setIntValue(pInAttr.getIntValue());
       break;
@@ -323,8 +319,7 @@ bool ARMELFAttributeData::merge(const LinkerConfig& pConfig,
       else if (pInAttr.getIntValue() != Enum_Containerized_As_Possible &&
                pConfig.options().warnMismatch())
         warning(diag::warn_mismatch_enum_size)
-            << pInput.name() << pInAttr.getIntValue()
-            << out_attr.getIntValue();
+            << pInput.name() << pInAttr.getIntValue() << out_attr.getIntValue();
       break;
     }
     // Tag_ABI_FP_16bit_format
@@ -433,9 +428,9 @@ bool ARMELFAttributeData::merge(const LinkerConfig& pConfig,
           out_attr.setIntValue(pInAttr.getIntValue());
         else {
           if (pConfig.options().warnMismatch())
-            warning(diag::warn_mismatch_wchar_size)
-                << pInput.name() << pInAttr.getIntValue()
-                << out_attr.getIntValue();
+            warning(diag::warn_mismatch_wchar_size) << pInput.name()
+                                                    << pInAttr.getIntValue()
+                                                    << out_attr.getIntValue();
         }
       }
       break;
@@ -476,17 +471,13 @@ namespace {
  *
  * @ref ARM [ABI-addenda], 2.3.7.3
  */
-static void
-encode_secondary_compatibility_attribute(ELFAttributeValue& pValue, int pArch)
-{
+static void encode_secondary_compatibility_attribute(ELFAttributeValue& pValue,
+                                                     int pArch) {
   if ((pArch < 0) || (pArch > ARMELFAttributeData::CPU_Arch_Max)) {
     pValue.setStringValue("");
   } else {
     char new_value[] = {
-        ARMELFAttributeData::Tag_CPU_arch,
-        static_cast<char>(pArch),
-        0
-    };
+        ARMELFAttributeData::Tag_CPU_arch, static_cast<char>(pArch), 0};
     pValue.setStringValue(std::string(new_value, sizeof(new_value)));
   }
   return;
@@ -495,9 +486,7 @@ encode_secondary_compatibility_attribute(ELFAttributeValue& pValue, int pArch)
 /*
  * Combine the main and secondary CPU arch value
  */
-static int
-calculate_cpu_arch(int cpu_arch, int secondary_arch)
-{
+static int calculate_cpu_arch(int cpu_arch, int secondary_arch) {
   // short-circuit
   if ((secondary_arch < 0) ||
       ((cpu_arch + secondary_arch) != (ARMELFAttributeData::CPU_Arch_ARM_V4T +
@@ -520,33 +509,101 @@ calculate_cpu_arch(int cpu_arch, int secondary_arch)
  * and Y. 0 in the table means unreachable and -1 means conflict architecture
  * profile.
  */
-#define CPU(C)  ARMELFAttributeData::CPU_Arch_ARM_ ## C
-static const int cpu_compatibility_table[][CPU(V4T_Plus_V6_M) + 1] =
-{
-  /* old\new          ARM v6T2    ARM v6K   ARM v7   ARM v6-M   ARM v6S-M   ARM v7E-M    ARMv8, ARM v4t + v6-M     */
-  /* Pre v4     */ { CPU(V6T2),  CPU(V6K), CPU(V7),        -1,         -1,         -1,      -1,       -1           },
-  /* ARM v4     */ { CPU(V6T2),  CPU(V6K), CPU(V7),        -1,         -1,         -1,      -1,       -1           },
-  /* ARM v4T    */ { CPU(V6T2),  CPU(V6K), CPU(V7),  CPU(V6K),   CPU(V6K), CPU(V7E_M), CPU(V8), CPU(V4T)           },
-  /* ARM v5T    */ { CPU(V6T2),  CPU(V6K), CPU(V7),  CPU(V6K),   CPU(V6K), CPU(V7E_M), CPU(V8), CPU(V5T)           },
-  /* ARM v5TE   */ { CPU(V6T2),  CPU(V6K), CPU(V7),  CPU(V6K),   CPU(V6K), CPU(V7E_M), CPU(V8), CPU(V5TE)          },
-  /* ARM v5TEJ  */ { CPU(V6T2),  CPU(V6K), CPU(V7),  CPU(V6K),   CPU(V6K), CPU(V7E_M), CPU(V8), CPU(V5TEJ)         },
-  /* ARM v6     */ { CPU(V6T2),  CPU(V6K), CPU(V7),  CPU(V6K),   CPU(V6K), CPU(V7E_M), CPU(V8), CPU(V6)            },
-  /* ARM v6KZ   */ {   CPU(V7), CPU(V6KZ), CPU(V7), CPU(V6KZ),  CPU(V6KZ), CPU(V7E_M), CPU(V8), CPU(V6KZ)          },
-  /* ARM v6T2   */ { CPU(V6T2),   CPU(V7), CPU(V7),   CPU(V7),    CPU(V7), CPU(V7E_M), CPU(V8), CPU(V6T2)          },
-  /* ARM v6K    */ {         0,  CPU(V6K), CPU(V7),  CPU(V6K),   CPU(V6K), CPU(V7E_M), CPU(V8), CPU(V6K)           },
-  /* ARM v7     */ {         0,         0, CPU(V7),   CPU(V7),    CPU(V7), CPU(V7E_M), CPU(V8), CPU(V7)            },
-  /* ARM v6-M   */ {         0,         0,       0, CPU(V6_M), CPU(V6S_M), CPU(V7E_M), CPU(V8), CPU(V6_M)          },
-  /* ARM v6S-M  */ {         0,         0,       0,         0, CPU(V6S_M), CPU(V7E_M), CPU(V8), CPU(V6S_M)         },
-  /* ARM v7E-M  */ {         0,         0,       0,         0,          0, CPU(V7E_M), CPU(V8), CPU(V7E_M)         },
-  /* ARM v8     */ {         0,         0,       0,         0,          0,          0, CPU(V8), CPU(V8)            },
-  /* v4T + v6-M */ {         0,         0,       0,         0,          0,          0,       0, CPU(V4T_Plus_V6_M) }
-};
+#define CPU(C) ARMELFAttributeData::CPU_Arch_ARM_##C
+static const int cpu_compatibility_table[][CPU(V4T_Plus_V6_M) + 1] = {
+    /* old\new          ARM v6T2    ARM v6K   ARM v7   ARM v6-M   ARM v6S-M
+       ARM v7E-M    ARMv8, ARM v4t + v6-M     */
+    /* Pre v4     */ {CPU(V6T2), CPU(V6K), CPU(V7), -1, -1, -1, -1, -1},
+    /* ARM v4     */ {CPU(V6T2), CPU(V6K), CPU(V7), -1, -1, -1, -1, -1},
+    /* ARM v4T    */ {CPU(V6T2),
+                      CPU(V6K),
+                      CPU(V7),
+                      CPU(V6K),
+                      CPU(V6K),
+                      CPU(V7E_M),
+                      CPU(V8),
+                      CPU(V4T)},
+    /* ARM v5T    */ {CPU(V6T2),
+                      CPU(V6K),
+                      CPU(V7),
+                      CPU(V6K),
+                      CPU(V6K),
+                      CPU(V7E_M),
+                      CPU(V8),
+                      CPU(V5T)},
+    /* ARM v5TE   */ {CPU(V6T2),
+                      CPU(V6K),
+                      CPU(V7),
+                      CPU(V6K),
+                      CPU(V6K),
+                      CPU(V7E_M),
+                      CPU(V8),
+                      CPU(V5TE)},
+    /* ARM v5TEJ  */ {CPU(V6T2),
+                      CPU(V6K),
+                      CPU(V7),
+                      CPU(V6K),
+                      CPU(V6K),
+                      CPU(V7E_M),
+                      CPU(V8),
+                      CPU(V5TEJ)},
+    /* ARM v6     */ {CPU(V6T2),
+                      CPU(V6K),
+                      CPU(V7),
+                      CPU(V6K),
+                      CPU(V6K),
+                      CPU(V7E_M),
+                      CPU(V8),
+                      CPU(V6)},
+    /* ARM v6KZ   */ {CPU(V7),
+                      CPU(V6KZ),
+                      CPU(V7),
+                      CPU(V6KZ),
+                      CPU(V6KZ),
+                      CPU(V7E_M),
+                      CPU(V8),
+                      CPU(V6KZ)},
+    /* ARM v6T2   */ {CPU(V6T2),
+                      CPU(V7),
+                      CPU(V7),
+                      CPU(V7),
+                      CPU(V7),
+                      CPU(V7E_M),
+                      CPU(V8),
+                      CPU(V6T2)},
+    /* ARM v6K    */ {0,
+                      CPU(V6K),
+                      CPU(V7),
+                      CPU(V6K),
+                      CPU(V6K),
+                      CPU(V7E_M),
+                      CPU(V8),
+                      CPU(V6K)},
+    /* ARM v7     */ {0,
+                      0,
+                      CPU(V7),
+                      CPU(V7),
+                      CPU(V7),
+                      CPU(V7E_M),
+                      CPU(V8),
+                      CPU(V7)},
+    /* ARM v6-M   */ {0,
+                      0,
+                      0,
+                      CPU(V6_M),
+                      CPU(V6S_M),
+                      CPU(V7E_M),
+                      CPU(V8),
+                      CPU(V6_M)},
+    /* ARM v6S-M  */ {0, 0, 0, 0, CPU(V6S_M), CPU(V7E_M), CPU(V8), CPU(V6S_M)},
+    /* ARM v7E-M  */ {0, 0, 0, 0, 0, CPU(V7E_M), CPU(V8), CPU(V7E_M)},
+    /* ARM v8     */ {0, 0, 0, 0, 0, 0, CPU(V8), CPU(V8)},
+    /* v4T + v6-M */ {0, 0, 0, 0, 0, 0, 0, CPU(V4T_Plus_V6_M)}};
 
 /*
  * Helper function to determine the merge of two different CPU arch.
  */
-static int merge_cpu_arch(int out_cpu_arch, int in_cpu_arch)
-{
+static int merge_cpu_arch(int out_cpu_arch, int in_cpu_arch) {
   if (out_cpu_arch > CPU(V4T_Plus_V6_M))
     return in_cpu_arch;
 
@@ -573,21 +630,21 @@ static int merge_cpu_arch(int out_cpu_arch, int in_cpu_arch)
  * merge of Tag_CPU_arch.
  */
 static const char* generic_cpu_name_table[] = {
-  /* Pre v4    */"Pre v4",
-  /* Pre v4    */"ARM v4",
-  /* ARM v4T   */"ARM v4T",
-  /* ARM v5T   */"ARM v5T",
-  /* ARM v5TE  */"ARM v5TE",
-  /* ARM v5TEJ */"ARM v5TEJ",
-  /* ARM v6    */"ARM v6",
-  /* ARM v6KZ  */"ARM v6KZ",
-  /* ARM v6T2  */"ARM v6T2",
-  /* ARM v6K   */"ARM v6K",
-  /* ARM v7    */"ARM v7",
-  /* ARM v6-M  */"ARM v6-M",
-  /* ARM v6S-M */"ARM v6S-M",
-  /* ARM v7E-M */"ARM v7E-M",
-  /* ARM v8    */"ARM v8",
+    /* Pre v4    */ "Pre v4",
+    /* Pre v4    */ "ARM v4",
+    /* ARM v4T   */ "ARM v4T",
+    /* ARM v5T   */ "ARM v5T",
+    /* ARM v5TE  */ "ARM v5TE",
+    /* ARM v5TEJ */ "ARM v5TEJ",
+    /* ARM v6    */ "ARM v6",
+    /* ARM v6KZ  */ "ARM v6KZ",
+    /* ARM v6T2  */ "ARM v6T2",
+    /* ARM v6K   */ "ARM v6K",
+    /* ARM v7    */ "ARM v7",
+    /* ARM v6-M  */ "ARM v6-M",
+    /* ARM v6S-M */ "ARM v6S-M",
+    /* ARM v7E-M */ "ARM v7E-M",
+    /* ARM v8    */ "ARM v8",
 };
 
 static const char* get_generic_cpu_name(int cpu_arch) {
@@ -603,15 +660,15 @@ static const struct fp_config_data {
   int version;
   int regs;
 } fp_configs[] = {
-  { 0, 0  },
-  { 1, 16 },
-  { 2, 16 },
-  { 3, 32 },
-  { 3, 16 },
-  { 4, 32 },
-  { 4, 16 },
-  { 8, 32 },
-  { 8, 16 },
+      {0, 0},
+      {1, 16},
+      {2, 16},
+      {3, 32},
+      {3, 16},
+      {4, 32},
+      {4, 16},
+      {8, 32},
+      {8, 16},
 };
 
 static const size_t num_fp_configs =
@@ -630,46 +687,44 @@ static const size_t num_fp_configs =
 // fp_config_hash_table[ h(8, 16) =  8 ] = 8
 //
 // h(0, 0) = 0
-static const uint8_t fp_config_hash_table[] =
-{
+static const uint8_t fp_config_hash_table[] = {
 #define UND static_cast<uint8_t>(-1)
-  /*  0 */0,
-  /*  1 */1,
-  /*  2 */2,
-  /*  3 */4,
-  /*  4 */6,
-  /*  5 */UND,
-  /*  6 */UND,
-  /*  7 */3,
-  /*  8 */8,
-  /*  9 */5,
-  /* 10 */UND,
-  /* 11 */UND,
-  /* 12 */UND,
-  /* 13 */UND,
-  /* 14 */UND,
-  /* 15 */UND,
-  /* 16 */UND,
-  /* 17 */7,
+    /*  0 */ 0,
+    /*  1 */ 1,
+    /*  2 */ 2,
+    /*  3 */ 4,
+    /*  4 */ 6,
+    /*  5 */ UND,
+    /*  6 */ UND,
+    /*  7 */ 3,
+    /*  8 */ 8,
+    /*  9 */ 5,
+    /* 10 */ UND,
+    /* 11 */ UND,
+    /* 12 */ UND,
+    /* 13 */ UND,
+    /* 14 */ UND,
+    /* 15 */ UND,
+    /* 16 */ UND,
+    /* 17 */ 7,
 #undef UND
 };
 
-static int calculate_fp_config_hash(const struct fp_config_data& pConfig)
-{
+static int calculate_fp_config_hash(const struct fp_config_data& pConfig) {
   int x = pConfig.version;
   int y = pConfig.regs;
   return (x * (y >> 4) + (y >> 5));
 }
 
-static int get_fp_arch_of_config(const struct fp_config_data& pConfig)
-{
+static int get_fp_arch_of_config(const struct fp_config_data& pConfig) {
   int hash = calculate_fp_config_hash(pConfig);
   assert(static_cast<size_t>(hash) <
-            llvm::array_lengthof(fp_config_hash_table));
+         llvm::array_lengthof(fp_config_hash_table));
   return fp_config_hash_table[hash];
 }
 
-static bool is_allowed_use_of_div(int cpu_arch, int cpu_arch_profile,
+static bool is_allowed_use_of_div(int cpu_arch,
+                                  int cpu_arch_profile,
                                   int div_use) {
   // 0: The code was permitted to use SDIV and UDIV in the Thumb ISA on v7-R or
   //    v7-M.
@@ -689,21 +744,18 @@ static bool is_allowed_use_of_div(int cpu_arch, int cpu_arch_profile,
     }
     case 2:
     // For future proofing
-    default: {
-      return true;
-    }
+    default: { return true; }
   }
 }
 
-} // anonymous namespace
+}  // anonymous namespace
 
 //===--------------------------------------------------------------------===//
 // End Helper Functions for postMerge()
 //===--------------------------------------------------------------------===//
 
 bool ARMELFAttributeData::postMerge(const LinkerConfig& pConfig,
-                                    const Input& pInput)
-{
+                                    const Input& pInput) {
   // Process Tag_CPU_arch, Tag_CPU_name, Tag_CPU_raw_name, and
   // Tag_also_compatible_with.
   ELFAttributeValue& out_cpu_arch_attr = m_Attrs[Tag_CPU_arch];
@@ -723,7 +775,7 @@ bool ARMELFAttributeData::postMerge(const LinkerConfig& pConfig,
     int out_secondary_arch = -1;
     if (out_secondary_compatibility_attr.isInitialized())
       out_secondary_arch = decode_secondary_compatibility_attribute(
-                              out_secondary_compatibility_attr);
+          out_secondary_compatibility_attr);
 
     m_CurrentCPUArch = calculate_cpu_arch(out_cpu_arch, out_secondary_arch);
   }
@@ -736,8 +788,8 @@ bool ARMELFAttributeData::postMerge(const LinkerConfig& pConfig,
     int result_cpu_arch = merge_cpu_arch(m_CurrentCPUArch, in_cpu_arch);
 
     if (result_cpu_arch < 0) {
-      warning(diag::warn_mismatch_cpu_arch_profile)
-          << in_cpu_arch << pInput.name();
+      warning(diag::warn_mismatch_cpu_arch_profile) << in_cpu_arch
+                                                    << pInput.name();
     } else {
       if (result_cpu_arch != m_CurrentCPUArch) {
         // Value of Tag_CPU_arch are going to changea.
@@ -783,7 +835,7 @@ bool ARMELFAttributeData::postMerge(const LinkerConfig& pConfig,
         }
       }
     }
-  } // (m_CPUArch >= 0)
+  }  // (m_CPUArch >= 0)
 
   // Process Tag_ABI_VFP_args.
   if (m_VFPArgs >= 0) {
@@ -837,23 +889,25 @@ bool ARMELFAttributeData::postMerge(const LinkerConfig& pConfig,
         }
       } else {
         if (out_fp_arch_attr.getIntValue() < num_fp_configs) {
-          const struct fp_config_data& input_fp_config = fp_configs[ m_FPArch ];
+          const struct fp_config_data& input_fp_config = fp_configs[m_FPArch];
 
           const struct fp_config_data& output_fp_config =
-              fp_configs[ out_fp_arch_attr.getIntValue() ];
+              fp_configs[out_fp_arch_attr.getIntValue()];
 
           const struct fp_config_data result_fp_config = {
-            /*version*/((output_fp_config.version > input_fp_config.version) ?
-                         output_fp_config.version : input_fp_config.version),
-            /* regs */((output_fp_config.regs > input_fp_config.regs) ?
-                        output_fp_config.regs : input_fp_config.regs),
+              /*version*/ ((output_fp_config.version > input_fp_config.version)
+                               ? output_fp_config.version
+                               : input_fp_config.version),
+              /* regs */ ((output_fp_config.regs > input_fp_config.regs)
+                              ? output_fp_config.regs
+                              : input_fp_config.regs),
           };
           // Find the attribute value corresponding the result_fp_config
           out_fp_arch_attr.setIntValue(get_fp_arch_of_config(result_fp_config));
         }
       }
     }
-  } // (m_FPArch >= 0)
+  }  // (m_FPArch >= 0)
 
   // Process Tag_ABI_HardFP_use.
   ELFAttributeValue& out_hardfp_use_attr = m_Attrs[Tag_ABI_HardFP_use];
@@ -903,7 +957,7 @@ bool ARMELFAttributeData::postMerge(const LinkerConfig& pConfig,
       // Check the consistency between m_MPextensionUse and the value of
       // Tag_MPextension_use_legacy.
       if (static_cast<unsigned>(m_MPextensionUse) !=
-              out_mpextension_use_legacy.getIntValue()) {
+          out_mpextension_use_legacy.getIntValue()) {
         error(diag::error_mismatch_mpextension_use) << pInput.name();
         return false;
       }
@@ -929,7 +983,7 @@ bool ARMELFAttributeData::postMerge(const LinkerConfig& pConfig,
     assert(out_mpextension_use.isInitialized());
 
     if (static_cast<unsigned>(m_MPextensionUse) >
-            out_mpextension_use.getIntValue()) {
+        out_mpextension_use.getIntValue()) {
       out_mpextension_use.setIntValue(m_MPextensionUse);
     }
   }
@@ -958,7 +1012,8 @@ bool ARMELFAttributeData::postMerge(const LinkerConfig& pConfig,
     if (m_DIVUse == 1) {
       // Input (=1) was not permitted to use SDIV and UDIV. See whether current
       // output was explicitly permitted the use.
-      if (!is_allowed_use_of_div(m_CurrentCPUArch, out_cpu_arch_profile,
+      if (!is_allowed_use_of_div(m_CurrentCPUArch,
+                                 out_cpu_arch_profile,
                                  out_div_use_attr.getIntValue())) {
         out_div_use_attr.setIntValue(1);
       }
@@ -967,8 +1022,8 @@ bool ARMELFAttributeData::postMerge(const LinkerConfig& pConfig,
         // Output does not explicitly forbid the use of SDIV/UDIV. See whether
         // the input attribute can allow it under current CPU architecture
         // profile.
-        if (is_allowed_use_of_div(m_CurrentCPUArch, out_cpu_arch_profile,
-                                  m_DIVUse)) {
+        if (is_allowed_use_of_div(
+                m_CurrentCPUArch, out_cpu_arch_profile, m_DIVUse)) {
           out_div_use_attr.setIntValue(m_DIVUse);
         }
       }
@@ -994,8 +1049,9 @@ size_t ARMELFAttributeData::sizeOutput() const {
 
   // Size contributed by unknown attributes
   for (UnknownAttrsMap::const_iterator unknown_attr_it = m_UnknownAttrs.begin(),
-          unknown_attr_end = m_UnknownAttrs.end();
-       unknown_attr_it != unknown_attr_end; ++unknown_attr_it) {
+                                       unknown_attr_end = m_UnknownAttrs.end();
+       unknown_attr_it != unknown_attr_end;
+       ++unknown_attr_it) {
     TagType tag = unknown_attr_it->first;
     const ELFAttributeValue& value = unknown_attr_it->second;
 
@@ -1008,8 +1064,8 @@ size_t ARMELFAttributeData::sizeOutput() const {
   return result;
 }
 
-size_t ARMELFAttributeData::emit(char *pBuf) const {
-  char *buffer = pBuf;
+size_t ARMELFAttributeData::emit(char* pBuf) const {
+  char* buffer = pBuf;
 
   // Tag_conformance "should be emitted first in a file-scope sub-subsection of
   // the first public subsection of the attribute section."
@@ -1018,8 +1074,8 @@ size_t ARMELFAttributeData::emit(char *pBuf) const {
   const ELFAttributeValue& attr_conformance = m_Attrs[Tag_conformance];
 
   if (attr_conformance.shouldEmit()) {
-    if (!ELFAttributeData::WriteAttribute(Tag_conformance,  attr_conformance,
-                                          buffer)) {
+    if (!ELFAttributeData::WriteAttribute(
+            Tag_conformance, attr_conformance, buffer)) {
       return 0;
     }
   }
@@ -1031,8 +1087,8 @@ size_t ARMELFAttributeData::emit(char *pBuf) const {
   const ELFAttributeValue& attr_nodefaults = m_Attrs[Tag_nodefaults];
 
   if (attr_nodefaults.shouldEmit()) {
-    if (!ELFAttributeData::WriteAttribute(Tag_nodefaults,  attr_nodefaults,
-                                          buffer)) {
+    if (!ELFAttributeData::WriteAttribute(
+            Tag_nodefaults, attr_nodefaults, buffer)) {
       return 0;
     }
   }
@@ -1060,8 +1116,9 @@ size_t ARMELFAttributeData::emit(char *pBuf) const {
   }
 
   for (UnknownAttrsMap::const_iterator unknown_attr_it = m_UnknownAttrs.begin(),
-          unknown_attr_end = m_UnknownAttrs.end();
-       unknown_attr_it != unknown_attr_end; ++unknown_attr_it) {
+                                       unknown_attr_end = m_UnknownAttrs.end();
+       unknown_attr_it != unknown_attr_end;
+       ++unknown_attr_it) {
     TagType tag = unknown_attr_it->first;
     const ELFAttributeValue& value = unknown_attr_it->second;
 
@@ -1074,8 +1131,7 @@ size_t ARMELFAttributeData::emit(char *pBuf) const {
   return (buffer - pBuf);
 }
 
-bool ARMELFAttributeData::usingThumb() const
-{
+bool ARMELFAttributeData::usingThumb() const {
   int arch = m_Attrs[Tag_CPU_arch].getIntValue();
   if ((arch == CPU_Arch_ARM_V6_M) || (arch == CPU_Arch_ARM_V6S_M))
     return true;
@@ -1086,8 +1142,7 @@ bool ARMELFAttributeData::usingThumb() const
   return arch == Arch_Profile_Microcontroller;
 }
 
-bool ARMELFAttributeData::usingThumb2() const
-{
+bool ARMELFAttributeData::usingThumb2() const {
   int arch = m_Attrs[Tag_CPU_arch].getIntValue();
   return (arch == CPU_Arch_ARM_V6T2) || (arch == CPU_Arch_ARM_V7);
 }

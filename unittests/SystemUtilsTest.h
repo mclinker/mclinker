@@ -14,9 +14,8 @@
 namespace mcld {
 namespace test {
 
-class SystemUtilsTest : public ::testing::Test
-{
-public:
+class SystemUtilsTest : public ::testing::Test {
+ public:
   // Constructor can do set-up work for all test here.
   SystemUtilsTest();
 
@@ -30,8 +29,7 @@ public:
   virtual void TearDown();
 };
 
-} // namespace of test
-} // namespace of mcld
+}  // namespace of test
+}  // namespace of mcld
 
 #endif
-

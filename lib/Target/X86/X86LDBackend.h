@@ -26,9 +26,8 @@ class GNUInfo;
 //===----------------------------------------------------------------------===//
 /// X86GNULDBackend - linker backend of X86 target of GNU ELF format
 ///
-class X86GNULDBackend : public GNULDBackend
-{
-public:
+class X86GNULDBackend : public GNULDBackend {
+ public:
   X86GNULDBackend(const LinkerConfig& pConfig,
                   GNUInfo* pInfo,
                   Relocation::Type pCopyRel);
@@ -100,24 +99,21 @@ public:
   bool finalizeTargetSymbols();
 
   /// getPointerRel - get pointer relocation type.
-  Relocation::Type getPointerRel()
-  { return m_PointerRel; }
+  Relocation::Type getPointerRel() { return m_PointerRel; }
 
-  Relocation::Type getCopyRelType()    const { return m_CopyRel;    }
+  Relocation::Type getCopyRelType() const { return m_CopyRel; }
   Relocation::Type getPointerRelType() const { return m_PointerRel; }
 
-protected:
+ protected:
   void defineGOTSymbol(IRBuilder& pBuilder, Fragment&);
 
   /// getRelEntrySize - the size in BYTE of rel type relocation
-  size_t getRelEntrySize()
-  { return m_RelEntrySize; }
+  size_t getRelEntrySize() { return m_RelEntrySize; }
 
   /// getRelEntrySize - the size in BYTE of rela type relocation
-  size_t getRelaEntrySize()
-  { return m_RelaEntrySize; }
+  size_t getRelaEntrySize() { return m_RelaEntrySize; }
 
-private:
+ private:
   /// doCreateProgramHdrs - backend can implement this function to create the
   /// target-dependent segments
   void doCreateProgramHdrs(Module& pModule);
@@ -126,9 +122,9 @@ private:
 
   virtual uint64_t emitGOTSectionData(MemoryRegion& pRegion) const = 0;
 
-  virtual uint64_t
-  emitGOTPLTSectionData(MemoryRegion& pRegion,
-                        const ELFFileFormat* FileFormat) const = 0;
+  virtual uint64_t emitGOTPLTSectionData(
+      MemoryRegion& pRegion,
+      const ELFFileFormat* FileFormat) const = 0;
 
   virtual void setRelDynSize() = 0;
   virtual void setRelPLTSize() = 0;
@@ -137,7 +133,7 @@ private:
   virtual llvm::StringRef createCIERegionForPLT() = 0;
   virtual llvm::StringRef createFDERegionForPLT() = 0;
 
-protected:
+ protected:
   Relocator* m_pRelocator;
   X86PLT* m_pPLT;
   /// m_RelDyn - dynamic relocation table of .rel.dyn
@@ -159,9 +155,8 @@ protected:
 //===----------------------------------------------------------------------===//
 /// X86_32GNULDBackend - linker backend of X86-32 target of GNU ELF format
 ///
-class X86_32GNULDBackend : public X86GNULDBackend
-{
-public:
+class X86_32GNULDBackend : public X86GNULDBackend {
+ public:
   X86_32GNULDBackend(const LinkerConfig& pConfig, GNUInfo* pInfo);
 
   ~X86_32GNULDBackend();
@@ -176,7 +171,7 @@ public:
 
   const X86_32GOTPLT& getGOTPLT() const;
 
-private:
+ private:
   /// initRelocator - create and initialize Relocator.
   bool initRelocator();
 
@@ -193,7 +188,7 @@ private:
   llvm::StringRef createCIERegionForPLT();
   llvm::StringRef createFDERegionForPLT();
 
-private:
+ private:
   X86_32GOT* m_pGOT;
   X86_32GOTPLT* m_pGOTPLT;
 };
@@ -202,9 +197,8 @@ private:
 //===----------------------------------------------------------------------===//
 /// X86_64GNULDBackend - linker backend of X86-64 target of GNU ELF format
 ///
-class X86_64GNULDBackend : public X86GNULDBackend
-{
-public:
+class X86_64GNULDBackend : public X86GNULDBackend {
+ public:
   X86_64GNULDBackend(const LinkerConfig& pConfig, GNUInfo* pInfo);
 
   ~X86_64GNULDBackend();
@@ -219,7 +213,7 @@ public:
 
   const X86_64GOTPLT& getGOTPLT() const;
 
-private:
+ private:
   /// initRelocator - create and initialize Relocator.
   bool initRelocator();
 
@@ -236,11 +230,11 @@ private:
   llvm::StringRef createCIERegionForPLT();
   llvm::StringRef createFDERegionForPLT();
 
-private:
+ private:
   X86_64GOT* m_pGOT;
   X86_64GOTPLT* m_pGOTPLT;
 };
 
-} // namespace mcld
+}  // namespace mcld
 
 #endif  // TARGET_X86_X86LDBACKEND_H_

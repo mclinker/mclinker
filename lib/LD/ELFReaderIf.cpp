@@ -28,8 +28,8 @@ using namespace mcld;
 // ELFReaderIF
 //===----------------------------------------------------------------------===//
 /// getSymType
-ResolveInfo::Type ELFReaderIF::getSymType(uint8_t pInfo, uint16_t pShndx) const
-{
+ResolveInfo::Type ELFReaderIF::getSymType(uint8_t pInfo,
+                                          uint16_t pShndx) const {
   ResolveInfo::Type result = static_cast<ResolveInfo::Type>(pInfo & 0xF);
   if (pShndx == llvm::ELF::SHN_ABS && result == ResolveInfo::Section) {
     // In Mips, __gp_disp is a special section symbol. Its name comes from
@@ -44,8 +44,7 @@ ResolveInfo::Type ELFReaderIF::getSymType(uint8_t pInfo, uint16_t pShndx) const
 
 /// getSymDesc
 ResolveInfo::Desc ELFReaderIF::getSymDesc(uint16_t pShndx,
-                                          const Input& pInput) const
-{
+                                          const Input& pInput) const {
   if (pShndx == llvm::ELF::SHN_UNDEF)
     return ResolveInfo::Undefined;
 
@@ -64,8 +63,7 @@ ResolveInfo::Desc ELFReaderIF::getSymDesc(uint16_t pShndx,
   if (pShndx == llvm::ELF::SHN_COMMON)
     return ResolveInfo::Common;
 
-  if (pShndx >= llvm::ELF::SHN_LOPROC &&
-      pShndx <= llvm::ELF::SHN_HIPROC)
+  if (pShndx >= llvm::ELF::SHN_LOPROC && pShndx <= llvm::ELF::SHN_HIPROC)
     return target().getSymDesc(pShndx);
 
   // FIXME: ELF weak alias should be ResolveInfo::Indirect
@@ -73,21 +71,21 @@ ResolveInfo::Desc ELFReaderIF::getSymDesc(uint16_t pShndx,
 }
 
 /// getSymBinding
-ResolveInfo::Binding
-ELFReaderIF::getSymBinding(uint8_t pBinding, uint16_t pShndx, uint8_t pVis) const
-{
+ResolveInfo::Binding ELFReaderIF::getSymBinding(uint8_t pBinding,
+                                                uint16_t pShndx,
+                                                uint8_t pVis) const {
   // TODO:
   // if --just-symbols option is enabled, the symbol must covert to Absolute
 
-  switch(pBinding) {
-  case llvm::ELF::STB_LOCAL:
-    return ResolveInfo::Local;
-  case llvm::ELF::STB_GLOBAL:
-    if (pShndx == llvm::ELF::SHN_ABS)
-      return ResolveInfo::Absolute;
-    return ResolveInfo::Global;
-  case llvm::ELF::STB_WEAK:
-    return ResolveInfo::Weak;
+  switch (pBinding) {
+    case llvm::ELF::STB_LOCAL:
+      return ResolveInfo::Local;
+    case llvm::ELF::STB_GLOBAL:
+      if (pShndx == llvm::ELF::SHN_ABS)
+        return ResolveInfo::Absolute;
+      return ResolveInfo::Global;
+    case llvm::ELF::STB_WEAK:
+      return ResolveInfo::Weak;
   }
 
   return ResolveInfo::NoneBinding;
@@ -96,23 +94,21 @@ ELFReaderIF::getSymBinding(uint8_t pBinding, uint16_t pShndx, uint8_t pVis) cons
 /// getSymFragmentRef
 FragmentRef* ELFReaderIF::getSymFragmentRef(Input& pInput,
                                             uint16_t pShndx,
-                                            uint32_t pOffset) const
-{
-
+                                            uint32_t pOffset) const {
   if (pInput.type() == Input::DynObj)
     return FragmentRef::Null();
 
   if (pShndx == llvm::ELF::SHN_UNDEF)
     return FragmentRef::Null();
 
-  if (pShndx >= llvm::ELF::SHN_LORESERVE) // including ABS and COMMON
+  if (pShndx >= llvm::ELF::SHN_LORESERVE)  // including ABS and COMMON
     return FragmentRef::Null();
 
   LDSection* sect_hdr = pInput.context()->getSection(pShndx);
 
   if (sect_hdr == NULL)
-    unreachable(diag::unreachable_invalid_section_idx) << pShndx
-        << pInput.path().native();
+    unreachable(diag::unreachable_invalid_section_idx)
+        << pShndx << pInput.path().native();
 
   if (sect_hdr->kind() == LDFileFormat::Ignore)
     return FragmentRef::Null();
@@ -124,16 +120,14 @@ FragmentRef* ELFReaderIF::getSymFragmentRef(Input& pInput,
 }
 
 /// getSymVisibility
-ResolveInfo::Visibility ELFReaderIF::getSymVisibility(uint8_t pVis) const
-{
+ResolveInfo::Visibility ELFReaderIF::getSymVisibility(uint8_t pVis) const {
   return static_cast<ResolveInfo::Visibility>(pVis);
 }
 
 /// getSymValue - get the section offset of the symbol.
 uint64_t ELFReaderIF::getSymValue(uint64_t pValue,
                                   uint16_t pShndx,
-                                  const Input& pInput) const
-{
+                                  const Input& pInput) const {
   if (pInput.type() == Input::Object) {
     // In relocatable files, st_value holds alignment constraints for a symbol
     // whose section index is SHN_COMMON
@@ -141,9 +135,11 @@ uint64_t ELFReaderIF::getSymValue(uint64_t pValue,
       return pValue;
     }
 
-    // In relocatable files, st_value holds a section offset for a defined symbol.
+    // In relocatable files, st_value holds a section offset for a defined
+    // symbol.
     // TODO:
-    // if --just-symbols option are enabled, convert the value from section offset
+    // if --just-symbols option are enabled, convert the value from section
+    // offset
     // to virtual address by adding input section's virtual address.
     // The section's virtual address in relocatable files is normally zero, but
     // people can use link script to change it.

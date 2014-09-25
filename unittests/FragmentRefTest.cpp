@@ -21,50 +21,47 @@ using namespace mcld::sys::fs;
 using namespace mcldtest;
 
 // Constructor can do set-up work for all test here.
-FragmentRefTest::FragmentRefTest()
-{
+FragmentRefTest::FragmentRefTest() {
 }
 
 // Destructor can do clean-up work that doesn't throw exceptions here.
-FragmentRefTest::~FragmentRefTest()
-{
+FragmentRefTest::~FragmentRefTest() {
 }
 
 // SetUp() will be called immediately before each test.
-void FragmentRefTest::SetUp()
-{
+void FragmentRefTest::SetUp() {
 }
 
 // TearDown() will be called immediately after each test.
-void FragmentRefTest::TearDown()
-{
+void FragmentRefTest::TearDown() {
 }
 
 //==========================================================================//
 // Testcases
 //
-TEST_F( FragmentRefTest, ) {
+TEST_F(FragmentRefTest, ) {
   Path path(TOPDIR);
   path.append("unittests/test3.txt");
   MemoryAreaFactory* areaFactory = new MemoryAreaFactory(1);
   MemoryArea* area = areaFactory->produce(path, FileHandle::ReadWrite);
 
   llvm::StringRef region = area->request(0, 4096);
-  RegionFragment *frag = new RegionFragment(region);
-  FragmentRef *ref = FragmentRef::Create(*frag, 0x0);
+  RegionFragment* frag = new RegionFragment(region);
+  FragmentRef* ref = FragmentRef::Create(*frag, 0x0);
 
   ASSERT_EQ('H', region.data()[0]);
   ASSERT_TRUE(4096 == region.size());
   ASSERT_EQ('H', frag->getRegion().data()[0]);
   ASSERT_TRUE(4096 == frag->getRegion().size());
   ASSERT_EQ(frag, ref->frag());
-  ASSERT_EQ('H', static_cast<RegionFragment*>(ref->frag())->getRegion().data()[0]);
-  ASSERT_TRUE(4096 == static_cast<RegionFragment*>(ref->frag())->getRegion().size());
-  //ASSERT_EQ('H', ref->deref()[0]);
+  ASSERT_EQ('H',
+            static_cast<RegionFragment*>(ref->frag())->getRegion().data()[0]);
+  ASSERT_TRUE(4096 ==
+              static_cast<RegionFragment*>(ref->frag())->getRegion().size());
+  // ASSERT_EQ('H', ref->deref()[0]);
 
   ASSERT_TRUE(RegionFragment::classof(frag));
 
   delete frag;
   delete areaFactory;
 }
-

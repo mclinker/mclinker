@@ -35,21 +35,17 @@ Assignment::Assignment(Level pLevel,
       m_Level(pLevel),
       m_Type(pType),
       m_Symbol(pSymbol),
-      m_RpnExpr(pRpnExpr)
-{
+      m_RpnExpr(pRpnExpr) {
 }
 
-Assignment::~Assignment()
-{
+Assignment::~Assignment() {
 }
 
-Assignment& Assignment::operator=(const Assignment& pAssignment)
-{
+Assignment& Assignment::operator=(const Assignment& pAssignment) {
   return *this;
 }
 
-void Assignment::dump() const
-{
+void Assignment::dump() const {
   switch (type()) {
     case DEFAULT:
       break;
@@ -64,7 +60,7 @@ void Assignment::dump() const
       break;
     default:
       break;
-    }
+  }
 
   m_Symbol.dump();
 
@@ -78,8 +74,7 @@ void Assignment::dump() const
   mcld::outs() << ";\n";
 }
 
-void Assignment::activate(Module& pModule)
-{
+void Assignment::activate(Module& pModule) {
   bool isLhsDot = m_Symbol.isDot();
   LinkerScript& script = pModule.getScript();
   switch (m_Level) {
@@ -94,8 +89,8 @@ void Assignment::activate(Module& pModule)
       if (hasDotInRhs) {
         if (!isLhsDot && out->dotAssignments().empty()) {
           // . = ADDR ( `prev_output_sect' ) + SIZEOF ( `prev_output_sect' )
-          SectionMap::iterator prev = script.sectionMap().begin() +
-                                      script.sectionMap().size() - 2;
+          SectionMap::iterator prev =
+              script.sectionMap().begin() + script.sectionMap().size() - 2;
           Assignment assign(OUTPUT_SECTION,
                             HIDDEN,
                             *SymOperand::create("."),
@@ -105,18 +100,20 @@ void Assignment::activate(Module& pModule)
 
         if (!out->dotAssignments().empty()) {
           Assignment& prevDotAssign = out->dotAssignments().back();
-          // If this is the 1st explicit assignment that includes both lhs dot and
+          // If this is the 1st explicit assignment that includes both lhs dot
+          // and
           // rhs dot, then because of possible orphan sections, we are unable to
           // substitute the rhs dot now.
           if (!isLhsDot || prevDotAssign.type() == DEFAULT) {
             for (RpnExpr::iterator it = m_RpnExpr.begin(), ie = m_RpnExpr.end();
-                 it != ie; ++it) {
+                 it != ie;
+                 ++it) {
               // substitute the rhs dot with the appropriate helper expr
               if ((*it)->kind() == ExprToken::OPERAND &&
                   llvm::cast<Operand>(*it)->isDot()) {
                 *it = &(prevDotAssign.symbol());
               }
-            } // for each expression token
+            }  // for each expression token
           }
         }
       }
@@ -138,22 +135,22 @@ void Assignment::activate(Module& pModule)
           // . = `frag'
           RpnExpr* expr = RpnExpr::buildHelperExpr(
               in->getSection()->getSectionData()->front());
-          Assignment assign(INPUT_SECTION,
-                            HIDDEN,
-                            *SymOperand::create("."),
-                            *expr);
-          in->dotAssignments().push_back(std::make_pair((Fragment*)NULL, assign));
+          Assignment assign(
+              INPUT_SECTION, HIDDEN, *SymOperand::create("."), *expr);
+          in->dotAssignments().push_back(
+              std::make_pair((Fragment*)NULL, assign));
         }
 
         Assignment& prevDotAssign = in->dotAssignments().back().second;
         for (RpnExpr::iterator it = m_RpnExpr.begin(), ie = m_RpnExpr.end();
-             it != ie; ++it) {
+             it != ie;
+             ++it) {
           // substitute the rhs dot with the appropriate helper expr
           if ((*it)->kind() == ExprToken::OPERAND &&
               llvm::cast<Operand>(*it)->isDot()) {
             *it = &(prevDotAssign.symbol());
           }
-        } // end of for
+        }  // end of for
       }
 
       if (isLhsDot) {
@@ -166,11 +163,10 @@ void Assignment::activate(Module& pModule)
       break;
     }
 
-  } // end of switch
+  }  // end of switch
 }
 
-bool Assignment::assign(RpnEvaluator& pEvaluator)
-{
+bool Assignment::assign(RpnEvaluator& pEvaluator) {
   uint64_t result = 0;
   bool success = pEvaluator.eval(m_RpnExpr, result);
   if (success)

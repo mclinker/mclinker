@@ -22,21 +22,20 @@ using namespace mcld;
 // ARMToTHMStub
 //===----------------------------------------------------------------------===//
 const uint32_t ARMToTHMStub::PIC_TEMPLATE[] = {
-  0xe59fc004, // ldr   r12, [pc, #4]
-  0xe08fc00c, // add   ip, pc, ip
-  0xe12fff1c, // bx    ip
-  0x0         // dcd   R_ARM_REL32(X)
+    0xe59fc004,  // ldr   r12, [pc, #4]
+    0xe08fc00c,  // add   ip, pc, ip
+    0xe12fff1c,  // bx    ip
+    0x0          // dcd   R_ARM_REL32(X)
 };
 
 const uint32_t ARMToTHMStub::TEMPLATE[] = {
-  0xe59fc000, // ldr   ip, [pc, #0]
-  0xe12fff1c, // bx    ip
-  0x0         // dcd   R_ARM_ABS32(X)
+    0xe59fc000,  // ldr   ip, [pc, #0]
+    0xe12fff1c,  // bx    ip
+    0x0          // dcd   R_ARM_ABS32(X)
 };
 
 ARMToTHMStub::ARMToTHMStub(bool pIsOutputPIC)
-    : m_pData(NULL), m_Name("A2T_prototype"), m_Size(0x0)
-{
+    : m_pData(NULL), m_Name("A2T_prototype"), m_Size(0x0) {
   if (pIsOutputPIC) {
     m_pData = PIC_TEMPLATE;
     m_Size = sizeof(PIC_TEMPLATE);
@@ -53,20 +52,17 @@ ARMToTHMStub::ARMToTHMStub(const uint32_t* pData,
                            size_t pSize,
                            const_fixup_iterator pBegin,
                            const_fixup_iterator pEnd)
-    : m_pData(pData), m_Name("A2T_veneer"), m_Size(pSize)
-{
+    : m_pData(pData), m_Name("A2T_veneer"), m_Size(pSize) {
   for (const_fixup_iterator it = pBegin, ie = pEnd; it != ie; ++it)
     addFixup(**it);
 }
 
-ARMToTHMStub::~ARMToTHMStub()
-{
+ARMToTHMStub::~ARMToTHMStub() {
 }
 
 bool ARMToTHMStub::isMyDuty(const class Relocation& pReloc,
                             uint64_t pSource,
-                            uint64_t pTargetSymValue) const
-{
+                            uint64_t pTargetSymValue) const {
   bool result = false;
   // Check if the branch target is THUMB
   if ((pTargetSymValue & 0x1) != 0x0) {
@@ -97,27 +93,22 @@ bool ARMToTHMStub::isMyDuty(const class Relocation& pReloc,
   return result;
 }
 
-const std::string& ARMToTHMStub::name() const
-{
+const std::string& ARMToTHMStub::name() const {
   return m_Name;
 }
 
-const uint8_t* ARMToTHMStub::getContent() const
-{
+const uint8_t* ARMToTHMStub::getContent() const {
   return reinterpret_cast<const uint8_t*>(m_pData);
 }
 
-size_t ARMToTHMStub::size() const
-{
+size_t ARMToTHMStub::size() const {
   return m_Size;
 }
 
-size_t ARMToTHMStub::alignment() const
-{
+size_t ARMToTHMStub::alignment() const {
   return 4u;
 }
 
-Stub* ARMToTHMStub::doClone()
-{
+Stub* ARMToTHMStub::doClone() {
   return new ARMToTHMStub(m_pData, m_Size, fixup_begin(), fixup_end());
 }

@@ -25,34 +25,30 @@ OutputRelocSection::OutputRelocSection(Module& pModule, LDSection& pSection)
     : m_Module(pModule),
       m_pRelocData(NULL),
       m_isVisit(false),
-      m_ValidEntryIterator(){
+      m_ValidEntryIterator() {
   assert(!pSection.hasRelocData() &&
          "Given section is not a relocation section");
   m_pRelocData = IRBuilder::CreateRelocData(pSection);
 }
 
-OutputRelocSection::~OutputRelocSection()
-{
+OutputRelocSection::~OutputRelocSection() {
 }
 
-Relocation* OutputRelocSection::create()
-{
+Relocation* OutputRelocSection::create() {
   Relocation* reloc = Relocation::Create();
   m_pRelocData->append(*reloc);
   return reloc;
 }
 
-void OutputRelocSection::reserveEntry(size_t pNum)
-{
-  for(size_t i = 0; i < pNum; ++i)
+void OutputRelocSection::reserveEntry(size_t pNum) {
+  for (size_t i = 0; i < pNum; ++i)
     m_pRelocData->append(*Relocation::Create());
 }
 
-Relocation* OutputRelocSection::consumeEntry()
-{
+Relocation* OutputRelocSection::consumeEntry() {
   // first time visit this function, set m_ValidEntryIterator to
   // Fragments.begin()
-  if(!m_isVisit) {
+  if (!m_isVisit) {
     assert(!m_pRelocData->getRelocationList().empty() &&
            "DynRelSection contains no entries.");
     m_ValidEntryIterator = m_pRelocData->begin();
@@ -71,13 +67,11 @@ Relocation* OutputRelocSection::consumeEntry()
   return &(*m_ValidEntryIterator);
 }
 
-size_t OutputRelocSection::numOfRelocs()
-{
+size_t OutputRelocSection::numOfRelocs() {
   return m_pRelocData->size();
 }
 
-bool OutputRelocSection::addSymbolToDynSym(LDSymbol& pSymbol)
-{
+bool OutputRelocSection::addSymbolToDynSym(LDSymbol& pSymbol) {
   m_Module.getSymbolTable().changeToDynamic(pSymbol);
   return true;
 }

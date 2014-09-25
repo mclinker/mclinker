@@ -13,8 +13,7 @@
 
 #include <string>
 
-namespace mcld
-{
+namespace mcld {
 
 class Module;
 
@@ -22,26 +21,24 @@ class Module;
  *  \brief This class defines the interfaces to Output command.
  */
 
-class OutputCmd : public ScriptCommand
-{
-public:
-  OutputCmd(const std::string& pOutputFile);
+class OutputCmd : public ScriptCommand {
+ public:
+  explicit OutputCmd(const std::string& pOutputFile);
 
   ~OutputCmd();
 
   void dump() const;
 
-  static bool classof(const ScriptCommand* pCmd)
-  {
+  static bool classof(const ScriptCommand* pCmd) {
     return pCmd->getKind() == ScriptCommand::OUTPUT;
   }
 
   void activate(Module& pModule);
 
-private:
+ private:
   std::string m_OutputFile;
 };
 
-} // namespace mcld
+}  // namespace mcld
 
 #endif  // MCLD_SCRIPT_OUTPUTCMD_H_

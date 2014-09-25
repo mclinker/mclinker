@@ -15,63 +15,53 @@
 namespace {
 
 const uint32_t PLT0[] = {
-  0x3c1c0000,         // lui $28, %hi(&GOTPLT[0])
-  0x8f990000,         // lw $25, %lo(&GOTPLT[0])($28)
-  0x279c0000,         // addiu $28, $28, %lo(&GOTPLT[0])
-  0x031cc023,         // subu $24, $24, $28
-  0x03e07821,         // move $15, $31
-  0x0018c082,         // srl $24, $24, 2
-  0x0320f809,         // jalr $25
-  0x2718fffe          // subu $24, $24, 2
+    0x3c1c0000,  // lui $28, %hi(&GOTPLT[0])
+    0x8f990000,  // lw $25, %lo(&GOTPLT[0])($28)
+    0x279c0000,  // addiu $28, $28, %lo(&GOTPLT[0])
+    0x031cc023,  // subu $24, $24, $28
+    0x03e07821,  // move $15, $31
+    0x0018c082,  // srl $24, $24, 2
+    0x0320f809,  // jalr $25
+    0x2718fffe   // subu $24, $24, 2
 };
 
 const uint32_t PLTA[] = {
-  0x3c0f0000,         // lui $15, %hi(.got.plt entry)
-  0x8df90000,         // l[wd] $25, %lo(.got.plt entry)($15)
-  0x03200008,         // jr $25
-  0x25f80000          // addiu $24, $15, %lo(.got.plt entry)
+    0x3c0f0000,  // lui $15, %hi(.got.plt entry)
+    0x8df90000,  // l[wd] $25, %lo(.got.plt entry)($15)
+    0x03200008,  // jr $25
+    0x25f80000   // addiu $24, $15, %lo(.got.plt entry)
 };
 
-} // anonymous namespace
+}  // anonymous namespace
 
 namespace mcld {
 
 //===----------------------------------------------------------------------===//
 // MipsPLT0 Entry
 //===----------------------------------------------------------------------===//
-class MipsPLT0 : public PLT::Entry<sizeof(PLT0)>
-{
-public:
-  MipsPLT0(SectionData& pParent)
-      : PLT::Entry<sizeof(PLT0)>(pParent)
-  { }
+class MipsPLT0 : public PLT::Entry<sizeof(PLT0)> {
+ public:
+  MipsPLT0(SectionData& pParent) : PLT::Entry<sizeof(PLT0)>(pParent) {}
 };
 
 //===----------------------------------------------------------------------===//
 // MipsPLTA Entry
 //===----------------------------------------------------------------------===//
-class MipsPLTA : public PLT::Entry<sizeof(PLTA)>
-{
-public:
-  MipsPLTA(SectionData& pParent)
-      : PLT::Entry<sizeof(PLTA)>(pParent)
-  { }
+class MipsPLTA : public PLT::Entry<sizeof(PLTA)> {
+ public:
+  MipsPLTA(SectionData& pParent) : PLT::Entry<sizeof(PLTA)>(pParent) {}
 };
 
 //===----------------------------------------------------------------------===//
 // MipsPLT
 //===----------------------------------------------------------------------===//
-MipsPLT::MipsPLT(LDSection& pSection)
-    : PLT(pSection)
-{
+MipsPLT::MipsPLT(LDSection& pSection) : PLT(pSection) {
   new MipsPLT0(*m_pSectionData);
   m_Last = m_pSectionData->begin();
 }
 
-void MipsPLT::finalizeSectionSize()
-{
-  uint64_t size = sizeof(PLT0) +
-                  (m_pSectionData->size() - 1) * sizeof(PLTA);
+void MipsPLT::finalizeSectionSize() {
+  uint64_t size = sizeof(PLT0) + (m_pSectionData->size() - 1) * sizeof(PLTA);
   m_Section.setSize(size);
 
   uint32_t offset = 0;
@@ -82,13 +72,11 @@ void MipsPLT::finalizeSectionSize()
   }
 }
 
-bool MipsPLT::hasPLT1() const
-{
+bool MipsPLT::hasPLT1() const {
   return m_pSectionData->size() > 1;
 }
 
-uint64_t MipsPLT::emit(MemoryRegion& pRegion)
-{
+uint64_t MipsPLT::emit(MemoryRegion& pRegion) {
   uint64_t result = 0x0;
   iterator it = begin();
 
@@ -106,8 +94,7 @@ uint64_t MipsPLT::emit(MemoryRegion& pRegion)
   return result;
 }
 
-void MipsPLT::reserveEntry(size_t pNum)
-{
+void MipsPLT::reserveEntry(size_t pNum) {
   for (size_t i = 0; i < pNum; ++i) {
     Fragment* entry = new (std::nothrow) MipsPLTA(*m_pSectionData);
 
@@ -116,16 +103,14 @@ void MipsPLT::reserveEntry(size_t pNum)
   }
 }
 
-Fragment* MipsPLT::consume()
-{
+Fragment* MipsPLT::consume() {
   ++m_Last;
   assert(m_Last != m_pSectionData->end() &&
          "The number of PLT Entries and ResolveInfo doesn't match");
   return &(*m_Last);
 }
 
-void MipsPLT::applyAllPLT(MipsGOTPLT& pGOTPLT)
-{
+void MipsPLT::applyAllPLT(MipsGOTPLT& pGOTPLT) {
   assert(m_Section.addr() && ".plt base address is NULL!");
 
   size_t count = 0;
@@ -167,4 +152,4 @@ void MipsPLT::applyAllPLT(MipsGOTPLT& pGOTPLT)
   }
 }
 
-} // namespace mcld
+}  // namespace mcld

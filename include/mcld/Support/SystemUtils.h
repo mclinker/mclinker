@@ -24,7 +24,7 @@ typedef off_t Offset;
 /** \fn strerror
  *  \brief system error message
  */
-char *strerror(int pErrnum);
+char* strerror(int pErrnum);
 
 std::string getDefaultTargetTriple();
 
@@ -36,7 +36,7 @@ long GetRandomNum();
 /// SetRandomSeed - set the initial seed value for future calls to random().
 void SetRandomSeed(unsigned pSeed);
 
-} // namespace sys
-} // namespace mcld
+}  // namespace sys
+}  // namespace mcld
 
 #endif  // MCLD_SUPPORT_SYSTEMUTILS_H_

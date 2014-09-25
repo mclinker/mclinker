@@ -11,23 +11,20 @@
 #include "mcld/LD/StringTable.h"
 #include <gtest.h>
 
-namespace mcld
-{
-  template <template <class> class, class>
-  class SymbolTable;
-} // namespace for mcld
+namespace mcld {
+template <template <class> class, class>
+class SymbolTable;
+}  // namespace for mcld
 
-namespace mcldtest
-{
+namespace mcldtest {
 
 /** \class SymbolTableTest
  *  \brief
  *
  *  \see SymbolTable
  */
-class SymbolTableTest : public ::testing::Test
-{
-public:
+class SymbolTableTest : public ::testing::Test {
+ public:
   // Constructor can do set-up work for all test here.
   SymbolTableTest();
 
@@ -40,11 +37,11 @@ public:
   // TearDown() will be called immediately after each test.
   virtual void TearDown();
 
-protected:
+ protected:
   mcld::SymbolTable<>* m_pTestee;
   mcld::StringTable m_StrTable;
 };
 
-} // namespace of mcldtest
+}  // namespace of mcldtest
 
 #endif

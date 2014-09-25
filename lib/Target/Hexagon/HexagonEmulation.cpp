@@ -14,8 +14,8 @@
 
 namespace mcld {
 
-static bool MCLDEmulateHexagonELF(LinkerScript& pScript, LinkerConfig& pConfig)
-{
+static bool MCLDEmulateHexagonELF(LinkerScript& pScript,
+                                  LinkerConfig& pConfig) {
   if (!MCLDEmulateELF(pScript, pConfig))
     return false;
 
@@ -38,8 +38,7 @@ static bool MCLDEmulateHexagonELF(LinkerScript& pScript, LinkerConfig& pConfig)
 //===----------------------------------------------------------------------===//
 // emulateHexagonLD - the help function to emulate Hexagon ld
 //===----------------------------------------------------------------------===//
-bool emulateHexagonLD(LinkerScript& pScript, LinkerConfig& pConfig)
-{
+bool emulateHexagonLD(LinkerScript& pScript, LinkerConfig& pConfig) {
   if (pConfig.targets().triple().isOSDarwin()) {
     assert(0 && "MachO linker has not supported yet");
     return false;
@@ -52,7 +51,7 @@ bool emulateHexagonLD(LinkerScript& pScript, LinkerConfig& pConfig)
   return MCLDEmulateHexagonELF(pScript, pConfig);
 }
 
-} // namespace mcld
+}  // namespace mcld
 
 //===----------------------------------------------------------------------===//
 // HexagonEmulation

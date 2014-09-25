@@ -11,23 +11,20 @@
 
 #include <gtest.h>
 
-namespace mcld
-{
+namespace mcld {
 class StringTable;
 
-} // namespace for mcld
+}  // namespace for mcld
 
-namespace mcldtest
-{
+namespace mcldtest {
 
 /** \class StringTableTest
  *  \brief
  *
  *  \see StringTable
  */
-class StringTableTest : public ::testing::Test
-{
-public:
+class StringTableTest : public ::testing::Test {
+ public:
   // Constructor can do set-up work for all test here.
   StringTableTest();
 
@@ -40,11 +37,10 @@ public:
   // TearDown() will be called immediately after each test.
   virtual void TearDown();
 
-protected:
+ protected:
   mcld::StringTable* m_pTestee;
 };
 
-} // namespace of mcldtest
+}  // namespace of mcldtest
 
 #endif
-

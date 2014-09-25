@@ -13,20 +13,20 @@
 namespace {
 
 const uint32_t STUB[] = {
-  0x3c190000,   // lui $25,%hi(func)
-  0x08000000,   // j func
-  0x27390000,   // add $25,$25,%lo(func)
-  0x00000000    // nop
+    0x3c190000,  // lui $25,%hi(func)
+    0x08000000,  // j func
+    0x27390000,  // add $25,$25,%lo(func)
+    0x00000000   // nop
 };
 
 enum {
   // Fake relocations for patching LA25 stubs.
   R_MIPS_LA25_LUI = 200,
-  R_MIPS_LA25_J   = 201,
+  R_MIPS_LA25_J = 201,
   R_MIPS_LA25_ADD = 202
 };
 
-} // anonymous namespace
+}  // anonymous namespace
 
 namespace mcld {
 
@@ -35,11 +35,10 @@ namespace mcld {
 //===----------------------------------------------------------------------===//
 
 MipsLA25Stub::MipsLA25Stub(const MipsGNULDBackend& pTarget)
-   : m_Target(pTarget),
-     m_Name("MipsLA25_Prototype"),
-     m_pData(STUB),
-     m_Size(sizeof(STUB))
-{
+    : m_Target(pTarget),
+      m_Name("MipsLA25_Prototype"),
+      m_pData(STUB),
+      m_Size(sizeof(STUB)) {
   addFixup(0, 0x0, R_MIPS_LA25_LUI);
   addFixup(4, 0x0, R_MIPS_LA25_J);
   addFixup(8, 0x0, R_MIPS_LA25_ADD);
@@ -50,19 +49,14 @@ MipsLA25Stub::MipsLA25Stub(const MipsGNULDBackend& pTarget,
                            size_t pSize,
                            const_fixup_iterator pBegin,
                            const_fixup_iterator pEnd)
-   : m_Target(pTarget),
-     m_Name("pic"),
-     m_pData(pData),
-     m_Size(pSize)
-{
+    : m_Target(pTarget), m_Name("pic"), m_pData(pData), m_Size(pSize) {
   for (const_fixup_iterator it = pBegin, ie = pEnd; it != ie; ++it)
     addFixup(**it);
 }
 
 bool MipsLA25Stub::isMyDuty(const Relocation& pReloc,
                             uint64_t pSource,
-                            uint64_t pTargetSymValue) const
-{
+                            uint64_t pTargetSymValue) const {
   if (llvm::ELF::R_MIPS_26 != pReloc.type())
     return false;
 
@@ -80,30 +74,25 @@ bool MipsLA25Stub::isMyDuty(const Relocation& pReloc,
   return true;
 }
 
-const std::string& MipsLA25Stub::name() const
-{
+const std::string& MipsLA25Stub::name() const {
   return m_Name;
 }
 
-const uint8_t* MipsLA25Stub::getContent() const
-{
+const uint8_t* MipsLA25Stub::getContent() const {
   return reinterpret_cast<const uint8_t*>(m_pData);
 }
 
-size_t MipsLA25Stub::size() const
-{
+size_t MipsLA25Stub::size() const {
   return m_Size;
 }
 
-size_t MipsLA25Stub::alignment() const
-{
+size_t MipsLA25Stub::alignment() const {
   return 4;
 }
 
-Stub* MipsLA25Stub::doClone()
-{
-  return new MipsLA25Stub(m_Target, m_pData, m_Size,
-                          fixup_begin(), fixup_end());
+Stub* MipsLA25Stub::doClone() {
+  return new MipsLA25Stub(
+      m_Target, m_pData, m_Size, fixup_begin(), fixup_end());
 }
 
-} // namespace mcld
+}  // namespace mcld

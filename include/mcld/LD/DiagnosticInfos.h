@@ -14,7 +14,7 @@
 namespace mcld {
 
 namespace diag {
-  enum ID {
+enum ID {
 #define DIAG(ENUM, CLASS, ADDRMSG, LINEMSG) ENUM,
 #include "mcld/LD/DiagAttribute.inc"
 #include "mcld/LD/DiagCommonKinds.inc"
@@ -25,9 +25,9 @@ namespace diag {
 #include "mcld/LD/DiagGOTPLT.inc"
 #include "mcld/LD/DiagLDScript.inc"
 #undef DIAG
-    NUM_OF_BUILDIN_DIAGNOSTIC_INFO
-  };
-} // namespace diag
+  NUM_OF_BUILDIN_DIAGNOSTIC_INFO
+};
+}  // namespace diag
 
 class DiagnosticEngine;
 class LinkerConfig;
@@ -35,10 +35,9 @@ class LinkerConfig;
 /** \class DiagnosticInfos
  *  \brief DiagnosticInfos caches run-time information of DiagnosticInfo.
  */
-class DiagnosticInfos
-{
-public:
-  DiagnosticInfos(const LinkerConfig& pConfig);
+class DiagnosticInfos {
+ public:
+  explicit DiagnosticInfos(const LinkerConfig& pConfig);
 
   ~DiagnosticInfos();
 
@@ -46,10 +45,10 @@ public:
 
   bool process(DiagnosticEngine& pEngine) const;
 
-private:
+ private:
   const LinkerConfig& m_Config;
 };
 
-} // namespace mcld
+}  // namespace mcld
 
 #endif  // MCLD_LD_DIAGNOSTICINFOS_H_

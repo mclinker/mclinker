@@ -11,8 +11,7 @@
 
 #include <mcld/Module.h>
 
-namespace mcld
-{
+namespace mcld {
 class Archive;
 class ArchiveReader;
 class BinaryReader;
@@ -27,9 +26,8 @@ class ObjectReader;
  *  Group Node is the root of sub-tree in InputTree which includes the iputs in
  *  the command line options --start-group and --end-group options
  */
-class GroupReader
-{
-public:
+class GroupReader {
+ public:
   GroupReader(Module& pModule,
               ObjectReader& pObjectReader,
               DynObjReader& pDynObjReader,
@@ -45,18 +43,17 @@ public:
                  InputBuilder& pBuilder,
                  const LinkerConfig& pConfig);
 
-private:
+ private:
   /// ArchiveListEntry - record the Archive and the corresponding input iterator
   /// of the archive node
   struct ArchiveListEntry {
     ArchiveListEntry(Archive& pArchive, Module::input_iterator pIterator)
-        : archive(pArchive), input(pIterator) {
-    }
+        : archive(pArchive), input(pIterator) {}
     Archive& archive;
     Module::input_iterator input;
   };
 
-private:
+ private:
   Module& m_Module;
   ObjectReader& m_ObjectReader;
   DynObjReader& m_DynObjReader;
@@ -64,6 +61,6 @@ private:
   BinaryReader& m_BinaryReader;
 };
 
-} // namespace mcld
+}  // namespace mcld
 
 #endif  // MCLD_LD_GROUPREADER_H_

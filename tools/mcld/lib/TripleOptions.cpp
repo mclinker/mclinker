@@ -19,38 +19,39 @@
 
 namespace {
 
-llvm::cl::opt<std::string> ArgTargetTriple("mtriple",
-                           llvm::cl::desc("Override target triple for module"));
+llvm::cl::opt<std::string> ArgTargetTriple(
+    "mtriple",
+    llvm::cl::desc("Override target triple for module"));
 
-llvm::cl::opt<std::string> ArgMArch("march",
-           llvm::cl::desc("Architecture to generate code for (see --version)"));
+llvm::cl::opt<std::string> ArgMArch(
+    "march",
+    llvm::cl::desc("Architecture to generate code for (see --version)"));
 
-llvm::cl::opt<std::string> ArgMCPU("mcpu",
-          llvm::cl::desc("Target a specific cpu type (-mcpu=help for details)"),
-          llvm::cl::value_desc("cpu-name"),
-          llvm::cl::init(""));
+llvm::cl::opt<std::string> ArgMCPU(
+    "mcpu",
+    llvm::cl::desc("Target a specific cpu type (-mcpu=help for details)"),
+    llvm::cl::value_desc("cpu-name"),
+    llvm::cl::init(""));
 
-llvm::cl::list<std::string> ArgMAttrs("mattr",
-         llvm::cl::CommaSeparated,
-         llvm::cl::desc("Target specific attributes (-mattr=help for details)"),
-         llvm::cl::value_desc("a1,+a2,-a3,..."));
+llvm::cl::list<std::string> ArgMAttrs(
+    "mattr",
+    llvm::cl::CommaSeparated,
+    llvm::cl::desc("Target specific attributes (-mattr=help for details)"),
+    llvm::cl::value_desc("a1,+a2,-a3,..."));
 
-llvm::cl::opt<std::string> ArgEmulation("m",
-                                     llvm::cl::ZeroOrMore,
-                                     llvm::cl::desc("Set GNU linker emulation"),
-                                     llvm::cl::value_desc("emulation"),
-                                     llvm::cl::Prefix);
+llvm::cl::opt<std::string> ArgEmulation(
+    "m",
+    llvm::cl::ZeroOrMore,
+    llvm::cl::desc("Set GNU linker emulation"),
+    llvm::cl::value_desc("emulation"),
+    llvm::cl::Prefix);
 
 /// ParseProgName - Parse program name
 /// This function simplifies cross-compiling by reading triple from the program
 /// name. For example, if the program name is `arm-linux-eabi-ld.mcld', we can
 /// get the triple is arm-linux-eabi by the program name.
-inline std::string ParseProgName(const char *pProgName)
-{
-  static const char *suffixes[] = {
-    "ld",
-    "ld.mcld"
-  };
+inline std::string ParseProgName(const char* pProgName) {
+  static const char* suffixes[] = {"ld", "ld.mcld"};
 
   std::string ProgName(mcld::sys::fs::Path(pProgName).stem().native());
 
@@ -66,8 +67,8 @@ inline std::string ParseProgName(const char *pProgName)
     if (!ProgNameRef.endswith(suffixes[i]))
       continue;
 
-    llvm::StringRef::size_type LastComponent = ProgNameRef.rfind('-',
-      ProgNameRef.size() - strlen(suffixes[i]));
+    llvm::StringRef::size_type LastComponent =
+        ProgNameRef.rfind('-', ProgNameRef.size() - strlen(suffixes[i]));
     if (LastComponent == llvm::StringRef::npos)
       continue;
     llvm::StringRef Prefix = ProgNameRef.slice(0, LastComponent);
@@ -79,38 +80,38 @@ inline std::string ParseProgName(const char *pProgName)
   return std::string();
 }
 
-inline void
-ParseEmulation(llvm::Triple& pTriple, const std::string& pEmulation)
-{
-  llvm::Triple triple = llvm::StringSwitch<llvm::Triple>(pEmulation)
-    .Case("aarch64linux",      llvm::Triple("aarch64", "", "linux", "gnu"))
-    .Case("armelf_linux_eabi", llvm::Triple("arm", "", "linux", "gnueabi"))
-    .Case("elf_i386",          llvm::Triple("i386", "", "", "gnu"))
-    .Case("elf_x86_64",        llvm::Triple("x86_64", "", "", "gnu"))
-    .Case("elf32_x86_64",      llvm::Triple("x86_64", "", "", "gnux32"))
-    .Case("elf_i386_fbsd",     llvm::Triple("i386", "", "freebsd", "gnu"))
-    .Case("elf_x86_64_fbsd",   llvm::Triple("x86_64", "", "freebsd", "gnu"))
-    .Case("elf32ltsmip",       llvm::Triple("mipsel", "", "", "gnu"))
-    .Case("elf64ltsmip",       llvm::Triple("mips64el", "", "", "gnu"))
-    .Default(llvm::Triple());
+inline void ParseEmulation(llvm::Triple& pTriple,
+                           const std::string& pEmulation) {
+  llvm::Triple triple =
+      llvm::StringSwitch<llvm::Triple>(pEmulation)
+          .Case("aarch64linux", llvm::Triple("aarch64", "", "linux", "gnu"))
+          .Case("armelf_linux_eabi",
+                llvm::Triple("arm", "", "linux", "gnueabi"))
+          .Case("elf_i386", llvm::Triple("i386", "", "", "gnu"))
+          .Case("elf_x86_64", llvm::Triple("x86_64", "", "", "gnu"))
+          .Case("elf32_x86_64", llvm::Triple("x86_64", "", "", "gnux32"))
+          .Case("elf_i386_fbsd", llvm::Triple("i386", "", "freebsd", "gnu"))
+          .Case("elf_x86_64_fbsd", llvm::Triple("x86_64", "", "freebsd", "gnu"))
+          .Case("elf32ltsmip", llvm::Triple("mipsel", "", "", "gnu"))
+          .Case("elf64ltsmip", llvm::Triple("mips64el", "", "", "gnu"))
+          .Default(llvm::Triple());
 
-  if (triple.getArch()        == llvm::Triple::UnknownArch &&
-      triple.getOS()          == llvm::Triple::UnknownOS &&
+  if (triple.getArch() == llvm::Triple::UnknownArch &&
+      triple.getOS() == llvm::Triple::UnknownOS &&
       triple.getEnvironment() == llvm::Triple::UnknownEnvironment)
     mcld::error(mcld::diag::err_invalid_emulation) << pEmulation << "\n";
 
-  if (triple.getArch()        != llvm::Triple::UnknownArch)
+  if (triple.getArch() != llvm::Triple::UnknownArch)
     pTriple.setArch(triple.getArch());
 
-  if (triple.getOS()          != llvm::Triple::UnknownOS)
+  if (triple.getOS() != llvm::Triple::UnknownOS)
     pTriple.setOS(triple.getOS());
 
   if (triple.getEnvironment() != llvm::Triple::UnknownEnvironment)
     pTriple.setEnvironment(triple.getEnvironment());
-
 }
 
-} // anonymous namespace
+}  // anonymous namespace
 
 using namespace mcld;
 
@@ -118,27 +119,24 @@ using namespace mcld;
 // TripleOptions
 //===----------------------------------------------------------------------===//
 TripleOptions::TripleOptions()
-  : m_TargetTriple(ArgTargetTriple),
-    m_MArch(ArgMArch),
-    m_MCPU(ArgMCPU),
-    m_MAttrs(ArgMAttrs),
-    m_Emulation(ArgEmulation) {
+    : m_TargetTriple(ArgTargetTriple),
+      m_MArch(ArgMArch),
+      m_MCPU(ArgMCPU),
+      m_MAttrs(ArgMAttrs),
+      m_Emulation(ArgEmulation) {
 }
 
-bool TripleOptions::parse(int pArgc, char* pArgv[], LinkerConfig& pConfig)
-{
+bool TripleOptions::parse(int pArgc, char* pArgv[], LinkerConfig& pConfig) {
   llvm::Triple triple;
   if (!m_TargetTriple.empty()) {
     // 1. Use the triple from command.
     triple.setTriple(m_TargetTriple);
-  }
-  else {
+  } else {
     std::string prog_triple = ParseProgName(pArgv[0]);
     if (!prog_triple.empty()) {
       // 2. Use the triple from the program name prefix.
       triple.setTriple(prog_triple);
-    }
-    else {
+    } else {
       // 3. Use the default target triple.
       triple.setTriple(mcld::sys::getDefaultTargetTriple());
     }
@@ -164,4 +162,3 @@ bool TripleOptions::parse(int pArgc, char* pArgv[], LinkerConfig& pConfig)
   pConfig.targets().setTargetFeatureString(feature_str);
   return true;
 }
-

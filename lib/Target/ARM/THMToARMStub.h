@@ -13,8 +13,7 @@
 #include <llvm/Support/DataTypes.h>
 #include <string>
 
-namespace mcld
-{
+namespace mcld {
 
 class Relocation;
 class ResolveInfo;
@@ -23,9 +22,8 @@ class ResolveInfo;
  *  \brief ARM stub for long call from ARM source to ARM target
  *
  */
-class THMToARMStub : public Stub
-{
-public:
+class THMToARMStub : public Stub {
+ public:
   THMToARMStub(bool pIsOutputPIC, bool pUsingThumb2);
 
   ~THMToARMStub();
@@ -47,7 +45,7 @@ public:
   // for T bit of this stub
   uint64_t initSymValue() const;
 
-private:
+ private:
   THMToARMStub(const THMToARMStub&);
 
   THMToARMStub& operator=(const THMToARMStub&);
@@ -62,7 +60,7 @@ private:
   /// doClone
   Stub* doClone();
 
-private:
+ private:
   static const uint32_t PIC_TEMPLATE[];
   static const uint32_t TEMPLATE[];
   const uint32_t* m_pData;
@@ -71,6 +69,6 @@ private:
   bool m_bUsingThumb2;
 };
 
-} // namespace mcld
+}  // namespace mcld
 
 #endif  // TARGET_ARM_THMTOARMSTUB_H_

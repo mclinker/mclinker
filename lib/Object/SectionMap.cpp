@@ -25,11 +25,11 @@
 #include <climits>
 #if !defined(MCLD_ON_WIN32)
 #include <fnmatch.h>
-#define fnmatch0(pattern,string) (fnmatch(pattern,string,0) == 0)
+#define fnmatch0(pattern, string) (fnmatch(pattern, string, 0) == 0)
 #else
 #include <windows.h>
 #include <shlwapi.h>
-#define fnmatch0(pattern,string) (PathMatchSpec(string, pattern) == true)
+#define fnmatch0(pattern, string) (PathMatchSpec(string, pattern) == true)
 #endif
 
 using namespace mcld;
@@ -38,10 +38,9 @@ using namespace mcld;
 //===----------------------------------------------------------------------===//
 SectionMap::Input::Input(const std::string& pName,
                          InputSectDesc::KeepPolicy pPolicy)
-    : m_Policy(pPolicy)
-{
+    : m_Policy(pPolicy) {
   m_Spec.m_pWildcardFile =
-    WildcardPattern::create("*", WildcardPattern::SORT_NONE);
+      WildcardPattern::create("*", WildcardPattern::SORT_NONE);
   m_Spec.m_pExcludeFiles = NULL;
 
   StringList* sections = StringList::create();
@@ -57,8 +56,7 @@ SectionMap::Input::Input(const std::string& pName,
 }
 
 SectionMap::Input::Input(const InputSectDesc& pInputDesc)
-    : m_Policy(pInputDesc.policy())
-{
+    : m_Policy(pInputDesc.policy()) {
   m_Spec.m_pWildcardFile = pInputDesc.spec().m_pWildcardFile;
   m_Spec.m_pExcludeFiles = pInputDesc.spec().m_pExcludeFiles;
   m_Spec.m_pWildcardSections = pInputDesc.spec().m_pWildcardSections;
@@ -73,9 +71,7 @@ SectionMap::Input::Input(const InputSectDesc& pInputDesc)
 // SectionMap::Output
 //===----------------------------------------------------------------------===//
 SectionMap::Output::Output(const std::string& pName)
-    : m_Name(pName),
-      m_Order(UINT_MAX)
-{
+    : m_Name(pName), m_Order(UINT_MAX) {
   m_Prolog.m_pVMA = NULL;
   m_Prolog.m_Type = OutputSectDesc::LOAD;
   m_Prolog.m_pLMA = NULL;
@@ -99,8 +95,7 @@ SectionMap::Output::Output(const OutputSectDesc& pOutputDesc)
     : m_Name(pOutputDesc.name()),
       m_Prolog(pOutputDesc.prolog()),
       m_Epilog(pOutputDesc.epilog()),
-      m_Order(UINT_MAX)
-{
+      m_Order(UINT_MAX) {
   m_pSection = LDSection::Create(m_Name, LDFileFormat::TEXT, 0, 0);
   SectionData* sd = SectionData::Create(*m_pSection);
   m_pSection->setSectionData(sd);
@@ -108,14 +103,12 @@ SectionMap::Output::Output(const OutputSectDesc& pOutputDesc)
   m_bIsDiscard = m_Name.compare("/DISCARD/") == 0;
 }
 
-bool SectionMap::Output::hasContent() const
-{
+bool SectionMap::Output::hasContent() const {
   return m_pSection != NULL && m_pSection->size() != 0;
 }
 
 SectionMap::Output::const_dot_iterator
-SectionMap::Output::find_first_explicit_dot() const
-{
+SectionMap::Output::find_first_explicit_dot() const {
   for (const_dot_iterator it = dot_begin(), ie = dot_end(); it != ie; ++it) {
     if ((*it).type() == Assignment::DEFAULT)
       return it;
@@ -123,8 +116,7 @@ SectionMap::Output::find_first_explicit_dot() const
   return dot_end();
 }
 
-SectionMap::Output::dot_iterator SectionMap::Output::find_first_explicit_dot()
-{
+SectionMap::Output::dot_iterator SectionMap::Output::find_first_explicit_dot() {
   for (dot_iterator it = dot_begin(), ie = dot_end(); it != ie; ++it) {
     if ((*it).type() == Assignment::DEFAULT)
       return it;
@@ -133,11 +125,11 @@ SectionMap::Output::dot_iterator SectionMap::Output::find_first_explicit_dot()
 }
 
 SectionMap::Output::const_dot_iterator
-SectionMap::Output::find_last_explicit_dot() const
-{
+SectionMap::Output::find_last_explicit_dot() const {
   typedef DotAssignments::const_reverse_iterator CONST_RIT;
   for (CONST_RIT rit = dotAssignments().rbegin(), rie = dotAssignments().rend();
-       rit != rie; ++rit) {
+       rit != rie;
+       ++rit) {
     if ((*rit).type() == Assignment::DEFAULT) {
       return dot_begin() +
              (dotAssignments().size() - (rit - dotAssignments().rbegin()) - 1);
@@ -146,11 +138,11 @@ SectionMap::Output::find_last_explicit_dot() const
   return dot_end();
 }
 
-SectionMap::Output::dot_iterator SectionMap::Output::find_last_explicit_dot()
-{
+SectionMap::Output::dot_iterator SectionMap::Output::find_last_explicit_dot() {
   typedef DotAssignments::reverse_iterator RIT;
   for (RIT rit = dotAssignments().rbegin(), rie = dotAssignments().rend();
-       rit != rie; ++rit) {
+       rit != rie;
+       ++rit) {
     if ((*rit).type() == Assignment::DEFAULT) {
       return dot_begin() +
              (dotAssignments().size() - (rit - dotAssignments().rbegin()) - 1);
@@ -162,8 +154,7 @@ SectionMap::Output::dot_iterator SectionMap::Output::find_last_explicit_dot()
 //===----------------------------------------------------------------------===//
 // SectionMap
 //===----------------------------------------------------------------------===//
-SectionMap::~SectionMap()
-{
+SectionMap::~SectionMap() {
   iterator out, outBegin = begin(), outEnd = end();
   for (out = outBegin; out != outEnd; ++out) {
     if (*out != NULL) {
@@ -177,10 +168,9 @@ SectionMap::~SectionMap()
   }
 }
 
-SectionMap::const_mapping
-SectionMap::find(const std::string& pInputFile,
-                 const std::string& pInputSection) const
-{
+SectionMap::const_mapping SectionMap::find(
+    const std::string& pInputFile,
+    const std::string& pInputSection) const {
   const_iterator out, outBegin = begin(), outEnd = end();
   for (out = outBegin; out != outEnd; ++out) {
     Output::const_iterator in, inBegin = (*out)->begin(), inEnd = (*out)->end();
@@ -193,8 +183,7 @@ SectionMap::find(const std::string& pInputFile,
 }
 
 SectionMap::mapping SectionMap::find(const std::string& pInputFile,
-                                     const std::string& pInputSection)
-{
+                                     const std::string& pInputSection) {
   iterator out, outBegin = begin(), outEnd = end();
   for (out = outBegin; out != outEnd; ++out) {
     Output::iterator in, inBegin = (*out)->begin(), inEnd = (*out)->end();
@@ -206,9 +195,8 @@ SectionMap::mapping SectionMap::find(const std::string& pInputFile,
   return std::make_pair((Output*)NULL, (Input*)NULL);
 }
 
-SectionMap::const_iterator
-SectionMap::find(const std::string& pOutputSection) const
-{
+SectionMap::const_iterator SectionMap::find(
+    const std::string& pOutputSection) const {
   const_iterator out, outBegin = begin(), outEnd = end();
   for (out = outBegin; out != outEnd; ++out) {
     if ((*out)->name().compare(pOutputSection) == 0)
@@ -217,9 +205,7 @@ SectionMap::find(const std::string& pOutputSection) const
   return outEnd;
 }
 
-SectionMap::iterator
-SectionMap::find(const std::string& pOutputSection)
-{
+SectionMap::iterator SectionMap::find(const std::string& pOutputSection) {
   iterator out, outBegin = begin(), outEnd = end();
   for (out = outBegin; out != outEnd; ++out) {
     if ((*out)->name().compare(pOutputSection) == 0)
@@ -228,11 +214,10 @@ SectionMap::find(const std::string& pOutputSection)
   return outEnd;
 }
 
-std::pair<SectionMap::mapping, bool>
-SectionMap::insert(const std::string& pInputSection,
-                   const std::string& pOutputSection,
-                   InputSectDesc::KeepPolicy pPolicy)
-{
+std::pair<SectionMap::mapping, bool> SectionMap::insert(
+    const std::string& pInputSection,
+    const std::string& pOutputSection,
+    InputSectDesc::KeepPolicy pPolicy) {
   iterator out, outBegin = begin(), outEnd = end();
   for (out = outBegin; out != outEnd; ++out) {
     if ((*out)->name().compare(pOutputSection) == 0)
@@ -262,10 +247,9 @@ SectionMap::insert(const std::string& pInputSection,
   return std::make_pair(std::make_pair(output, input), true);
 }
 
-std::pair<SectionMap::mapping, bool>
-SectionMap::insert(const InputSectDesc& pInputDesc,
-                   const OutputSectDesc& pOutputDesc)
-{
+std::pair<SectionMap::mapping, bool> SectionMap::insert(
+    const InputSectDesc& pInputDesc,
+    const OutputSectDesc& pOutputDesc) {
   iterator out, outBegin = begin(), outEnd = end();
   for (out = outBegin; out != outEnd; ++out) {
     if ((*out)->name().compare(pOutputDesc.name()) == 0 &&
@@ -299,9 +283,8 @@ SectionMap::insert(const InputSectDesc& pInputDesc,
   return std::make_pair(std::make_pair(output, input), true);
 }
 
-SectionMap::iterator
-SectionMap::insert(iterator pPosition, LDSection* pSection)
-{
+SectionMap::iterator SectionMap::insert(iterator pPosition,
+                                        LDSection* pSection) {
   Output* output = new Output(pSection->name());
   output->append(new Input(pSection->name(), InputSectDesc::NoKeep));
   output->setSection(pSection);
@@ -310,10 +293,9 @@ SectionMap::insert(iterator pPosition, LDSection* pSection)
 
 bool SectionMap::matched(const SectionMap::Input& pInput,
                          const std::string& pInputFile,
-                         const std::string& pInputSection) const
-{
+                         const std::string& pInputSection) const {
   if (pInput.spec().hasFile() && !matched(pInput.spec().file(), pInputFile))
-      return false;
+    return false;
 
   if (pInput.spec().hasExcludeFiles()) {
     StringList::const_iterator file, fileEnd;
@@ -338,8 +320,7 @@ bool SectionMap::matched(const SectionMap::Input& pInput,
 }
 
 bool SectionMap::matched(const WildcardPattern& pPattern,
-                         const std::string& pName) const
-{
+                         const std::string& pName) const {
   if (pPattern.isPrefix()) {
     llvm::StringRef name(pName);
     return name.startswith(pPattern.prefix());
@@ -349,14 +330,12 @@ bool SectionMap::matched(const WildcardPattern& pPattern,
 }
 
 // fixupDotSymbols - ensure the dot symbols are valid
-void SectionMap::fixupDotSymbols()
-{
+void SectionMap::fixupDotSymbols() {
   for (iterator it = begin() + 1, ie = end(); it != ie; ++it) {
     // fixup the 1st explicit dot assignment if needed
     if (!(*it)->dotAssignments().empty()) {
       Output::dot_iterator dot = (*it)->find_first_explicit_dot();
-      if (dot != (*it)->dot_end() &&
-          (*dot).symbol().isDot() &&
+      if (dot != (*it)->dot_end() && (*dot).symbol().isDot() &&
           (*dot).getRpnExpr().hasDot()) {
         Assignment assign(Assignment::OUTPUT_SECTION,
                           Assignment::DEFAULT,
@@ -364,11 +343,13 @@ void SectionMap::fixupDotSymbols()
                           *RpnExpr::buildHelperExpr(it - 1));
         Output::dot_iterator ref = (*it)->dotAssignments().insert(dot, assign);
         for (RpnExpr::iterator tok = (*dot).getRpnExpr().begin(),
-                tokEnd = (*dot).getRpnExpr().end();  tok != tokEnd; ++tok) {
+                               tokEnd = (*dot).getRpnExpr().end();
+             tok != tokEnd;
+             ++tok) {
           if ((*tok)->kind() == ExprToken::OPERAND &&
               llvm::cast<Operand>(*tok)->isDot())
             *tok = &((*ref).symbol());
-        } // for each token in the RHS expr of the dot assignment
+        }  // for each token in the RHS expr of the dot assignment
       }
     }
 
@@ -383,12 +364,14 @@ void SectionMap::fixupDotSymbols()
         dot = (*it)->dotAssignments().insert(dot, assign);
       }
       for (RpnExpr::iterator tok = (*it)->prolog().vma().begin(),
-              tokEnd = (*it)->prolog().vma().end();  tok != tokEnd; ++tok) {
+                             tokEnd = (*it)->prolog().vma().end();
+           tok != tokEnd;
+           ++tok) {
         if ((*tok)->kind() == ExprToken::OPERAND &&
             llvm::cast<Operand>(*tok)->isDot())
           *tok = &((*dot).symbol());
-      } // for each token in the RHS expr of the dot assignment
+      }  // for each token in the RHS expr of the dot assignment
     }
 
-  } // for each output section
+  }  // for each output section
 }

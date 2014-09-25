@@ -11,40 +11,36 @@
 
 #include <gtest.h>
 
-namespace mcld
-{
+namespace mcld {
 class PathSet;
 
-} // namespace for mcld
+}  // namespace for mcld
 
-namespace mcldtest
-{
+namespace mcldtest {
 
 /** \class PathSetTest
  *  \brief The testcase of PathSet
  *
  *  \see PathSet
  */
-class PathSetTest : public ::testing::Test
-{
-public:
-	// Constructor can do set-up work for all test here.
-	PathSetTest();
+class PathSetTest : public ::testing::Test {
+ public:
+  // Constructor can do set-up work for all test here.
+  PathSetTest();
 
-	// Destructor can do clean-up work that doesn't throw exceptions here.
-	virtual ~PathSetTest();
+  // Destructor can do clean-up work that doesn't throw exceptions here.
+  virtual ~PathSetTest();
 
-	// SetUp() will be called immediately before each test.
-	virtual void SetUp();
+  // SetUp() will be called immediately before each test.
+  virtual void SetUp();
 
-	// TearDown() will be called immediately after each test.
-	virtual void TearDown();
+  // TearDown() will be called immediately after each test.
+  virtual void TearDown();
 
-protected:
-	mcld::PathSet* m_pTestee;
+ protected:
+  mcld::PathSet* m_pTestee;
 };
 
-} // namespace of mcldtest
+}  // namespace of mcldtest
 
 #endif
-

@@ -28,18 +28,17 @@ namespace mcld {
  *
  *  @see LinearAllocator
  */
-template<typename DataType>
-class NodeFactory : public GCFactory<Node<DataType>, 64>
-{
-private:
+template <typename DataType>
+class NodeFactory : public GCFactory<Node<DataType>, 64> {
+ private:
   typedef GCFactory<Node<DataType>, 64> Alloc;
 
-public:
-  typedef Node<DataType>                 NodeType;
-  typedef typename Alloc::iterator       iterator;
+ public:
+  typedef Node<DataType> NodeType;
+  typedef typename Alloc::iterator iterator;
   typedef typename Alloc::const_iterator const_iterator;
 
-public:
+ public:
   /// produce - produce a node, add it under control
   NodeType* produce() {
     NodeType* result = Alloc::allocate();
@@ -68,10 +67,9 @@ public:
     pClient.renounce();
   }
 
-private:
+ private:
   /// renounce - give up the control of all chunks
-  void renounce()
-  { Alloc::reset(); }
+  void renounce() { Alloc::reset(); }
 
   /// replace - be the agent of client.
   void replace(NodeFactory& pClient) {
@@ -90,6 +88,6 @@ private:
   }
 };
 
-} // namespace mcld
+}  // namespace mcld
 
 #endif  // MCLD_ADT_TREEALLOCATOR_H_

@@ -16,28 +16,23 @@ using namespace std;
 using namespace mcld;
 using namespace mcldtest;
 
-
 // Constructor can do set-up work for all test here.
-SymbolCategoryTest::SymbolCategoryTest()
-{
+SymbolCategoryTest::SymbolCategoryTest() {
   // create testee. modify it if need
   m_pTestee = new SymbolCategory();
 }
 
 // Destructor can do clean-up work that doesn't throw exceptions here.
-SymbolCategoryTest::~SymbolCategoryTest()
-{
+SymbolCategoryTest::~SymbolCategoryTest() {
   delete m_pTestee;
 }
 
 // SetUp() will be called immediately before each test.
-void SymbolCategoryTest::SetUp()
-{
+void SymbolCategoryTest::SetUp() {
 }
 
 // TearDown() will be called immediately after each test.
-void SymbolCategoryTest::TearDown()
-{
+void SymbolCategoryTest::TearDown() {
 }
 
 //==========================================================================//

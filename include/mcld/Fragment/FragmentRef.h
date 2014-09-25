@@ -24,14 +24,13 @@ class Layout;
  *  \brief FragmentRef is a reference of a Fragment's contetnt.
  *
  */
-class FragmentRef
-{
-public:
-  typedef uint64_t Offset; // FIXME: use SizeTraits<T>::Offset
+class FragmentRef {
+ public:
+  typedef uint64_t Offset;  // FIXME: use SizeTraits<T>::Offset
   typedef NonConstTraits<unsigned char>::pointer Address;
   typedef ConstTraits<unsigned char>::pointer ConstAddress;
 
-public:
+ public:
   /// Create - create a fragment reference for a given fragment.
   ///
   /// @param pFrag - the given fragment
@@ -64,27 +63,24 @@ public:
   // -----  observers  ----- //
   bool isNull() const { return (this == Null()); }
 
-  Fragment* frag()
-  { return m_pFragment; }
+  Fragment* frag() { return m_pFragment; }
 
-  const Fragment* frag() const
-  { return m_pFragment; }
+  const Fragment* frag() const { return m_pFragment; }
 
-  Offset offset() const
-  { return m_Offset; }
+  Offset offset() const { return m_Offset; }
 
   Offset getOutputOffset() const;
 
-private:
+ private:
   friend FragmentRef& NullFragmentRef();
   friend class Chunk<FragmentRef, MCLD_SECTIONS_PER_INPUT>;
   friend class Relocation;
 
   FragmentRef();
 
-  FragmentRef(Fragment& pFrag, Offset pOffset = 0);
+  explicit FragmentRef(Fragment& pFrag, Offset pOffset = 0);
 
-private:
+ private:
   Fragment* m_pFragment;
 
   Offset m_Offset;
@@ -92,6 +88,6 @@ private:
   static FragmentRef g_NullFragmentRef;
 };
 
-} // namespace mcld
+}  // namespace mcld
 
 #endif  // MCLD_FRAGMENT_FRAGMENTREF_H_

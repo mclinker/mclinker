@@ -18,12 +18,11 @@ namespace mcld {
 // AArch64Diagnostic
 //===----------------------------------------------------------------------===//
 DiagnosticLineInfo* createAArch64DiagLineInfo(const mcld::Target& pTarget,
-                                              const std::string &pTriple)
-{
+                                              const std::string& pTriple) {
   return new DWARFLineInfo();
 }
 
-} // namespace mcld
+}  // namespace mcld
 
 //===----------------------------------------------------------------------===//
 // InitializeAArch64Diagnostic

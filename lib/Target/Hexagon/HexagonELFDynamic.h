@@ -13,17 +13,16 @@
 
 namespace mcld {
 
-class HexagonELFDynamic : public ELFDynamic
-{
-public:
+class HexagonELFDynamic : public ELFDynamic {
+ public:
   HexagonELFDynamic(const GNULDBackend& pParent, const LinkerConfig& pConfig);
   ~HexagonELFDynamic();
 
-private:
+ private:
   void reserveTargetEntries(const ELFFileFormat& pFormat);
   void applyTargetEntries(const ELFFileFormat& pFormat);
 };
 
-} // namespace mcld
+}  // namespace mcld
 
 #endif  // TARGET_HEXAGON_HEXAGONELFDYNAMIC_H_

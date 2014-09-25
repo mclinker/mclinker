@@ -37,20 +37,19 @@ GroupCmd::GroupCmd(StringList& pStringList,
       m_InputTree(pInputTree),
       m_Builder(pBuilder),
       m_GroupReader(pGroupReader),
-      m_Config(pConfig)
-{
+      m_Config(pConfig) {
 }
 
-GroupCmd::~GroupCmd()
-{
+GroupCmd::~GroupCmd() {
 }
 
-void GroupCmd::dump() const
-{
+void GroupCmd::dump() const {
   mcld::outs() << "GROUP ( ";
   bool prev = false, cur = false;
   for (StringList::const_iterator it = m_StringList.begin(),
-          ie = m_StringList.end(); it != ie; ++it) {
+                                  ie = m_StringList.end();
+       it != ie;
+       ++it) {
     assert((*it)->kind() == StrToken::Input);
     InputToken* input = llvm::cast<InputToken>(*it);
     cur = input->asNeeded();
@@ -72,8 +71,7 @@ void GroupCmd::dump() const
   mcld::outs() << " )\n";
 }
 
-void GroupCmd::activate(Module& pModule)
-{
+void GroupCmd::activate(Module& pModule) {
   LinkerScript& script = pModule.getScript();
   // construct the Group tree
   m_Builder.setCurrentTree(m_InputTree);
@@ -82,8 +80,9 @@ void GroupCmd::activate(Module& pModule)
   InputTree::iterator group = m_Builder.getCurrentNode();
 
   for (StringList::const_iterator it = m_StringList.begin(),
-       ie = m_StringList.end(); it != ie; ++it) {
-
+                                  ie = m_StringList.end();
+       it != ie;
+       ++it) {
     assert((*it)->kind() == StrToken::Input);
     InputToken* token = llvm::cast<InputToken>(*it);
     if (token->asNeeded())
@@ -99,15 +98,15 @@ void GroupCmd::activate(Module& pModule)
         // configured and the filename starts with '/'
         if (script.hasSysroot() &&
             (token->name().size() > 0 && token->name()[0] == '/')) {
-            path = script.sysroot();
-            path.append(token->name());
+          path = script.sysroot();
+          path.append(token->name());
         } else {
           // 2. Try to open the file in CWD
           path.assign(token->name());
           if (!sys::fs::exists(path)) {
             // 3. Search through the library search path
-            sys::fs::Path* p = script.directories().find(token->name(),
-                                                         Input::Script);
+            sys::fs::Path* p =
+                script.directories().find(token->name(), Input::Script);
             if (p != NULL)
               path = *p;
           }
@@ -116,9 +115,8 @@ void GroupCmd::activate(Module& pModule)
         if (!sys::fs::exists(path))
           fatal(diag::err_cannot_open_input) << path.filename() << path;
 
-        m_Builder.createNode<InputTree::Positional>(path.filename().native(),
-                                                    path,
-                                                    Input::Unknown);
+        m_Builder.createNode<InputTree::Positional>(
+            path.filename().native(), path, Input::Unknown);
         break;
       }
       case InputToken::NameSpec: {
@@ -144,15 +142,14 @@ void GroupCmd::activate(Module& pModule)
         if (path == NULL)
           fatal(diag::err_cannot_find_namespec) << token->name();
 
-        m_Builder.createNode<InputTree::Positional>(token->name(),
-                                                    *path,
-                                                    Input::Unknown);
+        m_Builder.createNode<InputTree::Positional>(
+            token->name(), *path, Input::Unknown);
         break;
       }
       default:
         assert(0 && "Invalid script token in GROUP!");
         break;
-    } // end of switch
+    }  // end of switch
 
     Input* input = *m_Builder.getCurrentNode();
     assert(input != NULL);

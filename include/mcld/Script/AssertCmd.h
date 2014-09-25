@@ -13,8 +13,7 @@
 
 #include <string>
 
-namespace mcld
-{
+namespace mcld {
 
 class RpnExpr;
 class Module;
@@ -23,9 +22,8 @@ class Module;
  *  \brief This class defines the interfaces to assert command.
  */
 
-class AssertCmd : public ScriptCommand
-{
-public:
+class AssertCmd : public ScriptCommand {
+ public:
   AssertCmd(RpnExpr& pRpnExpr, const std::string& pMessage);
 
   ~AssertCmd();
@@ -33,24 +31,23 @@ public:
   AssertCmd& operator=(const AssertCmd& pAssertCmd);
 
   const RpnExpr& getRpnExpr() const { return m_RpnExpr; }
-  RpnExpr&       getRpnExpr()       { return m_RpnExpr; }
+  RpnExpr& getRpnExpr() { return m_RpnExpr; }
 
   const std::string& message() const { return m_Message; }
 
   void dump() const;
 
-  static bool classof(const ScriptCommand* pCmd)
-  {
+  static bool classof(const ScriptCommand* pCmd) {
     return pCmd->getKind() == ScriptCommand::ASSERT;
   }
 
   void activate(Module& pModule);
 
-private:
+ private:
   RpnExpr& m_RpnExpr;
   std::string m_Message;
 };
 
-} // namespace mcld
+}  // namespace mcld
 
 #endif  // MCLD_SCRIPT_ASSERTCMD_H_

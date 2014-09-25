@@ -14,10 +14,9 @@
 
 namespace mcld {
 
-class ARMGNUInfo : public GNUInfo
-{
-public:
-  ARMGNUInfo(const llvm::Triple& pTriple) : GNUInfo(pTriple) { }
+class ARMGNUInfo : public GNUInfo {
+ public:
+  explicit ARMGNUInfo(const llvm::Triple& pTriple) : GNUInfo(pTriple) {}
 
   uint32_t machine() const { return llvm::ELF::EM_ARM; }
 
@@ -26,6 +25,6 @@ public:
   uint64_t flags() const { return llvm::ELF::EF_ARM_EABI_VER5; }
 };
 
-} // namespace mcld
+}  // namespace mcld
 
 #endif  // TARGET_ARM_ARMGNUINFO_H_
