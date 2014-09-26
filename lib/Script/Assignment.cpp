@@ -80,7 +80,8 @@ void Assignment::activate(Module& pModule) {
   switch (m_Level) {
     case OUTSIDE_SECTIONS:
       assert(!isLhsDot);
-      script.assignments().push_back(std::make_pair((LDSymbol*)NULL, *this));
+      script.assignments().push_back(
+          std::make_pair(reinterpret_cast<LDSymbol*>(NULL), *this));
       break;
 
     case OUTPUT_SECTION: {
@@ -121,7 +122,8 @@ void Assignment::activate(Module& pModule) {
       if (isLhsDot) {
         out->dotAssignments().push_back(*this);
       } else {
-        script.assignments().push_back(std::make_pair((LDSymbol*)NULL, *this));
+        script.assignments().push_back(
+            std::make_pair(reinterpret_cast<LDSymbol*>(NULL), *this));
       }
 
       break;
@@ -138,7 +140,7 @@ void Assignment::activate(Module& pModule) {
           Assignment assign(
               INPUT_SECTION, HIDDEN, *SymOperand::create("."), *expr);
           in->dotAssignments().push_back(
-              std::make_pair((Fragment*)NULL, assign));
+              std::make_pair(reinterpret_cast<Fragment*>(NULL), assign));
         }
 
         Assignment& prevDotAssign = in->dotAssignments().back().second;
@@ -157,12 +159,12 @@ void Assignment::activate(Module& pModule) {
         in->dotAssignments().push_back(std::make_pair(
             in->getSection()->getSectionData()->front().getNextNode(), *this));
       } else {
-        script.assignments().push_back(std::make_pair((LDSymbol*)NULL, *this));
+        script.assignments().push_back(
+            std::make_pair(reinterpret_cast<LDSymbol*>(NULL), *this));
       }
 
       break;
     }
-
   }  // end of switch
 }
 

@@ -105,7 +105,7 @@ void HexagonPLT::applyPLT0() {
   memcpy(data, m_PLT0, plt0->size());
   uint32_t gotpltAddr = m_GOTPLT.addr();
 
-  int32_t* dest = (int32_t*)data;
+  int32_t* dest = reinterpret_cast<int32_t*>(data);
   int32_t result = ((gotpltAddr - pltBase) >> 6);
   *dest |= ApplyMask<int32_t>(0xfff3fff, result);
   dest = dest + 1;
@@ -147,7 +147,7 @@ void HexagonPLT::applyPLT1() {
 
     memcpy(Out, hexagon_plt1, plt1->size());
 
-    int32_t* dest = (int32_t*)Out;
+    int32_t* dest = reinterpret_cast<int32_t*>(Out);
     int32_t result = ((GOTEntryAddress - PLTEntryAddress) >> 6);
     *dest |= ApplyMask<int32_t>(0xfff3fff, result);
     dest = dest + 1;

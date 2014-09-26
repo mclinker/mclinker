@@ -33,11 +33,13 @@ class FileOutputBuffer {
                                 std::unique_ptr<FileOutputBuffer>& pResult);
 
   /// Returns a pointer to the start of the buffer.
-  uint8_t* getBufferStart() { return (uint8_t*)m_pRegion->data(); }
+  uint8_t* getBufferStart() {
+    return reinterpret_cast<uint8_t*>(m_pRegion->data());
+  }
 
   /// Returns a pointer to the end of the buffer.
   uint8_t* getBufferEnd() {
-    return (uint8_t*)m_pRegion->data() + m_pRegion->size();
+    return reinterpret_cast<uint8_t*>(m_pRegion->data()) + m_pRegion->size();
   }
 
   /// Returns size of the buffer.

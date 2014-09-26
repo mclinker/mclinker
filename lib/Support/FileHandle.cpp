@@ -85,7 +85,8 @@ bool FileHandle::open(const sys::fs::Path& pPath,
   if (System == pPerm)
     m_Handler = sys::fs::detail::open(pPath, oflag(pMode));
   else
-    m_Handler = sys::fs::detail::open(pPath, oflag(pMode), (int)pPerm);
+    m_Handler = sys::fs::detail::open(pPath, oflag(pMode),
+                                      static_cast<int>(pPerm));
 
   m_Path = pPath;
   if (m_Handler == -1) {

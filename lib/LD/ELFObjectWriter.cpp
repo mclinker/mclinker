@@ -206,7 +206,7 @@ void ELFObjectWriter::writeELFHeader(const LinkerConfig& pConfig,
 
   // ELF header must start from 0x0
   MemoryRegion region = pOutput.request(0, sizeof(ElfXX_Ehdr));
-  ElfXX_Ehdr* header = (ElfXX_Ehdr*)region.begin();
+  ElfXX_Ehdr* header = reinterpret_cast<ElfXX_Ehdr*>(region.begin());
 
   memcpy(header->e_ident, ElfMagic, EI_MAG3 + 1);
 
@@ -300,7 +300,7 @@ void ELFObjectWriter::emitSectionHeader(const Module& pModule,
   unsigned int header_size = sizeof(ElfXX_Shdr) * sectNum;
   MemoryRegion region =
       pOutput.request(getLastStartOffset<SIZE>(pModule), header_size);
-  ElfXX_Shdr* shdr = (ElfXX_Shdr*)region.begin();
+  ElfXX_Shdr* shdr = reinterpret_cast<ElfXX_Shdr*>(region.begin());
 
   // Iterate the SectionTable in LDContext
   unsigned int sectIdx = 0;
@@ -337,7 +337,7 @@ void ELFObjectWriter::emitProgramHeader(FileOutputBuffer& pOutput) const {
   MemoryRegion region = pOutput.request(
       start_offset, target().elfSegmentTable().size() * phdr_size);
 
-  ElfXX_Phdr* phdr = (ElfXX_Phdr*)region.begin();
+  ElfXX_Phdr* phdr = reinterpret_cast<ElfXX_Phdr*>(region.begin());
 
   // Iterate the elf segment table in GNULDBackend
   size_t index = 0;
@@ -361,11 +361,12 @@ void ELFObjectWriter::emitShStrTab(const LDSection& pShStrTab,
                                    FileOutputBuffer& pOutput) {
   // write out data
   MemoryRegion region = pOutput.request(pShStrTab.offset(), pShStrTab.size());
-  char* data = (char*)region.begin();
+  char* data = reinterpret_cast<char*>(region.begin());
   size_t shstrsize = 0;
   Module::const_iterator section, sectEnd = pModule.end();
   for (section = pModule.begin(); section != sectEnd; ++section) {
-    strcpy((char*)(data + shstrsize), (*section)->name().data());
+    strcpy(reinterpret_cast<char*>(data + shstrsize),
+           (*section)->name().data());
     shstrsize += (*section)->name().size() + 1;
   }
 }

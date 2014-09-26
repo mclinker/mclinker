@@ -323,7 +323,8 @@ void MipsRelocator::scanLocalReloc(MipsRelocationInfo& pReloc,
     case llvm::ELF::R_MIPS_PC32:
       break;
     default:
-      fatal(diag::unknown_relocation) << (int)pReloc.type() << rsym->name();
+      fatal(diag::unknown_relocation) << static_cast<int>(pReloc.type())
+                                      << rsym->name();
   }
 }
 
@@ -377,7 +378,7 @@ void MipsRelocator::scanGlobalReloc(MipsRelocationInfo& pReloc,
       break;
     case llvm::ELF::R_MIPS_LITERAL:
     case llvm::ELF::R_MIPS_GPREL32:
-      fatal(diag::invalid_global_relocation) << (int)pReloc.type()
+      fatal(diag::invalid_global_relocation) << static_cast<int>(pReloc.type())
                                              << rsym->name();
       break;
     case llvm::ELF::R_MIPS_GPREL16:
@@ -419,10 +420,11 @@ void MipsRelocator::scanGlobalReloc(MipsRelocationInfo& pReloc,
     case llvm::ELF::R_MIPS_COPY:
     case llvm::ELF::R_MIPS_GLOB_DAT:
     case llvm::ELF::R_MIPS_JUMP_SLOT:
-      fatal(diag::dynamic_relocation) << (int)pReloc.type();
+      fatal(diag::dynamic_relocation) << static_cast<int>(pReloc.type());
       break;
     default:
-      fatal(diag::unknown_relocation) << (int)pReloc.type() << rsym->name();
+      fatal(diag::unknown_relocation) << static_cast<int>(pReloc.type())
+                                      << rsym->name();
   }
 }
 

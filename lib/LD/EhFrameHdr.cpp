@@ -52,11 +52,11 @@ void EhFrameHdr::emitOutput<32>(FileOutputBuffer& pOutput) {
   data[1] = DW_EH_PE_pcrel | DW_EH_PE_sdata4;
 
   // eh_frame_ptr
-  uint32_t* eh_frame_ptr = (uint32_t*)(data + 4);
+  uint32_t* eh_frame_ptr = reinterpret_cast<uint32_t*>(data + 4);
   *eh_frame_ptr = m_EhFrame.addr() - (m_EhFrameHdr.addr() + 4);
 
   // fde_count
-  uint32_t* fde_count = (uint32_t*)(data + 8);
+  uint32_t* fde_count = reinterpret_cast<uint32_t*>(data + 8);
   if (m_EhFrame.hasEhFrame())
     *fde_count = m_EhFrame.getEhFrame()->numOfFDEs();
   else
@@ -99,7 +99,7 @@ void EhFrameHdr::emitOutput<32>(FileOutputBuffer& pOutput) {
     std::sort(search_table.begin(), search_table.end(), bit32::EntryCompare);
 
     // write out the binary search table
-    uint32_t* bst = (uint32_t*)(data + 12);
+    uint32_t* bst = reinterpret_cast<uint32_t*>(data + 12);
     SearchTableType::const_iterator entry, entry_end = search_table.end();
     size_t id = 0;
     for (entry = search_table.begin(); entry != entry_end; ++entry) {

@@ -508,7 +508,7 @@ void X86_32Relocator::scanLocalReloc(Relocation& pReloc,
       return;
 
     default:
-      fatal(diag::unsupported_relocation) << (int)pReloc.type()
+      fatal(diag::unsupported_relocation) << static_cast<int>(pReloc.type())
                                           << "mclinker@googlegroups.com";
       break;
   }  // end switch
@@ -757,7 +757,7 @@ void X86_32Relocator::scanGlobalReloc(Relocation& pReloc,
       return;
 
     default: {
-      fatal(diag::unsupported_relocation) << (int)pReloc.type()
+      fatal(diag::unsupported_relocation) << static_cast<int>(pReloc.type())
                                           << "mclinker@googlegroups.com";
       break;
     }
@@ -1111,7 +1111,6 @@ static Relocation& helper_DynRel_init(ResolveInfo* pSym,
 /// R_X86_64_RELATIVE
 static bool helper_use_relative_reloc(const ResolveInfo& pSym,
                                       const X86_64Relocator& pFactory)
-
 {
   // if symbol is dynamic or undefine or preemptible
   if (pSym.isDyn() || pSym.isUndef() ||
@@ -1340,7 +1339,7 @@ void X86_64Relocator::scanLocalReloc(Relocation& pReloc,
       return;
 
     default:
-      fatal(diag::unsupported_relocation) << (int)pReloc.type()
+      fatal(diag::unsupported_relocation) << static_cast<int>(pReloc.type())
                                           << "mclinker@googlegroups.com";
       break;
   }  // end switch
@@ -1481,7 +1480,7 @@ void X86_64Relocator::scanGlobalReloc(Relocation& pReloc,
       return;
 
     default:
-      fatal(diag::unsupported_relocation) << (int)pReloc.type()
+      fatal(diag::unsupported_relocation) << static_cast<int>(pReloc.type())
                                           << "mclinker@googlegroups.com";
       break;
   }  // end switch

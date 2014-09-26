@@ -399,7 +399,7 @@ void ARMRelocator::checkValidReloc(Relocation& pReloc) const {
       break;
 
     default:
-      error(diag::non_pic_relocation) << (int)pReloc.type()
+      error(diag::non_pic_relocation) << static_cast<int>(pReloc.type())
                                       << pReloc.symInfo()->name();
       break;
   }
@@ -462,7 +462,7 @@ void ARMRelocator::scanLocalReloc(Relocation& pReloc,
     case llvm::ELF::R_ARM_THM_MOVT_ABS: {
       // PIC code should not contain these kinds of relocation
       if (config().isCodeIndep()) {
-        error(diag::non_pic_relocation) << (int)pReloc.type()
+        error(diag::non_pic_relocation) << static_cast<int>(pReloc.type())
                                         << pReloc.symInfo()->name();
       }
       return;
@@ -499,7 +499,8 @@ void ARMRelocator::scanLocalReloc(Relocation& pReloc,
       // FIXME: Currently we only support R_ARM_BASE_PREL against
       // symbol _GLOBAL_OFFSET_TABLE_
       if (rsym != getTarget().getGOTSymbol()->resolveInfo())
-        fatal(diag::base_relocation) << (int)pReloc.type() << rsym->name()
+        fatal(diag::base_relocation) << static_cast<int>(pReloc.type())
+                                     << rsym->name()
                                      << "mclinker@googlegroups.com";
       return;
     }
@@ -509,7 +510,7 @@ void ARMRelocator::scanLocalReloc(Relocation& pReloc,
     case llvm::ELF::R_ARM_RELATIVE: {
       // These are relocation type for dynamic linker, shold not
       // appear in object file.
-      fatal(diag::dynamic_relocation) << (int)pReloc.type();
+      fatal(diag::dynamic_relocation) << static_cast<int>(pReloc.type());
       break;
     }
     default: { break; }
@@ -586,7 +587,8 @@ void ARMRelocator::scanGlobalReloc(Relocation& pReloc,
       // FIXME: Currently we only support these relocations against
       // symbol _GLOBAL_OFFSET_TABLE_
       if (rsym != getTarget().getGOTSymbol()->resolveInfo()) {
-        fatal(diag::base_relocation) << (int)pReloc.type() << rsym->name()
+        fatal(diag::base_relocation) << static_cast<int>(pReloc.type())
+                                     << rsym->name()
                                      << "mclinker@googlegroups.com";
       }
     case llvm::ELF::R_ARM_REL32:
@@ -716,7 +718,7 @@ void ARMRelocator::scanGlobalReloc(Relocation& pReloc,
     case llvm::ELF::R_ARM_RELATIVE: {
       // These are relocation type for dynamic linker, shold not
       // appear in object file.
-      fatal(diag::dynamic_relocation) << (int)pReloc.type();
+      fatal(diag::dynamic_relocation) << static_cast<int>(pReloc.type());
       break;
     }
     default: { break; }
@@ -942,7 +944,7 @@ ARMRelocator::Result thm_jump19(Relocation& pReloc, ARMRelocator& pParent) {
 
   if (T == 0x0) {
     // FIXME: conditional branch to PLT in THUMB-2 not supported yet
-    error(diag::unsupport_cond_branch_reloc) << (int)pReloc.type();
+    error(diag::unsupport_cond_branch_reloc) << static_cast<int>(pReloc.type());
     return Relocator::BadReloc;
   }
 

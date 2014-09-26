@@ -940,7 +940,7 @@ void GNULDBackend::emitRegNamePools(const Module& pModule,
   }
 
   // set up strtab_region
-  char* strtab = (char*)strtab_region.begin();
+  char* strtab = reinterpret_cast<char*>(strtab_region.begin());
 
   // emit the first ELF symbol
   if (config().targets().is32Bits())
@@ -1013,7 +1013,7 @@ void GNULDBackend::emitDynNamePools(Module& pModule,
   }
 
   // set up strtab_region
-  char* strtab = (char*)strtab_region.begin();
+  char* strtab = reinterpret_cast<char*>(strtab_region.begin());
 
   // emit the first ELF symbol
   if (config().targets().is32Bits())
@@ -1106,7 +1106,7 @@ void GNULDBackend::emitELFHashTab(const Module::SymbolTable& pSymtab,
       pOutput.request(hash_sect.offset(), hash_sect.size());
   // both 32 and 64 bits hash table use 32-bit entry
   // set up hash_region
-  uint32_t* word_array = (uint32_t*)hash_region.begin();
+  uint32_t* word_array = reinterpret_cast<uint32_t*>(hash_region.begin());
   uint32_t& nbucket = word_array[0];
   uint32_t& nchain = word_array[1];
 
@@ -1118,7 +1118,7 @@ void GNULDBackend::emitELFHashTab(const Module::SymbolTable& pSymtab,
   uint32_t* chain = (bucket + nbucket);
 
   // initialize bucket
-  memset((void*)bucket, 0, nbucket);
+  memset(reinterpret_cast<void*>(bucket), 0, nbucket);
 
   hash::StringHash<hash::ELF> hash_func;
 
@@ -1144,14 +1144,14 @@ void GNULDBackend::emitGNUHashTab(Module::SymbolTable& pSymtab,
       pOutput.request(file_format->getGNUHashTab().offset(),
                       file_format->getGNUHashTab().size());
 
-  uint32_t* word_array = (uint32_t*)gnuhash_region.begin();
+  uint32_t* word_array = reinterpret_cast<uint32_t*>(gnuhash_region.begin());
   // fixed-length fields
   uint32_t& nbucket = word_array[0];
   uint32_t& symidx = word_array[1];
   uint32_t& maskwords = word_array[2];
   uint32_t& shift2 = word_array[3];
   // variable-length fields
-  uint8_t* bitmask = (uint8_t*)(word_array + 4);
+  uint8_t* bitmask = reinterpret_cast<uint8_t*>(word_array + 4);
   uint32_t* bucket = NULL;
   uint32_t* chain = NULL;
 
@@ -1174,14 +1174,15 @@ void GNULDBackend::emitGNUHashTab(Module::SymbolTable& pSymtab,
     shift2 = 0;                     // bloom filter
 
     if (config().targets().is32Bits()) {
-      uint32_t* maskval = (uint32_t*)bitmask;
+      uint32_t* maskval = reinterpret_cast<uint32_t*>(bitmask);
       *maskval = 0;  // no valid hashes
     } else {
       // must be 64
-      uint64_t* maskval = (uint64_t*)bitmask;
+      uint64_t* maskval = reinterpret_cast<uint64_t*>(bitmask);
       *maskval = 0;  // no valid hashes
     }
-    bucket = (uint32_t*)(bitmask + config().targets().bitclass() / 8);
+    bucket = reinterpret_cast<uint32_t*>(bitmask +
+                                         config().targets().bitclass() / 8);
     *bucket = 0;  // no hash in the only bucket
     return;
   }
@@ -1197,7 +1198,7 @@ void GNULDBackend::emitGNUHashTab(Module::SymbolTable& pSymtab,
   shift2 = maskbitslog2;
 
   // setup bucket and chain
-  bucket = (uint32_t*)(bitmask + maskbits / 8);
+  bucket = reinterpret_cast<uint32_t*>(bitmask + maskbits / 8);
   chain = (bucket + nbucket);
 
   // build the gnu style hash table
@@ -1246,12 +1247,12 @@ void GNULDBackend::emitGNUHashTab(Module::SymbolTable& pSymtab,
 
   // write the bitmasks
   if (config().targets().is32Bits()) {
-    uint32_t* maskval = (uint32_t*)bitmask;
+    uint32_t* maskval = reinterpret_cast<uint32_t*>(bitmask);
     for (size_t i = 0; i < maskwords; ++i)
       std::memcpy(maskval + i, &bitmasks[i], 4);
   } else {
     // must be 64
-    uint64_t* maskval = (uint64_t*)bitmask;
+    uint64_t* maskval = reinterpret_cast<uint64_t*>(bitmask);
     for (size_t i = 0; i < maskwords; ++i)
       std::memcpy(maskval + i, &bitmasks[i], 8);
   }

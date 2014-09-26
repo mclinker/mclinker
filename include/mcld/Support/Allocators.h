@@ -53,7 +53,7 @@ class Chunk<DataType, 0> {
  public:
   Chunk() : next(NULL), bound(0) {
     if (m_Size != 0)
-      data = (DataType*)malloc(sizeof(DataType) * m_Size);
+      data = reinterpret_cast<DataType*>(malloc(sizeof(DataType) * m_Size));
     else
       data = 0;
   }
@@ -337,7 +337,7 @@ class MallocAllocator {
   size_type max_size() const throw() { return size_t(-1) / sizeof(DataType); }
 
   void construct(pointer pObject, const DataType& pValue) {
-    ::new ((void*)pObject) value_type(pValue);
+    ::new (reinterpret_cast<void*>(pObject)) value_type(pValue);
   }
 
   void destroy(pointer pObject) { pObject->~DataType(); }

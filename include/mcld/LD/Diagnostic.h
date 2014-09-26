@@ -49,7 +49,7 @@ class Diagnostic {
   int getArgSInt(unsigned int pIdx) const {
     assert(getArgKind(pIdx) == DiagnosticEngine::ak_sint &&
            "Invalid argument accessor!");
-    return (int)m_Engine.state().ArgumentVals[pIdx];
+    return static_cast<int>(m_Engine.state().ArgumentVals[pIdx]);
   }
 
   unsigned int getArgUInt(unsigned int pIdx) const {
@@ -67,7 +67,7 @@ class Diagnostic {
   bool getArgBool(unsigned int pIdx) const {
     assert(getArgKind(pIdx) == DiagnosticEngine::ak_bool &&
            "Invalid argument accessor!");
-    return (bool)m_Engine.state().ArgumentVals[pIdx];
+    return static_cast<bool>(m_Engine.state().ArgumentVals[pIdx]);
   }
 
   intptr_t getRawVals(unsigned int pIdx) const {

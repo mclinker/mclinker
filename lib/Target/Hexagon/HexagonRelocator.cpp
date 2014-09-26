@@ -560,7 +560,7 @@ Relocator::Result applyAbs(Relocation& pReloc) {
 
     default:
       // show proper error
-      fatal(diag::unsupported_relocation) << (int)pReloc.type()
+      fatal(diag::unsupported_relocation) << static_cast<int>(pReloc.type())
                                           << "mclinker@googlegroups.com";
   }
 
@@ -675,7 +675,7 @@ Relocator::Result applyRel(Relocation& pReloc, int64_t pResult) {
 
     default:
       // show proper error
-      fatal(diag::unsupported_relocation) << (int)pReloc.type()
+      fatal(diag::unsupported_relocation) << static_cast<int>(pReloc.type())
                                           << "mclinker@googlegroups.com";
   }
 
@@ -796,7 +796,7 @@ Relocator::Result relocGPREL(Relocation& pReloc, HexagonRelocator& pParent) {
 
     default:
       // show proper error
-      fatal(diag::unsupported_relocation) << (int)pReloc.type()
+      fatal(diag::unsupported_relocation) << static_cast<int>(pReloc.type())
                                           << "mclinker@googlegroups.com";
   }
 
@@ -892,7 +892,7 @@ Relocator::Result relocGOT(Relocation& pReloc, HexagonRelocator& pParent) {
 
     default:
       // show proper error
-      fatal(diag::unsupported_relocation) << (int)pReloc.type()
+      fatal(diag::unsupported_relocation) << static_cast<int>(pReloc.type())
                                           << "mclinker@googlegroups.com";
   }
 
@@ -950,7 +950,7 @@ Relocator::Result relocGOTREL(Relocation& pReloc, HexagonRelocator& pParent) {
 
     default:
       // show proper error
-      fatal(diag::unsupported_relocation) << (int)pReloc.type()
+      fatal(diag::unsupported_relocation) << static_cast<int>(pReloc.type())
                                           << "mclinker@googlegroups.com";
   }
 
