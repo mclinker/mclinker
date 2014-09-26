@@ -35,6 +35,11 @@ static bool MCLDEmulateARMELF(LinkerScript& pScript, LinkerConfig& pConfig) {
   // set up section map
   if (pConfig.options().getScriptList().empty() &&
       pConfig.codeGenType() != LinkerConfig::Object) {
+    // .ARM.exidx is associated with .text (which is always the first input
+    // text section in GNU ELF), and thus we have to do this special treatment.
+    pScript.sectionMap().insert(".ARM.exidx", ".ARM.exidx");
+    pScript.sectionMap().insert(".ARM.extab", ".ARM.extab");
+
     pScript.sectionMap().insert(".ARM.exidx*", ".ARM.exidx");
     pScript.sectionMap().insert(".ARM.extab*", ".ARM.extab");
     pScript.sectionMap().insert(".ARM.attributes*", ".ARM.attributes");
