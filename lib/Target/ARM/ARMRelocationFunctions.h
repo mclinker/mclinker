@@ -10,7 +10,7 @@
 #define TARGET_ARM_ARMRELOCATIONFUNCTIONS_H_
 
 #define DECL_ARM_APPLY_RELOC_FUNC(Name) \
-  static ARMRelocator::Result Name (Relocation& pEntry, ARMRelocator& pParent);
+  static ARMRelocator::Result Name(Relocation& pEntry, ARMRelocator& pParent);
 
 #define DECL_ARM_APPLY_RELOC_FUNCS            \
   DECL_ARM_APPLY_RELOC_FUNC(none)             \

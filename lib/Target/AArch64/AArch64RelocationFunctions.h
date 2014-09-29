@@ -102,14 +102,14 @@
   ValueType(0x233, MappedType(&unsupport, "R_AARCH64_TLSDESC_LD64_LO12_NC")), \
   ValueType(0x234, MappedType(&unsupport, "R_AARCH64_TLSDESC_ADD_LO12_NC")), \
   ValueType(0x239, MappedType(&unsupport, "R_AARCH64_TLSDESC_CALL")), \
-  ValueType( 1024, MappedType(&unsupport, "R_AARCH64_COPY")), \
-  ValueType( 1025, MappedType(&unsupport, "R_AARCH64_GLOB_DAT")), \
-  ValueType( 1026, MappedType(&unsupport, "R_AARCH64_JUMP_SLOT")), \
-  ValueType( 1027, MappedType(&unsupport, "R_AARCH64_RELATIVE")), \
-  ValueType( 1028, MappedType(&unsupport, "R_AARCH64_TLS_DTPREL64")), \
-  ValueType( 1029, MappedType(&unsupport, "R_AARCH64_TLS_DTPMOD64")), \
-  ValueType( 1030, MappedType(&unsupport, "R_AARCH64_TLS_TPREL64")), \
-  ValueType( 1031, MappedType(&unsupport, "R_AARCH64_TLSDESC")), \
-  ValueType( 1032, MappedType(&unsupport, "R_AARCH64_IRELATIVE"))
+  ValueType(1024,  MappedType(&unsupport, "R_AARCH64_COPY")), \
+  ValueType(1025,  MappedType(&unsupport, "R_AARCH64_GLOB_DAT")), \
+  ValueType(1026,  MappedType(&unsupport, "R_AARCH64_JUMP_SLOT")), \
+  ValueType(1027,  MappedType(&unsupport, "R_AARCH64_RELATIVE")), \
+  ValueType(1028,  MappedType(&unsupport, "R_AARCH64_TLS_DTPREL64")), \
+  ValueType(1029,  MappedType(&unsupport, "R_AARCH64_TLS_DTPMOD64")), \
+  ValueType(1030,  MappedType(&unsupport, "R_AARCH64_TLS_TPREL64")), \
+  ValueType(1031,  MappedType(&unsupport, "R_AARCH64_TLSDESC")), \
+  ValueType(1032,  MappedType(&unsupport, "R_AARCH64_IRELATIVE"))
 
 #endif  // TARGET_AARCH64_AARCH64RELOCATIONFUNCTIONS_H_

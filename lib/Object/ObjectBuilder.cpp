@@ -122,12 +122,11 @@ bool ObjectBuilder::MoveSectionData(SectionData& pFrom, SectionData& pTo) {
   AlignFragment* align = NULL;
   if (pFrom.getSection().align() > 1) {
     // if the align constraint is larger than 1, append an alignment
-    align =
-        new AlignFragment(pFrom.getSection().align(),  // alignment
-                          0x0,                         // the filled value
-                          1u,  // the size of filled value
-                          pFrom.getSection().align() - 1  // max bytes to emit
-                          );
+    unsigned int alignment = pFrom.getSection().align();
+    align = new AlignFragment(/*alignment*/alignment,
+                              /*the filled value*/0x0,
+                              /*the size of filled value*/1u,
+                              /*max bytes to emit*/alignment - 1);
     align->setOffset(offset);
     align->setParent(&pTo);
     pTo.getFragmentList().push_back(align);
@@ -176,11 +175,10 @@ uint64_t ObjectBuilder::AppendFragment(Fragment& pFrag,
   AlignFragment* align = NULL;
   if (pAlignConstraint > 1) {
     // if the align constraint is larger than 1, append an alignment
-    align = new AlignFragment(pAlignConstraint,     // alignment
-                              0x0,                  // the filled value
-                              1u,                   // the size of filled value
-                              pAlignConstraint - 1  // max bytes to emit
-                              );
+    align = new AlignFragment(/*alignment*/pAlignConstraint,
+                              /*the filled value*/0x0,
+                              /*the size of filled value*/1u,
+                              /*max bytes to emit*/pAlignConstraint - 1);
     align->setOffset(offset);
     align->setParent(&pSD);
     pSD.getFragmentList().push_back(align);

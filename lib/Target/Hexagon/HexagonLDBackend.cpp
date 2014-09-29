@@ -897,12 +897,11 @@ bool HexagonLDBackend::MoveCommonData(SectionData& pFrom, SectionData& pTo) {
   AlignFragment* align = NULL;
   if (pFrom.getSection().align() > 1) {
     // if the align constraint is larger than 1, append an alignment
-    align =
-        new AlignFragment(pFrom.getSection().align(),  // alignment
-                          0x0,                         // the filled value
-                          1u,  // the size of filled value
-                          pFrom.getSection().align() - 1  // max bytes to emit
-                          );
+    unsigned int alignment = pFrom.getSection().align();
+    align = new AlignFragment(/*alignment*/alignment,
+                              /*the filled value*/0x0,
+                              /*the size of filled value*/1u,
+                              /*max bytes to emit*/alignment - 1);
     pFrom.getFragmentList().push_front(align);
   }
   if (found)
@@ -965,12 +964,11 @@ bool HexagonLDBackend::MoveSectionDataAndSort(SectionData& pFrom,
   AlignFragment* align = NULL;
   if (pFrom.getSection().align() > 1) {
     // if the align constraint is larger than 1, append an alignment
-    align =
-        new AlignFragment(pFrom.getSection().align(),  // alignment
-                          0x0,                         // the filled value
-                          1u,  // the size of filled value
-                          pFrom.getSection().align() - 1  // max bytes to emit
-                          );
+    unsigned int alignment = pFrom.getSection().align();
+    align = new AlignFragment(/*alignment*/alignment,
+                              /*the filled value*/0x0,
+                              /*the size of filled value*/1u,
+                              /*max bytes to emit*/alignment - 1);
     pFrom.getFragmentList().push_front(align);
   }
   if (found)
