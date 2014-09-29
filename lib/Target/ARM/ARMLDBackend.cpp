@@ -656,10 +656,9 @@ bool ARMGNULDBackend::doRelax(Module& pModule,
           default:
             break;
         }  // end of switch
-
       }  // for all relocations
-    }    // for all relocation section
-  }      // for all inputs
+    }  // for all relocation section
+  }  // for all inputs
 
   // find the first fragment w/ invalid offset due to stub insertion
   Fragment* invalid = NULL;

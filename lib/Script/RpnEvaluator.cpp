@@ -101,7 +101,6 @@ bool RpnEvaluator::eval(const RpnExpr& pExpr, uint64_t& pResult) {
         }  // end of switch operand type
         break;
       }
-
     }  // end of switch
   }    // end of for
 

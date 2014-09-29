@@ -395,7 +395,6 @@ void HexagonRelocator::scanGlobalReloc(Relocation& pReloc,
 
     default:
       break;
-
   }  // end of switch
 }
 

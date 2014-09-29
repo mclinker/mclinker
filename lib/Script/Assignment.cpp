@@ -125,7 +125,6 @@ void Assignment::activate(Module& pModule) {
         script.assignments().push_back(
             std::make_pair(reinterpret_cast<LDSymbol*>(NULL), *this));
       }
-
       break;
     }
 
@@ -162,7 +161,6 @@ void Assignment::activate(Module& pModule) {
         script.assignments().push_back(
             std::make_pair(reinterpret_cast<LDSymbol*>(NULL), *this));
       }
-
       break;
     }
   }  // end of switch

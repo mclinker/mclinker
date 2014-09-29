@@ -373,6 +373,5 @@ void SectionMap::fixupDotSymbols() {
           *tok = &((*dot).symbol());
       }  // for each token in the RHS expr of the dot assignment
     }
-
   }  // for each output section
 }

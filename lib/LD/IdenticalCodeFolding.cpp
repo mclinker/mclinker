@@ -174,7 +174,6 @@ void IdenticalCodeFolding::findCandidates(FoldingCandidates& pCandidateList) {
             FoldingCandidate(candidate->first, candidate->second, *obj));
       }
     }  // for each possible candidate
-
   }  // for each obj
 }
 
