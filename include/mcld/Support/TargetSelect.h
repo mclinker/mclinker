@@ -12,20 +12,20 @@
 extern "C" {
 // Declare all of the target-initialization functions that are available.
 #define MCLD_TARGET(TargetName) void MCLDInitialize##TargetName##LDTargetInfo();
-#include "mcld/Config/Targets.def"
+#include "mcld/Config/Targets.def"  // NOLINT [build/include] [4]
 
 // Declare all of the available emulators.
 #define MCLD_TARGET(TargetName) void MCLDInitialize##TargetName##Emulation();
-#include "mcld/Config/Targets.def"
+#include "mcld/Config/Targets.def"  // NOLINT [build/include] [4]
 
 // Declare all of the available target-specific linker
 #define MCLD_LINKER(TargetName) void MCLDInitialize##TargetName##LDBackend();
-#include "mcld/Config/Linkers.def"
+#include "mcld/Config/Linkers.def"  // NOLINT [build/include] [4]
 
 // Declare all of the available target-specific diagnostic line infomation
 #define MCLD_LINKER(TargetName) \
   void MCLDInitialize##TargetName##DiagnosticLineInfo();
-#include "mcld/Config/Linkers.def"
+#include "mcld/Config/Linkers.def"  // NOLINT [build/include] [4]
 
 }  // extern "C"
 
@@ -37,7 +37,7 @@ namespace mcld {
 /// It is legal for a client to make multiple calls to this function.
 inline void InitializeAllTargetInfos() {
 #define MCLD_TARGET(TargetName) MCLDInitialize##TargetName##LDTargetInfo();
-#include "mcld/Config/Targets.def"
+#include "mcld/Config/Targets.def"  // NOLINT [build/include] [4]
 }
 
 /// InitializeAllTargets - The main program should call this function if it
@@ -49,7 +49,7 @@ inline void InitializeAllTargets() {
   mcld::InitializeAllTargetInfos();
 
 #define MCLD_TARGET(TargetName) MCLDInitialize##TargetName##LDBackend();
-#include "mcld/Config/Targets.def"
+#include "mcld/Config/Targets.def"  // NOLINT [build/include] [4]
 }
 
 /// InitializeAllEmulations - The main program should call this function if
@@ -57,7 +57,7 @@ inline void InitializeAllTargets() {
 /// all emulations available via the TargetRegistry.
 inline void InitializeAllEmulations() {
 #define MCLD_TARGET(TargetName) MCLDInitialize##TargetName##Emulation();
-#include "mcld/Config/Targets.def"
+#include "mcld/Config/Targets.def"  // NOLINT [build/include] [4]
 }
 
 /// InitializeMsgHandler - The main program should call this function if it
@@ -66,7 +66,7 @@ inline void InitializeAllEmulations() {
 inline void InitializeAllDiagnostics() {
 #define MCLD_LINKER(TargetName) \
   MCLDInitialize##TargetName##DiagnosticLineInfo();
-#include "mcld/Config/Linkers.def"
+#include "mcld/Config/Linkers.def"  // NOLINT [build/include] [4]
 }
 
 }  // namespace mcld

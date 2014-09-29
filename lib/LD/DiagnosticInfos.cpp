@@ -43,14 +43,14 @@ static const DiagStaticInfo DiagCommonInfo[] = {
 #define DIAG(ENUM, CLASS, ADDRDESC, LOCDESC)                    \
   { diag::ENUM, CLASS, STR_SIZE(ADDRDESC, uint16_t), ADDRDESC } \
   ,
-#include "mcld/LD/DiagAttribute.inc"
-#include "mcld/LD/DiagCommonKinds.inc"
-#include "mcld/LD/DiagReaders.inc"
-#include "mcld/LD/DiagSymbolResolutions.inc"
-#include "mcld/LD/DiagRelocations.inc"
-#include "mcld/LD/DiagLayouts.inc"
-#include "mcld/LD/DiagGOTPLT.inc"
-#include "mcld/LD/DiagLDScript.inc"
+#include "mcld/LD/DiagAttribute.inc"  // NOLINT [build/include] [4]
+#include "mcld/LD/DiagCommonKinds.inc"  // NOLINT [build/include] [4]
+#include "mcld/LD/DiagReaders.inc"  // NOLINT [build/include] [4]
+#include "mcld/LD/DiagSymbolResolutions.inc"  // NOLINT [build/include] [4]
+#include "mcld/LD/DiagRelocations.inc"  // NOLINT [build/include] [4]
+#include "mcld/LD/DiagLayouts.inc"  // NOLINT [build/include] [4]
+#include "mcld/LD/DiagGOTPLT.inc"  // NOLINT [build/include] [4]
+#include "mcld/LD/DiagLDScript.inc"  // NOLINT [build/include] [4]
 #undef DIAG
     {0, DiagnosticEngine::None, 0, 0}};
 
@@ -61,14 +61,14 @@ static const DiagStaticInfo DiagLoCInfo[] = {
 #define DIAG(ENUM, CLASS, ADDRDESC, LOCDESC)                  \
   { diag::ENUM, CLASS, STR_SIZE(LOCDESC, uint16_t), LOCDESC } \
   ,
-#include "mcld/LD/DiagAttribute.inc"
-#include "mcld/LD/DiagCommonKinds.inc"
-#include "mcld/LD/DiagReaders.inc"
-#include "mcld/LD/DiagSymbolResolutions.inc"
-#include "mcld/LD/DiagRelocations.inc"
-#include "mcld/LD/DiagLayouts.inc"
-#include "mcld/LD/DiagGOTPLT.inc"
-#include "mcld/LD/DiagLDScript.inc"
+#include "mcld/LD/DiagAttribute.inc"  // NOLINT [build/include] [4]
+#include "mcld/LD/DiagCommonKinds.inc"  // NOLINT [build/include] [4]
+#include "mcld/LD/DiagReaders.inc"  // NOLINT [build/include] [4]
+#include "mcld/LD/DiagSymbolResolutions.inc"  // NOLINT [build/include] [4]
+#include "mcld/LD/DiagRelocations.inc"  // NOLINT [build/include] [4]
+#include "mcld/LD/DiagLayouts.inc"  // NOLINT [build/include] [4]
+#include "mcld/LD/DiagGOTPLT.inc"  // NOLINT [build/include] [4]
+#include "mcld/LD/DiagLDScript.inc"  // NOLINT [build/include] [4]
 #undef DIAG
     {0, DiagnosticEngine::None, 0, 0}};
 
