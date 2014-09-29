@@ -294,7 +294,6 @@ const char* X86_32Relocator::getName(Relocation::Type pType) const {
 
 Relocator::Size X86_32Relocator::getSize(Relocation::Type pType) const {
   return X86_32ApplyFunctions[pType].size;
-  ;
 }
 
 bool X86_32Relocator::mayHaveFunctionPointerAccess(

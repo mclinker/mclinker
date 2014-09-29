@@ -158,7 +158,6 @@ void IdenticalCodeFolding::findCandidates(FoldingCandidates& pCandidateList) {
         default: {
           // skip
           break;
-          ;
         }
       }  // end of switch
     }    // for each section

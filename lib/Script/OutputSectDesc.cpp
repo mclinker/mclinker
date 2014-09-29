@@ -181,7 +181,6 @@ void OutputSectDesc::activate(Module& pModule) {
 
   if (!assignments.empty()) {
     InputSectDesc::Spec spec;
-    ;
     spec.m_pWildcardFile = NULL;
     spec.m_pExcludeFiles = NULL;
     spec.m_pWildcardSections = NULL;
