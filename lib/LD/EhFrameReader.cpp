@@ -19,7 +19,6 @@
 #include <llvm/Support/LEB128.h>
 
 using namespace mcld;
-using namespace llvm::dwarf;
 
 //===----------------------------------------------------------------------===//
 // Helper Functions

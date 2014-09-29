@@ -11,7 +11,6 @@
 #include <mcld/Support/Path.h>
 
 using namespace mcld;
-using llvm::sys::fs::mapped_file_region;
 
 FileOutputBuffer::FileOutputBuffer(llvm::sys::fs::mapped_file_region* pRegion,
                                    FileHandle& pFileHandle)
@@ -28,13 +27,9 @@ std::error_code FileOutputBuffer::create(
     size_t pSize,
     std::unique_ptr<FileOutputBuffer>& pResult) {
   std::error_code ec;
-  std::unique_ptr<mapped_file_region> mapped_file(
-      new mapped_file_region(pFileHandle.handler(),
-                             false,
-                             mapped_file_region::readwrite,
-                             pSize,
-                             0,
-                             ec));
+  std::unique_ptr<llvm::sys::fs::mapped_file_region> mapped_file(
+      new llvm::sys::fs::mapped_file_region(pFileHandle.handler(),
+          false, llvm::sys::fs::mapped_file_region::readwrite, pSize, 0, ec));
 
   if (ec)
     return ec;

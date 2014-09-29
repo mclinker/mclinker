@@ -34,8 +34,6 @@
 #include <llvm/Support/Errc.h>
 #include <llvm/Support/ErrorHandling.h>
 
-using namespace llvm;
-using namespace llvm::ELF;
 using namespace mcld;
 
 //===----------------------------------------------------------------------===//
@@ -208,33 +206,35 @@ void ELFObjectWriter::writeELFHeader(const LinkerConfig& pConfig,
   MemoryRegion region = pOutput.request(0, sizeof(ElfXX_Ehdr));
   ElfXX_Ehdr* header = reinterpret_cast<ElfXX_Ehdr*>(region.begin());
 
-  memcpy(header->e_ident, ElfMagic, EI_MAG3 + 1);
+  memcpy(header->e_ident, llvm::ELF::ElfMagic, llvm::ELF::EI_MAG3 + 1);
 
-  header->e_ident[EI_CLASS] = (SIZE == 32) ? ELFCLASS32 : ELFCLASS64;
-  header->e_ident[EI_DATA] =
-      pConfig.targets().isLittleEndian() ? ELFDATA2LSB : ELFDATA2MSB;
-  header->e_ident[EI_VERSION] = target().getInfo().ELFVersion();
-  header->e_ident[EI_OSABI] = target().getInfo().OSABI();
-  header->e_ident[EI_ABIVERSION] = target().getInfo().ABIVersion();
+  header->e_ident[llvm::ELF::EI_CLASS] =
+      (SIZE == 32) ? llvm::ELF::ELFCLASS32 : llvm::ELF::ELFCLASS64;
+  header->e_ident[llvm::ELF::EI_DATA] =
+      pConfig.targets().isLittleEndian()
+          ? llvm::ELF::ELFDATA2LSB : llvm::ELF::ELFDATA2MSB;
+  header->e_ident[llvm::ELF::EI_VERSION] = target().getInfo().ELFVersion();
+  header->e_ident[llvm::ELF::EI_OSABI] = target().getInfo().OSABI();
+  header->e_ident[llvm::ELF::EI_ABIVERSION] = target().getInfo().ABIVersion();
 
   // FIXME: add processor-specific and core file types.
   switch (pConfig.codeGenType()) {
     case LinkerConfig::Object:
-      header->e_type = ET_REL;
+      header->e_type = llvm::ELF::ET_REL;
       break;
     case LinkerConfig::DynObj:
-      header->e_type = ET_DYN;
+      header->e_type = llvm::ELF::ET_DYN;
       break;
     case LinkerConfig::Exec:
-      header->e_type = ET_EXEC;
+      header->e_type = llvm::ELF::ET_EXEC;
       break;
     default:
       llvm::errs() << "unspported output file type: " << pConfig.codeGenType()
                    << ".\n";
-      header->e_type = ET_NONE;
+      header->e_type = llvm::ELF::ET_NONE;
   }
   header->e_machine = target().getInfo().machine();
-  header->e_version = header->e_ident[EI_VERSION];
+  header->e_version = header->e_ident[llvm::ELF::EI_VERSION];
   header->e_entry = getEntryPoint(pConfig, pModule);
 
   if (LinkerConfig::Object != pConfig.codeGenType())
@@ -445,7 +445,7 @@ void ELFObjectWriter::emitRelocation(const LinkerConfig& pConfig,
   const RelocData* sect_data = pSection.getRelocData();
   assert(sect_data != NULL && "SectionData is NULL in emitRelocation!");
 
-  if (pSection.type() == SHT_REL) {
+  if (pSection.type() == llvm::ELF::SHT_REL) {
     if (pConfig.targets().is32Bits())
       emitRel<32>(pConfig, *sect_data, pRegion);
     else if (pConfig.targets().is64Bits())
@@ -454,7 +454,7 @@ void ELFObjectWriter::emitRelocation(const LinkerConfig& pConfig,
       fatal(diag::unsupported_bitclass) << pConfig.targets().triple().str()
                                         << pConfig.targets().bitclass();
     }
-  } else if (pSection.type() == SHT_RELA) {
+  } else if (pSection.type() == llvm::ELF::SHT_RELA) {
     if (pConfig.targets().is32Bits())
       emitRela<32>(pConfig, *sect_data, pRegion);
     else if (pConfig.targets().is64Bits())

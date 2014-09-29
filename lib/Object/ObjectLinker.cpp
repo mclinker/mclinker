@@ -46,7 +46,6 @@
 
 #include <system_error>
 
-using namespace llvm;
 using namespace mcld;
 
 //===----------------------------------------------------------------------===//

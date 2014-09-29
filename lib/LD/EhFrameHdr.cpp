@@ -18,7 +18,6 @@
 #include <cstring>
 
 using namespace mcld;
-using namespace llvm::dwarf;
 
 //===----------------------------------------------------------------------===//
 // Helper Function
@@ -49,7 +48,7 @@ void EhFrameHdr::emitOutput<32>(FileOutputBuffer& pOutput) {
   // version
   data[0] = 1;
   // eh_frame_ptr_enc
-  data[1] = DW_EH_PE_pcrel | DW_EH_PE_sdata4;
+  data[1] = llvm::dwarf::DW_EH_PE_pcrel | llvm::dwarf::DW_EH_PE_sdata4;
 
   // eh_frame_ptr
   uint32_t* eh_frame_ptr = reinterpret_cast<uint32_t*>(data + 4);
@@ -64,14 +63,14 @@ void EhFrameHdr::emitOutput<32>(FileOutputBuffer& pOutput) {
 
   if (*fde_count == 0) {
     // fde_count_enc
-    data[2] = DW_EH_PE_omit;
+    data[2] = llvm::dwarf::DW_EH_PE_omit;
     // table_enc
-    data[3] = DW_EH_PE_omit;
+    data[3] = llvm::dwarf::DW_EH_PE_omit;
   } else {
     // fde_count_enc
-    data[2] = DW_EH_PE_udata4;
+    data[2] = llvm::dwarf::DW_EH_PE_udata4;
     // table_enc
-    data[3] = DW_EH_PE_datarel | DW_EH_PE_sdata4;
+    data[3] = llvm::dwarf::DW_EH_PE_datarel | llvm::dwarf::DW_EH_PE_sdata4;
 
     // prepare the binary search table
     typedef std::vector<bit32::Entry> SearchTableType;
@@ -146,18 +145,18 @@ uint32_t EhFrameHdr::computePCBegin(const EhFrame::FDE& pFDE,
 
   // check the size to read in
   if (eh_value == llvm::dwarf::DW_EH_PE_absptr) {
-    eh_value = DW_EH_PE_udata4;
+    eh_value = llvm::dwarf::DW_EH_PE_udata4;
   }
 
   size_t pc_size = 0x0;
   switch (eh_value) {
-    case DW_EH_PE_udata2:
+    case llvm::dwarf::DW_EH_PE_udata2:
       pc_size = 2;
       break;
-    case DW_EH_PE_udata4:
+    case llvm::dwarf::DW_EH_PE_udata4:
       pc_size = 4;
       break;
-    case DW_EH_PE_udata8:
+    case llvm::dwarf::DW_EH_PE_udata8:
       pc_size = 8;
       break;
     default:
@@ -172,18 +171,18 @@ uint32_t EhFrameHdr::computePCBegin(const EhFrame::FDE& pFDE,
 
   // adjust the signed value
   bool is_signed = (fde_encoding & llvm::dwarf::DW_EH_PE_signed) != 0x0;
-  if (DW_EH_PE_udata2 == eh_value && is_signed)
+  if (llvm::dwarf::DW_EH_PE_udata2 == eh_value && is_signed)
     pc = (pc ^ 0x8000) - 0x8000;
 
   // handle eh application
   switch (fde_encoding & 0x70) {
-    case DW_EH_PE_absptr:
+    case llvm::dwarf::DW_EH_PE_absptr:
       break;
-    case DW_EH_PE_pcrel:
+    case llvm::dwarf::DW_EH_PE_pcrel:
       pc += m_EhFrame.addr() + pFDE.getOffset() +
             EhFrame::getDataStartOffset<32>();
       break;
-    case DW_EH_PE_datarel:
+    case llvm::dwarf::DW_EH_PE_datarel:
       // TODO
       break;
     default:
