@@ -348,7 +348,7 @@ class GeneralOptions {
   bool m_bNMagic : 1;             // -n, --nmagic
   bool m_bOMagic : 1;             // -N, --omagic
   bool m_bStripDebug : 1;         // -S, --strip-debug
-  bool m_bExportDynamic : 1;      //-E, --export-dynamic
+  bool m_bExportDynamic : 1;      // -E, --export-dynamic
   bool m_bWarnSharedTextrel : 1;  // --warn-shared-textrel
   bool m_bBinaryInput : 1;        // -b [input-format], --format=[input-format]
   bool m_bDefineCommon : 1;       // -d, -dc, -dp
