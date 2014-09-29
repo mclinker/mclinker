@@ -54,11 +54,8 @@ AArch64GNULDBackend::AArch64GNULDBackend(const LinkerConfig& pConfig,
       m_pPLT(NULL),
       m_pRelaDyn(NULL),
       m_pRelaPLT(NULL),
-      // m_pAttrData(NULL),
       m_pDynamic(NULL),
-      m_pGOTSymbol(NULL)
-// m_pAttributes(NULL)
-{
+      m_pGOTSymbol(NULL) {
 }
 
 AArch64GNULDBackend::~AArch64GNULDBackend() {

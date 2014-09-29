@@ -67,9 +67,8 @@ static const NameMap map[] = {
     {".gnu.linkonce.l*", ".ldata", InputSectDesc::NoKeep},
 };
 
-bool mcld::MCLDEmulateELF(LinkerScript& pScript, LinkerConfig& pConfig)
 // FIXME: LinkerConfig& pConfig should be constant
-{
+bool mcld::MCLDEmulateELF(LinkerScript& pScript, LinkerConfig& pConfig) {
   // set up section map
   if (pConfig.options().getScriptList().empty() &&
       pConfig.codeGenType() != LinkerConfig::Object) {

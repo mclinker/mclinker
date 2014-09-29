@@ -134,9 +134,7 @@ static inline Relocation& helper_DynRela_init(ResolveInfo* pSym,
 /// helper_use_relative_reloc - Check if symbol can use relocation
 /// R_AARCH64_RELATIVE
 static inline bool helper_use_relative_reloc(const ResolveInfo& pSym,
-                                             const AArch64Relocator& pParent)
-
-{
+                                             const AArch64Relocator& pParent) {
   // if symbol is dynamic or undefine or preemptible
   if (pSym.isDyn() || pSym.isUndef() ||
       pParent.getTarget().isSymbolPreemptible(pSym))

@@ -48,9 +48,7 @@ static Relocation& helper_DynRel_init(ResolveInfo* pSym,
 /// helper_use_relative_reloc - Check if symbol ceuse relocation
 /// R_386_RELATIVE
 static bool helper_use_relative_reloc(const ResolveInfo& pSym,
-                                      const X86_32Relocator& pFactory)
-
-{
+                                      const X86_32Relocator& pFactory) {
   // if symbol is dynamic or undefine or preemptible
   if (pSym.isDyn() || pSym.isUndef() ||
       pFactory.getTarget().isSymbolPreemptible(pSym))
@@ -1109,8 +1107,7 @@ static Relocation& helper_DynRel_init(ResolveInfo* pSym,
 /// helper_use_relative_reloc - Check if symbol can use relocation
 /// R_X86_64_RELATIVE
 static bool helper_use_relative_reloc(const ResolveInfo& pSym,
-                                      const X86_64Relocator& pFactory)
-{
+                                      const X86_64Relocator& pFactory) {
   // if symbol is dynamic or undefine or preemptible
   if (pSym.isDyn() || pSym.isUndef() ||
       pFactory.getTarget().isSymbolPreemptible(pSym))
