@@ -18,11 +18,9 @@ namespace mcld {
 namespace sys {
 namespace fs {
 
-namespace {
 typedef HashEntry<llvm::StringRef,
                   mcld::sys::fs::Path,
                   hash::StringCompare<llvm::StringRef> > HashEntryType;
-}  // anonymous namespace
 
 typedef HashTable<HashEntryType,
                   hash::StringHash<hash::DJB>,
