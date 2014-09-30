@@ -9,7 +9,7 @@
 #include <mcld/LD/ELFSegmentFactory.h>
 #include <mcld/LD/ELFSegment.h>
 
-using namespace mcld;
+namespace mcld {
 
 //===----------------------------------------------------------------------===//
 // ELFSegmentFactory
@@ -83,3 +83,5 @@ ELFSegment* ELFSegmentFactory::produce(uint32_t pType, uint32_t pFlag) {
 void ELFSegmentFactory::erase(iterator pSegment) {
   m_Segments.erase(pSegment);
 }
+
+} // namespace mcld

@@ -10,8 +10,6 @@
 #include <mcld/Support/TargetRegistry.h>
 #include "ARM.h"
 
-using namespace mcld;
-
 namespace mcld {
 //===----------------------------------------------------------------------===//
 // createARMDiagnostic - the help function to create corresponding ARMDiagnostic
@@ -28,8 +26,8 @@ DiagnosticLineInfo* createARMDiagLineInfo(const mcld::Target& pTarget,
 //===----------------------------------------------------------------------===//
 extern "C" void MCLDInitializeARMDiagnosticLineInfo() {
   // Register the linker frontend
-  mcld::TargetRegistry::RegisterDiagnosticLineInfo(TheARMTarget,
-                                                   createARMDiagLineInfo);
-  mcld::TargetRegistry::RegisterDiagnosticLineInfo(TheThumbTarget,
-                                                   createARMDiagLineInfo);
+  mcld::TargetRegistry::RegisterDiagnosticLineInfo(mcld::TheARMTarget,
+                                                   mcld::createARMDiagLineInfo);
+  mcld::TargetRegistry::RegisterDiagnosticLineInfo(mcld::TheThumbTarget,
+                                                   mcld::createARMDiagLineInfo);
 }

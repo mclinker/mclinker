@@ -17,7 +17,7 @@
 
 #include <cstring>
 
-using namespace mcld;
+namespace mcld {
 
 typedef GCFactory<LDSymbol, MCLD_SYMBOLS_PER_INPUT> LDSymbolFactory;
 
@@ -89,3 +89,5 @@ bool LDSymbol::isNull() const {
 bool LDSymbol::hasFragRef() const {
   return !m_pFragRef->isNull();
 }
+
+} // namespace mcld

@@ -13,7 +13,7 @@
 #include <cstring>
 #include <cassert>
 
-using namespace mcld;
+namespace mcld {
 
 bool ELFAttributeData::ReadTag(TagType& pTag,
                                const char*& pBuf,
@@ -85,3 +85,5 @@ bool ELFAttributeData::WriteAttribute(TagType pTag,
 
   return true;
 }
+
+} // namespace mcld

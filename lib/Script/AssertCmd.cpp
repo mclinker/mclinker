@@ -13,7 +13,7 @@
 #include <mcld/Script/RpnExpr.h>
 #include <mcld/Support/raw_ostream.h>
 
-using namespace mcld;
+namespace mcld {
 
 //===----------------------------------------------------------------------===//
 // AssertCmd
@@ -42,3 +42,5 @@ void AssertCmd::dump() const {
 void AssertCmd::activate(Module& pModule) {
   pModule.getScript().assertions().push_back(*this);
 }
+
+} // namespace mcld

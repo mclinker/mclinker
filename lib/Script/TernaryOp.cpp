@@ -11,7 +11,8 @@
 #include <mcld/ADT/SizeTraits.h>
 #include <mcld/Script/Operand.h>
 
-using namespace mcld;
+namespace mcld {
+
 //===----------------------------------------------------------------------===//
 // TernaryOp
 //===----------------------------------------------------------------------===//
@@ -54,3 +55,5 @@ IntOperand* TernaryOp<Operator::DATA_SEGMENT_ALIGN>::eval(
     res->setValue(form2);
   return res;
 }
+
+} // namespace mcld

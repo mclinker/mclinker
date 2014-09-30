@@ -35,7 +35,7 @@
 
 #include <cassert>
 
-using namespace mcld;
+namespace mcld {
 
 typedef HashEntry<std::string, void*, hash::StringCompare<std::string> >
     ParserStrEntry;
@@ -242,3 +242,5 @@ const std::string& ScriptFile::createParserStr(const char* pText,
 void ScriptFile::clearParserStrPool() {
   g_ParserStrPool->clear();
 }
+
+} // namespace mcld

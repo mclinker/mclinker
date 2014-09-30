@@ -15,8 +15,6 @@
 #include <mcld/Target/PLT.h>
 #include <mcld/Support/MemoryRegion.h>
 
-namespace {
-
 const uint8_t hexagon_plt0[] = {
     0x00, 0x40, 0x00, 0x00,  // { immext (#0)
     0x1c, 0xc0, 0x49, 0x6a,  //   r28 = add (pc, ##GOT0@PCREL) } # address of GOT0   // NOLINT
@@ -38,8 +36,6 @@ const uint8_t hexagon_plt1[] = {
     0x1c, 0xc0, 0x8e, 0x91,  // r28 = memw (r14)                 # contents of GOTn // NOLINT
     0x00, 0xc0, 0x9c, 0x52   // jumpr r28                        # call it
 };
-
-}  // anonymous namespace
 
 namespace mcld {
 

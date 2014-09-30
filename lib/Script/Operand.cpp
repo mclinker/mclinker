@@ -16,7 +16,7 @@
 
 #include <llvm/Support/ManagedStatic.h>
 
-using namespace mcld;
+namespace mcld {
 
 //===----------------------------------------------------------------------===//
 // Operand
@@ -203,3 +203,5 @@ void FragOperand::destroy(FragOperand*& pOperand) {
 void FragOperand::clear() {
   g_FragOperandFactory->clear();
 }
+
+} // namespace mcld

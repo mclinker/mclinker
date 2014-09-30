@@ -10,7 +10,7 @@
 
 #include <mcld/LinkerConfig.h>
 
-using namespace mcld;
+namespace mcld {
 
 TargetLDBackend::TargetLDBackend(const LinkerConfig& pConfig)
     : m_Config(pConfig) {
@@ -18,3 +18,5 @@ TargetLDBackend::TargetLDBackend(const LinkerConfig& pConfig)
 
 TargetLDBackend::~TargetLDBackend() {
 }
+
+} // namespace mcld

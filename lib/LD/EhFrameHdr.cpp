@@ -17,7 +17,7 @@
 #include <algorithm>
 #include <cstring>
 
-using namespace mcld;
+namespace mcld {
 
 //===----------------------------------------------------------------------===//
 // Helper Function
@@ -191,3 +191,5 @@ uint32_t EhFrameHdr::computePCBegin(const EhFrame::FDE& pFDE,
   }
   return pc;
 }
+
+} // namespace mcld

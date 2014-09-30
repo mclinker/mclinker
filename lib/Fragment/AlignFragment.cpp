@@ -11,7 +11,7 @@
 
 #include <llvm/Support/MathExtras.h>
 
-using namespace mcld;
+namespace mcld {
 
 //===----------------------------------------------------------------------===//
 // AlignFragment
@@ -38,3 +38,5 @@ size_t AlignFragment::size() const {
 
   return size;
 }
+
+} // namespace mcld

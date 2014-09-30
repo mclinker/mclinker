@@ -21,7 +21,7 @@
 
 #include <sys/stat.h>
 
-using namespace mcld;
+namespace mcld {
 
 //===----------------------------------------------------------------------===//
 // FileHandle
@@ -243,3 +243,5 @@ bool FileHandle::isFailed() const {
 bool FileHandle::isOwned() const {
   return !(m_State & DeputedBit);
 }
+
+} // namespace mcld

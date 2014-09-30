@@ -22,7 +22,7 @@
 
 #include <cassert>
 
-using namespace mcld;
+namespace mcld {
 
 //===----------------------------------------------------------------------===//
 // Assignment
@@ -173,3 +173,5 @@ bool Assignment::assign(RpnEvaluator& pEvaluator) {
     m_Symbol.setValue(result);
   return success;
 }
+
+} // namespace mcld

@@ -12,7 +12,7 @@
 
 #include <cstddef>
 
-using namespace mcld;
+namespace mcld {
 
 //===----------------------------------------------------------------------===//
 // AttributeSet
@@ -50,3 +50,5 @@ Attribute* AttributeSet::exists(const Attribute& pAttr) const {
 void AttributeSet::record(mcld::Attribute& pAttr) {
   m_AttrSet.push_back(&pAttr);
 }
+
+} // namespace mcld

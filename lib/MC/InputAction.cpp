@@ -8,7 +8,7 @@
 //===----------------------------------------------------------------------===//
 #include <mcld/MC/InputAction.h>
 
-using namespace mcld;
+namespace mcld {
 
 //===----------------------------------------------------------------------===//
 // Base Positional Option
@@ -18,3 +18,5 @@ InputAction::InputAction(unsigned int pPosition) : m_Position(pPosition) {
 
 InputAction::~InputAction() {
 }
+
+} // namespace mcld

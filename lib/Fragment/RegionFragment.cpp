@@ -8,7 +8,7 @@
 //===----------------------------------------------------------------------===//
 #include <mcld/Fragment/RegionFragment.h>
 
-using namespace mcld;
+namespace mcld {
 
 //===----------------------------------------------------------------------===//
 // RegionFragment
@@ -23,3 +23,5 @@ RegionFragment::~RegionFragment() {
 size_t RegionFragment::size() const {
   return m_Region.size();
 }
+
+} // namespace mcld

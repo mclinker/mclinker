@@ -8,7 +8,7 @@
 //===----------------------------------------------------------------------===//
 #include <mcld/TargetOptions.h>
 
-using namespace mcld;
+namespace mcld {
 
 //===----------------------------------------------------------------------===//
 // TargetOptions
@@ -42,3 +42,5 @@ void TargetOptions::setTargetCPU(const std::string& pCPU) {
 void TargetOptions::setTargetFeatureString(const std::string& pFS) {
   m_TargetFS = pFS;
 }
+
+} // namespace mcld

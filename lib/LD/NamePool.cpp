@@ -12,7 +12,7 @@
 
 #include <llvm/Support/raw_ostream.h>
 
-using namespace mcld;
+namespace mcld {
 
 //===----------------------------------------------------------------------===//
 // NamePool
@@ -153,3 +153,5 @@ const LDSymbol* NamePool::findSymbol(const llvm::StringRef& pName) const {
     return NULL;
   return info->outSymbol();
 }
+
+} // namespace mcld

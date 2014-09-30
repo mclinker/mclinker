@@ -10,7 +10,7 @@
 
 #include <mcld/LD/LDContext.h>
 
-using namespace mcld;
+namespace mcld {
 
 //===---------------------------------------------------------------------===//
 // LDContextFactory
@@ -40,3 +40,5 @@ LDContext* ContextFactory::produce() {
   new (result) LDContext();
   return result;
 }
+
+} // namespace mcld

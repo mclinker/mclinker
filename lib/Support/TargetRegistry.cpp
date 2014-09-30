@@ -8,7 +8,7 @@
 //===----------------------------------------------------------------------===//
 #include <mcld/Support/TargetRegistry.h>
 
-using namespace mcld;
+namespace mcld {
 
 TargetRegistry::TargetListTy mcld::TargetRegistry::s_TargetList;
 
@@ -99,3 +99,5 @@ const Target* TargetRegistry::lookupTarget(const std::string& pArchName,
   }
   return result;
 }
+
+} // namespace mcld

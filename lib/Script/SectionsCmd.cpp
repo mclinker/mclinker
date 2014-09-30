@@ -12,7 +12,7 @@
 
 #include <cassert>
 
-using namespace mcld;
+namespace mcld {
 
 //===----------------------------------------------------------------------===//
 // SectionsCmd
@@ -88,3 +88,5 @@ void SectionsCmd::activate(Module& pModule) {
     }
   }
 }
+
+} // namespace mcld

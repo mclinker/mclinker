@@ -25,7 +25,7 @@
 
 #include <cstring>
 
-using namespace mcld;
+namespace mcld {
 
 //===----------------------------------------------------------------------===//
 // ELFAttribute
@@ -356,3 +356,5 @@ size_t ELFAttribute::Subsection::emit(char* pBuf) const {
 
   return subsection_length;
 }
+
+} // namespace mcld

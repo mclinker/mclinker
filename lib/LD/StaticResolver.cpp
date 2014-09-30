@@ -12,7 +12,7 @@
 #include <mcld/Support/Demangle.h>
 #include <mcld/Support/MsgHandling.h>
 
-using namespace mcld;
+namespace mcld {
 
 //==========================
 // StaticResolver
@@ -310,3 +310,5 @@ bool StaticResolver::resolve(ResolveInfo& __restrict__ pOld,
   } while (cycle);
   return true;
 }
+
+} // namespace mcld

@@ -18,7 +18,7 @@
 
 #include <llvm/Support/ManagedStatic.h>
 
-using namespace mcld;
+namespace mcld {
 
 static llvm::ManagedStatic<RelocationFactory> g_RelocationFactory;
 
@@ -146,3 +146,5 @@ void Relocation::updateAddend() {
     m_Addend += offset;
   }
 }
+
+} // namespace mcld

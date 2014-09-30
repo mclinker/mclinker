@@ -13,7 +13,7 @@
 
 #include <llvm/Support/ManagedStatic.h>
 
-using namespace mcld;
+namespace mcld {
 
 typedef GCFactory<SectionData, MCLD_SECTIONS_PER_INPUT> SectDataFactory;
 
@@ -43,3 +43,5 @@ void SectionData::Destroy(SectionData*& pSection) {
 void SectionData::Clear() {
   g_SectDataFactory->clear();
 }
+
+} // namespace mcld

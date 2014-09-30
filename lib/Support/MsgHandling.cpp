@@ -20,30 +20,30 @@
 
 #include <cstdlib>
 
-using namespace mcld;
+namespace mcld {
 
 //===----------------------------------------------------------------------===//
 // static variables
 //===----------------------------------------------------------------------===//
 static llvm::ManagedStatic<DiagnosticEngine> g_pEngine;
 
-void mcld::InitializeDiagnosticEngine(const mcld::LinkerConfig& pConfig,
-                                      DiagnosticPrinter* pPrinter) {
+void InitializeDiagnosticEngine(const LinkerConfig& pConfig,
+                                DiagnosticPrinter* pPrinter) {
   g_pEngine->reset(pConfig);
   if (pPrinter != NULL)
     g_pEngine->setPrinter(*pPrinter, false);
   else {
     DiagnosticPrinter* printer =
-        new TextDiagnosticPrinter(mcld::errs(), pConfig);
+        new TextDiagnosticPrinter(errs(), pConfig);
     g_pEngine->setPrinter(*printer, true);
   }
 }
 
-DiagnosticEngine& mcld::getDiagnosticEngine() {
+DiagnosticEngine& getDiagnosticEngine() {
   return *g_pEngine;
 }
 
-bool mcld::Diagnose() {
+bool Diagnose() {
   if (g_pEngine->getPrinter()->getNumErrors() > 0) {
     // If we reached here, we are failing ungracefully. Run the interrupt
     // handlers
@@ -56,6 +56,8 @@ bool mcld::Diagnose() {
   return true;
 }
 
-void mcld::FinalizeDiagnosticEngine() {
+void FinalizeDiagnosticEngine() {
   g_pEngine->getPrinter()->finish();
 }
+
+} // namespace mcld

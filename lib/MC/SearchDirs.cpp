@@ -11,7 +11,7 @@
 #include <mcld/MC/MCLDDirectory.h>
 #include <mcld/Support/FileSystem.h>
 
-using namespace mcld;
+namespace mcld {
 
 //===----------------------------------------------------------------------===//
 // Non-member functions
@@ -196,3 +196,5 @@ const mcld::sys::fs::Path* SearchDirs::find(const std::string& pNamespec,
   }    // end of for
   return NULL;
 }
+
+} // namespace mcld

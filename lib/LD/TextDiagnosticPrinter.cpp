@@ -14,7 +14,7 @@
 
 #include <string>
 
-using namespace mcld;
+namespace mcld {
 
 static const enum llvm::raw_ostream::Colors UnreachableColor =
     llvm::raw_ostream::RED;
@@ -171,3 +171,5 @@ void TextDiagnosticPrinter::beginInput(const Input& pInput,
 void TextDiagnosticPrinter::endInput() {
   m_pInput = NULL;
 }
+
+} // namespace mcld

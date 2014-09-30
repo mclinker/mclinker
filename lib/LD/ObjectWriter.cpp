@@ -8,7 +8,7 @@
 //===----------------------------------------------------------------------===//
 #include <mcld/LD/ObjectWriter.h>
 
-using namespace mcld;
+namespace mcld {
 
 //==========================
 // ObjectWriter
@@ -17,3 +17,5 @@ ObjectWriter::ObjectWriter() {
 
 ObjectWriter::~ObjectWriter() {
 }
+
+} // namespace mcld

@@ -8,7 +8,7 @@
 //===----------------------------------------------------------------------===//
 #include <mcld/InputTree.h>
 
-using namespace mcld;
+namespace mcld {
 
 InputTree::Succeeder InputTree::Afterward;
 InputTree::Includer InputTree::Downward;
@@ -40,7 +40,7 @@ InputTree& InputTree::enterGroup(TreeIteratorBase pRoot,
 
 InputTree& InputTree::insert(TreeIteratorBase pRoot,
                              const InputTree::Mover& pMover,
-                             mcld::Input& pInput) {
+                             Input& pInput) {
   BinaryTree<Input>::node_type* node = createNode();
   node->data = &pInput;
   pMover.connect(pRoot, node);
@@ -50,26 +50,28 @@ InputTree& InputTree::insert(TreeIteratorBase pRoot,
 //===----------------------------------------------------------------------===//
 // non-member functions
 //===----------------------------------------------------------------------===//
-bool mcld::isGroup(const InputTree::iterator& pos) {
+bool isGroup(const InputTree::iterator& pos) {
   return !pos.hasData() && !pos.isRoot();
 }
 
-bool mcld::isGroup(const InputTree::const_iterator& pos) {
+bool isGroup(const InputTree::const_iterator& pos) {
   return !pos.hasData() && !pos.isRoot();
 }
 
-bool mcld::isGroup(const InputTree::dfs_iterator& pos) {
+bool isGroup(const InputTree::dfs_iterator& pos) {
   return !pos.hasData() && !pos.isRoot();
 }
 
-bool mcld::isGroup(const InputTree::const_dfs_iterator& pos) {
+bool isGroup(const InputTree::const_dfs_iterator& pos) {
   return !pos.hasData() && !pos.isRoot();
 }
 
-bool mcld::isGroup(const InputTree::bfs_iterator& pos) {
+bool isGroup(const InputTree::bfs_iterator& pos) {
   return !pos.hasData() && !pos.isRoot();
 }
 
-bool mcld::isGroup(const InputTree::const_bfs_iterator& pos) {
+bool isGroup(const InputTree::const_bfs_iterator& pos) {
   return !pos.hasData() && !pos.isRoot();
 }
+
+} // namespace mcld

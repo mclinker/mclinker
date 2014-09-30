@@ -22,7 +22,7 @@
 
 #include <cassert>
 
-using namespace mcld;
+namespace mcld {
 
 typedef GCFactory<FragmentRef, MCLD_SECTIONS_PER_INPUT> FragRefFactory;
 
@@ -153,3 +153,5 @@ FragmentRef::Offset FragmentRef::getOutputOffset() const {
     result = m_pFragment->getOffset();
   return (result + m_Offset);
 }
+
+} // namespace mcld

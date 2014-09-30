@@ -11,7 +11,7 @@
 #include <llvm/ADT/StringRef.h>
 #include <llvm/ADT/StringSwitch.h>
 
-using namespace mcld;
+namespace mcld {
 
 //===----------------------------------------------------------------------===//
 // HexagonGNUInfo
@@ -27,3 +27,5 @@ uint64_t HexagonGNUInfo::flags() const {
       .Case("hexagonv5", V5)
       .Default(V4);
 }
+
+} // namespace mcld

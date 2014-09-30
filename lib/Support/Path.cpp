@@ -18,8 +18,9 @@
 #include <ostream>
 #include <string.h>
 
-using namespace mcld;
-using namespace mcld::sys::fs;
+namespace mcld {
+namespace sys {
+namespace fs {
 
 //===--------------------------------------------------------------------===//
 // Helper
@@ -191,16 +192,20 @@ Path Path::extension() const {
 //===--------------------------------------------------------------------===//
 // non-member functions
 //===--------------------------------------------------------------------===//
-bool mcld::sys::fs::operator==(const Path& pLHS, const Path& pRHS) {
+bool operator==(const Path& pLHS, const Path& pRHS) {
   return (pLHS.generic_string() == pRHS.generic_string());
 }
 
-bool mcld::sys::fs::operator!=(const Path& pLHS, const Path& pRHS) {
+bool operator!=(const Path& pLHS, const Path& pRHS) {
   return !(pLHS == pRHS);
 }
 
-Path mcld::sys::fs::operator+(const Path& pLHS, const Path& pRHS) {
+Path operator+(const Path& pLHS, const Path& pRHS) {
   mcld::sys::fs::Path result = pLHS;
   result.append(pRHS);
   return result;
 }
+
+}  // namespace fs
+}  // namespace sys
+}  // namespace mcld

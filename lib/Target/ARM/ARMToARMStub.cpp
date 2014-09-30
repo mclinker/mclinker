@@ -16,7 +16,7 @@
 
 #include <llvm/Support/ELF.h>
 
-using namespace mcld;
+namespace mcld {
 
 //===----------------------------------------------------------------------===//
 // ARMToARMStub
@@ -104,3 +104,5 @@ size_t ARMToARMStub::alignment() const {
 Stub* ARMToARMStub::doClone() {
   return new ARMToARMStub(m_pData, m_Size, fixup_begin(), fixup_end());
 }
+
+} // namespace mcld

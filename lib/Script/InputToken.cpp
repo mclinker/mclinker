@@ -8,7 +8,7 @@
 //===----------------------------------------------------------------------===//
 #include <mcld/Script/InputToken.h>
 
-using namespace mcld;
+namespace mcld {
 
 //===----------------------------------------------------------------------===//
 // InputToken
@@ -22,3 +22,5 @@ InputToken::InputToken(Type pType, const std::string& pName, bool pAsNeeded)
 
 InputToken::~InputToken() {
 }
+
+} // namespace mcld

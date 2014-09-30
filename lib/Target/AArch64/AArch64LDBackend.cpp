@@ -40,7 +40,7 @@
 
 #include <cstring>
 
-using namespace mcld;
+namespace mcld {
 
 //===----------------------------------------------------------------------===//
 // AArch64GNULDBackend
@@ -387,8 +387,6 @@ const OutputRelocSection& AArch64GNULDBackend::getRelaPLT() const {
   return *m_pRelaPLT;
 }
 
-namespace mcld {
-
 //===----------------------------------------------------------------------===//
 //  createAArch64LDBackend - the help funtion to create corresponding
 //  AArch64LDBackend
@@ -421,6 +419,6 @@ TargetLDBackend* createAArch64LDBackend(const LinkerConfig& pConfig) {
 //===----------------------------------------------------------------------===//
 extern "C" void MCLDInitializeAArch64LDBackend() {
   // Register the linker backend
-  mcld::TargetRegistry::RegisterTargetLDBackend(TheAArch64Target,
-                                                createAArch64LDBackend);
+  mcld::TargetRegistry::RegisterTargetLDBackend(mcld::TheAArch64Target,
+                                                mcld::createAArch64LDBackend);
 }

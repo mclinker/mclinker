@@ -17,7 +17,7 @@
 #include <llvm/Support/ManagedStatic.h>
 #include <llvm/Support/Casting.h>
 
-using namespace mcld;
+namespace mcld {
 
 typedef GCFactory<RpnExpr, MCLD_SYMBOLS_PER_INPUT> ExprFactory;
 static llvm::ManagedStatic<ExprFactory> g_ExprFactory;
@@ -93,3 +93,5 @@ RpnExpr* RpnExpr::buildHelperExpr(Fragment& pFrag) {
   expr->push_back(FragOperand::create(pFrag));
   return expr;
 }
+
+} // namespace mcld

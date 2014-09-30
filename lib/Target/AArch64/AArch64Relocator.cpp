@@ -23,7 +23,7 @@
 #include <llvm/Support/ELF.h>
 #include <llvm/Support/Host.h>
 
-using namespace mcld;
+namespace mcld {
 
 //===----------------------------------------------------------------------===//
 // Relocation Functions and Tables
@@ -665,3 +665,5 @@ Relocator::Result ldst_abs_lo12(Relocation& pReloc, AArch64Relocator& pParent) {
   }
   return Relocator::OK;
 }
+
+}  // namespace mcld

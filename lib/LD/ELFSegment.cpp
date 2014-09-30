@@ -16,7 +16,7 @@
 
 #include <cassert>
 
-using namespace mcld;
+namespace mcld {
 
 typedef GCFactory<ELFSegment, MCLD_SEGMENTS_PER_OUTPUT> ELFSegmentFactory;
 static llvm::ManagedStatic<ELFSegmentFactory> g_ELFSegmentFactory;
@@ -96,3 +96,5 @@ void ELFSegment::Destroy(ELFSegment*& pSegment) {
 void ELFSegment::Clear() {
   g_ELFSegmentFactory->clear();
 }
+
+} // namespace mcld

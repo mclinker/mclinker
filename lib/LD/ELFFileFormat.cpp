@@ -12,7 +12,7 @@
 
 #include <llvm/Support/ELF.h>
 
-using namespace mcld;
+namespace mcld {
 
 ELFFileFormat::ELFFileFormat()
     : f_pNULLSection(NULL),
@@ -233,3 +233,5 @@ void ELFFileFormat::initStdSections(ObjectBuilder& pBuilder,
   /// objects)
   initObjectFormat(pBuilder, pBitClass);
 }
+
+} // namespace mcld

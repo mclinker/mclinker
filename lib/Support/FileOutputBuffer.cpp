@@ -10,7 +10,7 @@
 #include <mcld/Support/FileHandle.h>
 #include <mcld/Support/Path.h>
 
-using namespace mcld;
+namespace mcld {
 
 FileOutputBuffer::FileOutputBuffer(llvm::sys::fs::mapped_file_region* pRegion,
                                    FileHandle& pFileHandle)
@@ -49,3 +49,5 @@ MemoryRegion FileOutputBuffer::request(size_t pOffset, size_t pLength) {
 llvm::StringRef FileOutputBuffer::getPath() const {
   return m_FileHandle.path().native();
 }
+
+} // namespace mcld

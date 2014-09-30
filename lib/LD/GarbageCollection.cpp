@@ -34,7 +34,7 @@
 #define fnmatch0(pattern, string) (PathMatchSpec(string, pattern) == true)
 #endif
 
-using namespace mcld;
+namespace mcld {
 
 //===----------------------------------------------------------------------===//
 // Non-member functions
@@ -346,3 +346,5 @@ void GarbageCollection::stripSections() {
     }
   }
 }
+
+} // namespace mcld

@@ -16,7 +16,7 @@
 
 #include <llvm/Support/Casting.h>
 
-using namespace mcld;
+namespace mcld {
 
 //===----------------------------------------------------------------------===//
 // OutputRelocSection
@@ -75,3 +75,5 @@ bool OutputRelocSection::addSymbolToDynSym(LDSymbol& pSymbol) {
   m_Module.getSymbolTable().changeToDynamic(pSymbol);
   return true;
 }
+
+} // namespace mcld

@@ -17,7 +17,7 @@
 #include <mcld/MC/Attribute.h>
 #include <mcld/Support/MsgHandling.h>
 
-using namespace mcld;
+namespace mcld {
 
 GroupReader::GroupReader(Module& pModule,
                          ObjectReader& pObjectReader,
@@ -144,3 +144,5 @@ bool GroupReader::readGroup(Module::input_iterator pRoot,
 
   return true;
 }
+
+} // namespace mcld

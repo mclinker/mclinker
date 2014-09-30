@@ -22,7 +22,7 @@
 #include <llvm/Support/DataTypes.h>
 #include <llvm/Support/ELF.h>
 
-using namespace mcld;
+namespace mcld {
 
 //===--------------------------------------------------------------------===//
 // X86_32 Relocation helper function
@@ -1648,3 +1648,5 @@ Relocator::Result rel(Relocation& pReloc, X86_64Relocator& pParent) {
 Relocator::Result unsupported(Relocation& pReloc, X86_64Relocator& pParent) {
   return Relocator::Unsupported;
 }
+
+} // namespace mcld

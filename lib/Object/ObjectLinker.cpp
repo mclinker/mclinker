@@ -46,7 +46,7 @@
 
 #include <system_error>
 
-using namespace mcld;
+namespace mcld {
 
 //===----------------------------------------------------------------------===//
 // ObjectLinker
@@ -925,3 +925,5 @@ void ObjectLinker::writeRelocationResult(Relocation& pReloc, uint8_t* pOutput) {
                 pReloc.size(*m_LDBackend.getRelocator()) / 8);
   }
 }
+
+} // namespace mcld

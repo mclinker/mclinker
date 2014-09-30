@@ -14,7 +14,7 @@
 #include <algorithm>
 #include <cassert>
 
-using namespace mcld;
+namespace mcld {
 
 //===----------------------------------------------------------------------===//
 // Category
@@ -413,3 +413,5 @@ SymbolCategory::const_iterator SymbolCategory::regularBegin() const {
 SymbolCategory::const_iterator SymbolCategory::regularEnd() const {
   return m_OutputSymbols.end();
 }
+
+} // namespace mcld

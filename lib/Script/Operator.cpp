@@ -15,7 +15,8 @@
 #include <mcld/Script/TernaryOp.h>
 #include <mcld/Support/raw_ostream.h>
 
-using namespace mcld;
+namespace mcld {
+
 //===----------------------------------------------------------------------===//
 // Operator
 //===----------------------------------------------------------------------===//
@@ -306,3 +307,5 @@ Operator& Operator::create<Operator::DATA_SEGMENT_ALIGN>() {
   static TernaryOp<Operator::DATA_SEGMENT_ALIGN> op;
   return op;
 }
+
+} // namespace mcld

@@ -10,7 +10,7 @@
 
 #include <mcld/LD/ELFFileFormat.h>
 
-using namespace mcld;
+namespace mcld {
 
 HexagonELFDynamic::HexagonELFDynamic(const GNULDBackend& pParent,
                                      const LinkerConfig& pConfig)
@@ -31,3 +31,5 @@ void HexagonELFDynamic::applyTargetEntries(const ELFFileFormat& pFormat) {
   if (pFormat.hasGOTPLT())
     applyOne(llvm::ELF::DT_PLTGOT, pFormat.getGOTPLT().addr());
 }
+
+} // namespace mcld

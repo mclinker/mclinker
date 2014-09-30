@@ -13,8 +13,6 @@
 #include <mcld/Target/PLT.h>
 #include <mcld/Support/MemoryRegion.h>
 
-namespace {
-
 const uint32_t arm_plt0[] = {
     0xe52de004,  // str   lr, [sp, #-4]!
     0xe59fe004,  // ldr   lr, [pc, #4]
@@ -28,8 +26,6 @@ const uint32_t arm_plt1[] = {
     0xe28cca00,  // add   ip, ip, #0xNN000
     0xe5bcf000   // ldr   pc, [ip, #0xNNN]!
 };
-
-}  // anonymous namespace
 
 namespace mcld {
 

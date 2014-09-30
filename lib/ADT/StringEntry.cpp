@@ -8,7 +8,7 @@
 //===----------------------------------------------------------------------===//
 #include <mcld/ADT/StringEntry.h>
 
-using namespace mcld;
+namespace mcld {
 
 //===----------------------------------------------------------------------===//
 // StringEntry<llvm::StringRef>
@@ -41,3 +41,5 @@ void StringEntry<llvm::StringRef>::setValue(const char* pVal) {
   strcpy(data, pVal);
   m_Value = llvm::StringRef(data, length);
 }
+
+} // namespace mcld

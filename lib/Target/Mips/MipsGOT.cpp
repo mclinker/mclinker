@@ -25,7 +25,7 @@ const size_t MipsGOTGpOffset = 0x7FF0;
 const size_t MipsGOTSize = MipsGOTGpOffset + 0x7FFF;
 }
 
-using namespace mcld;
+namespace mcld {
 
 //===----------------------------------------------------------------------===//
 // MipsGOT::GOTMultipart
@@ -435,3 +435,5 @@ void Mips64GOT::reserveHeader() {
   createEntry(0, m_SectionData);
   createEntry(Mips64ModulePtr, m_SectionData);
 }
+
+} // namespace mcld

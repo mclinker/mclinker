@@ -28,7 +28,7 @@
 
 #include <cstring>
 
-using namespace mcld;
+namespace mcld {
 
 //===----------------------------------------------------------------------===//
 // ELFReader<32, true>
@@ -1023,3 +1023,5 @@ bool ELFReader<64, true>::readDynamic(Input& pInput) const {
 
   return true;
 }
+
+} // namespace mcld

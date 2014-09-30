@@ -29,7 +29,7 @@
 #include <cassert>
 #include <iostream>
 
-using namespace mcld;
+namespace mcld {
 
 //===----------------------------------------------------------------------===//
 // InputCmd
@@ -209,3 +209,5 @@ void InputCmd::activate(Module& pModule) {
     }
   }
 }
+
+} // namespace mcld

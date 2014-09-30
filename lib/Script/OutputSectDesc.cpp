@@ -20,7 +20,7 @@
 
 #include <cassert>
 
-using namespace mcld;
+namespace mcld {
 
 //===----------------------------------------------------------------------===//
 // OutputSectDesc
@@ -195,3 +195,5 @@ void OutputSectDesc::activate(Module& pModule) {
     assignments.clear();
   }
 }
+
+} // namespace mcld

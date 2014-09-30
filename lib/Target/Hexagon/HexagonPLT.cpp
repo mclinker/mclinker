@@ -16,7 +16,7 @@
 #include <llvm/Support/ELF.h>
 #include <llvm/Support/Casting.h>
 
-using namespace mcld;
+namespace mcld {
 
 //===----------------------------------------------------------------------===//
 // PLT entry data
@@ -186,3 +186,5 @@ uint64_t HexagonPLT::emit(MemoryRegion& pRegion) {
   }
   return result;
 }
+
+} // namespace mcld

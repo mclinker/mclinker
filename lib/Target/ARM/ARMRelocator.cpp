@@ -21,7 +21,7 @@
 #include <llvm/Support/ELF.h>
 #include <llvm/Support/Host.h>
 
-using namespace mcld;
+namespace mcld {
 
 //=========================================//
 // Relocation helper function              //
@@ -1347,3 +1347,5 @@ ARMRelocator::Result tls(Relocation& pReloc, ARMRelocator& pParent) {
 ARMRelocator::Result unsupported(Relocation& pReloc, ARMRelocator& pParent) {
   return Relocator::Unsupported;
 }
+
+} // namespace mcld

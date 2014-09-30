@@ -12,7 +12,7 @@
 
 #include <llvm/Support/DataTypes.h>
 
-using namespace mcld;
+namespace mcld {
 
 //===----------------------------------------------------------------------===//
 // Fragment
@@ -38,3 +38,5 @@ uint64_t Fragment::getOffset() const {
 bool Fragment::hasOffset() const {
   return (m_Offset != ~uint64_t(0));
 }
+
+} // namespace mcld

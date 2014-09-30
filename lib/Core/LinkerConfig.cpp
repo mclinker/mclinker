@@ -11,7 +11,7 @@
 #include <mcld/Config/Config.h>
 #include <mcld/Support/MsgHandling.h>
 
-using namespace mcld;
+namespace mcld {
 
 //===----------------------------------------------------------------------===//
 // LinkerConfig
@@ -44,3 +44,5 @@ LinkerConfig::~LinkerConfig() {
 const char* LinkerConfig::version() {
   return MCLD_VERSION;
 }
+
+} // namespace mcld

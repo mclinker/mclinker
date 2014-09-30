@@ -18,7 +18,7 @@
 
 #include <algorithm>
 
-using namespace mcld;
+namespace mcld {
 
 namespace {
 
@@ -169,3 +169,5 @@ bool DiagnosticInfos::process(DiagnosticEngine& pEngine) const {
   pEngine.getPrinter()->handleDiagnostic(severity, info);
   return true;
 }
+
+} // namespace mcld

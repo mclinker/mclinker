@@ -12,7 +12,7 @@
 #include <mcld/AttributeOption.h>
 #include <mcld/MC/AttributeSet.h>
 
-using namespace mcld;
+namespace mcld {
 
 //===----------------------------------------------------------------------===//
 // InputFactory
@@ -47,3 +47,5 @@ Input* InputFactory::produce(llvm::StringRef pName,
   new (result) Input(pName, sys::fs::Path(pPath), *m_pLast, pType, pFileOffset);
   return result;
 }
+
+} // namespace mcld

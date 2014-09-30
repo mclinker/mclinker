@@ -13,7 +13,7 @@
 #include <mcld/LD/SectionData.h>
 #include <mcld/Module.h>
 
-using namespace mcld;
+namespace mcld {
 
 //===----------------------------------------------------------------------===//
 // BranchIslandFactory
@@ -94,3 +94,5 @@ std::pair<BranchIsland*, BranchIsland*> BranchIslandFactory::getIslands(
   }
   return std::make_pair(fwd, bwd);
 }
+
+} // namespace mcld

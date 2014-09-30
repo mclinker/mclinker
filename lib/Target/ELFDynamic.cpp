@@ -15,8 +15,8 @@
 #include <llvm/Support/ErrorHandling.h>
 #include <llvm/Support/Host.h>
 
-using namespace mcld;
-using namespace elf_dynamic;
+namespace mcld {
+namespace elf_dynamic {
 
 //===----------------------------------------------------------------------===//
 // elf_dynamic::EntryIF
@@ -27,6 +27,8 @@ EntryIF::EntryIF() {
 EntryIF::~EntryIF() {
 }
 
+} // namespace elf_dynamic
+
 //===----------------------------------------------------------------------===//
 // ELFDynamic
 //===----------------------------------------------------------------------===//
@@ -35,10 +37,10 @@ ELFDynamic::ELFDynamic(const GNULDBackend& pParent, const LinkerConfig& pConfig)
   // FIXME: support big-endian machine.
   if (m_Config.targets().is32Bits()) {
     if (m_Config.targets().isLittleEndian())
-      m_pEntryFactory = new Entry<32, true>();
+      m_pEntryFactory = new elf_dynamic::Entry<32, true>();
   } else if (m_Config.targets().is64Bits()) {
     if (m_Config.targets().isLittleEndian())
-      m_pEntryFactory = new Entry<64, true>();
+      m_pEntryFactory = new elf_dynamic::Entry<64, true>();
   } else {
     fatal(diag::unsupported_bitclass) << m_Config.targets().triple().str()
                                       << m_Config.targets().bitclass();
@@ -336,3 +338,5 @@ void ELFDynamic::emit(const LDSection& pSection, MemoryRegion& pRegion) const {
 void ELFDynamic::applySoname(uint64_t pStrTabIdx) {
   applyOne(llvm::ELF::DT_SONAME, pStrTabIdx);
 }
+
+} // namespace mcld

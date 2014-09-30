@@ -32,7 +32,8 @@
 #include <set>
 
 #include <zlib.h>
-using namespace mcld;
+
+namespace mcld {
 
 static bool isSymCtorOrDtor(const ResolveInfo& pSym) {
   // We can always fold ctors and dtors since accessing function pointer in C++
@@ -294,3 +295,5 @@ std::string IdenticalCodeFolding::FoldingCandidate::getContentWithVariables(
 
   return result;
 }
+
+} // namespace mcld

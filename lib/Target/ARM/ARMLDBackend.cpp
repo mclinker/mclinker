@@ -46,7 +46,7 @@
 
 #include <cstring>
 
-using namespace mcld;
+namespace mcld {
 
 //===----------------------------------------------------------------------===//
 // ARMGNULDBackend
@@ -746,8 +746,6 @@ bool ARMGNULDBackend::mayHaveUnsafeFunctionPointerAccess(
          GNULDBackend::mayHaveUnsafeFunctionPointerAccess(pSection);
 }
 
-namespace mcld {
-
 //===----------------------------------------------------------------------===//
 /// createARMLDBackend - the help funtion to create corresponding ARMLDBackend
 ///
@@ -779,8 +777,8 @@ TargetLDBackend* createARMLDBackend(const LinkerConfig& pConfig) {
 //===----------------------------------------------------------------------===//
 extern "C" void MCLDInitializeARMLDBackend() {
   // Register the linker backend
-  mcld::TargetRegistry::RegisterTargetLDBackend(TheARMTarget,
-                                                createARMLDBackend);
-  mcld::TargetRegistry::RegisterTargetLDBackend(TheThumbTarget,
-                                                createARMLDBackend);
+  mcld::TargetRegistry::RegisterTargetLDBackend(mcld::TheARMTarget,
+                                                mcld::createARMLDBackend);
+  mcld::TargetRegistry::RegisterTargetLDBackend(mcld::TheThumbTarget,
+                                                mcld::createARMLDBackend);
 }

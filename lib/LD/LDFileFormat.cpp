@@ -8,7 +8,7 @@
 //===----------------------------------------------------------------------===//
 #include <mcld/LD/LDFileFormat.h>
 
-using namespace mcld;
+namespace mcld {
 
 //===----------------------------------------------------------------------===//
 // LDFileInfo
@@ -22,3 +22,5 @@ LDFileFormat::LDFileFormat()
 
 LDFileFormat::~LDFileFormat() {
 }
+
+} // namespace mcld

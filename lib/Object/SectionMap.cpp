@@ -32,7 +32,8 @@
 #define fnmatch0(pattern, string) (PathMatchSpec(string, pattern) == true)
 #endif
 
-using namespace mcld;
+namespace mcld {
+
 //===----------------------------------------------------------------------===//
 // SectionMap::Input
 //===----------------------------------------------------------------------===//
@@ -375,3 +376,5 @@ void SectionMap::fixupDotSymbols() {
     }
   }  // for each output section
 }
+
+} // namespace mcld

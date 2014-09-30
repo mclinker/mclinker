@@ -32,12 +32,12 @@ enum {
 }  // namespace ELF
 }  // namespace llvm
 
-using namespace mcld;
+namespace mcld {
 
 //===----------------------------------------------------------------------===//
 // MipsRelocationInfo
 //===----------------------------------------------------------------------===//
-class mcld::MipsRelocationInfo {
+class MipsRelocationInfo {
  public:
   static bool HasSubType(const Relocation& pParent, Relocation::Type pType) {
     if (llvm::ELF::R_MIPS_NONE == pType)
@@ -773,7 +773,7 @@ static MipsRelocator::Result rel26(MipsRelocationInfo& pReloc,
   if (rsym->isLocal())
     pReloc.result() = A | ((P + 4) & 0x3F000000);
   else
-    pReloc.result() = mcld::signExtend<28>(A);
+    pReloc.result() = signExtend<28>(A);
 
   pReloc.result() = (pReloc.result() + S) >> 2;
 
@@ -1013,3 +1013,5 @@ static MipsRelocator::Result unsupported(MipsRelocationInfo& pReloc,
                                          MipsRelocator& pParent) {
   return Relocator::Unsupported;
 }
+
+} // namespace mcld

@@ -18,7 +18,7 @@
 #include <llvm/Support/Dwarf.h>
 #include <llvm/Support/LEB128.h>
 
-using namespace mcld;
+namespace mcld {
 
 //===----------------------------------------------------------------------===//
 // Helper Functions
@@ -358,3 +358,5 @@ bool EhFrameReader::reject(EhFrame& pEhFrame,
                            const EhFrameReader::Token& pToken) {
   return true;
 }
+
+} // namespace mcld

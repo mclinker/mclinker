@@ -9,8 +9,7 @@
 #include <mcld/MC/MCLDDirectory.h>
 #include <mcld/Support/FileSystem.h>
 
-using namespace mcld;
-using namespace mcld::sys::fs;
+namespace mcld {
 
 //===----------------------------------------------------------------------===//
 // MCLDDirectory
@@ -28,7 +27,7 @@ MCLDDirectory::MCLDDirectory(const char* pName) : Directory(), m_Name(pName) {
   if (m_bInSysroot)
     Directory::m_Path.native().erase(Directory::m_Path.native().begin());
   else
-    detail::open_dir(*this);
+    sys::fs::detail::open_dir(*this);
 }
 
 MCLDDirectory::MCLDDirectory(const std::string& pName)
@@ -42,7 +41,7 @@ MCLDDirectory::MCLDDirectory(const std::string& pName)
   if (m_bInSysroot)
     Directory::m_Path.native().erase(Directory::m_Path.native().begin());
   else
-    detail::open_dir(*this);
+    sys::fs::detail::open_dir(*this);
 }
 
 MCLDDirectory::MCLDDirectory(llvm::StringRef pName)
@@ -56,7 +55,7 @@ MCLDDirectory::MCLDDirectory(llvm::StringRef pName)
   if (m_bInSysroot)
     Directory::m_Path.native().erase(Directory::m_Path.native().begin());
   else
-    detail::open_dir(*this);
+    sys::fs::detail::open_dir(*this);
 }
 
 MCLDDirectory& MCLDDirectory::assign(llvm::StringRef pName) {
@@ -70,9 +69,9 @@ MCLDDirectory& MCLDDirectory::assign(llvm::StringRef pName) {
   if (m_bInSysroot)
     Directory::m_Path.native().erase(Directory::m_Path.native().begin());
   else
-    detail::open_dir(*this);
-  Directory::m_FileStatus = FileStatus();
-  Directory::m_SymLinkStatus = FileStatus();
+    sys::fs::detail::open_dir(*this);
+  Directory::m_FileStatus = sys::fs::FileStatus();
+  Directory::m_SymLinkStatus = sys::fs::FileStatus();
   Directory::m_Cache.clear();
   Directory::m_Handler = 0;
   return (*this);
@@ -91,7 +90,9 @@ void MCLDDirectory::setSysroot(const sys::fs::Path& pSysroot) {
     Directory::m_Path.native() = pSysroot.native();
     Directory::m_Path.m_append_separator_if_needed();
     Directory::m_Path.native() += old_path;
-    detail::canonicalize(Directory::m_Path.native());
-    detail::open_dir(*this);
+    sys::fs::detail::canonicalize(Directory::m_Path.native());
+    sys::fs::detail::open_dir(*this);
   }
 }
+
+} // namespace mcld

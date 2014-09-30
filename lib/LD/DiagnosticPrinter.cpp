@@ -8,7 +8,7 @@
 //===----------------------------------------------------------------------===//
 #include <mcld/LD/DiagnosticPrinter.h>
 
-using namespace mcld;
+namespace mcld {
 
 //===----------------------------------------------------------------------===//
 // DiagnosticPrinter
@@ -30,3 +30,5 @@ void DiagnosticPrinter::handleDiagnostic(DiagnosticEngine::Severity pSeverity,
   if (pSeverity <= DiagnosticEngine::Error)
     ++m_NumErrors;
 }
+
+} // namespace mcld

@@ -13,7 +13,7 @@
 
 #include <llvm/Support/Casting.h>
 
-using namespace mcld;
+namespace mcld {
 
 //===----------------------------------------------------------------------===//
 // X86_32GOT
@@ -40,3 +40,5 @@ X86_64GOT::~X86_64GOT() {
 X86_64GOTEntry* X86_64GOT::create() {
   return new X86_64GOTEntry(0, m_SectionData);
 }
+
+} // namespace mcld

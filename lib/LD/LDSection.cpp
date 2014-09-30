@@ -12,7 +12,7 @@
 
 #include <llvm/Support/ManagedStatic.h>
 
-using namespace mcld;
+namespace mcld {
 
 typedef GCFactory<LDSection, MCLD_SECTIONS_PER_INPUT> SectionFactory;
 
@@ -98,3 +98,5 @@ bool LDSection::hasEhFrame() const {
   assert(LDFileFormat::EhFrame == kind());
   return (m_Data.eh_frame != NULL);
 }
+
+} // namespace mcld

@@ -9,8 +9,6 @@
 #include <mcld/Config/Config.h>
 #include <mcld/Support/SystemUtils.h>
 
-using namespace mcld::sys;
-
 //===----------------------------------------------------------------------===//
 // Non-member functions
 #if defined(MCLD_ON_UNIX)

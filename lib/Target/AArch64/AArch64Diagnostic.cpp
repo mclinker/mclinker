@@ -10,8 +10,6 @@
 #include <mcld/Support/TargetRegistry.h>
 #include "AArch64.h"
 
-using namespace mcld;
-
 namespace mcld {
 //===----------------------------------------------------------------------===//
 // createAArch64Diagnostic - the help function to create corresponding
@@ -29,6 +27,6 @@ DiagnosticLineInfo* createAArch64DiagLineInfo(const mcld::Target& pTarget,
 //===----------------------------------------------------------------------===//
 extern "C" void MCLDInitializeAArch64DiagnosticLineInfo() {
   // Register the linker frontend
-  mcld::TargetRegistry::RegisterDiagnosticLineInfo(TheAArch64Target,
-                                                   createAArch64DiagLineInfo);
+  mcld::TargetRegistry::RegisterDiagnosticLineInfo(
+      mcld::TheAArch64Target, mcld::createAArch64DiagLineInfo);
 }

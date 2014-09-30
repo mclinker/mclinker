@@ -11,7 +11,9 @@
 #include <mcld/MC/Input.h>
 #include <mcld/Target/TargetLDBackend.h>
 
-using namespace mcld;
+namespace mcld {
 
 //==========================
 // ObjectReader
+
+} // namespace mcld

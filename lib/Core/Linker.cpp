@@ -29,7 +29,7 @@
 
 #include <cassert>
 
-using namespace mcld;
+namespace mcld {
 
 Linker::Linker()
     : m_pConfig(NULL),
@@ -362,3 +362,5 @@ bool Linker::initEmulator(LinkerScript& pScript) {
   assert(m_pTarget != NULL && m_pConfig != NULL);
   return m_pTarget->emulate(pScript, *m_pConfig);
 }
+
+} // namespace mcld

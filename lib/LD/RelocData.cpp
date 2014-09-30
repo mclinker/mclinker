@@ -12,7 +12,7 @@
 
 #include <llvm/Support/ManagedStatic.h>
 
-using namespace mcld;
+namespace mcld {
 
 typedef GCFactory<RelocData, MCLD_SECTIONS_PER_INPUT> RelocDataFactory;
 
@@ -53,3 +53,5 @@ Relocation& RelocData::remove(Relocation& pRelocation) {
   Relocation* rel = m_Relocations.remove(iter);
   return *rel;
 }
+
+} // namespace mcld

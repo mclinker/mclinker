@@ -10,8 +10,6 @@
 #include <mcld/Support/TargetRegistry.h>
 #include "X86.h"
 
-using namespace mcld;
-
 namespace mcld {
 //===----------------------------------------------------------------------===//
 // createX86Diagnostic - the help function to create corresponding X86Diagnostic
@@ -28,8 +26,8 @@ DiagnosticLineInfo* createX86DiagLineInfo(const mcld::Target& pTarget,
 //===----------------------------------------------------------------------===//
 extern "C" void MCLDInitializeX86DiagnosticLineInfo() {
   // Register the linker frontend
-  mcld::TargetRegistry::RegisterDiagnosticLineInfo(TheX86_32Target,
-                                                   createX86DiagLineInfo);
-  mcld::TargetRegistry::RegisterDiagnosticLineInfo(TheX86_64Target,
-                                                   createX86DiagLineInfo);
+  mcld::TargetRegistry::RegisterDiagnosticLineInfo(mcld::TheX86_32Target,
+                                                   mcld::createX86DiagLineInfo);
+  mcld::TargetRegistry::RegisterDiagnosticLineInfo(mcld::TheX86_64Target,
+                                                   mcld::createX86DiagLineInfo);
 }

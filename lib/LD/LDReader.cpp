@@ -8,7 +8,9 @@
 //===----------------------------------------------------------------------===//
 #include <mcld/LD/LDReader.h>
 
-using namespace mcld;
+namespace mcld {
 
 //==========================
 // LDReader
+
+} // namespace mcld

@@ -11,7 +11,7 @@
 #include <mcld/MC/Input.h>
 #include <mcld/MC/InputBuilder.h>
 
-using namespace mcld;
+namespace mcld {
 
 //===----------------------------------------------------------------------===//
 // ContextAction
@@ -55,3 +55,5 @@ bool MemoryAreaAction::activate(InputBuilder& pBuilder) const {
 
   return pBuilder.setMemory(*input, m_Mode, m_Permission);
 }
+
+} // namespace mcld

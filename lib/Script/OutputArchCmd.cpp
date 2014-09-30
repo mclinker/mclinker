@@ -9,7 +9,7 @@
 #include <mcld/Script/OutputArchCmd.h>
 #include <mcld/Support/raw_ostream.h>
 
-using namespace mcld;
+namespace mcld {
 
 //===----------------------------------------------------------------------===//
 // OutputArchCmd
@@ -28,3 +28,5 @@ void OutputArchCmd::dump() const {
 void OutputArchCmd::activate(Module& pModule) {
   // TODO
 }
+
+} // namespace mcld

@@ -23,7 +23,7 @@
 
 #include <cassert>
 
-using namespace mcld;
+namespace mcld {
 
 RpnEvaluator::RpnEvaluator(const Module& pModule,
                            const TargetLDBackend& pBackend)
@@ -111,3 +111,5 @@ bool RpnEvaluator::eval(const RpnExpr& pExpr, uint64_t& pResult) {
   pResult = operandStack.top()->value();
   return true;
 }
+
+} // namespace mcld

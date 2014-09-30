@@ -18,7 +18,7 @@
 #include <mcld/LD/ResolveInfo.h>
 #include <mcld/LD/SectionData.h>
 
-using namespace mcld;
+namespace mcld {
 
 //===----------------------------------------------------------------------===//
 // SectionSymbolSet
@@ -102,3 +102,5 @@ const LDSymbol* SectionSymbolSet::get(const LDSection& pOutSect) const {
   SectHashTableType::iterator entry = m_pSectionSymbolMap->find(&pOutSect);
   return entry.getEntry()->value();
 }
+
+} // namespace mcld

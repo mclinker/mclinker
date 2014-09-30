@@ -16,7 +16,7 @@
 
 #include <llvm/Support/ELF.h>
 
-using namespace mcld;
+namespace mcld {
 
 MipsELFDynamic::MipsELFDynamic(const MipsGNULDBackend& pParent,
                                const LinkerConfig& pConfig)
@@ -84,3 +84,5 @@ uint64_t MipsELFDynamic::getBaseAddress() {
 
   return m_pParent.elfSegmentTable().end() == baseSeg ? 0 : (*baseSeg)->vaddr();
 }
+
+} // namespace mcld

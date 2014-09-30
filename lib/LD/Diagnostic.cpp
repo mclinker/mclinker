@@ -16,7 +16,7 @@
 
 #include <ctype.h>
 
-using namespace mcld;
+namespace mcld {
 
 //===----------------------------------------------------------------------===//
 //  Diagnostic
@@ -173,3 +173,5 @@ void Diagnostic::format(const char* pBegin,
     }  // end of switch
   }    // end of while
 }
+
+} // namespace mcld

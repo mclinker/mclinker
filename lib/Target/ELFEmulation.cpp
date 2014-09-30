@@ -13,7 +13,7 @@
 
 #include <llvm/Support/Host.h>
 
-using namespace mcld;
+namespace mcld {
 
 struct NameMap {
   const char* from;  ///< the prefix of the input string. (match FROM*)
@@ -68,7 +68,7 @@ static const NameMap map[] = {
 };
 
 // FIXME: LinkerConfig& pConfig should be constant
-bool mcld::MCLDEmulateELF(LinkerScript& pScript, LinkerConfig& pConfig) {
+bool MCLDEmulateELF(LinkerScript& pScript, LinkerConfig& pConfig) {
   // set up section map
   if (pConfig.options().getScriptList().empty() &&
       pConfig.codeGenType() != LinkerConfig::Object) {
@@ -103,3 +103,5 @@ bool mcld::MCLDEmulateELF(LinkerScript& pScript, LinkerConfig& pConfig) {
   }
   return true;
 }
+
+} // namespace mcld

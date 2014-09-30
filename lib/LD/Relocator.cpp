@@ -20,7 +20,7 @@
 
 #include <sstream>
 
-using namespace mcld;
+namespace mcld {
 
 //===----------------------------------------------------------------------===//
 // Relocator
@@ -96,3 +96,5 @@ void Relocator::issueUndefRef(Relocation& pReloc,
   fatal(diag::undefined_reference_text) << reloc_sym << pInput.path()
                                         << caller_file_name << caller_func_name;
 }
+
+} // namespace mcld

@@ -14,7 +14,7 @@
 
 #include <llvm/Support/ManagedStatic.h>
 
-using namespace mcld;
+namespace mcld {
 
 typedef GCFactory<StringList, MCLD_SYMBOLS_PER_INPUT> StringListFactory;
 static llvm::ManagedStatic<StringListFactory> g_StringListFactory;
@@ -53,3 +53,5 @@ void StringList::destroy(StringList*& pStringList) {
 void StringList::clear() {
   g_StringListFactory->clear();
 }
+
+} // namespace mcld

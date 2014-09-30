@@ -18,7 +18,7 @@
 
 #include <string>
 
-using namespace mcld;
+namespace mcld {
 
 //===----------------------------------------------------------------------===//
 // StubFactory
@@ -130,3 +130,5 @@ Stub* StubFactory::findPrototype(const Relocation& pReloc,
   }
   return NULL;
 }
+
+} // namespace mcld

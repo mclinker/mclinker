@@ -18,7 +18,7 @@
 #include <istream>
 #include <sstream>
 
-using namespace mcld;
+namespace mcld {
 
 ScriptReader::ScriptReader(ObjectReader& pObjectReader,
                            ArchiveReader& pArchiveReader,
@@ -58,3 +58,5 @@ bool ScriptReader::readScript(const LinkerConfig& pConfig,
                       m_GroupReader);
   return parser.parse() == 0;
 }
+
+} // namespace mcld

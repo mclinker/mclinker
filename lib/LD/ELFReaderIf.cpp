@@ -22,7 +22,7 @@
 
 #include <cstring>
 
-using namespace mcld;
+namespace mcld {
 
 //===----------------------------------------------------------------------===//
 // ELFReaderIF
@@ -150,3 +150,5 @@ uint64_t ELFReaderIF::getSymValue(uint64_t pValue,
   // the virtual address is needed for alias identification.
   return pValue;
 }
+
+} // namespace mcld

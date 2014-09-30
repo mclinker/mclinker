@@ -17,7 +17,7 @@
 #include <cstdlib>
 #include <cstring>
 
-using namespace mcld;
+namespace mcld {
 
 /// g_NullResolveInfo - a pointer to Null ResolveInfo.
 static ResolveInfo* g_NullResolveInfo = NULL;
@@ -270,3 +270,5 @@ ResolveInfo* ResolveInfo::Null() {
   }
   return g_NullResolveInfo;
 }
+
+} // namespace mcld

@@ -9,8 +9,9 @@
 #include <mcld/Support/Directory.h>
 #include <mcld/Support/FileSystem.h>
 
-using namespace mcld;
-using namespace mcld::sys::fs;
+namespace mcld {
+namespace sys {
+namespace fs {
 
 namespace {  // anonymous
 
@@ -231,3 +232,7 @@ bool DirIterator::operator==(const DirIterator& y) const {
 bool DirIterator::operator!=(const DirIterator& y) const {
   return !this->operator==(y);
 }
+
+}  // namespace fs
+}  // namespace sys
+}  // namespace mcld

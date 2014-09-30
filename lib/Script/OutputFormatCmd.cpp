@@ -9,7 +9,7 @@
 #include <mcld/Script/OutputFormatCmd.h>
 #include <mcld/Support/raw_ostream.h>
 
-using namespace mcld;
+namespace mcld {
 
 //===----------------------------------------------------------------------===//
 // OutputFormatCmd
@@ -45,3 +45,5 @@ void OutputFormatCmd::dump() const {
 void OutputFormatCmd::activate(Module& pModule) {
   // TODO
 }
+
+} // namespace mcld

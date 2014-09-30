@@ -13,7 +13,7 @@
 
 #include <llvm/ADT/StringRef.h>
 
-using namespace mcld;
+namespace mcld {
 
 //===----------------------------------------------------------------------===//
 // Archive
@@ -245,3 +245,5 @@ Input* Archive::getMemberFile(Input& pArchiveFile,
   }
   return member;
 }
+
+} // namespace mcld

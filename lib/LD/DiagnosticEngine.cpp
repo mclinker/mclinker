@@ -15,7 +15,7 @@
 
 #include <cassert>
 
-using namespace mcld;
+namespace mcld {
 
 //===----------------------------------------------------------------------===//
 // DiagnosticEngine
@@ -73,3 +73,5 @@ MsgHandler DiagnosticEngine::report(uint16_t pID,
   MsgHandler result(*this);
   return result;
 }
+
+} // namespace mcld

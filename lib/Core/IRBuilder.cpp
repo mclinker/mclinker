@@ -22,7 +22,7 @@
 
 #include <llvm/ADT/StringRef.h>
 
-using namespace mcld;
+namespace mcld {
 
 //===----------------------------------------------------------------------===//
 // Helper Functions
@@ -776,3 +776,5 @@ LDSymbol* IRBuilder::AddSymbol<IRBuilder::AsReferred, IRBuilder::Resolve>(
   return AddSymbol<Force, Resolve>(
       pName, pType, pDesc, pBinding, pSize, pValue, pFragmentRef, pVisibility);
 }
+
+} // namespace mcld

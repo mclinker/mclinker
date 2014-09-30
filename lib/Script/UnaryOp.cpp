@@ -17,7 +17,8 @@
 
 #include <cassert>
 
-using namespace mcld;
+namespace mcld {
+
 //===----------------------------------------------------------------------===//
 // UnaryOp
 //===----------------------------------------------------------------------===//
@@ -179,3 +180,5 @@ IntOperand* UnaryOp<Operator::SIZEOF>::eval(const Module& pModule,
   res->setValue(sect->size());
   return res;
 }
+
+} // namespace mcld

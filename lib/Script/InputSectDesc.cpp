@@ -15,7 +15,7 @@
 
 #include <llvm/Support/Casting.h>
 
-using namespace mcld;
+namespace mcld {
 
 //===----------------------------------------------------------------------===//
 // InputSectDesc
@@ -102,3 +102,5 @@ void InputSectDesc::dump() const {
 void InputSectDesc::activate(Module& pModule) {
   pModule.getScript().sectionMap().insert(*this, m_OutputSectDesc);
 }
+
+} // namespace mcld

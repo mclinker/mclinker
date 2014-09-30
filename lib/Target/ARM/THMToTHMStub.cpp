@@ -16,7 +16,7 @@
 
 #include <llvm/Support/ELF.h>
 
-using namespace mcld;
+namespace mcld {
 
 //===----------------------------------------------------------------------===//
 // THMToTHMStub
@@ -127,3 +127,5 @@ Stub* THMToTHMStub::doClone() {
   return new THMToTHMStub(
       m_pData, m_Size, fixup_begin(), fixup_end(), m_bUsingThumb2);
 }
+
+} // namespace mcld

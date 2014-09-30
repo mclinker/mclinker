@@ -10,7 +10,7 @@
 #include <mcld/Support/MsgHandling.h>
 #include <mcld/Support/SystemUtils.h>
 
-using namespace mcld;
+namespace mcld {
 
 //===----------------------------------------------------------------------===//
 // MemoryAreaFactory
@@ -71,3 +71,5 @@ void MemoryAreaFactory::destruct(MemoryArea* pArea) {
   destroy(pArea);
   deallocate(pArea);
 }
+
+} // namespace mcld

@@ -17,7 +17,7 @@
 #include <cassert>
 #include <cstring>
 
-using namespace mcld;
+namespace mcld {
 
 //===----------------------------------------------------------------------===//
 // RelocationFactory
@@ -83,3 +83,5 @@ Relocation* RelocationFactory::produceEmptyEntry() {
 void RelocationFactory::destroy(Relocation* pRelocation) {
   /** GCFactory will recycle the relocation **/
 }
+
+} // namespace mcld

@@ -11,7 +11,7 @@
 #include <mcld/MC/Attribute.h>
 #include <mcld/LD/LDContext.h>
 
-using namespace mcld;
+namespace mcld {
 
 //===----------------------------------------------------------------------===//
 // mcld::Input
@@ -75,3 +75,5 @@ Input::~Input() {
   // Attribute is deleted by AttributeFactory
   // MemoryArea is deleted by MemoryAreaFactory
 }
+
+} // namespace mcld

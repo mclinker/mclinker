@@ -34,7 +34,7 @@
 #include <llvm/Support/ELF.h>
 #include <llvm/Support/Host.h>
 
-using namespace mcld;
+namespace mcld {
 
 //===----------------------------------------------------------------------===//
 // MipsGNULDBackend
@@ -302,6 +302,8 @@ void MipsGNULDBackend::orderSymbolTable(Module& pModule) {
       symbols.dynamicBegin(), symbols.dynamicEnd(), DynsymGOTCompare(*m_pGOT));
 }
 
+} // namespace mcld
+
 namespace llvm {
 namespace ELF {
 // SHT_MIPS_OPTIONS section's block descriptor.
@@ -346,6 +348,8 @@ struct Elf64_RegInfo {
 
 }  // namespace ELF
 }  // namespace llvm
+
+namespace mcld {
 
 bool MipsGNULDBackend::readSection(Input& pInput, SectionData& pSD) {
   llvm::StringRef name(pSD.getSection().name());
@@ -948,12 +952,14 @@ static TargetLDBackend* createMipsLDBackend(const LinkerConfig& pConfig) {
   return new Mips32GNULDBackend(pConfig, new MipsGNUInfo(triple));
 }
 
+} // namespace mcld
+
 //===----------------------------------------------------------------------===//
 // Force static initialization.
 //===----------------------------------------------------------------------===//
 extern "C" void MCLDInitializeMipsLDBackend() {
   mcld::TargetRegistry::RegisterTargetLDBackend(mcld::TheMipselTarget,
-                                                createMipsLDBackend);
+                                                mcld::createMipsLDBackend);
   mcld::TargetRegistry::RegisterTargetLDBackend(mcld::TheMips64elTarget,
-                                                createMipsLDBackend);
+                                                mcld::createMipsLDBackend);
 }

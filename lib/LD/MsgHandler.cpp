@@ -10,7 +10,7 @@
 
 #include <mcld/LD/DiagnosticEngine.h>
 
-using namespace mcld;
+namespace mcld {
 
 MsgHandler::MsgHandler(DiagnosticEngine& pEngine)
     : m_Engine(pEngine), m_NumArgs(0) {
@@ -46,3 +46,5 @@ void MsgHandler::addTaggedVal(intptr_t pValue,
   m_Engine.state().ArgumentKinds[m_NumArgs] = pKind;
   m_Engine.state().ArgumentVals[m_NumArgs++] = pValue;
 }
+
+} // namespace mcld

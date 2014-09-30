@@ -16,7 +16,7 @@
 #include <cstring>
 #include <cstdlib>
 
-using namespace mcld;
+namespace mcld {
 
 //===----------------------------------------------------------------------===//
 // GOT
@@ -38,3 +38,5 @@ void GOT::finalizeSectionSize() {
 
   m_Section.setSize(offset);
 }
+
+} // namespace mcld

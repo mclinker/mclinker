@@ -8,7 +8,7 @@
 //===----------------------------------------------------------------------===//
 #include <mcld/AttributeOption.h>
 
-using namespace mcld;
+namespace mcld {
 
 //===----------------------------------------------------------------------===//
 // AttributeOption
@@ -18,3 +18,5 @@ AttributeOption::AttributeOption() {
 
 AttributeOption::~AttributeOption() {
 }
+
+} // namespace mcld

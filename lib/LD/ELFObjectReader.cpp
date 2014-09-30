@@ -26,7 +26,7 @@
 #include <string>
 #include <cassert>
 
-using namespace mcld;
+namespace mcld {
 
 //===----------------------------------------------------------------------===//
 // ELFObjectReader
@@ -333,3 +333,5 @@ bool ELFObjectReader::readRelocations(Input& pInput) {
 
   return true;
 }
+
+} // namespace mcld

@@ -12,7 +12,7 @@
 
 #include <llvm/Support/ELF.h>
 
-using namespace mcld;
+namespace mcld {
 
 void ELFExecFileFormat::initObjectFormat(ObjectBuilder& pBuilder,
                                          unsigned int pBitClass) {
@@ -91,3 +91,5 @@ void ELFExecFileFormat::initObjectFormat(ObjectBuilder& pBuilder,
                                          llvm::ELF::SHF_ALLOC,
                                          pBitClass / 8);
 }
+
+} // namespace mcld

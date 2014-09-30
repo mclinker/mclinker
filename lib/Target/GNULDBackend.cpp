@@ -71,7 +71,7 @@ static bool isCIdentifier(const std::string& pName) {
 
 }  // anonymous namespace
 
-using namespace mcld;
+namespace mcld {
 
 //===----------------------------------------------------------------------===//
 // GNULDBackend
@@ -2950,3 +2950,5 @@ bool GNULDBackend::RelocCompare::operator()(const Relocation* X,
 
   return false;
 }
+
+} // namespace mcld

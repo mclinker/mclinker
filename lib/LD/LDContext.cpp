@@ -12,7 +12,7 @@
 
 #include <llvm/ADT/StringRef.h>
 
-using namespace mcld;
+namespace mcld {
 
 //===----------------------------------------------------------------------===//
 // LDContext
@@ -93,3 +93,5 @@ const LDSymbol* LDContext::getSymbol(const llvm::StringRef& pName) const {
       return m_SymTab[sym];
   return NULL;
 }
+
+} // namespace mcld

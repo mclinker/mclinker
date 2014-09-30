@@ -35,7 +35,7 @@
 
 #include <cstring>
 
-using namespace mcld;
+namespace mcld {
 
 //===----------------------------------------------------------------------===//
 // HexagonLDBackend
@@ -999,8 +999,6 @@ void HexagonLDBackend::doCreateProgramHdrs(Module& pModule) {
   // TODO
 }
 
-namespace mcld {
-
 //===----------------------------------------------------------------------===//
 /// createHexagonLDBackend - the help funtion to create corresponding
 /// HexagonLDBackend
@@ -1031,6 +1029,6 @@ TargetLDBackend* createHexagonLDBackend(const LinkerConfig& pConfig) {
 //===----------------------------------------------------------------------===//
 extern "C" void MCLDInitializeHexagonLDBackend() {
   // Register the linker backend
-  mcld::TargetRegistry::RegisterTargetLDBackend(TheHexagonTarget,
-                                                createHexagonLDBackend);
+  mcld::TargetRegistry::RegisterTargetLDBackend(mcld::TheHexagonTarget,
+                                                mcld::createHexagonLDBackend);
 }

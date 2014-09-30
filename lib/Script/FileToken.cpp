@@ -12,7 +12,7 @@
 
 #include <llvm/Support/ManagedStatic.h>
 
-using namespace mcld;
+namespace mcld {
 
 typedef GCFactory<FileToken, MCLD_SYMBOLS_PER_INPUT> FileTokenFactory;
 static llvm::ManagedStatic<FileTokenFactory> g_FileTokenFactory;
@@ -45,3 +45,5 @@ void FileToken::destroy(FileToken*& pFileToken) {
 void FileToken::clear() {
   g_FileTokenFactory->clear();
 }
+
+} // namespace mcld

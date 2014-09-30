@@ -17,7 +17,7 @@
 
 #include <cctype>
 
-using namespace mcld;
+namespace mcld {
 
 //===----------------------------------------------------------------------===//
 // ELFBinaryReader
@@ -122,3 +122,5 @@ bool ELFBinaryReader::readBinary(Input& pInput) {
 
   return true;
 }
+
+} // namespace mcld

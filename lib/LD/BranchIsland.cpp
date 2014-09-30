@@ -15,7 +15,7 @@
 
 #include <sstream>
 
-using namespace mcld;
+namespace mcld {
 
 //==========================
 // BranchIsland
@@ -128,3 +128,5 @@ bool BranchIsland::addRelocation(Relocation& pReloc) {
   m_Relocations.push_back(&pReloc);
   return true;
 }
+
+} // namespace mcld

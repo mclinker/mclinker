@@ -15,7 +15,7 @@
 #include <mcld/Support/MsgHandling.h>
 #include <mcld/Support/FileSystem.h>
 
-using namespace mcld;
+namespace mcld {
 
 //===----------------------------------------------------------------------===//
 // Derived Positional Option
@@ -272,3 +272,5 @@ bool ScriptAction::activate(InputBuilder& pBuilder) const {
 
   return true;
 }
+
+} // namespace mcld

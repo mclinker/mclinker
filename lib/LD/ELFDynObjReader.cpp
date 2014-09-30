@@ -22,7 +22,7 @@
 
 #include <string>
 
-using namespace mcld;
+namespace mcld {
 
 //===----------------------------------------------------------------------===//
 // ELFDynObjReader
@@ -117,3 +117,5 @@ bool ELFDynObjReader::readSymbols(Input& pInput) {
       m_pELFReader->readSymbols(pInput, m_Builder, symtab_region, strtab);
   return result;
 }
+
+} // namespace mcld

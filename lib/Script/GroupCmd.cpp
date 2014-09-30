@@ -22,7 +22,7 @@
 #include <llvm/Support/Casting.h>
 #include <cassert>
 
-using namespace mcld;
+namespace mcld {
 
 //===----------------------------------------------------------------------===//
 // GroupCmd
@@ -166,3 +166,5 @@ void GroupCmd::activate(Module& pModule) {
   // read the group
   m_GroupReader.readGroup(group, m_InputTree.end(), m_Builder, m_Config);
 }
+
+} // namespace mcld

@@ -10,7 +10,7 @@
 
 #include <mcld/LD/ELFFileFormat.h>
 
-using namespace mcld;
+namespace mcld {
 
 ARMELFDynamic::ARMELFDynamic(const GNULDBackend& pParent,
                              const LinkerConfig& pConfig)
@@ -31,3 +31,5 @@ void ARMELFDynamic::applyTargetEntries(const ELFFileFormat& pFormat) {
   if (pFormat.hasGOT())
     applyOne(llvm::ELF::DT_PLTGOT, pFormat.getGOT().addr());
 }
+
+} // namespace mcld

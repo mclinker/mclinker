@@ -10,7 +10,7 @@
 
 #include <llvm/ADT/Triple.h>
 
-using namespace mcld;
+namespace mcld {
 
 //===----------------------------------------------------------------------===//
 // Target
@@ -71,3 +71,5 @@ DiagnosticLineInfo* Target::createDiagnosticLineInfo(
     return NULL;
   return DiagnosticLineInfoCtorFn(pTarget, pTriple);
 }
+
+} // namespace mcld

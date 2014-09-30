@@ -21,7 +21,7 @@
 
 #include <llvm/Support/ManagedStatic.h>
 
-using namespace mcld;
+namespace mcld {
 
 typedef GCFactory<EhFrame, MCLD_SECTIONS_PER_INPUT> EhFrameFactory;
 
@@ -365,7 +365,9 @@ size_t EhFrame::computeOffsetSize() {
   return offset;
 }
 
-bool mcld::operator==(const EhFrame::CIE& p1, const EhFrame::CIE& p2) {
+bool operator==(const EhFrame::CIE& p1, const EhFrame::CIE& p2) {
   return p1.getPersonalityName() == p2.getPersonalityName() &&
          p1.getAugmentationData() == p2.getAugmentationData();
 }
+
+} // namespace mcld

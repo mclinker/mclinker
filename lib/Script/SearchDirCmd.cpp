@@ -12,7 +12,7 @@
 #include <mcld/LinkerScript.h>
 #include <mcld/Module.h>
 
-using namespace mcld;
+namespace mcld {
 
 //===----------------------------------------------------------------------===//
 // SearchDirCmd
@@ -31,3 +31,5 @@ void SearchDirCmd::dump() const {
 void SearchDirCmd::activate(Module& pModule) {
   pModule.getScript().directories().insert(m_Path);
 }
+
+} // namespace mcld

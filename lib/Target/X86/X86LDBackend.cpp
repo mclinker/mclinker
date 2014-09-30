@@ -28,7 +28,7 @@
 
 #include <cstring>
 
-using namespace mcld;
+namespace mcld {
 
 //===----------------------------------------------------------------------===//
 // X86GNULDBackend
@@ -693,8 +693,6 @@ uint64_t X86_64GNULDBackend::emitGOTPLTSectionData(
   return RegionSize;
 }
 
-namespace mcld {
-
 //===----------------------------------------------------------------------===//
 /// createX86LDBackend - the help funtion to create corresponding X86LDBackend
 ///
@@ -731,8 +729,8 @@ TargetLDBackend* createX86LDBackend(const LinkerConfig& pConfig) {
 //===----------------------------------------------------------------------===//
 extern "C" void MCLDInitializeX86LDBackend() {
   // Register the linker backend
-  mcld::TargetRegistry::RegisterTargetLDBackend(TheX86_32Target,
-                                                createX86LDBackend);
-  mcld::TargetRegistry::RegisterTargetLDBackend(TheX86_64Target,
-                                                createX86LDBackend);
+  mcld::TargetRegistry::RegisterTargetLDBackend(mcld::TheX86_32Target,
+                                                mcld::createX86LDBackend);
+  mcld::TargetRegistry::RegisterTargetLDBackend(mcld::TheX86_64Target,
+                                                mcld::createX86LDBackend);
 }

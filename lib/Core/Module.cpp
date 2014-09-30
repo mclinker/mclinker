@@ -16,7 +16,7 @@
 #include <mcld/LD/SectionData.h>
 #include <mcld/LD/StaticResolver.h>
 
-using namespace mcld;
+namespace mcld {
 
 static GCFactory<Module::AliasList, MCLD_SECTIONS_PER_INPUT>
     gc_aliaslist_factory;
@@ -79,3 +79,5 @@ Module::AliasList* Module::getAliasList(const ResolveInfo& pSym) {
   }
   return NULL;
 }
+
+} // namespace mcld

@@ -34,7 +34,7 @@
 #include <llvm/Support/Errc.h>
 #include <llvm/Support/ErrorHandling.h>
 
-using namespace mcld;
+namespace mcld {
 
 //===----------------------------------------------------------------------===//
 // ELFObjectWriter
@@ -707,3 +707,5 @@ void ELFObjectWriter::emitSectionData(const SectionData& pSD,
     cur_offset += size;
   }
 }
+
+} // namespace mcld

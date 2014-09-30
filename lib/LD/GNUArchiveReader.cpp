@@ -28,7 +28,7 @@
 #include <cstdlib>
 #include <cstring>
 
-using namespace mcld;
+namespace mcld {
 
 GNUArchiveReader::GNUArchiveReader(Module& pModule,
                                    ELFObjectReader& pELFObjectReader)
@@ -446,3 +446,5 @@ bool GNUArchiveReader::includeAllMembers(const LinkerConfig& pConfig,
   }
   return true;
 }
+
+} // namespace mcld

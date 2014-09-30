@@ -12,7 +12,7 @@
 #include <mcld/LinkerScript.h>
 #include <mcld/Module.h>
 
-using namespace mcld;
+namespace mcld {
 
 //===----------------------------------------------------------------------===//
 // EntryCmd
@@ -33,3 +33,5 @@ void EntryCmd::activate(Module& pModule) {
   if (!script.hasEntry())
     script.setEntry(m_Entry);
 }
+
+} // namespace mcld

@@ -21,7 +21,7 @@
 
 #include <llvm/Support/Casting.h>
 
-using namespace mcld;
+namespace mcld {
 
 //===----------------------------------------------------------------------===//
 // ObjectBuilder
@@ -200,3 +200,5 @@ uint64_t ObjectBuilder::AppendFragment(Fragment& pFrag,
   else
     return pFrag.size();
 }
+
+} // namespace mcld

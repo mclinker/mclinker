@@ -18,7 +18,7 @@ namespace {
 const unsigned int ARMGOT0Num = 3;
 }  // end of anonymous namespace
 
-using namespace mcld;
+namespace mcld {
 
 //===----------------------------------------------------------------------===//
 // ARMGOT
@@ -124,3 +124,5 @@ uint64_t ARMGOT::emit(MemoryRegion& pRegion) {
   }
   return result;
 }
+
+} // namespace mcld

@@ -14,7 +14,7 @@
 #include <llvm/Support/ManagedStatic.h>
 #include <cassert>
 
-using namespace mcld;
+namespace mcld {
 
 typedef GCFactory<WildcardPattern, MCLD_SYMBOLS_PER_INPUT>
     WildcardPatternFactory;
@@ -61,3 +61,5 @@ void WildcardPattern::destroy(WildcardPattern*& pWildcardPattern) {
 void WildcardPattern::clear() {
   g_WildcardPatternFactory->clear();
 }
+
+} // namespace mcld

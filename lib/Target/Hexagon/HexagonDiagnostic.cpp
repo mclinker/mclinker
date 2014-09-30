@@ -23,13 +23,11 @@ DiagnosticLineInfo* createHexagonDiagLineInfo(const Target& pTarget,
 
 }  // namespace mcld
 
-using namespace mcld;
-
 //===----------------------------------------------------------------------===//
 // InitializeHexagonDiagnostic
 //===----------------------------------------------------------------------===//
 extern "C" void MCLDInitializeHexagonDiagnosticLineInfo() {
   // Register the linker frontend
-  mcld::TargetRegistry::RegisterDiagnosticLineInfo(TheHexagonTarget,
-                                                   createHexagonDiagLineInfo);
+  mcld::TargetRegistry::RegisterDiagnosticLineInfo(
+      mcld::TheHexagonTarget, mcld::createHexagonDiagLineInfo);
 }

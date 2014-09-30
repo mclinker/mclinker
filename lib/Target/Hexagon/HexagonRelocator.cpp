@@ -18,7 +18,7 @@
 #include <llvm/Support/DataTypes.h>
 #include <llvm/Support/ELF.h>
 
-using namespace mcld;
+namespace mcld {
 
 //===--------------------------------------------------------------------===//
 // Relocation Helper Functions
@@ -965,3 +965,5 @@ Relocator::Result relocGOTREL(Relocation& pReloc, HexagonRelocator& pParent) {
 Relocator::Result unsupported(Relocation& pReloc, HexagonRelocator& pParent) {
   return Relocator::Unsupported;
 }
+
+} // namespace mcld
