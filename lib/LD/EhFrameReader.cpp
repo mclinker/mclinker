@@ -359,4 +359,4 @@ bool EhFrameReader::reject(EhFrame& pEhFrame,
   return true;
 }
 
-} // namespace mcld
+}  // namespace mcld

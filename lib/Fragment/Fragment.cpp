@@ -39,4 +39,4 @@ bool Fragment::hasOffset() const {
   return (m_Offset != ~uint64_t(0));
 }
 
-} // namespace mcld
+}  // namespace mcld

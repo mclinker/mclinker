@@ -55,4 +55,4 @@ bool LinkerScript::hasOutputFile() const {
   return !m_OutputFile.empty();
 }
 
-} // namespace mcld
+}  // namespace mcld

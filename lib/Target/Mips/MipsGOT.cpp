@@ -436,4 +436,4 @@ void Mips64GOT::reserveHeader() {
   createEntry(Mips64ModulePtr, m_SectionData);
 }
 
-} // namespace mcld
+}  // namespace mcld

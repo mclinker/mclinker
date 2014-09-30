@@ -42,4 +42,4 @@ IntOperand* NullaryOp<Operator::COMMONPAGESIZE>::eval(
   return res;
 }
 
-} // namespace mcld
+}  // namespace mcld

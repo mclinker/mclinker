@@ -104,4 +104,4 @@ bool MCLDEmulateELF(LinkerScript& pScript, LinkerConfig& pConfig) {
   return true;
 }
 
-} // namespace mcld
+}  // namespace mcld

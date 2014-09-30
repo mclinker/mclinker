@@ -103,4 +103,4 @@ const LDSymbol* SectionSymbolSet::get(const LDSection& pOutSect) const {
   return entry.getEntry()->value();
 }
 
-} // namespace mcld
+}  // namespace mcld

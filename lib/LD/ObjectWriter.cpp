@@ -18,4 +18,4 @@ ObjectWriter::ObjectWriter() {
 ObjectWriter::~ObjectWriter() {
 }
 
-} // namespace mcld
+}  // namespace mcld

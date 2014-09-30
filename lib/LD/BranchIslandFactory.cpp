@@ -95,4 +95,4 @@ std::pair<BranchIsland*, BranchIsland*> BranchIslandFactory::getIslands(
   return std::make_pair(fwd, bwd);
 }
 
-} // namespace mcld
+}  // namespace mcld

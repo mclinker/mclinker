@@ -46,4 +46,4 @@ void NameSpec::clear() {
   g_NameSpecFactory->clear();
 }
 
-} // namespace mcld
+}  // namespace mcld

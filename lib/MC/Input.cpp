@@ -76,4 +76,4 @@ Input::~Input() {
   // MemoryArea is deleted by MemoryAreaFactory
 }
 
-} // namespace mcld
+}  // namespace mcld

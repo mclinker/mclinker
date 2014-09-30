@@ -86,4 +86,4 @@ bool ELFAttributeData::WriteAttribute(TagType pTag,
   return true;
 }
 
-} // namespace mcld
+}  // namespace mcld

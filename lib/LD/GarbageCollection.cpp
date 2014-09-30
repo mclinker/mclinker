@@ -347,4 +347,4 @@ void GarbageCollection::stripSections() {
   }
 }
 
-} // namespace mcld
+}  // namespace mcld

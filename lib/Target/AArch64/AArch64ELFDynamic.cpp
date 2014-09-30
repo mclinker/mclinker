@@ -43,4 +43,4 @@ void AArch64ELFDynamic::applyTargetEntries(const ELFFileFormat& pFormat) {
   }
 }
 
-} // namespace mcld
+}  // namespace mcld

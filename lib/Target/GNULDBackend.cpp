@@ -2951,4 +2951,4 @@ bool GNULDBackend::RelocCompare::operator()(const Relocation* X,
   return false;
 }
 
-} // namespace mcld
+}  // namespace mcld

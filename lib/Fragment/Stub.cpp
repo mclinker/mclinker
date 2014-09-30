@@ -32,4 +32,4 @@ void Stub::addFixup(const Fixup& pFixup) {
   m_FixupList.push_back(new Fixup(pFixup));
 }
 
-} // namespace mcld
+}  // namespace mcld

@@ -31,4 +31,4 @@ void DiagnosticPrinter::handleDiagnostic(DiagnosticEngine::Severity pSeverity,
     ++m_NumErrors;
 }
 
-} // namespace mcld
+}  // namespace mcld

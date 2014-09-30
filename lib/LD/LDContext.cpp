@@ -94,4 +94,4 @@ const LDSymbol* LDContext::getSymbol(const llvm::StringRef& pName) const {
   return NULL;
 }
 
-} // namespace mcld
+}  // namespace mcld

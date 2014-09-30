@@ -1077,4 +1077,4 @@ bool ARMELFAttributeData::usingThumb2() const {
   return (arch == CPU_Arch_ARM_V6T2) || (arch == CPU_Arch_ARM_V7);
 }
 
-} // namespace mcld
+}  // namespace mcld

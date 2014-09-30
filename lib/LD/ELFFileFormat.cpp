@@ -234,4 +234,4 @@ void ELFFileFormat::initStdSections(ObjectBuilder& pBuilder,
   initObjectFormat(pBuilder, pBitClass);
 }
 
-} // namespace mcld
+}  // namespace mcld

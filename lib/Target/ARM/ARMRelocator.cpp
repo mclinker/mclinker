@@ -1348,4 +1348,4 @@ ARMRelocator::Result unsupported(Relocation& pReloc, ARMRelocator& pParent) {
   return Relocator::Unsupported;
 }
 
-} // namespace mcld
+}  // namespace mcld

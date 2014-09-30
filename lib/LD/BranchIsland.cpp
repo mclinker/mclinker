@@ -129,4 +129,4 @@ bool BranchIsland::addRelocation(Relocation& pReloc) {
   return true;
 }
 
-} // namespace mcld
+}  // namespace mcld

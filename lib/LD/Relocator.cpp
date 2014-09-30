@@ -97,4 +97,4 @@ void Relocator::issueUndefRef(Relocation& pReloc,
                                         << caller_file_name << caller_func_name;
 }
 
-} // namespace mcld
+}  // namespace mcld

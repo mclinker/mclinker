@@ -89,4 +89,4 @@ void SectionsCmd::activate(Module& pModule) {
   }
 }
 
-} // namespace mcld
+}  // namespace mcld

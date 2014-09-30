@@ -42,4 +42,4 @@ void StringEntry<llvm::StringRef>::setValue(const char* pVal) {
   m_Value = llvm::StringRef(data, length);
 }
 
-} // namespace mcld
+}  // namespace mcld

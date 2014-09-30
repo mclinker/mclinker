@@ -192,4 +192,4 @@ uint32_t EhFrameHdr::computePCBegin(const EhFrame::FDE& pFDE,
   return pc;
 }
 
-} // namespace mcld
+}  // namespace mcld

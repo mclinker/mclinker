@@ -99,4 +99,4 @@ bool LDSection::hasEhFrame() const {
   return (m_Data.eh_frame != NULL);
 }
 
-} // namespace mcld
+}  // namespace mcld

@@ -158,4 +158,4 @@ AttributeProxy& AttributeProxy::assign(Attribute* pBase) {
   return *this;
 }
 
-} // namespace mcld
+}  // namespace mcld

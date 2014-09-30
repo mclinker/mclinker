@@ -45,4 +45,4 @@ const char* LinkerConfig::version() {
   return MCLD_VERSION;
 }
 
-} // namespace mcld
+}  // namespace mcld

@@ -72,4 +72,4 @@ DiagnosticLineInfo* Target::createDiagnosticLineInfo(
   return DiagnosticLineInfoCtorFn(pTarget, pTriple);
 }
 
-} // namespace mcld
+}  // namespace mcld

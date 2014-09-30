@@ -32,4 +32,4 @@ void ARMELFDynamic::applyTargetEntries(const ELFFileFormat& pFormat) {
     applyOne(llvm::ELF::DT_PLTGOT, pFormat.getGOT().addr());
 }
 
-} // namespace mcld
+}  // namespace mcld

@@ -414,4 +414,4 @@ SymbolCategory::const_iterator SymbolCategory::regularEnd() const {
   return m_OutputSymbols.end();
 }
 
-} // namespace mcld
+}  // namespace mcld

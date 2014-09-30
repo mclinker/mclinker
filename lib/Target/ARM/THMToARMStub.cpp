@@ -132,4 +132,4 @@ Stub* THMToARMStub::doClone() {
       m_pData, m_Size, fixup_begin(), fixup_end(), m_bUsingThumb2);
 }
 
-} // namespace mcld
+}  // namespace mcld

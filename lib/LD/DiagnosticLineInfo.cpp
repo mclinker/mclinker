@@ -13,4 +13,4 @@ namespace mcld {
 //==========================
 // DiagnosticLineInfo
 
-} // namespace mcld
+}  // namespace mcld

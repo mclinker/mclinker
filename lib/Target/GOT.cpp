@@ -39,4 +39,4 @@ void GOT::finalizeSectionSize() {
   m_Section.setSize(offset);
 }
 
-} // namespace mcld
+}  // namespace mcld

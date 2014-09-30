@@ -74,4 +74,4 @@ bool isGroup(const InputTree::const_bfs_iterator& pos) {
   return !pos.hasData() && !pos.isRoot();
 }
 
-} // namespace mcld
+}  // namespace mcld

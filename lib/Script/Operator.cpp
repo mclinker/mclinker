@@ -308,4 +308,4 @@ Operator& Operator::create<Operator::DATA_SEGMENT_ALIGN>() {
   return op;
 }
 
-} // namespace mcld
+}  // namespace mcld

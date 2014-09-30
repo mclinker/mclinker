@@ -103,4 +103,4 @@ void InputSectDesc::activate(Module& pModule) {
   pModule.getScript().sectionMap().insert(*this, m_OutputSectDesc);
 }
 
-} // namespace mcld
+}  // namespace mcld

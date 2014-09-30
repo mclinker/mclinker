@@ -48,4 +48,4 @@ Input* InputFactory::produce(llvm::StringRef pName,
   return result;
 }
 
-} // namespace mcld
+}  // namespace mcld

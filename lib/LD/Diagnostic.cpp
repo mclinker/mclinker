@@ -174,4 +174,4 @@ void Diagnostic::format(const char* pBegin,
   }    // end of while
 }
 
-} // namespace mcld
+}  // namespace mcld

@@ -27,4 +27,4 @@ uint8_t GNUInfo::OSABI() const {
   }
 }
 
-} // namespace mcld
+}  // namespace mcld

@@ -151,4 +151,4 @@ uint64_t ELFReaderIF::getSymValue(uint64_t pValue,
   return pValue;
 }
 
-} // namespace mcld
+}  // namespace mcld

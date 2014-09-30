@@ -204,4 +204,4 @@ void FragOperand::clear() {
   g_FragOperandFactory->clear();
 }
 
-} // namespace mcld
+}  // namespace mcld

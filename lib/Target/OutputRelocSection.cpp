@@ -76,4 +76,4 @@ bool OutputRelocSection::addSymbolToDynSym(LDSymbol& pSymbol) {
   return true;
 }
 
-} // namespace mcld
+}  // namespace mcld

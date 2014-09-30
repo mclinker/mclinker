@@ -59,4 +59,4 @@ bool ScriptReader::readScript(const LinkerConfig& pConfig,
   return parser.parse() == 0;
 }
 
-} // namespace mcld
+}  // namespace mcld

@@ -170,4 +170,4 @@ bool DiagnosticInfos::process(DiagnosticEngine& pEngine) const {
   return true;
 }
 
-} // namespace mcld
+}  // namespace mcld

@@ -95,4 +95,4 @@ void MCLDDirectory::setSysroot(const sys::fs::Path& pSysroot) {
   }
 }
 
-} // namespace mcld
+}  // namespace mcld

@@ -46,4 +46,4 @@ void OutputFormatCmd::activate(Module& pModule) {
   // TODO
 }
 
-} // namespace mcld
+}  // namespace mcld

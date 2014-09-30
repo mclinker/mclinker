@@ -154,4 +154,4 @@ FragmentRef::Offset FragmentRef::getOutputOffset() const {
   return (result + m_Offset);
 }
 
-} // namespace mcld
+}  // namespace mcld

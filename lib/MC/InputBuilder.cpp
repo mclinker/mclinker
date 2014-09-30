@@ -144,4 +144,4 @@ AttributeProxy& InputBuilder::getAttributes() {
   return m_pInputFactory->attr();
 }
 
-} // namespace mcld
+}  // namespace mcld

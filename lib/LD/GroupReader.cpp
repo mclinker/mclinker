@@ -145,4 +145,4 @@ bool GroupReader::readGroup(Module::input_iterator pRoot,
   return true;
 }
 
-} // namespace mcld
+}  // namespace mcld

@@ -39,4 +39,4 @@ size_t AlignFragment::size() const {
   return size;
 }
 
-} // namespace mcld
+}  // namespace mcld

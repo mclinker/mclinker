@@ -47,4 +47,4 @@ void MsgHandler::addTaggedVal(intptr_t pValue,
   m_Engine.state().ArgumentVals[m_NumArgs++] = pValue;
 }
 
-} // namespace mcld
+}  // namespace mcld

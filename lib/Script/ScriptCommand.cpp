@@ -16,4 +16,4 @@ namespace mcld {
 ScriptCommand::~ScriptCommand() {
 }
 
-} // namespace mcld
+}  // namespace mcld

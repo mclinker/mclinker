@@ -174,4 +174,4 @@ bool Assignment::assign(RpnEvaluator& pEvaluator) {
   return success;
 }
 
-} // namespace mcld
+}  // namespace mcld

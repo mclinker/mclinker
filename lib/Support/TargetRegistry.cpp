@@ -100,4 +100,4 @@ const Target* TargetRegistry::lookupTarget(const std::string& pArchName,
   return result;
 }
 
-} // namespace mcld
+}  // namespace mcld

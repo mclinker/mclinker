@@ -19,4 +19,4 @@ AttributeOption::AttributeOption() {
 AttributeOption::~AttributeOption() {
 }
 
-} // namespace mcld
+}  // namespace mcld

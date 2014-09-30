@@ -46,4 +46,4 @@ void FileToken::clear() {
   g_FileTokenFactory->clear();
 }
 
-} // namespace mcld
+}  // namespace mcld

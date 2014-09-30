@@ -271,4 +271,4 @@ ResolveInfo* ResolveInfo::Null() {
   return g_NullResolveInfo;
 }
 
-} // namespace mcld
+}  // namespace mcld

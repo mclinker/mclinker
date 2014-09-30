@@ -123,4 +123,4 @@ bool ELFBinaryReader::readBinary(Input& pInput) {
   return true;
 }
 
-} // namespace mcld
+}  // namespace mcld

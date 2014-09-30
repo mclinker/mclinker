@@ -128,4 +128,4 @@ uint64_t AArch64GOT::emit(MemoryRegion& pRegion) {
   return result;
 }
 
-} // namespace mcld
+}  // namespace mcld

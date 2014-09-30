@@ -34,4 +34,4 @@ void OutputCmd::activate(Module& pModule) {
   // usual default of a.out.
 }
 
-} // namespace mcld
+}  // namespace mcld

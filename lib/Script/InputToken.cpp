@@ -23,4 +23,4 @@ InputToken::InputToken(Type pType, const std::string& pName, bool pAsNeeded)
 InputToken::~InputToken() {
 }
 
-} // namespace mcld
+}  // namespace mcld

@@ -94,4 +94,4 @@ RpnExpr* RpnExpr::buildHelperExpr(Fragment& pFrag) {
   return expr;
 }
 
-} // namespace mcld
+}  // namespace mcld

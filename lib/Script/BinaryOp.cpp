@@ -246,4 +246,4 @@ IntOperand* BinaryOp<Operator::SEGMENT_START>::eval(
   return res;
 }
 
-} // namespace mcld
+}  // namespace mcld

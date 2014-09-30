@@ -113,4 +113,4 @@ Stub* ARMToTHMStub::doClone() {
   return new ARMToTHMStub(m_pData, m_Size, fixup_begin(), fixup_end());
 }
 
-} // namespace mcld
+}  // namespace mcld

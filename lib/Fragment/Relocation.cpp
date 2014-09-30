@@ -147,4 +147,4 @@ void Relocation::updateAddend() {
   }
 }
 
-} // namespace mcld
+}  // namespace mcld

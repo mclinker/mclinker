@@ -187,4 +187,4 @@ uint64_t HexagonPLT::emit(MemoryRegion& pRegion) {
   return result;
 }
 
-} // namespace mcld
+}  // namespace mcld

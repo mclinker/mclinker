@@ -62,4 +62,4 @@ bool ELFAttributeValue::equals(const ELFAttributeValue& pValue) const {
   return true;
 }
 
-} // namespace mcld
+}  // namespace mcld

@@ -56,4 +56,4 @@ IntOperand* TernaryOp<Operator::DATA_SEGMENT_ALIGN>::eval(
   return res;
 }
 
-} // namespace mcld
+}  // namespace mcld

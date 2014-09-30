@@ -966,4 +966,4 @@ Relocator::Result unsupported(Relocation& pReloc, HexagonRelocator& pParent) {
   return Relocator::Unsupported;
 }
 
-} // namespace mcld
+}  // namespace mcld

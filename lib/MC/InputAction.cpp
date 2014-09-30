@@ -19,4 +19,4 @@ InputAction::InputAction(unsigned int pPosition) : m_Position(pPosition) {
 InputAction::~InputAction() {
 }
 
-} // namespace mcld
+}  // namespace mcld

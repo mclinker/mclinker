@@ -172,4 +172,4 @@ void TextDiagnosticPrinter::endInput() {
   m_pInput = NULL;
 }
 
-} // namespace mcld
+}  // namespace mcld

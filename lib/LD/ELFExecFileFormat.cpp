@@ -92,4 +92,4 @@ void ELFExecFileFormat::initObjectFormat(ObjectBuilder& pBuilder,
                                          pBitClass / 8);
 }
 
-} // namespace mcld
+}  // namespace mcld

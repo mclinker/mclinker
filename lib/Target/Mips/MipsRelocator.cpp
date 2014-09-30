@@ -1014,4 +1014,4 @@ static MipsRelocator::Result unsupported(MipsRelocationInfo& pReloc,
   return Relocator::Unsupported;
 }
 
-} // namespace mcld
+}  // namespace mcld

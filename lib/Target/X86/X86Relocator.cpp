@@ -1649,4 +1649,4 @@ Relocator::Result unsupported(Relocation& pReloc, X86_64Relocator& pParent) {
   return Relocator::Unsupported;
 }
 
-} // namespace mcld
+}  // namespace mcld

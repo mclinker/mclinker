@@ -16,4 +16,4 @@ namespace mcld {
 ZOption::ZOption() : m_Kind(Unknown), m_PageSize(0x0) {
 }
 
-} // namespace mcld
+}  // namespace mcld

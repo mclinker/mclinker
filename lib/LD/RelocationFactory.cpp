@@ -84,4 +84,4 @@ void RelocationFactory::destroy(Relocation* pRelocation) {
   /** GCFactory will recycle the relocation **/
 }
 
-} // namespace mcld
+}  // namespace mcld

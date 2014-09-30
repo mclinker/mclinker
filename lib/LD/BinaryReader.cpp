@@ -16,4 +16,4 @@ namespace mcld {
 BinaryReader::~BinaryReader() {
 }
 
-} // namespace mcld
+}  // namespace mcld

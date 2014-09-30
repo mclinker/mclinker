@@ -377,4 +377,4 @@ void SectionMap::fixupDotSymbols() {
   }  // for each output section
 }
 
-} // namespace mcld
+}  // namespace mcld

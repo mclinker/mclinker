@@ -54,4 +54,4 @@ Relocation& RelocData::remove(Relocation& pRelocation) {
   return *rel;
 }
 
-} // namespace mcld
+}  // namespace mcld

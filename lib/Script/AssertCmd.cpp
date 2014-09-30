@@ -43,4 +43,4 @@ void AssertCmd::activate(Module& pModule) {
   pModule.getScript().assertions().push_back(*this);
 }
 
-} // namespace mcld
+}  // namespace mcld

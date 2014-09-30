@@ -32,4 +32,4 @@ void HexagonELFDynamic::applyTargetEntries(const ELFFileFormat& pFormat) {
     applyOne(llvm::ELF::DT_PLTGOT, pFormat.getGOTPLT().addr());
 }
 
-} // namespace mcld
+}  // namespace mcld

@@ -447,4 +447,4 @@ bool GNUArchiveReader::includeAllMembers(const LinkerConfig& pConfig,
   return true;
 }
 
-} // namespace mcld
+}  // namespace mcld

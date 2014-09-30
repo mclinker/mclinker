@@ -24,4 +24,4 @@ size_t RegionFragment::size() const {
   return m_Region.size();
 }
 
-} // namespace mcld
+}  // namespace mcld

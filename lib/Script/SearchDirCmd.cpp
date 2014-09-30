@@ -32,4 +32,4 @@ void SearchDirCmd::activate(Module& pModule) {
   pModule.getScript().directories().insert(m_Path);
 }
 
-} // namespace mcld
+}  // namespace mcld

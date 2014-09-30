@@ -51,4 +51,4 @@ void AttributeSet::record(mcld::Attribute& pAttr) {
   m_AttrSet.push_back(&pAttr);
 }
 
-} // namespace mcld
+}  // namespace mcld

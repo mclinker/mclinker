@@ -118,4 +118,4 @@ bool ELFDynObjReader::readSymbols(Input& pInput) {
   return result;
 }
 
-} // namespace mcld
+}  // namespace mcld

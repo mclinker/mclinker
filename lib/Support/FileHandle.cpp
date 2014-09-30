@@ -244,4 +244,4 @@ bool FileHandle::isOwned() const {
   return !(m_State & DeputedBit);
 }
 
-} // namespace mcld
+}  // namespace mcld

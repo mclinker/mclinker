@@ -170,4 +170,4 @@ bool GeneralOptions::isInExcludeLIBS(const Input& pInput) const {
   return false;
 }
 
-} // namespace mcld
+}  // namespace mcld

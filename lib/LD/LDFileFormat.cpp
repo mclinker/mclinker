@@ -23,4 +23,4 @@ LDFileFormat::LDFileFormat()
 LDFileFormat::~LDFileFormat() {
 }
 
-} // namespace mcld
+}  // namespace mcld

@@ -273,4 +273,4 @@ bool ScriptAction::activate(InputBuilder& pBuilder) const {
   return true;
 }
 
-} // namespace mcld
+}  // namespace mcld

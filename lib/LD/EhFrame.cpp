@@ -370,4 +370,4 @@ bool operator==(const EhFrame::CIE& p1, const EhFrame::CIE& p2) {
          p1.getAugmentationData() == p2.getAugmentationData();
 }
 
-} // namespace mcld
+}  // namespace mcld

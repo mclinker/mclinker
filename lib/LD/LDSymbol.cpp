@@ -90,4 +90,4 @@ bool LDSymbol::hasFragRef() const {
   return !m_pFragRef->isNull();
 }
 
-} // namespace mcld
+}  // namespace mcld

@@ -24,4 +24,4 @@ PLT::PLT(LDSection& pSection) : m_Section(pSection) {
 PLT::~PLT() {
 }
 
-} // namespace mcld
+}  // namespace mcld

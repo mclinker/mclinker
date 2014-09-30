@@ -246,4 +246,4 @@ Input* Archive::getMemberFile(Input& pArchiveFile,
   return member;
 }
 
-} // namespace mcld
+}  // namespace mcld

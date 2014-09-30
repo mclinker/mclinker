@@ -196,4 +196,4 @@ void OutputSectDesc::activate(Module& pModule) {
   }
 }
 
-} // namespace mcld
+}  // namespace mcld

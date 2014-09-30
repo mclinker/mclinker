@@ -296,4 +296,4 @@ std::string IdenticalCodeFolding::FoldingCandidate::getContentWithVariables(
   return result;
 }
 
-} // namespace mcld
+}  // namespace mcld

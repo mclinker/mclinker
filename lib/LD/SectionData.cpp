@@ -44,4 +44,4 @@ void SectionData::Clear() {
   g_SectDataFactory->clear();
 }
 
-} // namespace mcld
+}  // namespace mcld

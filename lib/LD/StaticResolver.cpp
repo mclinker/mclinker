@@ -311,4 +311,4 @@ bool StaticResolver::resolve(ResolveInfo& __restrict__ pOld,
   return true;
 }
 
-} // namespace mcld
+}  // namespace mcld

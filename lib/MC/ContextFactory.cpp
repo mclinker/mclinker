@@ -41,4 +41,4 @@ LDContext* ContextFactory::produce() {
   return result;
 }
 
-} // namespace mcld
+}  // namespace mcld

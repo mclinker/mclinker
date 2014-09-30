@@ -109,4 +109,4 @@ Stub* HexagonAbsoluteStub::doClone() {
   return new HexagonAbsoluteStub(m_pData, m_Size, fixup_begin(), fixup_end());
 }
 
-} // namespace mcld
+}  // namespace mcld

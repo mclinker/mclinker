@@ -105,4 +105,4 @@ Stub* ARMToARMStub::doClone() {
   return new ARMToARMStub(m_pData, m_Size, fixup_begin(), fixup_end());
 }
 
-} // namespace mcld
+}  // namespace mcld

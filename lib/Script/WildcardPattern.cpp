@@ -62,4 +62,4 @@ void WildcardPattern::clear() {
   g_WildcardPatternFactory->clear();
 }
 
-} // namespace mcld
+}  // namespace mcld

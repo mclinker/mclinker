@@ -363,4 +363,4 @@ bool Linker::initEmulator(LinkerScript& pScript) {
   return m_pTarget->emulate(pScript, *m_pConfig);
 }
 
-} // namespace mcld
+}  // namespace mcld

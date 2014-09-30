@@ -97,4 +97,4 @@ void ELFSegment::Clear() {
   g_ELFSegmentFactory->clear();
 }
 
-} // namespace mcld
+}  // namespace mcld

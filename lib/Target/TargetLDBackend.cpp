@@ -19,4 +19,4 @@ TargetLDBackend::TargetLDBackend(const LinkerConfig& pConfig)
 TargetLDBackend::~TargetLDBackend() {
 }
 
-} // namespace mcld
+}  // namespace mcld

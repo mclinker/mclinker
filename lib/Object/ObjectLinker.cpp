@@ -926,4 +926,4 @@ void ObjectLinker::writeRelocationResult(Relocation& pReloc, uint8_t* pOutput) {
   }
 }
 
-} // namespace mcld
+}  // namespace mcld

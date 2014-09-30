@@ -46,4 +46,4 @@ size_t MemoryArea::size() const {
   return m_pMemoryBuffer->getBufferSize();
 }
 
-} // namespace mcld
+}  // namespace mcld

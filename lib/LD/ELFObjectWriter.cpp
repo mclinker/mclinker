@@ -708,4 +708,4 @@ void ELFObjectWriter::emitSectionData(const SectionData& pSD,
   }
 }
 
-} // namespace mcld
+}  // namespace mcld

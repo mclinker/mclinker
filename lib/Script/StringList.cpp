@@ -54,4 +54,4 @@ void StringList::clear() {
   g_StringListFactory->clear();
 }
 
-} // namespace mcld
+}  // namespace mcld

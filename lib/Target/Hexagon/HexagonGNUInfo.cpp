@@ -28,4 +28,4 @@ uint64_t HexagonGNUInfo::flags() const {
       .Default(V4);
 }
 
-} // namespace mcld
+}  // namespace mcld

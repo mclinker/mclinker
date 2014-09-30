@@ -84,4 +84,4 @@ void ELFSegmentFactory::erase(iterator pSegment) {
   m_Segments.erase(pSegment);
 }
 
-} // namespace mcld
+}  // namespace mcld

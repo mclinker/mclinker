@@ -18,4 +18,4 @@ ArchiveReader::ArchiveReader() {
 ArchiveReader::~ArchiveReader() {
 }
 
-} // namespace mcld
+}  // namespace mcld

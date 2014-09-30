@@ -29,4 +29,4 @@ void OutputArchCmd::activate(Module& pModule) {
   // TODO
 }
 
-} // namespace mcld
+}  // namespace mcld

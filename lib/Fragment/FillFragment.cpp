@@ -27,4 +27,4 @@ FillFragment::FillFragment(int64_t pValue,
          "Fill size must be a multiple of the value size!");
 }
 
-} // namespace mcld
+}  // namespace mcld

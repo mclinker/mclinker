@@ -101,4 +101,4 @@ raw_fd_ostream& errs() {
   return S;
 }
 
-} // namespace mcld
+}  // namespace mcld

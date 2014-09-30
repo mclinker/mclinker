@@ -197,4 +197,4 @@ const mcld::sys::fs::Path* SearchDirs::find(const std::string& pNamespec,
   return NULL;
 }
 
-} // namespace mcld
+}  // namespace mcld

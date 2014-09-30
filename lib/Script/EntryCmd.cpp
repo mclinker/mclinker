@@ -34,4 +34,4 @@ void EntryCmd::activate(Module& pModule) {
     script.setEntry(m_Entry);
 }
 
-} // namespace mcld
+}  // namespace mcld

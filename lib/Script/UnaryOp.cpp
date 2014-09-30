@@ -181,4 +181,4 @@ IntOperand* UnaryOp<Operator::SIZEOF>::eval(const Module& pModule,
   return res;
 }
 
-} // namespace mcld
+}  // namespace mcld

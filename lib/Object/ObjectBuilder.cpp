@@ -201,4 +201,4 @@ uint64_t ObjectBuilder::AppendFragment(Fragment& pFrag,
     return pFrag.size();
 }
 
-} // namespace mcld
+}  // namespace mcld

@@ -30,4 +30,4 @@ bool BSDArchiveReader::isMyFormat(Input& pInput, bool& pContinue) const {
   return false;
 }
 
-} // namespace mcld
+}  // namespace mcld

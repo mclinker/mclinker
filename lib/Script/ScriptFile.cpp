@@ -243,4 +243,4 @@ void ScriptFile::clearParserStrPool() {
   g_ParserStrPool->clear();
 }
 
-} // namespace mcld
+}  // namespace mcld

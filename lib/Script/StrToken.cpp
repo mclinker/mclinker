@@ -46,4 +46,4 @@ void StrToken::clear() {
   g_StrTokenFactory->clear();
 }
 
-} // namespace mcld
+}  // namespace mcld

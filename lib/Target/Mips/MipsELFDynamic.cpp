@@ -85,4 +85,4 @@ uint64_t MipsELFDynamic::getBaseAddress() {
   return m_pParent.elfSegmentTable().end() == baseSeg ? 0 : (*baseSeg)->vaddr();
 }
 
-} // namespace mcld
+}  // namespace mcld

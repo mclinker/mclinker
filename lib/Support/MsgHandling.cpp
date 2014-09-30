@@ -60,4 +60,4 @@ void FinalizeDiagnosticEngine() {
   g_pEngine->getPrinter()->finish();
 }
 
-} // namespace mcld
+}  // namespace mcld

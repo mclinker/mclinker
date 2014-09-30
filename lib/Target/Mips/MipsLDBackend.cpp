@@ -302,7 +302,7 @@ void MipsGNULDBackend::orderSymbolTable(Module& pModule) {
       symbols.dynamicBegin(), symbols.dynamicEnd(), DynsymGOTCompare(*m_pGOT));
 }
 
-} // namespace mcld
+}  // namespace mcld
 
 namespace llvm {
 namespace ELF {
@@ -952,7 +952,7 @@ static TargetLDBackend* createMipsLDBackend(const LinkerConfig& pConfig) {
   return new Mips32GNULDBackend(pConfig, new MipsGNUInfo(triple));
 }
 
-} // namespace mcld
+}  // namespace mcld
 
 //===----------------------------------------------------------------------===//
 // Force static initialization.

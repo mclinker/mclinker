@@ -334,4 +334,4 @@ bool ELFObjectReader::readRelocations(Input& pInput) {
   return true;
 }
 
-} // namespace mcld
+}  // namespace mcld

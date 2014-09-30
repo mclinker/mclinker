@@ -302,4 +302,4 @@ void X86_64PLT::applyPLT1() {
   }
 }
 
-} // namespace mcld
+}  // namespace mcld

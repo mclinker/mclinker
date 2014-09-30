@@ -27,7 +27,7 @@ EntryIF::EntryIF() {
 EntryIF::~EntryIF() {
 }
 
-} // namespace elf_dynamic
+}  // namespace elf_dynamic
 
 //===----------------------------------------------------------------------===//
 // ELFDynamic
@@ -339,4 +339,4 @@ void ELFDynamic::applySoname(uint64_t pStrTabIdx) {
   applyOne(llvm::ELF::DT_SONAME, pStrTabIdx);
 }
 
-} // namespace mcld
+}  // namespace mcld

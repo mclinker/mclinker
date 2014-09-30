@@ -210,4 +210,4 @@ void InputCmd::activate(Module& pModule) {
   }
 }
 
-} // namespace mcld
+}  // namespace mcld

@@ -72,4 +72,4 @@ void MemoryAreaFactory::destruct(MemoryArea* pArea) {
   deallocate(pArea);
 }
 
-} // namespace mcld
+}  // namespace mcld

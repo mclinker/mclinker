@@ -74,4 +74,4 @@ MsgHandler DiagnosticEngine::report(uint16_t pID,
   return result;
 }
 
-} // namespace mcld
+}  // namespace mcld

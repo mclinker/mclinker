@@ -16,4 +16,4 @@ namespace mcld {
 //==========================
 // ObjectReader
 
-} // namespace mcld
+}  // namespace mcld

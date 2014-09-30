@@ -80,4 +80,4 @@ Module::AliasList* Module::getAliasList(const ResolveInfo& pSym) {
   return NULL;
 }
 
-} // namespace mcld
+}  // namespace mcld

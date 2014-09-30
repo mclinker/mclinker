@@ -112,4 +112,4 @@ bool RpnEvaluator::eval(const RpnExpr& pExpr, uint64_t& pResult) {
   return true;
 }
 
-} // namespace mcld
+}  // namespace mcld

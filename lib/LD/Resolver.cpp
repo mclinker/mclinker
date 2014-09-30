@@ -15,4 +15,4 @@ namespace mcld {
 Resolver::~Resolver() {
 }
 
-} // namespace mcld
+}  // namespace mcld

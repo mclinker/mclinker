@@ -777,4 +777,4 @@ LDSymbol* IRBuilder::AddSymbol<IRBuilder::AsReferred, IRBuilder::Resolve>(
       pName, pType, pDesc, pBinding, pSize, pValue, pFragmentRef, pVisibility);
 }
 
-} // namespace mcld
+}  // namespace mcld

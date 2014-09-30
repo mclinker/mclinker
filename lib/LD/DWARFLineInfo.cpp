@@ -13,4 +13,4 @@ namespace mcld {
 //==========================
 // DWARFLineInfo
 
-} // namespace mcld
+}  // namespace mcld

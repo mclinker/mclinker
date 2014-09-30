@@ -167,4 +167,4 @@ void GroupCmd::activate(Module& pModule) {
   m_GroupReader.readGroup(group, m_InputTree.end(), m_Builder, m_Config);
 }
 
-} // namespace mcld
+}  // namespace mcld

@@ -154,4 +154,4 @@ const LDSymbol* NamePool::findSymbol(const llvm::StringRef& pName) const {
   return info->outSymbol();
 }
 
-} // namespace mcld
+}  // namespace mcld

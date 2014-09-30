@@ -131,4 +131,4 @@ Stub* StubFactory::findPrototype(const Relocation& pReloc,
   return NULL;
 }
 
-} // namespace mcld
+}  // namespace mcld

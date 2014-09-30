@@ -50,4 +50,4 @@ llvm::StringRef FileOutputBuffer::getPath() const {
   return m_FileHandle.path().native();
 }
 
-} // namespace mcld
+}  // namespace mcld
