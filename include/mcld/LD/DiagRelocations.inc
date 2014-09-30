@@ -58,7 +58,7 @@ DIAG(unknown_reloc_section_type,
      DiagnosticEngine::Unreachable,
      "unknown relocation section type: `%0' in section `%1'",
      "unknown relocation section type: `%0' in section `%1'")
-DIAG(unsupport_cond_branch_reloc,
+DIAG(unsupported_cond_branch_reloc,
      DiagnosticEngine::Error,
      "applying relocation `%0', conditional branch to PLT in THUMB-2 not "
      "supported yet",

@@ -1079,8 +1079,8 @@ Relocator::Result tls_le(Relocation& pReloc, X86_32Relocator& pParent) {
   return Relocator::OK;
 }
 
-Relocator::Result unsupport(Relocation& pReloc, X86_32Relocator& pParent) {
-  return Relocator::Unsupport;
+Relocator::Result unsupported(Relocation& pReloc, X86_32Relocator& pParent) {
+  return Relocator::Unsupported;
 }
 
 //===--------------------------------------------------------------------===//
@@ -1645,6 +1645,6 @@ Relocator::Result rel(Relocation& pReloc, X86_64Relocator& pParent) {
   return Relocator::OK;
 }
 
-Relocator::Result unsupport(Relocation& pReloc, X86_64Relocator& pParent) {
-  return Relocator::Unsupport;
+Relocator::Result unsupported(Relocation& pReloc, X86_64Relocator& pParent) {
+  return Relocator::Unsupported;
 }

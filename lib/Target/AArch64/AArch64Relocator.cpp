@@ -406,8 +406,8 @@ Relocator::Result none(Relocation& pReloc, AArch64Relocator& pParent) {
   return Relocator::OK;
 }
 
-Relocator::Result unsupport(Relocation& pReloc, AArch64Relocator& pParent) {
-  return Relocator::Unsupport;
+Relocator::Result unsupported(Relocation& pReloc, AArch64Relocator& pParent) {
+  return Relocator::Unsupported;
 }
 
 // R_AARCH64_ABS64: S + A

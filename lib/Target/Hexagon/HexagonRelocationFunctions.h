@@ -48,7 +48,7 @@ T1 ApplyMask(T2 pMask, T1 pData) {
   DECL_HEXAGON_APPLY_RELOC_FUNC(relocPLTB22PCREL) \
   DECL_HEXAGON_APPLY_RELOC_FUNC(relocGOTREL)      \
   DECL_HEXAGON_APPLY_RELOC_FUNC(relocGOT)         \
-  DECL_HEXAGON_APPLY_RELOC_FUNC(unsupport)
+  DECL_HEXAGON_APPLY_RELOC_FUNC(unsupported)
 
 #define DECL_HEXAGON_APPLY_RELOC_FUNC_PTRS             \
   { &none,             0, "R_HEX_NONE"              }, \
@@ -64,7 +64,7 @@ T1 ApplyMask(T2 pMask, T1 pData) {
   { &relocGPREL,       10, "R_HEX_GPREL16_1"        }, \
   { &relocGPREL,       11, "R_HEX_GPREL16_2"        }, \
   { &relocGPREL,       12, "R_HEX_GPREL16_3"        }, \
-  { &unsupport,        13, "R_HEX_HL16"             }, \
+  { &unsupported,      13, "R_HEX_HL16"             }, \
   { &relocPCREL,       14, "R_HEX_B13_PCREL"        }, \
   { &relocPCREL,       15, "R_HEX_B9_PCREL"         }, \
   { &relocPCREL,       16, "R_HEX_B32_PCREL_X"      }, \
@@ -95,27 +95,27 @@ T1 ApplyMask(T2 pMask, T1 pData) {
   { &relocGOT,         41, "R_HEX_GOT_HI16"         }, \
   { &relocGOT,         42, "R_HEX_GOT_32"           }, \
   { &relocGOT,         43, "R_HEX_GOT_16"           }, \
-  { &unsupport,        44, "R_HEX_DTPMOD_32"        }, \
-  { &unsupport,        45, "R_HEX_DTPREL_LO16"      }, \
-  { &unsupport,        46, "R_HEX_DTPREL_HI16"      }, \
-  { &unsupport,        47, "R_HEX_DTPREL_32"        }, \
-  { &unsupport,        48, "R_HEX_DTPREL_16"        }, \
-  { &unsupport,        49, "R_HEX_GD_PLT_B22_PCREL" }, \
-  { &unsupport,        50, "R_HEX_GD_GOT_LO16"      }, \
-  { &unsupport,        51, "R_HEX_GD_GOT_HI16"      }, \
-  { &unsupport,        52, "R_HEX_GD_GOT_32"        }, \
-  { &unsupport,        53, "R_HEX_GD_GOT_16"        }, \
-  { &unsupport,        54, "R_HEX_IE_LO16"          }, \
-  { &unsupport,        55, "R_HEX_IE_HI16"          }, \
-  { &unsupport,        56, "R_HEX_IE_32"            }, \
-  { &unsupport,        57, "R_HEX_IE_GOT_LO16"      }, \
-  { &unsupport,        58, "R_HEX_IE_GOT_HI16"      }, \
-  { &unsupport,        59, "R_HEX_IE_GOT_32"        }, \
-  { &unsupport,        60, "R_HEX_IE_GOT_16"        }, \
-  { &unsupport,        61, "R_HEX_TPREL_LO16"       }, \
-  { &unsupport,        62, "R_HEX_TPREL_HI16"       }, \
-  { &unsupport,        63, "R_HEX_TPREL_32"         }, \
-  { &unsupport,        64, "R_HEX_TPREL_16"         }, \
+  { &unsupported,      44, "R_HEX_DTPMOD_32"        }, \
+  { &unsupported,      45, "R_HEX_DTPREL_LO16"      }, \
+  { &unsupported,      46, "R_HEX_DTPREL_HI16"      }, \
+  { &unsupported,      47, "R_HEX_DTPREL_32"        }, \
+  { &unsupported,      48, "R_HEX_DTPREL_16"        }, \
+  { &unsupported,      49, "R_HEX_GD_PLT_B22_PCREL" }, \
+  { &unsupported,      50, "R_HEX_GD_GOT_LO16"      }, \
+  { &unsupported,      51, "R_HEX_GD_GOT_HI16"      }, \
+  { &unsupported,      52, "R_HEX_GD_GOT_32"        }, \
+  { &unsupported,      53, "R_HEX_GD_GOT_16"        }, \
+  { &unsupported,      54, "R_HEX_IE_LO16"          }, \
+  { &unsupported,      55, "R_HEX_IE_HI16"          }, \
+  { &unsupported,      56, "R_HEX_IE_32"            }, \
+  { &unsupported,      57, "R_HEX_IE_GOT_LO16"      }, \
+  { &unsupported,      58, "R_HEX_IE_GOT_HI16"      }, \
+  { &unsupported,      59, "R_HEX_IE_GOT_32"        }, \
+  { &unsupported,      60, "R_HEX_IE_GOT_16"        }, \
+  { &unsupported,      61, "R_HEX_TPREL_LO16"       }, \
+  { &unsupported,      62, "R_HEX_TPREL_HI16"       }, \
+  { &unsupported,      63, "R_HEX_TPREL_32"         }, \
+  { &unsupported,      64, "R_HEX_TPREL_16"         }, \
   { &relocPCREL,       65, "R_HEX_6_PCREL_X"        }, \
   { &relocGOTREL,      66, "R_HEX_GOTREL_32_6_X"    }, \
   { &relocGOTREL,      67, "R_HEX_GOTREL_16_X"      }, \
@@ -123,19 +123,19 @@ T1 ApplyMask(T2 pMask, T1 pData) {
   { &relocGOT,         69, "R_HEX_GOT_32_6_X"       }, \
   { &relocGOT,         70, "R_HEX_GOT_16_X"         }, \
   { &relocGOT,         71, "R_HEX_GOT_11_X"         }, \
-  { &unsupport,        72, "R_HEX_DTPREL_32_6_X"    }, \
-  { &unsupport,        73, "R_HEX_DTPREL_16_X"      }, \
-  { &unsupport,        74, "R_HEX_DTPREL_11_X"      }, \
-  { &unsupport,        75, "R_HEX_GD_GOT_32_6_X"    }, \
-  { &unsupport,        76, "R_HEX_GD_GOT_16_X"      }, \
-  { &unsupport,        77, "R_HEX_GD_GOT_11_X"      }, \
-  { &unsupport,        78, "R_HEX_IE_32_6_X"        }, \
-  { &unsupport,        79, "R_HEX_IE_16_X"          }, \
-  { &unsupport,        80, "R_HEX_IE_GOT_32_6_X"    }, \
-  { &unsupport,        81, "R_HEX_IE_GOT_16_X"      }, \
-  { &unsupport,        82, "R_HEX_IE_GOT_11_X"      }, \
-  { &unsupport,        83, "R_HEX_TPREL_32_6_X"     }, \
-  { &unsupport,        84, "R_HEX_TPREL_16_X"       }, \
-  { &unsupport,        85, "R_HEX_TPREL_11_X"       }
+  { &unsupported,      72, "R_HEX_DTPREL_32_6_X"    }, \
+  { &unsupported,      73, "R_HEX_DTPREL_16_X"      }, \
+  { &unsupported,      74, "R_HEX_DTPREL_11_X"      }, \
+  { &unsupported,      75, "R_HEX_GD_GOT_32_6_X"    }, \
+  { &unsupported,      76, "R_HEX_GD_GOT_16_X"      }, \
+  { &unsupported,      77, "R_HEX_GD_GOT_11_X"      }, \
+  { &unsupported,      78, "R_HEX_IE_32_6_X"        }, \
+  { &unsupported,      79, "R_HEX_IE_16_X"          }, \
+  { &unsupported,      80, "R_HEX_IE_GOT_32_6_X"    }, \
+  { &unsupported,      81, "R_HEX_IE_GOT_16_X"      }, \
+  { &unsupported,      82, "R_HEX_IE_GOT_11_X"      }, \
+  { &unsupported,      83, "R_HEX_TPREL_32_6_X"     }, \
+  { &unsupported,      84, "R_HEX_TPREL_16_X"       }, \
+  { &unsupported,      85, "R_HEX_TPREL_11_X"       }
 
 #endif  // TARGET_HEXAGON_HEXAGONRELOCATIONFUNCTIONS_H_

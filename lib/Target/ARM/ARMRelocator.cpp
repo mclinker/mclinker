@@ -944,7 +944,8 @@ ARMRelocator::Result thm_jump19(Relocation& pReloc, ARMRelocator& pParent) {
 
   if (T == 0x0) {
     // FIXME: conditional branch to PLT in THUMB-2 not supported yet
-    error(diag::unsupport_cond_branch_reloc) << static_cast<int>(pReloc.type());
+    error(diag::unsupported_cond_branch_reloc)
+        << static_cast<int>(pReloc.type());
     return Relocator::BadReloc;
   }
 
@@ -1340,9 +1341,9 @@ ARMRelocator::Result prel31(Relocation& pReloc, ARMRelocator& pParent) {
 // R_ARM_TLS_IE32: GOT(S) + A - P
 // R_ARM_TLS_LE32: S + A - tp
 ARMRelocator::Result tls(Relocation& pReloc, ARMRelocator& pParent) {
-  return Relocator::Unsupport;
+  return Relocator::Unsupported;
 }
 
-ARMRelocator::Result unsupport(Relocation& pReloc, ARMRelocator& pParent) {
-  return Relocator::Unsupport;
+ARMRelocator::Result unsupported(Relocation& pReloc, ARMRelocator& pParent) {
+  return Relocator::Unsupported;
 }

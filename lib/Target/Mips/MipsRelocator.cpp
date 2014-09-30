@@ -1009,7 +1009,7 @@ static MipsRelocator::Result pc32(MipsRelocationInfo& pReloc,
   return Relocator::OK;
 }
 
-static MipsRelocator::Result unsupport(MipsRelocationInfo& pReloc,
-                                       MipsRelocator& pParent) {
-  return Relocator::Unsupport;
+static MipsRelocator::Result unsupported(MipsRelocationInfo& pReloc,
+                                         MipsRelocator& pParent) {
+  return Relocator::Unsupported;
 }

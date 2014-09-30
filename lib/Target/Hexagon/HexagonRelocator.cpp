@@ -962,6 +962,6 @@ Relocator::Result relocGOTREL(Relocation& pReloc, HexagonRelocator& pParent) {
   return Relocator::OK;
 }
 
-Relocator::Result unsupport(Relocation& pReloc, HexagonRelocator& pParent) {
-  return Relocator::Unsupport;
+Relocator::Result unsupported(Relocation& pReloc, HexagonRelocator& pParent) {
+  return Relocator::Unsupported;
 }

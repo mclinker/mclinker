@@ -111,7 +111,7 @@ void Relocation::apply(Relocator& pRelocator) {
                                    << symInfo()->name();
       return;
     }
-    case Relocator::Unsupport: {
+    case Relocator::Unsupported: {
       fatal(diag::unsupported_relocation) << type()
                                           << "mclinker@googlegroups.com";
       return;

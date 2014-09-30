@@ -30,7 +30,7 @@ class Relocator {
   typedef Relocation::Size Size;
 
  public:
-  enum Result { OK, BadReloc, Overflow, Unsupport, Unknown };
+  enum Result { OK, BadReloc, Overflow, Unsupported, Unknown };
 
  public:
   explicit Relocator(const LinkerConfig& pConfig) : m_Config(pConfig) {}

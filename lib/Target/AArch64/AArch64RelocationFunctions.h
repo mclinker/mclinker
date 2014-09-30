@@ -24,7 +24,7 @@
   DECL_AARCH64_APPLY_RELOC_FUNC(adr_got_page)     \
   DECL_AARCH64_APPLY_RELOC_FUNC(ld64_got_lo12)    \
   DECL_AARCH64_APPLY_RELOC_FUNC(ldst_abs_lo12)    \
-  DECL_AARCH64_APPLY_RELOC_FUNC(unsupport)
+  DECL_AARCH64_APPLY_RELOC_FUNC(unsupported)
 
 #define DECL_AARCH64_APPLY_RELOC_FUNC_PTRS(ValueType, MappedType) \
   ValueType(0x0,   MappedType(&none, "R_AARCH64_NULL")), \
@@ -35,23 +35,23 @@
   ValueType(0x104, MappedType(&rel, "R_AARCH64_PREL64", 64)), \
   ValueType(0x105, MappedType(&rel, "R_AARCH64_PREL32", 32)), \
   ValueType(0x106, MappedType(&rel, "R_AARCH64_PREL16", 16)), \
-  ValueType(0x107, MappedType(&unsupport, "R_AARCH64_MOVW_UABS_G0")), \
-  ValueType(0x108, MappedType(&unsupport, "R_AARCH64_MOVW_UABS_G0_NC")), \
-  ValueType(0x109, MappedType(&unsupport, "R_AARCH64_MOVW_UABS_G1")), \
-  ValueType(0x10a, MappedType(&unsupport, "R_AARCH64_MOVW_UABS_G1_NC")), \
-  ValueType(0x10b, MappedType(&unsupport, "R_AARCH64_MOVW_UABS_G2")), \
-  ValueType(0x10c, MappedType(&unsupport, "R_AARCH64_MOVW_UABS_G2_NC")), \
-  ValueType(0x10d, MappedType(&unsupport, "R_AARCH64_MOVW_UABS_G3")), \
-  ValueType(0x10e, MappedType(&unsupport, "R_AARCH64_MOVW_SABS_G0")), \
-  ValueType(0x10f, MappedType(&unsupport, "R_AARCH64_MOVW_SABS_G1")), \
-  ValueType(0x110, MappedType(&unsupport, "R_AARCH64_MOVW_SABS_G2")), \
-  ValueType(0x111, MappedType(&unsupport, "R_AARCH64_LD_PREL_LO19")), \
-  ValueType(0x112, MappedType(&unsupport, "R_AARCH64_ADR_PREL_LO21")), \
+  ValueType(0x107, MappedType(&unsupported, "R_AARCH64_MOVW_UABS_G0")), \
+  ValueType(0x108, MappedType(&unsupported, "R_AARCH64_MOVW_UABS_G0_NC")), \
+  ValueType(0x109, MappedType(&unsupported, "R_AARCH64_MOVW_UABS_G1")), \
+  ValueType(0x10a, MappedType(&unsupported, "R_AARCH64_MOVW_UABS_G1_NC")), \
+  ValueType(0x10b, MappedType(&unsupported, "R_AARCH64_MOVW_UABS_G2")), \
+  ValueType(0x10c, MappedType(&unsupported, "R_AARCH64_MOVW_UABS_G2_NC")), \
+  ValueType(0x10d, MappedType(&unsupported, "R_AARCH64_MOVW_UABS_G3")), \
+  ValueType(0x10e, MappedType(&unsupported, "R_AARCH64_MOVW_SABS_G0")), \
+  ValueType(0x10f, MappedType(&unsupported, "R_AARCH64_MOVW_SABS_G1")), \
+  ValueType(0x110, MappedType(&unsupported, "R_AARCH64_MOVW_SABS_G2")), \
+  ValueType(0x111, MappedType(&unsupported, "R_AARCH64_LD_PREL_LO19")), \
+  ValueType(0x112, MappedType(&unsupported, "R_AARCH64_ADR_PREL_LO21")), \
   ValueType(0x113, MappedType(&adr_prel_pg_hi21, "R_AARCH64_ADR_PREL_PG_HI21", 32)), \
   ValueType(0x114, MappedType(&adr_prel_pg_hi21, "R_AARCH64_ADR_PREL_PG_HI21_NC", 32)), \
   ValueType(0x115, MappedType(&add_abs_lo12, "R_AARCH64_ADD_ABS_LO12_NC", 32)), \
   ValueType(0x116, MappedType(&ldst_abs_lo12, "R_AARCH64_LDST8_ABS_LO12_NC", 32)), \
-  ValueType(0x117, MappedType(&unsupport, "R_AARCH64_TSTBR14")), \
+  ValueType(0x117, MappedType(&unsupported, "R_AARCH64_TSTBR14")), \
   ValueType(0x118, MappedType(&condbr, "R_AARCH64_CONDBR19", 32)), \
   ValueType(0x11a, MappedType(&call, "R_AARCH64_JUMP26", 32)), \
   ValueType(0x11b, MappedType(&call, "R_AARCH64_CALL26", 32)), \
@@ -61,55 +61,55 @@
   ValueType(0x12b, MappedType(&ldst_abs_lo12, "R_AARCH64_LDST128_ABS_LO12_NC", 32)), \
   ValueType(0x137, MappedType(&adr_got_page, "R_AARCH64_ADR_GOT_PAGE", 32)), \
   ValueType(0x138, MappedType(&ld64_got_lo12, "R_AARCH64_LD64_GOT_LO12_NC", 32)), \
-  ValueType(0x20b, MappedType(&unsupport, "R_AARCH64_TLSLD_MOVW_DTPREL_G2")), \
-  ValueType(0x20c, MappedType(&unsupport, "R_AARCH64_TLSLD_MOVW_DTPREL_G1")), \
-  ValueType(0x20d, MappedType(&unsupport, "R_AARCH64_TLSLD_MOVW_DTPREL_G1_NC")), \
-  ValueType(0x20e, MappedType(&unsupport, "R_AARCH64_TLSLD_MOVW_DTPREL_G0")), \
-  ValueType(0x20f, MappedType(&unsupport, "R_AARCH64_TLSLD_MOVW_DTPREL_G0_NC")), \
-  ValueType(0x210, MappedType(&unsupport, "R_AARCH64_TLSLD_ADD_DTPREL_HI12")), \
-  ValueType(0x211, MappedType(&unsupport, "R_AARCH64_TLSLD_ADD_DTPREL_LO12")), \
-  ValueType(0x212, MappedType(&unsupport, "R_AARCH64_TLSLD_ADD_DTPREL_LO12_NC")), \
-  ValueType(0x213, MappedType(&unsupport, "R_AARCH64_TLSLD_LDST8_DTPREL_LO12")), \
-  ValueType(0x214, MappedType(&unsupport, "R_AARCH64_TLSLD_LDST8_DTPREL_LO12_NC")), \
-  ValueType(0x215, MappedType(&unsupport, "R_AARCH64_TLSLD_LDST16_DTPREL_LO12")), \
-  ValueType(0x216, MappedType(&unsupport, "R_AARCH64_TLSLD_LDST16_DTPREL_LO12_NC")), \
-  ValueType(0x217, MappedType(&unsupport, "R_AARCH64_TLSLD_LDST32_DTPREL_LO12")), \
-  ValueType(0x218, MappedType(&unsupport, "R_AARCH64_TLSLD_LDST32_DTPREL_LO12_NC")), \
-  ValueType(0x219, MappedType(&unsupport, "R_AARCH64_TLSLD_LDST64_DTPREL_LO12")), \
-  ValueType(0x21a, MappedType(&unsupport, "R_AARCH64_TLSLD_LDST64_DTPREL_LO12_NC")), \
-  ValueType(0x21b, MappedType(&unsupport, "R_AARCH64_TLSIE_MOVW_GOTTPREL_G1")), \
-  ValueType(0x21c, MappedType(&unsupport, "R_AARCH64_TLSIE_MOVW_GOTTPREL_G0_NC")), \
-  ValueType(0x21d, MappedType(&unsupport, "R_AARCH64_TLSIE_ADR_GOTTPREL_PAGE21")), \
-  ValueType(0x21e, MappedType(&unsupport, "R_AARCH64_TLSIE_LD64_GOTTPREL_LO12_NC")), \
-  ValueType(0x21f, MappedType(&unsupport, "R_AARCH64_TLSIE_LD_GOTTPREL_PREL19")), \
-  ValueType(0x220, MappedType(&unsupport, "R_AARCH64_TLSLE_MOVW_TPREL_G2")), \
-  ValueType(0x221, MappedType(&unsupport, "R_AARCH64_TLSLE_MOVW_TPREL_G1")), \
-  ValueType(0x222, MappedType(&unsupport, "R_AARCH64_TLSLE_MOVW_TPREL_G1_NC")), \
-  ValueType(0x223, MappedType(&unsupport, "R_AARCH64_TLSLE_MOVW_TPREL_G0")), \
-  ValueType(0x224, MappedType(&unsupport, "R_AARCH64_TLSLE_MOVW_TPREL_G0_NC")), \
-  ValueType(0x225, MappedType(&unsupport, "R_AARCH64_TLSLE_ADD_TPREL_HI12")), \
-  ValueType(0x226, MappedType(&unsupport, "R_AARCH64_TLSLE_ADD_TPREL_LO12")), \
-  ValueType(0x227, MappedType(&unsupport, "R_AARCH64_TLSLE_ADD_TPREL_LO12_NC")), \
-  ValueType(0x228, MappedType(&unsupport, "R_AARCH64_TLSLE_LDST8_TPREL_LO12")), \
-  ValueType(0x229, MappedType(&unsupport, "R_AARCH64_TLSLE_LDST8_TPREL_LO12_NC")), \
-  ValueType(0x22a, MappedType(&unsupport, "R_AARCH64_TLSLE_LDST16_TPREL_LO12")), \
-  ValueType(0x22b, MappedType(&unsupport, "R_AARCH64_TLSLE_LDST16_TPREL_LO12_NC")), \
-  ValueType(0x22c, MappedType(&unsupport, "R_AARCH64_TLSLE_LDST32_TPREL_LO12")), \
-  ValueType(0x22d, MappedType(&unsupport, "R_AARCH64_TLSLE_LDST32_TPREL_LO12_NC")), \
-  ValueType(0x22e, MappedType(&unsupport, "R_AARCH64_TLSLE_LDST64_TPREL_LO12")), \
-  ValueType(0x22f, MappedType(&unsupport, "R_AARCH64_TLSLE_LDST64_TPREL_LO12_NC")), \
-  ValueType(0x232, MappedType(&unsupport, "R_AARCH64_TLSDESC_ADR_PAGE")), \
-  ValueType(0x233, MappedType(&unsupport, "R_AARCH64_TLSDESC_LD64_LO12_NC")), \
-  ValueType(0x234, MappedType(&unsupport, "R_AARCH64_TLSDESC_ADD_LO12_NC")), \
-  ValueType(0x239, MappedType(&unsupport, "R_AARCH64_TLSDESC_CALL")), \
-  ValueType(1024,  MappedType(&unsupport, "R_AARCH64_COPY")), \
-  ValueType(1025,  MappedType(&unsupport, "R_AARCH64_GLOB_DAT")), \
-  ValueType(1026,  MappedType(&unsupport, "R_AARCH64_JUMP_SLOT")), \
-  ValueType(1027,  MappedType(&unsupport, "R_AARCH64_RELATIVE")), \
-  ValueType(1028,  MappedType(&unsupport, "R_AARCH64_TLS_DTPREL64")), \
-  ValueType(1029,  MappedType(&unsupport, "R_AARCH64_TLS_DTPMOD64")), \
-  ValueType(1030,  MappedType(&unsupport, "R_AARCH64_TLS_TPREL64")), \
-  ValueType(1031,  MappedType(&unsupport, "R_AARCH64_TLSDESC")), \
-  ValueType(1032,  MappedType(&unsupport, "R_AARCH64_IRELATIVE"))
+  ValueType(0x20b, MappedType(&unsupported, "R_AARCH64_TLSLD_MOVW_DTPREL_G2")), \
+  ValueType(0x20c, MappedType(&unsupported, "R_AARCH64_TLSLD_MOVW_DTPREL_G1")), \
+  ValueType(0x20d, MappedType(&unsupported, "R_AARCH64_TLSLD_MOVW_DTPREL_G1_NC")), \
+  ValueType(0x20e, MappedType(&unsupported, "R_AARCH64_TLSLD_MOVW_DTPREL_G0")), \
+  ValueType(0x20f, MappedType(&unsupported, "R_AARCH64_TLSLD_MOVW_DTPREL_G0_NC")), \
+  ValueType(0x210, MappedType(&unsupported, "R_AARCH64_TLSLD_ADD_DTPREL_HI12")), \
+  ValueType(0x211, MappedType(&unsupported, "R_AARCH64_TLSLD_ADD_DTPREL_LO12")), \
+  ValueType(0x212, MappedType(&unsupported, "R_AARCH64_TLSLD_ADD_DTPREL_LO12_NC")), \
+  ValueType(0x213, MappedType(&unsupported, "R_AARCH64_TLSLD_LDST8_DTPREL_LO12")), \
+  ValueType(0x214, MappedType(&unsupported, "R_AARCH64_TLSLD_LDST8_DTPREL_LO12_NC")), \
+  ValueType(0x215, MappedType(&unsupported, "R_AARCH64_TLSLD_LDST16_DTPREL_LO12")), \
+  ValueType(0x216, MappedType(&unsupported, "R_AARCH64_TLSLD_LDST16_DTPREL_LO12_NC")), \
+  ValueType(0x217, MappedType(&unsupported, "R_AARCH64_TLSLD_LDST32_DTPREL_LO12")), \
+  ValueType(0x218, MappedType(&unsupported, "R_AARCH64_TLSLD_LDST32_DTPREL_LO12_NC")), \
+  ValueType(0x219, MappedType(&unsupported, "R_AARCH64_TLSLD_LDST64_DTPREL_LO12")), \
+  ValueType(0x21a, MappedType(&unsupported, "R_AARCH64_TLSLD_LDST64_DTPREL_LO12_NC")), \
+  ValueType(0x21b, MappedType(&unsupported, "R_AARCH64_TLSIE_MOVW_GOTTPREL_G1")), \
+  ValueType(0x21c, MappedType(&unsupported, "R_AARCH64_TLSIE_MOVW_GOTTPREL_G0_NC")), \
+  ValueType(0x21d, MappedType(&unsupported, "R_AARCH64_TLSIE_ADR_GOTTPREL_PAGE21")), \
+  ValueType(0x21e, MappedType(&unsupported, "R_AARCH64_TLSIE_LD64_GOTTPREL_LO12_NC")), \
+  ValueType(0x21f, MappedType(&unsupported, "R_AARCH64_TLSIE_LD_GOTTPREL_PREL19")), \
+  ValueType(0x220, MappedType(&unsupported, "R_AARCH64_TLSLE_MOVW_TPREL_G2")), \
+  ValueType(0x221, MappedType(&unsupported, "R_AARCH64_TLSLE_MOVW_TPREL_G1")), \
+  ValueType(0x222, MappedType(&unsupported, "R_AARCH64_TLSLE_MOVW_TPREL_G1_NC")), \
+  ValueType(0x223, MappedType(&unsupported, "R_AARCH64_TLSLE_MOVW_TPREL_G0")), \
+  ValueType(0x224, MappedType(&unsupported, "R_AARCH64_TLSLE_MOVW_TPREL_G0_NC")), \
+  ValueType(0x225, MappedType(&unsupported, "R_AARCH64_TLSLE_ADD_TPREL_HI12")), \
+  ValueType(0x226, MappedType(&unsupported, "R_AARCH64_TLSLE_ADD_TPREL_LO12")), \
+  ValueType(0x227, MappedType(&unsupported, "R_AARCH64_TLSLE_ADD_TPREL_LO12_NC")), \
+  ValueType(0x228, MappedType(&unsupported, "R_AARCH64_TLSLE_LDST8_TPREL_LO12")), \
+  ValueType(0x229, MappedType(&unsupported, "R_AARCH64_TLSLE_LDST8_TPREL_LO12_NC")), \
+  ValueType(0x22a, MappedType(&unsupported, "R_AARCH64_TLSLE_LDST16_TPREL_LO12")), \
+  ValueType(0x22b, MappedType(&unsupported, "R_AARCH64_TLSLE_LDST16_TPREL_LO12_NC")), \
+  ValueType(0x22c, MappedType(&unsupported, "R_AARCH64_TLSLE_LDST32_TPREL_LO12")), \
+  ValueType(0x22d, MappedType(&unsupported, "R_AARCH64_TLSLE_LDST32_TPREL_LO12_NC")), \
+  ValueType(0x22e, MappedType(&unsupported, "R_AARCH64_TLSLE_LDST64_TPREL_LO12")), \
+  ValueType(0x22f, MappedType(&unsupported, "R_AARCH64_TLSLE_LDST64_TPREL_LO12_NC")), \
+  ValueType(0x232, MappedType(&unsupported, "R_AARCH64_TLSDESC_ADR_PAGE")), \
+  ValueType(0x233, MappedType(&unsupported, "R_AARCH64_TLSDESC_LD64_LO12_NC")), \
+  ValueType(0x234, MappedType(&unsupported, "R_AARCH64_TLSDESC_ADD_LO12_NC")), \
+  ValueType(0x239, MappedType(&unsupported, "R_AARCH64_TLSDESC_CALL")), \
+  ValueType(1024,  MappedType(&unsupported, "R_AARCH64_COPY")), \
+  ValueType(1025,  MappedType(&unsupported, "R_AARCH64_GLOB_DAT")), \
+  ValueType(1026,  MappedType(&unsupported, "R_AARCH64_JUMP_SLOT")), \
+  ValueType(1027,  MappedType(&unsupported, "R_AARCH64_RELATIVE")), \
+  ValueType(1028,  MappedType(&unsupported, "R_AARCH64_TLS_DTPREL64")), \
+  ValueType(1029,  MappedType(&unsupported, "R_AARCH64_TLS_DTPMOD64")), \
+  ValueType(1030,  MappedType(&unsupported, "R_AARCH64_TLS_TPREL64")), \
+  ValueType(1031,  MappedType(&unsupported, "R_AARCH64_TLSDESC")), \
+  ValueType(1032,  MappedType(&unsupported, "R_AARCH64_IRELATIVE"))
 
 #endif  // TARGET_AARCH64_AARCH64RELOCATIONFUNCTIONS_H_
