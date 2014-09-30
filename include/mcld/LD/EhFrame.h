@@ -13,6 +13,7 @@
 #include <mcld/Fragment/RegionFragment.h>
 #include <mcld/LD/SectionData.h>
 #include <mcld/Support/Allocators.h>
+#include <mcld/Support/Compiler.h>
 
 #include <llvm/ADT/StringRef.h>
 
@@ -37,9 +38,6 @@ class EhFrame {
   explicit EhFrame(LDSection& pSection);
 
   ~EhFrame();
-
-  EhFrame(const EhFrame&);             // DO NOT IMPLEMENT
-  EhFrame& operator=(const EhFrame&);  // DO NOT IMPLEMENT
 
  public:
   enum RecordType { RECORD_UNKNOWN, RECORD_INPUT, RECORD_GENERATED };
@@ -70,8 +68,7 @@ class EhFrame {
     virtual RecordType getRecordType() const { return RECORD_UNKNOWN; }
 
    private:
-    Record(const Record&);             // DO NOT IMPLEMENT
-    Record& operator=(const Record&);  // DO NOT IMPLEMENT
+    DISALLOW_COPY_AND_ASSIGN(Record);
   };
 
   /** \class CIE
@@ -252,6 +249,9 @@ class EhFrame {
   // We need this map to find the corresponding CIE for FDE. Not all FDE point
   // to the nearest CIE.
   CIEMap m_FoundCIEs;
+
+ private:
+  DISALLOW_COPY_AND_ASSIGN(EhFrame);
 };
 
 bool operator==(const EhFrame::CIE&, const EhFrame::CIE&);

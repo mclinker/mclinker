@@ -11,7 +11,7 @@
 
 #include <mcld/ADT/TreeAllocator.h>
 #include <mcld/ADT/TreeBase.h>
-#include <mcld/ADT/Uncopyable.h>
+#include <mcld/Support/Compiler.h>
 
 #include <cstddef>
 #include <iterator>
@@ -250,7 +250,7 @@ struct TreeIterator : public TreeIteratorBase {
  *  @see BinaryTree
  */
 template <class DataType>
-class BinaryTreeBase : private Uncopyable {
+class BinaryTreeBase {
  public:
   typedef Node<DataType> NodeType;
 
@@ -322,6 +322,9 @@ class BinaryTreeBase : private Uncopyable {
 
  protected:
   void clear() { m_Root.clear(); }
+
+ private:
+  DISALLOW_COPY_AND_ASSIGN(BinaryTreeBase);
 };
 
 /** \class BinaryTree

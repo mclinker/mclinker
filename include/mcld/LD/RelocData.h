@@ -12,6 +12,7 @@
 #include <mcld/Config/Config.h>
 #include <mcld/Fragment/Relocation.h>
 #include <mcld/Support/Allocators.h>
+#include <mcld/Support/Compiler.h>
 #include <mcld/Support/GCFactoryListTraits.h>
 
 #include <llvm/ADT/ilist.h>
@@ -37,9 +38,6 @@ class RelocData {
 
   RelocData();
   explicit RelocData(LDSection& pSection);
-
-  RelocData(const RelocData&);             // DO NOT IMPLEMENT
-  RelocData& operator=(const RelocData&);  // DO NOT IMPLEMENT
 
  public:
   typedef llvm::iplist<Relocation, GCFactoryListTraits<Relocation> >
@@ -107,6 +105,9 @@ class RelocData {
  private:
   RelocationListType m_Relocations;
   LDSection* m_pSection;
+
+ private:
+  DISALLOW_COPY_AND_ASSIGN(RelocData);
 };
 
 }  // namespace mcld

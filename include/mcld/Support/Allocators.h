@@ -9,7 +9,7 @@
 #ifndef MCLD_SUPPORT_ALLOCATORS_H_
 #define MCLD_SUPPORT_ALLOCATORS_H_
 #include <mcld/ADT/TypeTraits.h>
-#include <mcld/ADT/Uncopyable.h>
+#include <mcld/Support/Compiler.h>
 
 #include <cstddef>
 #include <cstdlib>
@@ -86,7 +86,7 @@ template <typename DataType>
 size_t Chunk<DataType, 0>::m_Size = 0;
 
 template <typename ChunkType>
-class LinearAllocatorBase : private Uncopyable {
+class LinearAllocatorBase {
  public:
   typedef ChunkType chunk_type;
   typedef typename ChunkType::value_type value_type;
@@ -247,6 +247,9 @@ class LinearAllocatorBase : private Uncopyable {
   chunk_type* m_pRoot;
   chunk_type* m_pCurrent;
   size_type m_AllocatedNum;
+
+ private:
+  DISALLOW_COPY_AND_ASSIGN(LinearAllocatorBase);
 };
 
 /** \class LinearAllocator

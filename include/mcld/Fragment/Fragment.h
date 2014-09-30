@@ -9,6 +9,8 @@
 #ifndef MCLD_FRAGMENT_FRAGMENT_H_
 #define MCLD_FRAGMENT_FRAGMENT_H_
 
+#include <mcld/Support/Compiler.h>
+
 #include <llvm/ADT/ilist_node.h>
 #include <llvm/Support/DataTypes.h>
 
@@ -54,15 +56,14 @@ class Fragment : public llvm::ilist_node<Fragment> {
   }
 
  private:
-  Fragment(const Fragment&);             // DO NOT IMPLEMENT
-  Fragment& operator=(const Fragment&);  // DO NOT IMPLEMENT
-
- private:
   Type m_Kind;
 
   SectionData* m_pParent;
 
   uint64_t m_Offset;
+
+ private:
+  DISALLOW_COPY_AND_ASSIGN(Fragment);
 };
 
 }  // namespace mcld

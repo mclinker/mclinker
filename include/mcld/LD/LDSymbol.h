@@ -9,7 +9,6 @@
 #ifndef MCLD_LD_LDSYMBOL_H_
 #define MCLD_LD_LDSYMBOL_H_
 
-#include <mcld/ADT/Uncopyable.h>
 #include <mcld/Config/Config.h>
 #include <mcld/LD/ResolveInfo.h>
 #include <mcld/Support/Allocators.h>

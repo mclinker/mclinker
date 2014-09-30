@@ -12,6 +12,7 @@
 #include <mcld/Config/Config.h>
 #include <mcld/Fragment/Fragment.h>
 #include <mcld/Support/Allocators.h>
+#include <mcld/Support/Compiler.h>
 
 #include <llvm/ADT/ilist.h>
 #include <llvm/ADT/ilist_node.h>
@@ -30,9 +31,6 @@ class SectionData {
 
   SectionData();
   explicit SectionData(LDSection& pSection);
-
-  SectionData(const SectionData&);             // DO NOT IMPLEMENT
-  SectionData& operator=(const SectionData&);  // DO NOT IMPLEMENT
 
  public:
   typedef llvm::iplist<Fragment> FragmentListType;
@@ -80,6 +78,9 @@ class SectionData {
  private:
   FragmentListType m_Fragments;
   LDSection* m_pSection;
+
+ private:
+  DISALLOW_COPY_AND_ASSIGN(SectionData);
 };
 
 }  // namespace mcld

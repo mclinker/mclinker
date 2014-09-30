@@ -23,7 +23,6 @@ HEADER = $(INCDIR)/AttributeOption.h \
          $(INCDIR)/ADT/TreeAllocator.h \
          $(INCDIR)/ADT/TreeBase.h \
          $(INCDIR)/ADT/TypeTraits.h \
-         $(INCDIR)/ADT/Uncopyable.h \
          $(INCDIR)/Fragment/AlignFragment.h \
          $(INCDIR)/Fragment/FillFragment.h \
          $(INCDIR)/Fragment/Fragment.h \
@@ -135,6 +134,7 @@ HEADER = $(INCDIR)/AttributeOption.h \
          $(INCDIR)/Script/WildcardPattern.h \
          $(INCDIR)/Support/Allocators.h \
          $(INCDIR)/Support/CommandLine.h \
+         $(INCDIR)/Support/Compiler.h \
          $(INCDIR)/Support/CXADemangle.tcc \
          $(INCDIR)/Support/Demangle.h \
          $(INCDIR)/Support/Directory.h \

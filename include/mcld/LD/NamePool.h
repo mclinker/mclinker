@@ -11,10 +11,10 @@
 
 #include <mcld/ADT/HashTable.h>
 #include <mcld/ADT/StringHash.h>
-#include <mcld/ADT/Uncopyable.h>
 #include <mcld/Config/Config.h>
 #include <mcld/LD/ResolveInfo.h>
 #include <mcld/LD/Resolver.h>
+#include <mcld/Support/Compiler.h>
 #include <mcld/Support/GCFactory.h>
 
 #include <llvm/ADT/StringRef.h>
@@ -28,7 +28,7 @@ namespace mcld {
  *
  *  - MCLinker is responsed for creating NamePool.
  */
-class NamePool : private Uncopyable {
+class NamePool {
  public:
   typedef HashTable<ResolveInfo, hash::StringHash<hash::DJB> > Table;
   typedef Table::iterator syminfo_iterator;
@@ -122,6 +122,9 @@ class NamePool : private Uncopyable {
   Resolver* m_pResolver;
   Table m_Table;
   FreeInfoSet m_FreeInfoSet;
+
+ private:
+  DISALLOW_COPY_AND_ASSIGN(NamePool);
 };
 
 }  // namespace mcld
