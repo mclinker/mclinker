@@ -59,5 +59,6 @@ licenses, and/or restrictions:
 
 Program             Directory
 -------             ---------
+cpplint             utils/cpplint
 Google Test         utils/gtest
 zlib                utils/zlib
