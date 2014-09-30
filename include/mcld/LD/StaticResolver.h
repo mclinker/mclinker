@@ -61,38 +61,22 @@ class StaticResolver : public Resolver {
    *  I -> indirect
    */
   enum {
-    U = ResolveInfo::global_flag | ResolveInfo::regular_flag |
-        ResolveInfo::undefine_flag,
-    w_U = ResolveInfo::weak_flag | ResolveInfo::regular_flag |
-          ResolveInfo::undefine_flag,
-    d_U = ResolveInfo::global_flag | ResolveInfo::dynamic_flag |
-          ResolveInfo::undefine_flag,
-    wd_U = ResolveInfo::weak_flag | ResolveInfo::dynamic_flag |
-           ResolveInfo::undefine_flag,
-    D = ResolveInfo::global_flag | ResolveInfo::regular_flag |
-        ResolveInfo::define_flag,
-    w_D = ResolveInfo::weak_flag | ResolveInfo::regular_flag |
-          ResolveInfo::define_flag,
-    d_D = ResolveInfo::global_flag | ResolveInfo::dynamic_flag |
-          ResolveInfo::define_flag,
-    wd_D = ResolveInfo::weak_flag | ResolveInfo::dynamic_flag |
-           ResolveInfo::define_flag,
-    C = ResolveInfo::global_flag | ResolveInfo::regular_flag |
-        ResolveInfo::common_flag,
-    w_C = ResolveInfo::weak_flag | ResolveInfo::regular_flag |
-          ResolveInfo::common_flag,
-    d_C = ResolveInfo::global_flag | ResolveInfo::dynamic_flag |
-          ResolveInfo::common_flag,
-    wd_C = ResolveInfo::weak_flag | ResolveInfo::dynamic_flag |
-           ResolveInfo::common_flag,
-    I = ResolveInfo::global_flag | ResolveInfo::regular_flag |
-        ResolveInfo::indirect_flag,
-    w_I = ResolveInfo::weak_flag | ResolveInfo::regular_flag |
-          ResolveInfo::indirect_flag,
-    d_I = ResolveInfo::global_flag | ResolveInfo::dynamic_flag |
-          ResolveInfo::indirect_flag,
-    wd_I = ResolveInfo::weak_flag | ResolveInfo::dynamic_flag |
-           ResolveInfo::indirect_flag
+    U    = ResolveInfo::global_flag | ResolveInfo::regular_flag | ResolveInfo::undefine_flag,  // NOLINT
+    w_U  = ResolveInfo::weak_flag   | ResolveInfo::regular_flag | ResolveInfo::undefine_flag,  // NOLINT
+    d_U  = ResolveInfo::global_flag | ResolveInfo::dynamic_flag | ResolveInfo::undefine_flag,  // NOLINT
+    wd_U = ResolveInfo::weak_flag   | ResolveInfo::dynamic_flag | ResolveInfo::undefine_flag,  // NOLINT
+    D    = ResolveInfo::global_flag | ResolveInfo::regular_flag | ResolveInfo::define_flag,    // NOLINT
+    w_D  = ResolveInfo::weak_flag   | ResolveInfo::regular_flag | ResolveInfo::define_flag,    // NOLINT
+    d_D  = ResolveInfo::global_flag | ResolveInfo::dynamic_flag | ResolveInfo::define_flag,    // NOLINT
+    wd_D = ResolveInfo::weak_flag   | ResolveInfo::dynamic_flag | ResolveInfo::define_flag,    // NOLINT
+    C    = ResolveInfo::global_flag | ResolveInfo::regular_flag | ResolveInfo::common_flag,    // NOLINT
+    w_C  = ResolveInfo::weak_flag   | ResolveInfo::regular_flag | ResolveInfo::common_flag,    // NOLINT
+    d_C  = ResolveInfo::global_flag | ResolveInfo::dynamic_flag | ResolveInfo::common_flag,    // NOLINT
+    wd_C = ResolveInfo::weak_flag   | ResolveInfo::dynamic_flag | ResolveInfo::common_flag,    // NOLINT
+    I    = ResolveInfo::global_flag | ResolveInfo::regular_flag | ResolveInfo::indirect_flag,  // NOLINT
+    w_I  = ResolveInfo::weak_flag   | ResolveInfo::regular_flag | ResolveInfo::indirect_flag,  // NOLINT
+    d_I  = ResolveInfo::global_flag | ResolveInfo::dynamic_flag | ResolveInfo::indirect_flag,  // NOLINT
+    wd_I = ResolveInfo::weak_flag   | ResolveInfo::dynamic_flag | ResolveInfo::indirect_flag   // NOLINT
   };
 
   enum ORDINATE {
