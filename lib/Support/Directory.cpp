@@ -194,7 +194,7 @@ DirIterator& DirIterator::operator++() {
   return *this;
 }
 
-DirIterator DirIterator::operator++(int) {
+DirIterator DirIterator::operator++(int pIn) {
   DirIterator tmp(*this);
 
   // move forward one step first.
