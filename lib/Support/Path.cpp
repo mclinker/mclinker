@@ -94,8 +94,9 @@ Path& Path::append(const Path& pPath) {
     unsigned int new_size = old_size + pPath.native().size();
 
     m_PathName.resize(new_size);
-    strcpy(const_cast<ValueType*>(m_PathName.data() + old_size),
-           pPath.native().data());
+    ::memcpy(const_cast<ValueType*>(m_PathName.data() + old_size),
+             pPath.native().data(),
+             pPath.native().size());
   } else if (this->native()[this->native().size() - 1] != separator &&
              pPath.native()[0] != separator) {
     // first path is a,second path is b

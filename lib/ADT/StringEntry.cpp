@@ -31,14 +31,14 @@ StringEntry<llvm::StringRef>::~StringEntry() {
 
 void StringEntry<llvm::StringRef>::setValue(llvm::StringRef pVal) {
   char* data = reinterpret_cast<char*>(malloc(pVal.size() + 1));
-  strcpy(data, pVal.data());
+  ::memcpy(data, pVal.data(), pVal.size());
   m_Value = llvm::StringRef(data, pVal.size());
 }
 
 void StringEntry<llvm::StringRef>::setValue(const char* pVal) {
   size_t length = strlen(pVal);
   char* data = reinterpret_cast<char*>(malloc(length + 1));
-  strcpy(data, pVal);
+  ::memcpy(data, pVal, length);
   m_Value = llvm::StringRef(data, length);
 }
 

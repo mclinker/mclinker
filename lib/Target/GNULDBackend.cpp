@@ -877,7 +877,7 @@ void GNULDBackend::emitSymbol32(llvm::ELF::Elf32_Sym& pSym,
   // write out symbol
   if (hasEntryInStrTab(pSymbol)) {
     pSym.st_name = pStrtabsize;
-    strcpy((pStrtab + pStrtabsize), pSymbol.name());
+    ::memcpy((pStrtab + pStrtabsize), pSymbol.name(), pSymbol.nameSize());
   } else {
     pSym.st_name = 0;
   }
@@ -898,7 +898,7 @@ void GNULDBackend::emitSymbol64(llvm::ELF::Elf64_Sym& pSym,
   // write out symbol
   if (hasEntryInStrTab(pSymbol)) {
     pSym.st_name = pStrtabsize;
-    strcpy((pStrtab + pStrtabsize), pSymbol.name());
+    ::memcpy((pStrtab + pStrtabsize), pSymbol.name(), pSymbol.nameSize());
   } else {
     pSym.st_name = 0;
   }
@@ -1057,7 +1057,9 @@ void GNULDBackend::emitDynNamePools(Module& pModule,
   Module::const_lib_iterator lib, libEnd = pModule.lib_end();
   for (lib = pModule.lib_begin(); lib != libEnd; ++lib) {
     if (!(*lib)->attribute()->isAsNeeded() || (*lib)->isNeeded()) {
-      strcpy((strtab + strtabsize), (*lib)->name().c_str());
+      ::memcpy((strtab + strtabsize),
+               (*lib)->name().c_str(),
+               (*lib)->name().size());
       (*dt_need)->setValue(llvm::ELF::DT_NEEDED, strtabsize);
       strtabsize += (*lib)->name().size() + 1;
       ++dt_need;
@@ -1090,7 +1092,9 @@ void GNULDBackend::emitDynNamePools(Module& pModule,
 
   // emit soname
   if (LinkerConfig::DynObj == config().codeGenType()) {
-    strcpy((strtab + strtabsize), config().options().soname().c_str());
+    ::memcpy((strtab + strtabsize),
+             config().options().soname().c_str(),
+             config().options().soname().size());
     strtabsize += config().options().soname().size() + 1;
   }
 }

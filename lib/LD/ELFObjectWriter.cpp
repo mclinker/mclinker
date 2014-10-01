@@ -365,8 +365,9 @@ void ELFObjectWriter::emitShStrTab(const LDSection& pShStrTab,
   size_t shstrsize = 0;
   Module::const_iterator section, sectEnd = pModule.end();
   for (section = pModule.begin(); section != sectEnd; ++section) {
-    strcpy(reinterpret_cast<char*>(data + shstrsize),
-           (*section)->name().data());
+    ::memcpy(reinterpret_cast<char*>(data + shstrsize),
+             (*section)->name().data(),
+             (*section)->name().size());
     shstrsize += (*section)->name().size() + 1;
   }
 }
