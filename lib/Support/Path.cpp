@@ -90,13 +90,8 @@ Path& Path::append(const Path& pPath) {
   // first path is a/,second path is /b
   if (m_PathName[m_PathName.length() - 1] == separator &&
       pPath.native()[0] == separator) {
-    unsigned int old_size = m_PathName.size() - 1;
-    unsigned int new_size = old_size + pPath.native().size();
-
-    m_PathName.resize(new_size);
-    ::memcpy(const_cast<ValueType*>(m_PathName.data() + old_size),
-             pPath.native().data(),
-             pPath.native().size());
+    llvm::StringRef path(pPath.native());
+    m_PathName.append(path.begin() + 1, path.end());
   } else if (this->native()[this->native().size() - 1] != separator &&
              pPath.native()[0] != separator) {
     // first path is a,second path is b
