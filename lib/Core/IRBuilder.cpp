@@ -6,7 +6,6 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include <mcld/Fragment/FragmentRef.h>
 #include <mcld/IRBuilder.h>
 
 #include <mcld/Fragment/FragmentRef.h>

@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_LD_DEBUGSTRING_H
-#define MCLD_LD_DEBUGSTRING_H
+#ifndef MCLD_LD_DEBUGSTRING_H_
+#define MCLD_LD_DEBUGSTRING_H_
 
 #include <mcld/LD/MergedStringTable.h>
 
@@ -22,12 +22,10 @@ class TargetLDBackend;
 /** \class DebugString
  *  \brief DebugString represents the output debug section .debug_str
  */
-class DebugString
-{
-public:
+class DebugString {
+ public:
   DebugString()
-   : m_pSection(NULL)
-  {}
+      : m_pSection(NULL) {}
 
   static DebugString* Create(LDSection& pSection);
 
@@ -54,14 +52,14 @@ public:
   const LDSection* getSection() const { return m_pSection; }
   LDSection*       getSection()       { return m_pSection; }
 
-private:
+ private:
   /// m_Section - the output LDSection of this .debug_str
   LDSection* m_pSection;
 
   MergedStringTable m_StringTable;
 };
 
-} // namespace of mcld
+}  // namespace mcld
 
-#endif
+#endif  // MCLD_LD_DEBUGSTRING_H_
 

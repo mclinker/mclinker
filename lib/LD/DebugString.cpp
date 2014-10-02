@@ -21,14 +21,13 @@
 #include <llvm/Support/Casting.h>
 #include <llvm/Support/ManagedStatic.h>
 
-using namespace mcld;
+namespace mcld {
 
 // DebugString represents the output .debug_str section, which is at most on
 // in each linking
 static llvm::ManagedStatic<DebugString> g_DebugString;
 
-static inline size_t string_length(const char* pStr)
-{
+static inline size_t string_length(const char* pStr) {
   const char* p = pStr;
   size_t len = 0;
   for (; *p != 0; ++p)
@@ -38,8 +37,7 @@ static inline size_t string_length(const char* pStr)
 
 //==========================
 // DebugString
-void DebugString::merge(LDSection& pSection)
-{
+void DebugString::merge(LDSection& pSection) {
   // get the fragment contents
   llvm::StringRef strings;
   SectionData::iterator it, end = pSection.getSectionData()->end();
@@ -60,15 +58,13 @@ void DebugString::merge(LDSection& pSection)
   }
 }
 
-size_t DebugString::computeOffsetSize()
-{
-   size_t size = m_StringTable.finalizeOffset();
-   m_pSection->setSize(size);
-   return size;
+size_t DebugString::computeOffsetSize() {
+  size_t size = m_StringTable.finalizeOffset();
+  m_pSection->setSize(size);
+  return size;
 }
 
-void DebugString::applyOffset(Relocation& pReloc, TargetLDBackend& pBackend)
-{
+void DebugString::applyOffset(Relocation& pReloc, TargetLDBackend& pBackend) {
   // get the refered string
   ResolveInfo* info = pReloc.symInfo();
   // the symbol should point to the first region fragment in the debug
@@ -84,17 +80,16 @@ void DebugString::applyOffset(Relocation& pReloc, TargetLDBackend& pBackend)
 
   // apply the relocation
   pBackend.getRelocator()->applyDebugStringOffset(pReloc,
-       m_StringTable.getOutputOffset(llvm::StringRef(str, string_length(str))));
+      m_StringTable.getOutputOffset(llvm::StringRef(str, string_length(str))));
 }
 
-void DebugString::emit(MemoryRegion& pRegion)
-{
+void DebugString::emit(MemoryRegion& pRegion) {
   return m_StringTable.emit(pRegion);
 }
 
-DebugString* DebugString::Create(LDSection& pSection)
-{
+DebugString* DebugString::Create(LDSection& pSection) {
   g_DebugString->setOutputSection(pSection);
   return &(*g_DebugString);
 }
 
+}  // namespace mcld

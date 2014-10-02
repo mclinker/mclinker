@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_LD_MERGEDSTRINGTABLE_H
-#define MCLD_LD_MERGEDSTRINGTABLE_H
+#ifndef MCLD_LD_MERGEDSTRINGTABLE_H_
+#define MCLD_LD_MERGEDSTRINGTABLE_H_
 
 #include <mcld/Support/MemoryRegion.h>
 
@@ -21,15 +21,13 @@ namespace mcld {
  *  with flag SHF_MERGED and SHF_STRING are mergeable. Every string in
  *  MergedStringTable is unique.
  */
-class MergedStringTable
-{
-public:
+class MergedStringTable {
+ public:
   typedef llvm::StringMap<size_t> StringMapTy;
   typedef StringMapTy::MapEntryTy StringMapEntryTy;
 
-public:
-  MergedStringTable()
-  {}
+ public:
+  MergedStringTable() {}
 
   /// getOrCreateString - get or create a string to the string table
   StringMapEntryTy& getOrCreateString(llvm::StringRef pString);
@@ -49,19 +47,18 @@ public:
 
   size_t getOutputOffset(llvm::StringRef pStr);
 
-private:
+ private:
   typedef StringMapTy::iterator string_map_iterator;
   typedef StringMapTy::const_iterator const_string_map_iterator;
 
-private:
+ private:
   /// m_StringMap - the string pool of this section. It maps the string to the
   /// output offset. The key of this map is the string, and the value is output
   /// offset
   StringMapTy m_StringMap;
-
 };
 
-} // namespace of mcld
+}  // namespace mcld
 
-#endif
+#endif  // MCLD_LD_MERGEDSTRINGTABLE_H_
 
