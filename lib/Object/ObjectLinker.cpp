@@ -438,20 +438,20 @@ void ObjectLinker::addSymbolToOutput(ResolveInfo& pInfo, Module& pModule) {
   // section index. However, .debug_str actually does not need symobl in
   // shrad/executable objects, so it's fine to do so.
   if (pInfo.outSymbol()->hasFragRef() &&
-      LDFileFormat::Ignore ==
-          pInfo.outSymbol()
-              ->fragRef()
-              ->frag()
-              ->getParent()
-              ->getSection()
-              .kind() ||
-      LDFileFormat::DebugString ==
-          pInfo.outSymbol()
-              ->fragRef()
-              ->frag()
-              ->getParent()
-              ->getSection()
-              .kind())
+      (LDFileFormat::Ignore ==
+           pInfo.outSymbol()
+               ->fragRef()
+               ->frag()
+               ->getParent()
+               ->getSection()
+               .kind() ||
+       LDFileFormat::DebugString ==
+           pInfo.outSymbol()
+               ->fragRef()
+               ->frag()
+               ->getParent()
+               ->getSection()
+               .kind()))
     return;
 
   if (pInfo.shouldForceLocal(m_Config))

@@ -213,9 +213,6 @@ class X86_64Relocator : public X86Relocator {
   /// access a function pointer.
   virtual bool mayHaveFunctionPointerAccess(const Relocation& pReloc) const;
 
-<<<<<<< HEAD
- private:
-=======
   /// getDebugStringOffset - get the offset from the relocation target. This is
   /// used to get the debug string offset.
   uint32_t getDebugStringOffset(Relocation& pReloc) const;
@@ -225,7 +222,6 @@ class X86_64Relocator : public X86Relocator {
   void applyDebugStringOffset(Relocation& pReloc, uint32_t pOffset);
 
 private:
->>>>>>> debug info: Get and apply debug string offset in backend relocator
   void scanLocalReloc(Relocation& pReloc,
                       IRBuilder& pBuilder,
                       Module& pModule,
