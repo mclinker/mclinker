@@ -117,10 +117,10 @@ class Relocator {
   /// This is used to set the debug string offset.
   virtual void applyDebugStringOffset(Relocation& pReloc, uint32_t pOffset) = 0;
 
-protected:
+ protected:
   const LinkerConfig& config() const { return m_Config; }
 
-private:
+ private:
   const LinkerConfig& m_Config;
 };
 

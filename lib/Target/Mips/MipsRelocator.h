@@ -176,7 +176,7 @@ class Mips32Relocator : public MipsRelocator {
  public:
   Mips32Relocator(Mips32GNULDBackend& pParent, const LinkerConfig& pConfig);
 
-private:
+ private:
   // MipsRelocator
   void setupRelDynEntry(FragmentRef& pFragRef, ResolveInfo* pSym);
 };

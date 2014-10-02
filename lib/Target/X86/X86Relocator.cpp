@@ -830,21 +830,20 @@ void X86_32Relocator::convertTLSIEtoLE(Relocation& pReloc,
   pReloc.setType(llvm::ELF::R_386_TLS_LE);
 }
 
-uint32_t X86_32Relocator::getDebugStringOffset(Relocation& pReloc) const
-{
+uint32_t X86_32Relocator::getDebugStringOffset(Relocation& pReloc) const {
   if (pReloc.type() != llvm::ELF::R_386_32)
-    error(diag::unsupport_reloc_for_debug_string) << getName(pReloc.type())
-                                                  << "mclinker@googlegroups.com";
+    error(diag::unsupport_reloc_for_debug_string)
+        << getName(pReloc.type()) << "mclinker@googlegroups.com";
+
   if (pReloc.symInfo()->type() == ResolveInfo::Section)
     return pReloc.target();
   else
     return pReloc.symInfo()->outSymbol()->fragRef()->offset() +
-                                              pReloc.target() + pReloc.addend();
+               pReloc.target() + pReloc.addend();
 }
 
 void X86_32Relocator::applyDebugStringOffset(Relocation& pReloc,
-                                             uint32_t pOffset)
-{
+                                             uint32_t pOffset) {
   pReloc.target() = pOffset;
 }
 
@@ -1500,21 +1499,20 @@ void X86_64Relocator::scanGlobalReloc(Relocation& pReloc,
   }  // end switch
 }
 
-uint32_t X86_64Relocator::getDebugStringOffset(Relocation& pReloc) const
-{
+uint32_t X86_64Relocator::getDebugStringOffset(Relocation& pReloc) const {
   if (pReloc.type() != llvm::ELF::R_X86_64_32)
-    error(diag::unsupport_reloc_for_debug_string) << getName(pReloc.type())
-                                                  << "mclinker@googlegroups.com";
+    error(diag::unsupport_reloc_for_debug_string)
+        << getName(pReloc.type()) << "mclinker@googlegroups.com";
+
   if (pReloc.symInfo()->type() == ResolveInfo::Section)
     return pReloc.target();
   else
     return pReloc.symInfo()->outSymbol()->fragRef()->offset() +
-                                              pReloc.target() + pReloc.addend();
+               pReloc.target() + pReloc.addend();
 }
 
 void X86_64Relocator::applyDebugStringOffset(Relocation& pReloc,
-                                             uint32_t pOffset)
-{
+                                             uint32_t pOffset) {
   pReloc.target() = pOffset;
 }
 

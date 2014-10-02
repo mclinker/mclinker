@@ -397,21 +397,20 @@ void AArch64Relocator::scanRelocation(Relocation& pReloc,
     issueUndefRef(pReloc, pSection, pInput);
 }
 
-uint32_t AArch64Relocator::getDebugStringOffset(Relocation& pReloc) const
-{
+uint32_t AArch64Relocator::getDebugStringOffset(Relocation& pReloc) const {
   if (pReloc.type() != llvm::ELF::R_AARCH64_ABS32)
-    error(diag::unsupport_reloc_for_debug_string) << getName(pReloc.type())
-                                                  << "mclinker@googlegroups.com";
+    error(diag::unsupport_reloc_for_debug_string)
+        << getName(pReloc.type()) << "mclinker@googlegroups.com";
+
   if (pReloc.symInfo()->type() == ResolveInfo::Section)
     return pReloc.target();
   else
     return pReloc.symInfo()->outSymbol()->fragRef()->offset() +
-                                              pReloc.target() + pReloc.addend();
+               pReloc.target() + pReloc.addend();
 }
 
 void AArch64Relocator::applyDebugStringOffset(Relocation& pReloc,
-                                              uint32_t pOffset)
-{
+                                              uint32_t pOffset) {
   pReloc.target() = pOffset;
 }
 

@@ -104,7 +104,7 @@ class ARMRelocator : public Relocator {
   /// This is used to set the debug string offset.
   void applyDebugStringOffset(Relocation& pReloc, uint32_t pOffset);
 
-private:
+ private:
   void scanLocalReloc(Relocation& pReloc, const LDSection& pSection);
 
   void scanGlobalReloc(Relocation& pReloc,

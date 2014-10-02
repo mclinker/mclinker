@@ -308,8 +308,7 @@ EhFrame* IRBuilder::CreateEhFrame(LDSection& pSection) {
 }
 
 /// CreateDebugString - To create a DebugString for given pSection
-DebugString* IRBuilder::CreateDebugString(LDSection& pSection)
-{
+DebugString* IRBuilder::CreateDebugString(LDSection& pSection) {
   assert(!pSection.hasDebugString() && "pSection already has debug_str.");
 
   DebugString* debug_str = DebugString::Create(pSection);

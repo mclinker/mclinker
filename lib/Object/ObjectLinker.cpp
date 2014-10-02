@@ -791,9 +791,10 @@ bool ObjectLinker::relocation() {
 
         // apply the relocation aginst symbol on DebugString
         if (info->outSymbol()->hasFragRef() &&
-            info->outSymbol()->fragRef()->frag()->getKind() == Fragment::Region &&
-            info->outSymbol()->fragRef()->frag()->getParent()->getSection().kind() ==
-             LDFileFormat::DebugString) {
+            info->outSymbol()->fragRef()->frag()->getKind()
+                == Fragment::Region &&
+            info->outSymbol()->fragRef()->frag()->getParent()->getSection()
+                .kind() == LDFileFormat::DebugString) {
           assert(debug_str_sect != NULL);
           assert(debug_str_sect->hasDebugString());
           debug_str_sect->getDebugString()->applyOffset(*relocation,

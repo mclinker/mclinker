@@ -114,7 +114,7 @@ class HexagonRelocator : public Relocator {
   /// This is used to set the debug string offset.
   void applyDebugStringOffset(Relocation& pReloc, uint32_t pOffset) {}
 
-protected:
+ protected:
   /// addCopyReloc - add a copy relocation into .rela.dyn for pSym
   /// @param pSym - A resolved copy symbol that defined in BSS section
   void addCopyReloc(ResolveInfo& pSym, HexagonLDBackend& pTarget);

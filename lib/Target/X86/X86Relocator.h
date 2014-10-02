@@ -156,7 +156,7 @@ class X86_32Relocator : public X86Relocator {
   /// This is used to set the debug string offset.
   void applyDebugStringOffset(Relocation& pReloc, uint32_t pOffset);
 
-private:
+ private:
   void scanLocalReloc(Relocation& pReloc,
                       IRBuilder& pBuilder,
                       Module& pModule,
@@ -221,7 +221,7 @@ class X86_64Relocator : public X86Relocator {
   /// This is used to set the debug string offset.
   void applyDebugStringOffset(Relocation& pReloc, uint32_t pOffset);
 
-private:
+ private:
   void scanLocalReloc(Relocation& pReloc,
                       IRBuilder& pBuilder,
                       Module& pModule,

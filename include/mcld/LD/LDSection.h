@@ -170,7 +170,7 @@ class LDSection {
 
   void setIndex(size_t pIndex) { m_Index = pIndex; }
 
-private:
+ private:
   union Data {
     SectionData* sect_data;
     RelocData*   reloc_data;
