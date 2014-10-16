@@ -46,6 +46,10 @@ class ZOption {
  public:
   ZOption();
 
+  explicit ZOption(Kind pKind);
+
+  ZOption(Kind pKind, uint64_t pPageSize);
+
   Kind kind() const { return m_Kind; }
 
   void setKind(Kind pKind) { m_Kind = pKind; }

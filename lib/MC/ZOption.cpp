@@ -13,7 +13,14 @@ namespace mcld {
 //===----------------------------------------------------------------------===//
 // ZOption
 //===----------------------------------------------------------------------===//
-ZOption::ZOption() : m_Kind(Unknown), m_PageSize(0x0) {
+ZOption::ZOption() : ZOption(Unknown) {
+}
+
+ZOption::ZOption(Kind pKind) : ZOption(pKind, 0x0) {
+}
+
+ZOption::ZOption(Kind pKind, uint64_t pPageSize)
+    : m_Kind(pKind), m_PageSize(pPageSize) {
 }
 
 }  // namespace mcld
