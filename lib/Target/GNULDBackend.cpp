@@ -1344,8 +1344,15 @@ unsigned int GNULDBackend::getSectionOrder(const LDSection& pSectHdr) const {
               &pSectHdr == &file_format->getJCR() ||
               &pSectHdr == &file_format->getDataRelRo())
             return SHO_RELRO;
+
           if (&pSectHdr == &file_format->getDataRelRoLocal())
             return SHO_RELRO_LOCAL;
+
+          // Make special sections that end with .rel.ro suffix as RELRO.
+          llvm::StringRef name(pSectHdr.name());
+          if (name.endswith(".rel.ro")) {
+            return SHO_RELRO;
+          }
         }
         if ((pSectHdr.flag() & llvm::ELF::SHF_TLS) != 0x0) {
           return SHO_TLS_DATA;
