@@ -300,6 +300,9 @@ bool ObjectLinker::readRelocations() {
 
 /// mergeSections - put allinput sections into output sections
 bool ObjectLinker::mergeSections() {
+  // run the target-dependent hooks before merging sections
+  m_LDBackend.preMergeSections(*m_pModule);
+
   // Set up input/output from ldscript requirement if any
   {
     RpnEvaluator evaluator(*m_pModule, m_LDBackend);
@@ -429,6 +432,9 @@ bool ObjectLinker::mergeSections() {
       }
     }  // for each output section description
   }
+
+  // run the target-dependent hooks after merging sections
+  m_LDBackend.postMergeSections(*m_pModule);
 
   return true;
 }
