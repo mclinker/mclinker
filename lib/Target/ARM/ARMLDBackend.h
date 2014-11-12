@@ -112,6 +112,12 @@ class ARMGNULDBackend : public GNULDBackend {
   /// finalizeTargetSymbols - finalize the symbol value
   bool finalizeTargetSymbols();
 
+  /// preMergeSections - hooks to be executed before merging sections
+  virtual void preMergeSections(Module& pModule);
+
+  /// postMergeSections - hooks to be executed after merging sections
+  virtual void postMergeSections(Module& pModule);
+
   /// mergeSection - merge target dependent sections
   bool mergeSection(Module& pModule, const Input& pInput, LDSection& pSection);
 
