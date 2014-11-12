@@ -395,6 +395,15 @@ bool ARMGNULDBackend::finalizeTargetSymbols() {
   return true;
 }
 
+
+/// preMergeSections - hooks to be executed before merging sections
+void ARMGNULDBackend::preMergeSections(Module& pModule) {
+}
+
+/// postMergeSections - hooks to be executed after merging sections
+void ARMGNULDBackend::postMergeSections(Module& pModule) {
+}
+
 bool ARMGNULDBackend::mergeSection(Module& pModule,
                                    const Input& pInput,
                                    LDSection& pSection) {
