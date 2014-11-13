@@ -9,6 +9,7 @@
 #ifndef MCLD_LD_RELOCDATA_H_
 #define MCLD_LD_RELOCDATA_H_
 
+#include "mcld/ADT/ilist_sort.h"
 #include "mcld/Config/Config.h"
 #include "mcld/Fragment/Relocation.h"
 #include "mcld/Support/Allocators.h"
@@ -88,18 +89,7 @@ class RelocData {
 
   template <class Comparator>
   void sort(Comparator pComparator) {
-    /* FIXME: use llvm::iplist::sort */
-    std::list<Relocation*> relocs;
-    for (iterator it = begin(), ie = end(); it != ie; ++it)
-      relocs.push_back(it);
-    relocs.sort(pComparator);
-    m_Relocations.clear();
-    for (std::list<Relocation*>::iterator it = relocs.begin(),
-                                          ie = relocs.end();
-         it != ie;
-         ++it) {
-      m_Relocations.push_back(*it);
-    }
+    mcld::sort(m_Relocations, pComparator);
   }
 
  private:

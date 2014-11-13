@@ -2925,18 +2925,18 @@ bool GNULDBackend::DynsymCompare::operator()(const LDSymbol* X,
   return !needGNUHash(*X) && needGNUHash(*Y);
 }
 
-bool GNULDBackend::RelocCompare::operator()(const Relocation* X,
-                                            const Relocation* Y) const {
+bool GNULDBackend::RelocCompare::operator()(const Relocation& X,
+                                            const Relocation& Y) const {
   // 1. compare if relocation is relative
-  if (X->symInfo() == NULL) {
-    if (Y->symInfo() != NULL)
+  if (X.symInfo() == NULL) {
+    if (Y.symInfo() != NULL)
       return true;
-  } else if (Y->symInfo() == NULL) {
+  } else if (Y.symInfo() == NULL) {
     return false;
   } else {
     // 2. compare the symbol index
-    size_t symIdxX = m_Backend.getSymbolIdx(X->symInfo()->outSymbol());
-    size_t symIdxY = m_Backend.getSymbolIdx(Y->symInfo()->outSymbol());
+    size_t symIdxX = m_Backend.getSymbolIdx(X.symInfo()->outSymbol());
+    size_t symIdxY = m_Backend.getSymbolIdx(Y.symInfo()->outSymbol());
     if (symIdxX < symIdxY)
       return true;
     if (symIdxX > symIdxY)
@@ -2944,21 +2944,21 @@ bool GNULDBackend::RelocCompare::operator()(const Relocation* X,
   }
 
   // 3. compare the relocation address
-  if (X->place() < Y->place())
+  if (X.place() < Y.place())
     return true;
-  if (X->place() > Y->place())
+  if (X.place() > Y.place())
     return false;
 
   // 4. compare the relocation type
-  if (X->type() < Y->type())
+  if (X.type() < Y.type())
     return true;
-  if (X->type() > Y->type())
+  if (X.type() > Y.type())
     return false;
 
   // 5. compare the addend
-  if (X->addend() < Y->addend())
+  if (X.addend() < Y.addend())
     return true;
-  if (X->addend() > Y->addend())
+  if (X.addend() > Y.addend())
     return false;
 
   return false;
