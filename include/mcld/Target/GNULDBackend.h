@@ -473,7 +473,7 @@ class GNULDBackend : public TargetLDBackend {
   // for -z combreloc
   struct RelocCompare {
     explicit RelocCompare(const GNULDBackend& pBackend) : m_Backend(pBackend) {}
-    bool operator()(const Relocation* X, const Relocation* Y) const;
+    bool operator()(const Relocation& X, const Relocation& Y) const;
 
    private:
     const GNULDBackend& m_Backend;
