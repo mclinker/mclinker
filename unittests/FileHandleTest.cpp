@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include <mcld/Support/FileHandle.h>
-#include <mcld/Support/Path.h>
+#include "mcld/Support/FileHandle.h"
+#include "mcld/Support/Path.h"
 #include <fcntl.h>
 #include <errno.h>
 #include "FileHandleTest.h"

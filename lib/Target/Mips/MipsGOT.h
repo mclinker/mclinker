@@ -8,10 +8,10 @@
 //===----------------------------------------------------------------------===//
 #ifndef TARGET_MIPS_MIPSGOT_H_
 #define TARGET_MIPS_MIPSGOT_H_
-#include <mcld/ADT/SizeTraits.h>
-#include <mcld/Fragment/Relocation.h>
-#include <mcld/Support/MemoryRegion.h>
-#include <mcld/Target/GOT.h>
+#include "mcld/ADT/SizeTraits.h"
+#include "mcld/Fragment/Relocation.h"
+#include "mcld/Support/MemoryRegion.h"
+#include "mcld/Target/GOT.h"
 
 #include <llvm/ADT/DenseMap.h>
 #include <llvm/ADT/DenseSet.h>

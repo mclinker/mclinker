@@ -6,10 +6,10 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include <mcld/Target/ELFEmulation.h>
-#include <mcld/LinkerScript.h>
-#include <mcld/LinkerConfig.h>
-#include <mcld/Script/InputSectDesc.h>
+#include "mcld/Target/ELFEmulation.h"
+#include "mcld/LinkerScript.h"
+#include "mcld/LinkerConfig.h"
+#include "mcld/Script/InputSectDesc.h"
 
 #include <llvm/Support/Host.h>
 

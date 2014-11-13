@@ -9,7 +9,7 @@
 #ifndef MCLD_SCRIPT_OUTPUTARCHCMD_H_
 #define MCLD_SCRIPT_OUTPUTARCHCMD_H_
 
-#include <mcld/Script/ScriptCommand.h>
+#include "mcld/Script/ScriptCommand.h"
 
 #include <string>
 

@@ -10,8 +10,8 @@
 #include "AArch64PLT.h"
 #include "AArch64RelocationHelpers.h"
 
-#include <mcld/LD/LDSection.h>
-#include <mcld/Support/MsgHandling.h>
+#include "mcld/LD/LDSection.h"
+#include "mcld/Support/MsgHandling.h"
 
 #include <llvm/Support/Casting.h>
 

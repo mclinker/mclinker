@@ -9,9 +9,9 @@
 #ifndef TARGET_ARM_ARMPLT_H_
 #define TARGET_ARM_ARMPLT_H_
 
-#include <mcld/Target/GOT.h>
-#include <mcld/Target/PLT.h>
-#include <mcld/Support/MemoryRegion.h>
+#include "mcld/Target/GOT.h"
+#include "mcld/Target/PLT.h"
+#include "mcld/Support/MemoryRegion.h"
 
 const uint32_t arm_plt0[] = {
     0xe52de004,  // str   lr, [sp, #-4]!

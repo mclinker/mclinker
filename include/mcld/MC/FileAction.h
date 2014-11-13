@@ -8,8 +8,8 @@
 //===----------------------------------------------------------------------===//
 #ifndef MCLD_MC_FILEACTION_H_
 #define MCLD_MC_FILEACTION_H_
-#include <mcld/MC/InputAction.h>
-#include <mcld/Support/FileHandle.h>
+#include "mcld/MC/InputAction.h"
+#include "mcld/Support/FileHandle.h"
 
 namespace mcld {
 

@@ -9,9 +9,9 @@
 #ifndef MCLD_LD_ELFREADERIF_H_
 #define MCLD_LD_ELFREADERIF_H_
 
-#include <mcld/LinkerConfig.h>
-#include <mcld/Support/MsgHandling.h>
-#include <mcld/Target/GNULDBackend.h>
+#include "mcld/LinkerConfig.h"
+#include "mcld/Support/MsgHandling.h"
+#include "mcld/Target/GNULDBackend.h"
 
 #include <llvm/ADT/StringRef.h>
 #include <llvm/Support/ELF.h>

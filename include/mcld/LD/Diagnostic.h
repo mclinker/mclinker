@@ -9,7 +9,7 @@
 #ifndef MCLD_LD_DIAGNOSTIC_H_
 #define MCLD_LD_DIAGNOSTIC_H_
 
-#include <mcld/LD/DiagnosticEngine.h>
+#include "mcld/LD/DiagnosticEngine.h"
 
 #include <cassert>
 #include <string>

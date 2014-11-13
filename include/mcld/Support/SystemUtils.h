@@ -9,7 +9,7 @@
 #ifndef MCLD_SUPPORT_SYSTEMUTILS_H_
 #define MCLD_SUPPORT_SYSTEMUTILS_H_
 
-#include <mcld/Config/Config.h>
+#include "mcld/Config/Config.h"
 
 #include <llvm/Support/DataTypes.h>
 

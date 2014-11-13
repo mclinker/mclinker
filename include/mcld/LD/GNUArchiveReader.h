@@ -9,8 +9,8 @@
 #ifndef MCLD_LD_GNUARCHIVEREADER_H_
 #define MCLD_LD_GNUARCHIVEREADER_H_
 
-#include <mcld/LD/Archive.h>
-#include <mcld/LD/ArchiveReader.h>
+#include "mcld/LD/Archive.h"
+#include "mcld/LD/ArchiveReader.h"
 
 namespace mcld {
 

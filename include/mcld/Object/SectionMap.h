@@ -9,9 +9,9 @@
 #ifndef MCLD_OBJECT_SECTIONMAP_H_
 #define MCLD_OBJECT_SECTIONMAP_H_
 
-#include <mcld/Script/Assignment.h>
-#include <mcld/Script/InputSectDesc.h>
-#include <mcld/Script/OutputSectDesc.h>
+#include "mcld/Script/Assignment.h"
+#include "mcld/Script/InputSectDesc.h"
+#include "mcld/Script/OutputSectDesc.h"
 
 #include <llvm/Support/DataTypes.h>
 

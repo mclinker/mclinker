@@ -7,12 +7,12 @@
 //
 //===----------------------------------------------------------------------===//
 
-#include <mcld/LinkerConfig.h>
-#include <mcld/IRBuilder.h>
-#include <mcld/Support/MsgHandling.h>
-#include <mcld/LD/LDSymbol.h>
-#include <mcld/LD/ELFFileFormat.h>
-#include <mcld/Object/ObjectBuilder.h>
+#include "mcld/LinkerConfig.h"
+#include "mcld/IRBuilder.h"
+#include "mcld/Support/MsgHandling.h"
+#include "mcld/LD/LDSymbol.h"
+#include "mcld/LD/ELFFileFormat.h"
+#include "mcld/Object/ObjectBuilder.h"
 
 #include "AArch64Relocator.h"
 #include "AArch64RelocationFunctions.h"

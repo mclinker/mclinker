@@ -9,12 +9,12 @@
 #include "ARMRelocator.h"
 #include "ARMRelocationFunctions.h"
 
-#include <mcld/IRBuilder.h>
-#include <mcld/LinkerConfig.h>
-#include <mcld/LD/ELFFileFormat.h>
-#include <mcld/LD/LDSymbol.h>
-#include <mcld/Object/ObjectBuilder.h>
-#include <mcld/Support/MsgHandling.h>
+#include "mcld/IRBuilder.h"
+#include "mcld/LinkerConfig.h"
+#include "mcld/LD/ELFFileFormat.h"
+#include "mcld/LD/LDSymbol.h"
+#include "mcld/Object/ObjectBuilder.h"
+#include "mcld/Support/MsgHandling.h"
 
 #include <llvm/ADT/Twine.h>
 #include <llvm/Support/DataTypes.h>

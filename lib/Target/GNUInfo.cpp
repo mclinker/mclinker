@@ -6,7 +6,7 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include <mcld/Target/GNUInfo.h>
+#include "mcld/Target/GNUInfo.h"
 
 namespace mcld {
 

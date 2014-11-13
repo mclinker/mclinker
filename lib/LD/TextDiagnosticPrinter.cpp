@@ -6,9 +6,9 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include <mcld/LD/TextDiagnosticPrinter.h>
+#include "mcld/LD/TextDiagnosticPrinter.h"
 
-#include <mcld/LinkerConfig.h>
+#include "mcld/LinkerConfig.h"
 
 #include <llvm/Support/Signals.h>
 

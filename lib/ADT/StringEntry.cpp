@@ -6,7 +6,7 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include <mcld/ADT/StringEntry.h>
+#include "mcld/ADT/StringEntry.h"
 
 namespace mcld {
 

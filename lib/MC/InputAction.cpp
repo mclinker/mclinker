@@ -6,7 +6,7 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include <mcld/MC/InputAction.h>
+#include "mcld/MC/InputAction.h"
 
 namespace mcld {
 

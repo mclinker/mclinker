@@ -8,8 +8,8 @@
 //===----------------------------------------------------------------------===//
 #ifndef MCLD_LD_ELFOBJECTWRITER_H_
 #define MCLD_LD_ELFOBJECTWRITER_H_
-#include <mcld/LD/ObjectWriter.h>
-#include <mcld/Support/FileOutputBuffer.h>
+#include "mcld/LD/ObjectWriter.h"
+#include "mcld/Support/FileOutputBuffer.h"
 
 #include <cassert>
 

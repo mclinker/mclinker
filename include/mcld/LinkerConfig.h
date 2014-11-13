@@ -9,12 +9,12 @@
 #ifndef MCLD_LINKERCONFIG_H_
 #define MCLD_LINKERCONFIG_H_
 
-#include <llvm/ADT/Triple.h>
+#include "mcld/GeneralOptions.h"
+#include "mcld/TargetOptions.h"
+#include "mcld/AttributeOption.h"
+#include "mcld/Support/Path.h"
 
-#include <mcld/GeneralOptions.h>
-#include <mcld/TargetOptions.h>
-#include <mcld/AttributeOption.h>
-#include <mcld/Support/Path.h>
+#include <llvm/ADT/Triple.h>
 
 #include <string>
 

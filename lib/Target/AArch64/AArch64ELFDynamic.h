@@ -9,7 +9,7 @@
 #ifndef TARGET_AARCH64_AARCH64ELFDYNAMIC_H_
 #define TARGET_AARCH64_AARCH64ELFDYNAMIC_H_
 
-#include <mcld/Target/ELFDynamic.h>
+#include "mcld/Target/ELFDynamic.h"
 
 namespace mcld {
 

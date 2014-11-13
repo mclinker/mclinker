@@ -9,8 +9,8 @@
 #ifndef TARGET_MIPS_MIPSPLT_H_
 #define TARGET_MIPS_MIPSPLT_H_
 
-#include <mcld/Support/MemoryRegion.h>
-#include <mcld/Target/PLT.h>
+#include "mcld/Support/MemoryRegion.h"
+#include "mcld/Target/PLT.h"
 
 namespace mcld {
 

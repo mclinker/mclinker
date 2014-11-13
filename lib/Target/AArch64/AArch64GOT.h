@@ -9,8 +9,8 @@
 #ifndef TARGET_AARCH64_AARCH64GOT_H_
 #define TARGET_AARCH64_AARCH64GOT_H_
 
-#include <mcld/Support/MemoryRegion.h>
-#include <mcld/Target/GOT.h>
+#include "mcld/Support/MemoryRegion.h"
+#include "mcld/Target/GOT.h"
 
 #include <llvm/ADT/DenseMap.h>
 

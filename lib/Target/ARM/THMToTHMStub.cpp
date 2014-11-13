@@ -10,9 +10,9 @@
 #include "THMToTHMStub.h"
 #include "ARMLDBackend.h"
 
-#include <mcld/Fragment/Relocation.h>
-#include <mcld/LD/LDSymbol.h>
-#include <mcld/LD/ResolveInfo.h>
+#include "mcld/Fragment/Relocation.h"
+#include "mcld/LD/LDSymbol.h"
+#include "mcld/LD/ResolveInfo.h"
 
 #include <llvm/Support/ELF.h>
 

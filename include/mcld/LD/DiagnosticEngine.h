@@ -8,7 +8,7 @@
 //===----------------------------------------------------------------------===//
 #ifndef MCLD_LD_DIAGNOSTICENGINE_H_
 #define MCLD_LD_DIAGNOSTICENGINE_H_
-#include <mcld/LD/DiagnosticInfos.h>
+#include "mcld/LD/DiagnosticInfos.h"
 
 #include <llvm/Support/DataTypes.h>
 

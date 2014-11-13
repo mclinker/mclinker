@@ -9,7 +9,7 @@
 #ifndef TARGET_ARM_ARMTOARMSTUB_H_
 #define TARGET_ARM_ARMTOARMSTUB_H_
 
-#include <mcld/Fragment/Stub.h>
+#include "mcld/Fragment/Stub.h"
 #include <llvm/Support/DataTypes.h>
 #include <string>
 #include <vector>

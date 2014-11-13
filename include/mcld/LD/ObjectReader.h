@@ -8,10 +8,10 @@
 //===----------------------------------------------------------------------===//
 #ifndef MCLD_LD_OBJECTREADER_H_
 #define MCLD_LD_OBJECTREADER_H_
-#include <mcld/ADT/HashTable.h>
-#include <mcld/ADT/StringHash.h>
-#include <mcld/LD/LDReader.h>
-#include <mcld/LD/ResolveInfo.h>
+#include "mcld/ADT/HashTable.h"
+#include "mcld/ADT/StringHash.h"
+#include "mcld/LD/LDReader.h"
+#include "mcld/LD/ResolveInfo.h"
 
 namespace mcld {
 

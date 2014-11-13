@@ -6,9 +6,9 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include <mcld/LD/NamePool.h>
+#include "mcld/LD/NamePool.h"
 
-#include <mcld/LD/StaticResolver.h>
+#include "mcld/LD/StaticResolver.h"
 
 #include <llvm/Support/raw_ostream.h>
 

@@ -9,9 +9,9 @@
 #ifndef MCLD_SCRIPT_FILETOKEN_H_
 #define MCLD_SCRIPT_FILETOKEN_H_
 
-#include <mcld/Config/Config.h>
-#include <mcld/Script/InputToken.h>
-#include <mcld/Support/Allocators.h>
+#include "mcld/Config/Config.h"
+#include "mcld/Script/InputToken.h"
+#include "mcld/Support/Allocators.h"
 
 namespace mcld {
 

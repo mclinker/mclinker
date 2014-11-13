@@ -9,7 +9,7 @@
 #ifndef TARGET_HEXAGON_HEXAGONELFDYNAMIC_H_
 #define TARGET_HEXAGON_HEXAGONELFDYNAMIC_H_
 
-#include <mcld/Target/ELFDynamic.h>
+#include "mcld/Target/ELFDynamic.h"
 
 namespace mcld {
 

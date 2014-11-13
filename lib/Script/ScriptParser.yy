@@ -9,16 +9,16 @@
 
 %{
 /* C/C++ Declarations */
-#include <mcld/Script/ScriptReader.h>
-#include <mcld/Script/ScriptScanner.h>
-#include <mcld/Script/Operand.h>
-#include <mcld/Script/Operator.h>
-#include <mcld/Script/Assignment.h>
-#include <mcld/Script/RpnExpr.h>
-#include <mcld/Script/FileToken.h>
-#include <mcld/Script/NameSpec.h>
-#include <mcld/Script/WildcardPattern.h>
-#include <mcld/Support/MsgHandling.h>
+#include "mcld/Script/ScriptReader.h"
+#include "mcld/Script/ScriptScanner.h"
+#include "mcld/Script/Operand.h"
+#include "mcld/Script/Operator.h"
+#include "mcld/Script/Assignment.h"
+#include "mcld/Script/RpnExpr.h"
+#include "mcld/Script/FileToken.h"
+#include "mcld/Script/NameSpec.h"
+#include "mcld/Script/WildcardPattern.h"
+#include "mcld/Support/MsgHandling.h"
 using namespace mcld;
 
 #undef yylex
@@ -26,10 +26,10 @@ using namespace mcld;
 %}
 
 %code requires {
-#include <mcld/Script/StrToken.h>
-#include <mcld/Script/StringList.h>
-#include <mcld/Script/OutputSectDesc.h>
-#include <mcld/Script/InputSectDesc.h>
+#include "mcld/Script/StrToken.h"
+#include "mcld/Script/StringList.h"
+#include "mcld/Script/OutputSectDesc.h"
+#include "mcld/Script/InputSectDesc.h"
 #include <llvm/Support/DataTypes.h>
 
 using namespace mcld;

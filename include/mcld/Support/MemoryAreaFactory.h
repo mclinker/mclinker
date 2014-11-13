@@ -8,10 +8,10 @@
 //===----------------------------------------------------------------------===//
 #ifndef MCLD_SUPPORT_MEMORYAREAFACTORY_H_
 #define MCLD_SUPPORT_MEMORYAREAFACTORY_H_
-#include <mcld/Support/FileHandle.h>
-#include <mcld/Support/GCFactory.h>
-#include <mcld/Support/MemoryArea.h>
-#include <mcld/Support/Path.h>
+#include "mcld/Support/FileHandle.h"
+#include "mcld/Support/GCFactory.h"
+#include "mcld/Support/MemoryArea.h"
+#include "mcld/Support/Path.h"
 
 #include <llvm/ADT/StringMap.h>
 

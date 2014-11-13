@@ -6,12 +6,12 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include <mcld/Script/AssertCmd.h>
+#include "mcld/Script/AssertCmd.h"
 
-#include <mcld/LinkerScript.h>
-#include <mcld/Module.h>
-#include <mcld/Script/RpnExpr.h>
-#include <mcld/Support/raw_ostream.h>
+#include "mcld/LinkerScript.h"
+#include "mcld/Module.h"
+#include "mcld/Script/RpnExpr.h"
+#include "mcld/Support/raw_ostream.h"
 
 namespace mcld {
 

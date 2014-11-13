@@ -8,15 +8,15 @@
 //===----------------------------------------------------------------------===//
 #include "LinkerTest.h"
 
-#include <mcld/Environment.h>
-#include <mcld/Module.h>
-#include <mcld/InputTree.h>
-#include <mcld/IRBuilder.h>
-#include <mcld/Linker.h>
-#include <mcld/LinkerConfig.h>
-#include <mcld/LinkerScript.h>
+#include "mcld/Environment.h"
+#include "mcld/Module.h"
+#include "mcld/InputTree.h"
+#include "mcld/IRBuilder.h"
+#include "mcld/Linker.h"
+#include "mcld/LinkerConfig.h"
+#include "mcld/LinkerScript.h"
 
-#include <mcld/Support/Path.h>
+#include "mcld/Support/Path.h"
 
 #include <llvm/Support/ELF.h>
 

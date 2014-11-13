@@ -8,7 +8,7 @@
 //===----------------------------------------------------------------------===//
 #ifndef MCLD_LD_ELFDYNOBJFILEFORMAT_H_
 #define MCLD_LD_ELFDYNOBJFILEFORMAT_H_
-#include <mcld/LD/ELFFileFormat.h>
+#include "mcld/LD/ELFFileFormat.h"
 
 namespace mcld {
 

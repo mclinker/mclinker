@@ -6,7 +6,7 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include <mcld/LD/ResolveInfo.h>
+#include "mcld/LD/ResolveInfo.h"
 #include "MipsLA25Stub.h"
 #include "MipsLDBackend.h"
 

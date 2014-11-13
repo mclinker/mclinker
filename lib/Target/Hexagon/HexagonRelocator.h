@@ -9,10 +9,10 @@
 #ifndef TARGET_HEXAGON_HEXAGONRELOCATOR_H_
 #define TARGET_HEXAGON_HEXAGONRELOCATOR_H_
 
-#include <mcld/LD/Relocator.h>
-#include <mcld/Target/GOT.h>
-#include <mcld/Target/PLT.h>
-#include <mcld/Target/KeyEntryMap.h>
+#include "mcld/LD/Relocator.h"
+#include "mcld/Target/GOT.h"
+#include "mcld/Target/PLT.h"
+#include "mcld/Target/KeyEntryMap.h"
 #include "HexagonLDBackend.h"
 
 namespace mcld {

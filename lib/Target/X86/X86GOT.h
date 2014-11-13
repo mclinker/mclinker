@@ -9,7 +9,7 @@
 #ifndef TARGET_X86_X86GOT_H_
 #define TARGET_X86_X86GOT_H_
 
-#include <mcld/Target/GOT.h>
+#include "mcld/Target/GOT.h"
 
 namespace mcld {
 

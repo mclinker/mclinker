@@ -8,8 +8,8 @@
 //===----------------------------------------------------------------------===//
 #ifndef MCLD_SUPPORT_COMMANDLINE_H_
 #define MCLD_SUPPORT_COMMANDLINE_H_
-#include <mcld/MC/ZOption.h>
-#include <mcld/Support/FileSystem.h>
+#include "mcld/MC/ZOption.h"
+#include "mcld/Support/FileSystem.h"
 
 #include <llvm/ADT/StringRef.h>
 #include <llvm/ADT/Triple.h>

@@ -8,9 +8,9 @@
 //===----------------------------------------------------------------------===//
 #include "FragmentTest.h"
 
-#include <mcld/Fragment/Fragment.h>
-#include <mcld/LD/SectionData.h>
-#include <mcld/LD/LDSection.h>
+#include "mcld/Fragment/Fragment.h"
+#include "mcld/LD/SectionData.h"
+#include "mcld/LD/LDSection.h"
 
 using namespace mcld;
 using namespace mcldtest;

@@ -6,7 +6,7 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include <mcld/Support/Allocators.h>
+#include "mcld/Support/Allocators.h"
 #include "RTLinearAllocatorTest.h"
 
 using namespace mcld;

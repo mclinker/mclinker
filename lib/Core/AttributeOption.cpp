@@ -6,7 +6,7 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include <mcld/AttributeOption.h>
+#include "mcld/AttributeOption.h"
 
 namespace mcld {
 

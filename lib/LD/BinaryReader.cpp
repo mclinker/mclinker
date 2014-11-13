@@ -6,7 +6,7 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include <mcld/LD/BinaryReader.h>
+#include "mcld/LD/BinaryReader.h"
 
 namespace mcld {
 

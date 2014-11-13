@@ -6,9 +6,9 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include <mcld/MC/ContextFactory.h>
+#include "mcld/MC/ContextFactory.h"
 
-#include <mcld/LD/LDContext.h>
+#include "mcld/LD/LDContext.h"
 
 namespace mcld {
 

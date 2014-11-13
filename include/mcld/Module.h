@@ -13,10 +13,10 @@
 #ifndef MCLD_MODULE_H_
 #define MCLD_MODULE_H_
 
-#include <mcld/InputTree.h>
-#include <mcld/LD/NamePool.h>
-#include <mcld/LD/SectionSymbolSet.h>
-#include <mcld/MC/SymbolCategory.h>
+#include "mcld/InputTree.h"
+#include "mcld/LD/NamePool.h"
+#include "mcld/LD/SectionSymbolSet.h"
+#include "mcld/MC/SymbolCategory.h"
 
 #include <vector>
 #include <string>

@@ -6,7 +6,7 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include <mcld/Script/InputToken.h>
+#include "mcld/Script/InputToken.h"
 
 namespace mcld {
 

@@ -9,8 +9,8 @@
 #ifndef MCLD_TARGET_ELFATTRIBUTE_H_
 #define MCLD_TARGET_ELFATTRIBUTE_H_
 
-#include <mcld/Support/MemoryRegion.h>
-#include <mcld/Target/ELFAttributeData.h>
+#include "mcld/Support/MemoryRegion.h"
+#include "mcld/Target/ELFAttributeData.h"
 
 #include <llvm/ADT/SmallVector.h>
 #include <llvm/ADT/StringRef.h>

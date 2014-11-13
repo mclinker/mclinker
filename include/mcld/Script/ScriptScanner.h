@@ -21,7 +21,7 @@
       const mcld::ScriptFile& pScriptFile)
 #endif
 
-#include <mcld/Script/ScriptFile.h>
+#include "mcld/Script/ScriptFile.h"
 #include "ScriptParser.h"
 #include <stack>
 

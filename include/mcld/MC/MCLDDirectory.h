@@ -8,8 +8,8 @@
 //===----------------------------------------------------------------------===//
 #ifndef MCLD_MC_MCLDDIRECTORY_H_
 #define MCLD_MC_MCLDDIRECTORY_H_
-#include <mcld/Support/Directory.h>
-#include <mcld/Support/FileSystem.h>
+#include "mcld/Support/Directory.h"
+#include "mcld/Support/FileSystem.h"
 
 #include <llvm/ADT/StringRef.h>
 

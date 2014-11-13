@@ -9,7 +9,7 @@
 #ifndef MCLD_LD_ELFBINARYREADER_H_
 #define MCLD_LD_ELFBINARYREADER_H_
 
-#include <mcld/LD/BinaryReader.h>
+#include "mcld/LD/BinaryReader.h"
 
 namespace mcld {
 

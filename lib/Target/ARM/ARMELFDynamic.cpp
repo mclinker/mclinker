@@ -8,7 +8,7 @@
 //===----------------------------------------------------------------------===//
 #include "ARMELFDynamic.h"
 
-#include <mcld/LD/ELFFileFormat.h>
+#include "mcld/LD/ELFFileFormat.h"
 
 namespace mcld {
 

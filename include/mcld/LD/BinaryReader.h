@@ -8,7 +8,7 @@
 //===----------------------------------------------------------------------===//
 #ifndef MCLD_LD_BINARYREADER_H_
 #define MCLD_LD_BINARYREADER_H_
-#include <mcld/LD/LDReader.h>
+#include "mcld/LD/LDReader.h"
 
 namespace mcld {
 

@@ -9,7 +9,7 @@
 #ifndef MCLD_TARGET_OUTPUTRELOCSECTION_H_
 #define MCLD_TARGET_OUTPUTRELOCSECTION_H_
 
-#include <mcld/LD/RelocData.h>
+#include "mcld/LD/RelocData.h"
 
 namespace mcld {
 

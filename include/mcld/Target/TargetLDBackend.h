@@ -8,8 +8,8 @@
 //===----------------------------------------------------------------------===//
 #ifndef MCLD_TARGET_TARGETLDBACKEND_H_
 #define MCLD_TARGET_TARGETLDBACKEND_H_
-#include <mcld/LD/GarbageCollection.h>
-#include <mcld/Support/Compiler.h>
+#include "mcld/LD/GarbageCollection.h"
+#include "mcld/Support/Compiler.h"
 
 #include <llvm/ADT/StringRef.h>
 #include <llvm/Support/DataTypes.h>

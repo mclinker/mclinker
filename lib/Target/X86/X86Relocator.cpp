@@ -9,14 +9,14 @@
 #include "X86Relocator.h"
 #include "X86RelocationFunctions.h"
 
-#include <mcld/IRBuilder.h>
-#include <mcld/LinkerConfig.h>
-#include <mcld/LD/ELFFileFormat.h>
-#include <mcld/LD/ELFSegmentFactory.h>
-#include <mcld/LD/ELFSegment.h>
-#include <mcld/LD/LDSymbol.h>
-#include <mcld/Object/ObjectBuilder.h>
-#include <mcld/Support/MsgHandling.h>
+#include "mcld/IRBuilder.h"
+#include "mcld/LinkerConfig.h"
+#include "mcld/LD/ELFFileFormat.h"
+#include "mcld/LD/ELFSegmentFactory.h"
+#include "mcld/LD/ELFSegment.h"
+#include "mcld/LD/LDSymbol.h"
+#include "mcld/Object/ObjectBuilder.h"
+#include "mcld/Support/MsgHandling.h"
 
 #include <llvm/ADT/Twine.h>
 #include <llvm/Support/DataTypes.h>

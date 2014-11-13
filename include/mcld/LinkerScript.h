@@ -9,14 +9,15 @@
 #ifndef MCLD_LINKERSCRIPT_H_
 #define MCLD_LINKERSCRIPT_H_
 
-#include <mcld/ADT/HashTable.h>
+#include "mcld/ADT/HashTable.h"
+#include "mcld/ADT/StringEntry.h"
+#include "mcld/ADT/StringHash.h"
+#include "mcld/MC/SearchDirs.h"
+#include "mcld/Object/SectionMap.h"
+#include "mcld/Script/AssertCmd.h"
+#include "mcld/Script/Assignment.h"
+
 #include <llvm/ADT/StringRef.h>
-#include <mcld/ADT/StringEntry.h>
-#include <mcld/ADT/StringHash.h>
-#include <mcld/MC/SearchDirs.h>
-#include <mcld/Object/SectionMap.h>
-#include <mcld/Script/AssertCmd.h>
-#include <mcld/Script/Assignment.h>
 
 #include <string>
 #include <vector>

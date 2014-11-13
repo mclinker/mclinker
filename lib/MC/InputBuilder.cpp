@@ -6,14 +6,14 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include <mcld/MC/InputBuilder.h>
+#include "mcld/MC/InputBuilder.h"
 
-#include <mcld/LinkerConfig.h>
-#include <mcld/Config/Config.h>
-#include <mcld/MC/ContextFactory.h>
-#include <mcld/MC/InputFactory.h>
-#include <mcld/Support/MemoryAreaFactory.h>
-#include <mcld/Support/Path.h>
+#include "mcld/LinkerConfig.h"
+#include "mcld/Config/Config.h"
+#include "mcld/MC/ContextFactory.h"
+#include "mcld/MC/InputFactory.h"
+#include "mcld/Support/MemoryAreaFactory.h"
+#include "mcld/Support/Path.h"
 
 namespace mcld {
 

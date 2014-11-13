@@ -6,9 +6,9 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include <mcld/MC/SymbolCategory.h>
-#include <mcld/LD/ResolveInfo.h>
-#include <mcld/LD/LDSymbol.h>
+#include "mcld/MC/SymbolCategory.h"
+#include "mcld/LD/ResolveInfo.h"
+#include "mcld/LD/LDSymbol.h"
 #include <iostream>
 #include "SymbolCategoryTest.h"
 

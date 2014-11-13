@@ -9,7 +9,7 @@
 #ifndef MCLD_LD_GROUPREADER_H_
 #define MCLD_LD_GROUPREADER_H_
 
-#include <mcld/Module.h>
+#include "mcld/Module.h"
 
 namespace mcld {
 class Archive;

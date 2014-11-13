@@ -6,7 +6,7 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include <mcld/Support/Target.h>
+#include "mcld/Support/Target.h"
 
 #include <llvm/ADT/Triple.h>
 

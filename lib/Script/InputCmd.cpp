@@ -6,23 +6,23 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include <mcld/Script/InputCmd.h>
+#include "mcld/Script/InputCmd.h"
 
-#include <mcld/LD/Archive.h>
-#include <mcld/LD/ArchiveReader.h>
-#include <mcld/LD/DynObjReader.h>
-#include <mcld/LD/ObjectReader.h>
-#include <mcld/MC/Attribute.h>
-#include <mcld/MC/InputBuilder.h>
-#include <mcld/Script/InputToken.h>
-#include <mcld/Script/StringList.h>
-#include <mcld/Support/MsgHandling.h>
-#include <mcld/Support/Path.h>
-#include <mcld/Support/raw_ostream.h>
-#include <mcld/InputTree.h>
-#include <mcld/LinkerScript.h>
-#include <mcld/LinkerConfig.h>
-#include <mcld/Module.h>
+#include "mcld/LD/Archive.h"
+#include "mcld/LD/ArchiveReader.h"
+#include "mcld/LD/DynObjReader.h"
+#include "mcld/LD/ObjectReader.h"
+#include "mcld/MC/Attribute.h"
+#include "mcld/MC/InputBuilder.h"
+#include "mcld/Script/InputToken.h"
+#include "mcld/Script/StringList.h"
+#include "mcld/Support/MsgHandling.h"
+#include "mcld/Support/Path.h"
+#include "mcld/Support/raw_ostream.h"
+#include "mcld/InputTree.h"
+#include "mcld/LinkerScript.h"
+#include "mcld/LinkerConfig.h"
+#include "mcld/Module.h"
 
 #include <llvm/Support/Casting.h>
 

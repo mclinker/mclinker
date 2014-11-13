@@ -8,8 +8,8 @@
 //===----------------------------------------------------------------------===//
 #include "BinTreeTest.h"
 
-#include <mcld/ADT/TypeTraits.h>
-#include <mcld/InputTree.h>
+#include "mcld/ADT/TypeTraits.h"
+#include "mcld/InputTree.h"
 #include <string>
 
 using namespace mcld;

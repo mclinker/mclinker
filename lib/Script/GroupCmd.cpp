@@ -6,18 +6,18 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include <mcld/Script/GroupCmd.h>
+#include "mcld/Script/GroupCmd.h"
 
-#include <mcld/LD/GroupReader.h>
-#include <mcld/MC/InputBuilder.h>
-#include <mcld/MC/Attribute.h>
-#include <mcld/Script/InputToken.h>
-#include <mcld/Script/StringList.h>
-#include <mcld/Support/MsgHandling.h>
-#include <mcld/Support/Path.h>
-#include <mcld/Support/raw_ostream.h>
-#include <mcld/InputTree.h>
-#include <mcld/LinkerScript.h>
+#include "mcld/LD/GroupReader.h"
+#include "mcld/MC/InputBuilder.h"
+#include "mcld/MC/Attribute.h"
+#include "mcld/Script/InputToken.h"
+#include "mcld/Script/StringList.h"
+#include "mcld/Support/MsgHandling.h"
+#include "mcld/Support/Path.h"
+#include "mcld/Support/raw_ostream.h"
+#include "mcld/InputTree.h"
+#include "mcld/LinkerScript.h"
 
 #include <llvm/Support/Casting.h>
 #include <cassert>

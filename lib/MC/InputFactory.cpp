@@ -6,11 +6,11 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include <mcld/MC/InputFactory.h>
+#include "mcld/MC/InputFactory.h"
 
-#include <mcld/LinkerConfig.h>
-#include <mcld/AttributeOption.h>
-#include <mcld/MC/AttributeSet.h>
+#include "mcld/LinkerConfig.h"
+#include "mcld/AttributeOption.h"
+#include "mcld/MC/AttributeSet.h"
 
 namespace mcld {
 

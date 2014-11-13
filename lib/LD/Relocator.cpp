@@ -6,17 +6,17 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include <mcld/LD/Relocator.h>
+#include "mcld/LD/Relocator.h"
 
-#include <mcld/Module.h>
-#include <mcld/Fragment/Fragment.h>
-#include <mcld/LD/LDContext.h>
-#include <mcld/LD/LDSection.h>
-#include <mcld/LD/LDSymbol.h>
-#include <mcld/LD/ResolveInfo.h>
-#include <mcld/LD/SectionData.h>
-#include <mcld/Support/Demangle.h>
-#include <mcld/Support/MsgHandling.h>
+#include "mcld/Module.h"
+#include "mcld/Fragment/Fragment.h"
+#include "mcld/LD/LDContext.h"
+#include "mcld/LD/LDSection.h"
+#include "mcld/LD/LDSymbol.h"
+#include "mcld/LD/ResolveInfo.h"
+#include "mcld/LD/SectionData.h"
+#include "mcld/Support/Demangle.h"
+#include "mcld/Support/MsgHandling.h"
 
 #include <sstream>
 

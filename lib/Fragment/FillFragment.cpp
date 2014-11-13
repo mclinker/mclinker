@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include <mcld/Fragment/FillFragment.h>
-#include <mcld/LD/SectionData.h>
+#include "mcld/Fragment/FillFragment.h"
+#include "mcld/LD/SectionData.h"
 #include <cassert>
 
 namespace mcld {

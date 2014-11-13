@@ -6,12 +6,12 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include <mcld/LD/DiagnosticInfos.h>
+#include "mcld/LD/DiagnosticInfos.h"
 
-#include <mcld/LinkerConfig.h>
-#include <mcld/ADT/SizeTraits.h>
-#include <mcld/LD/Diagnostic.h>
-#include <mcld/LD/DiagnosticPrinter.h>
+#include "mcld/LinkerConfig.h"
+#include "mcld/ADT/SizeTraits.h"
+#include "mcld/LD/Diagnostic.h"
+#include "mcld/LD/DiagnosticPrinter.h"
 
 #include <llvm/ADT/StringRef.h>
 #include <llvm/Support/DataTypes.h>

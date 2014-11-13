@@ -9,11 +9,11 @@
 #ifndef MCLD_LD_ARCHIVE_H_
 #define MCLD_LD_ARCHIVE_H_
 
-#include <mcld/InputTree.h>
-#include <mcld/ADT/HashEntry.h>
-#include <mcld/ADT/HashTable.h>
-#include <mcld/ADT/StringHash.h>
-#include <mcld/Support/GCFactory.h>
+#include "mcld/InputTree.h"
+#include "mcld/ADT/HashEntry.h"
+#include "mcld/ADT/HashTable.h"
+#include "mcld/ADT/StringHash.h"
+#include "mcld/Support/GCFactory.h"
 
 #include <string>
 #include <vector>

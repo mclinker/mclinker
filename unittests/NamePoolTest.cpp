@@ -7,11 +7,11 @@
 //
 //===----------------------------------------------------------------------===//
 #include "NamePoolTest.h"
-#include <mcld/LD/NamePool.h>
-#include <mcld/LD/Resolver.h>
-#include <mcld/LD/StaticResolver.h>
-#include <mcld/LD/ResolveInfo.h>
-#include <mcld/LD/LDSymbol.h>
+#include "mcld/LD/NamePool.h"
+#include "mcld/LD/Resolver.h"
+#include "mcld/LD/StaticResolver.h"
+#include "mcld/LD/ResolveInfo.h"
+#include "mcld/LD/LDSymbol.h"
 #include <llvm/ADT/StringRef.h>
 #include <string>
 #include <cstdio>

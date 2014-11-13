@@ -9,12 +9,12 @@
 #include "MipsRelocator.h"
 #include "MipsRelocationFunctions.h"
 
-#include <mcld/IRBuilder.h>
-#include <mcld/LinkerConfig.h>
-#include <mcld/Object/ObjectBuilder.h>
-#include <mcld/Support/MsgHandling.h>
-#include <mcld/Target/OutputRelocSection.h>
-#include <mcld/LD/ELFFileFormat.h>
+#include "mcld/IRBuilder.h"
+#include "mcld/LinkerConfig.h"
+#include "mcld/Object/ObjectBuilder.h"
+#include "mcld/Support/MsgHandling.h"
+#include "mcld/Target/OutputRelocSection.h"
+#include "mcld/LD/ELFFileFormat.h"
 
 #include <llvm/ADT/Twine.h>
 #include <llvm/Support/ELF.h>

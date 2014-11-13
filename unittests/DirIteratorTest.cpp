@@ -6,7 +6,7 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include <mcld/Support/Directory.h>
+#include "mcld/Support/Directory.h"
 #include "DirIteratorTest.h"
 #include <errno.h>
 

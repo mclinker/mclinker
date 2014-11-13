@@ -6,10 +6,10 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include <mcld/LD/EhFrameHdr.h>
+#include "mcld/LD/EhFrameHdr.h"
 
-#include <mcld/LD/EhFrame.h>
-#include <mcld/LD/LDSection.h>
+#include "mcld/LD/EhFrame.h"
+#include "mcld/LD/LDSection.h"
 
 #include <llvm/Support/Dwarf.h>
 #include <llvm/Support/DataTypes.h>

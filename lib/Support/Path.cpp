@@ -6,10 +6,10 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include <mcld/Support/Path.h>
+#include "mcld/Support/Path.h"
 
-#include <mcld/Config/Config.h>
-#include <mcld/Support/FileSystem.h>
+#include "mcld/Config/Config.h"
+#include "mcld/Support/FileSystem.h"
 
 #include <llvm/ADT/StringRef.h>
 

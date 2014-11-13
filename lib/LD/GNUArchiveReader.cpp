@@ -6,21 +6,21 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include <mcld/LD/GNUArchiveReader.h>
+#include "mcld/LD/GNUArchiveReader.h"
 
-#include <mcld/InputTree.h>
-#include <mcld/LinkerConfig.h>
-#include <mcld/Module.h>
-#include <mcld/ADT/SizeTraits.h>
-#include <mcld/MC/Attribute.h>
-#include <mcld/MC/Input.h>
-#include <mcld/LD/ELFObjectReader.h>
-#include <mcld/LD/ResolveInfo.h>
-#include <mcld/Support/FileHandle.h>
-#include <mcld/Support/FileSystem.h>
-#include <mcld/Support/MemoryArea.h>
-#include <mcld/Support/MsgHandling.h>
-#include <mcld/Support/Path.h>
+#include "mcld/InputTree.h"
+#include "mcld/LinkerConfig.h"
+#include "mcld/Module.h"
+#include "mcld/ADT/SizeTraits.h"
+#include "mcld/MC/Attribute.h"
+#include "mcld/MC/Input.h"
+#include "mcld/LD/ELFObjectReader.h"
+#include "mcld/LD/ResolveInfo.h"
+#include "mcld/Support/FileHandle.h"
+#include "mcld/Support/FileSystem.h"
+#include "mcld/Support/MemoryArea.h"
+#include "mcld/Support/MsgHandling.h"
+#include "mcld/Support/Path.h"
 
 #include <llvm/ADT/StringRef.h>
 #include <llvm/Support/Host.h>

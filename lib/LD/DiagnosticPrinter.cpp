@@ -6,7 +6,7 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include <mcld/LD/DiagnosticPrinter.h>
+#include "mcld/LD/DiagnosticPrinter.h"
 
 namespace mcld {
 

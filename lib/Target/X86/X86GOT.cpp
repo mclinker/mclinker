@@ -8,8 +8,8 @@
 //===----------------------------------------------------------------------===//
 #include "X86GOT.h"
 
-#include <mcld/LD/LDFileFormat.h>
-#include <mcld/LD/SectionData.h>
+#include "mcld/LD/LDFileFormat.h"
+#include "mcld/LD/SectionData.h"
 
 #include <llvm/Support/Casting.h>
 

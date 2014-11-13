@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include <mcld/LD/DWARFLineInfo.h>
-#include <mcld/Support/TargetRegistry.h>
+#include "mcld/LD/DWARFLineInfo.h"
+#include "mcld/Support/TargetRegistry.h"
 #include "Mips.h"
 
 namespace {

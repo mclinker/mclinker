@@ -9,7 +9,7 @@
 #ifndef MCLD_SCRIPT_OPERATOR_H_
 #define MCLD_SCRIPT_OPERATOR_H_
 
-#include <mcld/Script/ExprToken.h>
+#include "mcld/Script/ExprToken.h"
 #include <llvm/Support/DataTypes.h>
 
 namespace mcld {

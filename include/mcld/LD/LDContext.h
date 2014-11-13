@@ -9,7 +9,7 @@
 #ifndef MCLD_LD_LDCONTEXT_H_
 #define MCLD_LD_LDCONTEXT_H_
 
-#include <mcld/LD/LDFileFormat.h>
+#include "mcld/LD/LDFileFormat.h"
 
 #include <llvm/Support/DataTypes.h>
 

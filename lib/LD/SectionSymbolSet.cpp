@@ -6,17 +6,17 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include <mcld/LD/SectionSymbolSet.h>
+#include "mcld/LD/SectionSymbolSet.h"
 
-#include <mcld/Fragment/FragmentRef.h>
-#include <mcld/LD/EhFrame.h>
-#include <mcld/LD/LDFileFormat.h>
-#include <mcld/LD/LDSection.h>
-#include <mcld/LD/LDSymbol.h>
-#include <mcld/LD/NamePool.h>
-#include <mcld/LD/RelocData.h>
-#include <mcld/LD/ResolveInfo.h>
-#include <mcld/LD/SectionData.h>
+#include "mcld/Fragment/FragmentRef.h"
+#include "mcld/LD/EhFrame.h"
+#include "mcld/LD/LDFileFormat.h"
+#include "mcld/LD/LDSection.h"
+#include "mcld/LD/LDSymbol.h"
+#include "mcld/LD/NamePool.h"
+#include "mcld/LD/RelocData.h"
+#include "mcld/LD/ResolveInfo.h"
+#include "mcld/LD/SectionData.h"
 
 namespace mcld {
 

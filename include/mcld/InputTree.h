@@ -9,10 +9,10 @@
 #ifndef MCLD_INPUTTREE_H_
 #define MCLD_INPUTTREE_H_
 
-#include <mcld/ADT/BinTree.h>
-#include <mcld/ADT/TypeTraits.h>
-#include <mcld/MC/Input.h>
-#include <mcld/Support/Path.h>
+#include "mcld/ADT/BinTree.h"
+#include "mcld/ADT/TypeTraits.h"
+#include "mcld/MC/Input.h"
+#include "mcld/Support/Path.h"
 
 #include <string>
 

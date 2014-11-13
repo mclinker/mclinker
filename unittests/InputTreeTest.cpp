@@ -11,12 +11,12 @@
 #include <vector>
 #include <iostream>
 
-#include <mcld/InputTree.h>
-#include <mcld/MC/InputFactory.h>
-#include <mcld/LinkerConfig.h>
-#include <mcld/MC/InputBuilder.h>
-#include <mcld/MC/FileAction.h>
-#include <mcld/MC/CommandAction.h>
+#include "mcld/InputTree.h"
+#include "mcld/MC/InputFactory.h"
+#include "mcld/LinkerConfig.h"
+#include "mcld/MC/InputBuilder.h"
+#include "mcld/MC/FileAction.h"
+#include "mcld/MC/CommandAction.h"
 
 using namespace mcld;
 using namespace mcld::test;

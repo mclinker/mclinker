@@ -8,7 +8,7 @@
 //===----------------------------------------------------------------------===//
 #ifndef MCLD_LD_EHFRAMEREADER_H_
 #define MCLD_LD_EHFRAMEREADER_H_
-#include <mcld/LD/EhFrame.h>
+#include "mcld/LD/EhFrame.h"
 
 #include <llvm/ADT/StringRef.h>
 #include <llvm/Support/DataTypes.h>

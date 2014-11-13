@@ -9,10 +9,10 @@
 #ifndef TARGET_X86_X86RELOCATOR_H_
 #define TARGET_X86_X86RELOCATOR_H_
 
-#include <mcld/LD/Relocator.h>
-#include <mcld/Target/GOT.h>
-#include <mcld/Target/PLT.h>
-#include <mcld/Target/KeyEntryMap.h>
+#include "mcld/LD/Relocator.h"
+#include "mcld/Target/GOT.h"
+#include "mcld/Target/PLT.h"
+#include "mcld/Target/KeyEntryMap.h"
 #include "X86LDBackend.h"
 
 namespace mcld {

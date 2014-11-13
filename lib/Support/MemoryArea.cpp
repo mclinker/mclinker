@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include <mcld/Support/MemoryArea.h>
-#include <mcld/Support/MsgHandling.h>
+#include "mcld/Support/MemoryArea.h"
+#include "mcld/Support/MsgHandling.h"
 
 #include <llvm/Support/ErrorOr.h>
 

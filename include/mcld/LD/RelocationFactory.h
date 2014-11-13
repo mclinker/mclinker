@@ -8,9 +8,9 @@
 //===----------------------------------------------------------------------===//
 #ifndef MCLD_LD_RELOCATIONFACTORY_H_
 #define MCLD_LD_RELOCATIONFACTORY_H_
-#include <mcld/Config/Config.h>
-#include <mcld/Fragment/Relocation.h>
-#include <mcld/Support/GCFactory.h>
+#include "mcld/Config/Config.h"
+#include "mcld/Fragment/Relocation.h"
+#include "mcld/Support/GCFactory.h"
 
 namespace mcld {
 

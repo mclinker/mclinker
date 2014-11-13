@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include <mcld/LD/ELFSegmentFactory.h>
-#include <mcld/LD/ELFSegment.h>
+#include "mcld/LD/ELFSegmentFactory.h"
+#include "mcld/LD/ELFSegment.h"
 
 namespace mcld {
 

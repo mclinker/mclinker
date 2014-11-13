@@ -7,10 +7,10 @@
 //
 //===----------------------------------------------------------------------===//
 #include "ARM.h"
-#include <mcld/LinkerConfig.h>
-#include <mcld/LinkerScript.h>
-#include <mcld/Target/ELFEmulation.h>
-#include <mcld/Support/TargetRegistry.h>
+#include "mcld/LinkerConfig.h"
+#include "mcld/LinkerScript.h"
+#include "mcld/Target/ELFEmulation.h"
+#include "mcld/Support/TargetRegistry.h"
 
 namespace mcld {
 

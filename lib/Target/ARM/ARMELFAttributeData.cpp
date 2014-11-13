@@ -8,10 +8,10 @@
 //===----------------------------------------------------------------------===//
 #include "ARMELFAttributeData.h"
 
-#include <mcld/LinkerConfig.h>
-#include <mcld/MC/Input.h>
-#include <mcld/Support/LEB128.h>
-#include <mcld/Support/MsgHandling.h>
+#include "mcld/LinkerConfig.h"
+#include "mcld/MC/Input.h"
+#include "mcld/Support/LEB128.h"
+#include "mcld/Support/MsgHandling.h"
 #include <llvm/ADT/STLExtras.h>
 
 namespace mcld {

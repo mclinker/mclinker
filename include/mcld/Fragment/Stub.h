@@ -10,8 +10,8 @@
 #ifndef MCLD_FRAGMENT_STUB_H_
 #define MCLD_FRAGMENT_STUB_H_
 
-#include <mcld/Fragment/Fragment.h>
-#include <mcld/Fragment/Relocation.h>
+#include "mcld/Fragment/Fragment.h"
+#include "mcld/Fragment/Relocation.h"
 
 #include <llvm/Support/DataTypes.h>
 

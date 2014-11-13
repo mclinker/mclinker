@@ -8,8 +8,8 @@
 //===----------------------------------------------------------------------===//
 #ifndef MCLD_OBJECT_OBJECTBUILDER_H_
 #define MCLD_OBJECT_OBJECTBUILDER_H_
-#include <mcld/LD/EhFrame.h>
-#include <mcld/LD/LDFileFormat.h>
+#include "mcld/LD/EhFrame.h"
+#include "mcld/LD/LDFileFormat.h"
 
 #include <llvm/Support/DataTypes.h>
 

@@ -6,7 +6,7 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include <mcld/LinkerScript.h>
+#include "mcld/LinkerScript.h"
 
 namespace mcld {
 

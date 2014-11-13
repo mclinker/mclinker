@@ -9,7 +9,7 @@
 #ifndef MCLD_SCRIPT_BINARYOP_H_
 #define MCLD_SCRIPT_BINARYOP_H_
 
-#include <mcld/Script/Operator.h>
+#include "mcld/Script/Operator.h"
 
 #include <cstddef>
 

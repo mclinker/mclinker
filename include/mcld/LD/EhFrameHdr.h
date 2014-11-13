@@ -8,9 +8,9 @@
 //===----------------------------------------------------------------------===//
 #ifndef MCLD_LD_EHFRAMEHDR_H_
 #define MCLD_LD_EHFRAMEHDR_H_
-#include <mcld/ADT/SizeTraits.h>
-#include <mcld/LD/EhFrame.h>
-#include <mcld/Support/FileOutputBuffer.h>
+#include "mcld/ADT/SizeTraits.h"
+#include "mcld/LD/EhFrame.h"
+#include "mcld/Support/FileOutputBuffer.h"
 
 #include <cassert>
 namespace mcld {

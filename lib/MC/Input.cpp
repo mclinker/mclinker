@@ -6,10 +6,10 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include <mcld/MC/Input.h>
+#include "mcld/MC/Input.h"
 
-#include <mcld/MC/Attribute.h>
-#include <mcld/LD/LDContext.h>
+#include "mcld/MC/Attribute.h"
+#include "mcld/LD/LDContext.h"
 
 namespace mcld {
 

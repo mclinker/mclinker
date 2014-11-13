@@ -8,8 +8,8 @@
 //===----------------------------------------------------------------------===//
 #ifndef MCLD_LD_MSGHANDLER_H_
 #define MCLD_LD_MSGHANDLER_H_
-#include <mcld/LD/DiagnosticEngine.h>
-#include <mcld/Support/Path.h>
+#include "mcld/LD/DiagnosticEngine.h"
+#include "mcld/Support/Path.h"
 
 #include <llvm/ADT/StringRef.h>
 #include <llvm/ADT/Twine.h>

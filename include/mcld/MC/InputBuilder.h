@@ -9,9 +9,9 @@
 #ifndef MCLD_MC_INPUTBUILDER_H_
 #define MCLD_MC_INPUTBUILDER_H_
 
-#include <mcld/InputTree.h>
-#include <mcld/MC/Input.h>
-#include <mcld/Support/FileHandle.h>
+#include "mcld/InputTree.h"
+#include "mcld/MC/Input.h"
+#include "mcld/Support/FileHandle.h"
 
 #include <stack>
 #include <string>

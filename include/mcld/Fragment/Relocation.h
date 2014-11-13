@@ -9,9 +9,9 @@
 #ifndef MCLD_FRAGMENT_RELOCATION_H_
 #define MCLD_FRAGMENT_RELOCATION_H_
 
-#include <mcld/Config/Config.h>
-#include <mcld/Fragment/FragmentRef.h>
-#include <mcld/Support/GCFactoryListTraits.h>
+#include "mcld/Config/Config.h"
+#include "mcld/Fragment/FragmentRef.h"
+#include "mcld/Support/GCFactoryListTraits.h"
 
 #include <llvm/ADT/ilist_node.h>
 #include <llvm/Support/DataTypes.h>

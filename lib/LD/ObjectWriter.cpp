@@ -6,7 +6,7 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include <mcld/LD/ObjectWriter.h>
+#include "mcld/LD/ObjectWriter.h"
 
 namespace mcld {
 

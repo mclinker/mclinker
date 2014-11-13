@@ -8,7 +8,7 @@
 //===----------------------------------------------------------------------===//
 #ifndef MCLD_LD_RESOLVER_H_
 #define MCLD_LD_RESOLVER_H_
-#include <mcld/LD/LDSymbol.h>
+#include "mcld/LD/LDSymbol.h"
 
 #include <string>
 #include <utility>

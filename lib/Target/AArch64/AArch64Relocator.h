@@ -9,9 +9,9 @@
 #ifndef TARGET_AARCH64_AARCH64RELOCATOR_H_
 #define TARGET_AARCH64_AARCH64RELOCATOR_H_
 
-#include <mcld/LD/Relocator.h>
-#include <mcld/Target/GOT.h>
-#include <mcld/Target/KeyEntryMap.h>
+#include "mcld/LD/Relocator.h"
+#include "mcld/Target/GOT.h"
+#include "mcld/Target/KeyEntryMap.h"
 #include "AArch64LDBackend.h"
 
 namespace mcld {

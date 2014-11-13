@@ -6,9 +6,9 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include <mcld/Support/FileOutputBuffer.h>
-#include <mcld/Support/FileHandle.h>
-#include <mcld/Support/Path.h>
+#include "mcld/Support/FileOutputBuffer.h"
+#include "mcld/Support/FileHandle.h"
+#include "mcld/Support/Path.h"
 
 namespace mcld {
 

@@ -6,9 +6,9 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include <mcld/GeneralOptions.h>
-#include <mcld/MC/Input.h>
-#include <mcld/MC/ZOption.h>
+#include "mcld/GeneralOptions.h"
+#include "mcld/MC/Input.h"
+#include "mcld/MC/ZOption.h"
 #include <cassert>
 
 namespace mcld {

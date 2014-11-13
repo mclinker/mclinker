@@ -9,7 +9,7 @@
 #ifndef TARGET_MIPS_MIPSELFDYNAMIC_H_
 #define TARGET_MIPS_MIPSELFDYNAMIC_H_
 
-#include <mcld/Target/ELFDynamic.h>
+#include "mcld/Target/ELFDynamic.h"
 
 namespace mcld {
 

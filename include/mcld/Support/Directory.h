@@ -9,10 +9,10 @@
 #ifndef MCLD_SUPPORT_DIRECTORY_H_
 #define MCLD_SUPPORT_DIRECTORY_H_
 
-#include <mcld/ADT/TypeTraits.h>
-#include <mcld/Support/FileSystem.h>
-#include <mcld/Support/Path.h>
-#include <mcld/Support/PathCache.h>
+#include "mcld/ADT/TypeTraits.h"
+#include "mcld/Support/FileSystem.h"
+#include "mcld/Support/Path.h"
+#include "mcld/Support/PathCache.h"
 
 #include <llvm/Support/Allocator.h>
 #include <cstddef>

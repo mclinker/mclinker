@@ -8,8 +8,8 @@
 //===----------------------------------------------------------------------===//
 #ifndef MCLD_LD_STATICRESOLVER_H_
 #define MCLD_LD_STATICRESOLVER_H_
-#include <mcld/LD/ResolveInfo.h>
-#include <mcld/LD/Resolver.h>
+#include "mcld/LD/ResolveInfo.h"
+#include "mcld/LD/Resolver.h"
 
 #include <string>
 

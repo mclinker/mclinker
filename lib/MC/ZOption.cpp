@@ -6,7 +6,7 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include <mcld/MC/ZOption.h>
+#include "mcld/MC/ZOption.h"
 
 namespace mcld {
 

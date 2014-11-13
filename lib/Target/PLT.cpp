@@ -6,9 +6,9 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include <mcld/Target/PLT.h>
+#include "mcld/Target/PLT.h"
 
-#include <mcld/IRBuilder.h>
+#include "mcld/IRBuilder.h"
 
 namespace mcld {
 

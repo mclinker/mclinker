@@ -9,8 +9,8 @@
 #ifndef MCLD_LD_BRANCHISLANDFACTORY_H_
 #define MCLD_LD_BRANCHISLANDFACTORY_H_
 
-#include <mcld/LD/BranchIsland.h>
-#include <mcld/Support/GCFactory.h>
+#include "mcld/LD/BranchIsland.h"
+#include "mcld/Support/GCFactory.h"
 
 #include <llvm/Support/DataTypes.h>
 

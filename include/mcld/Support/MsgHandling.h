@@ -8,7 +8,7 @@
 //===----------------------------------------------------------------------===//
 #ifndef MCLD_SUPPORT_MSGHANDLING_H_
 #define MCLD_SUPPORT_MSGHANDLING_H_
-#include <mcld/LD/MsgHandler.h>
+#include "mcld/LD/MsgHandler.h"
 
 namespace mcld {
 

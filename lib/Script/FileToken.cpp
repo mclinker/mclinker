@@ -6,9 +6,9 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include <mcld/Script/FileToken.h>
+#include "mcld/Script/FileToken.h"
 
-#include <mcld/Support/GCFactory.h>
+#include "mcld/Support/GCFactory.h"
 
 #include <llvm/Support/ManagedStatic.h>
 

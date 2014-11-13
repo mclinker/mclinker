@@ -6,17 +6,17 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include <mcld/Script/Assignment.h>
+#include "mcld/Script/Assignment.h"
 
-#include <mcld/LinkerScript.h>
-#include <mcld/Module.h>
-#include <mcld/LD/LDSection.h>
-#include <mcld/LD/SectionData.h>
-#include <mcld/Script/Operand.h>
-#include <mcld/Script/Operator.h>
-#include <mcld/Script/RpnEvaluator.h>
-#include <mcld/Script/RpnExpr.h>
-#include <mcld/Support/raw_ostream.h>
+#include "mcld/LinkerScript.h"
+#include "mcld/Module.h"
+#include "mcld/LD/LDSection.h"
+#include "mcld/LD/SectionData.h"
+#include "mcld/Script/Operand.h"
+#include "mcld/Script/Operator.h"
+#include "mcld/Script/RpnEvaluator.h"
+#include "mcld/Script/RpnExpr.h"
+#include "mcld/Support/raw_ostream.h"
 
 #include <llvm/Support/Casting.h>
 

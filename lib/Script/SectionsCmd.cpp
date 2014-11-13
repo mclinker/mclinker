@@ -6,9 +6,9 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include <mcld/Script/SectionsCmd.h>
+#include "mcld/Script/SectionsCmd.h"
 
-#include <mcld/Support/raw_ostream.h>
+#include "mcld/Support/raw_ostream.h"
 
 #include <cassert>
 

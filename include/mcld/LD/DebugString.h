@@ -9,7 +9,7 @@
 #ifndef MCLD_LD_DEBUGSTRING_H_
 #define MCLD_LD_DEBUGSTRING_H_
 
-#include <mcld/LD/MergedStringTable.h>
+#include "mcld/LD/MergedStringTable.h"
 
 #include <vector>
 

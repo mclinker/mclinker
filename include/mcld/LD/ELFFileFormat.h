@@ -8,8 +8,8 @@
 //===----------------------------------------------------------------------===//
 #ifndef MCLD_LD_ELFFILEFORMAT_H_
 #define MCLD_LD_ELFFILEFORMAT_H_
-#include <mcld/LD/LDFileFormat.h>
-#include <mcld/LD/LDSection.h>
+#include "mcld/LD/LDFileFormat.h"
+#include "mcld/LD/LDSection.h"
 
 namespace mcld {
 

@@ -9,9 +9,9 @@
 #ifndef MCLD_LD_SECTIONSYMBOLSET_H_
 #define MCLD_LD_SECTIONSYMBOLSET_H_
 
-#include <mcld/ADT/HashTable.h>
-#include <mcld/ADT/HashEntry.h>
-#include <mcld/MC/SymbolCategory.h>
+#include "mcld/ADT/HashTable.h"
+#include "mcld/ADT/HashEntry.h"
+#include "mcld/MC/SymbolCategory.h"
 
 namespace mcld {
 

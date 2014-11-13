@@ -9,7 +9,7 @@
 #ifndef MCLD_SCRIPT_NULLARYOP_H_
 #define MCLD_SCRIPT_NULLARYOP_H_
 
-#include <mcld/Script/Operator.h>
+#include "mcld/Script/Operator.h"
 
 #include <cassert>
 

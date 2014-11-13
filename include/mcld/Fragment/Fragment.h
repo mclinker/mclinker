@@ -9,7 +9,7 @@
 #ifndef MCLD_FRAGMENT_FRAGMENT_H_
 #define MCLD_FRAGMENT_FRAGMENT_H_
 
-#include <mcld/Support/Compiler.h>
+#include "mcld/Support/Compiler.h"
 
 #include <llvm/ADT/ilist_node.h>
 #include <llvm/Support/DataTypes.h>

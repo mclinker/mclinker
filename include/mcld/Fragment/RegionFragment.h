@@ -9,7 +9,7 @@
 #ifndef MCLD_FRAGMENT_REGIONFRAGMENT_H_
 #define MCLD_FRAGMENT_REGIONFRAGMENT_H_
 
-#include <mcld/Fragment/Fragment.h>
+#include "mcld/Fragment/Fragment.h"
 
 #include <llvm/ADT/StringRef.h>
 

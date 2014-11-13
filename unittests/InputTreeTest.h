@@ -10,8 +10,8 @@
 #define UNITTESTS_INPUTTREE_TEST_H
 
 #include <gtest.h>
-#include <mcld/MC/ContextFactory.h>
-#include <mcld/Support/MemoryAreaFactory.h>
+#include "mcld/MC/ContextFactory.h"
+#include "mcld/Support/MemoryAreaFactory.h"
 
 namespace mcld {
 

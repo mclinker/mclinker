@@ -9,8 +9,8 @@
 #ifndef MCLD_LD_ELFOBJECTREADER_H_
 #define MCLD_LD_ELFOBJECTREADER_H_
 
-#include <mcld/ADT/Flags.h>
-#include <mcld/LD/ObjectReader.h>
+#include "mcld/ADT/Flags.h"
+#include "mcld/LD/ObjectReader.h"
 
 namespace mcld {
 

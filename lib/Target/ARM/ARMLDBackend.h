@@ -12,9 +12,9 @@
 #include "ARMELFDynamic.h"
 #include "ARMGOT.h"
 #include "ARMPLT.h"
-#include <mcld/LD/LDSection.h>
-#include <mcld/Target/GNULDBackend.h>
-#include <mcld/Target/OutputRelocSection.h>
+#include "mcld/LD/LDSection.h"
+#include "mcld/Target/GNULDBackend.h"
+#include "mcld/Target/OutputRelocSection.h"
 
 namespace mcld {
 

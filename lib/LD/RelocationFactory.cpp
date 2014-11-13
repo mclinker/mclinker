@@ -6,11 +6,11 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include <mcld/LD/RelocationFactory.h>
+#include "mcld/LD/RelocationFactory.h"
 
-#include <mcld/LinkerConfig.h>
-#include <mcld/Support/MsgHandling.h>
-#include <mcld/Target/TargetLDBackend.h>
+#include "mcld/LinkerConfig.h"
+#include "mcld/Support/MsgHandling.h"
+#include "mcld/Target/TargetLDBackend.h"
 
 #include <llvm/Support/Host.h>
 

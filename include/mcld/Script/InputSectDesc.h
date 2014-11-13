@@ -9,8 +9,8 @@
 #ifndef MCLD_SCRIPT_INPUTSECTDESC_H_
 #define MCLD_SCRIPT_INPUTSECTDESC_H_
 
-#include <mcld/Script/ScriptCommand.h>
-#include <mcld/Script/StringList.h>
+#include "mcld/Script/ScriptCommand.h"
+#include "mcld/Script/StringList.h"
 
 #include <cassert>
 

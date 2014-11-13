@@ -8,7 +8,7 @@
 //===----------------------------------------------------------------------===//
 #ifndef TARGET_X86_X86GNUINFO_H_
 #define TARGET_X86_X86GNUINFO_H_
-#include <mcld/Target/GNUInfo.h>
+#include "mcld/Target/GNUInfo.h"
 
 #include <llvm/Support/ELF.h>
 

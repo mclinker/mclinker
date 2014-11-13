@@ -10,13 +10,13 @@
 #define MCLD_ELFREADER_TEST_H
 
 #include <gtest.h>
-#include <mcld/LinkerConfig.h>
-#include <mcld/LinkerScript.h>
-#include <mcld/LD/ELFReaderIf.h>
-#include <mcld/LD/ELFReader.h>
-#include <mcld/LD/ELFObjectReader.h>
-#include <mcld/Target/GNULDBackend.h>
-#include <mcld/MC/InputBuilder.h>
+#include "mcld/LinkerConfig.h"
+#include "mcld/LinkerScript.h"
+#include "mcld/LD/ELFReaderIf.h"
+#include "mcld/LD/ELFReader.h"
+#include "mcld/LD/ELFObjectReader.h"
+#include "mcld/Target/GNULDBackend.h"
+#include "mcld/MC/InputBuilder.h"
 
 namespace mcld {
 template <>

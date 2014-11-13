@@ -6,9 +6,9 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include <mcld/Support/MemoryAreaFactory.h>
-#include <mcld/Support/MsgHandling.h>
-#include <mcld/Support/SystemUtils.h>
+#include "mcld/Support/MemoryAreaFactory.h"
+#include "mcld/Support/MsgHandling.h"
+#include "mcld/Support/SystemUtils.h"
 
 namespace mcld {
 

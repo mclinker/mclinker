@@ -9,8 +9,8 @@
 #ifndef MCLD_LD_DIAGNOSTICPRINTER_H_
 #define MCLD_LD_DIAGNOSTICPRINTER_H_
 
-#include <mcld/LD/Diagnostic.h>
-#include <mcld/LD/DiagnosticEngine.h>
+#include "mcld/LD/Diagnostic.h"
+#include "mcld/LD/DiagnosticEngine.h"
 
 namespace mcld {
 

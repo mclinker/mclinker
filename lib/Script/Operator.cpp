@@ -6,14 +6,14 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include <mcld/Script/Operator.h>
+#include "mcld/Script/Operator.h"
 
-#include <mcld/Script/BinaryOp.h>
-#include <mcld/Script/NullaryOp.h>
-#include <mcld/Script/Operand.h>
-#include <mcld/Script/UnaryOp.h>
-#include <mcld/Script/TernaryOp.h>
-#include <mcld/Support/raw_ostream.h>
+#include "mcld/Script/BinaryOp.h"
+#include "mcld/Script/NullaryOp.h"
+#include "mcld/Script/Operand.h"
+#include "mcld/Script/UnaryOp.h"
+#include "mcld/Script/TernaryOp.h"
+#include "mcld/Support/raw_ostream.h"
 
 namespace mcld {
 

@@ -6,10 +6,10 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include <mcld/Script/TernaryOp.h>
+#include "mcld/Script/TernaryOp.h"
 
-#include <mcld/ADT/SizeTraits.h>
-#include <mcld/Script/Operand.h>
+#include "mcld/ADT/SizeTraits.h"
+#include "mcld/Script/Operand.h"
 
 namespace mcld {
 

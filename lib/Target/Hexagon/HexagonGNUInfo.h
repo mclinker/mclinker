@@ -8,8 +8,8 @@
 //===----------------------------------------------------------------------===//
 #ifndef TARGET_HEXAGON_HEXAGONGNUINFO_H_
 #define TARGET_HEXAGON_HEXAGONGNUINFO_H_
-#include <mcld/Target/GNUInfo.h>
-#include <mcld/TargetOptions.h>
+#include "mcld/Target/GNUInfo.h"
+#include "mcld/TargetOptions.h"
 
 #include <llvm/Support/ELF.h>
 

@@ -6,11 +6,11 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include <mcld/LD/StaticResolver.h>
+#include "mcld/LD/StaticResolver.h"
 
-#include <mcld/LD/LDSymbol.h>
-#include <mcld/Support/Demangle.h>
-#include <mcld/Support/MsgHandling.h>
+#include "mcld/LD/LDSymbol.h"
+#include "mcld/Support/Demangle.h"
+#include "mcld/Support/MsgHandling.h"
 
 namespace mcld {
 

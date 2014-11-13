@@ -13,12 +13,12 @@
 #include "HexagonGOT.h"
 #include "HexagonPLT.h"
 #include "HexagonGOTPLT.h"
-#include <mcld/IRBuilder.h>
-#include <mcld/LinkerConfig.h>
-#include <mcld/LD/LDSection.h>
-#include <mcld/Object/ObjectBuilder.h>
-#include <mcld/Target/GNULDBackend.h>
-#include <mcld/Target/OutputRelocSection.h>
+#include "mcld/IRBuilder.h"
+#include "mcld/LinkerConfig.h"
+#include "mcld/LD/LDSection.h"
+#include "mcld/Object/ObjectBuilder.h"
+#include "mcld/Target/GNULDBackend.h"
+#include "mcld/Target/OutputRelocSection.h"
 
 namespace mcld {
 

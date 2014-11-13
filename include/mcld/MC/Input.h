@@ -13,7 +13,7 @@
 #ifndef MCLD_MC_INPUT_H_
 #define MCLD_MC_INPUT_H_
 
-#include <mcld/Support/Path.h>
+#include "mcld/Support/Path.h"
 
 namespace mcld {
 

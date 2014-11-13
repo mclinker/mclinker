@@ -8,7 +8,7 @@
 //===----------------------------------------------------------------------===//
 #ifndef TARGET_MIPS_MIPSLDBACKEND_H_
 #define TARGET_MIPS_MIPSLDBACKEND_H_
-#include <mcld/Target/GNULDBackend.h>
+#include "mcld/Target/GNULDBackend.h"
 #include "MipsELFDynamic.h"
 #include "MipsGOT.h"
 #include "MipsGOTPLT.h"

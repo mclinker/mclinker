@@ -9,7 +9,7 @@
 #ifndef MCLD_SUPPORT_MEMORYAREA_H_
 #define MCLD_SUPPORT_MEMORYAREA_H_
 
-#include <mcld/Support/Compiler.h>
+#include "mcld/Support/Compiler.h"
 
 #include <llvm/ADT/StringRef.h>
 #include <llvm/Support/MemoryBuffer.h>

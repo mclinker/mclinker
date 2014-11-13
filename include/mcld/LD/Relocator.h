@@ -9,7 +9,7 @@
 #ifndef MCLD_LD_RELOCATOR_H_
 #define MCLD_LD_RELOCATOR_H_
 
-#include <mcld/Fragment/Relocation.h>
+#include "mcld/Fragment/Relocation.h"
 
 namespace mcld {
 

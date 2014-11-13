@@ -6,26 +6,26 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include <mcld/Linker.h>
+#include "mcld/Linker.h"
 
-#include <mcld/IRBuilder.h>
-#include <mcld/LinkerConfig.h>
-#include <mcld/Module.h>
-#include <mcld/Fragment/FragmentRef.h>
-#include <mcld/Fragment/Relocation.h>
-#include <mcld/LD/LDSection.h>
-#include <mcld/LD/LDSymbol.h>
-#include <mcld/LD/ObjectWriter.h>
-#include <mcld/LD/RelocData.h>
-#include <mcld/LD/SectionData.h>
-#include <mcld/MC/InputBuilder.h>
-#include <mcld/Object/ObjectLinker.h>
-#include <mcld/Support/FileHandle.h>
-#include <mcld/Support/FileOutputBuffer.h>
-#include <mcld/Support/MsgHandling.h>
-#include <mcld/Support/TargetRegistry.h>
-#include <mcld/Support/raw_ostream.h>
-#include <mcld/Target/TargetLDBackend.h>
+#include "mcld/IRBuilder.h"
+#include "mcld/LinkerConfig.h"
+#include "mcld/Module.h"
+#include "mcld/Fragment/FragmentRef.h"
+#include "mcld/Fragment/Relocation.h"
+#include "mcld/LD/LDSection.h"
+#include "mcld/LD/LDSymbol.h"
+#include "mcld/LD/ObjectWriter.h"
+#include "mcld/LD/RelocData.h"
+#include "mcld/LD/SectionData.h"
+#include "mcld/MC/InputBuilder.h"
+#include "mcld/Object/ObjectLinker.h"
+#include "mcld/Support/FileHandle.h"
+#include "mcld/Support/FileOutputBuffer.h"
+#include "mcld/Support/MsgHandling.h"
+#include "mcld/Support/TargetRegistry.h"
+#include "mcld/Support/raw_ostream.h"
+#include "mcld/Target/TargetLDBackend.h"
 
 #include <cassert>
 

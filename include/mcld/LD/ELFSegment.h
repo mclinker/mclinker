@@ -8,8 +8,8 @@
 //===----------------------------------------------------------------------===//
 #ifndef MCLD_LD_ELFSEGMENT_H_
 #define MCLD_LD_ELFSEGMENT_H_
-#include <mcld/Config/Config.h>
-#include <mcld/Support/Allocators.h>
+#include "mcld/Config/Config.h"
+#include "mcld/Support/Allocators.h"
 
 #include <llvm/Support/DataTypes.h>
 #include <llvm/Support/ELF.h>

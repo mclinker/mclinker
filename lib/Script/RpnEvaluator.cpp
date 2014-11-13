@@ -6,15 +6,15 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include <mcld/Script/RpnEvaluator.h>
+#include "mcld/Script/RpnEvaluator.h"
 
-#include <mcld/LD/LDSymbol.h>
-#include <mcld/Script/ExprToken.h>
-#include <mcld/Script/Operand.h>
-#include <mcld/Script/Operator.h>
-#include <mcld/Script/RpnExpr.h>
-#include <mcld/Support/MsgHandling.h>
-#include <mcld/Module.h>
+#include "mcld/LD/LDSymbol.h"
+#include "mcld/Script/ExprToken.h"
+#include "mcld/Script/Operand.h"
+#include "mcld/Script/Operator.h"
+#include "mcld/Script/RpnExpr.h"
+#include "mcld/Support/MsgHandling.h"
+#include "mcld/Module.h"
 
 #include <llvm/Support/Casting.h>
 #include <llvm/Support/DataTypes.h>

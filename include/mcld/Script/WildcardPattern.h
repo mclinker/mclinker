@@ -9,9 +9,9 @@
 #ifndef MCLD_SCRIPT_WILDCARDPATTERN_H_
 #define MCLD_SCRIPT_WILDCARDPATTERN_H_
 
-#include <mcld/Config/Config.h>
-#include <mcld/Script/StrToken.h>
-#include <mcld/Support/Allocators.h>
+#include "mcld/Config/Config.h"
+#include "mcld/Script/StrToken.h"
+#include "mcld/Support/Allocators.h"
 
 #include <llvm/ADT/StringRef.h>
 

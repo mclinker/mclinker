@@ -8,9 +8,9 @@
 //===----------------------------------------------------------------------===//
 #include "SectionDataTest.h"
 
-#include <mcld/LD/SectionData.h>
-#include <mcld/LD/LDFileFormat.h>
-#include <mcld/LD/LDSection.h>
+#include "mcld/LD/SectionData.h"
+#include "mcld/LD/LDFileFormat.h"
+#include "mcld/LD/LDSection.h"
 
 using namespace mcld;
 using namespace mcldtest;

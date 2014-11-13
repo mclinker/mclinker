@@ -6,18 +6,18 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include <mcld/LD/ELFObjectReader.h>
+#include "mcld/LD/ELFObjectReader.h"
 
-#include <mcld/IRBuilder.h>
-#include <mcld/MC/Input.h>
-#include <mcld/LD/ELFReader.h>
-#include <mcld/LD/EhFrameReader.h>
-#include <mcld/LD/EhFrame.h>
-#include <mcld/LD/LDContext.h>
-#include <mcld/Target/GNULDBackend.h>
-#include <mcld/Support/MsgHandling.h>
-#include <mcld/Support/MemoryArea.h>
-#include <mcld/Object/ObjectBuilder.h>
+#include "mcld/IRBuilder.h"
+#include "mcld/MC/Input.h"
+#include "mcld/LD/ELFReader.h"
+#include "mcld/LD/EhFrameReader.h"
+#include "mcld/LD/EhFrame.h"
+#include "mcld/LD/LDContext.h"
+#include "mcld/Target/GNULDBackend.h"
+#include "mcld/Support/MsgHandling.h"
+#include "mcld/Support/MemoryArea.h"
+#include "mcld/Object/ObjectBuilder.h"
 
 #include <llvm/Support/ELF.h>
 #include <llvm/ADT/Twine.h>

@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include <mcld/Support/Target.h>
-#include <mcld/Support/TargetRegistry.h>
+#include "mcld/Support/Target.h"
+#include "mcld/Support/TargetRegistry.h"
 
 namespace mcld {
 

@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include <mcld/Support/FileSystem.h>
-#include <mcld/Support/Path.h>
+#include "mcld/Support/FileSystem.h"
+#include "mcld/Support/Path.h"
 
 #include <llvm/Support/ErrorHandling.h>
 

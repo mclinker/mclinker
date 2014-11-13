@@ -9,10 +9,10 @@
 #ifndef MCLD_SCRIPT_OPERAND_H_
 #define MCLD_SCRIPT_OPERAND_H_
 
-#include <mcld/Config/Config.h>
-#include <mcld/Object/SectionMap.h>
-#include <mcld/Script/ExprToken.h>
-#include <mcld/Support/Allocators.h>
+#include "mcld/Config/Config.h"
+#include "mcld/Object/SectionMap.h"
+#include "mcld/Script/ExprToken.h"
+#include "mcld/Support/Allocators.h"
 
 #include <llvm/Support/DataTypes.h>
 

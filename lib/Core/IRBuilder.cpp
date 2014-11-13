@@ -6,20 +6,20 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include <mcld/IRBuilder.h>
+#include "mcld/IRBuilder.h"
 
-#include <mcld/Fragment/FragmentRef.h>
-#include <mcld/LinkerScript.h>
-#include <mcld/LD/DebugString.h>
-#include <mcld/LD/EhFrame.h>
-#include <mcld/LD/ELFReader.h>
-#include <mcld/LD/LDContext.h>
-#include <mcld/LD/RelocData.h>
-#include <mcld/LD/SectionData.h>
-#include <mcld/Object/ObjectBuilder.h>
-#include <mcld/Support/ELF.h>
-#include <mcld/Support/MemoryArea.h>
-#include <mcld/Support/MsgHandling.h>
+#include "mcld/Fragment/FragmentRef.h"
+#include "mcld/LinkerScript.h"
+#include "mcld/LD/DebugString.h"
+#include "mcld/LD/EhFrame.h"
+#include "mcld/LD/ELFReader.h"
+#include "mcld/LD/LDContext.h"
+#include "mcld/LD/RelocData.h"
+#include "mcld/LD/SectionData.h"
+#include "mcld/Object/ObjectBuilder.h"
+#include "mcld/Support/ELF.h"
+#include "mcld/Support/MemoryArea.h"
+#include "mcld/Support/MsgHandling.h"
 
 #include <llvm/ADT/StringRef.h>
 

@@ -8,7 +8,7 @@
 //===----------------------------------------------------------------------===//
 #ifndef MCLD_SUPPORT_TARGETREGISTRY_H_
 #define MCLD_SUPPORT_TARGETREGISTRY_H_
-#include <mcld/Support/Target.h>
+#include "mcld/Support/Target.h"
 
 #include <llvm/ADT/Triple.h>
 

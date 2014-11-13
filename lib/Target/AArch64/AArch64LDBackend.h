@@ -12,9 +12,9 @@
 #include "AArch64ELFDynamic.h"
 #include "AArch64GOT.h"
 #include "AArch64PLT.h"
-#include <mcld/LD/LDSection.h>
-#include <mcld/Target/GNULDBackend.h>
-#include <mcld/Target/OutputRelocSection.h>
+#include "mcld/LD/LDSection.h"
+#include "mcld/Target/GNULDBackend.h"
+#include "mcld/Target/OutputRelocSection.h"
 
 namespace mcld {
 

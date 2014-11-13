@@ -12,14 +12,14 @@
 #include "X86Relocator.h"
 #include "X86GNUInfo.h"
 
-#include <mcld/IRBuilder.h>
-#include <mcld/LinkerConfig.h>
-#include <mcld/Fragment/FillFragment.h>
-#include <mcld/Fragment/RegionFragment.h>
-#include <mcld/LD/ELFFileFormat.h>
-#include <mcld/Object/ObjectBuilder.h>
-#include <mcld/Support/MsgHandling.h>
-#include <mcld/Support/TargetRegistry.h>
+#include "mcld/IRBuilder.h"
+#include "mcld/LinkerConfig.h"
+#include "mcld/Fragment/FillFragment.h"
+#include "mcld/Fragment/RegionFragment.h"
+#include "mcld/LD/ELFFileFormat.h"
+#include "mcld/Object/ObjectBuilder.h"
+#include "mcld/Support/MsgHandling.h"
+#include "mcld/Support/TargetRegistry.h"
 
 #include <llvm/ADT/StringRef.h>
 #include <llvm/ADT/Triple.h>

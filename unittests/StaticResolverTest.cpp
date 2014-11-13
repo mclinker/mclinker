@@ -7,12 +7,12 @@
 //
 //===----------------------------------------------------------------------===//
 #include "StaticResolverTest.h"
-#include <mcld/Support/TargetSelect.h>
-#include <mcld/LD/StaticResolver.h>
-#include <mcld/LD/ResolveInfo.h>
-#include <mcld/LinkerConfig.h>
+#include "mcld/Support/TargetSelect.h"
+#include "mcld/LD/StaticResolver.h"
+#include "mcld/LD/ResolveInfo.h"
+#include "mcld/LinkerConfig.h"
 
-#include <mcld/Support/FileSystem.h>
+#include "mcld/Support/FileSystem.h"
 
 using namespace mcld;
 using namespace mcldtest;

@@ -8,7 +8,7 @@
 //===----------------------------------------------------------------------===//
 #ifndef MCLD_SUPPORT_REALPATH_H_
 #define MCLD_SUPPORT_REALPATH_H_
-#include <mcld/Support/Path.h>
+#include "mcld/Support/Path.h"
 
 #include <string>
 

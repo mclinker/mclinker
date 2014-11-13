@@ -6,10 +6,10 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include <mcld/MC/Attribute.h>
+#include "mcld/MC/Attribute.h"
 
-#include <mcld/MC/AttributeSet.h>
-#include <mcld/Support/MsgHandling.h>
+#include "mcld/MC/AttributeSet.h"
+#include "mcld/Support/MsgHandling.h"
 
 namespace mcld {
 

@@ -6,29 +6,29 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include <mcld/LD/ELFObjectWriter.h>
+#include "mcld/LD/ELFObjectWriter.h"
 
-#include <mcld/LinkerConfig.h>
-#include <mcld/LinkerScript.h>
-#include <mcld/Module.h>
-#include <mcld/ADT/SizeTraits.h>
-#include <mcld/Fragment/AlignFragment.h>
-#include <mcld/Fragment/FillFragment.h>
-#include <mcld/Fragment/NullFragment.h>
-#include <mcld/Fragment/RegionFragment.h>
-#include <mcld/Fragment/Stub.h>
-#include <mcld/LD/DebugString.h>
-#include <mcld/LD/EhFrame.h>
-#include <mcld/LD/ELFFileFormat.h>
-#include <mcld/LD/ELFSegment.h>
-#include <mcld/LD/ELFSegmentFactory.h>
-#include <mcld/LD/LDSection.h>
-#include <mcld/LD/LDSymbol.h>
-#include <mcld/LD/RelocData.h>
-#include <mcld/LD/SectionData.h>
-#include <mcld/Support/MsgHandling.h>
-#include <mcld/Target/GNUInfo.h>
-#include <mcld/Target/GNULDBackend.h>
+#include "mcld/LinkerConfig.h"
+#include "mcld/LinkerScript.h"
+#include "mcld/Module.h"
+#include "mcld/ADT/SizeTraits.h"
+#include "mcld/Fragment/AlignFragment.h"
+#include "mcld/Fragment/FillFragment.h"
+#include "mcld/Fragment/NullFragment.h"
+#include "mcld/Fragment/RegionFragment.h"
+#include "mcld/Fragment/Stub.h"
+#include "mcld/LD/DebugString.h"
+#include "mcld/LD/EhFrame.h"
+#include "mcld/LD/ELFFileFormat.h"
+#include "mcld/LD/ELFSegment.h"
+#include "mcld/LD/ELFSegmentFactory.h"
+#include "mcld/LD/LDSection.h"
+#include "mcld/LD/LDSymbol.h"
+#include "mcld/LD/RelocData.h"
+#include "mcld/LD/SectionData.h"
+#include "mcld/Support/MsgHandling.h"
+#include "mcld/Target/GNUInfo.h"
+#include "mcld/Target/GNULDBackend.h"
 
 #include <llvm/Support/Casting.h>
 #include <llvm/Support/ELF.h>

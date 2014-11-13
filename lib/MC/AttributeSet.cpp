@@ -6,9 +6,9 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include <mcld/MC/AttributeSet.h>
+#include "mcld/MC/AttributeSet.h"
 
-#include <mcld/MC/Attribute.h>
+#include "mcld/MC/Attribute.h"
 
 #include <cstddef>
 

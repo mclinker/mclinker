@@ -8,7 +8,7 @@
 //===----------------------------------------------------------------------===//
 #ifndef MCLD_MC_ATTRIBUTESET_H_
 #define MCLD_MC_ATTRIBUTESET_H_
-#include <mcld/Support/Compiler.h>
+#include "mcld/Support/Compiler.h"
 
 #include <vector>
 

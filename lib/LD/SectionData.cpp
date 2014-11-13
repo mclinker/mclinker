@@ -6,10 +6,10 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include <mcld/LD/SectionData.h>
+#include "mcld/LD/SectionData.h"
 
-#include <mcld/LD/LDSection.h>
-#include <mcld/Support/GCFactory.h>
+#include "mcld/LD/LDSection.h"
+#include "mcld/Support/GCFactory.h"
 
 #include <llvm/Support/ManagedStatic.h>
 

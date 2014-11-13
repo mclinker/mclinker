@@ -6,12 +6,12 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include <mcld/LD/BranchIsland.h>
+#include "mcld/LD/BranchIsland.h"
 
-#include <mcld/Fragment/AlignFragment.h>
-#include <mcld/Fragment/Stub.h>
-#include <mcld/LD/LDSection.h>
-#include <mcld/LD/ResolveInfo.h>
+#include "mcld/Fragment/AlignFragment.h"
+#include "mcld/Fragment/Stub.h"
+#include "mcld/LD/LDSection.h"
+#include "mcld/LD/ResolveInfo.h"
 
 #include <sstream>
 

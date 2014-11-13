@@ -8,8 +8,8 @@
 //===----------------------------------------------------------------------===//
 #ifndef MCLD_SUPPORT_GCFACTORY_H_
 #define MCLD_SUPPORT_GCFACTORY_H_
-#include <mcld/ADT/TypeTraits.h>
-#include <mcld/Support/Allocators.h>
+#include "mcld/ADT/TypeTraits.h"
+#include "mcld/Support/Allocators.h"
 
 #include <assert.h>
 #include <cstddef>

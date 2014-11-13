@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include <mcld/Fragment/AlignFragment.h>
-#include <mcld/LD/SectionData.h>
+#include "mcld/Fragment/AlignFragment.h"
+#include "mcld/LD/SectionData.h"
 
 #include <llvm/Support/MathExtras.h>
 

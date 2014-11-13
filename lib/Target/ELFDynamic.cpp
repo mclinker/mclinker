@@ -6,11 +6,11 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include <mcld/LD/ELFFileFormat.h>
-#include <mcld/Support/MsgHandling.h>
-#include <mcld/Target/ELFDynamic.h>
-#include <mcld/Target/GNULDBackend.h>
-#include <mcld/LinkerConfig.h>
+#include "mcld/LD/ELFFileFormat.h"
+#include "mcld/Support/MsgHandling.h"
+#include "mcld/Target/ELFDynamic.h"
+#include "mcld/Target/GNULDBackend.h"
+#include "mcld/LinkerConfig.h"
 
 #include <llvm/Support/ErrorHandling.h>
 #include <llvm/Support/Host.h>

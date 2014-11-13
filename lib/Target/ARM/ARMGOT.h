@@ -9,8 +9,8 @@
 #ifndef TARGET_ARM_ARMGOT_H_
 #define TARGET_ARM_ARMGOT_H_
 
-#include <mcld/Support/MemoryRegion.h>
-#include <mcld/Target/GOT.h>
+#include "mcld/Support/MemoryRegion.h"
+#include "mcld/Target/GOT.h"
 #include <llvm/ADT/DenseMap.h>
 #include <vector>
 

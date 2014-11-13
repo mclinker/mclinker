@@ -9,7 +9,7 @@
 #ifndef MCLD_SCRIPT_INPUTTOKEN_H_
 #define MCLD_SCRIPT_INPUTTOKEN_H_
 
-#include <mcld/Script/StrToken.h>
+#include "mcld/Script/StrToken.h"
 
 namespace mcld {
 

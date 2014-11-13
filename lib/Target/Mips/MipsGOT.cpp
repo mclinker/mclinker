@@ -7,9 +7,9 @@
 //
 //===----------------------------------------------------------------------===//
 
-#include <mcld/LD/ResolveInfo.h>
-#include <mcld/Support/MsgHandling.h>
-#include <mcld/Target/OutputRelocSection.h>
+#include "mcld/LD/ResolveInfo.h"
+#include "mcld/Support/MsgHandling.h"
+#include "mcld/Target/OutputRelocSection.h"
 
 #include "MipsGOT.h"
 #include "MipsRelocator.h"

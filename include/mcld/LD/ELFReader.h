@@ -9,10 +9,10 @@
 #ifndef MCLD_LD_ELFREADER_H_
 #define MCLD_LD_ELFREADER_H_
 
-#include <mcld/LD/ELFReaderIf.h>
-#include <mcld/LD/LDSymbol.h>
-#include <mcld/LD/ResolveInfo.h>
-#include <mcld/Target/GNULDBackend.h>
+#include "mcld/LD/ELFReaderIf.h"
+#include "mcld/LD/LDSymbol.h"
+#include "mcld/LD/ResolveInfo.h"
+#include "mcld/Target/GNULDBackend.h"
 
 #include <llvm/ADT/StringRef.h>
 #include <llvm/Support/ELF.h>

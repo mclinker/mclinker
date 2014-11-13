@@ -10,9 +10,9 @@
 #include "HexagonAbsoluteStub.h"
 #include "HexagonLDBackend.h"
 
-#include <mcld/LD/ResolveInfo.h>
-#include <mcld/LD/LDSymbol.h>
-#include <mcld/Fragment/Relocation.h>
+#include "mcld/LD/ResolveInfo.h"
+#include "mcld/LD/LDSymbol.h"
+#include "mcld/Fragment/Relocation.h"
 
 #include <llvm/Support/ELF.h>
 #include <llvm/Support/MathExtras.h>

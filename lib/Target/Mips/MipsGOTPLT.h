@@ -9,8 +9,8 @@
 #ifndef TARGET_MIPS_MIPSGOTPLT_H_
 #define TARGET_MIPS_MIPSGOTPLT_H_
 
-#include <mcld/Support/MemoryRegion.h>
-#include <mcld/Target/GOT.h>
+#include "mcld/Support/MemoryRegion.h"
+#include "mcld/Target/GOT.h"
 #include <llvm/ADT/DenseMap.h>
 
 namespace mcld {

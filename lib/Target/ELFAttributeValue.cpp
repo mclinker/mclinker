@@ -7,11 +7,11 @@
 //
 //===----------------------------------------------------------------------===//
 
-#include <mcld/Target/ELFAttributeValue.h>
+#include "mcld/Target/ELFAttributeValue.h"
 
 #include <llvm/Support/ErrorHandling.h>
 
-#include <mcld/Support/LEB128.h>
+#include "mcld/Support/LEB128.h"
 
 namespace mcld {
 

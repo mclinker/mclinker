@@ -6,13 +6,13 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include <mcld/Script/RpnExpr.h>
+#include "mcld/Script/RpnExpr.h"
 
-#include <mcld/Script/ExprToken.h>
-#include <mcld/Script/Operand.h>
-#include <mcld/Script/Operator.h>
-#include <mcld/Support/GCFactory.h>
-#include <mcld/Support/raw_ostream.h>
+#include "mcld/Script/ExprToken.h"
+#include "mcld/Script/Operand.h"
+#include "mcld/Script/Operator.h"
+#include "mcld/Support/GCFactory.h"
+#include "mcld/Support/raw_ostream.h"
 
 #include <llvm/Support/ManagedStatic.h>
 #include <llvm/Support/Casting.h>

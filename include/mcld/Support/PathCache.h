@@ -9,10 +9,10 @@
 #ifndef MCLD_SUPPORT_PATHCACHE_H_
 #define MCLD_SUPPORT_PATHCACHE_H_
 
-#include <mcld/ADT/HashEntry.h>
-#include <mcld/ADT/HashTable.h>
-#include <mcld/ADT/StringHash.h>
-#include <mcld/Support/Path.h>
+#include "mcld/ADT/HashEntry.h"
+#include "mcld/ADT/HashTable.h"
+#include "mcld/ADT/StringHash.h"
+#include "mcld/Support/Path.h"
 
 namespace mcld {
 namespace sys {

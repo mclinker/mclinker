@@ -9,8 +9,8 @@
 #include "ARMGOT.h"
 #include "ARMPLT.h"
 
-#include <mcld/LD/LDSection.h>
-#include <mcld/Support/MsgHandling.h>
+#include "mcld/LD/LDSection.h"
+#include "mcld/Support/MsgHandling.h"
 
 #include <new>
 

@@ -6,12 +6,12 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include <mcld/Script/UnaryOp.h>
+#include "mcld/Script/UnaryOp.h"
 
-#include <mcld/LD/LDSection.h>
-#include <mcld/Object/SectionMap.h>
-#include <mcld/Script/Operand.h>
-#include <mcld/Module.h>
+#include "mcld/LD/LDSection.h"
+#include "mcld/Object/SectionMap.h"
+#include "mcld/Script/Operand.h"
+#include "mcld/Module.h"
 
 #include <llvm/Support/Casting.h>
 

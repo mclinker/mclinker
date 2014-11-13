@@ -6,21 +6,21 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include <mcld/LD/GarbageCollection.h>
+#include "mcld/LD/GarbageCollection.h"
 
-#include <mcld/Fragment/Fragment.h>
-#include <mcld/Fragment/Relocation.h>
-#include <mcld/LD/LDContext.h>
-#include <mcld/LD/LDFileFormat.h>
-#include <mcld/LD/LDSection.h>
-#include <mcld/LD/LDSymbol.h>
-#include <mcld/LD/SectionData.h>
-#include <mcld/LD/RelocData.h>
-#include <mcld/LinkerConfig.h>
-#include <mcld/LinkerScript.h>
-#include <mcld/Module.h>
-#include <mcld/Support/MsgHandling.h>
-#include <mcld/Target/TargetLDBackend.h>
+#include "mcld/Fragment/Fragment.h"
+#include "mcld/Fragment/Relocation.h"
+#include "mcld/LD/LDContext.h"
+#include "mcld/LD/LDFileFormat.h"
+#include "mcld/LD/LDSection.h"
+#include "mcld/LD/LDSymbol.h"
+#include "mcld/LD/SectionData.h"
+#include "mcld/LD/RelocData.h"
+#include "mcld/LinkerConfig.h"
+#include "mcld/LinkerScript.h"
+#include "mcld/Module.h"
+#include "mcld/Support/MsgHandling.h"
+#include "mcld/Target/TargetLDBackend.h"
 
 #include <llvm/Support/Casting.h>
 

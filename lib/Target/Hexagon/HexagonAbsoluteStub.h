@@ -9,7 +9,7 @@
 #ifndef TARGET_HEXAGON_HEXAGONABSOLUTESTUB_H_
 #define TARGET_HEXAGON_HEXAGONABSOLUTESTUB_H_
 
-#include <mcld/Fragment/Stub.h>
+#include "mcld/Fragment/Stub.h"
 #include <llvm/Support/DataTypes.h>
 #include <string>
 #include <vector>

@@ -6,11 +6,11 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include <mcld/LinkerConfig.h>
-#include <mcld/LD/ELFFileFormat.h>
-#include <mcld/LD/ELFSegment.h>
-#include <mcld/LD/ELFSegmentFactory.h>
-#include <mcld/Target/GNULDBackend.h>
+#include "mcld/LinkerConfig.h"
+#include "mcld/LD/ELFFileFormat.h"
+#include "mcld/LD/ELFSegment.h"
+#include "mcld/LD/ELFSegmentFactory.h"
+#include "mcld/Target/GNULDBackend.h"
 #include "MipsELFDynamic.h"
 #include "MipsLDBackend.h"
 

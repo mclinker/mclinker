@@ -11,11 +11,11 @@
 
 #include <gtest.h>
 
-#include <mcld/Support/GCFactoryListTraits.h>
+#include "mcld/Support/GCFactoryListTraits.h"
 
 #include <llvm/ADT/ilist_node.h>
 
-#include <mcld/Support/GCFactory.h>
+#include "mcld/Support/GCFactory.h"
 
 namespace mcldtest {
 

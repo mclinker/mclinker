@@ -6,10 +6,10 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include <mcld/LD/LDSection.h>
-#include <mcld/IRBuilder.h>
-#include <mcld/Support/MsgHandling.h>
-#include <mcld/Target/GOT.h>
+#include "mcld/LD/LDSection.h"
+#include "mcld/IRBuilder.h"
+#include "mcld/Support/MsgHandling.h"
+#include "mcld/Target/GOT.h"
 
 #include <llvm/Support/Casting.h>
 

@@ -6,12 +6,12 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include <mcld/LD/LDSymbol.h>
+#include "mcld/LD/LDSymbol.h"
 
-#include <mcld/Config/Config.h>
-#include <mcld/Fragment/FragmentRef.h>
-#include <mcld/Fragment/NullFragment.h>
-#include <mcld/Support/GCFactory.h>
+#include "mcld/Config/Config.h"
+#include "mcld/Fragment/FragmentRef.h"
+#include "mcld/Fragment/NullFragment.h"
+#include "mcld/Support/GCFactory.h"
 
 #include <llvm/Support/ManagedStatic.h>
 

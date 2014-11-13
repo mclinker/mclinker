@@ -6,13 +6,13 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include <mcld/LD/DiagnosticEngine.h>
-#include <mcld/LD/DiagnosticLineInfo.h>
-#include <mcld/LD/DiagnosticPrinter.h>
-#include <mcld/LD/MsgHandler.h>
-#include <mcld/LD/TextDiagnosticPrinter.h>
-#include <mcld/Support/MsgHandling.h>
-#include <mcld/Support/raw_ostream.h>
+#include "mcld/LD/DiagnosticEngine.h"
+#include "mcld/LD/DiagnosticLineInfo.h"
+#include "mcld/LD/DiagnosticPrinter.h"
+#include "mcld/LD/MsgHandler.h"
+#include "mcld/LD/TextDiagnosticPrinter.h"
+#include "mcld/Support/MsgHandling.h"
+#include "mcld/Support/raw_ostream.h"
 
 #include <llvm/Support/ManagedStatic.h>
 #include <llvm/Support/raw_ostream.h>

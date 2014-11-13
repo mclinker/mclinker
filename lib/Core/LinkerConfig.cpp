@@ -6,10 +6,10 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include <mcld/LinkerConfig.h>
+#include "mcld/LinkerConfig.h"
 
-#include <mcld/Config/Config.h>
-#include <mcld/Support/MsgHandling.h>
+#include "mcld/Config/Config.h"
+#include "mcld/Support/MsgHandling.h"
 
 namespace mcld {
 

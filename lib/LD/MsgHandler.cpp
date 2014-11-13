@@ -6,9 +6,9 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include <mcld/LD/MsgHandler.h>
+#include "mcld/LD/MsgHandler.h"
 
-#include <mcld/LD/DiagnosticEngine.h>
+#include "mcld/LD/DiagnosticEngine.h"
 
 namespace mcld {
 

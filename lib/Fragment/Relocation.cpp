@@ -6,15 +6,15 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include <mcld/Fragment/Relocation.h>
+#include "mcld/Fragment/Relocation.h"
 
-#include <mcld/LD/LDSection.h>
-#include <mcld/LD/LDSymbol.h>
-#include <mcld/LD/RelocationFactory.h>
-#include <mcld/LD/Relocator.h>
-#include <mcld/LD/ResolveInfo.h>
-#include <mcld/LD/SectionData.h>
-#include <mcld/Support/MsgHandling.h>
+#include "mcld/LD/LDSection.h"
+#include "mcld/LD/LDSymbol.h"
+#include "mcld/LD/RelocationFactory.h"
+#include "mcld/LD/Relocator.h"
+#include "mcld/LD/ResolveInfo.h"
+#include "mcld/LD/SectionData.h"
+#include "mcld/Support/MsgHandling.h"
 
 #include <llvm/Support/ManagedStatic.h>
 

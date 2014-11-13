@@ -9,8 +9,8 @@
 #ifndef MCLD_ADT_TREEALLOCATOR_H_
 #define MCLD_ADT_TREEALLOCATOR_H_
 
-#include <mcld/ADT/TreeBase.h>
-#include <mcld/Support/GCFactory.h>
+#include "mcld/ADT/TreeBase.h"
+#include "mcld/Support/GCFactory.h"
 
 #include <set>
 

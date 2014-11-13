@@ -6,11 +6,11 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include <mcld/LD/ResolveInfo.h>
+#include "mcld/LD/ResolveInfo.h"
 
-#include <mcld/LinkerConfig.h>
-#include <mcld/LD/LDSection.h>
-#include <mcld/Support/GCFactory.h>
+#include "mcld/LinkerConfig.h"
+#include "mcld/LD/LDSection.h"
+#include "mcld/Support/GCFactory.h"
 
 #include <llvm/Support/ManagedStatic.h>
 

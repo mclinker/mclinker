@@ -8,8 +8,8 @@
 //===----------------------------------------------------------------------===//
 #ifndef MCLD_SUPPORT_FILEHANDLE_H_
 #define MCLD_SUPPORT_FILEHANDLE_H_
-#include <mcld/ADT/Flags.h>
-#include <mcld/Support/Path.h>
+#include "mcld/ADT/Flags.h"
+#include "mcld/Support/Path.h"
 
 #include <errno.h>
 

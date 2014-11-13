@@ -6,15 +6,15 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include <mcld/LD/ELFDynObjReader.h>
+#include "mcld/LD/ELFDynObjReader.h"
 
-#include <mcld/IRBuilder.h>
-#include <mcld/LinkerConfig.h>
-#include <mcld/LD/ELFReader.h>
-#include <mcld/LD/LDContext.h>
-#include <mcld/MC/Input.h>
-#include <mcld/Support/MemoryArea.h>
-#include <mcld/Target/GNULDBackend.h>
+#include "mcld/IRBuilder.h"
+#include "mcld/LinkerConfig.h"
+#include "mcld/LD/ELFReader.h"
+#include "mcld/LD/LDContext.h"
+#include "mcld/MC/Input.h"
+#include "mcld/Support/MemoryArea.h"
+#include "mcld/Target/GNULDBackend.h"
 
 #include <llvm/ADT/StringRef.h>
 #include <llvm/ADT/Twine.h>

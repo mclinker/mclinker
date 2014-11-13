@@ -8,7 +8,7 @@
 //===----------------------------------------------------------------------===//
 #include "X86ELFDynamic.h"
 
-#include <mcld/LD/ELFFileFormat.h>
+#include "mcld/LD/ELFFileFormat.h"
 
 namespace mcld {
 

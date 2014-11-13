@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include <mcld/Support/FileHandle.h>
-#include <mcld/Support/Directory.h>
+#include "mcld/Support/FileHandle.h"
+#include "mcld/Support/Directory.h"
 
 #include <string>
 

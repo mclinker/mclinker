@@ -8,8 +8,8 @@
 //===----------------------------------------------------------------------===//
 #include "AArch64ELFDynamic.h"
 
-#include <mcld/LD/ELFFileFormat.h>
-#include <mcld/LinkerConfig.h>
+#include "mcld/LD/ELFFileFormat.h"
+#include "mcld/LinkerConfig.h"
 
 namespace mcld {
 

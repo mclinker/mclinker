@@ -8,7 +8,7 @@
 //===----------------------------------------------------------------------===//
 #ifndef TARGET_AARCH64_AARCH64GNUINFO_H_
 #define TARGET_AARCH64_AARCH64GNUINFO_H_
-#include <mcld/Target/GNUInfo.h>
+#include "mcld/Target/GNUInfo.h"
 
 #include <llvm/Support/ELF.h>
 

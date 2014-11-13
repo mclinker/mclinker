@@ -10,9 +10,9 @@
 #include "HexagonRelocationFunctions.h"
 #include "HexagonEncodings.h"
 
-#include <mcld/LD/ELFFileFormat.h>
-#include <mcld/LD/LDSymbol.h>
-#include <mcld/Support/MsgHandling.h>
+#include "mcld/LD/ELFFileFormat.h"
+#include "mcld/LD/LDSymbol.h"
+#include "mcld/Support/MsgHandling.h"
 
 #include <llvm/ADT/Twine.h>
 #include <llvm/Support/DataTypes.h>

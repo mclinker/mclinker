@@ -6,22 +6,22 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include <mcld/LD/IdenticalCodeFolding.h>
+#include "mcld/LD/IdenticalCodeFolding.h"
 
-#include <mcld/GeneralOptions.h>
-#include <mcld/Module.h>
-#include <mcld/Fragment/RegionFragment.h>
-#include <mcld/LD/LDContext.h>
-#include <mcld/LD/LDSection.h>
-#include <mcld/LD/RelocData.h>
-#include <mcld/LD/Relocator.h>
-#include <mcld/LD/ResolveInfo.h>
-#include <mcld/LD/SectionData.h>
-#include <mcld/LinkerConfig.h>
-#include <mcld/MC/Input.h>
-#include <mcld/Support/Demangle.h>
-#include <mcld/Support/MsgHandling.h>
-#include <mcld/Target/GNULDBackend.h>
+#include "mcld/GeneralOptions.h"
+#include "mcld/Module.h"
+#include "mcld/Fragment/RegionFragment.h"
+#include "mcld/LD/LDContext.h"
+#include "mcld/LD/LDSection.h"
+#include "mcld/LD/RelocData.h"
+#include "mcld/LD/Relocator.h"
+#include "mcld/LD/ResolveInfo.h"
+#include "mcld/LD/SectionData.h"
+#include "mcld/LinkerConfig.h"
+#include "mcld/MC/Input.h"
+#include "mcld/Support/Demangle.h"
+#include "mcld/Support/MsgHandling.h"
+#include "mcld/Target/GNULDBackend.h"
 
 #include <llvm/ADT/StringRef.h>
 #include <llvm/Support/Casting.h>

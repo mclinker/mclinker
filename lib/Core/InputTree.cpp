@@ -6,7 +6,7 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include <mcld/InputTree.h>
+#include "mcld/InputTree.h"
 
 namespace mcld {
 

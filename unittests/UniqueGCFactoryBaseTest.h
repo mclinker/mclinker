@@ -9,9 +9,9 @@
 #ifndef UNIQUE_GCFACTORYBASE_TEST_H
 #define UNIQUE_GCFACTORYBASE_TEST_H
 
-#include <mcld/Support/UniqueGCFactory.h>
-#include <mcld/LinkerConfig.h>
-#include <mcld/LD/DiagnosticPrinter.h>
+#include "mcld/Support/UniqueGCFactory.h"
+#include "mcld/LinkerConfig.h"
+#include "mcld/LD/DiagnosticPrinter.h"
 #include <gtest.h>
 
 namespace mcldtest {

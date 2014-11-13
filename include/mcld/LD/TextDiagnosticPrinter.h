@@ -8,7 +8,7 @@
 //===----------------------------------------------------------------------===//
 #ifndef MCLD_LD_TEXTDIAGNOSTICPRINTER_H_
 #define MCLD_LD_TEXTDIAGNOSTICPRINTER_H_
-#include <mcld/LD/DiagnosticPrinter.h>
+#include "mcld/LD/DiagnosticPrinter.h"
 
 #include <llvm/Support/raw_ostream.h>
 

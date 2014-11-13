@@ -8,7 +8,7 @@
 //===----------------------------------------------------------------------===//
 #ifndef TARGET_ARM_ARMGNUINFO_H_
 #define TARGET_ARM_ARMGNUINFO_H_
-#include <mcld/Target/GNUInfo.h>
+#include "mcld/Target/GNUInfo.h"
 
 #include <llvm/Support/ELF.h>
 

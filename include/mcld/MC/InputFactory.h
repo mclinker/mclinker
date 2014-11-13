@@ -8,8 +8,8 @@
 //===----------------------------------------------------------------------===//
 #ifndef MCLD_MC_INPUTFACTORY_H_
 #define MCLD_MC_INPUTFACTORY_H_
-#include <mcld/MC/Input.h>
-#include <mcld/Support/GCFactory.h>
+#include "mcld/MC/Input.h"
+#include "mcld/Support/GCFactory.h"
 
 namespace mcld {
 

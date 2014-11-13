@@ -13,8 +13,8 @@
 #ifndef MCLD_SUPPORT_FILESYSTEM_H_
 #define MCLD_SUPPORT_FILESYSTEM_H_
 
-#include <mcld/Config/Config.h>
-#include <mcld/Support/PathCache.h>
+#include "mcld/Config/Config.h"
+#include "mcld/Support/PathCache.h"
 
 #include <iosfwd>
 #include <locale>

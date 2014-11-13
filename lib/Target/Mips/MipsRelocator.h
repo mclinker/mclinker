@@ -9,8 +9,8 @@
 #ifndef TARGET_MIPS_MIPSRELOCATOR_H_
 #define TARGET_MIPS_MIPSRELOCATOR_H_
 
-#include <mcld/LD/Relocator.h>
-#include <mcld/Support/GCFactory.h>
+#include "mcld/LD/Relocator.h"
+#include "mcld/Support/GCFactory.h"
 #include "MipsLDBackend.h"
 
 #include <llvm/ADT/DenseMapInfo.h>

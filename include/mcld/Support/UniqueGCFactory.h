@@ -9,7 +9,7 @@
 #ifndef MCLD_SUPPORT_UNIQUEGCFACTORY_H_
 #define MCLD_SUPPORT_UNIQUEGCFACTORY_H_
 
-#include <mcld/Support/GCFactory.h>
+#include "mcld/Support/GCFactory.h"
 
 #include <map>
 #include <utility>

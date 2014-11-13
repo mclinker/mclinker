@@ -14,9 +14,9 @@
 #include "X86GOTPLT.h"
 #include "X86PLT.h"
 
-#include <mcld/LD/LDSection.h>
-#include <mcld/Target/GNULDBackend.h>
-#include <mcld/Target/OutputRelocSection.h>
+#include "mcld/LD/LDSection.h"
+#include "mcld/Target/GNULDBackend.h"
+#include "mcld/Target/OutputRelocSection.h"
 
 namespace mcld {
 

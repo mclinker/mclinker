@@ -9,7 +9,7 @@
 #ifndef MCLD_ADT_TREEBASE_H_
 #define MCLD_ADT_TREEBASE_H_
 
-#include <mcld/ADT/TypeTraits.h>
+#include "mcld/ADT/TypeTraits.h"
 
 #include <cassert>
 #include <cstddef>

@@ -8,9 +8,9 @@
 //===----------------------------------------------------------------------===//
 #include "AArch64GOT.h"
 
-#include <mcld/LD/LDSection.h>
-#include <mcld/LD/LDFileFormat.h>
-#include <mcld/Support/MsgHandling.h>
+#include "mcld/LD/LDSection.h"
+#include "mcld/LD/LDFileFormat.h"
+#include "mcld/Support/MsgHandling.h"
 
 #include <llvm/Support/Casting.h>
 

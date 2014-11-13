@@ -8,7 +8,7 @@
 //===----------------------------------------------------------------------===//
 #ifndef MCLD_LD_DWARFLINEINFO_H_
 #define MCLD_LD_DWARFLINEINFO_H_
-#include <mcld/LD/DiagnosticLineInfo.h>
+#include "mcld/LD/DiagnosticLineInfo.h"
 
 namespace mcld {
 

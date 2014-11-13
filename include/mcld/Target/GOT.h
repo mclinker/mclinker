@@ -9,9 +9,9 @@
 #ifndef MCLD_TARGET_GOT_H_
 #define MCLD_TARGET_GOT_H_
 
-#include <mcld/Fragment/TargetFragment.h>
-#include <mcld/LD/LDSection.h>
-#include <mcld/LD/SectionData.h>
+#include "mcld/Fragment/TargetFragment.h"
+#include "mcld/LD/LDSection.h"
+#include "mcld/LD/SectionData.h"
 
 namespace mcld {
 

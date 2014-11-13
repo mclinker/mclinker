@@ -9,7 +9,7 @@
 #ifndef MCLD_SCRIPT_GROUPCMD_H_
 #define MCLD_SCRIPT_GROUPCMD_H_
 
-#include <mcld/Script/ScriptCommand.h>
+#include "mcld/Script/ScriptCommand.h"
 
 namespace mcld {
 

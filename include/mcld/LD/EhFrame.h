@@ -9,11 +9,11 @@
 #ifndef MCLD_LD_EHFRAME_H_
 #define MCLD_LD_EHFRAME_H_
 
-#include <mcld/Config/Config.h>
-#include <mcld/Fragment/RegionFragment.h>
-#include <mcld/LD/SectionData.h>
-#include <mcld/Support/Allocators.h>
-#include <mcld/Support/Compiler.h>
+#include "mcld/Config/Config.h"
+#include "mcld/Fragment/RegionFragment.h"
+#include "mcld/LD/SectionData.h"
+#include "mcld/Support/Allocators.h"
+#include "mcld/Support/Compiler.h"
 
 #include <llvm/ADT/StringRef.h>
 

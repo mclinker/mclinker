@@ -9,11 +9,11 @@
 #ifndef MCLD_LD_RELOCDATA_H_
 #define MCLD_LD_RELOCDATA_H_
 
-#include <mcld/Config/Config.h>
-#include <mcld/Fragment/Relocation.h>
-#include <mcld/Support/Allocators.h>
-#include <mcld/Support/Compiler.h>
-#include <mcld/Support/GCFactoryListTraits.h>
+#include "mcld/Config/Config.h"
+#include "mcld/Fragment/Relocation.h"
+#include "mcld/Support/Allocators.h"
+#include "mcld/Support/Compiler.h"
+#include "mcld/Support/GCFactoryListTraits.h"
 
 #include <llvm/ADT/ilist.h>
 #include <llvm/ADT/ilist_node.h>

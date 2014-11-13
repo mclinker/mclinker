@@ -9,9 +9,9 @@
 #ifndef MCLD_MC_COMMANDACTION_H_
 #define MCLD_MC_COMMANDACTION_H_
 
-#include <mcld/MC/InputAction.h>
-#include <mcld/Script/ScriptFile.h>
-#include <mcld/Support/Path.h>
+#include "mcld/MC/InputAction.h"
+#include "mcld/Script/ScriptFile.h"
+#include "mcld/Support/Path.h"
 
 #include <string>
 

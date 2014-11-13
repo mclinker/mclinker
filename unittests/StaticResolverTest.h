@@ -10,7 +10,7 @@
 #define STATICRESOLVER_TEST_H
 
 #include <gtest.h>
-#include <mcld/LinkerConfig.h>
+#include "mcld/LinkerConfig.h"
 
 namespace mcld {
 

@@ -9,7 +9,7 @@
 #ifndef MCLD_LD_MERGEDSTRINGTABLE_H_
 #define MCLD_LD_MERGEDSTRINGTABLE_H_
 
-#include <mcld/Support/MemoryRegion.h>
+#include "mcld/Support/MemoryRegion.h"
 
 #include <llvm/ADT/StringMap.h>
 #include <llvm/ADT/StringRef.h>

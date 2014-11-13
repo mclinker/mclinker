@@ -9,7 +9,7 @@
 #ifndef MCLD_SCRIPT_SCRIPTREADER_H_
 #define MCLD_SCRIPT_SCRIPTREADER_H_
 
-#include <mcld/LD/LDReader.h>
+#include "mcld/LD/LDReader.h"
 
 namespace mcld {
 

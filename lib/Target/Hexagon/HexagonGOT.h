@@ -9,7 +9,7 @@
 #ifndef TARGET_HEXAGON_HEXAGONGOT_H_
 #define TARGET_HEXAGON_HEXAGONGOT_H_
 
-#include <mcld/Target/GOT.h>
+#include "mcld/Target/GOT.h"
 
 namespace mcld {
 

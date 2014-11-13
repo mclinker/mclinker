@@ -9,7 +9,7 @@
 #ifndef MCLD_SCRIPT_INPUTCMD_H_
 #define MCLD_SCRIPT_INPUTCMD_H_
 
-#include <mcld/Script/ScriptCommand.h>
+#include "mcld/Script/ScriptCommand.h"
 
 namespace mcld {
 

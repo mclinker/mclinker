@@ -6,9 +6,9 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include <mcld/Target/TargetLDBackend.h>
+#include "mcld/Target/TargetLDBackend.h"
 
-#include <mcld/LinkerConfig.h>
+#include "mcld/LinkerConfig.h"
 
 namespace mcld {
 

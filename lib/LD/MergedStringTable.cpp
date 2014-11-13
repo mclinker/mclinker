@@ -6,7 +6,7 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include <mcld/LD/MergedStringTable.h>
+#include "mcld/LD/MergedStringTable.h"
 
 namespace mcld {
 

@@ -9,9 +9,9 @@
 #ifndef TARGET_AARCH64_AARCH64PLT_H_
 #define TARGET_AARCH64_AARCH64PLT_H_
 
-#include <mcld/Support/MemoryRegion.h>
-#include <mcld/Target/GOT.h>
-#include <mcld/Target/PLT.h>
+#include "mcld/Support/MemoryRegion.h"
+#include "mcld/Target/GOT.h"
+#include "mcld/Target/PLT.h"
 
 const uint8_t aarch64_plt0[] = {
     0xf0, 0x7b, 0xbf, 0xa9,  /* stp x16, x30, [sp, #-16]! */

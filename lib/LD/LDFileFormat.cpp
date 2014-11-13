@@ -6,7 +6,7 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include <mcld/LD/LDFileFormat.h>
+#include "mcld/LD/LDFileFormat.h"
 
 namespace mcld {
 

@@ -9,7 +9,7 @@
 #ifndef TARGET_X86_X86ELFDYNAMIC_H_
 #define TARGET_X86_X86ELFDYNAMIC_H_
 
-#include <mcld/Target/ELFDynamic.h>
+#include "mcld/Target/ELFDynamic.h"
 
 namespace mcld {
 

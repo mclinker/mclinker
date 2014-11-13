@@ -7,8 +7,8 @@
 //
 //===----------------------------------------------------------------------===//
 #include "GraphTest.h"
-#include <mcld/ADT/GraphLite/Digraph.h>
-#include <mcld/ADT/GraphLite/ListDigraph.h>
+#include "mcld/ADT/GraphLite/Digraph.h"
+#include "mcld/ADT/GraphLite/ListDigraph.h"
 
 using namespace mcld;
 using namespace mcld::test;

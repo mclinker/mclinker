@@ -8,8 +8,8 @@
 //===----------------------------------------------------------------------===//
 #ifndef MCLD_SUPPORT_ALLOCATORS_H_
 #define MCLD_SUPPORT_ALLOCATORS_H_
-#include <mcld/ADT/TypeTraits.h>
-#include <mcld/Support/Compiler.h>
+#include "mcld/ADT/TypeTraits.h"
+#include "mcld/Support/Compiler.h"
 
 #include <cstddef>
 #include <cstdlib>

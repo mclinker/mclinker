@@ -8,7 +8,7 @@
 //===----------------------------------------------------------------------===//
 #ifndef MCLD_ATTRIBUTEOPTION_H_
 #define MCLD_ATTRIBUTEOPTION_H_
-#include <mcld/MC/Attribute.h>
+#include "mcld/MC/Attribute.h"
 
 namespace mcld {
 

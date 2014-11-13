@@ -6,13 +6,13 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include <mcld/LD/EhFrameReader.h>
+#include "mcld/LD/EhFrameReader.h"
 
-#include <mcld/Fragment/NullFragment.h>
-#include <mcld/MC/Input.h>
-#include <mcld/LD/LDSection.h>
-#include <mcld/Support/MsgHandling.h>
-#include <mcld/Support/MemoryArea.h>
+#include "mcld/Fragment/NullFragment.h"
+#include "mcld/MC/Input.h"
+#include "mcld/LD/LDSection.h"
+#include "mcld/Support/MsgHandling.h"
+#include "mcld/Support/MemoryArea.h"
 
 #include <llvm/ADT/StringRef.h>
 #include <llvm/Support/Dwarf.h>

@@ -6,9 +6,9 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include <mcld/Config/Config.h>
-#include <mcld/Support/CXADemangle.tcc>
-#include <mcld/Support/Demangle.h>
+#include "mcld/Config/Config.h"
+#include "mcld/Support/CXADemangle.tcc"
+#include "mcld/Support/Demangle.h"
 
 #ifdef HAVE_CXXABI_H
 #include <cxxabi.h>

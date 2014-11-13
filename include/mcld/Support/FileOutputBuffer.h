@@ -9,7 +9,7 @@
 #ifndef MCLD_SUPPORT_FILEOUTPUTBUFFER_H_
 #define MCLD_SUPPORT_FILEOUTPUTBUFFER_H_
 
-#include <mcld/Support/MemoryRegion.h>
+#include "mcld/Support/MemoryRegion.h"
 
 #include <llvm/ADT/StringRef.h>
 #include <llvm/Support/DataTypes.h>

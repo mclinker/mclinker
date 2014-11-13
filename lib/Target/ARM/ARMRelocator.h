@@ -9,9 +9,9 @@
 #ifndef TARGET_ARM_ARMRELOCATOR_H_
 #define TARGET_ARM_ARMRELOCATOR_H_
 
-#include <mcld/LD/Relocator.h>
-#include <mcld/Target/GOT.h>
-#include <mcld/Target/KeyEntryMap.h>
+#include "mcld/LD/Relocator.h"
+#include "mcld/Target/GOT.h"
+#include "mcld/Target/KeyEntryMap.h"
 #include "ARMLDBackend.h"
 
 namespace mcld {

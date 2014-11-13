@@ -8,12 +8,12 @@
 //===----------------------------------------------------------------------===//
 #include "FragmentRefTest.h"
 
-#include <mcld/Fragment/FragmentRef.h>
-#include <mcld/Fragment/RegionFragment.h>
-#include <mcld/Support/MemoryAreaFactory.h>
-#include <mcld/Support/FileHandle.h>
-#include <mcld/Support/MemoryRegion.h>
-#include <mcld/Support/Path.h>
+#include "mcld/Fragment/FragmentRef.h"
+#include "mcld/Fragment/RegionFragment.h"
+#include "mcld/Support/MemoryAreaFactory.h"
+#include "mcld/Support/FileHandle.h"
+#include "mcld/Support/MemoryRegion.h"
+#include "mcld/Support/Path.h"
 #include <llvm/ADT/StringRef.h>
 
 using namespace mcld;

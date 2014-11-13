@@ -8,7 +8,7 @@
 //===----------------------------------------------------------------------===//
 #ifndef MCLD_LD_BSDARCHIVEREADER_H_
 #define MCLD_LD_BSDARCHIVEREADER_H_
-#include <mcld/LD/ArchiveReader.h>
+#include "mcld/LD/ArchiveReader.h"
 
 namespace mcld {
 

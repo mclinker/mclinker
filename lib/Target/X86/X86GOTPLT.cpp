@@ -9,9 +9,9 @@
 #include "X86GOTPLT.h"
 #include "X86PLT.h"
 
-#include <mcld/LD/LDSection.h>
-#include <mcld/LD/LDFileFormat.h>
-#include <mcld/Support/MsgHandling.h>
+#include "mcld/LD/LDSection.h"
+#include "mcld/LD/LDFileFormat.h"
+#include "mcld/Support/MsgHandling.h"
 
 #include <llvm/Support/Casting.h>
 

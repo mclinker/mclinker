@@ -6,13 +6,13 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include <mcld/LD/ELFBinaryReader.h>
-#include <mcld/Module.h>
-#include <mcld/LinkerScript.h>
-#include <mcld/LinkerConfig.h>
-#include <mcld/IRBuilder.h>
-#include <mcld/GeneralOptions.h>
-#include <mcld/MC/Input.h>
+#include "mcld/LD/ELFBinaryReader.h"
+#include "mcld/Module.h"
+#include "mcld/LinkerScript.h"
+#include "mcld/LinkerConfig.h"
+#include "mcld/IRBuilder.h"
+#include "mcld/GeneralOptions.h"
+#include "mcld/MC/Input.h"
 
 #include "ELFBinaryReaderTest.h"
 

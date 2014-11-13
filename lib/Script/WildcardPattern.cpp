@@ -6,10 +6,10 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include <mcld/Script/WildcardPattern.h>
+#include "mcld/Script/WildcardPattern.h"
 
-#include <mcld/Support/GCFactory.h>
-#include <mcld/Support/raw_ostream.h>
+#include "mcld/Support/GCFactory.h"
+#include "mcld/Support/raw_ostream.h"
 
 #include <llvm/Support/ManagedStatic.h>
 #include <cassert>

@@ -9,8 +9,8 @@
 #ifndef MCLD_SCRIPT_STRTOKEN_H_
 #define MCLD_SCRIPT_STRTOKEN_H_
 
-#include <mcld/Config/Config.h>
-#include <mcld/Support/Allocators.h>
+#include "mcld/Config/Config.h"
+#include "mcld/Support/Allocators.h"
 
 #include <string>
 

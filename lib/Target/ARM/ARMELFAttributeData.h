@@ -9,8 +9,8 @@
 #ifndef TARGET_ARM_ARMELFATTRIBUTEDATA_H_
 #define TARGET_ARM_ARMELFATTRIBUTEDATA_H_
 
-#include <mcld/Target/ELFAttributeData.h>
-#include <mcld/Target/ELFAttributeValue.h>
+#include "mcld/Target/ELFAttributeData.h"
+#include "mcld/Target/ELFAttributeValue.h"
 
 #include <map>
 #include <string>

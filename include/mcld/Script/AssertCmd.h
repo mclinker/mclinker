@@ -9,7 +9,7 @@
 #ifndef MCLD_SCRIPT_ASSERTCMD_H_
 #define MCLD_SCRIPT_ASSERTCMD_H_
 
-#include <mcld/Script/ScriptCommand.h>
+#include "mcld/Script/ScriptCommand.h"
 
 #include <string>
 

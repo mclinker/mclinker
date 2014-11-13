@@ -11,9 +11,9 @@
 
 #include "HexagonGOT.h"
 #include "HexagonGOTPLT.h"
-#include <mcld/Target/GOT.h>
-#include <mcld/Target/PLT.h>
-#include <mcld/Support/MemoryRegion.h>
+#include "mcld/Target/GOT.h"
+#include "mcld/Target/PLT.h"
+#include "mcld/Support/MemoryRegion.h"
 
 const uint8_t hexagon_plt0[] = {
     0x00, 0x40, 0x00, 0x00,  // { immext (#0)

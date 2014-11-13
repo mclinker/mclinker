@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include <mcld/Support/RealPath.h>
-#include <mcld/Support/FileSystem.h>
+#include "mcld/Support/RealPath.h"
+#include "mcld/Support/FileSystem.h"
 
 namespace mcld {
 namespace sys {

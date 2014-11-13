@@ -6,10 +6,10 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include <mcld/MC/ContextFactory.h>
-#include <mcld/Support/MemoryAreaFactory.h>
-#include <mcld/Support/TargetSelect.h>
-#include <mcld/Support/Path.h>
+#include "mcld/MC/ContextFactory.h"
+#include "mcld/Support/MemoryAreaFactory.h"
+#include "mcld/Support/TargetSelect.h"
+#include "mcld/Support/Path.h"
 #include "UniqueGCFactoryBaseTest.h"
 
 using namespace mcld;

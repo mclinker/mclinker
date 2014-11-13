@@ -6,7 +6,7 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include <mcld/Support/SystemUtils.h>
+#include "mcld/Support/SystemUtils.h"
 #include "SystemUtilsTest.h"
 
 using namespace mcld;

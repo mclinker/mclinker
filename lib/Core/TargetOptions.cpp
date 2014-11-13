@@ -6,7 +6,7 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include <mcld/TargetOptions.h>
+#include "mcld/TargetOptions.h"
 
 namespace mcld {
 

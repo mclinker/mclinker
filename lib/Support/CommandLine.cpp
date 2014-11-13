@@ -6,7 +6,7 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include <mcld/Support/CommandLine.h>
+#include "mcld/Support/CommandLine.h"
 
 #include <llvm/ADT/StringRef.h>
 #include <llvm/ADT/StringSwitch.h>

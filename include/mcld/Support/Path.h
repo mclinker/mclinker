@@ -13,7 +13,7 @@
 #ifndef MCLD_SUPPORT_PATH_H_
 #define MCLD_SUPPORT_PATH_H_
 
-#include <mcld/Config/Config.h>
+#include "mcld/Config/Config.h"
 
 #include <llvm/Support/raw_ostream.h>
 

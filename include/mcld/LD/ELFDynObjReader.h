@@ -8,7 +8,7 @@
 //===----------------------------------------------------------------------===//
 #ifndef MCLD_LD_ELFDYNOBJREADER_H_
 #define MCLD_LD_ELFDYNOBJREADER_H_
-#include <mcld/LD/DynObjReader.h>
+#include "mcld/LD/DynObjReader.h"
 
 namespace mcld {
 

@@ -9,7 +9,7 @@
 #ifndef TARGET_MIPS_MIPSLA25STUB_H_
 #define TARGET_MIPS_MIPSLA25STUB_H_
 
-#include <mcld/Fragment/Stub.h>
+#include "mcld/Fragment/Stub.h"
 
 namespace mcld {
 

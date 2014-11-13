@@ -9,9 +9,9 @@
 #ifndef MCLD_SCRIPT_SCRIPTFILE_H_
 #define MCLD_SCRIPT_SCRIPTFILE_H_
 
-#include <mcld/Script/Assignment.h>
-#include <mcld/Script/InputSectDesc.h>
-#include <mcld/Script/OutputSectDesc.h>
+#include "mcld/Script/Assignment.h"
+#include "mcld/Script/InputSectDesc.h"
+#include "mcld/Script/OutputSectDesc.h"
 
 #include <string>
 #include <vector>

@@ -9,13 +9,13 @@
 #ifndef MCLD_LD_NAMEPOOL_H_
 #define MCLD_LD_NAMEPOOL_H_
 
-#include <mcld/ADT/HashTable.h>
-#include <mcld/ADT/StringHash.h>
-#include <mcld/Config/Config.h>
-#include <mcld/LD/ResolveInfo.h>
-#include <mcld/LD/Resolver.h>
-#include <mcld/Support/Compiler.h>
-#include <mcld/Support/GCFactory.h>
+#include "mcld/ADT/HashTable.h"
+#include "mcld/ADT/StringHash.h"
+#include "mcld/Config/Config.h"
+#include "mcld/LD/ResolveInfo.h"
+#include "mcld/LD/Resolver.h"
+#include "mcld/Support/Compiler.h"
+#include "mcld/Support/GCFactory.h"
 
 #include <llvm/ADT/StringRef.h>
 

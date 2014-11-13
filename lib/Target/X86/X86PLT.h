@@ -9,7 +9,7 @@
 #ifndef TARGET_X86_X86PLT_H_
 #define TARGET_X86_X86PLT_H_
 
-#include <mcld/Target/PLT.h>
+#include "mcld/Target/PLT.h"
 
 const uint8_t x86_32_dyn_plt0[] = {
     0xff, 0xb3, 0x04, 0, 0, 0,  // pushl  0x4(%ebx)

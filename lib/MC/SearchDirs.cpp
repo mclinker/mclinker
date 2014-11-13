@@ -6,10 +6,10 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include <mcld/MC/SearchDirs.h>
+#include "mcld/MC/SearchDirs.h"
 
-#include <mcld/MC/MCLDDirectory.h>
-#include <mcld/Support/FileSystem.h>
+#include "mcld/MC/MCLDDirectory.h"
+#include "mcld/Support/FileSystem.h"
 
 namespace mcld {
 

@@ -6,9 +6,9 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include <mcld/LD/ELFFileFormat.h>
-#include <mcld/Object/ObjectBuilder.h>
-#include <mcld/Target/GNULDBackend.h>
+#include "mcld/LD/ELFFileFormat.h"
+#include "mcld/Object/ObjectBuilder.h"
+#include "mcld/Target/GNULDBackend.h"
 
 #include <llvm/Support/ELF.h>
 

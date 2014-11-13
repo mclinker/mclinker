@@ -9,9 +9,9 @@
 #ifndef MCLD_ADT_BINTREE_H_
 #define MCLD_ADT_BINTREE_H_
 
-#include <mcld/ADT/TreeAllocator.h>
-#include <mcld/ADT/TreeBase.h>
-#include <mcld/Support/Compiler.h>
+#include "mcld/ADT/TreeAllocator.h"
+#include "mcld/ADT/TreeBase.h"
+#include "mcld/Support/Compiler.h"
 
 #include <cstddef>
 #include <iterator>

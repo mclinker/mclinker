@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include <mcld/Script/OutputArchCmd.h>
-#include <mcld/Support/raw_ostream.h>
+#include "mcld/Script/OutputArchCmd.h"
+#include "mcld/Support/raw_ostream.h"
 
 namespace mcld {
 

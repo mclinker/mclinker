@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include <mcld/Environment.h>
-#include <mcld/Support/TargetSelect.h>
+#include "mcld/Environment.h"
+#include "mcld/Support/TargetSelect.h"
 
 void mcld::Initialize() {
   static bool is_initialized = false;

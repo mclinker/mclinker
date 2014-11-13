@@ -6,10 +6,10 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include <mcld/Support/LEB128.h>
+#include "mcld/Support/LEB128.h"
 #include "LEB128Test.h"
 
-#include <mcld/Support/SystemUtils.h>
+#include "mcld/Support/SystemUtils.h"
 #include <ctime>
 #include <cstdlib>
 

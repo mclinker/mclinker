@@ -9,9 +9,9 @@
 #ifndef MCLD_SCRIPT_RPNEXPR_H_
 #define MCLD_SCRIPT_RPNEXPR_H_
 
-#include <mcld/Config/Config.h>
-#include <mcld/Object/SectionMap.h>
-#include <mcld/Support/Allocators.h>
+#include "mcld/Config/Config.h"
+#include "mcld/Object/SectionMap.h"
+#include "mcld/Support/Allocators.h"
 
 #include <vector>
 
