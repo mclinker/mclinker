@@ -38,8 +38,8 @@ ld_mcld_SOURCES = $(MCLD_SOURCES)
 
 ld_mcld_LDFLAGS = \
 	$(top_builddir)/lib/libmcld.a \
-	-L$(top_builddir)/utils/zlib -lcrc \
-	$(LLVM_LDFLAGS)
+	$(LLVM_LDFLAGS) \
+	-L$(top_builddir)/utils/zlib -lcrc
 
 MCLD = $(top_builddir)/lib/libmcld.a
 CRCLIB = $(top_builddir)/utils/zlib/libcrc.la

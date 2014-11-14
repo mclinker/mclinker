@@ -60,18 +60,20 @@ MCLDUnittests_LDFLAGS = \
 	$(top_builddir)/lib/libmcld.a \
 	-L$(top_builddir)/utils/gtest -lgtest \
 	-L$(top_builddir)/utils/gtestmain -lgtestmain \
-	$(LLVM_LDFLAGS)
+	$(LLVM_LDFLAGS) \
+	-L$(top_builddir)/utils/zlib -lcrc
 
 dist_MCLDUnittests_SOURCES = $(SOURCES)
 
 MCLD = $(top_builddir)/lib/libmcld.a
 GTEST = $(top_builddir)/utils/gtest/libgtest.la
 GTESTMAIN = $(top_builddir)/utils/gtestmain/libgtestmain.la
+CRCLIB = $(top_builddir)/utils/zlib/libcrc.la
 
 unittests: $(noinst_PROGRAMS)
 	$(abs_builddir)/$(noinst_PROGRAMS)
 
-$(noinst_PROGRAMS): $(MCLD) $(GTEST) $(GTESTMAIN)
+$(noinst_PROGRAMS): $(MCLD) $(GTEST) $(GTESTMAIN) $(CRCLIB)
 
 $(MCLD):
 	cd $(top_builddir)/lib && $(MAKE) $(AM_MAKEFLAGS)
@@ -81,3 +83,6 @@ $(GTEST):
 
 $(GTESTMAIN):
 	cd $(top_builddir)/utils/gtestmain && $(MAKE) $(AM_MAKEFLAGS)
+
+$(CRCLIB):
+	cd $(top_builddir)/utils/zlib && $(MAKE) $(AM_MAKEFLAGS)
