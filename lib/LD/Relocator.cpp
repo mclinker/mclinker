@@ -29,8 +29,7 @@ Relocator::~Relocator() {
 }
 
 void Relocator::partialScanRelocation(Relocation& pReloc,
-                                      Module& pModule,
-                                      const LDSection& pSection) {
+                                      Module& pModule) {
   // if we meet a section symbol
   if (pReloc.symInfo()->type() == ResolveInfo::Section) {
     LDSymbol* input_sym = pReloc.symInfo()->outSymbol();

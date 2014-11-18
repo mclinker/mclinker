@@ -473,8 +473,7 @@ LDSymbol& HexagonRelocator::defineSymbolforCopyReloc(
 }
 
 void HexagonRelocator::partialScanRelocation(Relocation& pReloc,
-                                             Module& pModule,
-                                             const LDSection& pSection) {
+                                             Module& pModule) {
   pReloc.updateAddend();
   // if we meet a section symbol
   if (pReloc.symInfo()->type() == ResolveInfo::Section) {

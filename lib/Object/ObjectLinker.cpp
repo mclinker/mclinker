@@ -593,7 +593,7 @@ bool ObjectLinker::scanRelocations() {
               *relocation, *m_pBuilder, *m_pModule, **rs, **input);
         } else {
           m_LDBackend.getRelocator()->partialScanRelocation(
-              *relocation, *m_pModule, **rs);
+              *relocation, *m_pModule);
         }
       }  // for all relocations
     }    // for all relocation section

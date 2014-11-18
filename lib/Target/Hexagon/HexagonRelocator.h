@@ -83,8 +83,7 @@ class HexagonRelocator : public Relocator {
 
   // Handle partial linking
   void partialScanRelocation(Relocation& pReloc,
-                             Module& pModule,
-                             const LDSection& pSection);
+                             Module& pModule);
 
   HexagonLDBackend& getTarget() { return m_Target; }
 

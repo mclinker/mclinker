@@ -87,8 +87,7 @@ class Relocator {
   /// @param pInputSym - the input LDSymbol of relocation target symbol
   /// @param pSection - the section of relocation applying target
   virtual void partialScanRelocation(Relocation& pReloc,
-                                     Module& pModule,
-                                     const LDSection& pSection);
+                                     Module& pModule);
 
   // ------ observers -----//
   virtual TargetLDBackend& getTarget() = 0;
