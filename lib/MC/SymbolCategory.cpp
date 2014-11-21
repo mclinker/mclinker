@@ -399,7 +399,7 @@ SymbolCategory::const_iterator SymbolCategory::dynamicEnd() const {
 }
 
 SymbolCategory::iterator SymbolCategory::regularBegin() {
-  return commonEnd();
+  return dynamicEnd();
 }
 
 SymbolCategory::iterator SymbolCategory::regularEnd() {
@@ -407,7 +407,7 @@ SymbolCategory::iterator SymbolCategory::regularEnd() {
 }
 
 SymbolCategory::const_iterator SymbolCategory::regularBegin() const {
-  return commonEnd();
+  return dynamicEnd();
 }
 
 SymbolCategory::const_iterator SymbolCategory::regularEnd() const {
