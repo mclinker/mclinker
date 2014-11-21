@@ -372,6 +372,11 @@ bool ObjectLinker::mergeSections() {
           }
           break;
         }
+        case LDFileFormat::DebugString: {
+          // FIXME: disable debug string merge when doing partial link.
+          if (LinkerConfig::Object == m_Config.codeGenType())
+            (*sect)->setKind(LDFileFormat::Debug);
+        } // Fall through
         default: {
           if (!(*sect)->hasSectionData())
             continue;  // skip
@@ -665,10 +670,12 @@ bool ObjectLinker::prelayout() {
   // we set the .debug_str size here so that there won't be a section symbol for
   // .debug_str. While actually it doesn't matter that .debug_str has section
   // symbol or not.
-  LDSection* debug_str_sect = m_pModule->getSection(".debug_str");
-  if (debug_str_sect && debug_str_sect->hasDebugString())
-    debug_str_sect->getDebugString()->computeOffsetSize();
-
+  // FIXME: disable debug string merge when doing partial link.
+  if (LinkerConfig::Object != m_Config.codeGenType()) {
+    LDSection* debug_str_sect = m_pModule->getSection(".debug_str");
+    if (debug_str_sect && debug_str_sect->hasDebugString())
+      debug_str_sect->getDebugString()->computeOffsetSize();
+  }
   return true;
 }
 
