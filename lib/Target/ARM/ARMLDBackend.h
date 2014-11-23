@@ -10,6 +10,7 @@
 #define TARGET_ARM_ARMLDBACKEND_H_
 
 #include "ARMELFDynamic.h"
+#include "ARMException.h"
 #include "ARMGOT.h"
 #include "ARMPLT.h"
 #include "mcld/LD/LDSection.h"
@@ -167,6 +168,14 @@ class ARMGNULDBackend : public GNULDBackend {
   /// target-dependent segments
   virtual void doCreateProgramHdrs(Module& pModule);
 
+  /// scanInputExceptionSections - scan exception-related input sections in
+  /// the Module, build the ARMExData, and reclaim GC'ed sections
+  void scanInputExceptionSections(Module& pModule);
+
+  /// scanInputExceptionSections - scan exception-related input sections in
+  /// the Input, build the ARMInputExMap, and reclaim GC'ed sections
+  void scanInputExceptionSections(Module& pModule, Input& pInput);
+
  private:
   Relocator* m_pRelocator;
 
@@ -192,6 +201,9 @@ class ARMGNULDBackend : public GNULDBackend {
   //  LDSection* m_pPreemptMap;      // .ARM.preemptmap
   //  LDSection* m_pDebugOverlay;    // .ARM.debug_overlay
   //  LDSection* m_pOverlayTable;    // .ARM.overlay_table
+
+  // m_ExData - exception handling section data structures
+  ARMExData m_ExData;
 };
 }  // namespace mcld
 

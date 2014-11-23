@@ -182,6 +182,7 @@ SOURCE = ADT/StringEntry.cpp \
 	Target/ARM/ARMELFDynamic.cpp \
 	Target/ARM/ARMELFDynamic.h \
 	Target/ARM/ARMEmulation.cpp \
+	Target/ARM/ARMException.cpp \
 	Target/ARM/ARMGNUInfo.h \
 	Target/ARM/ARMGOT.cpp \
 	Target/ARM/ARMGOT.h \
