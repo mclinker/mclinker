@@ -11,7 +11,9 @@
 
 #include "ARMLDBackend.h"
 
+#include "mcld/ADT/ilist_sort.h"
 #include "mcld/Fragment/RegionFragment.h"
+#include "mcld/LD/ELFFileFormat.h"
 #include "mcld/LD/LDContext.h"
 #include "mcld/Support/MsgHandling.h"
 
@@ -151,12 +153,80 @@ void ARMGNULDBackend::scanInputExceptionSections(Module& pModule,
       continue;
     }
 
+    // TODO: Sort the RelocData w.r.t. the fixup offset.
+
     // Check next tuple
     ++it;
   }
 
   // Add input map
   m_ExData.addInputMap(&pInput, std::move(exMap));
+}
+
+class ExIdxFragmentComparator {
+ private:
+  const ARMExData& m_ExData;
+
+ public:
+  ExIdxFragmentComparator(const ARMExData& pExData)
+      : m_ExData(pExData) {
+  }
+
+  bool operator()(const Fragment& a, const Fragment& b) {
+    ARMExSectionTuple* tupleA = m_ExData.getTupleByExIdx(&a);
+    ARMExSectionTuple* tupleB = m_ExData.getTupleByExIdx(&b);
+
+    Fragment* textFragA = tupleA->getTextFragment();
+    Fragment* textFragB = tupleB->getTextFragment();
+
+    uint64_t addrA = textFragA->getParent()->getSection().addr() +
+                     textFragA->getOffset();
+    uint64_t addrB = textFragB->getParent()->getSection().addr() +
+                     textFragB->getOffset();
+    return (addrA < addrB);
+  }
+};
+
+void ARMGNULDBackend::rewriteARMExIdxSection(Module& pModule) {
+  if (!m_pEXIDX->hasSectionData()) {
+    // Return if this is empty section.
+    return;
+  }
+
+  SectionData* sectData = m_pEXIDX->getSectionData();
+  SectionData::FragmentListType& list = sectData->getFragmentList();
+
+  // Move the first and last fragment to temporary list.
+  SectionData::FragmentListType tmp;
+  {
+    SectionData::iterator first = sectData->begin();
+    SectionData::iterator last = sectData->end();
+    --last;
+
+    assert(first->getKind() == Fragment::Alignment);
+    assert(last->getKind() == Fragment::Null);
+
+    tmp.splice(tmp.end(), list, first);
+    tmp.splice(tmp.end(), list, last);
+  }
+
+  // Sort the region fragments in the .ARM.exidx output section.
+  sort(list, ExIdxFragmentComparator(m_ExData));
+
+  // Add the first and last fragment back.
+  list.splice(list.begin(), tmp, tmp.begin());
+  list.splice(list.end(), tmp, tmp.begin());
+
+  // Update the fragment offsets.
+  uint64_t offset = 0;
+  for (SectionData::iterator it = sectData->begin(), end = sectData->end();
+       it != end; ++it) {
+    it->setOffset(offset);
+    offset += it->size();
+  }
+
+  // Rebuild the section header.
+  setOutputSectionAddress(pModule);
 }
 
 }  // namespace mcld

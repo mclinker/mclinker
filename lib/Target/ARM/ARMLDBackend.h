@@ -146,6 +146,9 @@ class ARMGNULDBackend : public GNULDBackend {
   /// mayRelax - Backends should override this function if they need relaxation
   bool mayRelax() { return true; }
 
+  /// relax - the relaxation pass
+  virtual bool relax(Module& pModule, IRBuilder& pBuilder);
+
   /// doRelax - Backend can orevride this function to add its relaxation
   /// implementation. Return true if the output (e.g., .text) is "relaxed"
   /// (i.e. layout is changed), and set pFinished to true if everything is fit,
@@ -175,6 +178,9 @@ class ARMGNULDBackend : public GNULDBackend {
   /// scanInputExceptionSections - scan exception-related input sections in
   /// the Input, build the ARMInputExMap, and reclaim GC'ed sections
   void scanInputExceptionSections(Module& pModule, Input& pInput);
+
+  /// rewriteExceptionSection - rewrite the output .ARM.exidx section.
+  void rewriteARMExIdxSection(Module& pModule);
 
  private:
   Relocator* m_pRelocator;
