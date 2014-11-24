@@ -1,3 +1,35 @@
+2014-11-24 Diana Chen <mysekki@gmail.com>
+	* Executive Summary:
+	1. Migrate to LLVM 3.6svn.
+	2. Refine coding style.
+	3. Support debug string de-duplication to reduce the outputs' code size.
+
+	* Command Line Options and Building System:
+	1. Simplify software versioning to `MAJOR.MINOR.MICRO-BUILD'.
+	2. Build with `-Werror' enabled by default.
+	3. Statically link utils/zlib/crc32 if zlib is not specified when building.
+	4. Support GNU emulation argument for MIPS64.
+	5. Support `-v/-Version'.
+
+	* Linker Script:
+	1. Support INPUT command.
+
+	* Coding Style:
+	1. Steadily switch to Google C++ style.
+	2. Switch to LLVM coding style for include style.
+	3. Support `make cpplint' for style check.
+
+	* Debug string De-duplication:
+	1. Merge strings in .debug_str sections when linking for executables or shared
+	   objects.
+	2. Addc class DebugString and MergedStringTable.
+	3. Add Relocator::getDebugStringOffset and Relocator::applyDebugStringOffset
+	   to correct the offset after debug strings have been merged.
+	4. Identify DebugString as a kind of data in LDSection.
+
+	* Target Backends:
+	1. Support special sections those end with .rel.ro suffix as RELRO.
+
 2014-07-18 Chinyen Chou <petechou@gmail.com>
 	* Executive Summary:
 	1. Migrate to LLVM 3.5svn (r212505 or later).
