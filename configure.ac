@@ -13,7 +13,7 @@ m4_include(m4/acx_pthread.m4)
 #  Autoconf/Automake Initialization
 
 dnl AC_INIT(PKG_NAME, BUILD_VERSION, BUG_REPORTER)
-AC_INIT([MCLinker],[dev],[mclinker@googlegroups.com])
+AC_INIT([MCLinker],[Dana],[mclinker@googlegroups.com])
 AC_PREREQ(2.59)
 
 AC_CONFIG_SRCDIR([./COPYING])
@@ -35,7 +35,7 @@ AM_SILENT_RULES([yes])
 MAJOR=2
 MINOR=9
 MICRO=0
-BUILD=dev
+BUILD=rc
 
 DEV_VERSION=$MAJOR.$MINOR.$MICRO-$BUILD
 PKG_VERSION=$MAJOR.$MINOR.$MICRO-$BUILD
