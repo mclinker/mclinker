@@ -10,9 +10,8 @@
 
 namespace mcld {
 
-MergedStringTable::StringMapEntryTy&
-MergedStringTable::getOrCreateString(llvm::StringRef pString) {
-  return m_StringMap.GetOrCreateValue(pString);
+bool MergedStringTable::insertString(llvm::StringRef pString) {
+  return m_StringMap.insert(std::make_pair(pString, 0)).second;
 }
 
 uint64_t MergedStringTable::finalizeOffset() {
@@ -33,11 +32,6 @@ void MergedStringTable::emit(MemoryRegion& pRegion) {
     ::memcpy(ptr, it->getKey().data(), it->getKey().size());
     ptr += it->getKey().size() + 1;
   }
-}
-
-size_t MergedStringTable::getOutputOffset(
-    MergedStringTable::StringMapEntryTy& pEntry) {
-  return pEntry.getValue();
 }
 
 size_t MergedStringTable::getOutputOffset(llvm::StringRef pStr) {
