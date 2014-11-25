@@ -262,6 +262,10 @@ bool ObjectLinker::linkable() const {
 }
 
 void ObjectLinker::dataStrippingOpt() {
+  if (m_Config.codeGenType() == LinkerConfig::Object) {
+    return;
+  }
+
   // Garbege collection
   if (m_Config.options().GCSections()) {
     GarbageCollection GC(m_Config, m_LDBackend, *m_pModule);
