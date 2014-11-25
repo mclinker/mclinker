@@ -24,13 +24,13 @@ namespace mcld {
 class MergedStringTable {
  public:
   typedef llvm::StringMap<size_t> StringMapTy;
-  typedef StringMapTy::MapEntryTy StringMapEntryTy;
 
  public:
   MergedStringTable() {}
 
-  /// getOrCreateString - get or create a string to the string table
-  StringMapEntryTy& getOrCreateString(llvm::StringRef pString);
+  /// insertString - insert a string to the string table
+  /// @return false if the string already exists in the map.
+  bool insertString(llvm::StringRef pString);
 
   /// finalizeOffset - finalize the output offset of strings. After this
   /// function been called, any string should not be added to this table
@@ -41,10 +41,8 @@ class MergedStringTable {
   void emit(MemoryRegion& pRegion);
 
   /// ----- observers -----///
-  /// getOutputOffset - get the output offset of the string entry. This should
-  /// be called after finalizeOffset.
-  size_t getOutputOffset(StringMapEntryTy& pEntry);
-
+  /// getOutputOffset - get the output offset of the string. This should be
+  /// called after finalizeOffset.
   size_t getOutputOffset(llvm::StringRef pStr);
 
  private:

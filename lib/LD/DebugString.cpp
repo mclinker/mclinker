@@ -53,7 +53,7 @@ void DebugString::merge(LDSection& pSection) {
   const char* str_end = str + pSection.size();
   while (str < str_end) {
     size_t len = string_length(str);
-    m_StringTable.getOrCreateString(llvm::StringRef(str, len));
+    m_StringTable.insertString(llvm::StringRef(str, len));
     str = str + len + 1;
   }
 }
