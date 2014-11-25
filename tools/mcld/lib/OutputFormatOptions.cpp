@@ -155,6 +155,7 @@ llvm::cl::alias ArgOMagicAlias("N",
 
 llvm::cl::opt<mcld::GeneralOptions::HashStyle> ArgHashStyle(
     "hash-style",
+    llvm::cl::ZeroOrMore,
     llvm::cl::init(mcld::GeneralOptions::SystemV),
     llvm::cl::desc("Set the type of linker's hash table(s)."),
     llvm::cl::values(
