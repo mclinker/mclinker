@@ -66,6 +66,7 @@ llvm::cl::alias ArgSharedAlias("Bshareable",
 
 llvm::cl::opt<bool> ArgPIE(
     "pie",
+    llvm::cl::ZeroOrMore,
     llvm::cl::desc("Emit a position-independent executable file"),
     llvm::cl::init(false));
 
