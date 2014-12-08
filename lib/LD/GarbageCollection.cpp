@@ -199,43 +199,10 @@ void GarbageCollection::getEntrySections(SectionVecTy& pEntry) {
     }
   }
 
-  // get the sections those the entry symbols defined in
-  if (LinkerConfig::Exec == m_Config.codeGenType() ||
-      m_Config.options().isPIE()) {
-    // when building executable
-    // 1. the entry symbol is the entry
-    LDSymbol* entry_sym =
-        m_Module.getNamePool().findSymbol(m_Backend.getEntry(m_Module));
-    assert(entry_sym != NULL);
-    pEntry.push_back(&entry_sym->fragRef()->frag()->getParent()->getSection());
-
-    // 2. the symbols have been seen in dynamice objects are entries
-    NamePool::syminfo_iterator info_it,
-        info_end = m_Module.getNamePool().syminfo_end();
-    for (info_it = m_Module.getNamePool().syminfo_begin(); info_it != info_end;
-         ++info_it) {
-      ResolveInfo* info = info_it.getEntry();
-      if (!info->isDefine() || info->isLocal())
-        continue;
-
-      if (!info->isInDyn())
-        continue;
-
-      LDSymbol* sym = info->outSymbol();
-      if (sym == NULL || !sym->hasFragRef())
-        continue;
-
-      // only the target symbols defined in the concerned sections can be
-      // entries
-      const LDSection* sect =
-          &sym->fragRef()->frag()->getParent()->getSection();
-      if (!mayProcessGC(*sect))
-        continue;
-
-      pEntry.push_back(sect);
-    }
-  } else {
-    // when building shared objects, the global define symbols are entries
+  // when building shared object or the --export-dynamic has been given, the
+  // global define symbols are entries
+  if (LinkerConfig::DynObj == m_Config.codeGenType() ||
+      m_Config.options().exportDynamic()) {
     NamePool::syminfo_iterator info_it,
         info_end = m_Module.getNamePool().syminfo_end();
     for (info_it = m_Module.getNamePool().syminfo_begin(); info_it != info_end;
@@ -255,6 +222,46 @@ void GarbageCollection::getEntrySections(SectionVecTy& pEntry) {
       if (!mayProcessGC(*sect))
         continue;
       pEntry.push_back(sect);
+    }
+  }
+
+  // when building executable or PIE
+  if (LinkerConfig::Exec == m_Config.codeGenType() ||
+      m_Config.options().isPIE()) {
+    // 1. the entry symbol is the entry
+    LDSymbol* entry_sym =
+        m_Module.getNamePool().findSymbol(m_Backend.getEntry(m_Module));
+    assert(entry_sym != NULL);
+    pEntry.push_back(&entry_sym->fragRef()->frag()->getParent()->getSection());
+
+    // 2. the symbols have been seen in dynamic objects are entries. If
+    // --export-dynamic is set, then these sections already been added. No need
+    // to add them again
+    if (!m_Config.options().exportDynamic()) {
+      NamePool::syminfo_iterator info_it,
+          info_end = m_Module.getNamePool().syminfo_end();
+      for (info_it = m_Module.getNamePool().syminfo_begin(); info_it != info_end;
+           ++info_it) {
+        ResolveInfo* info = info_it.getEntry();
+        if (!info->isDefine() || info->isLocal())
+          continue;
+
+        if (!info->isInDyn())
+          continue;
+
+        LDSymbol* sym = info->outSymbol();
+        if (sym == NULL || !sym->hasFragRef())
+          continue;
+
+        // only the target symbols defined in the concerned sections can be
+        // entries
+        const LDSection* sect =
+            &sym->fragRef()->frag()->getParent()->getSection();
+        if (!mayProcessGC(*sect))
+          continue;
+
+        pEntry.push_back(sect);
+      }
     }
   }
 
