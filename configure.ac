@@ -33,7 +33,7 @@ AM_SILENT_RULES([yes])
 ####################
 #  Versioning, see VERSION
 MAJOR=2
-MINOR=10
+MINOR=9
 MICRO=0
 BUILD=rc
 
