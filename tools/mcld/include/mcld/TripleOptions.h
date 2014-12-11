@@ -25,7 +25,6 @@ class TripleOptions {
   llvm::cl::opt<std::string>& m_TargetTriple;
   llvm::cl::opt<std::string>& m_MArch;
   llvm::cl::opt<std::string>& m_MCPU;
-  llvm::cl::list<std::string>& m_MAttrs;
   llvm::cl::opt<std::string>& m_Emulation;
 };
 

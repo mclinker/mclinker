@@ -44,10 +44,6 @@ class TargetOptions {
 
   void setTargetCPU(const std::string& pCPU);
 
-  const std::string& getTargetFeatureString() const { return m_TargetFS; }
-
-  void setTargetFeatureString(const std::string& pFS);
-
   Endian endian() const { return m_Endian; }
 
   void setEndian(Endian pEndian) { m_Endian = pEndian; }
@@ -66,7 +62,6 @@ class TargetOptions {
   llvm::Triple m_Triple;
   std::string m_ArchName;
   std::string m_TargetCPU;
-  std::string m_TargetFS;
   Endian m_Endian;
   unsigned int m_BitClass;
 };

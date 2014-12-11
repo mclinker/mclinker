@@ -39,8 +39,4 @@ void TargetOptions::setTargetCPU(const std::string& pCPU) {
   m_TargetCPU = pCPU;
 }
 
-void TargetOptions::setTargetFeatureString(const std::string& pFS) {
-  m_TargetFS = pFS;
-}
-
 }  // namespace mcld
