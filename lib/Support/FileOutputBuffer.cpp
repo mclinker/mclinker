@@ -27,10 +27,15 @@ FileOutputBuffer::create(FileHandle& pFileHandle,
                          size_t pSize,
                          std::unique_ptr<FileOutputBuffer>& pResult) {
   std::error_code ec;
+
+  // Resize the file before mapping the file region.
+  ec = llvm::sys::fs::resize_file(pFileHandle.handler(), pSize);
+  if (ec)
+    return ec;
+
   std::unique_ptr<llvm::sys::fs::mapped_file_region> mapped_file(
       new llvm::sys::fs::mapped_file_region(pFileHandle.handler(),
           llvm::sys::fs::mapped_file_region::readwrite, pSize, 0, ec));
-
   if (ec)
     return ec;
 
