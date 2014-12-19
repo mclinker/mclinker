@@ -281,7 +281,7 @@ bool Linker::emit(const Module& pModule, const std::string& pPath) {
   FileOutputBuffer::create(
       file, m_pObjLinker->getWriter()->getOutputSize(pModule), output);
 
-  result = emit(*output.get());
+  result = emit(*output);
   file.close();
   return result;
 }
@@ -294,7 +294,7 @@ bool Linker::emit(const Module& pModule, int pFileDescriptor) {
   FileOutputBuffer::create(
       file, m_pObjLinker->getWriter()->getOutputSize(pModule), output);
 
-  return emit(*output.get());
+  return emit(*output);
 }
 
 bool Linker::reset() {
