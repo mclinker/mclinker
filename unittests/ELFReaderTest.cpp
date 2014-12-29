@@ -80,17 +80,17 @@ void ELFReaderTest::TearDown() {
 // Testcases
 //===----------------------------------------------------------------------===//
 TEST_F(ELFReaderTest, read_section_headers) {
-  ASSERT_EQ(m_pInput->context()->numOfSections(), 13);
+  ASSERT_EQ(m_pInput->context()->numOfSections(), 13u);
   LDContext::const_sect_iterator iter = m_pInput->context()->sectBegin();
   ++iter;  /// test section[1]
   ASSERT_EQ(".text", (*iter)->name());
   ASSERT_EQ(llvm::ELF::SHT_PROGBITS, (*iter)->type());
-  ASSERT_EQ(0x40, (*iter)->offset());
-  ASSERT_EQ(0x15, (*iter)->size());
+  ASSERT_EQ(0x40u, (*iter)->offset());
+  ASSERT_EQ(0x15u, (*iter)->size());
   ASSERT_TRUE(llvm::ELF::SHF_ALLOC & (*iter)->flag());  // AX
-  ASSERT_EQ(0x4, (*iter)->align());
+  ASSERT_EQ(0x4u, (*iter)->align());
   ASSERT_EQ(NULL, (*iter)->getLink());
-  ASSERT_EQ(0, (*iter)->getInfo());
+  ASSERT_EQ(0u, (*iter)->getInfo());
 }
 
 TEST_F(ELFReaderTest, read_symbol_and_rela) {
@@ -135,13 +135,13 @@ TEST_F(ELFReaderTest, read_symbol_and_rela) {
   const RelocData::RelocationListType& rRelocs =
       (*rs)->getRelocData()->getRelocationList();
   RelocData::const_iterator rReloc = rRelocs.begin();
-  ASSERT_EQ(2, rRelocs.size());
+  ASSERT_EQ(2u, rRelocs.size());
   ASSERT_TRUE(rRelocs.end() != rReloc);
   ++rReloc;  /// test rRelocs[1]
   ASSERT_EQ("puts", std::string(rReloc->symInfo()->name()));
   ASSERT_EQ(llvm::ELF::R_X86_64_PC32, rReloc->type());
-  ASSERT_EQ(0x0, rReloc->symValue());
-  ASSERT_EQ(-0x4, rReloc->addend());
+  ASSERT_EQ(0x0u, rReloc->symValue());
+  ASSERT_EQ(static_cast<mcld::Relocation::Address>(-0x4), rReloc->addend());
 }
 
 TEST_F(ELFReaderTest, read_regular_sections) {
