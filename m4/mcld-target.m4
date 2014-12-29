@@ -16,7 +16,7 @@ AC_DEFUN([CHECK_ALONE_TARGET],
 	AC_ARG_ENABLE([alone-target],
 		[AS_HELP_STRING([--enable-alone-target],
 				[Build specific target. Valid target is one of:
-	     host, x86, x86_64, sparc, powerpc, alpha, aarch64, arm, mips, spu, hexagon,
+	     host, x86, x86_64, sparc, powerpc, alpha, aarch64, arm, arm64, mips, spu, hexagon,
 	     xcore, msp430, systemz, blackfin, ptx, cbe, and cpp (default=host)])],
 		[],
 		[enableval=host])
@@ -33,6 +33,10 @@ AC_DEFUN([CHECK_ALONE_TARGET],
 			DEFAULT_ALONE_TARGET="X86_64"
 			;;
 		  aarch64*-*-*)
+			PROVIDE_ALONE_TARGET="AArch64"
+			DEFAULT_ALONE_TARGET="AArch64"
+			;;
+		  arm64*-*-*)
 			PROVIDE_ALONE_TARGET="AArch64"
 			DEFAULT_ALONE_TARGET="AArch64"
 			;;
@@ -59,6 +63,11 @@ AC_DEFUN([CHECK_ALONE_TARGET],
 		AC_DEFINE(TARGET_BUILD)
 		;;
 	  aarch64)
+		PROVIDE_ALONE_TARGET="AArch64"
+		DEFAULT_ALONE_TARGET="AArch64"
+		AC_DEFINE(TARGET_BUILD)
+		;;
+	  arm64)
 		PROVIDE_ALONE_TARGET="AArch64"
 		DEFAULT_ALONE_TARGET="AArch64"
 		AC_DEFINE(TARGET_BUILD)
@@ -103,7 +112,7 @@ AC_DEFUN([ENUM_MCLD_TARGETS],
 	AC_ARG_ENABLE([targets],
 		[AS_HELP_STRING([--enable-targets],
 			        [Build specific host targets: all or target1,target2,... Valid targets are:
-	     host, x86, x86_64, sparc, powerpc, alpha, aarch64, arm, mips, spu, hexagon,
+	     host, x86, x86_64, sparc, powerpc, alpha, aarch64, arm, arm64, mips, spu, hexagon,
 	     xcore, msp430, systemz, blackfin, ptx, cbe, and cpp (default=all)])],
 		[],
 		[enableval=all])
@@ -118,6 +127,7 @@ AC_DEFUN([ENUM_MCLD_TARGETS],
 		powerpc)  TARGETS_TO_BUILD="PowerPC $TARGETS_TO_BUILD" ;;
 		alpha)    TARGETS_TO_BUILD="Alpha $TARGETS_TO_BUILD" ;;
 		aarch64)  TARGETS_TO_BUILD="AArch64 $TARGETS_TO_BUILD" ;;
+		arm64)    TARGETS_TO_BUILD="AArch64 $TARGETS_TO_BUILD" ;;
 		arm)      TARGETS_TO_BUILD="ARM $TARGETS_TO_BUILD" ;;
 		mips)     TARGETS_TO_BUILD="Mips $TARGETS_TO_BUILD" ;;
 		hexagon)  TARGETS_TO_BUILD="Hexagon $TARGETS_TO_BUILD" ;;
