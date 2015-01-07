@@ -107,7 +107,7 @@ static inline AArch64PLT1& helper_PLT_init(Relocation& pReloc,
 
   // init the corresponding rel entry in .rela.plt
   Relocation& rel_entry = *ld_backend.getRelaPLT().create();
-  rel_entry.setType(R_AARCH64_JUMP_SLOT);
+  rel_entry.setType(llvm::ELF::R_AARCH64_JUMP_SLOT);
   rel_entry.targetRef().assign(*gotplt_entry);
   rel_entry.setSymInfo(rsym);
   return *plt_entry;
@@ -123,7 +123,7 @@ static inline Relocation& helper_DynRela_init(ResolveInfo* pSym,
   Relocation& rel_entry = *ld_backend.getRelaDyn().create();
   rel_entry.setType(pType);
   rel_entry.targetRef().assign(pFrag, pOffset);
-  if (pType == R_AARCH64_RELATIVE || pSym == NULL)
+  if (pType == llvm::ELF::R_AARCH64_RELATIVE || pSym == NULL)
     rel_entry.setSymInfo(NULL);
   else
     rel_entry.setSymInfo(pSym);
@@ -174,11 +174,12 @@ static inline AArch64GOTEntry& helper_GOT_init(Relocation& pReloc,
     if (helper_use_relative_reloc(*rsym, pParent)) {
       got_entry->setValue(AArch64Relocator::SymVal);
       Relocation& rel_entry = helper_DynRela_init(
-          rsym, *got_entry, 0x0, R_AARCH64_RELATIVE, pParent);
+          rsym, *got_entry, 0x0, llvm::ELF::R_AARCH64_RELATIVE, pParent);
       rel_entry.setAddend(AArch64Relocator::SymVal);
       pParent.getRelRelMap().record(pReloc, rel_entry);
     } else {
-      helper_DynRela_init(rsym, *got_entry, 0x0, R_AARCH64_GLOB_DAT, pParent);
+      helper_DynRela_init(rsym, *got_entry, 0x0, llvm::ELF::R_AARCH64_GLOB_DAT,
+                          pParent);
       got_entry->setValue(0);
     }
   }

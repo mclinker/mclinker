@@ -90,7 +90,7 @@ Relocator::Size AArch64Relocator::getSize(Relocation::Type pType) const {
 
 void AArch64Relocator::addCopyReloc(ResolveInfo& pSym) {
   Relocation& rel_entry = *getTarget().getRelaDyn().create();
-  rel_entry.setType(R_AARCH64_COPY);
+  rel_entry.setType(llvm::ELF::R_AARCH64_COPY);
   assert(pSym.outSymbol()->hasFragRef());
   rel_entry.targetRef().assign(*pSym.outSymbol()->fragRef());
   rel_entry.setSymInfo(&pSym);
@@ -163,7 +163,7 @@ void AArch64Relocator::scanLocalReloc(Relocation& pReloc,
         Relocation& reloc = helper_DynRela_init(rsym,
                                                 *pReloc.targetRef().frag(),
                                                 pReloc.targetRef().offset(),
-                                                R_AARCH64_RELATIVE,
+                                                llvm::ELF::R_AARCH64_RELATIVE,
                                                 *this);
         getRelRelMap().record(pReloc, reloc);
       }
@@ -249,7 +249,7 @@ void AArch64Relocator::scanGlobalReloc(Relocation& pReloc,
             Relocation& reloc = helper_DynRela_init(rsym,
                                                     *pReloc.targetRef().frag(),
                                                     pReloc.targetRef().offset(),
-                                                    R_AARCH64_RELATIVE,
+                                                    llvm::ELF::R_AARCH64_RELATIVE,
                                                     *this);
             getRelRelMap().record(pReloc, reloc);
           } else {
@@ -323,7 +323,7 @@ void AArch64Relocator::scanGlobalReloc(Relocation& pReloc,
     }
 
     case llvm::ELF::R_AARCH64_ADR_PREL_PG_HI21:
-    case R_AARCH64_ADR_PREL_PG_HI21_NC:
+    case llvm::ELF::R_AARCH64_ADR_PREL_PG_HI21_NC:
       if (getTarget()
               .symbolNeedsDynRel(
                   *rsym, (rsym->reserved() & ReservePLT), false)) {
@@ -459,7 +459,7 @@ Relocator::Result abs(Relocation& pReloc, AArch64Relocator& pParent) {
     // in order to keep the addend store in the place correct.
     if (has_dyn_rel) {
       if (llvm::ELF::R_AARCH64_ABS64 == pReloc.type() &&
-          R_AARCH64_RELATIVE == dyn_rel->type()) {
+          llvm::ELF::R_AARCH64_RELATIVE == dyn_rel->type()) {
         dyn_rel->setAddend(S + A);
       } else {
         dyn_rel->setAddend(A);
