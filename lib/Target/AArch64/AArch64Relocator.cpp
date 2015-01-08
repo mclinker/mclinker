@@ -322,6 +322,7 @@ void AArch64Relocator::scanGlobalReloc(Relocation& pReloc,
       return;
     }
 
+    case llvm::ELF::R_AARCH64_ADR_PREL_LO21:
     case llvm::ELF::R_AARCH64_ADR_PREL_PG_HI21:
     case llvm::ELF::R_AARCH64_ADR_PREL_PG_HI21_NC:
       if (getTarget()
@@ -516,6 +517,23 @@ Relocator::Result add_abs_lo12(Relocation& pReloc, AArch64Relocator& pParent) {
 
   value = helper_get_page_offset(S + A);
   pReloc.target() = helper_reencode_add_imm(pReloc.target(), value);
+
+  return Relocator::OK;
+}
+
+// R_AARCH64_ADR_PREL_LO21: S + A - P
+Relocator::Result adr_prel_lo21(Relocation& pReloc, AArch64Relocator& pParent) {
+  ResolveInfo* rsym = pReloc.symInfo();
+  Relocator::Address S = pReloc.symValue();
+  // if plt entry exists, the S value is the plt entry address
+  if (rsym->reserved() & AArch64Relocator::ReservePLT) {
+    S = helper_get_PLT_address(*rsym, pParent);
+  }
+  Relocator::DWord A = pReloc.addend();
+  Relocator::DWord P = pReloc.place();
+  Relocator::DWord X = S + A - P;
+
+  pReloc.target() = helper_reencode_adr_imm(pReloc.target(), X);
 
   return Relocator::OK;
 }

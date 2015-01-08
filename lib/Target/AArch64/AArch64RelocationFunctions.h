@@ -19,6 +19,7 @@
   DECL_AARCH64_APPLY_RELOC_FUNC(rel)              \
   DECL_AARCH64_APPLY_RELOC_FUNC(call)             \
   DECL_AARCH64_APPLY_RELOC_FUNC(condbr)           \
+  DECL_AARCH64_APPLY_RELOC_FUNC(adr_prel_lo21)    \
   DECL_AARCH64_APPLY_RELOC_FUNC(adr_prel_pg_hi21) \
   DECL_AARCH64_APPLY_RELOC_FUNC(add_abs_lo12)     \
   DECL_AARCH64_APPLY_RELOC_FUNC(adr_got_page)     \
@@ -46,7 +47,7 @@
   ValueType(0x10f, MappedType(&unsupported,      "R_AARCH64_MOVW_SABS_G1",                0)), /* NOLINT */\
   ValueType(0x110, MappedType(&unsupported,      "R_AARCH64_MOVW_SABS_G2",                0)), /* NOLINT */\
   ValueType(0x111, MappedType(&unsupported,      "R_AARCH64_LD_PREL_LO19",                0)), /* NOLINT */\
-  ValueType(0x112, MappedType(&unsupported,      "R_AARCH64_ADR_PREL_LO21",               0)), /* NOLINT */\
+  ValueType(0x112, MappedType(&adr_prel_lo21,    "R_AARCH64_ADR_PREL_LO21",              32)), /* NOLINT */\
   ValueType(0x113, MappedType(&adr_prel_pg_hi21, "R_AARCH64_ADR_PREL_PG_HI21",           32)), /* NOLINT */\
   ValueType(0x114, MappedType(&adr_prel_pg_hi21, "R_AARCH64_ADR_PREL_PG_HI21_NC",        32)), /* NOLINT */\
   ValueType(0x115, MappedType(&add_abs_lo12,     "R_AARCH64_ADD_ABS_LO12_NC",            32)), /* NOLINT */\
