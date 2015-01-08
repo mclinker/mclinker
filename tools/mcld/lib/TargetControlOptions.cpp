@@ -29,6 +29,11 @@ llvm::cl::opt<bool> ArgFIXCA8(
     llvm::cl::desc("Enable Cortex-A8 Thumb-2 branch erratum fix"),
     llvm::cl::init(false));
 
+llvm::cl::opt<bool> ArgFixCA53Erratum835769(
+    "fix-cortex-a53-835769",
+    llvm::cl::desc("Enable Cortex-CA53 Erratum 835769 fix"),
+    llvm::cl::init(false));
+
 llvm::cl::opt<bool> ArgEB(
     "EB",
     llvm::cl::desc("Link big-endian objects. This affects the output format."),
@@ -58,6 +63,7 @@ TargetControlOptions::TargetControlOptions()
     : m_GPSize(ArgGPSize),
       m_WarnSharedTextrel(ArgWarnSharedTextrel),
       m_FIXCA8(ArgFIXCA8),
+      m_FIXCA53Erratum835769(ArgFixCA53Erratum835769),
       m_EB(ArgEB),
       m_EL(ArgEL),
       m_SVR4Compatibility(ArgSVR4Compatibility) {
@@ -73,6 +79,12 @@ bool TargetControlOptions::parse(LinkerConfig& pConfig) {
   // set --fix-cortex-a8
   if (m_FIXCA8)
     mcld::warning(mcld::diag::warn_unsupported_option) << m_FIXCA8.ArgStr;
+
+  // set --fix-cortex-a53-835769
+  if (m_FIXCA53Erratum835769) {
+    mcld::warning(mcld::diag::warn_unsupported_option)
+        << m_FIXCA53Erratum835769.ArgStr;
+  }
 
   return true;
 }

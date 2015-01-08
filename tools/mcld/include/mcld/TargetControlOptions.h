@@ -24,6 +24,7 @@ class TargetControlOptions {
   llvm::cl::opt<int>& m_GPSize;
   llvm::cl::opt<bool>& m_WarnSharedTextrel;
   llvm::cl::opt<bool>& m_FIXCA8;
+  llvm::cl::opt<bool>& m_FIXCA53Erratum835769;
   llvm::cl::opt<bool>& m_EB;
   llvm::cl::opt<bool>& m_EL;
   llvm::cl::opt<bool>& m_SVR4Compatibility;
