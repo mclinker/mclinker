@@ -23,8 +23,10 @@ namespace cl {
 //===----------------------------------------------------------------------===//
 // SearchDirParser
 //===----------------------------------------------------------------------===//
-class SearchDirParser : public llvm::cl::basic_parser<std::string> {
+class SearchDirParser : public basic_parser<std::string> {
  public:
+  SearchDirParser(Option &O) : basic_parser(O) { }
+
   // parse - Return true on error.
   bool parse(Option& pOption,
              StringRef pArgName,
@@ -44,8 +46,10 @@ class SearchDirParser : public llvm::cl::basic_parser<std::string> {
 //===----------------------------------------------------------------------===//
 // FalseParser
 //===----------------------------------------------------------------------===//
-class FalseParser : public cl::parser<bool> {
+class FalseParser : public parser<bool> {
  public:
+  FalseParser(Option &O) : parser<bool>(O) { }
+
   // parse - Return true on error.
   bool parse(cl::Option& O, StringRef ArgName, StringRef Arg, bool& Val) {
     if (cl::parser<bool>::parse(O, ArgName, Arg, Val))
@@ -61,6 +65,8 @@ class FalseParser : public cl::parser<bool> {
 template <>
 class parser<mcld::sys::fs::Path> : public basic_parser<mcld::sys::fs::Path> {
  public:
+  parser(Option &O) : basic_parser(O) { }
+
   bool parse(Option& O,
              StringRef ArgName,
              StringRef Arg,
@@ -78,8 +84,10 @@ class parser<mcld::sys::fs::Path> : public basic_parser<mcld::sys::fs::Path> {
 // parser<mcld::ZOption>
 //===----------------------------------------------------------------------===//
 template <>
-class parser<mcld::ZOption> : public llvm::cl::basic_parser<mcld::ZOption> {
+class parser<mcld::ZOption> : public basic_parser<mcld::ZOption> {
  public:
+  parser(Option &O) : basic_parser(O) { }
+
   bool parse(Option& O, StringRef ArgName, StringRef Arg, mcld::ZOption& Val);
 
   virtual const char* getValueName() const { return "z-option"; }
