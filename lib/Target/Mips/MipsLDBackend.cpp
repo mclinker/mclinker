@@ -316,21 +316,6 @@ struct Elf_Options {
   Elf64_Word info;     // Kind-speciﬁc information.
 };
 
-// Type of SHT_MIPS_OPTIONS section's block.
-enum {
-  ODK_NULL = 0,        // Undefined.
-  ODK_REGINFO = 1,     // Register usage and GP value.
-  ODK_EXCEPTIONS = 2,  // Exception processing information.
-  ODK_PAD = 3,         // Section padding information.
-  ODK_HWPATCH = 4,     // Hardware workarounds performed.
-  ODK_FILL = 5,        // Fill value used by the linker.
-  ODK_TAGS = 6,        // Reserved space for desktop tools.
-  ODK_HWAND = 7,       // Hardware workarounds, AND bits when merging.
-  ODK_HWOR = 8,        // Hardware workarounds, OR bits when merging.
-  ODK_GP_GROUP = 9,    // GP group to use for text/data sections.
-  ODK_IDENT = 10       // ID information.
-};
-
 // Content of ODK_REGINFO block in SHT_MIPS_OPTIONS section on 32 bit ABI.
 struct Elf32_RegInfo {
   Elf32_Word ri_gprmask;     // Mask of general purpose registers used.
