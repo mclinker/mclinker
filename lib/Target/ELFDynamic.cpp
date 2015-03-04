@@ -183,7 +183,10 @@ void ELFDynamic::reserveEntries(const ELFFileFormat& pFormat) {
     reserveOne(llvm::ELF::DT_FLAGS_1);
   }
 
-  reserveOne(llvm::ELF::DT_NULL);
+  unsigned num_spare_dtags = m_Config.options().getNumSpareDTags();
+  for (unsigned i = 0; i < num_spare_dtags; ++i) {
+    reserveOne(llvm::ELF::DT_NULL);
+  }
 }
 
 /// applyEntries - apply entries
@@ -305,7 +308,10 @@ void ELFDynamic::applyEntries(const ELFFileFormat& pFormat) {
   if (dt_flags_1 != 0x0)
     applyOne(llvm::ELF::DT_FLAGS_1, dt_flags_1);
 
-  applyOne(llvm::ELF::DT_NULL, 0x0);
+  unsigned num_spare_dtags = m_Config.options().getNumSpareDTags();
+  for (unsigned i = 0; i < num_spare_dtags; ++i) {
+    applyOne(llvm::ELF::DT_NULL, 0x0);
+  }
 }
 
 /// symbolSize

@@ -107,6 +107,12 @@ class GeneralOptions {
     m_NoUndefined = (pEnable ? YES : NO);
   }
 
+  void setNumSpareDTags(uint32_t pNum) {
+    m_NumSpareDTags = pNum;
+  }
+
+  unsigned getNumSpareDTags() const { return m_NumSpareDTags; }
+
   void setMulDefs(bool pEnable = true) { m_MulDefs = (pEnable ? YES : NO); }
 
   void setEhFrameHdr(bool pEnable = true) { m_bCreateEhFrameHdr = pEnable; }
@@ -322,6 +328,7 @@ class GeneralOptions {
   int8_t m_Verbose;          // --verbose[=0,1,2]
   uint16_t m_MaxErrorNum;    // --error-limit=N
   uint16_t m_MaxWarnNum;     // --warning-limit=N
+  unsigned m_NumSpareDTags;  // --spare-dynamic-tags
   status m_ExecStack;        // execstack, noexecstack
   status m_NoUndefined;      // defs, --no-undefined
   status m_MulDefs;          // muldefs, --allow-multiple-definition

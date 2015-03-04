@@ -20,6 +20,7 @@ GeneralOptions::GeneralOptions()
     : m_Verbose(-1),
       m_MaxErrorNum(-1),
       m_MaxWarnNum(-1),
+      m_NumSpareDTags(1),
       m_ExecStack(Unknown),
       m_NoUndefined(Unknown),
       m_MulDefs(Unknown),

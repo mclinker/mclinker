@@ -34,6 +34,7 @@ class DynamicSectionOptions {
   llvm::cl::list<ZOption, bool, llvm::cl::parser<ZOption> >& m_ZOptionList;
   llvm::cl::opt<std::string>& m_Dyld;
   llvm::cl::opt<bool>& m_EnableNewDTags;
+  llvm::cl::opt<unsigned>& m_NumSpareDTags;
 
   llvm::cl::list<std::string>& m_Auxiliary;
   llvm::cl::opt<std::string>& m_Filter;

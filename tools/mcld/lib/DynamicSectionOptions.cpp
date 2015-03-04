@@ -66,6 +66,11 @@ llvm::cl::opt<bool> ArgEnableNewDTags(
     llvm::cl::desc("Enable use of DT_RUNPATH and DT_FLAGS"),
     llvm::cl::init(false));
 
+llvm::cl::opt<unsigned> ArgNumSpareDTags(
+    "spare-dynamic-tags",
+    llvm::cl::desc("Set the number of spare dyanmic tags (DT_NULL)"),
+    llvm::cl::init(5));
+
 // Not supported yet {
 llvm::cl::list<std::string> ArgAuxiliary(
     "f",
@@ -105,6 +110,7 @@ DynamicSectionOptions::DynamicSectionOptions()
       m_ZOptionList(ArgZOptionList),
       m_Dyld(ArgDyld),
       m_EnableNewDTags(ArgEnableNewDTags),
+      m_NumSpareDTags(ArgNumSpareDTags),
       m_Auxiliary(ArgAuxiliary),
       m_Filter(ArgFilter) {
 }
@@ -143,6 +149,9 @@ bool DynamicSectionOptions::parse(LinkerConfig& pConfig,
 
   // set --enable-new-dtags
   pConfig.options().setNewDTags(m_EnableNewDTags);
+
+  // set --spare-dyanmic-tags
+  pConfig.options().setNumSpareDTags(m_NumSpareDTags);
 
   // set --auxiliary, -f
   llvm::cl::list<std::string>::iterator aux;
