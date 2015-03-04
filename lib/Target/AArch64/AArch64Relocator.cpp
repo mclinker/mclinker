@@ -246,11 +246,12 @@ void AArch64Relocator::scanGlobalReloc(Relocation& pReloc,
           getTarget().checkAndSetHasTextRel(*pSection.getLink());
           if (llvm::ELF::R_AARCH64_ABS64 == pReloc.type() &&
               helper_use_relative_reloc(*rsym, *this)) {
-            Relocation& reloc = helper_DynRela_init(rsym,
-                                                    *pReloc.targetRef().frag(),
-                                                    pReloc.targetRef().offset(),
-                                                    llvm::ELF::R_AARCH64_RELATIVE,
-                                                    *this);
+            Relocation& reloc =
+                helper_DynRela_init(rsym,
+                                    *pReloc.targetRef().frag(),
+                                    pReloc.targetRef().offset(),
+                                    llvm::ELF::R_AARCH64_RELATIVE,
+                                    *this);
             getRelRelMap().record(pReloc, reloc);
           } else {
             Relocation& reloc = helper_DynRela_init(rsym,
