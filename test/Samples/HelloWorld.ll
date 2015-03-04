@@ -38,7 +38,7 @@ declare i32 @puts(i8*)                                      ; i32 (i8*)*
 ; Definition of main function
 define i32 @main() {   ; i32()*
   ; Convert [13 x i8]* to i8  *...
-  %cast210 = getelementptr [13 x i8]* @.LC0, i64 0, i64 0   ; i8*
+  %cast210 = getelementptr [13 x i8], [13 x i8]* @.LC0, i64 0, i64 0   ; i8*
 
   ; Call puts function to write out the string to stdout.
   call i32 @puts(i8* %cast210)           ; i32

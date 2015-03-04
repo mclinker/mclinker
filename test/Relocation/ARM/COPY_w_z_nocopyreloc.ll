@@ -13,6 +13,6 @@ define i32 @main() nounwind {
 entry:
   %retval = alloca i32, align 4
   store i32 0, i32* %retval
-  %0 = load i32* @global_exetern_i, align 4
+  %0 = load i32, i32* @global_exetern_i, align 4
   ret i32 %0
 }

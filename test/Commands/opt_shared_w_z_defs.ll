@@ -8,6 +8,6 @@
 define i32 @_Z1fv() nounwind uwtable ssp {
 entry:
   store i32 10, i32* @ctor, align 4
-  %0 = load i32* @ctor, align 4
+  %0 = load i32, i32* @ctor, align 4
   ret i32 %0
 }

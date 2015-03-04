@@ -15,6 +15,6 @@ entry:
   store i32 %argc, i32* %argc.addr, align 4
   store i8** %argv, i8*** %argv.addr, align 8
   store i32 10, i32* @ctor, align 4
-  %0 = load i32* @ctor, align 4
+  %0 = load i32, i32* @ctor, align 4
   ret i32 %0
 }
