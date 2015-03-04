@@ -383,7 +383,8 @@ bool ObjectLinker::mergeSections() {
           // FIXME: disable debug string merge when doing partial link.
           if (LinkerConfig::Object == m_Config.codeGenType())
             (*sect)->setKind(LDFileFormat::Debug);
-        } // Fall through
+        }
+        // Fall through
         default: {
           if (!(*sect)->hasSectionData())
             continue;  // skip

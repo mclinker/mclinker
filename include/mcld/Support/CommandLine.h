@@ -25,7 +25,7 @@ namespace cl {
 //===----------------------------------------------------------------------===//
 class SearchDirParser : public basic_parser<std::string> {
  public:
-  SearchDirParser(Option &O) : basic_parser(O) { }
+  explicit SearchDirParser(Option &O) : basic_parser(O) { }
 
   // parse - Return true on error.
   bool parse(Option& pOption,
@@ -48,7 +48,7 @@ class SearchDirParser : public basic_parser<std::string> {
 //===----------------------------------------------------------------------===//
 class FalseParser : public parser<bool> {
  public:
-  FalseParser(Option &O) : parser<bool>(O) { }
+  explicit FalseParser(Option &O) : parser<bool>(O) { }
 
   // parse - Return true on error.
   bool parse(cl::Option& O, StringRef ArgName, StringRef Arg, bool& Val) {
@@ -65,7 +65,7 @@ class FalseParser : public parser<bool> {
 template <>
 class parser<mcld::sys::fs::Path> : public basic_parser<mcld::sys::fs::Path> {
  public:
-  parser(Option &O) : basic_parser(O) { }
+  explicit parser(Option &O) : basic_parser(O) { }
 
   bool parse(Option& O,
              StringRef ArgName,
@@ -86,7 +86,7 @@ class parser<mcld::sys::fs::Path> : public basic_parser<mcld::sys::fs::Path> {
 template <>
 class parser<mcld::ZOption> : public basic_parser<mcld::ZOption> {
  public:
-  parser(Option &O) : basic_parser(O) { }
+  explicit parser(Option &O) : basic_parser(O) { }
 
   bool parse(Option& O, StringRef ArgName, StringRef Arg, mcld::ZOption& Val);
 

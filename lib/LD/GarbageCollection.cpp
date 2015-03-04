@@ -240,8 +240,8 @@ void GarbageCollection::getEntrySections(SectionVecTy& pEntry) {
     if (!m_Config.options().exportDynamic()) {
       NamePool::syminfo_iterator info_it,
           info_end = m_Module.getNamePool().syminfo_end();
-      for (info_it = m_Module.getNamePool().syminfo_begin(); info_it != info_end;
-           ++info_it) {
+      for (info_it = m_Module.getNamePool().syminfo_begin();
+           info_it != info_end; ++info_it) {
         ResolveInfo* info = info_it.getEntry();
         if (!info->isDefine() || info->isLocal())
           continue;

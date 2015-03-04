@@ -168,7 +168,7 @@ class ExIdxFragmentComparator {
   const ARMExData& m_ExData;
 
  public:
-  ExIdxFragmentComparator(const ARMExData& pExData)
+  explicit ExIdxFragmentComparator(const ARMExData& pExData)
       : m_ExData(pExData) {
   }
 
