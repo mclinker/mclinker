@@ -636,8 +636,11 @@ unsigned int ARMGNULDBackend::getTargetSectionOrder(
 
 /// relax - the relaxation pass
 bool ARMGNULDBackend::relax(Module& pModule, IRBuilder& pBuilder) {
+  if (!GNULDBackend::relax(pModule, pBuilder)) {
+    return false;
+  }
   rewriteARMExIdxSection(pModule);
-  return GNULDBackend::relax(pModule, pBuilder);
+  return true;
 }
 
 /// doRelax
