@@ -836,6 +836,13 @@ bool ObjectLinker::relocation() {
       (*iter)->apply(*m_LDBackend.getRelocator());
   }
 
+  // apply relocations created by LD backend
+  for (TargetLDBackend::extra_reloc_iterator
+       iter = m_LDBackend.extra_reloc_begin(),
+       end = m_LDBackend.extra_reloc_end(); iter != end; ++iter) {
+    iter->apply(*m_LDBackend.getRelocator());
+  }
+
   return true;
 }
 
@@ -907,6 +914,13 @@ void ObjectLinker::normalSyncRelocationResult(FileOutputBuffer& pOutput) {
       Relocation* reloc = *iter;
       writeRelocationResult(*reloc, data);
     }
+  }
+
+  // sync relocations created by LD backend
+  for (TargetLDBackend::extra_reloc_iterator
+       iter = m_LDBackend.extra_reloc_begin(),
+       end = m_LDBackend.extra_reloc_end(); iter != end; ++iter) {
+    writeRelocationResult(*iter, data);
   }
 }
 
