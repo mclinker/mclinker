@@ -23,6 +23,13 @@ typedef mcld::ScriptParser::token_type token_type;
 #define YY_NO_UNISTD_H
 %}
 
+%{
+#ifdef __clang__
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-register"
+#endif
+%}
+
 /* Flex Declarations and Options */
 %option c++
 %option batch
@@ -376,6 +383,10 @@ void ScriptScanner::popLexState()
 }
 
 } /* namespace mcld */
+
+#ifdef __clang__
+#pragma clang diagnostic pop
+#endif
 
 #ifdef yylex
 #undef yylex
