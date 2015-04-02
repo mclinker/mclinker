@@ -10,6 +10,6 @@
 ; RUN: %p/../../libs/MIPS/Linux/32/crtend.o \
 ; RUN: %p/../../libs/MIPS/Linux/32/crtn.o \
 ; RUN: %p/../../libs/MIPS/Linux/32/libc.so.6 \
-; RUN: -o a32.out
+; RUN: -o %t.exe
 
-; RUN: diff -s a32.out %p/a32.golden.out
+; RUN: diff -s %t.exe %p/a32.golden.out

@@ -10,6 +10,6 @@
 ; RUN: %p/../../libs/MIPS/Linux/64/crtend.o \
 ; RUN: %p/../../libs/MIPS/Linux/64/crtn.o \
 ; RUN: %p/../../libs/MIPS/Linux/64/libc.so.6 \
-; RUN: -o a64.out
+; RUN: -o %t.exe
 
-; RUN: diff -s a64.out %p/a64.golden.out
+; RUN: diff -s %t.exe %p/a64.golden.out

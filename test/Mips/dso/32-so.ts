@@ -9,6 +9,6 @@
 ; RUN: %p/../../libs/MIPS/Linux/32/crtendS.o \
 ; RUN: %p/../../libs/MIPS/Linux/32/crtn.o \
 ; RUN: %p/../../libs/MIPS/Linux/32/libc.so.6 \
-; RUN: -soname libfoo.so -o libfoo32.so
+; RUN: -soname libfoo.so -o %t.so
 
-; RUN: diff -s libfoo32.so %p/libfoo32.golden.so
+; RUN: diff -s %t.so %p/libfoo32.golden.so
