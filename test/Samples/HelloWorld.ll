@@ -13,7 +13,7 @@
 ; ARM_O_OBJDUMP: .text
 ; .so
 ; RUN: %MCLinker -mtriple="arm-none-linux-gnueabi" -march=arm \
-; RUN: -filetype=dso %t.o -o %t.so
+; RUN: -shared %t.o -o %t.so
 ; RUN: llvm-nm %t.so | FileCheck %s -check-prefix=ARM_SO_NM
 ; ARM_SO_NM: {{[0-9a-fA-F]+}} T main
 ; ARM_SO_NM:          U puts

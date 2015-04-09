@@ -6,7 +6,7 @@
 
 function gettop() 
 {
-	local TOPFILE=tools/ld.mcld/main.cpp
+	local TOPFILE=tools/ld.mcld/Main.cpp
 	if [ -n "${MCLINKERTOP}" -a -f "${MCLINKERTOP}/${TOPFILE}" ]; then
 		echo ${MCLINKERTOP}
 	else

@@ -137,7 +137,7 @@ void IdenticalCodeFolding::findCandidates(FoldingCandidates& pCandidateList) {
           }
 
           // Safe icf
-          if (m_Config.options().getICFMode() == GeneralOptions::ICF_Safe) {
+          if (m_Config.options().getICFMode() == GeneralOptions::ICF::Safe) {
             RelocData::iterator rel, relEnd = (*sect)->getRelocData()->end();
             for (rel = (*sect)->getRelocData()->begin(); rel != relEnd; ++rel) {
               LDSymbol* sym = rel->symInfo()->outSymbol();
@@ -166,7 +166,7 @@ void IdenticalCodeFolding::findCandidates(FoldingCandidates& pCandidateList) {
     CandidateMap::iterator candidate, candidateEnd = candidate_map.end();
     for (candidate = candidate_map.begin(); candidate != candidateEnd;
          ++candidate) {
-      if ((m_Config.options().getICFMode() == GeneralOptions::ICF_All) ||
+      if ((m_Config.options().getICFMode() == GeneralOptions::ICF::All) ||
           (funcptr_access_set.count(candidate->first) == 0)) {
         size_t index = m_KeptSections.size();
         m_KeptSections[candidate->first] = ObjectAndId(*obj, index);

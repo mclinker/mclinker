@@ -737,7 +737,7 @@ void GNULDBackend::sizeNamePools(Module& pModule) {
        2. check whether the symbol is used
    */
   switch (config().options().getStripSymbolMode()) {
-    case GeneralOptions::StripAllSymbols: {
+    case GeneralOptions::StripSymbolMode::StripAllSymbols: {
       symtab = strtab = 0;
       break;
     }
@@ -775,8 +775,7 @@ void GNULDBackend::sizeNamePools(Module& pModule) {
         dynsym_local_cnt = 1 + symbols.numOfLocalDyns();
 
         // compute .gnu.hash
-        if (GeneralOptions::GNU == config().options().getHashStyle() ||
-            GeneralOptions::Both == config().options().getHashStyle()) {
+        if (config().options().hasGNUHash()) {
           // count the number of dynsym to hash
           size_t hashed_sym_cnt = 0;
           symEnd = symbols.dynamicEnd();
@@ -795,8 +794,7 @@ void GNULDBackend::sizeNamePools(Module& pModule) {
         }
 
         // compute .hash
-        if (GeneralOptions::SystemV == config().options().getHashStyle() ||
-            GeneralOptions::Both == config().options().getHashStyle()) {
+        if (config().options().hasSysVHash()) {
           // Both Elf32_Word and Elf64_Word are 4 bytes
           hash = (2 + getHashBucketCount(dynsym, false) + dynsym) *
                  sizeof(llvm::ELF::Elf32_Word);
@@ -1026,13 +1024,11 @@ void GNULDBackend::emitDynNamePools(Module& pModule,
 
   Module::SymbolTable& symbols = pModule.getSymbolTable();
   // emit .gnu.hash
-  if (GeneralOptions::GNU == config().options().getHashStyle() ||
-      GeneralOptions::Both == config().options().getHashStyle())
+  if (config().options().hasGNUHash())
     emitGNUHashTab(symbols, pOutput);
 
   // emit .hash
-  if (GeneralOptions::SystemV == config().options().getHashStyle() ||
-      GeneralOptions::Both == config().options().getHashStyle())
+  if (config().options().hasSysVHash())
     emitELFHashTab(symbols, pOutput);
 
   // emit .dynsym, and .dynstr (emit LocalDyn and Dynamic category)
@@ -1296,13 +1292,13 @@ bool GNULDBackend::hasEntryInStrTab(const LDSymbol& pSym) const {
 void GNULDBackend::orderSymbolTable(Module& pModule) {
   Module::SymbolTable& symbols = pModule.getSymbolTable();
 
-  if (GeneralOptions::GNU == config().options().getHashStyle() ||
-      GeneralOptions::Both == config().options().getHashStyle())
+  if (config().options().hasGNUHash()) {
     // Currently we may add output symbols after sizeNamePools(), and a
     // non-stable sort is used in SymbolCategory::arrange(), so we just
     // sort .dynsym right before emitting .gnu.hash
     std::stable_sort(
         symbols.dynamicBegin(), symbols.dynamicEnd(), DynsymCompare());
+  }
 }
 
 /// getSectionOrder

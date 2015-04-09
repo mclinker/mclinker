@@ -135,7 +135,6 @@ HEADER = $(INCDIR)/AttributeOption.h \
          $(INCDIR)/Script/UnaryOp.h \
          $(INCDIR)/Script/WildcardPattern.h \
          $(INCDIR)/Support/Allocators.h \
-         $(INCDIR)/Support/CommandLine.h \
          $(INCDIR)/Support/Compiler.h \
          $(INCDIR)/Support/CXADemangle.tcc \
          $(INCDIR)/Support/Demangle.h \

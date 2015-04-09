@@ -1,5 +1,5 @@
 ; RUN: %MCLinker -march=x86 -pie                 \
-; RUN: -dynamic-linker /lib/ld-linux.so.2        \
+; RUN: --dynamic-linker=/lib/ld-linux.so.2       \
 ; RUN: %p/../../libs/X86/Linux/crt1.o            \
 ; RUN: %p/../../libs/X86/Linux/crti.o            \
 ; RUN: %p/../../libs/X86/Linux/crtbegin.o        \

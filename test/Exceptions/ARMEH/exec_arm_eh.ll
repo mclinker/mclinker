@@ -1,5 +1,5 @@
 ; RUN: %MCLinker --eh-frame-hdr -z relro -mtriple=armv7-none-linux-gnueabi        \
-; RUN: -dynamic-linker /system/bin/linker                                         \
+; RUN: --dynamic-linker=/system/bin/linker                                        \
 ; RUN: -march=arm %p/../../libs/ARM/Android/android-14/crtbegin_static.o          \
 ; RUN: %p/exception_main.o %p/../../libs/ARM/Android/android-14/crtend_android.o  \
 ; RUN: -L%p/../../libs/ARM/Android/android-14 \

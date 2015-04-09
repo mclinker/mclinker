@@ -23,7 +23,8 @@ CPPLINT_FLAGS = \
 
 CPPLINT_SRCS_DIRS = \
   $(top_srcdir)/include \
-  $(top_srcdir)/lib
+  $(top_srcdir)/lib \
+  $(top_srcdir)/tools
 
 # List of files that doesn't want to run cpplint
 CPPLINT_SRC_FILES_FILTER =

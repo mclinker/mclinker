@@ -273,7 +273,7 @@ void ObjectLinker::dataStrippingOpt() {
   }
 
   // Identical code folding
-  if (m_Config.options().getICFMode() != GeneralOptions::ICF_None) {
+  if (m_Config.options().getICFMode() != GeneralOptions::ICF::None) {
     IdenticalCodeFolding icf(m_Config, m_LDBackend, *m_pModule);
     icf.foldIdenticalCode();
   }

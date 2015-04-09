@@ -693,8 +693,8 @@ bool ARMGNULDBackend::doRelax(Module& pModule,
                                                   *getBRIslandFactory());
             if (stub != NULL) {
               switch (config().options().getStripSymbolMode()) {
-                case GeneralOptions::StripAllSymbols:
-                case GeneralOptions::StripLocals:
+                case GeneralOptions::StripSymbolMode::StripAllSymbols:
+                case GeneralOptions::StripSymbolMode::StripLocals:
                   break;
                 default: {
                   // a stub symbol should be local

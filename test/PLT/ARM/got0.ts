@@ -1,6 +1,6 @@
 ; Build the shared library.
-; RUN: %MCLinker --shared -soname=libgotplt.so \
-; RUN: -march=arm -mtriple arm-none-linux-gnueabi \
+; RUN: %MCLinker -shared -soname=libgotplt.so \
+; RUN: -march=arm -mtriple=arm-none-linux-gnueabi \
 ; RUN: %p/gotplt.o -o %t.so
 
 ; Read data from the shared library for comparison.

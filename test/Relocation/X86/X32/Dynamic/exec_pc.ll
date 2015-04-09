@@ -1,5 +1,5 @@
 ; RUN: %MCLinker -mtriple=x86_64-pc-linux-gnux32                    \
-; RUN: -dynamic-linker /libx32/ld-linux-x32.so.2                    \
+; RUN: --dynamic-linker=/libx32/ld-linux-x32.so.2                   \
 ; RUN: %p/../../../../libs/X86/Linux/X32/crt1.o                     \
 ; RUN: %p/../../../../libs/X86/Linux/X32/crti.o                     \
 ; RUN: %p/exec_pc.o                                                 \

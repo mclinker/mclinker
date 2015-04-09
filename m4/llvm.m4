@@ -60,10 +60,23 @@ AC_DEFUN([CHECK_LLVM],
 	LLVM_LDFLAGS="${LLVM_LDFLAGS} `${LLVM_CONFIG_BIN} --ldflags`"
 	LLVM_LDFLAGS="`echo ${LLVM_LDFLAGS} | sed 's/\n//g'`"
 	LLVM_LDFLAGS="`echo ${LLVM_LDFLAGS} | sed 's/-lgtest_main -lgtest//g'`"
+	LLVM_SRC_ROOT="`${LLVM_CONFIG_BIN} --src-root`"
+	LLVM_BIN_DIR="`${LLVM_CONFIG_BIN} --bindir`"
+	LLVM_TBLGEN="${LLVM_BIN_DIR}/llvm-tblgen"
+
+	AC_MSG_CHECKING(for llvm-tblgen)
+	if test -x "${LLVM_TBLGEN}" -a ! -d "${LLVM_TBLGEN}"; then
+		AC_MSG_RESULT([yes])
+	else
+		AC_MSG_RESULT([no])
+		AC_MSG_ERROR([*** llvm-tblgen not found!])
+	fi
 
 	AC_SUBST(LLVM_CFLAGS)
 	AC_SUBST(LLVM_CPPFLAGS)
 	AC_SUBST(LLVM_LDFLAGS)
+	AC_SUBST(LLVM_TBLGEN)
+	AC_SUBST(LLVM_SRC_ROOT)
 	ifelse([$2], , , [$2])
 
 	AC_CACHE_CHECK([type of operating system we're going to host on],

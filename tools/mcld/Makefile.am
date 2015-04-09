@@ -1,24 +1,6 @@
-MCLD_SOURCES = main.cpp \
-	include/mcld/DynamicSectionOptions.h \
-	lib/DynamicSectionOptions.cpp \
-	include/mcld/OptimizationOptions.h \
-	lib/OptimizationOptions.cpp \
-	include/mcld/OutputFormatOptions.h \
-	lib/OutputFormatOptions.cpp \
-	include/mcld/PositionalOptions.h \
-	lib/PositionalOptions.cpp \
-	include/mcld/PreferenceOptions.h \
-	lib/PreferenceOptions.cpp \
-	include/mcld/ScriptOptions.h \
-	lib/ScriptOptions.cpp \
-	include/mcld/SearchPathOptions.h \
-	lib/SearchPathOptions.cpp \
-	include/mcld/SymbolOptions.h \
-	lib/SymbolOptions.cpp \
-	include/mcld/TargetControlOptions.h \
-	lib/TargetControlOptions.cpp \
-	include/mcld/TripleOptions.h \
-	lib/TripleOptions.cpp
+BUILT_SOURCES = Options.inc
+
+MCLD_SOURCES = Main.cpp
 
 ANDROID_CPPFLAGS=-fno-rtti -fno-exceptions -Waddress -Wchar-subscripts -Wcomment -Wformat -Wparentheses -Wreorder -Wreturn-type -Wsequence-point -Wstrict-aliasing -Wstrict-overflow=1 -Wswitch -Wtrigraphs -Wuninitialized -Wunknown-pragmas -Wunused-function -Wunused-label -Wunused-value -Wunused-variable -Wvolatile-register-var -Wsign-compare -Werror
 
@@ -48,3 +30,6 @@ $(bin_PROGRAMS): $(MCLD) $(CRCLIB)
 
 $(CRCLIB):
 	cd $(top_builddir)/utils/zlib && $(MAKE) $(AM_MAKEFLAGS)
+
+Options.inc : Options.td $(LLVM_TBLGEN)
+	@$(LLVM_TBLGEN) -gen-opt-parser-defs -I $(LLVM_SRC_ROOT)/include -o $@ $<

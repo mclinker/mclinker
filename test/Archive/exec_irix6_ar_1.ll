@@ -1,5 +1,5 @@
 ; RUN: %MCLinker -z relro -mtriple=mips64el-linux-gnueabi \
-; RUN: -dynamic-linker /lib64/ld.so.1                     \
+; RUN: --dynamic-linker=/lib64/ld.so.1                    \
 ; RUN: %p/../libs/MIPS/Linux/64/crt1.o                    \
 ; RUN: %p/../libs/MIPS/Linux/64/crti.o                    \
 ; RUN: %p/../libs/MIPS/Linux/64/crtbegin.o                \

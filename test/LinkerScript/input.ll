@@ -7,7 +7,7 @@
 ; RUN: > %t.x
 
 ; Build the plasma shared library.
-; RUN: %MCLinker --shared -soname=libplasma.so -Bsymbolic \
+; RUN: %MCLinker -shared -soname=libplasma.so -Bsymbolic \
 ; RUN: -march=arm -mtriple="armv7-none-linux-gnueabi" \
 ; RUN: -o %t.out \
 ; RUN: %t.x

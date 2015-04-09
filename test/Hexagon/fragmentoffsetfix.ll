@@ -1,4 +1,4 @@
-; RUN: %MCLinker -march hexagon -mtriple=hexagon-none-linux \
+; RUN: %MCLinker -march=hexagon -mtriple=hexagon-none-linux \
 ; RUN: %p/../libs/Hexagon/v4objs/definition.o  \
 ; RUN: %p/../libs/Hexagon/v4objs/reference.o  \
 ; RUN: -o %t.out

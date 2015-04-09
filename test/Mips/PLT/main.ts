@@ -1,4 +1,4 @@
-; RUN: %MCLinker -mtriple=mipsel-linux-gnueabi -filetype=exe \
+; RUN: %MCLinker -mtriple=mipsel-linux-gnueabi \
 ; RUN: %p/../../libs/MIPS/Linux/32/crt1.o %p/../../libs/MIPS/Linux/32/crti.o \
 ; RUN: %p/main.o %p/bar.o %p/../../libs/MIPS/Linux/32/libc_nonshared.a \
 ; RUN: %p/../../libs/MIPS/Linux/32/ld.so.1 \

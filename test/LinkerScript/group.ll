@@ -11,7 +11,7 @@
 ; check using -L in GROUP content resolving
 ; RUN: %MCLinker --eh-frame-hdr -z relro -o %t.out \
 ; RUN: -mtriple=x86-linux-gnu -march=x86           \
-; RUN: -dynamic-linker /lib/ld-linux.so.2          \
+; RUN: --dynamic-linker=/lib/ld-linux.so.2         \
 ; RUN: -L%p/../libs/X86/Linux                      \
 ; RUN: %p/../libs/X86/Linux/crt1.o                 \
 ; RUN: %p/../libs/X86/Linux/crti.o                 \
@@ -37,7 +37,7 @@
 ; check using -sysroot in GROUP content resolving
 ; RUN: %MCLinker --eh-frame-hdr -z relro -o %t.out \
 ; RUN: -mtriple=x86-linux-gnu -march=x86           \
-; RUN: -dynamic-linker /lib/ld-linux.so.2          \
+; RUN: --dynamic-linker=/lib/ld-linux.so.2         \
 ; RUN: --sysroot=%p/../libs/X86/Linux              \
 ; RUN: %p/../libs/X86/Linux/crt1.o                 \
 ; RUN: %p/../libs/X86/Linux/crti.o                 \

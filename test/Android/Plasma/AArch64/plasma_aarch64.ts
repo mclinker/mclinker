@@ -1,5 +1,5 @@
 ; Build the shared library.
-; RUN: %MCLinker --shared -soname=libplasma.so -Bsymbolic \
+; RUN: %MCLinker -shared -soname=libplasma.so -Bsymbolic \
 ; RUN: -march=aarch64 -mtriple="aarch64-none-linux-gnueabi" \
 ; RUN: -o libplasma.so \
 ; RUN: -L=%p/../../../libs/AArch64/Android/ \

@@ -151,14 +151,14 @@ class BStaticAction : public InputAction {
 /// DefSymAction
 class DefSymAction : public InputAction {
  public:
-  explicit DefSymAction(unsigned int pPosition, std::string& pAssignment);
+  explicit DefSymAction(unsigned int pPosition, const std::string& pAssignment);
 
   bool activate(InputBuilder&) const;
 
   const std::string& assignment() const { return m_Assignment; }
 
  private:
-  std::string& m_Assignment;
+  const std::string& m_Assignment;
 };
 
 /// ScriptAction

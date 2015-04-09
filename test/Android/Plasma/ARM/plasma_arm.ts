@@ -1,5 +1,5 @@
 ; Build the shared library.
-; RUN: %MCLinker --shared -soname=libplasma.so -Bsymbolic \
+; RUN: %MCLinker -shared -soname=libplasma.so -Bsymbolic \
 ; RUN: -march=arm -mtriple="armv7-none-linux-gnueabi" \
 ; RUN: -o libplasma.llvm.so \
 ; RUN: -L=%p/../../../libs/ARM/Android/android-14 \

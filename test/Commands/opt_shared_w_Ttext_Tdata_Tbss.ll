@@ -6,7 +6,7 @@
 ; RUN: -Bshareable %t.o -o %t.so                              \
 ; RUN: -lc --as-needed -lm --no-as-needed                     \
 ; RUN: %p/../libs/ARM/Android/android-14/crtend_so.o          \
-; RUN: -Ttext 0x10000 -Tdata 0x20000 -Tbss 0x30000
+; RUN: -Ttext=0x10000 -Tdata=0x20000 -Tbss=0x30000
 ; RUN: readelf -l %t.so | grep LOAD | FileCheck %s
 ; CHECK: 0x00010000 0x00010000
 ; CHECK: 0x00020000 0x00020000

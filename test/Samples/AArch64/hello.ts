@@ -1,6 +1,6 @@
 ; Build the shared library.
 ; RUN: %MCLinker -Bsymbolic --eh-frame-hdr \
-; RUN: -dynamic-linker /system/bin/linker64 \
+; RUN: --dynamic-linker=/system/bin/linker64 \
 ; RUN: -march=aarch64 -mtriple="aarch64-none-linux-gnueabi" \
 ; RUN: -o hello.out \
 ; RUN: -L=%p/../../libs/AArch64/Android/ \

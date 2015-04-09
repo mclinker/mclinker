@@ -1,8 +1,8 @@
-; RUN: %MCLinker -Bstatic -mtriple=mipsel-linux-gnueabi -filetype=exe \
+; RUN: %MCLinker -Bstatic -mtriple=mipsel-linux-gnueabi \
 ; RUN:           %p/rel26-32.o -o %t.32.exe
 ; RUN: llvm-objdump -disassemble %t.32.exe | FileCheck %s -check-prefix=MIPS32
 
-; RUN: %MCLinker -Bstatic -mtriple=mips64el-linux-gnueabi -filetype=exe \
+; RUN: %MCLinker -Bstatic -mtriple=mips64el-linux-gnueabi \
 ; RUN:           %p/rel26-64.o -o %t.64.exe
 ; RUN: llvm-objdump -disassemble %t.64.exe | FileCheck %s -check-prefix=MIPS64
 

@@ -3,7 +3,7 @@
 ; RUN: %MCLinker -mtriple="arm-none-linux-gnueabi" -march=arm \
 ; RUN: -z origin -z nodefaultlib -z nodelete -z nodlopen      \
 ; RUN: -z nodump -z loadfltr -z interpose -z initfirst        \
-; RUN: -filetype=dso %t.o -o %t.so
+; RUN: -shared %t.o -o %t.so
 ; RUN: readelf -a %t.so | grep FLAGS | grep ORIGIN
 ; RUN: readelf -a %t.so | grep FLAGS_1 | grep NODELETE
 ; RUN: readelf -a %t.so | grep FLAGS_1 | grep LOADFLTR

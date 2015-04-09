@@ -1,12 +1,12 @@
 ; generate the shared lib
 ; RUN: %MCLinker -z relro --eh-frame-hdr -mtriple=x86-linux-gnu     \
-; RUN: -dynamic-linker %p/../../../libs/X86/Linux/ld-linux.so.2     \
+; RUN: --dynamic-linker=%p/../../../libs/X86/Linux/ld-linux.so.2    \
 ; RUN: -march=x86 -shared %p/obj/tls_foo.o -o %t.so
 
 
 ; generate .exe calling the shared lib
 ; RUN: %MCLinker -z relro --eh-frame-hdr -mtriple=x86-linux-gnu     \
-; RUN: -dynamic-linker /lib/ld-linux.so.2                           \
+; RUN: --dynamic-linker=/lib/ld-linux.so.2                          \
 ; RUN: -march=x86 %p/../../../libs/X86/Linux/crt1.o                 \
 ; RUN: %p/../../../libs/X86/Linux/crti.o                            \
 ; RUN: %p/../../../libs/X86/Linux/crtbegin.o                        \

@@ -287,8 +287,7 @@ struct DynsymGOTCompare {
 }  // anonymous namespace
 
 void MipsGNULDBackend::orderSymbolTable(Module& pModule) {
-  if (GeneralOptions::GNU == config().options().getHashStyle() ||
-      GeneralOptions::Both == config().options().getHashStyle()) {
+  if (config().options().hasGNUHash()) {
     // The MIPS ABI and .gnu.hash require .dynsym to be sorted
     // in different ways. The MIPS ABI requires a mapping between
     // the GOT and the symbol table. At the same time .gnu.hash

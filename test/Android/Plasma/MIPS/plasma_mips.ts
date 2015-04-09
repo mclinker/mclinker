@@ -1,5 +1,5 @@
 ; Build the shared library.
-; RUN: %MCLinker -filetype=dso -march=mipsel -soname=libplasma.so \
+; RUN: %MCLinker -shared -march=mipsel -soname=libplasma.so \
 ; RUN: -mtriple="mipsel-none-linux-gnu" \
 ; RUN: -L=%p/../../../libs/MIPS/Android/android-14  -Bsymbolic \
 ; RUN: %p/../../../libs/MIPS/Android/android-14/crtbegin_so.o \

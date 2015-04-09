@@ -214,7 +214,8 @@ bool BStaticAction::activate(InputBuilder& pBuilder) const {
 //===----------------------------------------------------------------------===//
 // DefSymAction
 //===----------------------------------------------------------------------===//
-DefSymAction::DefSymAction(unsigned int pPosition, std::string& pAssignment)
+DefSymAction::DefSymAction(unsigned int pPosition,
+                           const std::string& pAssignment)
     : InputAction(pPosition), m_Assignment(pAssignment) {
 }
 
@@ -223,8 +224,9 @@ bool DefSymAction::activate(InputBuilder& pBuilder) const {
   Input* input = *pBuilder.getCurrentNode();
   pBuilder.setContext(*input, false);
 
-  m_Assignment.append(";");
-  pBuilder.setMemory(*input, &m_Assignment[0], m_Assignment.size());
+  // FIXME
+  void* base = static_cast<void*>(const_cast<char*>(m_Assignment.data()));
+  pBuilder.setMemory(*input, base, m_Assignment.size());
   return true;
 }
 

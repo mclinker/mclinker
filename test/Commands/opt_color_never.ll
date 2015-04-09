@@ -1,7 +1,7 @@
 ; RUN: %LLC -mtriple="arm-none-linux-gnueabi" -march=arm \
 ; RUN: -filetype=obj -relocation-model=pic %s -o %t.o
 ; RUN: %MCLinker -mtriple="arm-none-linux-gnueabi" -march=arm \
-; RUN: -filetype=exe %t.o -o %t.so --color=never 2> %t.txt || exit 0
+; RUN: %t.o -o %t.so --color=never 2> %t.txt || exit 0
 ; RUN: test 0 -eq `cat %t.txt | grep -c '\[0;1;31m'`
 
 target triple = "arm-none-linux-gnueabi"

@@ -124,7 +124,6 @@ SOURCE = ADT/StringEntry.cpp \
 	Script/TernaryOp.cpp \
 	Script/UnaryOp.cpp \
 	Script/WildcardPattern.cpp \
-	Support/CommandLine.cpp \
 	Support/Demangle.cpp \
 	Support/Directory.cpp \
 	Support/FileHandle.cpp \

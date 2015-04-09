@@ -2,7 +2,7 @@
 ; RUN: -shared %p/obj/foo.o -o %t.foo.so
 
 ; RUN: %MCLinker -march=x86                                              \
-; RUN: -dynamic-linker /lib/ld-linux.so.2                                \
+; RUN: --dynamic-linker=/lib/ld-linux.so.2                               \
 ; RUN: %p/../../libs/X86/Linux/crt1.o                                    \
 ; RUN: %p/../../libs/X86/Linux/crti.o %p/../../libs/X86/Linux/crtbegin.o \
 ; RUN: %p/obj/main.o %t.foo.so %p/../../libs/X86/Linux/crtend.o          \

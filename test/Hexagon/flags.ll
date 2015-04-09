@@ -1,4 +1,4 @@
-; RUN: %MCLinker -march hexagon -mcpu=hexagonv4 -mtriple=hexagon-none-linux \
+; RUN: %MCLinker -march=hexagon -mcpu=hexagonv4 -mtriple=hexagon-none-linux \
 ; RUN: %p/../libs/Hexagon/v4objs/flags.o  \
 ; RUN: -o %t1.out
 
@@ -7,7 +7,7 @@
 
 ; CHECK: Flags:                             0x3
 
-; RUN: %MCLinker -march hexagon -mcpu=hexagonv5 -mtriple=hexagon-none-linux \
+; RUN: %MCLinker -march=hexagon -mcpu=hexagonv5 -mtriple=hexagon-none-linux \
 ; RUN: %p/../libs/Hexagon/v4objs/flags.o  \
 ; RUN: -o %t2.out
 

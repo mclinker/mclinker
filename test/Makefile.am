@@ -3,8 +3,6 @@ LLC="`$(LLVM_CONFIG_BIN) --bindir`/llc"
 MCLD=$(abs_top_builddir)/tools/mcld/ld.mcld
 FAKELD=$(abs_top_srcdir)/scripts/bin/ld.fake
 
-LLVM_SRC_ROOT="`$(LLVM_CONFIG_BIN) --src-root`"
-
 # 'lit' is the default test runner.
 check: check-local-lit
 
