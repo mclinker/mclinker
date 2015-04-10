@@ -1,4 +1,4 @@
-add_mcld_library(MCLDMC
+add_llvm_library(MCLDMC
   Attribute.cpp
   AttributeSet.cpp
   CommandAction.cpp
@@ -12,8 +12,6 @@ add_mcld_library(MCLDMC
   SearchDirs.cpp
   SymbolCategory.cpp
   ZOption.cpp
-  )
-
-target_link_libraries(MCLDMC ${cmake_2_8_12_PRIVATE}
-  MCLDSupport
+  LINK_LIBS
+    MCLDSupport
   )

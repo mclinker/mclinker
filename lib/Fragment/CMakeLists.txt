@@ -1,4 +1,4 @@
-add_mcld_library(MCLDFragment
+add_llvm_library(MCLDFragment
   AlignFragment.cpp
   FillFragment.cpp
   Fragment.cpp
@@ -7,8 +7,6 @@ add_mcld_library(MCLDFragment
   RegionFragment.cpp
   Relocation.cpp
   Stub.cpp
-  )
-
-target_link_libraries(MCLDFragment ${cmake_2_8_12_PRIVATE}
-  MCLDLD
+  LINK_LIBS
+    MCLDLD
   )

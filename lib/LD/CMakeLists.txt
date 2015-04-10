@@ -1,4 +1,4 @@
-add_mcld_library(MCLDLD
+add_llvm_library(MCLDLD
   Archive.cpp
   ArchiveReader.cpp
   BinaryReader.cpp
@@ -50,9 +50,7 @@ add_mcld_library(MCLDLD
   StaticResolver.cpp
   StubFactory.cpp
   TextDiagnosticPrinter.cpp
-  )
-
-target_link_libraries(MCLDLD ${cmake_2_8_12_PRIVATE}
-  MCLDFragment
-  MCLDSupport
+  LINK_LIBS
+    MCLDFragment
+    MCLDSupport
   )

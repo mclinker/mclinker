@@ -1,4 +1,4 @@
-add_mcld_library(MCLDARMLDBackend
+add_llvm_library(MCLDARMLDBackend
   ARMDiagnostic.cpp
   ARMELFAttributeData.cpp
   ARMELFDynamic.cpp
@@ -12,14 +12,12 @@ add_mcld_library(MCLDARMLDBackend
   ARMToTHMStub.cpp
   THMToARMStub.cpp
   THMToTHMStub.cpp
+  LINK_LIBS
+    MCLDARMTargetInfo
+    MCLDCore
+    MCLDFragment
+    MCLDObject
+    MCLDTarget
   )
 
 add_subdirectory(TargetInfo)
-
-target_link_libraries(MCLDARMLDBackend ${cmake_2_8_12_PRIVATE}
-  MCLDARMTargetInfo
-  MCLDCore
-  MCLDFragment
-  MCLDObject
-  MCLDTarget
-  )

@@ -1,3 +1,3 @@
-add_mcld_library(MCLDHexagonTargetInfo
+add_llvm_library(MCLDHexagonTargetInfo
   HexagonTargetInfo.cpp
   )

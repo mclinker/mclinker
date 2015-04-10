@@ -6,7 +6,7 @@ FLEX_TARGET(LEXER ScriptScanner.ll ${CMAKE_CURRENT_BINARY_DIR}/ScriptScanner.cpp
 ADD_FLEX_BISON_DEPENDENCY(LEXER PARSER)
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 
-add_mcld_library(MCLDScript
+add_llvm_library(MCLDScript
   AssertCmd.cpp
   Assignment.cpp
   BinaryOp.cpp

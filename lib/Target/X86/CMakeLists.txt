@@ -1,4 +1,4 @@
-add_mcld_library(MCLDX86LDBackend
+add_llvm_library(MCLDX86LDBackend
   X86Diagnostic.cpp
   X86ELFDynamic.cpp
   X86Emulation.cpp
@@ -7,14 +7,12 @@ add_mcld_library(MCLDX86LDBackend
   X86LDBackend.cpp
   X86PLT.cpp
   X86Relocator.cpp
+  LINK_LIBS
+    MCLDX86TargetInfo
+    MCLDCore
+    MCLDFragment
+    MCLDObject
+    MCLDTarget
   )
 
 add_subdirectory(TargetInfo)
-
-target_link_libraries(MCLDX86LDBackend ${cmake_2_8_12_PRIVATE}
-  MCLDX86TargetInfo
-  MCLDCore
-  MCLDFragment
-  MCLDObject
-  MCLDTarget
-  )

@@ -1,4 +1,4 @@
-add_mcld_library(MCLDCore
+add_llvm_library(MCLDCore
   AttributeOption.cpp
   Environment.cpp
   GeneralOptions.cpp
@@ -9,15 +9,13 @@ add_mcld_library(MCLDCore
   LinkerScript.cpp
   Module.cpp
   TargetOptions.cpp
-  )
-
-target_link_libraries(MCLDCore ${cmake_2_8_12_PRIVATE}
-  MCLDADT
-  MCLDMC
-  MCLDObject
-  MCLDAArch64LDBackend
-  MCLDARMLDBackend
-  MCLDHexagonLDBackend
-  MCLDMipsLDBackend
-  MCLDX86LDBackend
+  LINK_LIBS
+    MCLDADT
+    MCLDMC
+    MCLDObject
+    MCLDAArch64LDBackend
+    MCLDARMLDBackend
+    MCLDHexagonLDBackend
+    MCLDMipsLDBackend
+    MCLDX86LDBackend
   )

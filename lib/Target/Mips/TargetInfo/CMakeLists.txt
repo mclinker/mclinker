@@ -1,3 +1,3 @@
-add_mcld_library(MCLDMipsTargetInfo
+add_llvm_library(MCLDMipsTargetInfo
   MipsTargetInfo.cpp
   )

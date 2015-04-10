@@ -168,46 +168,10 @@ configure_file(
   ${MCLD_BINARY_DIR}/include/mcld/Config/Targets.def
   )
 
-
-
-macro(add_mcld_library name)
-  llvm_process_sources(srcs ${ARGN})
-  if (MSVC_IDE OR XCODE)
-    string(REGEX MATCHALL "/[^/]+" split_path ${CMAKE_CURRENT_SOURCE_DIR})
-    list(GET split_path -1 dir)
-    file(GLOB_RECURSE headers
-      ../../include/mcld${dir}/*.h)
-    set(srcs ${srcs} ${headers})
-  endif()
-  if (MODULE)
-    set(libkind MODULE)
-  elseif (SHARED_LIBRARY)
-    set(libkind SHARED)
-  else()
-    set(libkind)
-  endif()
-
-  add_library(${name} ${libkind} ${srcs})
-  llvm_update_compile_flags(${name} ${srcs})
-  if (LLVM_COMMON_DEPENDS)
-    add_dependencies(${name} ${LLVM_COMMON_DEPENDS})
-  endif()
-
-  target_link_libraries(${name} ${LLVM_USED_LIBS})
-  llvm_config(${name} ${LLVM_LINK_COMPONENTS})
-  target_link_libraries(${name} ${LLVM_COMMON_LIBS})
-
-  install(TARGETS ${name}
-    LIBRARY DESTINATION lib${LLVM_LIBDIR_SUFFIX}
-    ARCHIVE DESTINATION lib${LLVM_LIBDIR_SUFFIX})
-  set_target_properties(${name} PROPERTIES FOLDER "MCLD libraries")
-endmacro(add_mcld_library)
-
 macro(add_mcld_executable name)
   add_llvm_executable(${name} ${ARGN})
   set_target_properties(${name} PROPERTIES FOLDER "MCLD executables")
 endmacro(add_mcld_executable)
-
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 include_directories(BEFORE

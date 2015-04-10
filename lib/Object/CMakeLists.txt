@@ -1,11 +1,9 @@
-add_mcld_library(MCLDObject
+add_llvm_library(MCLDObject
   ObjectBuilder.cpp
   ObjectLinker.cpp
   SectionMap.cpp
-  )
-
-target_link_libraries(MCLDObject ${cmake_2_8_12_PRIVATE}
-  MCLDFragment
-  MCLDLD
-  MCLDScript
+  LINK_LIBS
+    MCLDFragment
+    MCLDLD
+    MCLDScript
   )

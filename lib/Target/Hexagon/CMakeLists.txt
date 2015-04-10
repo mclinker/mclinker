@@ -1,4 +1,4 @@
-add_mcld_library(MCLDHexagonLDBackend
+add_llvm_library(MCLDHexagonLDBackend
   HexagonAbsoluteStub.cpp
   HexagonDiagnostic.cpp
   HexagonELFDynamic.cpp
@@ -9,14 +9,12 @@ add_mcld_library(MCLDHexagonLDBackend
   HexagonLDBackend.cpp
   HexagonPLT.cpp
   HexagonRelocator.cpp
+  LINK_LIBS
+    MCLDHexagonTargetInfo
+    MCLDCore
+    MCLDFragment
+    MCLDObject
+    MCLDTarget
   )
 
 add_subdirectory(TargetInfo)
-
-target_link_libraries(MCLDHexagonLDBackend ${cmake_2_8_12_PRIVATE}
-  MCLDHexagonTargetInfo
-  MCLDCore
-  MCLDFragment
-  MCLDObject
-  MCLDTarget
-  )

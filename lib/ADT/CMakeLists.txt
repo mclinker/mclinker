@@ -1,3 +1,3 @@
-add_mcld_library(MCLDADT
+add_llvm_library(MCLDADT
   StringEntry.cpp
   )
