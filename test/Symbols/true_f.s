@@ -2,7 +2,7 @@
 target triple = "arm-none-linux-gnueabi"
 
 @.str = private unnamed_addr constant [19 x i8] c"Happy Mother's Day\00", align 1
-@str = global i8* getelementptr inbounds ([19 x i8]* @.str, i32 0, i32 0), align 8
+@str = global i8* getelementptr inbounds ([19 x i8], [19 x i8]* @.str, i32 0, i32 0), align 8
 
 define i8* @f(i32 %c) nounwind uwtable ssp {
 entry:

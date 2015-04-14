@@ -7,7 +7,7 @@
 target triple = "arm-none-linux-gnueabi"
 
 @.str = private unnamed_addr constant [911 x i8] c"\0A                      /\5C   _ /     \0A                  \5C._\5C`.\5C`-./      \0A             -._ /  `. `   (       \0A             _`/`< _  `-. __\5C      \0A             `.  /  )    ( @)(     \0A             / ) `-./`_.-`._  `._  \0A             _/< __( (      `-._ ) \0A             `._)   \5C `.        v \0A              / \5C__  \5C  \5C       \0A            _/_ / `` -\5C -\5C       \0A             \5C   \5C-..._\5C  \5C    \0A           . | _ /_     \5C.-\5C     \0A          / `.\5C  \5C ``-.. :  :    \0A         /`. `---+|_    `|-.|      \0A         | / _.._/  ``-. |  |      \0A         |`. .-/ /-.._  ` - :      \0A          \5C/..`\5C      `..._/     \0A           `.   |--.._( +-.        \0A                |    (`/           \0A               /__.-:`/-.-._       \0A               )    |:.._.. `.     \0A               :_.-.||.. `... \5C   \0A                )_.-::`...\5C/-.(   \0A                 )  .`:._..`. /    \0A                  `:   /  \5C  /    \0A                    `-/----.\00", align 1
-@str = global i8* getelementptr inbounds ([911 x i8]* @.str, i32 0, i32 0), align 8
+@str = global i8* getelementptr inbounds ([911 x i8], [911 x i8]* @.str, i32 0, i32 0), align 8
 
 define i8* @f(i32 %c) nounwind uwtable ssp {
 entry:
