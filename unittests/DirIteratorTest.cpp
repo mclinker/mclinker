@@ -49,8 +49,10 @@ TEST_F(DirIteratorTest, open_dir) {
 
   size_t size = 0;
   while (entry != enEnd) {
-    if (0 != entry.path())
+    if (0 != entry.path()) {
       size = entry.path()->native().size();
+      ASSERT_TRUE(size != 0);
+    }
 
     ++entry;
   }

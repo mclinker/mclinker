@@ -67,9 +67,7 @@ TEST_F(HashTableTest, ptr_entry) {
   HashTableTy* hashTable = new HashTableTy(0);
 
   bool exist;
-  HashTableTy::entry_type* entry = 0;
-
-  entry = hashTable->insert(pA, exist);
+  hashTable->insert(pA, exist);
 
   EXPECT_FALSE(hashTable->empty());
 
@@ -135,9 +133,8 @@ TEST_F(HashTableTest, erase100) {
   HashTableTy* hashTable = new HashTableTy(0);
 
   bool exist;
-  HashTableTy::entry_type* entry = 0;
   for (unsigned int key = 0; key < 100; ++key)
-    entry = hashTable->insert(key, exist);
+    hashTable->insert(key, exist);
 
   EXPECT_FALSE(hashTable->empty());
 
@@ -161,9 +158,8 @@ TEST_F(HashTableTest, clear) {
   HashTableTy* hashTable = new HashTableTy(22);
 
   bool exist;
-  HashTableTy::entry_type* entry = 0;
   for (unsigned int key = 0; key < 100; ++key) {
-    entry = hashTable->insert(key, exist);
+    hashTable->insert(key, exist);
   }
 
   hashTable->clear();
@@ -185,9 +181,8 @@ TEST_F(HashTableTest, tombstone) {
   HashTableTy* hashTable = new HashTableTy();
 
   bool exist;
-  HashTableTy::entry_type* entry = 0;
   for (unsigned int key = 0; key < 100; ++key) {
-    entry = hashTable->insert(key, exist);
+    hashTable->insert(key, exist);
   }
   EXPECT_FALSE(hashTable->empty());
 
@@ -207,7 +202,7 @@ TEST_F(HashTableTest, tombstone) {
   }
 
   for (unsigned int key = 0; key < 20; ++key) {
-    entry = hashTable->insert(key, exist);
+    hashTable->insert(key, exist);
   }
   EXPECT_TRUE(100 == hashTable->numOfEntries());
   EXPECT_TRUE(197 == hashTable->numOfBuckets());
