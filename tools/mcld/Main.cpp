@@ -1015,6 +1015,11 @@ std::unique_ptr<Driver> Driver::Create(llvm::ArrayRef<const char*> argv) {
     return nullptr;
   }
 
+  // Print version information if requested.
+  if (result->args_->hasArg(kOpt_Version)) {
+    mcld::outs() << result->config_.options().getVersionString() << "\n";
+  }
+
   // Setup instance from arguments.
   if (!result->TranslateArguments()) {
     return nullptr;
@@ -1039,11 +1044,6 @@ bool Driver::Run() {
   if (!linker_.emit(module_, module_.name())) {
     mcld::errs() << "Failed to emit output!\n";
     return false;
-  }
-
-  // Print version information if requested.
-  if (args_->hasArg(kOpt_Version)) {
-    mcld::outs() << config_.options().getVersionString() << "\n";
   }
 
   mcld::Finalize();
