@@ -3,7 +3,7 @@
 ; RUN: -z noexecstack -z relro -z now \
 ; RUN: --no-undefined -z noexecstack -z relro -z now \
 ; RUN: -o %t.so \
-; RUN: -soname libhello-jni.so \
+; RUN: -soname=libhello-jni.so \
 ; RUN: --sysroot=%p/../../libs/MIPS/Android/android-14 \
 ; RUN: %p/../../libs/MIPS/Android/android-14/crtbegin_so.o \
 ; RUN: -L%p/../../libs/MIPS/Android/android-14 \
