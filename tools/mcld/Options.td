@@ -111,6 +111,9 @@ def OutputGroup : OptionGroup<"output">,
 def Output : Separate<["-"], "o">,
              Group<OutputGroup>,
              HelpText<"Output filename">;
+def OutputAlias : Joined<["--"], "output=">,
+                  Group<OutputGroup>,
+                  Alias<Output>;
 
 def OutputFormat: Joined<["--"], "oformat=">,
                   Group<OutputGroup>,
