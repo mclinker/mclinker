@@ -12,5 +12,5 @@ DIAG(debug_cannot_scan_eh,
      "cannot scan .eh_frame section in input %0.")
 DIAG(fatal_cannot_read_input,
      DiagnosticEngine::Fatal,
-     "cannot read input input %0",
+     "cannot read input %0",
      "cannot read input %0")
