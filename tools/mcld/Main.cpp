@@ -197,13 +197,13 @@ inline void ParseEmulation(llvm::Triple& triple, const char* emulation) {
     mcld::error(mcld::diag::err_invalid_emulation) << emulation << "\n";
 
   if (emu_triple.getArch() != llvm::Triple::UnknownArch)
-    triple.setArch(triple.getArch());
+    triple.setArch(emu_triple.getArch());
 
   if (emu_triple.getOS() != llvm::Triple::UnknownOS)
-    triple.setOS(triple.getOS());
+    triple.setOS(emu_triple.getOS());
 
   if (emu_triple.getEnvironment() != llvm::Triple::UnknownEnvironment)
-    triple.setEnvironment(triple.getEnvironment());
+    triple.setEnvironment(emu_triple.getEnvironment());
 }
 
 /// Configure the output filename.
