@@ -31,6 +31,9 @@ def Bgroup : Flag<["-"], "Bgroup">,
 def SOName : Joined<["-"], "soname=">,
              Group<DynamicGroup>,
              HelpText<"Set internal name of shared library">;
+def SONameAlias : Separate<["-"], "soname">,
+                  Group<DynamicGroup>,
+                  Alias<SOName>;
 
 def NoUndef : Flag<["--"], "no-undefined">,
               Group<DynamicGroup>,
@@ -47,6 +50,9 @@ def Z : Separate<["-"], "z">,
 def Dyld : Joined<["--"], "dynamic-linker=">,
            Group<DynamicGroup>,
            HelpText<"Set the name of the dynamic linker">;
+def DyldAlias : Separate<["-"], "dynamic-linker">,
+                Group<DynamicGroup>,
+                Alias<Dyld>;
 
 def EnableNewDTags : Flag<["--"], "enable-new-dtags">,
                      Group<DynamicGroup>,
