@@ -332,6 +332,7 @@ void MipsRelocator::scanGlobalReloc(MipsRelocationInfo& pReloc,
                                     IRBuilder& pBuilder,
                                     const LDSection& pSection) {
   ResolveInfo* rsym = pReloc.parent().symInfo();
+  bool hasPLT = rsym->reserved() & ReservePLT;
 
   switch (pReloc.type()) {
     case llvm::ELF::R_MIPS_NONE:
@@ -350,7 +351,7 @@ void MipsRelocator::scanGlobalReloc(MipsRelocationInfo& pReloc,
     case llvm::ELF::R_MIPS_64:
     case llvm::ELF::R_MIPS_HI16:
     case llvm::ELF::R_MIPS_LO16:
-      if (getTarget().symbolNeedsDynRel(*rsym, false, true)) {
+      if (getTarget().symbolNeedsDynRel(*rsym, hasPLT, true)) {
         getTarget().getRelDyn().reserveEntry();
         if (getTarget().symbolNeedsCopyReloc(pReloc.parent(), *rsym)) {
           LDSymbol& cpySym = defineSymbolforCopyReloc(pBuilder, *rsym);
@@ -385,8 +386,7 @@ void MipsRelocator::scanGlobalReloc(MipsRelocationInfo& pReloc,
       break;
     case llvm::ELF::R_MIPS_26:
       // Create a PLT entry if the symbol requires it and does not have it.
-      if (getTarget().symbolNeedsPLT(*rsym) &&
-          !(rsym->reserved() & ReservePLT)) {
+      if (getTarget().symbolNeedsPLT(*rsym) && !hasPLT) {
         getTarget().getPLT().reserveEntry();
         getTarget().getGOTPLT().reserve();
         getTarget().getRelPLT().reserveEntry();
