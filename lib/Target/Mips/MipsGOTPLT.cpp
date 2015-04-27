@@ -25,12 +25,6 @@ MipsGOTPLT::MipsGOTPLT(LDSection& pSection) : GOT(pSection) {
   // Create header's entries.
   new GOTPLTEntry(0, m_SectionData);
   new GOTPLTEntry(0, m_SectionData);
-  m_Last = ++m_SectionData->begin();
-}
-
-void MipsGOTPLT::reserve(size_t pNum) {
-  for (size_t i = 0; i < pNum; ++i)
-    new GOTPLTEntry(0, m_SectionData);
 }
 
 uint64_t MipsGOTPLT::emit(MemoryRegion& pRegion) {
@@ -45,11 +39,8 @@ uint64_t MipsGOTPLT::emit(MemoryRegion& pRegion) {
   return result;
 }
 
-Fragment* MipsGOTPLT::consume() {
-  ++m_Last;
-  assert(m_Last != m_SectionData->end() &&
-         "There is no reserved GOTPLT entries");
-  return &(*m_Last);
+Fragment* MipsGOTPLT::create() {
+  return new GOTPLTEntry(0, m_SectionData);
 }
 
 bool MipsGOTPLT::hasGOT1() const {

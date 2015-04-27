@@ -57,7 +57,6 @@ class MipsPLTA : public PLT::Entry<sizeof(PLTA)> {
 //===----------------------------------------------------------------------===//
 MipsPLT::MipsPLT(LDSection& pSection) : PLT(pSection) {
   new MipsPLT0(*m_pSectionData);
-  m_Last = m_pSectionData->begin();
 }
 
 void MipsPLT::finalizeSectionSize() {
@@ -94,20 +93,8 @@ uint64_t MipsPLT::emit(MemoryRegion& pRegion) {
   return result;
 }
 
-void MipsPLT::reserveEntry(size_t pNum) {
-  for (size_t i = 0; i < pNum; ++i) {
-    Fragment* entry = new (std::nothrow) MipsPLTA(*m_pSectionData);
-
-    if (entry == NULL)
-      fatal(diag::fail_allocate_memory_plt);
-  }
-}
-
-Fragment* MipsPLT::consume() {
-  ++m_Last;
-  assert(m_Last != m_pSectionData->end() &&
-         "The number of PLT Entries and ResolveInfo doesn't match");
-  return &(*m_Last);
+PLTEntryBase* MipsPLT::create() {
+  return new MipsPLTA(*m_pSectionData);
 }
 
 void MipsPLT::applyAllPLT(MipsGOTPLT& pGOTPLT) {

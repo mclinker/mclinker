@@ -11,6 +11,7 @@
 
 #include "mcld/LD/Relocator.h"
 #include "mcld/Support/GCFactory.h"
+#include "mcld/Target/KeyEntryMap.h"
 #include "MipsLDBackend.h"
 
 #include <llvm/ADT/DenseMapInfo.h>
@@ -30,6 +31,9 @@ class MipsRelocator : public Relocator {
     ReserveGot = 2,  // reserve a GOT entry
     ReservePLT = 4   // reserve a PLT entry
   };
+
+  typedef KeyEntryMap<ResolveInfo, PLTEntryBase> SymPLTMap;
+  typedef KeyEntryMap<ResolveInfo, Fragment> SymGOTPLTMap;
 
  public:
   MipsRelocator(MipsGNULDBackend& pParent, const LinkerConfig& pConfig);
@@ -108,10 +112,6 @@ class MipsRelocator : public Relocator {
   /// createDynRel - initialize dynamic relocation for the relocation.
   void createDynRel(MipsRelocationInfo& pReloc);
 
-  /// getPLTOffset - initialize PLT-related entries for the symbol
-  /// @return - return address of PLT entry
-  uint64_t getPLTAddress(ResolveInfo& rsym);
-
   /// calcAHL - calculate combined addend used
   /// by R_MIPS_HI16 and R_MIPS_GOT16 relocations.
   uint64_t calcAHL(const MipsRelocationInfo& pHiReloc);
@@ -123,6 +123,12 @@ class MipsRelocator : public Relocator {
 
   Size getSize(Relocation::Type pType) const;
 
+  const SymPLTMap& getSymPLTMap() const { return m_SymPLTMap; }
+  SymPLTMap& getSymPLTMap() { return m_SymPLTMap; }
+
+  const SymGOTPLTMap& getSymGOTPLTMap() const { return m_SymGOTPLTMap; }
+  SymGOTPLTMap& getSymGOTPLTMap() { return m_SymGOTPLTMap; }
+
  protected:
   /// setupRelDynEntry - create dynamic relocation entry.
   virtual void setupRelDynEntry(FragmentRef& pFragRef, ResolveInfo* pSym) = 0;
@@ -131,14 +137,13 @@ class MipsRelocator : public Relocator {
   bool isLocalReloc(ResolveInfo& pSym) const;
 
  private:
-  typedef std::pair<Fragment*, Fragment*> PLTDescriptor;
-  typedef llvm::DenseMap<const ResolveInfo*, PLTDescriptor> SymPLTMap;
   typedef llvm::DenseSet<Relocation*> RelocationSet;
   typedef llvm::DenseMap<const ResolveInfo*, RelocationSet> SymRelocSetMap;
 
  private:
   MipsGNULDBackend& m_Target;
   SymPLTMap m_SymPLTMap;
+  SymGOTPLTMap m_SymGOTPLTMap;
   Input* m_pApplyingInput;
   SymRelocSetMap m_PostponedRelocs;
   MipsRelocationInfo* m_CurrentLo16Reloc;

@@ -111,6 +111,33 @@ class MipsRelocationInfo {
   bool isFirst() const { return m_Type == parent().type(); }
 };
 
+static void helper_PLT_init(MipsRelocationInfo& pReloc,
+                            MipsRelocator& pParent) {
+  ResolveInfo* rsym = pReloc.parent().symInfo();
+  assert(pParent.getSymPLTMap().lookUp(*rsym) == NULL && "PLT entry exists");
+
+  MipsGNULDBackend& backend = pParent.getTarget();
+  PLTEntryBase* pltEntry = backend.getPLT().create();
+  pParent.getSymPLTMap().record(*rsym, *pltEntry);
+
+  assert(pParent.getSymGOTPLTMap().lookUp(*rsym) == NULL &&
+         "PLT entry not exist, but DynRel entry exist!");
+  Fragment* gotpltEntry = backend.getGOTPLT().create();
+  pParent.getSymGOTPLTMap().record(*rsym, *gotpltEntry);
+
+  Relocation* relEntry = backend.getRelPLT().create();
+  relEntry->setType(llvm::ELF::R_MIPS_JUMP_SLOT);
+  relEntry->targetRef().assign(*gotpltEntry);
+  relEntry->setSymInfo(rsym);
+}
+
+static Relocator::Address helper_get_PLT_address(ResolveInfo& pSym,
+                                                 MipsRelocator& pParent) {
+  PLTEntryBase* plt_entry = pParent.getSymPLTMap().lookUp(pSym);
+  assert(plt_entry != NULL);
+  return pParent.getTarget().getPLT().addr() + plt_entry->getOffset();
+}
+
 //===----------------------------------------------------------------------===//
 // Relocation Functions and Tables
 //===----------------------------------------------------------------------===//
@@ -387,9 +414,7 @@ void MipsRelocator::scanGlobalReloc(MipsRelocationInfo& pReloc,
     case llvm::ELF::R_MIPS_26:
       // Create a PLT entry if the symbol requires it and does not have it.
       if (getTarget().symbolNeedsPLT(*rsym) && !hasPLT) {
-        getTarget().getPLT().reserveEntry();
-        getTarget().getGOTPLT().reserve();
-        getTarget().getRelPLT().reserveEntry();
+        helper_PLT_init(pReloc, *this);
         rsym->setReserved(rsym->reserved() | ReservePLT);
       }
       break;
@@ -656,32 +681,6 @@ bool MipsRelocator::isN64ABI() const {
   return config().targets().is64Bits();
 }
 
-uint64_t MipsRelocator::getPLTAddress(ResolveInfo& rsym) {
-  assert((rsym.reserved() & MipsRelocator::ReservePLT) &&
-         "Symbol does not require a PLT entry");
-
-  SymPLTMap::const_iterator it = m_SymPLTMap.find(&rsym);
-
-  Fragment* plt;
-
-  if (it != m_SymPLTMap.end()) {
-    plt = it->second.first;
-  } else {
-    plt = getTarget().getPLT().consume();
-
-    Fragment* got = getTarget().getGOTPLT().consume();
-    Relocation* rel = getTarget().getRelPLT().consumeEntry();
-
-    rel->setType(llvm::ELF::R_MIPS_JUMP_SLOT);
-    rel->targetRef().assign(*got);
-    rel->setSymInfo(&rsym);
-
-    m_SymPLTMap[&rsym] = PLTDescriptor(plt, got);
-  }
-
-  return getTarget().getPLT().addr() + plt->getOffset();
-}
-
 uint32_t MipsRelocator::getDebugStringOffset(Relocation& pReloc) const {
   if (pReloc.type() != llvm::ELF::R_MIPS_32)
     error(diag::unsupport_reloc_for_debug_string)
@@ -784,7 +783,7 @@ static MipsRelocator::Result rel26(MipsRelocationInfo& pReloc,
   int32_t A = pParent.isN64ABI() ? pReloc.A() : (pReloc.A() & 0x03FFFFFF) << 2;
   int32_t P = pReloc.P();
   int32_t S = rsym->reserved() & MipsRelocator::ReservePLT
-                  ? pParent.getPLTAddress(*rsym)
+                  ? helper_get_PLT_address(*rsym, pParent)
                   : pReloc.S();
 
   if (rsym->isLocal())
