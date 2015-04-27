@@ -643,7 +643,7 @@ bool Driver::TranslateArguments() {
   }
 
   // --portalbe=symbol
-  for (llvm::opt::Arg* arg : args_->filtered(kOpt_Wrap)) {
+  for (llvm::opt::Arg* arg : args_->filtered(kOpt_Portable)) {
     bool exist = false;
     const char* symbol = arg->getValue();
     // symbol -> symbol_portable
