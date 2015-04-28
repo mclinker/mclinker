@@ -131,7 +131,7 @@ const llvm::opt::OptTable::Info Driver::OptTable::InfoTable[] = {
     { PREFIX, NAME, HELPTEXT, METAVAR, kOpt_ ## ID, \
       llvm::opt::Option::KIND ## Class, PARAM, FLAGS, kOpt_ ## GROUP, \
       kOpt_ ## ALIAS, ALIASARGS },
-#include "Options.inc"
+#include "Options.inc"  // NOLINT
 #undef OPTION
 };
 
