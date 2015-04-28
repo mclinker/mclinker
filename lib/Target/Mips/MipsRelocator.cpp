@@ -656,13 +656,13 @@ void MipsRelocator::createDynRel(MipsRelocationInfo& pReloc) {
 
   ResolveInfo* rsym = pReloc.parent().symInfo();
 
-  if (isLocalReloc(*rsym)) {
-    setupRelDynEntry(pReloc.parent().targetRef(), NULL);
-    pReloc.result() = A + S;
-  } else {
+  if (getTarget().isDynamicSymbol(*rsym)) {
     setupRelDynEntry(pReloc.parent().targetRef(), rsym);
     // Don't add symbol value that will be resolved by the dynamic linker.
     pReloc.result() = A;
+  } else {
+    setupRelDynEntry(pReloc.parent().targetRef(), NULL);
+    pReloc.result() = A + S;
   }
 }
 
