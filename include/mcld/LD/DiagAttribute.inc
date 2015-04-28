@@ -73,3 +73,17 @@ DIAG(warn_mismatch_vfp_args,
      DiagnosticEngine::Warning,
      "%0 uses different way to pass the floating point parameter and results.",
      "%0 uses different way to pass the floating point parameter and results.")
+
+// Mips attributes
+DIAG(error_Mips_unsupported_arch,
+     DiagnosticEngine::Error,
+     "file %0 has unsupported arch %1",
+     "file %0 has unsupported arch %1")
+DIAG(error_Mips_inconsistent_arch,
+     DiagnosticEngine::Error,
+     "file %0 has arch %1 which is inconsistent with previous arch %2",
+     "file %0 has arch %1 which is inconsistent with previous arch %2")
+DIAG(error_Mips_unsupported_flags_for_arch,
+     DiagnosticEngine::Fatal,
+     "file %0 has arch flags %1 which are unsupported in arch %2",
+     "file %0 has arch flags %1 which are unsupported in arch %2")

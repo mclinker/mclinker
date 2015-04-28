@@ -42,6 +42,7 @@ namespace mcld {
 MipsGNULDBackend::MipsGNULDBackend(const LinkerConfig& pConfig,
                                    MipsGNUInfo* pInfo)
     : GNULDBackend(pConfig, pInfo),
+      m_HeaderFlags(0),
       m_pRelocator(NULL),
       m_pGOT(NULL),
       m_pPLT(NULL),
@@ -334,6 +335,101 @@ struct Elf64_RegInfo {
 }  // namespace llvm
 
 namespace mcld {
+
+static const char* ArchName(uint64_t flagBits) {
+  using namespace llvm::ELF;
+  switch (flagBits) {
+  case EF_MIPS_ARCH_1:
+    return "EF_MIPS_ARCH_1";
+  case EF_MIPS_ARCH_2:
+  return "EF_MIPS_ARCH_2";
+  case EF_MIPS_ARCH_3:
+  return "EF_MIPS_ARCH_3";
+  case EF_MIPS_ARCH_4:
+  return "EF_MIPS_ARCH_4";
+  case EF_MIPS_ARCH_5:
+  return "EF_MIPS_ARCH_5";
+  case EF_MIPS_ARCH_32:
+  return "EF_MIPS_ARCH_32";
+  case EF_MIPS_ARCH_64:
+  return "EF_MIPS_ARCH_64";
+  case EF_MIPS_ARCH_32R2:
+  return "EF_MIPS_ARCH_32R2";
+  case EF_MIPS_ARCH_64R2:
+  return "EF_MIPS_ARCH_64R2";
+  case EF_MIPS_ARCH_32R6:
+  return "EF_MIPS_ARCH_32R6";
+  case EF_MIPS_ARCH_64R6:
+  return "EF_MIPS_ARCH_64R6";
+  default:
+    break;
+  }
+  return "Unknown Arch";
+}
+
+// TDB complete this method to match functionality
+// from binutils file elfxx-mips.c
+// For now we just get the arch flags right.
+//
+void MipsGNULDBackend::mergeFlagsFromHeader(Input& pInput,
+                                            uint64_t newHeaderFlags) {
+  using namespace llvm::ELF;
+  bool arch64Bit = config().targets().triple().isArch64Bit();
+  uint64_t currentArch, newArch;
+  currentArch = m_HeaderFlags & llvm::ELF::EF_MIPS_ARCH;
+  newArch = newHeaderFlags & llvm::ELF::EF_MIPS_ARCH;
+  // check that newArch is supported
+  switch (newArch) {
+  case EF_MIPS_ARCH_32:
+  case EF_MIPS_ARCH_32R2:
+  case EF_MIPS_ARCH_32R6:
+    if (arch64Bit) {
+      fatal(diag::error_Mips_unsupported_flags_for_arch) << pInput.name()
+           << ArchName(newArch) << "mips64";
+      return; // error
+    }
+    break;
+  case EF_MIPS_ARCH_64:
+  case EF_MIPS_ARCH_64R2:
+  case EF_MIPS_ARCH_64R6:
+    if (!arch64Bit) {
+        fatal(diag::error_Mips_unsupported_flags_for_arch) << pInput.name()
+             << ArchName(newArch) << "mips32";
+       return; // error
+    }
+    break;
+  default:
+    // unsupported
+    error(diag::error_Mips_unsupported_arch) << pInput.name()
+          << ArchName(newArch);
+    return;
+  }
+  // check that architecture is not changing
+  if (currentArch) {
+    if (currentArch != newArch) {
+      // unsupported
+      if ((newArch == EF_MIPS_ARCH_32) && (currentArch == EF_MIPS_ARCH_32R2))
+        return;
+      else if ((newArch == EF_MIPS_ARCH_32R2) &&
+               (currentArch == EF_MIPS_ARCH_32))
+        ;
+      else if ((newArch == EF_MIPS_ARCH_64) &&
+               (currentArch == EF_MIPS_ARCH_64R2))
+        return;
+      else if ((newArch == EF_MIPS_ARCH_64R2) &&
+               (currentArch == EF_MIPS_ARCH_64))
+        ;
+      else {
+        error(diag::error_Mips_inconsistent_arch) << pInput.name()
+              << ArchName(newArch) << ArchName(currentArch);
+        return; // error
+      }
+    }
+  }
+  m_pInfo.setArchFlags(newArch);
+  m_HeaderFlags = (m_HeaderFlags & ~EF_MIPS_ARCH) | newArch;
+  return;
+}
 
 bool MipsGNULDBackend::readSection(Input& pInput, SectionData& pSD) {
   llvm::StringRef name(pSD.getSection().name());

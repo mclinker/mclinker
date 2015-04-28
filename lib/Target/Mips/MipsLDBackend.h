@@ -8,6 +8,7 @@
 //===----------------------------------------------------------------------===//
 #ifndef TARGET_MIPS_MIPSLDBACKEND_H_
 #define TARGET_MIPS_MIPSLDBACKEND_H_
+#include <llvm/Support/ELF.h>
 #include "mcld/Target/GNULDBackend.h"
 #include "MipsELFDynamic.h"
 #include "MipsGOT.h"
@@ -208,11 +209,29 @@ class MipsGNULDBackend : public GNULDBackend {
                       uint64_t pOffset,
                       int64_t pAddend) const;
 
+ protected:
+   void mergeFlagsFromHeader(Input& pInput, uint64_t newHeaderFlags);
+
+   virtual void mergeFlags(Input& pInput, const char* ELF_hdr) {
+     if (ELF_hdr[llvm::ELF::EI_CLASS] == llvm::ELF::ELFCLASS64) {
+       const llvm::ELF::Elf64_Ehdr* hdr =
+         reinterpret_cast<const llvm::ELF::Elf64_Ehdr*>(ELF_hdr);
+       mergeFlagsFromHeader(pInput, hdr->e_flags);
+     }
+     else if (ELF_hdr[llvm::ELF::EI_CLASS] == llvm::ELF::ELFCLASS32) {
+       const llvm::ELF::Elf32_Ehdr* hdr =
+             reinterpret_cast<const llvm::ELF::Elf32_Ehdr*>(ELF_hdr);
+       mergeFlagsFromHeader(pInput, hdr->e_flags);
+     }
+     return;
+   }
+
  private:
   typedef llvm::DenseSet<const ResolveInfo*> ResolveInfoSetType;
   typedef llvm::DenseMap<const Input*, llvm::ELF::Elf64_Addr> GP0MapType;
 
  protected:
+  uint64_t m_HeaderFlags;
   Relocator* m_pRelocator;
   MipsGOT* m_pGOT;        // .got
   MipsPLT* m_pPLT;        // .plt

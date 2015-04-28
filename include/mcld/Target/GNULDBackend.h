@@ -189,6 +189,9 @@ class GNULDBackend : public TargetLDBackend {
   /// Different concrete target backend may overlap this function.
   virtual bool allocateCommonSymbols(Module& pModule);
 
+  /// mergeFlags - update set of ELF header flags
+  virtual void mergeFlags(Input& pInput, const char* ELF_hdr) {}
+
   /// updateSectionFlags - update pTo's flags when merging pFrom
   /// update the output section flags based on input section flags.
   virtual bool updateSectionFlags(LDSection& pTo, const LDSection& pFrom);

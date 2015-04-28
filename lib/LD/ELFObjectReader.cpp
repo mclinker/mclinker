@@ -100,6 +100,7 @@ bool ELFObjectReader::readHeader(Input& pInput) {
   llvm::StringRef region =
       pInput.memArea()->request(pInput.fileOffset(), hdr_size);
   const char* ELF_hdr = region.begin();
+  m_Backend.mergeFlags(pInput, ELF_hdr);
   bool result = m_pELFReader->readSectionHeaders(pInput, ELF_hdr);
   return result;
 }

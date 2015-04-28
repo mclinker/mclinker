@@ -28,10 +28,14 @@ class MipsGNUInfo : public GNUInfo {
   const char* entry() const;
   const char* dyld() const;
   uint64_t abiPageSize() const;
+  void setArchFlags(uint64_t flags) {
+    m_ArchFlags = flags;
+  }
 
  private:
   uint8_t m_ABIVersion;
   uint64_t m_PICFlags;
+  uint64_t m_ArchFlags;
 };
 
 }  // namespace mcld
