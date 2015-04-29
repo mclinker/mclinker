@@ -231,7 +231,6 @@ class MipsGNULDBackend : public GNULDBackend {
   typedef llvm::DenseMap<const Input*, llvm::ELF::Elf64_Addr> GP0MapType;
 
  protected:
-  uint64_t m_HeaderFlags;
   Relocator* m_pRelocator;
   MipsGOT* m_pGOT;        // .got
   MipsPLT* m_pPLT;        // .plt

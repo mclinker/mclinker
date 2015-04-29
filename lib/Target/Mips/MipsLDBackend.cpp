@@ -42,7 +42,6 @@ namespace mcld {
 MipsGNULDBackend::MipsGNULDBackend(const LinkerConfig& pConfig,
                                    MipsGNUInfo* pInfo)
     : GNULDBackend(pConfig, pInfo),
-      m_HeaderFlags(0),
       m_pRelocator(NULL),
       m_pGOT(NULL),
       m_pPLT(NULL),
@@ -401,7 +400,7 @@ void MipsGNULDBackend::mergeFlagsFromHeader(Input& pInput, uint64_t newFlags) {
       return;
   }
   // check that architecture is not changing
-  uint64_t currentArch = m_HeaderFlags & EF_MIPS_ARCH;
+  uint64_t currentArch = m_pInfo.getArchFlags();
   if (currentArch && currentArch != newArch) {
     if ((newArch == EF_MIPS_ARCH_32 && currentArch == EF_MIPS_ARCH_32R2) ||
         (newArch == EF_MIPS_ARCH_64 && currentArch == EF_MIPS_ARCH_64R2))
@@ -416,7 +415,6 @@ void MipsGNULDBackend::mergeFlagsFromHeader(Input& pInput, uint64_t newFlags) {
     }
   }
   m_pInfo.setArchFlags(newArch);
-  m_HeaderFlags = (m_HeaderFlags & ~EF_MIPS_ARCH) | newArch;
 }
 
 bool MipsGNULDBackend::readSection(Input& pInput, SectionData& pSD) {
