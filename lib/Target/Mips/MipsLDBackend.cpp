@@ -374,9 +374,7 @@ void MipsGNULDBackend::mergeFlagsFromHeader(Input& pInput,
                                             uint64_t newHeaderFlags) {
   using namespace llvm::ELF;
   bool arch64Bit = config().targets().triple().isArch64Bit();
-  uint64_t currentArch, newArch;
-  currentArch = m_HeaderFlags & llvm::ELF::EF_MIPS_ARCH;
-  newArch = newHeaderFlags & llvm::ELF::EF_MIPS_ARCH;
+  uint64_t newArch = newHeaderFlags & EF_MIPS_ARCH;
   // check that newArch is supported
   switch (newArch) {
     case EF_MIPS_ARCH_32:
@@ -404,6 +402,7 @@ void MipsGNULDBackend::mergeFlagsFromHeader(Input& pInput,
       return;
   }
   // check that architecture is not changing
+  uint64_t currentArch = m_HeaderFlags & EF_MIPS_ARCH;
   if (currentArch) {
     if (currentArch != newArch) {
       // do not need to update flags
