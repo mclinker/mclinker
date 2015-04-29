@@ -348,6 +348,7 @@ void MipsRelocator::scanLocalReloc(MipsRelocationInfo& pReloc,
     case llvm::ELF::R_MIPS_TLS_TPREL_LO16:
       break;
     case llvm::ELF::R_MIPS_PC32:
+    case llvm::ELF::R_MIPS_PC21_S2:
       break;
     default:
       fatal(diag::unknown_relocation) << static_cast<int>(pReloc.type())
@@ -441,6 +442,7 @@ void MipsRelocator::scanGlobalReloc(MipsRelocationInfo& pReloc,
     case llvm::ELF::R_MIPS_REL32:
     case llvm::ELF::R_MIPS_JALR:
     case llvm::ELF::R_MIPS_PC32:
+    case llvm::ELF::R_MIPS_PC21_S2:
       break;
     case llvm::ELF::R_MIPS_COPY:
     case llvm::ELF::R_MIPS_GLOB_DAT:
@@ -1022,6 +1024,16 @@ static MipsRelocator::Result la25add(MipsRelocationInfo& pReloc,
 // R_MIPS_PC32:
 static MipsRelocator::Result pc32(MipsRelocationInfo& pReloc,
                                   MipsRelocator& pParent) {
+  return Relocator::OK;
+}
+
+// R_MIPS_PC21_S2:
+static MipsRelocator::Result pc21_s2(MipsRelocationInfo& pReloc,
+                                  MipsRelocator& pParent) {
+  int32_t A = signExtend<21>(pReloc.A()) << 2;
+  int32_t S = pReloc.S();
+  int32_t P = pReloc.P();
+  pReloc.result() = (A + S - P) >> 2;
   return Relocator::OK;
 }
 
