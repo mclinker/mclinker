@@ -986,9 +986,8 @@ void ObjectLinker::writeRelocationResult(Relocation& pReloc, uint8_t* pOutput) {
         break;
     }
   } else {
-    std::memcpy(target_addr,
-                &pReloc.target(),
-                pReloc.size(*m_LDBackend.getRelocator()) / 8);
+    std::memcpy(target_addr, &pReloc.target(),
+                (pReloc.size(*m_LDBackend.getRelocator()) + 7) / 8);
   }
 }
 
