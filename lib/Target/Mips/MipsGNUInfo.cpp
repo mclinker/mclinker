@@ -25,6 +25,10 @@ void MipsGNUInfo::setPICFlags(uint64_t flags) {
   m_PICFlags = flags;
 }
 
+void MipsGNUInfo::setArchFlags(uint64_t flags) {
+  m_ArchFlags = flags;
+}
+
 uint32_t MipsGNUInfo::machine() const {
   return llvm::ELF::EM_MIPS;
 }

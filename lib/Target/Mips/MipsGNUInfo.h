@@ -19,6 +19,7 @@ class MipsGNUInfo : public GNUInfo {
 
   void setABIVersion(uint8_t ver);
   void setPICFlags(uint64_t flags);
+  void setArchFlags(uint64_t flags);
 
   // GNUInfo
   uint32_t machine() const;
@@ -28,9 +29,6 @@ class MipsGNUInfo : public GNUInfo {
   const char* entry() const;
   const char* dyld() const;
   uint64_t abiPageSize() const;
-  void setArchFlags(uint64_t flags) {
-    m_ArchFlags = flags;
-  }
 
  private:
   uint8_t m_ABIVersion;
