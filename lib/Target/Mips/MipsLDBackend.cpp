@@ -362,9 +362,8 @@ static const char* ArchName(uint64_t flagBits) {
     case EF_MIPS_ARCH_64R6:
       return "mips64r6";
     default:
-      break;
+      return "Unknown Arch";
   }
-  return "Unknown Arch";
 }
 
 // TDB complete this method to match functionality
@@ -407,17 +406,14 @@ void MipsGNULDBackend::mergeFlagsFromHeader(Input& pInput,
   // check that architecture is not changing
   if (currentArch) {
     if (currentArch != newArch) {
-      // unsupported
-      if ((newArch == EF_MIPS_ARCH_32) && (currentArch == EF_MIPS_ARCH_32R2))
+      // do not need to update flags
+      if (newArch == EF_MIPS_ARCH_32 && currentArch == EF_MIPS_ARCH_32R2)
         return;
-      else if ((newArch == EF_MIPS_ARCH_32R2) &&
-               (currentArch == EF_MIPS_ARCH_32))
-        ;
-      else if ((newArch == EF_MIPS_ARCH_64) &&
-               (currentArch == EF_MIPS_ARCH_64R2))
+      if (newArch == EF_MIPS_ARCH_64 && currentArch == EF_MIPS_ARCH_64R2)
         return;
-      else if ((newArch == EF_MIPS_ARCH_64R2) &&
-               (currentArch == EF_MIPS_ARCH_64))
+      // need to update flags
+      if ((newArch == EF_MIPS_ARCH_32R2 && currentArch == EF_MIPS_ARCH_32) ||
+          (newArch == EF_MIPS_ARCH_64R2 && currentArch == EF_MIPS_ARCH_64))
         ;
       else {
         error(diag::error_Mips_inconsistent_arch)
@@ -428,7 +424,6 @@ void MipsGNULDBackend::mergeFlagsFromHeader(Input& pInput,
   }
   m_pInfo.setArchFlags(newArch);
   m_HeaderFlags = (m_HeaderFlags & ~EF_MIPS_ARCH) | newArch;
-  return;
 }
 
 bool MipsGNULDBackend::readSection(Input& pInput, SectionData& pSD) {
