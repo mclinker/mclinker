@@ -219,18 +219,6 @@ void MipsGNULDBackend::doPostLayout(Module& pModule, IRBuilder& pBuilder) {
   }
 
   m_pInfo.setABIVersion(m_pPLT && m_pPLT->hasPLT1() ? 1 : 0);
-
-  // FIXME: (simon) We need to iterate all input sections
-  // check that flags are consistent and merge them properly.
-  uint64_t picFlags = llvm::ELF::EF_MIPS_CPIC;
-  if (config().targets().triple().isArch64Bit()) {
-    picFlags |= llvm::ELF::EF_MIPS_PIC;
-  } else {
-    if (LinkerConfig::DynObj == config().codeGenType())
-      picFlags |= llvm::ELF::EF_MIPS_PIC;
-  }
-
-  m_pInfo.setPICFlags(picFlags);
 }
 
 /// dynamic - the dynamic section of the target machine.
@@ -399,9 +387,36 @@ void MipsGNULDBackend::mergeFlagsFromHeader(Input& pInput, uint64_t newFlags) {
                                                << ArchName(newArch);
       return;
   }
-  // check that architecture is not changing
+
+  // PIC code is inherently CPIC and may not set CPIC flag explicitly.
+  // Ensure that this flag will exist in the linked file.
+  if (newFlags & EF_MIPS_PIC)
+    newFlags |= EF_MIPS_CPIC;
+
+  uint32_t newPic = newFlags & (EF_MIPS_PIC | EF_MIPS_CPIC);
+  uint32_t oldPic = m_pInfo.getPICFlags() & (EF_MIPS_PIC | EF_MIPS_CPIC);
+
   uint64_t currentArch = m_pInfo.getArchFlags();
-  if (currentArch && currentArch != newArch) {
+  if (!currentArch) {
+    // If arch flags is not initialized, we are processing the first
+    // object file so just save current flags as initial state.
+    m_pInfo.setArchFlags(newArch);
+    m_pInfo.setPICFlags(newPic);
+    return;
+  }
+
+  // Check PIC / CPIC flags compatibility.
+  if ((newPic != 0) != (oldPic != 0))
+    warning(diag::warn_Mips_abicalls_linking) << pInput.name();
+
+  if (!(newPic & EF_MIPS_PIC))
+    oldPic &= ~EF_MIPS_PIC;
+  if (newPic)
+    oldPic |= EF_MIPS_CPIC;
+  newPic = oldPic;
+
+  // check that architecture is not changing
+  if (currentArch != newArch) {
     if ((newArch == EF_MIPS_ARCH_32 && currentArch == EF_MIPS_ARCH_32R2) ||
         (newArch == EF_MIPS_ARCH_64 && currentArch == EF_MIPS_ARCH_64R2))
       return; // do not need to update flags
@@ -415,6 +430,7 @@ void MipsGNULDBackend::mergeFlagsFromHeader(Input& pInput, uint64_t newFlags) {
     }
   }
   m_pInfo.setArchFlags(newArch);
+  m_pInfo.setPICFlags(newPic);
 }
 
 bool MipsGNULDBackend::readSection(Input& pInput, SectionData& pSD) {

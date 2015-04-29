@@ -25,6 +25,10 @@ void MipsGNUInfo::setPICFlags(uint64_t flags) {
   m_PICFlags = flags;
 }
 
+uint64_t MipsGNUInfo::getPICFlags() const {
+  return m_PICFlags;
+}
+
 void MipsGNUInfo::setArchFlags(uint64_t flags) {
   m_ArchFlags = flags;
 }

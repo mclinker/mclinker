@@ -19,6 +19,7 @@ class MipsGNUInfo : public GNUInfo {
 
   void setABIVersion(uint8_t ver);
   void setPICFlags(uint64_t flags);
+  uint64_t getPICFlags() const;
   void setArchFlags(uint64_t flags);
   uint64_t getArchFlags() const;
 

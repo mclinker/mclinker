@@ -87,3 +87,7 @@ DIAG(error_Mips_unsupported_flags_for_arch,
      DiagnosticEngine::Fatal,
      "file %0 has arch flags %1 which are unsupported in arch %2",
      "file %0 has arch flags %1 which are unsupported in arch %2")
+DIAG(warn_Mips_abicalls_linking,
+     DiagnosticEngine::Warning,
+     "conflicting linking abicalls and non-abicalls files on %0.",
+     "conflicting linking abicalls and non-abicalls files on %0.")
