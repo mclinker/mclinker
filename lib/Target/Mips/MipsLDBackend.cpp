@@ -370,11 +370,10 @@ static const char* ArchName(uint64_t flagBits) {
 // from binutils file elfxx-mips.c
 // For now we just get the arch flags right.
 //
-void MipsGNULDBackend::mergeFlagsFromHeader(Input& pInput,
-                                            uint64_t newHeaderFlags) {
+void MipsGNULDBackend::mergeFlagsFromHeader(Input& pInput, uint64_t newFlags) {
   using namespace llvm::ELF;
   bool arch64Bit = config().targets().triple().isArch64Bit();
-  uint64_t newArch = newHeaderFlags & EF_MIPS_ARCH;
+  uint64_t newArch = newFlags & EF_MIPS_ARCH;
   // check that newArch is supported
   switch (newArch) {
     case EF_MIPS_ARCH_32:

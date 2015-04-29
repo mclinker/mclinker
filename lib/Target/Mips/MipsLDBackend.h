@@ -210,7 +210,7 @@ class MipsGNULDBackend : public GNULDBackend {
                       int64_t pAddend) const;
 
  protected:
-   void mergeFlagsFromHeader(Input& pInput, uint64_t newHeaderFlags);
+   void mergeFlagsFromHeader(Input& pInput, uint64_t newFlags);
 
    virtual void mergeFlags(Input& pInput, const char* ELF_hdr) {
      if (ELF_hdr[llvm::ELF::EI_CLASS] == llvm::ELF::ELFCLASS64) {
