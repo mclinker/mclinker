@@ -380,29 +380,29 @@ void MipsGNULDBackend::mergeFlagsFromHeader(Input& pInput,
   newArch = newHeaderFlags & llvm::ELF::EF_MIPS_ARCH;
   // check that newArch is supported
   switch (newArch) {
-  case EF_MIPS_ARCH_32:
-  case EF_MIPS_ARCH_32R2:
-  case EF_MIPS_ARCH_32R6:
-    if (arch64Bit) {
-      fatal(diag::error_Mips_unsupported_flags_for_arch) << pInput.name()
-           << ArchName(newArch) << "mips64";
-      return; // error
-    }
-    break;
-  case EF_MIPS_ARCH_64:
-  case EF_MIPS_ARCH_64R2:
-  case EF_MIPS_ARCH_64R6:
-    if (!arch64Bit) {
-        fatal(diag::error_Mips_unsupported_flags_for_arch) << pInput.name()
-             << ArchName(newArch) << "mips32";
-       return; // error
-    }
-    break;
-  default:
-    // unsupported
-    error(diag::error_Mips_unsupported_arch) << pInput.name()
-          << ArchName(newArch);
-    return;
+    case EF_MIPS_ARCH_32:
+    case EF_MIPS_ARCH_32R2:
+    case EF_MIPS_ARCH_32R6:
+      if (arch64Bit) {
+        fatal(diag::error_Mips_unsupported_flags_for_arch)
+            << pInput.name() << ArchName(newArch) << "mips64";
+        return;  // error
+      }
+      break;
+    case EF_MIPS_ARCH_64:
+    case EF_MIPS_ARCH_64R2:
+    case EF_MIPS_ARCH_64R6:
+      if (!arch64Bit) {
+        fatal(diag::error_Mips_unsupported_flags_for_arch)
+            << pInput.name() << ArchName(newArch) << "mips32";
+        return;  // error
+      }
+      break;
+    default:
+      // unsupported
+      error(diag::error_Mips_unsupported_arch) << pInput.name()
+                                               << ArchName(newArch);
+      return;
   }
   // check that architecture is not changing
   if (currentArch) {
@@ -420,9 +420,9 @@ void MipsGNULDBackend::mergeFlagsFromHeader(Input& pInput,
                (currentArch == EF_MIPS_ARCH_64))
         ;
       else {
-        error(diag::error_Mips_inconsistent_arch) << pInput.name()
-              << ArchName(newArch) << ArchName(currentArch);
-        return; // error
+        error(diag::error_Mips_inconsistent_arch)
+            << pInput.name() << ArchName(newArch) << ArchName(currentArch);
+        return;  // error
       }
     }
   }
