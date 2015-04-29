@@ -34,6 +34,7 @@
   DECL_MIPS_APPLY_RELOC_FUNC(la25j)   \
   DECL_MIPS_APPLY_RELOC_FUNC(la25add) \
   DECL_MIPS_APPLY_RELOC_FUNC(pc32)    \
+  DECL_MIPS_APPLY_RELOC_FUNC(pc18_s3) \
   DECL_MIPS_APPLY_RELOC_FUNC(pc21_s2) \
   DECL_MIPS_APPLY_RELOC_FUNC(unsupported)
 
@@ -100,7 +101,7 @@
   { &unsupported,  59, "",                             0}, \
   { &pc21_s2,      60, "R_MIPS_PC21_S2",              21}, \
   { &unsupported,  61, "",                             0}, \
-  { &unsupported,  62, "",                             0}, \
+  { &pc18_s3,      62, "R_MIPS_PC18_S3",              18}, \
   { &unsupported,  63, "",                             0}, \
   { &unsupported,  64, "",                             0}, \
   { &unsupported,  65, "",                             0}, \
