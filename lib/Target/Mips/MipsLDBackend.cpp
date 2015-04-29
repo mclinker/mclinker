@@ -339,30 +339,30 @@ namespace mcld {
 static const char* ArchName(uint64_t flagBits) {
   using namespace llvm::ELF;
   switch (flagBits) {
-  case EF_MIPS_ARCH_1:
-    return "EF_MIPS_ARCH_1";
-  case EF_MIPS_ARCH_2:
-  return "EF_MIPS_ARCH_2";
-  case EF_MIPS_ARCH_3:
-  return "EF_MIPS_ARCH_3";
-  case EF_MIPS_ARCH_4:
-  return "EF_MIPS_ARCH_4";
-  case EF_MIPS_ARCH_5:
-  return "EF_MIPS_ARCH_5";
-  case EF_MIPS_ARCH_32:
-  return "EF_MIPS_ARCH_32";
-  case EF_MIPS_ARCH_64:
-  return "EF_MIPS_ARCH_64";
-  case EF_MIPS_ARCH_32R2:
-  return "EF_MIPS_ARCH_32R2";
-  case EF_MIPS_ARCH_64R2:
-  return "EF_MIPS_ARCH_64R2";
-  case EF_MIPS_ARCH_32R6:
-  return "EF_MIPS_ARCH_32R6";
-  case EF_MIPS_ARCH_64R6:
-  return "EF_MIPS_ARCH_64R6";
-  default:
-    break;
+    case EF_MIPS_ARCH_1:
+      return "mips1";
+    case EF_MIPS_ARCH_2:
+      return "mips2";
+    case EF_MIPS_ARCH_3:
+      return "mips3";
+    case EF_MIPS_ARCH_4:
+      return "mips4";
+    case EF_MIPS_ARCH_5:
+      return "mips5";
+    case EF_MIPS_ARCH_32:
+      return "mips32";
+    case EF_MIPS_ARCH_64:
+      return "mips64";
+    case EF_MIPS_ARCH_32R2:
+      return "mips32r2";
+    case EF_MIPS_ARCH_64R2:
+      return "mips64r2";
+    case EF_MIPS_ARCH_32R6:
+      return "mips32r6";
+    case EF_MIPS_ARCH_64R6:
+      return "mips64r6";
+    default:
+      break;
   }
   return "Unknown Arch";
 }

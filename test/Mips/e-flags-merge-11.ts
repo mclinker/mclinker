@@ -7,7 +7,7 @@
 # RUN: not %MCLinker -mtriple=mips64el-unknown-linux -o %t.exe \
 # RUN:         %t-64r2.o %t-64r6.o 2>&1 | FileCheck %s
 
-# CHECK: file {{.+}} has arch EF_MIPS_ARCH_64R6 which is inconsistent with previous arch EF_MIPS_ARCH_64R2
+# CHECK: file {{.+}} has arch mips64r6 which is inconsistent with previous arch mips64r2
 
 # 64r2.o
 ---
