@@ -403,22 +403,17 @@ void MipsGNULDBackend::mergeFlagsFromHeader(Input& pInput,
   }
   // check that architecture is not changing
   uint64_t currentArch = m_HeaderFlags & EF_MIPS_ARCH;
-  if (currentArch) {
-    if (currentArch != newArch) {
-      // do not need to update flags
-      if (newArch == EF_MIPS_ARCH_32 && currentArch == EF_MIPS_ARCH_32R2)
-        return;
-      if (newArch == EF_MIPS_ARCH_64 && currentArch == EF_MIPS_ARCH_64R2)
-        return;
-      // need to update flags
-      if ((newArch == EF_MIPS_ARCH_32R2 && currentArch == EF_MIPS_ARCH_32) ||
-          (newArch == EF_MIPS_ARCH_64R2 && currentArch == EF_MIPS_ARCH_64))
-        ;
-      else {
-        error(diag::error_Mips_inconsistent_arch)
-            << pInput.name() << ArchName(newArch) << ArchName(currentArch);
-        return;  // error
-      }
+  if (currentArch && currentArch != newArch) {
+    if ((newArch == EF_MIPS_ARCH_32 && currentArch == EF_MIPS_ARCH_32R2) ||
+        (newArch == EF_MIPS_ARCH_64 && currentArch == EF_MIPS_ARCH_64R2))
+      return; // do not need to update flags
+    if ((newArch == EF_MIPS_ARCH_32R2 && currentArch == EF_MIPS_ARCH_32) ||
+        (newArch == EF_MIPS_ARCH_64R2 && currentArch == EF_MIPS_ARCH_64))
+      ;       // need to update flags
+    else {
+      error(diag::error_Mips_inconsistent_arch)
+          << pInput.name() << ArchName(newArch) << ArchName(currentArch);
+      return; // error
     }
   }
   m_pInfo.setArchFlags(newArch);
