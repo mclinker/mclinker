@@ -1025,13 +1025,13 @@ static MipsRelocator::Result la25add(MipsRelocationInfo& pReloc,
   return Relocator::OK;
 }
 
-// R_MIPS_PC32:
+// R_MIPS_PC32
 static MipsRelocator::Result pc32(MipsRelocationInfo& pReloc,
                                   MipsRelocator& pParent) {
   return Relocator::OK;
 }
 
-// R_MIPS_PC18_S3:
+// R_MIPS_PC18_S3
 static MipsRelocator::Result pc18_s3(MipsRelocationInfo& pReloc,
                                   MipsRelocator& pParent) {
   int64_t A = signExtend<18>(pReloc.A()) << 3;
@@ -1041,7 +1041,7 @@ static MipsRelocator::Result pc18_s3(MipsRelocationInfo& pReloc,
   return Relocator::OK;
 }
 
-// R_MIPS_PC19_S2:
+// R_MIPS_PC19_S2
 static MipsRelocator::Result pc19_s2(MipsRelocationInfo& pReloc,
                                      MipsRelocator& pParent) {
   int64_t A = signExtend<19>(pReloc.A()) << 2;
@@ -1051,7 +1051,7 @@ static MipsRelocator::Result pc19_s2(MipsRelocationInfo& pReloc,
   return Relocator::OK;
 }
 
-// R_MIPS_PC21_S2:
+// R_MIPS_PC21_S2
 static MipsRelocator::Result pc21_s2(MipsRelocationInfo& pReloc,
                                   MipsRelocator& pParent) {
   int32_t A = signExtend<21>(pReloc.A()) << 2;
