@@ -349,6 +349,7 @@ void MipsRelocator::scanLocalReloc(MipsRelocationInfo& pReloc,
       break;
     case llvm::ELF::R_MIPS_PC32:
     case llvm::ELF::R_MIPS_PC18_S3:
+    case llvm::ELF::R_MIPS_PC19_S2:
     case llvm::ELF::R_MIPS_PC21_S2:
       break;
     default:
@@ -444,6 +445,7 @@ void MipsRelocator::scanGlobalReloc(MipsRelocationInfo& pReloc,
     case llvm::ELF::R_MIPS_JALR:
     case llvm::ELF::R_MIPS_PC32:
     case llvm::ELF::R_MIPS_PC18_S3:
+    case llvm::ELF::R_MIPS_PC19_S2:
     case llvm::ELF::R_MIPS_PC21_S2:
       break;
     case llvm::ELF::R_MIPS_COPY:
@@ -1036,6 +1038,16 @@ static MipsRelocator::Result pc18_s3(MipsRelocationInfo& pReloc,
   int64_t S = pReloc.S();
   int64_t P = pReloc.P();
   pReloc.result() = (S + A - ((P | 7) ^ 7 )) >> 3;
+  return Relocator::OK;
+}
+
+// R_MIPS_PC19_S2:
+static MipsRelocator::Result pc19_s2(MipsRelocationInfo& pReloc,
+                                     MipsRelocator& pParent) {
+  int64_t A = signExtend<19>(pReloc.A()) << 2;
+  int64_t S = pReloc.S();
+  int64_t P = pReloc.P();
+  pReloc.result() = (A + S - P) >> 2;
   return Relocator::OK;
 }
 

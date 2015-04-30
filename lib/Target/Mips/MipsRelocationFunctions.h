@@ -36,6 +36,7 @@
   DECL_MIPS_APPLY_RELOC_FUNC(pc32)    \
   DECL_MIPS_APPLY_RELOC_FUNC(pc18_s3) \
   DECL_MIPS_APPLY_RELOC_FUNC(pc21_s2) \
+  DECL_MIPS_APPLY_RELOC_FUNC(pc19_s2) \
   DECL_MIPS_APPLY_RELOC_FUNC(unsupported)
 
 #define DECL_MIPS_APPLY_RELOC_FUNC_PTRS \
@@ -102,7 +103,7 @@
   { &pc21_s2,      60, "R_MIPS_PC21_S2",              21}, \
   { &unsupported,  61, "",                             0}, \
   { &pc18_s3,      62, "R_MIPS_PC18_S3",              18}, \
-  { &unsupported,  63, "",                             0}, \
+  { &pc19_s2,      63, "R_MIPS_PC19_S2",              19}, \
   { &unsupported,  64, "",                             0}, \
   { &unsupported,  65, "",                             0}, \
   { &unsupported,  66, "",                             0}, \
