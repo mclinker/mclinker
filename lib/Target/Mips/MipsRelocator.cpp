@@ -1033,11 +1033,11 @@ static MipsRelocator::Result pc32(MipsRelocationInfo& pReloc,
 
 // R_MIPS_PC18_S3
 static MipsRelocator::Result pc18_s3(MipsRelocationInfo& pReloc,
-                                  MipsRelocator& pParent) {
+                                     MipsRelocator& pParent) {
   int64_t A = signExtend<18>(pReloc.A()) << 3;
   int64_t S = pReloc.S();
   int64_t P = pReloc.P();
-  pReloc.result() = (S + A - ((P | 7) ^ 7 )) >> 3;
+  pReloc.result() = (S + A - ((P | 7) ^ 7)) >> 3;
   return Relocator::OK;
 }
 
@@ -1053,7 +1053,7 @@ static MipsRelocator::Result pc19_s2(MipsRelocationInfo& pReloc,
 
 // R_MIPS_PC21_S2
 static MipsRelocator::Result pc21_s2(MipsRelocationInfo& pReloc,
-                                  MipsRelocator& pParent) {
+                                     MipsRelocator& pParent) {
   int32_t A = signExtend<21>(pReloc.A()) << 2;
   int32_t S = pReloc.S();
   int32_t P = pReloc.P();
