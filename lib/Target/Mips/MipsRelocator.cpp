@@ -352,6 +352,8 @@ void MipsRelocator::scanLocalReloc(MipsRelocationInfo& pReloc,
     case llvm::ELF::R_MIPS_PC19_S2:
     case llvm::ELF::R_MIPS_PC21_S2:
     case llvm::ELF::R_MIPS_PC26_S2:
+    case llvm::ELF::R_MIPS_PCHI16:
+    case llvm::ELF::R_MIPS_PCLO16:
       break;
     default:
       fatal(diag::unknown_relocation) << static_cast<int>(pReloc.type())
@@ -449,6 +451,8 @@ void MipsRelocator::scanGlobalReloc(MipsRelocationInfo& pReloc,
     case llvm::ELF::R_MIPS_PC19_S2:
     case llvm::ELF::R_MIPS_PC21_S2:
     case llvm::ELF::R_MIPS_PC26_S2:
+    case llvm::ELF::R_MIPS_PCHI16:
+    case llvm::ELF::R_MIPS_PCLO16:
       break;
     case llvm::ELF::R_MIPS_COPY:
     case llvm::ELF::R_MIPS_GLOB_DAT:
@@ -462,7 +466,8 @@ void MipsRelocator::scanGlobalReloc(MipsRelocationInfo& pReloc,
 }
 
 bool MipsRelocator::isPostponed(const Relocation& pReloc) const {
-  if (MipsRelocationInfo::HasSubType(pReloc, llvm::ELF::R_MIPS_HI16))
+  if (MipsRelocationInfo::HasSubType(pReloc, llvm::ELF::R_MIPS_HI16) ||
+      MipsRelocationInfo::HasSubType(pReloc, llvm::ELF::R_MIPS_PCHI16))
     return true;
 
   if (MipsRelocationInfo::HasSubType(pReloc, llvm::ELF::R_MIPS_GOT16) &&
@@ -1070,6 +1075,27 @@ static MipsRelocator::Result pc26_s2(MipsRelocationInfo& pReloc,
   int64_t S = pReloc.S();
   int64_t P = pReloc.P();
   pReloc.result() = (A + S - P) >> 2;
+  return Relocator::OK;
+}
+
+// R_MIPS_PCHI16
+static MipsRelocator::Result pchi16(MipsRelocationInfo& pReloc,
+                                    MipsRelocator& pParent) {
+  uint64_t AHL = pParent.calcAHL(pReloc);
+  int64_t S = pReloc.S();
+  int64_t P = pReloc.P();
+  pReloc.result() = (S + AHL - P + 0x8000) >> 16;
+  return Relocator::OK;
+}
+
+// R_MIPS_PCLO16
+static MipsRelocator::Result pclo16(MipsRelocationInfo& pReloc,
+                                    MipsRelocator& pParent) {
+  int32_t AHL = pReloc.A() & 0xFFFF;
+  int64_t S = pReloc.S();
+  int64_t P = pReloc.P();
+  pReloc.result() = S + AHL - P;
+  pParent.applyPostponedRelocations(pReloc);
   return Relocator::OK;
 }
 
