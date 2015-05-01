@@ -382,18 +382,21 @@ void MipsRelocator::scanGlobalReloc(MipsRelocationInfo& pReloc,
       break;
     case llvm::ELF::R_MIPS_32:
     case llvm::ELF::R_MIPS_64:
-    case llvm::ELF::R_MIPS_HI16:
-    case llvm::ELF::R_MIPS_LO16:
       if (getTarget().symbolNeedsDynRel(*rsym, hasPLT, true)) {
         getTarget().getRelDyn().reserveEntry();
-        if (getTarget().symbolNeedsCopyReloc(pReloc.parent(), *rsym)) {
-          LDSymbol& cpySym = defineSymbolforCopyReloc(pBuilder, *rsym);
-          addCopyReloc(*cpySym.resolveInfo());
-        } else {
-          // set Rel bit
-          rsym->setReserved(rsym->reserved() | ReserveRel);
-          getTarget().checkAndSetHasTextRel(*pSection.getLink());
-        }
+        rsym->setReserved(rsym->reserved() | ReserveRel);
+        getTarget().checkAndSetHasTextRel(*pSection.getLink());
+        if (!getTarget().symbolFinalValueIsKnown(*rsym))
+          getTarget().getGOT().reserveGlobalEntry(*rsym);
+      }
+      break;
+    case llvm::ELF::R_MIPS_HI16:
+    case llvm::ELF::R_MIPS_LO16:
+      if (getTarget().symbolNeedsDynRel(*rsym, hasPLT, true) ||
+          getTarget().symbolNeedsCopyReloc(pReloc.parent(), *rsym)) {
+        getTarget().getRelDyn().reserveEntry();
+        LDSymbol& cpySym = defineSymbolforCopyReloc(pBuilder, *rsym);
+        addCopyReloc(*cpySym.resolveInfo());
       }
       break;
     case llvm::ELF::R_MIPS_GOT16:
@@ -677,6 +680,9 @@ void MipsRelocator::createDynRel(MipsRelocationInfo& pReloc) {
     setupRelDynEntry(pReloc.parent().targetRef(), NULL);
     pReloc.result() = A + S;
   }
+
+  if (!isLocalReloc(*rsym) && !getTarget().symbolFinalValueIsKnown(*rsym))
+    getGlobalGOTEntry(pReloc);
 }
 
 uint64_t MipsRelocator::calcAHL(const MipsRelocationInfo& pHiReloc) {

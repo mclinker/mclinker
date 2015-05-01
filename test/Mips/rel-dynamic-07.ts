@@ -17,15 +17,15 @@
 
 # CHECK:      Relocations [
 # CHECK-NEXT:   Section (4) .rel.dyn {
-# CHECK-NEXT:     0x[[ADDR1:[0-9A-Z]+]] R_MIPS_REL32 D2 0x0
-# CHECK-NEXT:     0x[[ADDR2:[0-9A-Z]+]] R_MIPS_REL32 D4 0x0
-# CHECK-NEXT:     0x[[ADDR1]]           R_MIPS_REL32 T0 0x0
+# CHECK-NEXT:     0x[[ADDR1:[0-9A-Z]+]] R_MIPS_REL32 T0 0x0
+# CHECK-NEXT:     0x[[ADDR2:[0-9A-Z]+]] R_MIPS_REL32 D0 0x0
 # CHECK-NEXT:     0x[[ADDR2]]           R_MIPS_REL32 T1 0x0
 # CHECK-NEXT:     0x[[ADDR3:[0-9A-Z]+]] R_MIPS_REL32 T2 0x0
 # CHECK-NEXT:     0x[[ADDR1]]           R_MIPS_REL32 T4 0x0
-# CHECK-NEXT:     0x[[ADDR3]]           R_MIPS_REL32 U1 0x0
-# CHECK-NEXT:     0x[[ADDR2]]           R_MIPS_REL32 D0 0x0
 # CHECK-NEXT:     0x[[ADDR3]]           R_MIPS_REL32 D1 0x0
+# CHECK-NEXT:     0x[[ADDR1]]           R_MIPS_REL32 D2 0x0
+# CHECK-NEXT:     0x[[ADDR2]]           R_MIPS_REL32 D4 0x0
+# CHECK-NEXT:     0x[[ADDR3]]           R_MIPS_REL32 U1 0x0
 # CHECK-NEXT:   }
 # CHECK-NEXT: ]
 
@@ -45,24 +45,6 @@
 # CHECK-NEXT:   Section: Undefined
 # CHECK-NEXT: }
 # CHECK:      Symbol {
-# CHECK:        Name: D2@
-# CHECK-NEXT:   Value: 0x0
-# CHECK-NEXT:   Size: 0
-# CHECK-NEXT:   Binding: Global
-# CHECK-NEXT:   Type: Object
-# CHECK-NEXT:   Other: 0
-# CHECK-NEXT:   Section: Undefined
-# CHECK-NEXT: }
-# CHECK:      Symbol {
-# CHECK:        Name: D4@
-# CHECK-NEXT:   Value: 0x0
-# CHECK-NEXT:   Size: 0
-# CHECK-NEXT:   Binding: Global
-# CHECK-NEXT:   Type: Object
-# CHECK-NEXT:   Other: 0
-# CHECK-NEXT:   Section: Undefined
-# CHECK-NEXT: }
-# CHECK:      Symbol {
 # CHECK:        Name: T0@
 # CHECK-NEXT:   Value: 0x2A4
 # CHECK-NEXT:   Size: 8
@@ -70,6 +52,15 @@
 # CHECK-NEXT:   Type: Function
 # CHECK-NEXT:   Other: 0
 # CHECK-NEXT:   Section: .text
+# CHECK-NEXT: }
+# CHECK:      Symbol {
+# CHECK:        Name: D0@
+# CHECK-NEXT:   Value: 0x[[ADDR2]]
+# CHECK-NEXT:   Size: 8
+# CHECK-NEXT:   Binding: Global
+# CHECK-NEXT:   Type: Object
+# CHECK-NEXT:   Other: 0
+# CHECK-NEXT:   Section: .data
 # CHECK-NEXT: }
 # CHECK:      Symbol {
 # CHECK:        Name: T1@
@@ -99,29 +90,38 @@
 # CHECK-NEXT:   Section: Undefined
 # CHECK-NEXT: }
 # CHECK:      Symbol {
-# CHECK:        Name: U1@
-# CHECK-NEXT:   Value: 0x0
-# CHECK-NEXT:   Size: 0
-# CHECK-NEXT:   Binding: Global
-# CHECK-NEXT:   Type: None
-# CHECK-NEXT:   Other: 0
-# CHECK-NEXT:   Section: Undefined
-# CHECK-NEXT: }
-# CHECK:      Symbol {
-# CHECK:        Name: D0@
-# CHECK-NEXT:   Value: 0x[[ADDR2]]
-# CHECK-NEXT:   Size: 8
-# CHECK-NEXT:   Binding: Global
-# CHECK-NEXT:   Type: Object
-# CHECK-NEXT:   Other: 0
-# CHECK-NEXT:   Section: .data
-# CHECK-NEXT: }
-# CHECK:      Symbol {
 # CHECK:        Name: D1@
 # CHECK-NEXT:   Value: 0x0
 # CHECK-NEXT:   Size: 0
 # CHECK-NEXT:   Binding: Global
 # CHECK-NEXT:   Type: Object
+# CHECK-NEXT:   Other: 0
+# CHECK-NEXT:   Section: Undefined
+# CHECK-NEXT: }
+# CHECK:      Symbol {
+# CHECK:        Name: D2@
+# CHECK-NEXT:   Value: 0x0
+# CHECK-NEXT:   Size: 0
+# CHECK-NEXT:   Binding: Global
+# CHECK-NEXT:   Type: Object
+# CHECK-NEXT:   Other: 0
+# CHECK-NEXT:   Section: Undefined
+# CHECK-NEXT: }
+# CHECK:      Symbol {
+# CHECK:        Name: D4@
+# CHECK-NEXT:   Value: 0x0
+# CHECK-NEXT:   Size: 0
+# CHECK-NEXT:   Binding: Global
+# CHECK-NEXT:   Type: Object
+# CHECK-NEXT:   Other: 0
+# CHECK-NEXT:   Section: Undefined
+# CHECK-NEXT: }
+# CHECK:      Symbol {
+# CHECK:        Name: U1@
+# CHECK-NEXT:   Value: 0x0
+# CHECK-NEXT:   Size: 0
+# CHECK-NEXT:   Binding: Global
+# CHECK-NEXT:   Type: None
 # CHECK-NEXT:   Other: 0
 # CHECK-NEXT:   Section: Undefined
 # CHECK-NEXT: }
