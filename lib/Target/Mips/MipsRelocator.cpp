@@ -744,9 +744,6 @@ Mips64Relocator::Mips64Relocator(Mips64GNULDBackend& pParent,
 void Mips64Relocator::setupRelDynEntry(FragmentRef& pFragRef,
                                        ResolveInfo* pSym) {
   Relocation::Type type = llvm::ELF::R_MIPS_REL32 | llvm::ELF::R_MIPS_64 << 8;
-  // FIXME (simon): Fix dynamic relocations.
-  type = llvm::ELF::R_MIPS_NONE;
-
   Relocation& relEntry = *getTarget().getRelDyn().consumeEntry();
   relEntry.setType(type);
   relEntry.targetRef() = pFragRef;
