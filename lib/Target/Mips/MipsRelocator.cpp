@@ -469,6 +469,9 @@ void MipsRelocator::scanGlobalReloc(MipsRelocationInfo& pReloc,
 }
 
 bool MipsRelocator::isPostponed(const Relocation& pReloc) const {
+  if (isN64ABI())
+    return false;
+
   if (MipsRelocationInfo::HasSubType(pReloc, llvm::ELF::R_MIPS_HI16) ||
       MipsRelocationInfo::HasSubType(pReloc, llvm::ELF::R_MIPS_PCHI16))
     return true;
@@ -686,6 +689,9 @@ void MipsRelocator::createDynRel(MipsRelocationInfo& pReloc) {
 }
 
 uint64_t MipsRelocator::calcAHL(const MipsRelocationInfo& pHiReloc) {
+  if (isN64ABI())
+    return pHiReloc.A();
+
   assert(m_CurrentLo16Reloc != NULL &&
          "There is no saved R_MIPS_LO16 relocation");
 
