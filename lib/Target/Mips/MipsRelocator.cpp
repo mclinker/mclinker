@@ -204,10 +204,6 @@ const char* MipsRelocator::getName(Relocation::Type pType) const {
   return ApplyFunctions[pType & 0xff].name;
 }
 
-Relocator::Size MipsRelocator::getSize(Relocation::Type pType) const {
-  return ApplyFunctions[pType & 0xff].size;
-}
-
 void MipsRelocator::scanRelocation(Relocation& pReloc,
                                    IRBuilder& pBuilder,
                                    Module& pModule,
@@ -739,6 +735,10 @@ void Mips32Relocator::setupRelDynEntry(FragmentRef& pFragRef,
   relEntry.setSymInfo(pSym);
 }
 
+Relocator::Size Mips32Relocator::getSize(Relocation::Type pType) const {
+  return ApplyFunctions[pType & 0xff].size;
+}
+
 //===----------------------------------------------------------------------===//
 // Mips64Relocator
 //===----------------------------------------------------------------------===//
@@ -754,6 +754,14 @@ void Mips64Relocator::setupRelDynEntry(FragmentRef& pFragRef,
   relEntry.setType(type);
   relEntry.targetRef() = pFragRef;
   relEntry.setSymInfo(pSym);
+}
+
+Relocator::Size Mips64Relocator::getSize(Relocation::Type pType) const {
+  if (((pType >> 16) & 0xff) != llvm::ELF::R_MIPS_NONE)
+    return ApplyFunctions[(pType >> 16) & 0xff].size;
+  if (((pType >> 8) & 0xff) != llvm::ELF::R_MIPS_NONE)
+    return ApplyFunctions[(pType >> 8) & 0xff].size;
+  return ApplyFunctions[pType & 0xff].size;
 }
 
 //=========================================//

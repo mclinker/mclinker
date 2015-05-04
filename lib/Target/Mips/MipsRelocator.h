@@ -121,8 +121,6 @@ class MipsRelocator : public Relocator {
 
   const char* getName(Relocation::Type pType) const;
 
-  Size getSize(Relocation::Type pType) const;
-
   const SymPLTMap& getSymPLTMap() const { return m_SymPLTMap; }
   SymPLTMap& getSymPLTMap() { return m_SymPLTMap; }
 
@@ -184,6 +182,8 @@ class Mips32Relocator : public MipsRelocator {
  private:
   // MipsRelocator
   void setupRelDynEntry(FragmentRef& pFragRef, ResolveInfo* pSym);
+  Size getSize(Relocation::Type pType) const;
+
 };
 
 /** \class Mips64Relocator
@@ -196,6 +196,8 @@ class Mips64Relocator : public MipsRelocator {
  private:
   // MipsRelocator
   void setupRelDynEntry(FragmentRef& pFragRef, ResolveInfo* pSym);
+  Size getSize(Relocation::Type pType) const;
+
 };
 
 }  // namespace mcld
