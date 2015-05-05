@@ -19,19 +19,6 @@
 #include <llvm/ADT/Twine.h>
 #include <llvm/Support/ELF.h>
 
-namespace llvm {
-namespace ELF {
-
-// FIXME: Consider upstream these relocation types to LLVM.
-enum {
-  R_MIPS_LA25_LUI = 200,
-  R_MIPS_LA25_J = 201,
-  R_MIPS_LA25_ADD = 202,
-};
-
-}  // namespace ELF
-}  // namespace llvm
-
 namespace mcld {
 
 //===----------------------------------------------------------------------===//
@@ -56,15 +43,9 @@ class MipsRelocationInfo {
   MipsRelocationInfo(Relocation& pParent, bool pIsRel)
       : m_Parent(&pParent),
         m_Type(pParent.type()),
-        m_Addend(0),
+        m_Addend(pIsRel ? pParent.target() : pParent.addend()),
         m_Symbol(pParent.symValue()),
-        m_Result(pParent.target()) {
-    if (pIsRel && (type() < llvm::ELF::R_MIPS_LA25_LUI ||
-                   type() > llvm::ELF::R_MIPS_LA25_ADD))
-      m_Addend = pParent.target();
-    else
-      m_Addend = pParent.addend();
-  }
+        m_Result(pParent.target()) {}
 
   bool isNone() const { return llvm::ELF::R_MIPS_NONE == type(); }
 
@@ -1018,34 +999,6 @@ static MipsRelocator::Result gotoff(MipsRelocationInfo& pReloc,
 // R_MIPS_JALR:
 static MipsRelocator::Result jalr(MipsRelocationInfo& pReloc,
                                   MipsRelocator& pParent) {
-  return Relocator::OK;
-}
-
-// R_MIPS_LA25_LUI
-static MipsRelocator::Result la25lui(MipsRelocationInfo& pReloc,
-                                     MipsRelocator& pParent) {
-  int32_t S = pReloc.S();
-
-  pReloc.result() = (S + 0x8000) >> 16;
-
-  return Relocator::OK;
-}
-
-// R_MIPS_LA25_J
-static MipsRelocator::Result la25j(MipsRelocationInfo& pReloc,
-                                   MipsRelocator& pParent) {
-  int32_t S = pReloc.S();
-
-  pReloc.result() = S >> 2;
-
-  return Relocator::OK;
-}
-
-// R_MIPS_LA25_ADD
-static MipsRelocator::Result la25add(MipsRelocationInfo& pReloc,
-                                     MipsRelocator& pParent) {
-  pReloc.result() = pReloc.S();
-
   return Relocator::OK;
 }
 

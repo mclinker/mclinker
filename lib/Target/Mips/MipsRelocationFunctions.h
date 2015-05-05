@@ -30,9 +30,6 @@
   DECL_MIPS_APPLY_RELOC_FUNC(gotlo16) \
   DECL_MIPS_APPLY_RELOC_FUNC(sub)     \
   DECL_MIPS_APPLY_RELOC_FUNC(jalr)    \
-  DECL_MIPS_APPLY_RELOC_FUNC(la25lui) \
-  DECL_MIPS_APPLY_RELOC_FUNC(la25j)   \
-  DECL_MIPS_APPLY_RELOC_FUNC(la25add) \
   DECL_MIPS_APPLY_RELOC_FUNC(pc32)    \
   DECL_MIPS_APPLY_RELOC_FUNC(pc18_s3) \
   DECL_MIPS_APPLY_RELOC_FUNC(pc21_s2) \
@@ -243,9 +240,9 @@
   { &unsupported, 197, "",                             0}, \
   { &unsupported, 198, "",                             0}, \
   { &unsupported, 199, "",                             0}, \
-  { &la25lui,     200, "R_MIPS_LA25_LUI",             16}, \
-  { &la25j,       201, "R_MIPS_LA25_J",               26}, \
-  { &la25add,     202, "R_MIPS_LA25_ADD",             16}, \
+  { &unsupported, 200, "",                             0}, \
+  { &unsupported, 201, "",                             0}, \
+  { &unsupported, 202, "",                             0}, \
   { &unsupported, 203, "",                             0}, \
   { &unsupported, 204, "",                             0}, \
   { &unsupported, 205, "",                             0}, \
