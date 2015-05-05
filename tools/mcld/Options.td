@@ -247,10 +247,6 @@ def ExcludeLibs : Separate<["--"], "exclude-libs">,
                   Group<OutputGroup>,
                   HelpText<"Allow linking together mismatched input files">;
 
-def BuildID : Flag<["--"], "build-id">,
-              Group<OutputGroup>,
-              HelpText<"Request creation of .note.gnu.build-id ELF note section">;
-
 //===----------------------------------------------------------------------===//
 // Positional
 //===----------------------------------------------------------------------===//
@@ -434,10 +430,6 @@ def NoStdlib : Flag<["-"], "nostdlib">,
 def RPath : Joined<["-"], "rpath=">,
             Group<SearchpathGroup>,
             HelpText<"Add a directory to the runtime library search path">;
-
-def RPathLink : Joined<["-"], "rpath-link=">,
-                Group<SearchpathGroup>,
-                HelpText<"Add a directory to the link time library search path">;
 
 //===----------------------------------------------------------------------===//
 // Symbol

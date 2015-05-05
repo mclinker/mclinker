@@ -975,6 +975,14 @@ bool Driver::TranslateArguments() {
     return false;
   }
 
+
+  //===--------------------------------------------------------------------===//
+  // Unknown
+  //===--------------------------------------------------------------------===//
+  std::vector<std::string> unknown_args = args_->getAllArgValues(kOpt_UNKNOWN);
+  for (std::string arg : unknown_args)
+    mcld::warning(mcld::diag::warn_unsupported_option) << arg;
+
   return true;
 }
 
