@@ -224,6 +224,7 @@ SOURCE = ADT/StringEntry.cpp \
 	Target/Hexagon/HexagonRelocator.cpp \
 	Target/Hexagon/HexagonRelocator.h \
 	Target/Hexagon/TargetInfo/HexagonTargetInfo.cpp \
+	Target/Mips/MipsAbiFlags.cpp \
 	Target/Mips/MipsDiagnostic.cpp \
 	Target/Mips/MipsELFDynamic.cpp \
 	Target/Mips/MipsELFDynamic.h \

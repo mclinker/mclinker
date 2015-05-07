@@ -10,6 +10,7 @@
 #define TARGET_MIPS_MIPSLDBACKEND_H_
 #include <llvm/Support/ELF.h>
 #include "mcld/Target/GNULDBackend.h"
+#include "MipsAbiFlags.h"
 #include "MipsELFDynamic.h"
 #include "MipsGOT.h"
 #include "MipsGOTPLT.h"
@@ -209,6 +210,10 @@ class MipsGNULDBackend : public GNULDBackend {
                       uint64_t pOffset,
                       int64_t pAddend) const;
 
+  /// preMergeSections - hooks to be executed before merging sections
+  void preMergeSections(Module& pModule);
+
+  /// mergeSection - merge target dependent sections
   bool mergeSection(Module& pModule, const Input& pInput, LDSection& pSection);
 
  protected:
@@ -217,6 +222,7 @@ class MipsGNULDBackend : public GNULDBackend {
  private:
   typedef llvm::DenseSet<const ResolveInfo*> ResolveInfoSetType;
   typedef llvm::DenseMap<const Input*, llvm::ELF::Elf64_Addr> GP0MapType;
+  typedef llvm::DenseMap<const Input*, uint64_t> ElfFlagsMapType;
 
  protected:
   Relocator* m_pRelocator;
@@ -226,12 +232,14 @@ class MipsGNULDBackend : public GNULDBackend {
 
  private:
   MipsGNUInfo& m_pInfo;
+  llvm::Optional<MipsAbiFlags> m_pAbiInfo;
 
   OutputRelocSection* m_pRelPlt;  // .rel.plt
   OutputRelocSection* m_pRelDyn;  // .rel.dyn
 
   MipsELFDynamic* m_pDynamic;
   LDSection* m_psdata;
+  LDSection* m_pAbiFlags;
   LDSymbol* m_pGOTSymbol;
   LDSymbol* m_pPLTSymbol;
   LDSymbol* m_pGpDispSymbol;
@@ -239,9 +247,9 @@ class MipsGNULDBackend : public GNULDBackend {
   SymbolListType m_GlobalGOTSyms;
   ResolveInfoSetType m_HasNonPICBranchSyms;
   GP0MapType m_GP0Map;
+  ElfFlagsMapType m_ElfFlagsMap;
 
   void moveSectionData(SectionData& pFrom, SectionData& pTo);
-  void mergeFlagsFromHeader(Input& pInput, uint64_t newFlags);
 };
 
 /** \class Mips32GNULDBackend

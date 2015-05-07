@@ -26,32 +26,28 @@
 # ABI-CALLS-WARN1: conflicting linking abicalls and non-abicalls files on e-flags-merge-03.ts.tmp-pic.
 # ABI-CALLS-WARN2: conflicting linking abicalls and non-abicalls files on e-flags-merge-03.ts.tmp-none.
 
-# ABI-CALLS1:      Flags [ (0x50001005)
+# ABI-CALLS1:      Flags [ (0x50001004)
 # ABI-CALLS1-NEXT:   EF_MIPS_ABI_O32 (0x1000)
 # ABI-CALLS1-NEXT:   EF_MIPS_ARCH_32 (0x50000000)
 # ABI-CALLS1-NEXT:   EF_MIPS_CPIC (0x4)
-# ABI-CALLS1-NEXT:   EF_MIPS_NOREORDER (0x1)
 # ABI-CALLS1-NEXT: ]
 
-# ABI-CALLS2:      Flags [ (0x50001005)
+# ABI-CALLS2:      Flags [ (0x50001004)
 # ABI-CALLS2-NEXT:   EF_MIPS_ABI_O32 (0x1000)
 # ABI-CALLS2-NEXT:   EF_MIPS_ARCH_32 (0x50000000)
 # ABI-CALLS2-NEXT:   EF_MIPS_CPIC (0x4)
-# ABI-CALLS2-NEXT:   EF_MIPS_NOREORDER (0x1)
 # ABI-CALLS2-NEXT: ]
 
-# CPIC:      Flags [ (0x50001005)
+# CPIC:      Flags [ (0x50001004)
 # CPIC-NEXT:   EF_MIPS_ABI_O32 (0x1000)
 # CPIC-NEXT:   EF_MIPS_ARCH_32 (0x50000000)
 # CPIC-NEXT:   EF_MIPS_CPIC (0x4)
-# CPIC-NEXT:   EF_MIPS_NOREORDER (0x1)
 # CPIC-NEXT: ]
 
-# BOTH:      Flags [ (0x50001007)
+# BOTH:      Flags [ (0x50001006)
 # BOTH-NEXT:   EF_MIPS_ABI_O32 (0x1000)
 # BOTH-NEXT:   EF_MIPS_ARCH_32 (0x50000000)
 # BOTH-NEXT:   EF_MIPS_CPIC (0x4)
-# BOTH-NEXT:   EF_MIPS_NOREORDER (0x1)
 # BOTH-NEXT:   EF_MIPS_PIC (0x2)
 # BOTH-NEXT: ]
 

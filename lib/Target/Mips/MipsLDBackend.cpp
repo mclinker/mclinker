@@ -22,6 +22,8 @@
 #include "mcld/LD/LDContext.h"
 #include "mcld/LD/StubFactory.h"
 #include "mcld/LD/ELFFileFormat.h"
+#include "mcld/LD/ELFSegment.h"
+#include "mcld/LD/ELFSegmentFactory.h"
 #include "mcld/MC/Attribute.h"
 #include "mcld/Object/ObjectBuilder.h"
 #include "mcld/Support/MemoryRegion.h"
@@ -31,9 +33,11 @@
 #include "mcld/Target/OutputRelocSection.h"
 
 #include <llvm/ADT/Triple.h>
+#include <llvm/Object/ELFTypes.h>
 #include <llvm/Support/Casting.h>
 #include <llvm/Support/ELF.h>
 #include <llvm/Support/Host.h>
+#include <llvm/Support/MipsABIFlags.h>
 
 namespace mcld {
 
@@ -51,6 +55,7 @@ MipsGNULDBackend::MipsGNULDBackend(const LinkerConfig& pConfig,
       m_pRelPlt(NULL),
       m_pRelDyn(NULL),
       m_pDynamic(NULL),
+      m_pAbiFlags(NULL),
       m_pGOTSymbol(NULL),
       m_pPLTSymbol(NULL),
       m_pGpDispSymbol(NULL) {
@@ -106,6 +111,11 @@ void MipsGNULDBackend::initTargetSections(Module& pModule,
       ".sdata", LDFileFormat::Target, llvm::ELF::SHT_PROGBITS,
       llvm::ELF::SHF_ALLOC | llvm::ELF::SHF_WRITE | llvm::ELF::SHF_MIPS_GPREL,
       4);
+
+  // initialize .MIPS.abiflags
+  m_pAbiFlags = pBuilder.CreateSection(".MIPS.abiflags", LDFileFormat::Target,
+                                       llvm::ELF::SHT_MIPS_ABIFLAGS,
+                                       llvm::ELF::SHF_ALLOC, 4);
 }
 
 void MipsGNULDBackend::initTargetSymbols(IRBuilder& pBuilder, Module& pModule) {
@@ -169,6 +179,9 @@ void MipsGNULDBackend::doPreLayout(IRBuilder& pBuilder) {
   // initialize .dynamic data
   if (!config().isCodeStatic() && m_pDynamic == NULL)
     m_pDynamic = new MipsELFDynamic(*this, config());
+
+  if (m_pAbiInfo.hasValue())
+    m_pAbiFlags->setSize(m_pAbiInfo->size());
 
   // set .got size
   // when building shared object, the .got section is must.
@@ -259,6 +272,9 @@ uint64_t MipsGNULDBackend::emitSectionData(const LDSection& pSection,
   if (file_format->hasGOTPLT() && (&pSection == &(file_format->getGOTPLT()))) {
     return m_pGOTPLT->emit(pRegion);
   }
+
+  if (&pSection == m_pAbiFlags && m_pAbiInfo.hasValue())
+    return MipsAbiFlags::emit(*m_pAbiInfo, pRegion);
 
   if (&pSection == m_psdata && m_psdata->hasSectionData()) {
     const SectionData* sect_data = pSection.getSectionData();
@@ -412,100 +428,25 @@ static const char* ArchName(uint64_t flagBits) {
 }
 
 void MipsGNULDBackend::mergeFlags(Input& pInput, const char* ELF_hdr) {
-  if (ELF_hdr[llvm::ELF::EI_CLASS] == llvm::ELF::ELFCLASS64) {
-    const llvm::ELF::Elf64_Ehdr* hdr =
-        reinterpret_cast<const llvm::ELF::Elf64_Ehdr*>(ELF_hdr);
-    mergeFlagsFromHeader(pInput, hdr->e_flags);
-  } else if (ELF_hdr[llvm::ELF::EI_CLASS] == llvm::ELF::ELFCLASS32) {
-    const llvm::ELF::Elf32_Ehdr* hdr =
-        reinterpret_cast<const llvm::ELF::Elf32_Ehdr*>(ELF_hdr);
-    mergeFlagsFromHeader(pInput, hdr->e_flags);
-  }
-  return;
-}
-
-// TDB complete this method to match functionality
-// from binutils file elfxx-mips.c
-// For now we just get the arch flags right.
-//
-void MipsGNULDBackend::mergeFlagsFromHeader(Input& pInput, uint64_t newFlags) {
   using namespace llvm::ELF;
-  bool arch64Bit = config().targets().triple().isArch64Bit();
-  uint64_t newArch = newFlags & EF_MIPS_ARCH;
-  // check that newArch is supported
-  switch (newArch) {
-    case EF_MIPS_ARCH_32:
-    case EF_MIPS_ARCH_32R2:
-    case EF_MIPS_ARCH_32R6:
-      if (arch64Bit) {
-        fatal(diag::error_Mips_unsupported_flags_for_arch)
-            << pInput.name() << ArchName(newArch) << "mips64";
-        return;  // error
-      }
-      break;
-    case EF_MIPS_ARCH_64:
-    case EF_MIPS_ARCH_64R2:
-    case EF_MIPS_ARCH_64R6:
-      if (!arch64Bit) {
-        fatal(diag::error_Mips_unsupported_flags_for_arch)
-            << pInput.name() << ArchName(newArch) << "mips32";
-        return;  // error
-      }
-      break;
-    default:
-      // unsupported
-      error(diag::error_Mips_unsupported_arch) << pInput.name()
-                                               << ArchName(newArch);
-      return;
-  }
+  bool isTarget64Bit = config().targets().triple().isArch64Bit();
+  bool isInput64Bit = ELF_hdr[EI_CLASS] == ELFCLASS64;
 
-  // PIC code is inherently CPIC and may not set CPIC flag explicitly.
-  // Ensure that this flag will exist in the linked file.
-  if (newFlags & EF_MIPS_PIC)
-    newFlags |= EF_MIPS_CPIC;
-
-  uint32_t newPic = newFlags & (EF_MIPS_PIC | EF_MIPS_CPIC);
-  uint32_t oldPic = m_pInfo.getPICFlags() & (EF_MIPS_PIC | EF_MIPS_CPIC);
-
-  uint64_t currentArch = m_pInfo.getArchFlags();
-  if (!currentArch) {
-    // If arch flags is not initialized, we are processing the first
-    // object file so just save current flags as initial state.
-    m_pInfo.setArchFlags(newArch);
-    m_pInfo.setPICFlags(newPic);
+  if (isTarget64Bit != isInput64Bit) {
+    fatal(diag::error_Mips_incompatible_class)
+        << (isTarget64Bit ? "ELFCLASS64" : "ELFCLASS32")
+        << (isInput64Bit ? "ELFCLASS64" : "ELFCLASS32") << pInput.name();
     return;
   }
 
-  // Check PIC / CPIC flags compatibility.
-  if ((newPic != 0) != (oldPic != 0))
-    warning(diag::warn_Mips_abicalls_linking) << pInput.name();
-
-  if (!(newPic & EF_MIPS_PIC))
-    oldPic &= ~EF_MIPS_PIC;
-  if (newPic)
-    oldPic |= EF_MIPS_CPIC;
-  newPic = oldPic;
-
-  // check that architecture is not changing
-  if (currentArch != newArch) {
-    if ((newArch == EF_MIPS_ARCH_32 && currentArch == EF_MIPS_ARCH_32R2) ||
-        (newArch == EF_MIPS_ARCH_64 && currentArch == EF_MIPS_ARCH_64R2))
-      return; // do not need to update flags
-    if ((newArch == EF_MIPS_ARCH_32R2 && currentArch == EF_MIPS_ARCH_32) ||
-        (newArch == EF_MIPS_ARCH_64R2 && currentArch == EF_MIPS_ARCH_64))
-      ;       // need to update flags
-    else {
-      error(diag::error_Mips_inconsistent_arch)
-          << pInput.name() << ArchName(newArch) << ArchName(currentArch);
-      return; // error
-    }
-  }
-  m_pInfo.setArchFlags(newArch);
-  m_pInfo.setPICFlags(newPic);
+  m_ElfFlagsMap[&pInput] =
+      isInput64Bit ? reinterpret_cast<const Elf64_Ehdr*>(ELF_hdr)->e_flags
+                   : reinterpret_cast<const Elf32_Ehdr*>(ELF_hdr)->e_flags;
 }
 
 bool MipsGNULDBackend::readSection(Input& pInput, SectionData& pSD) {
-  if (pSD.getSection().flag() & llvm::ELF::SHF_MIPS_GPREL) {
+  if ((pSD.getSection().flag() & llvm::ELF::SHF_MIPS_GPREL) ||
+      (pSD.getSection().type() == llvm::ELF::SHT_MIPS_ABIFLAGS)) {
     uint64_t offset = pInput.fileOffset() + pSD.getSection().offset();
     uint64_t size = pSD.getSection().size();
 
@@ -618,6 +559,9 @@ unsigned int MipsGNULDBackend::getTargetSectionOrder(
 
   if (&pSectHdr == m_psdata)
     return SHO_SMALL_DATA;
+
+  if (&pSectHdr == m_pAbiFlags)
+    return SHO_RO_NOTE;
 
   return SHO_UNDEFINED;
 }
@@ -790,7 +734,13 @@ void MipsGNULDBackend::defineGOTPLTSymbol(IRBuilder& pBuilder) {
 /// doCreateProgramHdrs - backend can implement this function to create the
 /// target-dependent segments
 void MipsGNULDBackend::doCreateProgramHdrs(Module& pModule) {
-  // TODO
+  if (m_pAbiFlags && m_pAbiFlags->size() != 0) {
+    // create PT_MIPS_ABIFLAGS segment
+    ELFSegment* abiSeg =
+        elfSegmentTable().produce(llvm::ELF::PT_MIPS_ABIFLAGS, llvm::ELF::PF_R);
+    abiSeg->setAlign(8);
+    abiSeg->append(m_pAbiFlags);
+  }
 }
 
 bool MipsGNULDBackend::relaxRelocation(IRBuilder& pBuilder, Relocation& pRel) {
@@ -994,6 +944,182 @@ void MipsGNULDBackend::emitRelocation(llvm::ELF::Elf64_Rela& pRel,
   pRel.r_addend = pAddend;
 }
 
+namespace {
+struct ISATreeEdge {
+  unsigned child;
+  unsigned parent;
+};
+}
+
+static ISATreeEdge isaTree[] = {
+    // MIPS32R6 and MIPS64R6 are not compatible with other extensions
+
+    // MIPS64 extensions.
+    {llvm::ELF::EF_MIPS_ARCH_64R2, llvm::ELF::EF_MIPS_ARCH_64},
+    // MIPS V extensions.
+    {llvm::ELF::EF_MIPS_ARCH_64, llvm::ELF::EF_MIPS_ARCH_5},
+    // MIPS IV extensions.
+    {llvm::ELF::EF_MIPS_ARCH_5, llvm::ELF::EF_MIPS_ARCH_4},
+    // MIPS III extensions.
+    {llvm::ELF::EF_MIPS_ARCH_4, llvm::ELF::EF_MIPS_ARCH_3},
+    // MIPS32 extensions.
+    {llvm::ELF::EF_MIPS_ARCH_32R2, llvm::ELF::EF_MIPS_ARCH_32},
+    // MIPS II extensions.
+    {llvm::ELF::EF_MIPS_ARCH_3, llvm::ELF::EF_MIPS_ARCH_2},
+    {llvm::ELF::EF_MIPS_ARCH_32, llvm::ELF::EF_MIPS_ARCH_2},
+    // MIPS I extensions.
+    {llvm::ELF::EF_MIPS_ARCH_2, llvm::ELF::EF_MIPS_ARCH_1},
+};
+
+static bool isIsaMatched(uint32_t base, uint32_t ext) {
+  using namespace llvm::ELF;
+  if (base == ext)
+    return true;
+  if (base == EF_MIPS_ARCH_32 && isIsaMatched(EF_MIPS_ARCH_64, ext))
+    return true;
+  if (base == EF_MIPS_ARCH_32R2 && isIsaMatched(EF_MIPS_ARCH_64R2, ext))
+    return true;
+  for (const auto &edge : isaTree) {
+    if (ext == edge.child) {
+      ext = edge.parent;
+      if (ext == base)
+        return true;
+    }
+  }
+  return false;
+}
+
+static bool getAbiFlags(const Input& pInput, uint64_t elfFlags, bool& hasFlags,
+                        MipsAbiFlags& pFlags) {
+  MipsAbiFlags pElfFlags = {};
+  if (!MipsAbiFlags::fillByElfFlags(pInput, elfFlags, pElfFlags))
+    return false;
+
+  const LDContext* ctx = pInput.context();
+  for (auto it = ctx->sectBegin(), ie = ctx->sectEnd(); it != ie; ++it)
+    if ((*it)->type() == llvm::ELF::SHT_MIPS_ABIFLAGS) {
+      if (!MipsAbiFlags::fillBySection(pInput, **it, pFlags))
+        return false;
+      if (!MipsAbiFlags::isCompatible(pInput, pElfFlags, pFlags))
+        return false;
+      hasFlags = true;
+      return true;
+    }
+
+  pFlags = pElfFlags;
+  return true;
+}
+
+static const char* getNanName(uint64_t flags) {
+  return flags & llvm::ELF::EF_MIPS_NAN2008 ? "2008" : "legacy";
+}
+
+static bool mergeElfFlags(const Input& pInput, uint64_t& oldElfFlags,
+                          uint64_t newElfFlags) {
+  using namespace llvm::ELF;
+  // PIC code is inherently CPIC and may not set CPIC flag explicitly.
+  // Ensure that this flag will exist in the linked file.
+  if (newElfFlags & EF_MIPS_PIC)
+    newElfFlags |= EF_MIPS_CPIC;
+
+  if (newElfFlags & EF_MIPS_ARCH_ASE_M16) {
+    error(diag::error_Mips_m16_unsupported) << pInput.name();
+    return false;
+  }
+
+  if (!oldElfFlags) {
+    oldElfFlags = newElfFlags;
+    return true;
+  }
+
+  uint64_t newPic = newElfFlags & (EF_MIPS_PIC | EF_MIPS_CPIC);
+  uint64_t oldPic = oldElfFlags & (EF_MIPS_PIC | EF_MIPS_CPIC);
+
+  // Check PIC / CPIC flags compatibility.
+  if ((newPic != 0) != (oldPic != 0))
+    warning(diag::warn_Mips_abicalls_linking) << pInput.name();
+
+  if (!(newPic & EF_MIPS_PIC))
+    oldElfFlags &= ~EF_MIPS_PIC;
+  if (newPic)
+    oldElfFlags |= EF_MIPS_CPIC;
+
+  // Check ISA compatibility.
+  uint64_t newArch = newElfFlags & EF_MIPS_ARCH;
+  uint64_t oldArch = oldElfFlags & EF_MIPS_ARCH;
+  if (!isIsaMatched(newArch, oldArch)) {
+    if (!isIsaMatched(oldArch, newArch)) {
+      error(diag::error_Mips_inconsistent_arch)
+          << ArchName(oldArch) << ArchName(newArch) << pInput.name();
+      return false;
+    }
+    oldElfFlags &= ~EF_MIPS_ARCH;
+    oldElfFlags |= newArch;
+  }
+
+  // Check ABI compatibility.
+  uint32_t newAbi = newElfFlags & EF_MIPS_ABI;
+  uint32_t oldAbi = oldElfFlags & EF_MIPS_ABI;
+  if (newAbi != oldAbi && newAbi && oldAbi) {
+    error(diag::error_Mips_inconsistent_abi) << pInput.name();
+    return false;
+  }
+
+  // Check -mnan flags compatibility.
+  if ((newElfFlags & EF_MIPS_NAN2008) != (oldElfFlags & EF_MIPS_NAN2008)) {
+    // Linking -mnan=2008 and -mnan=legacy modules
+    error(diag::error_Mips_inconsistent_mnan)
+        << getNanName(oldElfFlags) << getNanName(newElfFlags) << pInput.name();
+    return false;
+  }
+
+  // Check ASE compatibility.
+  uint64_t newAse = newElfFlags & EF_MIPS_ARCH_ASE;
+  uint64_t oldAse = oldElfFlags & EF_MIPS_ARCH_ASE;
+  if (newAse != oldAse)
+    oldElfFlags |= newAse;
+
+  // Check FP64 compatibility.
+  if ((newElfFlags & EF_MIPS_FP64) != (oldElfFlags & EF_MIPS_FP64)) {
+    // Linking -mnan=2008 and -mnan=legacy modules
+    error(diag::error_Mips_inconsistent_fp64) << pInput.name();
+    return false;
+  }
+
+  oldElfFlags |= newElfFlags & EF_MIPS_NOREORDER;
+  oldElfFlags |= newElfFlags & EF_MIPS_MICROMIPS;
+  oldElfFlags |= newElfFlags & EF_MIPS_NAN2008;
+  oldElfFlags |= newElfFlags & EF_MIPS_32BITMODE;
+
+  return true;
+}
+
+void MipsGNULDBackend::preMergeSections(Module& pModule) {
+  uint64_t elfFlags = 0;
+  bool hasAbiFlags = false;
+  MipsAbiFlags abiFlags = {};
+  for (const Input *input : pModule.getObjectList()) {
+    if (input->type() != Input::Object)
+      continue;
+
+    uint64_t newElfFlags = m_ElfFlagsMap[input];
+
+    MipsAbiFlags newAbiFlags = {};
+    if (!getAbiFlags(*input, newElfFlags, hasAbiFlags, newAbiFlags))
+      continue;
+
+    if (!mergeElfFlags(*input, elfFlags, newElfFlags))
+      continue;
+
+    if (!MipsAbiFlags::merge(*input, abiFlags, newAbiFlags))
+      continue;
+  }
+
+  m_pInfo.setElfFlags(elfFlags);
+  if (hasAbiFlags)
+    m_pAbiInfo = abiFlags;
+}
+
 bool MipsGNULDBackend::mergeSection(Module& pModule, const Input& pInput,
                                     LDSection& pSection) {
   if (pSection.flag() & llvm::ELF::SHF_MIPS_GPREL) {
@@ -1004,12 +1130,14 @@ bool MipsGNULDBackend::mergeSection(Module& pModule, const Input& pInput,
     }
     sd = m_psdata->getSectionData();
     moveSectionData(*pSection.getSectionData(), *sd);
+  } else if (pSection.type() == llvm::ELF::SHT_MIPS_ABIFLAGS) {
+    // Nothing to do because we handle all .MIPS.abiflags sections
+    // in the preMergeSections method.
   } else {
     ObjectBuilder builder(pModule);
     builder.MergeSection(pInput, pSection);
   }
   return true;
-
 }
 
 void MipsGNULDBackend::moveSectionData(SectionData& pFrom, SectionData& pTo) {

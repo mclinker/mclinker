@@ -7,7 +7,7 @@
 # RUN: not %MCLinker -mtriple=mips64el-unknown-linux -o %t.exe \
 # RUN:         %t-64r2.o %t-64r6.o 2>&1 | FileCheck %s
 
-# CHECK: file {{.+}} has arch mips64r6 which is inconsistent with previous arch mips64r2
+# CHECK: target arch 'mips64r2' is inconsist with the 'mips64r6' in e-flags-merge-11
 
 # 64r2.o
 ---

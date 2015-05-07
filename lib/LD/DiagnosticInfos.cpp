@@ -51,6 +51,7 @@ static const DiagStaticInfo DiagCommonInfo[] = {
 #include "mcld/LD/DiagLayouts.inc"  // NOLINT [build/include] [4]
 #include "mcld/LD/DiagGOTPLT.inc"  // NOLINT [build/include] [4]
 #include "mcld/LD/DiagLDScript.inc"  // NOLINT [build/include] [4]
+#include "mcld/LD/DiagMips.inc"  // NOLINT [build/include] [4]
 #undef DIAG
     {0, DiagnosticEngine::None, 0, 0}};
 
@@ -69,6 +70,7 @@ static const DiagStaticInfo DiagLoCInfo[] = {
 #include "mcld/LD/DiagLayouts.inc"  // NOLINT [build/include] [4]
 #include "mcld/LD/DiagGOTPLT.inc"  // NOLINT [build/include] [4]
 #include "mcld/LD/DiagLDScript.inc"  // NOLINT [build/include] [4]
+#include "mcld/LD/DiagMips.inc"  // NOLINT [build/include] [4]
 #undef DIAG
     {0, DiagnosticEngine::None, 0, 0}};
 

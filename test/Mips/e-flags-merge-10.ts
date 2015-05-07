@@ -3,7 +3,8 @@
 # RUN: not %MCLinker -mtriple=mipsel-unknown-linux -o %t.exe \
 # RUN: %t-32r2.o %t-32r6.o 2>&1 | FileCheck %s
 
-# CHECK: file {{.+}}-32r6 has arch mips32r6 which is inconsistent with previous arch mips32r2
+# CHECK: target arch 'mips32r2' is inconsist with the 'mips32r6' in e-flags-merge-10
+
 ---
 FileHeader:
   Class:           ELFCLASS32

@@ -1,4 +1,5 @@
 add_llvm_library(MCLDMipsLDBackend
+  MipsAbiFlags.cpp
   MipsDiagnostic.cpp
   MipsELFDynamic.cpp
   MipsEmulation.cpp
