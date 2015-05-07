@@ -212,21 +212,7 @@ class MipsGNULDBackend : public GNULDBackend {
   bool mergeSection(Module& pModule, const Input& pInput, LDSection& pSection);
 
  protected:
-   void mergeFlagsFromHeader(Input& pInput, uint64_t newFlags);
-
-   virtual void mergeFlags(Input& pInput, const char* ELF_hdr) {
-     if (ELF_hdr[llvm::ELF::EI_CLASS] == llvm::ELF::ELFCLASS64) {
-       const llvm::ELF::Elf64_Ehdr* hdr =
-         reinterpret_cast<const llvm::ELF::Elf64_Ehdr*>(ELF_hdr);
-       mergeFlagsFromHeader(pInput, hdr->e_flags);
-     }
-     else if (ELF_hdr[llvm::ELF::EI_CLASS] == llvm::ELF::ELFCLASS32) {
-       const llvm::ELF::Elf32_Ehdr* hdr =
-             reinterpret_cast<const llvm::ELF::Elf32_Ehdr*>(ELF_hdr);
-       mergeFlagsFromHeader(pInput, hdr->e_flags);
-     }
-     return;
-   }
+  virtual void mergeFlags(Input& pInput, const char* ELF_hdr);
 
  private:
   typedef llvm::DenseSet<const ResolveInfo*> ResolveInfoSetType;
@@ -255,6 +241,7 @@ class MipsGNULDBackend : public GNULDBackend {
   GP0MapType m_GP0Map;
 
   void moveSectionData(SectionData& pFrom, SectionData& pTo);
+  void mergeFlagsFromHeader(Input& pInput, uint64_t newFlags);
 };
 
 /** \class Mips32GNULDBackend

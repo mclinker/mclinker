@@ -411,6 +411,19 @@ static const char* ArchName(uint64_t flagBits) {
   }
 }
 
+void MipsGNULDBackend::mergeFlags(Input& pInput, const char* ELF_hdr) {
+  if (ELF_hdr[llvm::ELF::EI_CLASS] == llvm::ELF::ELFCLASS64) {
+    const llvm::ELF::Elf64_Ehdr* hdr =
+        reinterpret_cast<const llvm::ELF::Elf64_Ehdr*>(ELF_hdr);
+    mergeFlagsFromHeader(pInput, hdr->e_flags);
+  } else if (ELF_hdr[llvm::ELF::EI_CLASS] == llvm::ELF::ELFCLASS32) {
+    const llvm::ELF::Elf32_Ehdr* hdr =
+        reinterpret_cast<const llvm::ELF::Elf32_Ehdr*>(ELF_hdr);
+    mergeFlagsFromHeader(pInput, hdr->e_flags);
+  }
+  return;
+}
+
 // TDB complete this method to match functionality
 // from binutils file elfxx-mips.c
 // For now we just get the arch flags right.
