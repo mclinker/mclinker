@@ -16,6 +16,7 @@
 #include "mcld/IRBuilder.h"
 #include "mcld/LinkerConfig.h"
 #include "mcld/Module.h"
+#include "mcld/Fragment/AlignFragment.h"
 #include "mcld/Fragment/FillFragment.h"
 #include "mcld/LD/BranchIslandFactory.h"
 #include "mcld/LD/LDContext.h"
@@ -99,6 +100,12 @@ void MipsGNULDBackend::initTargetSections(Module& pModule,
   // initialize .rel.dyn
   LDSection& reldyn = file_format->getRelDyn();
   m_pRelDyn = new OutputRelocSection(pModule, reldyn);
+
+  // initialize .sdata
+  m_psdata = pBuilder.CreateSection(
+      ".sdata", LDFileFormat::Target, llvm::ELF::SHT_PROGBITS,
+      llvm::ELF::SHF_ALLOC | llvm::ELF::SHF_WRITE | llvm::ELF::SHF_MIPS_GPREL,
+      4);
 }
 
 void MipsGNULDBackend::initTargetSymbols(IRBuilder& pBuilder, Module& pModule) {
@@ -251,6 +258,57 @@ uint64_t MipsGNULDBackend::emitSectionData(const LDSection& pSection,
 
   if (file_format->hasGOTPLT() && (&pSection == &(file_format->getGOTPLT()))) {
     return m_pGOTPLT->emit(pRegion);
+  }
+
+  if (&pSection == m_psdata && m_psdata->hasSectionData()) {
+    const SectionData* sect_data = pSection.getSectionData();
+    SectionData::const_iterator frag_iter, frag_end = sect_data->end();
+    uint8_t* out_offset = pRegion.begin();
+    for (frag_iter = sect_data->begin(); frag_iter != frag_end; ++frag_iter) {
+      size_t size = frag_iter->size();
+      switch (frag_iter->getKind()) {
+        case Fragment::Fillment: {
+          const FillFragment& fill_frag = llvm::cast<FillFragment>(*frag_iter);
+          if (fill_frag.getValueSize() == 0) {
+            // virtual fillment, ignore it.
+            break;
+          }
+          memset(out_offset, fill_frag.getValue(), fill_frag.size());
+          break;
+        }
+        case Fragment::Region: {
+          const RegionFragment& region_frag =
+              llvm::cast<RegionFragment>(*frag_iter);
+          const char* start = region_frag.getRegion().begin();
+          memcpy(out_offset, start, size);
+          break;
+        }
+        case Fragment::Alignment: {
+          const AlignFragment& align_frag =
+              llvm::cast<AlignFragment>(*frag_iter);
+          uint64_t count = size / align_frag.getValueSize();
+          switch (align_frag.getValueSize()) {
+            case 1u:
+              std::memset(out_offset, align_frag.getValue(), count);
+              break;
+            default:
+              llvm::report_fatal_error(
+                  "unsupported value size for align fragment emission yet.\n");
+              break;
+          }  // end switch
+          break;
+        }
+        case Fragment::Null: {
+          assert(0x0 == size);
+          break;
+        }
+        default:
+          llvm::report_fatal_error("unsupported fragment type.\n");
+          break;
+      }  // end switch
+      out_offset += size;
+    }
+    return pRegion.size();
   }
 
   fatal(diag::unrecognized_output_sectoin) << pSection.name()
@@ -434,9 +492,7 @@ void MipsGNULDBackend::mergeFlagsFromHeader(Input& pInput, uint64_t newFlags) {
 }
 
 bool MipsGNULDBackend::readSection(Input& pInput, SectionData& pSD) {
-  llvm::StringRef name(pSD.getSection().name());
-
-  if (name.startswith(".sdata")) {
+  if (pSD.getSection().flag() & llvm::ELF::SHF_MIPS_GPREL) {
     uint64_t offset = pInput.fileOffset() + pSD.getSection().offset();
     uint64_t size = pSD.getSection().size();
 
@@ -546,6 +602,9 @@ unsigned int MipsGNULDBackend::getTargetSectionOrder(
 
   if (file_format->hasPLT() && (&pSectHdr == &file_format->getPLT()))
     return SHO_PLT;
+
+  if (&pSectHdr == m_psdata)
+    return SHO_SMALL_DATA;
 
   return SHO_UNDEFINED;
 }
@@ -920,6 +979,57 @@ void MipsGNULDBackend::emitRelocation(llvm::ELF::Elf64_Rela& pRel,
   pRel.r_info = r_info;
   pRel.r_offset = pOffset;
   pRel.r_addend = pAddend;
+}
+
+bool MipsGNULDBackend::mergeSection(Module& pModule, const Input& pInput,
+                                    LDSection& pSection) {
+  if (pSection.flag() & llvm::ELF::SHF_MIPS_GPREL) {
+    SectionData* sd = NULL;
+    if (!m_psdata->hasSectionData()) {
+      sd = IRBuilder::CreateSectionData(*m_psdata);
+      m_psdata->setSectionData(sd);
+    }
+    sd = m_psdata->getSectionData();
+    moveSectionData(*pSection.getSectionData(), *sd);
+  } else {
+    ObjectBuilder builder(pModule);
+    builder.MergeSection(pInput, pSection);
+  }
+  return true;
+
+}
+
+void MipsGNULDBackend::moveSectionData(SectionData& pFrom, SectionData& pTo) {
+  assert(&pFrom != &pTo && "Cannot move section data to itself!");
+
+  uint64_t offset = pTo.getSection().size();
+  AlignFragment* align = NULL;
+  if (pFrom.getSection().align() > 1) {
+    // if the align constraint is larger than 1, append an alignment
+    unsigned int alignment = pFrom.getSection().align();
+    align = new AlignFragment(/*alignment*/ alignment,
+                              /*the filled value*/ 0x0,
+                              /*the size of filled value*/ 1u,
+                              /*max bytes to emit*/ alignment - 1);
+    align->setOffset(offset);
+    align->setParent(&pTo);
+    pTo.getFragmentList().push_back(align);
+    offset += align->size();
+  }
+
+  // move fragments from pFrom to pTO
+  SectionData::FragmentListType& from_list = pFrom.getFragmentList();
+  SectionData::FragmentListType& to_list = pTo.getFragmentList();
+  SectionData::FragmentListType::iterator frag, fragEnd = from_list.end();
+  for (frag = from_list.begin(); frag != fragEnd; ++frag) {
+    frag->setParent(&pTo);
+    frag->setOffset(offset);
+    offset += frag->size();
+  }
+  to_list.splice(to_list.end(), from_list);
+
+  // set up pTo's header
+  pTo.getSection().setSize(offset);
 }
 
 //===----------------------------------------------------------------------===//

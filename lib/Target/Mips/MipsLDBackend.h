@@ -209,6 +209,8 @@ class MipsGNULDBackend : public GNULDBackend {
                       uint64_t pOffset,
                       int64_t pAddend) const;
 
+  bool mergeSection(Module& pModule, const Input& pInput, LDSection& pSection);
+
  protected:
    void mergeFlagsFromHeader(Input& pInput, uint64_t newFlags);
 
@@ -243,6 +245,7 @@ class MipsGNULDBackend : public GNULDBackend {
   OutputRelocSection* m_pRelDyn;  // .rel.dyn
 
   MipsELFDynamic* m_pDynamic;
+  LDSection* m_psdata;
   LDSymbol* m_pGOTSymbol;
   LDSymbol* m_pPLTSymbol;
   LDSymbol* m_pGpDispSymbol;
@@ -250,6 +253,8 @@ class MipsGNULDBackend : public GNULDBackend {
   SymbolListType m_GlobalGOTSyms;
   ResolveInfoSetType m_HasNonPICBranchSyms;
   GP0MapType m_GP0Map;
+
+  void moveSectionData(SectionData& pFrom, SectionData& pTo);
 };
 
 /** \class Mips32GNULDBackend
