@@ -39,6 +39,7 @@
   DECL_MIPS_APPLY_RELOC_FUNC(pclo16) \
   DECL_MIPS_APPLY_RELOC_FUNC(tlshi16) \
   DECL_MIPS_APPLY_RELOC_FUNC(tlslo16) \
+  DECL_MIPS_APPLY_RELOC_FUNC(tlsgot)  \
   DECL_MIPS_APPLY_RELOC_FUNC(unsupported)
 
 #define DECL_MIPS_APPLY_RELOC_FUNC_PTRS \
@@ -84,10 +85,10 @@
   { &unsupported,  39, "R_MIPS_TLS_DTPREL32",         32}, \
   { &unsupported,  40, "R_MIPS_TLS_DTPMOD64",          0}, \
   { &unsupported,  41, "R_MIPS_TLS_DTPREL64",          0}, \
-  { &unsupported,  42, "R_MIPS_TLS_GD",               16}, \
-  { &unsupported,  43, "R_MIPS_TLS_LDM",              16}, \
-  { &unsupported,  44, "R_MIPS_TLS_DTPREL_HI16",      16}, \
-  { &unsupported,  45, "R_MIPS_TLS_DTPREL_LO16",      16}, \
+  { &tlsgot,       42, "R_MIPS_TLS_GD",               16}, \
+  { &tlsgot,       43, "R_MIPS_TLS_LDM",              16}, \
+  { &tlshi16,      44, "R_MIPS_TLS_DTPREL_HI16",      16}, \
+  { &tlslo16,      45, "R_MIPS_TLS_DTPREL_LO16",      16}, \
   { &unsupported,  46, "R_MIPS_TLS_GOTTPREL",         16}, \
   { &unsupported,  47, "R_MIPS_TLS_TPREL32",          32}, \
   { &unsupported,  48, "R_MIPS_TLS_TPREL64",           0}, \

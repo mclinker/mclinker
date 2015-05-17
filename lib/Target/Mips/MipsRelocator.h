@@ -97,6 +97,10 @@ class MipsRelocator : public Relocator {
   /// section in the processing input.
   Address getTPOffset();
 
+  /// getDTPOffset - return DTP_OFFSET against the SHF_TLS
+  /// section in the processing input.
+  Address getDTPOffset();
+
   /// getGP0 - the gp value used to create the relocatable objects
   /// in the processing input.
   Address getGP0();
@@ -110,8 +114,15 @@ class MipsRelocator : public Relocator {
   /// for this relocation.
   Fragment& getGlobalGOTEntry(MipsRelocationInfo& pReloc);
 
+  /// getTLSGOTEntry - initialize and return a TLS GOT entry
+  /// for this relocation.
+  Fragment& getTLSGOTEntry(MipsRelocationInfo& pReloc);
+
   /// getGOTOffset - return offset of corresponded GOT entry.
   Address getGOTOffset(MipsRelocationInfo& pReloc);
+
+  /// getTLSGOTOffset - return offset of corresponded TLS GOT entry.
+  Address getTLSGOTOffset(MipsRelocationInfo& pReloc);
 
   /// createDynRel - initialize dynamic relocation for the relocation.
   void createDynRel(MipsRelocationInfo& pReloc);
@@ -134,6 +145,9 @@ class MipsRelocator : public Relocator {
  protected:
   /// setupRelDynEntry - create dynamic relocation entry.
   virtual void setupRelDynEntry(FragmentRef& pFragRef, ResolveInfo* pSym) = 0;
+  /// setupTLSDynEntry - create DTPMOD / DTPREL relocation entries
+  virtual void setupTLSDynEntry(Fragment& pFrag, ResolveInfo* pSym,
+                                Relocation::Type pType) = 0;
 
   /// isLocalReloc - handle relocation as a local symbol
   bool isLocalReloc(ResolveInfo& pSym) const;
@@ -186,6 +200,8 @@ class Mips32Relocator : public MipsRelocator {
  private:
   // MipsRelocator
   void setupRelDynEntry(FragmentRef& pFragRef, ResolveInfo* pSym);
+  void setupTLSDynEntry(Fragment& pFrag, ResolveInfo* pSym,
+                        Relocation::Type pType);
   Size getSize(Relocation::Type pType) const;
 
 };
@@ -200,6 +216,8 @@ class Mips64Relocator : public MipsRelocator {
  private:
   // MipsRelocator
   void setupRelDynEntry(FragmentRef& pFragRef, ResolveInfo* pSym);
+  void setupTLSDynEntry(Fragment& pFrag, ResolveInfo* pSym,
+                        Relocation::Type pType);
   Size getSize(Relocation::Type pType) const;
 
 };

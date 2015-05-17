@@ -310,12 +310,18 @@ void MipsRelocator::scanLocalReloc(MipsRelocationInfo& pReloc,
     case llvm::ELF::R_MIPS_GPREL16:
     case llvm::ELF::R_MIPS_LITERAL:
       break;
+    case llvm::ELF::R_MIPS_TLS_GD:
+      getTarget().getGOT().reserveTLSGdEntry(*rsym);
+      getTarget().checkAndSetHasTextRel(*pSection.getLink());
+      break;
+    case llvm::ELF::R_MIPS_TLS_LDM:
+      getTarget().getGOT().reserveTLSLdmEntry();
+      getTarget().checkAndSetHasTextRel(*pSection.getLink());
+      break;
     case llvm::ELF::R_MIPS_TLS_DTPMOD32:
     case llvm::ELF::R_MIPS_TLS_DTPREL32:
     case llvm::ELF::R_MIPS_TLS_DTPMOD64:
     case llvm::ELF::R_MIPS_TLS_DTPREL64:
-    case llvm::ELF::R_MIPS_TLS_GD:
-    case llvm::ELF::R_MIPS_TLS_LDM:
     case llvm::ELF::R_MIPS_TLS_DTPREL_HI16:
     case llvm::ELF::R_MIPS_TLS_DTPREL_LO16:
     case llvm::ELF::R_MIPS_TLS_GOTTPREL:
@@ -414,9 +420,15 @@ void MipsRelocator::scanGlobalReloc(MipsRelocationInfo& pReloc,
     case llvm::ELF::R_MIPS_HIGHEST:
     case llvm::ELF::R_MIPS_SCN_DISP:
       break;
-    case llvm::ELF::R_MIPS_TLS_DTPREL32:
     case llvm::ELF::R_MIPS_TLS_GD:
+      getTarget().getGOT().reserveTLSGdEntry(*rsym);
+      getTarget().checkAndSetHasTextRel(*pSection.getLink());
+      break;
     case llvm::ELF::R_MIPS_TLS_LDM:
+      getTarget().getGOT().reserveTLSLdmEntry();
+      getTarget().checkAndSetHasTextRel(*pSection.getLink());
+      break;
+    case llvm::ELF::R_MIPS_TLS_DTPREL32:
     case llvm::ELF::R_MIPS_TLS_DTPREL_HI16:
     case llvm::ELF::R_MIPS_TLS_DTPREL_LO16:
     case llvm::ELF::R_MIPS_TLS_GOTTPREL:
@@ -575,6 +587,10 @@ Relocator::Address MipsRelocator::getTPOffset() {
   return getTarget().getTPOffset(getApplyingInput());
 }
 
+Relocator::Address MipsRelocator::getDTPOffset() {
+  return getTarget().getDTPOffset(getApplyingInput());
+}
+
 Relocator::Address MipsRelocator::getGP0() {
   return getTarget().getGP0(getApplyingInput());
 }
@@ -634,6 +650,26 @@ Fragment& MipsRelocator::getGlobalGOTEntry(MipsRelocationInfo& pReloc) {
   return *got_entry;
 }
 
+Fragment& MipsRelocator::getTLSGOTEntry(MipsRelocationInfo& pReloc) {
+  // rsym - The relocation target symbol
+  ResolveInfo* rsym = pReloc.parent().symInfo();
+  MipsGOT& got = getTarget().getGOT();
+  bool isLDM = pReloc.type() == llvm::ELF::R_MIPS_TLS_LDM;
+
+  Fragment* modEntry = got.lookupTLSEntry(rsym, isLDM);
+
+  // Found a mapping, then return the mapped entry immediately.
+  if (modEntry != NULL)
+    return *modEntry;
+
+  // Not found.
+  modEntry = got.consumeTLS();
+  setupTLSDynEntry(*modEntry, rsym, pReloc.type());
+  got.recordTLSEntry(rsym, modEntry, isLDM);
+
+  return *modEntry;
+}
+
 Relocator::Address MipsRelocator::getGOTOffset(MipsRelocationInfo& pReloc) {
   ResolveInfo* rsym = pReloc.parent().symInfo();
   MipsGOT& got = getTarget().getGOT();
@@ -649,6 +685,11 @@ Relocator::Address MipsRelocator::getGOTOffset(MipsRelocationInfo& pReloc) {
   } else {
     return got.getGPRelOffset(getApplyingInput(), getGlobalGOTEntry(pReloc));
   }
+}
+
+Relocator::Address MipsRelocator::getTLSGOTOffset(MipsRelocationInfo& pReloc) {
+  MipsGOT& got = getTarget().getGOT();
+  return got.getGPRelOffset(getApplyingInput(), getTLSGOTEntry(pReloc));
 }
 
 void MipsRelocator::createDynRel(MipsRelocationInfo& pReloc) {
@@ -713,12 +754,28 @@ Mips32Relocator::Mips32Relocator(Mips32GNULDBackend& pParent,
     : MipsRelocator(pParent, pConfig) {
 }
 
-void Mips32Relocator::setupRelDynEntry(FragmentRef& pFragRef,
-                                       ResolveInfo* pSym) {
+void Mips32Relocator::setupRelDynEntry(FragmentRef& pFragRef, ResolveInfo* pSym) {
   Relocation& relEntry = *getTarget().getRelDyn().consumeEntry();
   relEntry.setType(llvm::ELF::R_MIPS_REL32);
   relEntry.targetRef() = pFragRef;
   relEntry.setSymInfo(pSym);
+}
+
+void Mips32Relocator::setupTLSDynEntry(Fragment& pFrag, ResolveInfo* pSym,
+                                       Relocation::Type pType) {
+  FragmentRef& modFrag = *FragmentRef::Create(pFrag, 0);
+  Relocation& modEntry = *getTarget().getRelDyn().consumeEntry();
+  modEntry.setType(llvm::ELF::R_MIPS_TLS_DTPMOD32);
+  modEntry.targetRef() = modFrag;
+  modEntry.setSymInfo(pSym->isLocal() ? nullptr : pSym);
+
+  if (pType == llvm::ELF::R_MIPS_TLS_GD) {
+    FragmentRef& relFrag = *FragmentRef::Create(*pFrag.getNextNode(), 0);
+    Relocation& relEntry = *getTarget().getRelDyn().consumeEntry();
+    relEntry.setType(llvm::ELF::R_MIPS_TLS_DTPREL32);
+    relEntry.targetRef() = relFrag;
+    relEntry.setSymInfo(pSym->isLocal() ? nullptr : pSym);
+  }
 }
 
 Relocator::Size Mips32Relocator::getSize(Relocation::Type pType) const {
@@ -733,13 +790,29 @@ Mips64Relocator::Mips64Relocator(Mips64GNULDBackend& pParent,
     : MipsRelocator(pParent, pConfig) {
 }
 
-void Mips64Relocator::setupRelDynEntry(FragmentRef& pFragRef,
-                                       ResolveInfo* pSym) {
+void Mips64Relocator::setupRelDynEntry(FragmentRef& pFragRef, ResolveInfo* pSym) {
   Relocation::Type type = llvm::ELF::R_MIPS_REL32 | llvm::ELF::R_MIPS_64 << 8;
   Relocation& relEntry = *getTarget().getRelDyn().consumeEntry();
   relEntry.setType(type);
   relEntry.targetRef() = pFragRef;
   relEntry.setSymInfo(pSym);
+}
+
+void Mips64Relocator::setupTLSDynEntry(Fragment& pFrag, ResolveInfo* pSym,
+                                       Relocation::Type pType) {
+  FragmentRef* modFrag = FragmentRef::Create(pFrag, 0);
+  Relocation& modEntry = *getTarget().getRelDyn().consumeEntry();
+  modEntry.setType(llvm::ELF::R_MIPS_TLS_DTPMOD64);
+  modEntry.targetRef() = *modFrag;
+  modEntry.setSymInfo(pSym->isLocal() ? nullptr : pSym);
+
+  if (pType == llvm::ELF::R_MIPS_TLS_GD) {
+    FragmentRef* relFrag = FragmentRef::Create(*pFrag.getNextNode(), 0);
+    Relocation& relEntry = *getTarget().getRelDyn().consumeEntry();
+    relEntry.setType(llvm::ELF::R_MIPS_TLS_DTPREL64);
+    relEntry.targetRef() = *relFrag;
+    relEntry.setSymInfo(pSym->isLocal() ? nullptr : pSym);
+  }
 }
 
 Relocator::Size Mips64Relocator::getSize(Relocation::Type pType) const {
@@ -1074,12 +1147,18 @@ static MipsRelocator::Result pclo16(MipsRelocationInfo& pReloc,
   return Relocator::OK;
 }
 
-// R_MIPS_TLS_TPREL_HI16
+// R_MIPS_TLS_TPREL_HI16, R_MIPS_TLS_DTPREL_HI16
 //   local/external: (A + S - TP Offset) >> 16
 //   _gp_disp      : (A + GP - P - TP Offset) >> 16
 static MipsRelocator::Result tlshi16(MipsRelocationInfo& pReloc,
                                      MipsRelocator& pParent) {
-  uint64_t A = pReloc.A() - pParent.getTPOffset();
+  uint64_t A = pReloc.A() & 0xFFFF;
+  if (pReloc.type() == llvm::ELF::R_MIPS_TLS_TPREL_HI16)
+    A -= pParent.getTPOffset();
+  else if (pReloc.type() == llvm::ELF::R_MIPS_TLS_DTPREL_HI16)
+    A -= pParent.getDTPOffset();
+  else
+    llvm_unreachable("Unexpected relocation");
 
   if (pParent.isGpDisp(pReloc.parent()))
     pReloc.result() = (A + pReloc.S() - pReloc.P() + 0x8000) >> 16;
@@ -1089,18 +1168,31 @@ static MipsRelocator::Result tlshi16(MipsRelocationInfo& pReloc,
   return Relocator::OK;
 }
 
-// R_MIPS_TLS_TPREL_HI16
+// R_MIPS_TLS_TPREL_LO16, R_MIPS_TLS_DTPREL_LO16
 //   local/external: A + S - TP Offset
 //   _gp_disp      : A + GP - P + 4 - TP Offset
 static MipsRelocator::Result tlslo16(MipsRelocationInfo& pReloc,
                                      MipsRelocator& pParent) {
-  uint64_t A = pReloc.A() - pParent.getTPOffset();
+  uint64_t A = pReloc.A() & 0xFFFF;
+  if (pReloc.type() == llvm::ELF::R_MIPS_TLS_TPREL_LO16)
+    A -= pParent.getTPOffset();
+  else if (pReloc.type() == llvm::ELF::R_MIPS_TLS_DTPREL_LO16)
+    A -= pParent.getDTPOffset();
+  else
+    llvm_unreachable("Unexpected relocation");
 
   if (pParent.isGpDisp(pReloc.parent()))
     pReloc.result() = A + pReloc.S() - pReloc.P() + 4;
   else
     pReloc.result() = A + pReloc.S();
 
+  return Relocator::OK;
+}
+
+// R_MIPS_TLS_GD, R_MIPS_TLS_LDM
+static MipsRelocator::Result tlsgot(MipsRelocationInfo& pReloc,
+                                    MipsRelocator& pParent) {
+  pReloc.result() = pParent.getTLSGOTOffset(pReloc);
   return Relocator::OK;
 }
 

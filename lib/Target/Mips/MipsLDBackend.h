@@ -129,6 +129,10 @@ class MipsGNULDBackend : public GNULDBackend {
   /// section in the specified input.
   uint64_t getTPOffset(const Input& pInput) const;
 
+  /// getDTPOffset - return DTP_OFFSET against the SHF_TLS
+  /// section in the specified input.
+  uint64_t getDTPOffset(const Input& pInput) const;
+
   /// getGP0 - the gp value used to create the relocatable objects
   /// in the specified input.
   uint64_t getGP0(const Input& pInput) const;
@@ -252,6 +256,7 @@ class MipsGNULDBackend : public GNULDBackend {
   ResolveInfoSetType m_HasNonPICBranchSyms;
   InputNumMapType m_GP0Map;
   InputNumMapType m_TpOffsetMap;
+  InputNumMapType m_DtpOffsetMap;
   ElfFlagsMapType m_ElfFlagsMap;
 
   void moveSectionData(SectionData& pFrom, SectionData& pTo);

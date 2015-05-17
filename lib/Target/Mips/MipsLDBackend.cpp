@@ -676,6 +676,10 @@ uint64_t MipsGNULDBackend::getTPOffset(const Input& pInput) const {
   return m_TpOffsetMap.lookup(&pInput);
 }
 
+uint64_t MipsGNULDBackend::getDTPOffset(const Input& pInput) const {
+  return m_DtpOffsetMap.lookup(&pInput);
+}
+
 uint64_t MipsGNULDBackend::getGP0(const Input& pInput) const {
   return m_GP0Map.lookup(&pInput);
 }
@@ -1104,6 +1108,7 @@ void MipsGNULDBackend::saveTPOffset(const Input& pInput) {
     LDSection* sect = *it;
     if (sect->flag() & llvm::ELF::SHF_TLS) {
       m_TpOffsetMap[&pInput] = sect->addr() + 0x7000;
+      m_DtpOffsetMap[&pInput] = sect->addr() + 0x8000;
       break;
     }
   }
