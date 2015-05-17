@@ -93,6 +93,10 @@ class MipsRelocator : public Relocator {
   /// getGPAddress - return address of _gp symbol.
   Address getGPAddress();
 
+  /// getTPOffset - return TP_OFFSET against the SHF_TLS
+  /// section in the processing input.
+  Address getTPOffset();
+
   /// getGP0 - the gp value used to create the relocatable objects
   /// in the processing input.
   Address getGP0();

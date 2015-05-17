@@ -125,6 +125,10 @@ class MipsGNULDBackend : public GNULDBackend {
   /// sections.
   bool allocateCommonSymbols(Module& pModule);
 
+  /// getTPOffset - return TP_OFFSET against the SHF_TLS
+  /// section in the specified input.
+  uint64_t getTPOffset(const Input& pInput) const;
+
   /// getGP0 - the gp value used to create the relocatable objects
   /// in the specified input.
   uint64_t getGP0(const Input& pInput) const;
@@ -221,7 +225,7 @@ class MipsGNULDBackend : public GNULDBackend {
 
  private:
   typedef llvm::DenseSet<const ResolveInfo*> ResolveInfoSetType;
-  typedef llvm::DenseMap<const Input*, llvm::ELF::Elf64_Addr> GP0MapType;
+  typedef llvm::DenseMap<const Input*, llvm::ELF::Elf64_Addr> InputNumMapType;
   typedef llvm::DenseMap<const Input*, uint64_t> ElfFlagsMapType;
 
  protected:
@@ -246,10 +250,12 @@ class MipsGNULDBackend : public GNULDBackend {
 
   SymbolListType m_GlobalGOTSyms;
   ResolveInfoSetType m_HasNonPICBranchSyms;
-  GP0MapType m_GP0Map;
+  InputNumMapType m_GP0Map;
+  InputNumMapType m_TpOffsetMap;
   ElfFlagsMapType m_ElfFlagsMap;
 
   void moveSectionData(SectionData& pFrom, SectionData& pTo);
+  void saveTPOffset(const Input& pInput);
 };
 
 /** \class Mips32GNULDBackend

@@ -672,6 +672,10 @@ bool MipsGNULDBackend::allocateCommonSymbols(Module& pModule) {
   return true;
 }
 
+uint64_t MipsGNULDBackend::getTPOffset(const Input& pInput) const {
+  return m_TpOffsetMap.lookup(&pInput);
+}
+
 uint64_t MipsGNULDBackend::getGP0(const Input& pInput) const {
   return m_GP0Map.lookup(&pInput);
 }
@@ -1094,6 +1098,17 @@ static bool mergeElfFlags(const Input& pInput, uint64_t& oldElfFlags,
   return true;
 }
 
+void MipsGNULDBackend::saveTPOffset(const Input& pInput) {
+  const LDContext* ctx = pInput.context();
+  for (auto it = ctx->sectBegin(), ie = ctx->sectEnd(); it != ie; ++it) {
+    LDSection* sect = *it;
+    if (sect->flag() & llvm::ELF::SHF_TLS) {
+      m_TpOffsetMap[&pInput] = sect->addr() + 0x7000;
+      break;
+    }
+  }
+}
+
 void MipsGNULDBackend::preMergeSections(Module& pModule) {
   uint64_t elfFlags = 0;
   bool hasAbiFlags = false;
@@ -1113,6 +1128,8 @@ void MipsGNULDBackend::preMergeSections(Module& pModule) {
 
     if (!MipsAbiFlags::merge(*input, abiFlags, newAbiFlags))
       continue;
+
+    saveTPOffset(*input);
   }
 
   m_pInfo.setElfFlags(elfFlags);

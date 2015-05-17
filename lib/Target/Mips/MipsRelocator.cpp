@@ -446,11 +446,12 @@ void MipsRelocator::scanGlobalReloc(MipsRelocationInfo& pReloc,
 }
 
 bool MipsRelocator::isPostponed(const Relocation& pReloc) const {
+  using namespace llvm::ELF;
   if (isN64ABI())
     return false;
 
-  if (MipsRelocationInfo::HasSubType(pReloc, llvm::ELF::R_MIPS_HI16) ||
-      MipsRelocationInfo::HasSubType(pReloc, llvm::ELF::R_MIPS_PCHI16))
+  if (MipsRelocationInfo::HasSubType(pReloc, R_MIPS_HI16) ||
+      MipsRelocationInfo::HasSubType(pReloc, R_MIPS_PCHI16))
     return true;
 
   if (MipsRelocationInfo::HasSubType(pReloc, llvm::ELF::R_MIPS_GOT16) &&
@@ -568,6 +569,10 @@ bool MipsRelocator::isLocalReloc(ResolveInfo& pSym) const {
 
 Relocator::Address MipsRelocator::getGPAddress() {
   return getTarget().getGOT().getGPAddr(getApplyingInput());
+}
+
+Relocator::Address MipsRelocator::getTPOffset() {
+  return getTarget().getTPOffset(getApplyingInput());
 }
 
 Relocator::Address MipsRelocator::getGP0() {
@@ -1066,6 +1071,36 @@ static MipsRelocator::Result pclo16(MipsRelocationInfo& pReloc,
   int64_t P = pReloc.P();
   pReloc.result() = S + AHL - P;
   pParent.applyPostponedRelocations(pReloc);
+  return Relocator::OK;
+}
+
+// R_MIPS_TLS_TPREL_HI16
+//   local/external: (A + S - TP Offset) >> 16
+//   _gp_disp      : (A + GP - P - TP Offset) >> 16
+static MipsRelocator::Result tlshi16(MipsRelocationInfo& pReloc,
+                                     MipsRelocator& pParent) {
+  uint64_t A = pReloc.A() - pParent.getTPOffset();
+
+  if (pParent.isGpDisp(pReloc.parent()))
+    pReloc.result() = (A + pReloc.S() - pReloc.P() + 0x8000) >> 16;
+  else
+    pReloc.result() = (A + pReloc.S() + 0x8000) >> 16;
+
+  return Relocator::OK;
+}
+
+// R_MIPS_TLS_TPREL_HI16
+//   local/external: A + S - TP Offset
+//   _gp_disp      : A + GP - P + 4 - TP Offset
+static MipsRelocator::Result tlslo16(MipsRelocationInfo& pReloc,
+                                     MipsRelocator& pParent) {
+  uint64_t A = pReloc.A() - pParent.getTPOffset();
+
+  if (pParent.isGpDisp(pReloc.parent()))
+    pReloc.result() = A + pReloc.S() - pReloc.P() + 4;
+  else
+    pReloc.result() = A + pReloc.S();
+
   return Relocator::OK;
 }
 
