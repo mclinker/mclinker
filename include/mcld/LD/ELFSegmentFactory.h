@@ -57,6 +57,10 @@ class ELFSegmentFactory {
   /// @param pType - p_type in ELF program header
   ELFSegment* produce(uint32_t pType, uint32_t pFlag = llvm::ELF::PF_R);
 
+  ELFSegment* insert(iterator pPosition,
+                     uint32_t pType,
+                     uint32_t pFlag = llvm::ELF::PF_R);
+
   void erase(iterator pSegment);
 
  private:
