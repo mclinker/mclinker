@@ -742,13 +742,22 @@ void MipsGNULDBackend::defineGOTPLTSymbol(IRBuilder& pBuilder) {
 /// doCreateProgramHdrs - backend can implement this function to create the
 /// target-dependent segments
 void MipsGNULDBackend::doCreateProgramHdrs(Module& pModule) {
-  if (m_pAbiFlags && m_pAbiFlags->size() != 0) {
-    // create PT_MIPS_ABIFLAGS segment
-    ELFSegment* abiSeg =
-        elfSegmentTable().produce(llvm::ELF::PT_MIPS_ABIFLAGS, llvm::ELF::PF_R);
-    abiSeg->setAlign(8);
-    abiSeg->append(m_pAbiFlags);
-  }
+  using namespace llvm::ELF;
+  if (!m_pAbiFlags || m_pAbiFlags->size() == 0)
+    return;
+
+  // create PT_MIPS_ABIFLAGS segment
+  ELFSegmentFactory::iterator sit = elfSegmentTable().find(PT_INTERP, 0x0, 0x0);
+  if (sit == elfSegmentTable().end())
+    sit = elfSegmentTable().find(PT_PHDR, 0x0, 0x0);
+  if (sit == elfSegmentTable().end())
+    sit = elfSegmentTable().begin();
+  else
+    ++sit;
+
+  ELFSegment* abiSeg = elfSegmentTable().insert(sit, PT_MIPS_ABIFLAGS, PF_R);
+  abiSeg->setAlign(8);
+  abiSeg->append(m_pAbiFlags);
 }
 
 bool MipsGNULDBackend::relaxRelocation(IRBuilder& pBuilder, Relocation& pRel) {

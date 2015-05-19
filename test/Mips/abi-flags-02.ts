@@ -8,18 +8,19 @@
 # RUN: %MCLinker -mtriple=mipsel-unknown-linux -shared -o %t.so %t.o
 # RUN: llvm-readobj -program-headers -mips-abi-flags %t.so | FileCheck %s
 
-# CHECK:      ProgramHeader {
-# CHECK:        Type: PT_MIPS_ABIFLAGS (0x70000003)
-# CHECK-NEXT:   Offset: 0x{{[0-9A-F]+}}
-# CHECK-NEXT:   VirtualAddress: 0x{{[0-9A-F]+}}
-# CHECK-NEXT:   PhysicalAddress: 0x{{[0-9A-F]+}}
-# CHECK-NEXT:   FileSize: 24
-# CHECK-NEXT:   MemSize: 24
-# CHECK-NEXT:   Flags [
-# CHECK-NEXT:     PF_R
-# CHECK-NEXT:   ]
-# CHECK-NEXT:   Alignment: 8
-# CHECK-NEXT: }
+# CHECK:      ProgramHeaders [
+# CHECK-NEXT:   ProgramHeader {
+# CHECK-NEXT:     Type: PT_MIPS_ABIFLAGS (0x70000003)
+# CHECK-NEXT:     Offset: 0x{{[0-9A-F]+}}
+# CHECK-NEXT:     VirtualAddress: 0x{{[0-9A-F]+}}
+# CHECK-NEXT:     PhysicalAddress: 0x{{[0-9A-F]+}}
+# CHECK-NEXT:     FileSize: 24
+# CHECK-NEXT:     MemSize: 24
+# CHECK-NEXT:     Flags [
+# CHECK-NEXT:       PF_R
+# CHECK-NEXT:     ]
+# CHECK-NEXT:     Alignment: 8
+# CHECK-NEXT:   }
 
 # CHECK:      MIPS ABI Flags {
 # CHECK-NEXT:   Version: 0

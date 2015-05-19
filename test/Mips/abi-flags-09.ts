@@ -1,0 +1,68 @@
+# Check position of PT_MIPS_ABIFLAGS segment.
+# It should go right after the PT_PHDR segment.
+
+# RUN: yaml2obj -format=elf %s > %t.o
+# RUN: %MCLinker -mtriple=mipsel-unknown-linux \
+# RUN:           -shared -dynamic-linker /lib/ld.so.1 -o %t.so %t.o
+# RUN: llvm-readobj -program-headers %t.so | FileCheck %s
+
+# CHECK:      ProgramHeader {
+# CHECK:        Type: PT_INTERP
+# CHECK-NEXT:   Offset: 0x{{[0-9A-F]+}}
+# CHECK-NEXT:   VirtualAddress: 0x{{[0-9A-F]+}}
+# CHECK-NEXT:   PhysicalAddress: 0x{{[0-9A-F]+}}
+# CHECK-NEXT:   FileSize: 13
+# CHECK-NEXT:   MemSize: 13
+# CHECK-NEXT:   Flags [
+# CHECK-NEXT:     PF_R
+# CHECK-NEXT:   ]
+# CHECK-NEXT:   Alignment: 1
+# CHECK-NEXT: }
+# CHECK-NEXT: ProgramHeader {
+# CHECK-NEXT:   Type: PT_MIPS_ABIFLAGS
+# CHECK-NEXT:   Offset: 0x{{[0-9A-F]+}}
+# CHECK-NEXT:   VirtualAddress: 0x{{[0-9A-F]+}}
+# CHECK-NEXT:   PhysicalAddress: 0x{{[0-9A-F]+}}
+# CHECK-NEXT:   FileSize: 24
+# CHECK-NEXT:   MemSize: 24
+# CHECK-NEXT:   Flags [
+# CHECK-NEXT:     PF_R
+# CHECK-NEXT:   ]
+# CHECK-NEXT:   Alignment: 8
+# CHECK-NEXT: }
+
+FileHeader:
+  Class:   ELFCLASS32
+  Data:    ELFDATA2LSB
+  Type:    ET_REL
+  Machine: EM_MIPS
+  Flags:   [EF_MIPS_PIC, EF_MIPS_CPIC, EF_MIPS_ABI_O32, EF_MIPS_ARCH_32R2]
+
+Sections:
+- Name:         .text
+  Type:         SHT_PROGBITS
+  Flags:        [ SHF_ALLOC, SHF_EXECINSTR ]
+  Size:         4
+  AddressAlign: 16
+
+- Name: .MIPS.abiflags
+  Type: SHT_MIPS_ABIFLAGS
+  AddressAlign: 8
+  ISA:          MIPS32
+  ISARevision:  2
+  ISAExtension: EXT_NONE
+  ASEs:         [ MICROMIPS ]
+  FpABI:        FP_XX
+  GPRSize:      REG_32
+  CPR1Size:     REG_32
+  CPR2Size:     REG_NONE
+  Flags1:       [ ]
+  Flags2:       0x0
+
+Symbols:
+  Global:
+    - Name:    T0
+      Section: .text
+      Type:    STT_FUNC
+      Value:   0
+      Size:    4
