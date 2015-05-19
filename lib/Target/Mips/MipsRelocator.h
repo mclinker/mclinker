@@ -144,13 +144,17 @@ class MipsRelocator : public Relocator {
 
  protected:
   /// setupRelDynEntry - create dynamic relocation entry.
-  virtual void setupRelDynEntry(FragmentRef& pFragRef, ResolveInfo* pSym) = 0;
+  virtual void setupRel32DynEntry(FragmentRef& pFragRef, ResolveInfo* pSym) = 0;
   /// setupTLSDynEntry - create DTPMOD / DTPREL relocation entries
   virtual void setupTLSDynEntry(Fragment& pFrag, ResolveInfo* pSym,
                                 Relocation::Type pType) = 0;
 
   /// isLocalReloc - handle relocation as a local symbol
   bool isLocalReloc(ResolveInfo& pSym) const;
+
+  /// setupRelDynEntry - create dynamic relocation entry with specified type.
+  void setupRelDynEntry(FragmentRef& pFragRef, ResolveInfo* pSym,
+                        Relocation::Type pType);
 
  private:
   typedef llvm::DenseSet<Relocation*> RelocationSet;
@@ -199,7 +203,7 @@ class Mips32Relocator : public MipsRelocator {
 
  private:
   // MipsRelocator
-  void setupRelDynEntry(FragmentRef& pFragRef, ResolveInfo* pSym);
+  void setupRel32DynEntry(FragmentRef& pFragRef, ResolveInfo* pSym);
   void setupTLSDynEntry(Fragment& pFrag, ResolveInfo* pSym,
                         Relocation::Type pType);
   Size getSize(Relocation::Type pType) const;
@@ -215,7 +219,7 @@ class Mips64Relocator : public MipsRelocator {
 
  private:
   // MipsRelocator
-  void setupRelDynEntry(FragmentRef& pFragRef, ResolveInfo* pSym);
+  void setupRel32DynEntry(FragmentRef& pFragRef, ResolveInfo* pSym);
   void setupTLSDynEntry(Fragment& pFrag, ResolveInfo* pSym,
                         Relocation::Type pType);
   Size getSize(Relocation::Type pType) const;

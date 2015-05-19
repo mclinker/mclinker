@@ -51,6 +51,7 @@ class MipsGOT : public GOT {
                          Relocation::DWord pAddend);
   bool reserveGlobalEntry(ResolveInfo& pInfo);
   bool reserveTLSGdEntry(ResolveInfo& pInfo);
+  bool reserveTLSGotEntry(ResolveInfo& pInfo);
   bool reserveTLSLdmEntry();
 
   size_t getLocalNum() const;   ///< number of local symbols in primary GOT
@@ -60,7 +61,7 @@ class MipsGOT : public GOT {
 
   Fragment* consumeLocal();
   Fragment* consumeGlobal();
-  Fragment* consumeTLS();
+  Fragment* consumeTLS(Relocation::Type pType);
 
   uint64_t getGPAddr(const Input& pInput) const;
   uint64_t getGPRelOffset(const Input& pInput, const Fragment& pEntry) const;
@@ -68,8 +69,9 @@ class MipsGOT : public GOT {
   void recordGlobalEntry(const ResolveInfo* pInfo, Fragment* pEntry);
   Fragment* lookupGlobalEntry(const ResolveInfo* pInfo);
 
-  void recordTLSEntry(const ResolveInfo* pInfo, Fragment* pEntry, bool isLDM);
-  Fragment* lookupTLSEntry(const ResolveInfo* pInfo, bool isLDM);
+  void recordTLSEntry(const ResolveInfo* pInfo, Fragment* pEntry,
+                      Relocation::Type pType);
+  Fragment* lookupTLSEntry(const ResolveInfo* pInfo, Relocation::Type pType);
 
   void recordLocalEntry(const ResolveInfo* pInfo,
                         Relocation::DWord pAddend,
@@ -126,7 +128,7 @@ class MipsGOT : public GOT {
 
     void consumeLocal();
     void consumeGlobal();
-    void consumeTLS();
+    void consumeTLS(Relocation::Type pType);
   };
 
   /** \class LocalEntry
@@ -166,6 +168,8 @@ class MipsGOT : public GOT {
   SymbolUniqueMapType m_InputGlobalSymbols;
   // Set of symbols referenced by TLS GD relocations.
   SymbolSetType m_InputTLSGdSymbols;
+  // Set of symbols referenced by TLS GOTTPREL relocation.
+  SymbolSetType m_InputTLSGotSymbols;
   // There is a symbol referenced by TLS LDM relocations.
   bool m_HasTLSLdmSymbol;
   // Local symbols merged to the current GOT
@@ -206,7 +210,8 @@ class MipsGOT : public GOT {
   typedef std::map<GotEntryKey, Fragment*> GotEntryMapType;
   GotEntryMapType m_GotLocalEntriesMap;
   GotEntryMapType m_GotGlobalEntriesMap;
-  GotEntryMapType m_GotTLSEntriesMap;
+  GotEntryMapType m_GotTLSGdEntriesMap;
+  GotEntryMapType m_GotTLSGotEntriesMap;
   Fragment* m_GotTLSLdmEntry;
 };
 

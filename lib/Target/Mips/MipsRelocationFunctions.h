@@ -89,7 +89,7 @@
   { &tlsgot,       43, "R_MIPS_TLS_LDM",              16}, \
   { &tlshi16,      44, "R_MIPS_TLS_DTPREL_HI16",      16}, \
   { &tlslo16,      45, "R_MIPS_TLS_DTPREL_LO16",      16}, \
-  { &unsupported,  46, "R_MIPS_TLS_GOTTPREL",         16}, \
+  { &tlsgot,       46, "R_MIPS_TLS_GOTTPREL",         16}, \
   { &unsupported,  47, "R_MIPS_TLS_TPREL32",          32}, \
   { &unsupported,  48, "R_MIPS_TLS_TPREL64",           0}, \
   { &tlshi16,      49, "R_MIPS_TLS_TPREL_HI16",       16}, \

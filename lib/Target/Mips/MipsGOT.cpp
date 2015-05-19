@@ -61,10 +61,10 @@ void MipsGOT::GOTMultipart::consumeGlobal() {
   m_pLastGlobal = m_pLastGlobal->getNextNode();
 }
 
-void MipsGOT::GOTMultipart::consumeTLS() {
+void MipsGOT::GOTMultipart::consumeTLS(Relocation::Type pType) {
   assert(m_ConsumedTLS < m_TLSNum &&
          "Consumed too many TLS GOT entries");
-  m_ConsumedTLS += 2;
+  m_ConsumedTLS += pType == llvm::ELF::R_MIPS_TLS_GOTTPREL ? 1 : 2;
   m_pLastTLS = m_pLastTLS->getNextNode();
 }
 
@@ -307,6 +307,17 @@ bool MipsGOT::reserveTLSLdmEntry() {
   return true;
 }
 
+bool MipsGOT::reserveTLSGotEntry(ResolveInfo& pInfo) {
+  if (m_InputTLSGotSymbols.count(&pInfo))
+    return false;
+
+  m_InputTLSGotSymbols.insert(&pInfo);
+  m_MultipartList.back().m_TLSNum += 1;
+  m_MultipartList.back().m_TLSDynNum += 1;
+
+  return true;
+}
+
 bool MipsGOT::isPrimaryGOTConsumed() {
   return m_CurrentGOTPart > 0;
 }
@@ -335,14 +346,14 @@ Fragment* MipsGOT::consumeGlobal() {
   return m_MultipartList[m_CurrentGOTPart].m_pLastGlobal;
 }
 
-Fragment* MipsGOT::consumeTLS() {
+Fragment* MipsGOT::consumeTLS(Relocation::Type pType) {
   assert(m_CurrentGOTPart < m_MultipartList.size() &&
          "GOT number is out of range!");
 
   if (m_MultipartList[m_CurrentGOTPart].isConsumed())
     ++m_CurrentGOTPart;
 
-  m_MultipartList[m_CurrentGOTPart].consumeTLS();
+  m_MultipartList[m_CurrentGOTPart].consumeTLS(pType);
 
   return m_MultipartList[m_CurrentGOTPart].m_pLastTLS;
 }
@@ -391,32 +402,47 @@ Fragment* MipsGOT::lookupGlobalEntry(const ResolveInfo* pInfo) {
 }
 
 void MipsGOT::recordTLSEntry(const ResolveInfo* pInfo, Fragment* pEntry,
-                             bool isLDM) {
-  if (isLDM) {
+                             Relocation::Type pType) {
+  if (pType == llvm::ELF::R_MIPS_TLS_LDM) {
     m_GotTLSLdmEntry = pEntry;
-  } else {
+  } else if (pType == llvm::ELF::R_MIPS_TLS_GD) {
     GotEntryKey key;
     key.m_GOTPage = m_CurrentGOTPart;
     key.m_pInfo = pInfo;
     key.m_Addend = 0;
-    m_GotTLSEntriesMap[key] = pEntry;
+    m_GotTLSGdEntriesMap[key] = pEntry;
+  } else if (pType == llvm::ELF::R_MIPS_TLS_GOTTPREL) {
+    GotEntryKey key;
+    key.m_GOTPage = m_CurrentGOTPart;
+    key.m_pInfo = pInfo;
+    key.m_Addend = 0;
+    m_GotTLSGotEntriesMap[key] = pEntry;
+  } else {
+    llvm_unreachable("Unexpected relocation");
   }
 }
 
-Fragment* MipsGOT::lookupTLSEntry(const ResolveInfo* pInfo, bool isLDM) {
-  if (isLDM)
+Fragment* MipsGOT::lookupTLSEntry(const ResolveInfo* pInfo,
+                                  Relocation::Type pType) {
+  if (pType == llvm::ELF::R_MIPS_TLS_LDM)
     return m_GotTLSLdmEntry;
-
-  GotEntryKey key;
-  key.m_GOTPage = m_CurrentGOTPart;
-  key.m_pInfo = pInfo;
-  key.m_Addend = 0;
-  GotEntryMapType::iterator it = m_GotTLSEntriesMap.find(key);
-
-  if (it == m_GotTLSEntriesMap.end())
-    return NULL;
-
-  return it->second;
+  if (pType == llvm::ELF::R_MIPS_TLS_GD) {
+    GotEntryKey key;
+    key.m_GOTPage = m_CurrentGOTPart;
+    key.m_pInfo = pInfo;
+    key.m_Addend = 0;
+    GotEntryMapType::iterator it = m_GotTLSGdEntriesMap.find(key);
+    return it == m_GotTLSGdEntriesMap.end() ? nullptr : it->second;
+  }
+  if (pType == llvm::ELF::R_MIPS_TLS_GOTTPREL) {
+    GotEntryKey key;
+    key.m_GOTPage = m_CurrentGOTPart;
+    key.m_pInfo = pInfo;
+    key.m_Addend = 0;
+    GotEntryMapType::iterator it = m_GotTLSGotEntriesMap.find(key);
+    return it == m_GotTLSGotEntriesMap.end() ? nullptr : it->second;
+  }
+  llvm_unreachable("Unexpected relocation");
 }
 
 void MipsGOT::recordLocalEntry(const ResolveInfo* pInfo,
