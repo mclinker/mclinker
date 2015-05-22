@@ -3,8 +3,12 @@
 
 # RUN: yaml2obj -format=elf %s > %t.o
 # RUN: %MCLinker -mtriple=mips64el-unknown-linux -e T0 -o %t.exe %t.o
+# RUN: llvm-readobj -r %t.exe | FileCheck --check-prefix=REL-EXE %s
 # RUN: llvm-objdump -s %t.exe | FileCheck %s
 # RUN: llvm-nm %t.exe | FileCheck --check-prefix=SYM %s
+
+# REL-EXE:      Relocations [
+# REL-EXE-NEXT: ]
 
 # CHECK:      Contents of section .text:
 # CHECK-NEXT:  1200000f0 1881feff ffffffff 1881feff ffffffff
@@ -12,6 +16,12 @@
 
 # SYM: 0000000120000108 T LT1
 # SYM: 0000000120010000 d _GLOBAL_OFFSET_TABLE_
+
+# RUN: %MCLinker -mtriple=mips64el-unknown-linux -shared -o %t.so %t.o
+# RUN: llvm-readobj -r %t.so | FileCheck --check-prefix=REL-SO %s
+
+# REL-SO:      Relocations [
+# REL-SO-NEXT: ]
 
 ---
 FileHeader:

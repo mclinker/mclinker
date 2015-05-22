@@ -48,11 +48,11 @@ class MipsRelocationInfo {
         m_Result(pParent.target()) {}
 
   bool isNone() const { return llvm::ELF::R_MIPS_NONE == type(); }
-
+  bool isFirst() const { return type() == (parent().type() & 0xff); }
   bool isLast() const { return llvm::ELF::R_MIPS_NONE == (m_Type >> 8); }
 
   MipsRelocationInfo next() const {
-    return MipsRelocationInfo(*m_Parent, m_Type >> 8, result(), result(), 0);
+    return MipsRelocationInfo(*m_Parent, m_Type >> 8, result(), result());
   }
 
   const Relocation& parent() const { return *m_Parent; }
@@ -78,18 +78,13 @@ class MipsRelocationInfo {
   Relocation::DWord m_Symbol;
   Relocation::DWord m_Result;
 
-  MipsRelocationInfo(Relocation& pParent,
-                     Relocation::Type pType,
-                     Relocation::DWord pResult,
-                     Relocation::DWord pAddend,
-                     Relocation::DWord pSymbol)
+  MipsRelocationInfo(Relocation& pParent, Relocation::Type pType,
+                     Relocation::DWord pResult, Relocation::DWord pAddend)
       : m_Parent(&pParent),
         m_Type(pType),
         m_Addend(pAddend),
-        m_Symbol(pSymbol),
+        m_Symbol(0),
         m_Result(pResult) {}
-
-  bool isFirst() const { return m_Type == parent().type(); }
 };
 
 static void helper_PLT_init(MipsRelocationInfo& pReloc,
@@ -257,7 +252,7 @@ void MipsRelocator::scanLocalReloc(MipsRelocationInfo& pReloc,
       break;
     case llvm::ELF::R_MIPS_32:
     case llvm::ELF::R_MIPS_64:
-      if (LinkerConfig::DynObj == config().codeGenType()) {
+      if (pReloc.isFirst() && LinkerConfig::DynObj == config().codeGenType()) {
         // TODO: (simon) The gold linker does not create an entry in .rel.dyn
         // section if the symbol section flags contains SHF_EXECINSTR.
         // 1. Find the reason of this condition.
@@ -368,7 +363,8 @@ void MipsRelocator::scanGlobalReloc(MipsRelocationInfo& pReloc,
       break;
     case llvm::ELF::R_MIPS_32:
     case llvm::ELF::R_MIPS_64:
-      if (getTarget().symbolNeedsDynRel(*rsym, hasPLT, true)) {
+      if (pReloc.isFirst() &&
+          getTarget().symbolNeedsDynRel(*rsym, hasPLT, true)) {
         getTarget().getRelDyn().reserveEntry();
         rsym->setReserved(rsym->reserved() | ReserveRel);
         getTarget().checkAndSetHasTextRel(*pSection.getLink());
