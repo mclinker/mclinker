@@ -109,7 +109,6 @@ HEADER = $(INCDIR)/AttributeOption.h \
          $(INCDIR)/Script/EntryCmd.h \
          $(INCDIR)/Script/ExprToken.h \
          $(INCDIR)/Script/FileToken.h \
-         $(INCDIR)/Script/FlexLexer.h \
          $(INCDIR)/Script/GroupCmd.h \
          $(INCDIR)/Script/InputSectDesc.h \
          $(INCDIR)/Script/InputToken.h \
