@@ -25,7 +25,7 @@ using namespace llvm::Mips;
 // SHT_MIPS_ABIFLAGS has the same format for both 32/64-bit targets.
 // We do not support linking of big-endian code now so 32-bit LE
 // combination is Okay.
-typedef llvm::object::ELFType<llvm::support::little, 2, false> ELF32LE;
+typedef llvm::object::ELFType<llvm::support::little, false> ELF32LE;
 typedef llvm::object::Elf_Mips_ABIFlags<ELF32LE> ElfMipsAbiFlags;
 
 uint64_t MipsAbiFlags::size() {
