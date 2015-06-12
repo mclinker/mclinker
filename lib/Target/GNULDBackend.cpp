@@ -59,7 +59,7 @@ namespace {
 //===----------------------------------------------------------------------===//
 static const std::string simple_c_identifier_allowed_chars =
     "0123456789"
-    "ABCDEFGHIJKLMNOPWRSTUVWXYZ"
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
     "abcdefghijklmnopqrstuvwxyz"
     "_";
 
