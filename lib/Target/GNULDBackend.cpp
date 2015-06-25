@@ -2175,7 +2175,13 @@ void GNULDBackend::setOutputSectionAddress(Module& pModule) {
             // Try to align p_vaddr at page boundary if not in script options.
             // To do so will add more padding in file, but can save one page
             // at runtime.
-            alignAddress(vma, (*seg)->align());
+            // Avoid doing this optimization if -z relro is given, because there
+            // seems to be too many padding.
+            if (!config().options().hasRelro()) {
+              alignAddress(vma, (*seg)->align());
+            } else {
+              vma += abiPageSize();
+            }
           }
         }
       } else {
