@@ -269,8 +269,7 @@ ANDROID_CPPFLAGS=-fno-rtti -fno-exceptions -Waddress -Wchar-subscripts -Wcomment
 
 MCLD_INCLUDES = \
 	-I$(top_srcdir)/include \
-	-I$(top_builddir)/include \
-	-I$(abs_top_srcdir)/include/mcld/Script
+	-I$(top_builddir)/include
 
 if ENABLE_OPTIMIZED
 MCLD_CPPFLAGS = -O2 $(LLVM_CPPFLAGS) $(ANDROID_CPPFLAGS)

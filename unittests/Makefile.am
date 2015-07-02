@@ -44,7 +44,7 @@ SOURCES = \
 
 ANDROID_CPPFLAGS=-fno-rtti -fno-exceptions -Waddress -Wchar-subscripts -Wcomment -Wformat -Wparentheses -Wreorder -Wreturn-type -Wsequence-point -Wstrict-aliasing -Wstrict-overflow=1 -Wswitch -Wtrigraphs -Wuninitialized -Wunknown-pragmas -Wunused-function -Wunused-label -Wunused-value -Wunused-variable -Wvolatile-register-var -Wsign-compare -Werror
 
-MCLD_CPPFLAGS = -I$(top_srcdir)/include -I$(top_builddir)/include $(LLVM_CPPFLAGS) $(ANDROID_CPPFLAGS) -I$(top_srcdir)/include/mcld/Script -I$(srcdir)/include -I$(top_srcdir)/utils/gtest/include -DTOPDIR=\"$(abs_top_srcdir)\" -I$(top_srcdir)/unittests -DGTEST_HAS_RTTI=0
+MCLD_CPPFLAGS = -I$(top_srcdir)/include -I$(top_builddir)/include $(LLVM_CPPFLAGS) $(ANDROID_CPPFLAGS) -I$(srcdir)/include -I$(top_srcdir)/utils/gtest/include -DTOPDIR=\"$(abs_top_srcdir)\" -I$(top_srcdir)/unittests -DGTEST_HAS_RTTI=0
 
 if ENABLE_OPTIMIZED
 MCLD_CPPFLAGS+=-O2
