@@ -836,7 +836,7 @@ uint32_t X86_32Relocator::getDebugStringOffset(Relocation& pReloc) const {
         << getName(pReloc.type()) << "mclinker@googlegroups.com";
 
   if (pReloc.symInfo()->type() == ResolveInfo::Section)
-    return pReloc.target();
+    return pReloc.target() + pReloc.addend();
   else
     return pReloc.symInfo()->outSymbol()->fragRef()->offset() +
                pReloc.target() + pReloc.addend();
@@ -1505,7 +1505,7 @@ uint32_t X86_64Relocator::getDebugStringOffset(Relocation& pReloc) const {
         << getName(pReloc.type()) << "mclinker@googlegroups.com";
 
   if (pReloc.symInfo()->type() == ResolveInfo::Section)
-    return pReloc.target();
+    return pReloc.target() + pReloc.addend();
   else
     return pReloc.symInfo()->outSymbol()->fragRef()->offset() +
                pReloc.target() + pReloc.addend();

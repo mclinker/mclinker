@@ -735,7 +735,7 @@ uint32_t MipsRelocator::getDebugStringOffset(Relocation& pReloc) const {
     error(diag::unsupport_reloc_for_debug_string)
         << getName(pReloc.type()) << "mclinker@googlegroups.com";
   if (pReloc.symInfo()->type() == ResolveInfo::Section)
-    return pReloc.target();
+    return pReloc.target() + pReloc.addend();
   else
     return pReloc.symInfo()->outSymbol()->fragRef()->offset() +
                pReloc.target() + pReloc.addend();

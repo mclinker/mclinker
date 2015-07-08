@@ -763,7 +763,7 @@ uint32_t ARMRelocator::getDebugStringOffset(Relocation& pReloc) const {
         << getName(pReloc.type()) << "mclinker@googlegroups.com";
 
   if (pReloc.symInfo()->type() == ResolveInfo::Section)
-    return pReloc.target();
+    return pReloc.target() + pReloc.addend();
   else
     return pReloc.symInfo()->outSymbol()->fragRef()->offset() +
                pReloc.target() + pReloc.addend();
