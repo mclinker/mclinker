@@ -828,6 +828,11 @@ bool MipsGNULDBackend::doRelax(Module& pModule,
        ii != ie;
        ++ii) {
     BranchIsland& island = *ii;
+    if (island.size() > stubGroupSize()) {
+      error(diag::err_no_space_to_place_stubs) << stubGroupSize();
+      return false;
+    }
+
     if (island.end() == textData->end())
       break;
 

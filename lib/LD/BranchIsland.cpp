@@ -17,9 +17,9 @@
 
 namespace mcld {
 
-//==========================
+//============================================================================//
 // BranchIsland
-
+//============================================================================//
 BranchIsland::BranchIsland(Fragment& pEntryFrag, size_t pMaxSize, size_t pIndex)
     : m_Entry(pEntryFrag),
       m_pExit(pEntryFrag.getNextNode()),

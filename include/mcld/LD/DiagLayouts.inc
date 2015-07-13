@@ -32,3 +32,9 @@ DIAG(debug_icf_folded_section,
      DiagnosticEngine::Debug,
      "ICF folding section `%0' of `%1' into `%2' of `%3'",
      "ICF folding section `%0' of `%1' into `%2' of `%3'")
+DIAG(err_no_space_to_place_stubs,
+     DiagnosticEngine::Error,
+     "There is no space left to place stubs. Current stub group size: %0\n"
+     "Use --stub-group-size option to increase the group size.",
+     "There is no space left to place stubs. Current stub group size: %0\n"
+     "Use --stub-group-size option to increase the group size.")

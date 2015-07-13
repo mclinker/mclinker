@@ -28,11 +28,10 @@ class BranchIslandFactory : public GCFactory<BranchIsland, 0> {
   /// ctor
   /// @param pMaxFwdBranchRange - the max forward branch range of the target
   /// @param pMaxBwdBranchRange - the max backward branch range of the target
-  /// @param pMaxIslandSize - a predifned value (64KB here) to decide the max
-  ///                         size of the island
+  /// @param pMaxIslandSize - the group size to place stubs between sections
   BranchIslandFactory(int64_t pMaxFwdBranchRange,
                       int64_t pMaxBwdBranchRange,
-                      size_t pMaxIslandSize = 65536U);
+                      size_t pMaxIslandSize);
 
   ~BranchIslandFactory();
 

@@ -735,10 +735,16 @@ bool ARMGNULDBackend::doRelax(Module& pModule,
                                      island_end = getBRIslandFactory()->end();
        island != island_end;
        ++island) {
+    if ((*island).size() > stubGroupSize()) {
+      error(diag::err_no_space_to_place_stubs) << stubGroupSize();
+      return false;
+    }
+
     if ((*island).end() == file_format->getText().getSectionData()->end())
       break;
 
     Fragment* exit = (*island).end();
+
     if (((*island).offset() + (*island).size()) > exit->getOffset()) {
       invalid = exit;
       pFinished = false;

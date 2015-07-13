@@ -58,12 +58,17 @@ class TargetOptions {
   bool is32Bits() const { return (32 == m_BitClass); }
   bool is64Bits() const { return (64 == m_BitClass); }
 
+  void setStubGroupSize(unsigned pSize) { m_StubGroupSize = pSize; }
+
+  unsigned getStubGroupSize() const { return m_StubGroupSize; }
+
  private:
   llvm::Triple m_Triple;
   std::string m_ArchName;
   std::string m_TargetCPU;
   Endian m_Endian;
   unsigned int m_BitClass;
+  unsigned m_StubGroupSize;
 };
 
 }  // namespace mcld

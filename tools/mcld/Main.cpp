@@ -362,6 +362,18 @@ bool Driver::TranslateArguments(llvm::opt::InputArgList& args) {
     config_.options().setGPSize(size);
   }
 
+  // --stub-group-size=value
+  if (llvm::opt::Arg* arg = args.getLastArg(kOpt_StubGroupSize)) {
+    llvm::StringRef value = arg->getValue();
+    int size;
+    if (value.getAsInteger(0, size) || (size< 0)) {
+      mcld::errs() << "Invalid value for" << arg->getOption().getPrefixedName()
+                   << ": " << arg->getValue() << "\n";
+      return false;
+    }
+    config_.targets().setStubGroupSize(size);
+  }
+
   //===--------------------------------------------------------------------===//
   // Dynamic
   //===--------------------------------------------------------------------===//

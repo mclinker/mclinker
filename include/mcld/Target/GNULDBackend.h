@@ -316,6 +316,9 @@ class GNULDBackend : public TargetLDBackend {
   /// Target can override this function if needed.
   virtual int64_t maxBwdBranchOffset() { return 0; }
 
+  /// stubGroupSize - return the group size to place stubs between sections.
+  virtual unsigned stubGroupSize() const;
+
   /// checkAndSetHasTextRel - check pSection flag to set HasTextRel
   void checkAndSetHasTextRel(const LDSection& pSection);
 

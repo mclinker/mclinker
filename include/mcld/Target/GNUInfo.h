@@ -35,8 +35,7 @@ class GNUInfo {
   virtual uint8_t ABIVersion() const { return 0x0; }
 
   /// defaultTextSegmentAddr - target should specify its own default start
-  /// address
-  /// of the text segment. esp. for exec.
+  /// address of the text segment. esp. for exec.
   virtual uint64_t defaultTextSegmentAddr() const { return 0x0; }
 
   /// flags - the value of ElfXX_Ehdr::e_flags
@@ -47,7 +46,6 @@ class GNUInfo {
 
   /// dyld - the name of the default dynamic linker
   /// target may override this function if needed.
-  /// @ref gnu ld, bfd/elf32-i386.c:521
   virtual const char* dyld() const { return "/usr/lib/libc.so.1"; }
 
   /// isDefaultExecStack - target should specify whether the stack is default
@@ -61,6 +59,9 @@ class GNUInfo {
   /// abiPageSize - the abi page size of the target machine, and we set it to 4K
   /// here. If target favors the different size, please override this function
   virtual uint64_t abiPageSize() const { return 0x1000; }
+
+  /// stubGroupSize - the default group size to place stubs between sections.
+  virtual unsigned stubGroupSize() const { return 0x10000; }
 
  protected:
   const llvm::Triple& m_Triple;

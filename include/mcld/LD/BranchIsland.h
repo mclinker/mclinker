@@ -159,7 +159,7 @@ class BranchIsland {
   Fragment& m_Entry;  // entry fragment of the island
   Fragment* m_pExit;  // exit fragment of the island
   Fragment* m_pRear;  // rear fragment of the island
-  size_t m_MaxSize;
+  const size_t m_MaxSize;
   std::string m_Name;
   StubMapType m_StubMap;
   /// m_Relocations - list of relocations created for stubs in this island

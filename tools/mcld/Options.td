@@ -482,3 +482,7 @@ def CPU : Joined<["-"], "mcpu=">,
 def Emulation : Separate<["-"], "m">,
                 Group<TargetGroup>,
                 HelpText<"Set GNU linker emulation">;
+
+def StubGroupSize : Joined<["--"], "stub-group-size=">,
+                    Group<TargetGroup>,
+                    HelpText<"Set the group size to place stubs between sections">;

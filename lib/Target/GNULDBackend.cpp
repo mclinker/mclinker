@@ -2882,11 +2882,21 @@ void GNULDBackend::sortRelocation(LDSection& pSection) {
   }
 }
 
+unsigned GNULDBackend::stubGroupSize() const {
+  const unsigned group_size = config().targets().getStubGroupSize();
+  if (group_size == 0) {
+    return m_pInfo->stubGroupSize();
+  } else {
+    return group_size;
+  }
+}
+
 /// initBRIslandFactory - initialize the branch island factory for relaxation
 bool GNULDBackend::initBRIslandFactory() {
   if (m_pBRIslandFactory == NULL) {
-    m_pBRIslandFactory =
-        new BranchIslandFactory(maxFwdBranchOffset(), maxBwdBranchOffset());
+    m_pBRIslandFactory = new BranchIslandFactory(maxFwdBranchOffset(),
+                                                 maxBwdBranchOffset(),
+                                                 stubGroupSize());
   }
   return true;
 }
