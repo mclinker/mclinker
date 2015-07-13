@@ -85,7 +85,7 @@ class Driver {
   };
 
  private:
-  Driver(const char* prog_name)
+  explicit Driver(const char* prog_name)
       : prog_name_(prog_name),
         module_(script_),
         ir_builder_(module_, config_) {
