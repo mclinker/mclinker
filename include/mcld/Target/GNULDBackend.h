@@ -310,11 +310,11 @@ class GNULDBackend : public TargetLDBackend {
 
   /// maxFwdBranchOffset - return the max forward branch offset of the backend.
   /// Target can override this function if needed.
-  virtual int64_t maxFwdBranchOffset() { return INT64_MAX; }
+  virtual int64_t maxFwdBranchOffset() const { return INT64_MAX; }
 
   /// maxBwdBranchOffset - return the max backward branch offset of the backend.
   /// Target can override this function if needed.
-  virtual int64_t maxBwdBranchOffset() { return 0; }
+  virtual int64_t maxBwdBranchOffset() const { return 0; }
 
   /// stubGroupSize - return the group size to place stubs between sections.
   virtual unsigned stubGroupSize() const;

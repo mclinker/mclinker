@@ -783,7 +783,7 @@ bool ARMGNULDBackend::initTargetStubs() {
 }
 
 /// maxFwdBranchOffset
-int64_t ARMGNULDBackend::maxFwdBranchOffset() {
+int64_t ARMGNULDBackend::maxFwdBranchOffset() const {
   if (m_pAttrData->usingThumb2()) {
     return THM2_MAX_FWD_BRANCH_OFFSET;
   } else {
@@ -792,7 +792,7 @@ int64_t ARMGNULDBackend::maxFwdBranchOffset() {
 }
 
 /// maxBwdBranchOffset
-int64_t ARMGNULDBackend::maxBwdBranchOffset() {
+int64_t ARMGNULDBackend::maxBwdBranchOffset() const {
   if (m_pAttrData->usingThumb2()) {
     return THM2_MAX_BWD_BRANCH_OFFSET;
   } else {

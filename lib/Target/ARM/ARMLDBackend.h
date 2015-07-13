@@ -139,9 +139,9 @@ class ARMGNULDBackend : public GNULDBackend {
   void defineGOTSymbol(IRBuilder& pBuilder);
 
   /// maxFwdBranchOffset
-  int64_t maxFwdBranchOffset();
+  int64_t maxFwdBranchOffset() const;
   /// maxBwdBranchOffset
-  int64_t maxBwdBranchOffset();
+  int64_t maxBwdBranchOffset() const;
 
   /// mayRelax - Backends should override this function if they need relaxation
   bool mayRelax() { return true; }
