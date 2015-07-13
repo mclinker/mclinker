@@ -16,6 +16,7 @@ namespace mcld {
 TargetOptions::TargetOptions()
     : m_Endian(Unknown),
       m_BitClass(0),
+      m_GPSize(8),
       m_StubGroupSize(0) {
 }
 
@@ -23,6 +24,7 @@ TargetOptions::TargetOptions(const std::string& pTriple)
     : m_Triple(pTriple),
       m_Endian(Unknown),
       m_BitClass(0),
+      m_GPSize(8),
       m_StubGroupSize(0) {
 }
 

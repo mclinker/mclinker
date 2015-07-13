@@ -58,6 +58,11 @@ class TargetOptions {
   bool is32Bits() const { return (32 == m_BitClass); }
   bool is64Bits() const { return (64 == m_BitClass); }
 
+  // -G, max GP size option
+  void setGPSize(unsigned pGPSize) { m_GPSize = pGPSize; }
+
+  unsigned getGPSize() const { return m_GPSize; }
+
   void setStubGroupSize(unsigned pSize) { m_StubGroupSize = pSize; }
 
   unsigned getStubGroupSize() const { return m_StubGroupSize; }
@@ -68,6 +73,7 @@ class TargetOptions {
   std::string m_TargetCPU;
   Endian m_Endian;
   unsigned int m_BitClass;
+  unsigned m_GPSize;  // -G, --gpsize
   unsigned m_StubGroupSize;
 };
 

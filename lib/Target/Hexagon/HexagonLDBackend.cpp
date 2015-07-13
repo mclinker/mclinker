@@ -725,7 +725,7 @@ bool HexagonLDBackend::allocateCommonSymbols(Module& pModule) {
     return true;
   }
 
-  int8_t maxGPSize = config().options().getGPSize();
+  int8_t maxGPSize = config().targets().getGPSize();
 
   SymbolCategory::iterator com_sym, com_end;
 

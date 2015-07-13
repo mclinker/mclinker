@@ -359,7 +359,7 @@ bool Driver::TranslateArguments(llvm::opt::InputArgList& args) {
                    << ": " << arg->getValue() << "\n";
       return false;
     }
-    config_.options().setGPSize(size);
+    config_.targets().setGPSize(size);
   }
 
   // --stub-group-size=value

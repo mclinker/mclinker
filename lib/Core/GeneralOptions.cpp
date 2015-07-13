@@ -61,7 +61,6 @@ GeneralOptions::GeneralOptions()
       m_bPrintICFSections(false),
       m_ICF(ICF::None),
       m_ICFIterations(2),
-      m_GPSize(8),
       m_StripSymbols(StripSymbolMode::KeepAllSymbols),
       m_HashStyle(HashStyle::SystemV) {
 }

@@ -251,11 +251,6 @@ class GeneralOptions {
 
   bool genUnwindInfo() const { return m_bGenUnwindInfo; }
 
-  // -G, max GP size option
-  void setGPSize(int gpsize) { m_GPSize = gpsize; }
-
-  int getGPSize() const { return m_GPSize; }
-
   HashStyle getHashStyle() const { return m_HashStyle; }
 
   bool hasGNUHash() const {
@@ -388,7 +383,6 @@ class GeneralOptions {
   bool m_bPrintICFSections : 1;   // --print-icf-sections
   ICF m_ICF;
   size_t m_ICFIterations;
-  uint32_t m_GPSize;  // -G, --gpsize
   StripSymbolMode m_StripSymbols;
   RpathList m_RpathList;
   ScriptList m_ScriptList;
