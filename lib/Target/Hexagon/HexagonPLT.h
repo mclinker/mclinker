@@ -85,8 +85,6 @@ class HexagonPLT : public PLT {
 
   const uint8_t* m_PLT0;
   unsigned int m_PLT0Size;
-
-  const LinkerConfig& m_Config;
 };
 
 class HexagonPLT1 : public PLT::Entry<sizeof(hexagon_plt1)> {

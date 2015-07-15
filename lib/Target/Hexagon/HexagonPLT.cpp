@@ -35,10 +35,10 @@ HexagonPLT1::HexagonPLT1(SectionData& pParent)
 HexagonPLT::HexagonPLT(LDSection& pSection,
                        HexagonGOTPLT& pGOTPLT,
                        const LinkerConfig& pConfig)
-    : PLT(pSection), m_GOTPLT(pGOTPLT), m_Config(pConfig) {
-  assert(LinkerConfig::DynObj == m_Config.codeGenType() ||
-         LinkerConfig::Exec == m_Config.codeGenType() ||
-         LinkerConfig::Binary == m_Config.codeGenType());
+    : PLT(pSection), m_GOTPLT(pGOTPLT) {
+  assert(LinkerConfig::DynObj == pConfig.codeGenType() ||
+         LinkerConfig::Exec == pConfig.codeGenType() ||
+         LinkerConfig::Binary == pConfig.codeGenType());
 
   m_PLT0 = hexagon_plt0;
   m_PLT0Size = sizeof(hexagon_plt0);
