@@ -96,6 +96,10 @@ class AArch64Relocator : public Relocator {
                       LDSection& pSection,
                       Input& pInput);
 
+  /// mayHaveFunctionPointerAccess - check if the given reloc would possibly
+  /// access a function pointer.
+  virtual bool mayHaveFunctionPointerAccess(const Relocation& pReloc) const;
+
   /// getDebugStringOffset - get the offset from the relocation target. This is
   /// used to get the debug string offset.
   uint32_t getDebugStringOffset(Relocation& pReloc) const;

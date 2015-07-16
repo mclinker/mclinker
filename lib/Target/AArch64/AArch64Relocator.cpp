@@ -399,6 +399,31 @@ void AArch64Relocator::scanRelocation(Relocation& pReloc,
     issueUndefRef(pReloc, pSection, pInput);
 }
 
+bool
+AArch64Relocator::mayHaveFunctionPointerAccess(const Relocation& pReloc) const {
+  switch (pReloc.type()) {
+    case llvm::ELF::R_AARCH64_ADR_PREL_PG_HI21:
+    case llvm::ELF::R_AARCH64_ADR_PREL_PG_HI21_NC:
+    case llvm::ELF::R_AARCH64_ADD_ABS_LO12_NC:
+    case llvm::ELF::R_AARCH64_ADR_GOT_PAGE:
+    case llvm::ELF::R_AARCH64_LD64_GOT_LO12_NC: {
+      return true;
+    }
+    default: {
+      if (pReloc.symInfo()->isLocal()) {
+        // Do not fold any local symbols if building a shared object.
+        return (config().codeGenType() == LinkerConfig::DynObj);
+      } else {
+        // Do not fold any none global defualt symbols if building a shared
+        // object.
+        return ((config().codeGenType() == LinkerConfig::DynObj) &&
+                (pReloc.symInfo()->visibility() != ResolveInfo::Default));
+      }
+    }
+  }
+  return false;
+}
+
 uint32_t AArch64Relocator::getDebugStringOffset(Relocation& pReloc) const {
   if (pReloc.type() != llvm::ELF::R_AARCH64_ABS32)
     error(diag::unsupport_reloc_for_debug_string)
