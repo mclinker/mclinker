@@ -71,8 +71,10 @@ AArch64Relocator::~AArch64Relocator() {
 
 Relocator::Result AArch64Relocator::applyRelocation(Relocation& pRelocation) {
   Relocation::Type type = pRelocation.type();
-  // valid types are 0x0, 0x100-0x239
-  if ((type < 0x100 || type > 0x239) && (type != 0x0)) {
+  // valid types are 0x0, 0x100-1032, and R_AARCH64_REWRITE_INSN
+  if ((type < 0x100 || type > 1032) &&
+      (type != 0x0) &&
+      (type != R_AARCH64_REWRITE_INSN)) {
     return Relocator::Unknown;
   }
   assert(ApplyFunctions.find(type) != ApplyFunctions.end());

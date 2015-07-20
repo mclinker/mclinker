@@ -7,8 +7,12 @@
 //
 //===----------------------------------------------------------------------===//
 #include "AArch64.h"
+#include "AArch64CA53Erratum835769Stub.h"
+#include "AArch64CA53Erratum843419Stub.h"
+#include "AArch64CA53Erratum843419Stub2.h"
 #include "AArch64ELFDynamic.h"
 #include "AArch64GNUInfo.h"
+#include "AArch64InsnHelpers.h"
 #include "AArch64LDBackend.h"
 #include "AArch64LongBranchStub.h"
 #include "AArch64Relocator.h"
@@ -304,12 +308,134 @@ unsigned int AArch64GNULDBackend::getTargetSectionOrder(
   return SHO_UNDEFINED;
 }
 
+void AArch64GNULDBackend::scanErratum835769(Module& pModule,
+                                            IRBuilder& pBuilder,
+                                            size_t& num_new_stubs,
+                                            size_t& stubs_strlen) {
+  for (Module::iterator sect = pModule.begin(), sectEnd = pModule.end();
+       sect != sectEnd; ++sect) {
+    if (((*sect)->kind() == LDFileFormat::TEXT) && (*sect)->hasSectionData()) {
+      SectionData* sd = (*sect)->getSectionData();
+      for (SectionData::iterator it = sd->begin(), ie = sd->end(); it != ie;
+           ++it) {
+        Fragment* frag = llvm::dyn_cast<RegionFragment>(it);
+        if (frag != NULL) {
+          FragmentRef* frag_ref = FragmentRef::Create(*frag, 0);
+          for (unsigned offset = 0; offset < frag->size();
+               offset += AArch64InsnHelpers::InsnSize) {
+            Stub* stub = getStubFactory()->create(*frag_ref,
+                                                  pBuilder,
+                                                  *getBRIslandFactory());
+            if (stub != NULL) {
+              // A stub symbol should be local
+              assert(stub->symInfo() != NULL && stub->symInfo()->isLocal());
+              // Rewrite the erratum instruction as a branch to the stub.
+              uint64_t offset = frag_ref->offset() +
+                                AArch64CA53Erratum835769Stub::ErratumInsnOffset;
+              Relocation* reloc =
+                  Relocation::Create(llvm::ELF::R_AARCH64_JUMP26,
+                                     *(FragmentRef::Create(*frag, offset)),
+                                     /* pAddend */0);
+              reloc->setSymInfo(stub->symInfo());
+              reloc->target() = AArch64InsnHelpers::buildBranchInsn();
+              addExtraRelocation(reloc);
+
+              ++num_new_stubs;
+              stubs_strlen += stub->symInfo()->nameSize() + 1;
+            }
+
+            frag_ref->assign(*frag, offset + AArch64InsnHelpers::InsnSize);
+          }  // for each INSN
+        }
+      }  // for each FRAGMENT
+    }
+  }  // for each TEXT section
+}
+
+void AArch64GNULDBackend::scanErratum843419(Module& pModule,
+                                            IRBuilder& pBuilder,
+                                            size_t& num_new_stubs,
+                                            size_t& stubs_strlen) {
+  for (Module::iterator sect = pModule.begin(), sectEnd = pModule.end();
+       sect != sectEnd; ++sect) {
+    if (((*sect)->kind() == LDFileFormat::TEXT) && (*sect)->hasSectionData()) {
+      SectionData* sd = getOutputFormat()->getText().getSectionData();
+      for (SectionData::iterator it = sd->begin(), ie = sd->end(); it != ie;
+           ++it) {
+        Fragment* frag = llvm::dyn_cast<RegionFragment>(it);
+        if (frag != NULL) {
+          const uint64_t vma = frag->getParent()->getSection().addr();
+          unsigned page_offset = (vma & 0xFFF);
+          unsigned offset = 0;
+          // The first instruction must be ending at 0xFF8 or 0xFFC.
+          if (page_offset < 0xFF8) {
+            offset = 0xFF8 - page_offset;
+          }
+          FragmentRef* frag_ref = FragmentRef::Create(*frag, offset);
+          while ((offset + 3 * AArch64InsnHelpers::InsnSize) < frag->size()) {
+            Stub* stub = getStubFactory()->create(*frag_ref,
+                                                  pBuilder,
+                                                  *getBRIslandFactory());
+            if (stub != NULL) {
+              // A stub symbol should be local
+              assert(stub->symInfo() != NULL && stub->symInfo()->isLocal());
+              AArch64CA53ErratumStub * erratum_stub =
+                  llvm::dyn_cast<AArch64CA53ErratumStub>(stub);
+              assert(erratum_stub != NULL);
+              // Rewrite the erratum instruction as a branch to the stub.
+              uint64_t offset = frag_ref->offset() +
+                                erratum_stub->getErratumInsnOffset();
+              Relocation* reloc =
+                  Relocation::Create(llvm::ELF::R_AARCH64_JUMP26,
+                                     *(FragmentRef::Create(*frag, offset)),
+                                     /* pAddend */0);
+              reloc->setSymInfo(stub->symInfo());
+              reloc->target() = AArch64InsnHelpers::buildBranchInsn();
+              addExtraRelocation(reloc);
+
+              ++num_new_stubs;
+              stubs_strlen += stub->symInfo()->nameSize() + 1;
+            }
+
+            // Advance to next candidate instruction.
+            page_offset = ((vma + offset) & 0xFFF);
+            if (page_offset == 0xFF8) {
+              offset += 4;
+            } else {
+              offset += 0xFFC;
+            }
+            frag_ref->assign(*frag, offset);
+          }  // for each INSN
+        }
+      }  // for each FRAGMENT
+    }
+  }  // for each TEXT section
+}
+
+void AArch64GNULDBackend::scanErrata(Module& pModule,
+                                     IRBuilder& pBuilder,
+                                     size_t& num_new_stubs,
+                                     size_t& stubs_strlen) {
+  if (config().targets().fixCA53Erratum835769()) {
+    scanErratum835769(pModule, pBuilder, num_new_stubs, stubs_strlen);
+  }
+  if (config().targets().fixCA53Erratum843419()) {
+    scanErratum843419(pModule, pBuilder, num_new_stubs, stubs_strlen);
+  }
+}
+
 bool AArch64GNULDBackend::doRelax(Module& pModule,
                                   IRBuilder& pBuilder,
                                   bool& pFinished) {
   assert(getStubFactory() != NULL && getBRIslandFactory() != NULL);
 
-  bool isRelaxed = false;
+  // Number of new stubs added
+  size_t num_new_stubs = 0;
+  // String lengh to hold new stub symbols
+  size_t stubs_strlen = 0;
+
+  scanErrata(pModule, pBuilder, num_new_stubs, stubs_strlen);
+
   ELFFileFormat* file_format = getOutputFormat();
   // check branch relocs and create the related stubs if needed
   Module::obj_iterator input, inEnd = pModule.obj_end();
@@ -346,24 +472,13 @@ bool AArch64GNULDBackend::doRelax(Module& pModule,
                                                   pBuilder,
                                                   *getBRIslandFactory());
             if (stub != NULL) {
-              switch (config().options().getStripSymbolMode()) {
-                case GeneralOptions::StripSymbolMode::StripAllSymbols:
-                case GeneralOptions::StripSymbolMode::StripLocals:
-                  break;
-                default: {
-                  // a stub symbol should be local
-                  assert(stub->symInfo() != NULL && stub->symInfo()->isLocal());
-                  LDSection& symtab = file_format->getSymTab();
-                  LDSection& strtab = file_format->getStrTab();
+              // a stub symbol should be local
+              assert(stub->symInfo() != NULL && stub->symInfo()->isLocal());
+              // reset the branch target of the reloc to this stub instead
+              relocation->setSymInfo(stub->symInfo());
 
-                  // increase the size of .symtab and .strtab if needed
-                  symtab.setSize(symtab.size() + sizeof(llvm::ELF::Elf64_Sym));
-                  symtab.setInfo(symtab.getInfo() + 1);
-                  strtab.setSize(strtab.size() + stub->symInfo()->nameSize() +
-                                 1);
-                }
-              }  // end of switch
-              isRelaxed = true;
+              ++num_new_stubs;
+              stubs_strlen += stub->symInfo()->nameSize() + 1;
             }
             break;
           }
@@ -417,8 +532,25 @@ bool AArch64GNULDBackend::doRelax(Module& pModule,
     }
   }
 
-  // Reset the size of section that has stubs inserted.
-  if (isRelaxed) {
+  // Fix up the size of .symtab, .strtab, and TEXT sections
+  if (num_new_stubs == 0) {
+    return false;
+  } else {
+    switch (config().options().getStripSymbolMode()) {
+      case GeneralOptions::StripSymbolMode::StripAllSymbols:
+      case GeneralOptions::StripSymbolMode::StripLocals:
+        break;
+      default: {
+        LDSection& symtab = file_format->getSymTab();
+        LDSection& strtab = file_format->getStrTab();
+
+        symtab.setSize(symtab.size() +
+                       sizeof(llvm::ELF::Elf64_Sym) * num_new_stubs);
+        symtab.setInfo(symtab.getInfo() + num_new_stubs);
+        strtab.setSize(strtab.size() + stubs_strlen);
+      }
+    }  // switch (config().options().getStripSymbolMode())
+
     SectionData* prev = NULL;
     for (BranchIslandFactory::iterator island = getBRIslandFactory()->begin(),
                                        island_end = getBRIslandFactory()->end();
@@ -432,15 +564,21 @@ bool AArch64GNULDBackend::doRelax(Module& pModule,
       }
       prev = sd;
     }
-  }
-
-  return isRelaxed;
+    return true;
+  }  // if (num_new_stubs == 0)
 }
 
 bool AArch64GNULDBackend::initTargetStubs() {
   StubFactory* factory = getStubFactory();
   if (factory != NULL) {
     factory->addPrototype(new AArch64LongBranchStub(config().isCodeIndep()));
+    if (config().targets().fixCA53Erratum835769()) {
+      factory->addPrototype(new AArch64CA53Erratum835769Stub());
+    }
+    if (config().targets().fixCA53Erratum843419()) {
+      factory->addPrototype(new AArch64CA53Erratum843419Stub());
+      factory->addPrototype(new AArch64CA53Erratum843419Stub2());
+    }
     return true;
   }
   return false;

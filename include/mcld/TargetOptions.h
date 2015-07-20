@@ -67,6 +67,18 @@ class TargetOptions {
 
   unsigned getStubGroupSize() const { return m_StubGroupSize; }
 
+  void setFixCA53Erratum835769(bool pEnable = true) {
+    m_FixCA53Erratum835769 = pEnable;
+  }
+
+  bool fixCA53Erratum835769() const { return m_FixCA53Erratum835769; }
+
+  void setFixCA53Erratum843419(bool pEnable = true) {
+    m_FixCA53Erratum843419 = pEnable;
+  }
+
+  bool fixCA53Erratum843419() const { return m_FixCA53Erratum843419; }
+
  private:
   llvm::Triple m_Triple;
   std::string m_ArchName;
@@ -75,6 +87,8 @@ class TargetOptions {
   unsigned int m_BitClass;
   unsigned m_GPSize;  // -G, --gpsize
   unsigned m_StubGroupSize;
+  bool m_FixCA53Erratum835769 : 1;
+  bool m_FixCA53Erratum843419 : 1;
 };
 
 }  // namespace mcld

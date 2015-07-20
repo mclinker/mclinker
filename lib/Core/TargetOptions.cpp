@@ -17,7 +17,8 @@ TargetOptions::TargetOptions()
     : m_Endian(Unknown),
       m_BitClass(0),
       m_GPSize(8),
-      m_StubGroupSize(0) {
+      m_StubGroupSize(0),
+      m_FixCA53Erratum835769(false) {
 }
 
 TargetOptions::TargetOptions(const std::string& pTriple)
@@ -25,7 +26,8 @@ TargetOptions::TargetOptions(const std::string& pTriple)
       m_Endian(Unknown),
       m_BitClass(0),
       m_GPSize(8),
-      m_StubGroupSize(0) {
+      m_StubGroupSize(0),
+      m_FixCA53Erratum835769(false) {
 }
 
 TargetOptions::~TargetOptions() {

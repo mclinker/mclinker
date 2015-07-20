@@ -601,6 +601,36 @@ Relocation* IRBuilder::AddRelocation(LDSection& pSection,
   return relocation;
 }
 
+ResolveInfo* IRBuilder::CreateLocalSymbol(FragmentRef& pFragRef) {
+  // Create and add symbol to the name pool.
+  ResolveInfo* resolveInfo =
+      m_Module.getNamePool().createSymbol(/* pName */"",
+                                          /* pIsDyn */false,
+                                          ResolveInfo::Section,
+                                          ResolveInfo::Define,
+                                          ResolveInfo::Local,
+                                          /* pSize */0,
+                                          ResolveInfo::Hidden);
+  if (resolveInfo == nullptr) {
+    return nullptr;
+  }
+
+  // Create input symbol.
+  LDSymbol* inputSym = LDSymbol::Create(*resolveInfo);
+  if (inputSym == nullptr) {
+    return nullptr;
+  }
+
+  inputSym->setFragmentRef(FragmentRef::Create(*pFragRef.frag(),
+                                               pFragRef.offset()));
+  inputSym->setValue(/* pValue */0);
+
+  // The output symbol is simply an alias to the input symbol.
+  resolveInfo->setSymPtr(inputSym);
+
+  return resolveInfo;
+}
+
 /// AddSymbol - define an output symbol and override it immediately
 template <>
 LDSymbol* IRBuilder::AddSymbol<IRBuilder::Force, IRBuilder::Unresolve>(

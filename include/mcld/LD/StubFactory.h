@@ -17,6 +17,7 @@ namespace mcld {
 
 class BranchIslandFactory;
 class IRBuilder;
+class FragmentRef;
 class Relocation;
 class Stub;
 
@@ -37,12 +38,18 @@ class StubFactory {
                IRBuilder& pBuilder,
                BranchIslandFactory& pBRIslandFactory);
 
+  Stub* create(FragmentRef& pFragRef,
+               IRBuilder& pBuilder,
+               BranchIslandFactory& pBRIslandFactory);
+
  private:
   /// findPrototype - find if there is a registered stub prototype for the given
   ///                 relocation
   Stub* findPrototype(const Relocation& pReloc,
                       const uint64_t pSource,
-                      uint64_t pTargetSymValue);
+                      uint64_t pTargetSymValue) const;
+
+  Stub* findPrototype(const FragmentRef& pFragRef) const;
 
  private:
   typedef std::vector<Stub*> StubPoolType;

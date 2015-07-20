@@ -693,6 +693,10 @@ bool ARMGNULDBackend::doRelax(Module& pModule,
                                                   pBuilder,
                                                   *getBRIslandFactory());
             if (stub != NULL) {
+              assert(stub->symInfo() != NULL);
+              // reset the branch target of the reloc to this stub instead
+              relocation->setSymInfo(stub->symInfo());
+
               switch (config().options().getStripSymbolMode()) {
                 case GeneralOptions::StripSymbolMode::StripAllSymbols:
                 case GeneralOptions::StripSymbolMode::StripLocals:

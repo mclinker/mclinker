@@ -486,3 +486,11 @@ def Emulation : Separate<["-"], "m">,
 def StubGroupSize : Joined<["--"], "stub-group-size=">,
                     Group<TargetGroup>,
                     HelpText<"Set the group size to place stubs between sections">;
+
+def FixCA53Erratum835769 : Flag<["--"], "fix-cortex-a53-835769">,
+                           Group<TargetGroup>,
+                           HelpText<"Enable fix for cortex a53 erratum 835769">;
+
+def FixCA53Erratum843419 : Flag<["--"], "fix-cortex-a53-843419">,
+                           Group<TargetGroup>,
+                           HelpText<"Enable fix for cortex a53 erratum 843419">;

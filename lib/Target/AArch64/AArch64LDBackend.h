@@ -119,6 +119,21 @@ class AArch64GNULDBackend : public GNULDBackend {
   int64_t maxFwdBranchOffset() { return MAX_FWD_BRANCH_OFFSET; }
   int64_t maxBwdBranchOffset() { return MAX_BWD_BRANCH_OFFSET; }
 
+  void scanErratum835769(Module& pModule,
+                         IRBuilder& pBuilder,
+                         size_t& num_new_stubs,
+                         size_t& stubs_strlen);
+
+  void scanErratum843419(Module& pModule,
+                         IRBuilder& pBuilder,
+                         size_t& num_new_stubs,
+                         size_t& stubs_strlen);
+
+  void scanErrata(Module& pModule,
+                  IRBuilder& pBuilder,
+                  size_t& num_new_stubs,
+                  size_t& stubs_strlen);
+
   /// mayRelax - Backends should override this function if they need relaxation
   bool mayRelax() { return true; }
 

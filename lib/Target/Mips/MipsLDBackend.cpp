@@ -779,6 +779,9 @@ bool MipsGNULDBackend::relaxRelocation(IRBuilder& pBuilder, Relocation& pRel) {
     return false;
 
   assert(stub->symInfo() != NULL);
+  // reset the branch target of the reloc to this stub instead
+  pRel.setSymInfo(stub->symInfo());
+
   // increase the size of .symtab and .strtab
   LDSection& symtab = getOutputFormat()->getSymTab();
   LDSection& strtab = getOutputFormat()->getStrTab();

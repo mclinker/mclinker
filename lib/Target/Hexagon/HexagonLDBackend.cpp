@@ -578,6 +578,9 @@ bool HexagonLDBackend::doRelax(Module& pModule,
                                                   *getBRIslandFactory());
             if (stub != NULL) {
               assert(stub->symInfo() != NULL);
+              // reset the branch target of the reloc to this stub instead
+              relocation->setSymInfo(stub->symInfo());
+
               // increase the size of .symtab and .strtab
               LDSection& symtab = file_format->getSymTab();
               LDSection& strtab = file_format->getStrTab();

@@ -29,6 +29,7 @@
 
 #define DECL_AARCH64_APPLY_RELOC_FUNC_PTRS(ValueType, MappedType)                              /* NOLINT */\
   ValueType(0x0,   MappedType(&none,             "R_AARCH64_NULL",                        0)), /* NOLINT */\
+  ValueType(0x1,   MappedType(&none,             "R_AARCH64_REWRITE_INSN",               32)), /* NOLINT */\
   ValueType(0x100, MappedType(&none,             "R_AARCH64_NONE",                        0)), /* NOLINT */\
   ValueType(0x101, MappedType(&abs,              "R_AARCH64_ABS64",                      64)), /* NOLINT */\
   ValueType(0x102, MappedType(&abs,              "R_AARCH64_ABS32",                      32)), /* NOLINT */\

@@ -9,6 +9,7 @@
 #include "mcld/LD/StubFactory.h"
 
 #include "mcld/IRBuilder.h"
+#include "mcld/Fragment/FragmentRef.h"
 #include "mcld/Fragment/Relocation.h"
 #include "mcld/Fragment/Stub.h"
 #include "mcld/LD/BranchIsland.h"
@@ -58,74 +59,68 @@ Stub* StubFactory::create(Relocation& pReloc,
       stub = islands.second->findStub(prototype, pReloc);
     }
 
-    if (stub != NULL) {
-      // reset the branch target to the stub instead!
-      pReloc.setSymInfo(stub->symInfo());
-    } else {
+    if (stub == NULL) {
       // find if there is such a stub in the forward island.
       stub = islands.first->findStub(prototype, pReloc);
-      if (stub != NULL) {
-        // reset the branch target to the stub instead!
-        pReloc.setSymInfo(stub->symInfo());
-      } else {
+      if (stub == NULL) {
         // create a stub from the prototype
         stub = prototype->clone();
 
-        // build a name for stub symbol
-        std::string name("__");
-        name.append(pReloc.symInfo()->name())
-            .append("_")
-            .append(stub->name())
-            .append("@")
-            .append(islands.first->name());
-
-        // create LDSymbol for the stub
-        LDSymbol* symbol =
-            pBuilder.AddSymbol<IRBuilder::Force, IRBuilder::Unresolve>(
-                name,
-                ResolveInfo::Function,
-                ResolveInfo::Define,
-                ResolveInfo::Local,
-                stub->size(),          // size
-                stub->initSymValue(),  // value
-                FragmentRef::Create(*stub, stub->initSymValue()),
-                ResolveInfo::Default);
-        stub->setSymInfo(symbol->resolveInfo());
-
-        // add relocations of this stub (i.e., set the branch target of the
-        // stub)
-        for (Stub::fixup_iterator it = stub->fixup_begin(),
-                                  ie = stub->fixup_end();
-             it != ie;
-             ++it) {
-          Relocation* reloc =
-              Relocation::Create((*it)->type(),
-                                 *(FragmentRef::Create(*stub, (*it)->offset())),
-                                 (*it)->addend());
-          reloc->setSymInfo(pReloc.symInfo());
-          islands.first->addRelocation(*reloc);
-        }
+        // apply fixups in this new stub
+        stub->applyFixup(pReloc, pBuilder, *islands.first);
 
         // add stub to the forward branch island
         islands.first->addStub(prototype, pReloc, *stub);
-
-        // reset the branch target of the input reloc to this stub instead!
-        pReloc.setSymInfo(stub->symInfo());
       }
     }
   }
   return stub;
 }
 
+Stub* StubFactory::create(FragmentRef& pFragRef,
+                          IRBuilder& pBuilder,
+                          BranchIslandFactory& pBRIslandFactory) {
+  Stub* prototype = findPrototype(pFragRef);
+  if (prototype == NULL) {
+    return NULL;
+  } else {
+    std::pair<BranchIsland*, BranchIsland*> islands =
+        pBRIslandFactory.getIslands(*(pFragRef.frag()));
+    // early exit if we can not find the forward island.
+    if (islands.first == NULL) {
+      return NULL;
+    } else {
+      // create a stub from the prototype
+      Stub* stub = prototype->clone();
+
+      // apply fixups in this new stub
+      stub->applyFixup(pFragRef, pBuilder, *islands.first);
+
+      // add stub to the forward branch island
+      islands.first->addStub(*stub);
+
+      return stub;
+    }  // (islands.first == NULL)
+  }  // if (prototype == NULL)
+}
+
 /// findPrototype - find if there is a registered stub prototype for the given
 /// relocation
 Stub* StubFactory::findPrototype(const Relocation& pReloc,
                                  uint64_t pSource,
-                                 uint64_t pTargetSymValue) {
-  for (StubPoolType::iterator it = m_StubPool.begin(), ie = m_StubPool.end();
-       it != ie;
-       ++it) {
+                                 uint64_t pTargetSymValue) const {
+  for (StubPoolType::const_iterator it = m_StubPool.begin(),
+                                    ie = m_StubPool.end(); it != ie; ++it) {
     if ((*it)->isMyDuty(pReloc, pSource, pTargetSymValue))
+      return (*it);
+  }
+  return NULL;
+}
+
+Stub* StubFactory::findPrototype(const FragmentRef& pFragRef) const {
+  for (StubPoolType::const_iterator it = m_StubPool.begin(),
+                                    ie = m_StubPool.end(); it != ie; ++it) {
+    if ((*it)->isMyDuty(pFragRef))
       return (*it);
   }
   return NULL;

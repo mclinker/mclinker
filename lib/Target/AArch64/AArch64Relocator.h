@@ -58,6 +58,11 @@ class AArch64Relocator : public Relocator {
    */
   enum EntryValue { Default = 0, SymVal = 1 };
 
+  enum {
+    // mcld internal relocation to rewrite an instruction.
+    R_AARCH64_REWRITE_INSN = 1,
+  };
+
  public:
   AArch64Relocator(AArch64GNULDBackend& pParent, const LinkerConfig& pConfig);
   ~AArch64Relocator();

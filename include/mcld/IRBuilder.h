@@ -353,6 +353,9 @@ class IRBuilder {
   /// @return Total size of the inserted fragments.
   static uint64_t AppendEhFrame(EhFrame::CIE& pCIE, EhFrame& pEhFrame);
 
+  /// CreateLocalSymbol - Create a local symbol at the given FragmentRef.
+  ResolveInfo* CreateLocalSymbol(FragmentRef& pFragRef);
+
   /// AddSymbol - To add a symbol to the input file.
   /// This function create a new symbol and insert it into the input file. If
   /// mcld::Module has another symbol with the same name, then this function

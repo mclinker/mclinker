@@ -93,6 +93,8 @@ class BranchIsland {
   /// addStub - add a stub into the island
   bool addStub(const Stub* pPrototype, const Relocation& pReloc, Stub& pStub);
 
+  void addStub(Stub& pStub);
+
   /// addRelocation - add a relocation into island
   bool addRelocation(Relocation& pReloc);
 

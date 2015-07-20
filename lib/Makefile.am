@@ -159,6 +159,14 @@ SOURCE = ADT/StringEntry.cpp \
 	Target/PLT.cpp \
 	Target/TargetLDBackend.cpp \
 	Target/AArch64/AArch64.h \
+	Target/AArch64/AArch64CA53Erratum835769Stub.cpp \
+	Target/AArch64/AArch64CA53Erratum835769Stub.h \
+	Target/AArch64/AArch64CA53Erratum843419Stub.cpp \
+	Target/AArch64/AArch64CA53Erratum843419Stub.h \
+	Target/AArch64/AArch64CA53Erratum843419Stub2.cpp \
+	Target/AArch64/AArch64CA53Erratum843419Stub2.h \
+	Target/AArch64/AArch64CA53ErratumStub.cpp \
+	Target/AArch64/AArch64CA53ErratumStub.h \
 	Target/AArch64/AArch64Diagnostic.cpp \
 	Target/AArch64/AArch64ELFDynamic.cpp \
 	Target/AArch64/AArch64ELFDynamic.h \
@@ -166,6 +174,7 @@ SOURCE = ADT/StringEntry.cpp \
 	Target/AArch64/AArch64GNUInfo.h \
 	Target/AArch64/AArch64GOT.cpp \
 	Target/AArch64/AArch64GOT.h \
+	Target/AArch64/AArch64InsnHelpers.h \
 	Target/AArch64/AArch64LDBackend.cpp \
 	Target/AArch64/AArch64LDBackend.h \
 	Target/AArch64/AArch64LongBranchStub.cpp \

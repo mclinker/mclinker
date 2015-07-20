@@ -20,6 +20,8 @@
 
 namespace mcld {
 
+class BranchIsland;
+class IRBuilder;
 class Relocation;
 class ResolveInfo;
 
@@ -63,9 +65,15 @@ class Stub : public Fragment {
 
   /// isMyDuty - return true when the pReloc is problematic and the stub is able
   /// to fix it!
-  virtual bool isMyDuty(const class Relocation& pReloc,
+  virtual bool isMyDuty(const Relocation& pReloc,
                         uint64_t pSource,
-                        uint64_t pTargetSymValue) const = 0;
+                        uint64_t pTargetSymValue) const {
+    return false;
+  }
+
+  virtual bool isMyDuty(const FragmentRef& pFragRef) const {
+    return false;
+  }
 
   /// name - name of this stub
   virtual const std::string& name() const = 0;
@@ -95,6 +103,16 @@ class Stub : public Fragment {
   fixup_iterator fixup_end() { return m_FixupList.end(); }
 
   const_fixup_iterator fixup_end() const { return m_FixupList.end(); }
+
+  size_t fixup_size() const { return m_FixupList.size(); }
+
+  virtual void applyFixup(Relocation& pSrcReloc,
+                          IRBuilder& pBuilder,
+                          BranchIsland& pIsland);
+
+  virtual void applyFixup(FragmentRef& pSrcFragRef,
+                          IRBuilder& pBuilder,
+                          BranchIsland& pIsland);
 
   /// ----- modifiers ----- ///
   void setSymInfo(ResolveInfo* pSymInfo);

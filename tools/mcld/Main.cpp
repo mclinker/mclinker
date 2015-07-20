@@ -374,6 +374,14 @@ bool Driver::TranslateArguments(llvm::opt::InputArgList& args) {
     config_.targets().setStubGroupSize(size);
   }
 
+  // --fix-cortex-a53-835769
+  config_.targets().setFixCA53Erratum835769(
+      args.hasArg(kOpt_FixCA53Erratum835769));
+
+  // --fix-cortex-a53-843419
+  config_.targets().setFixCA53Erratum843419(
+      args.hasArg(kOpt_FixCA53Erratum843419));
+
   //===--------------------------------------------------------------------===//
   // Dynamic
   //===--------------------------------------------------------------------===//
