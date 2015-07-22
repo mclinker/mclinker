@@ -47,6 +47,15 @@ Build MCLinker
 
   7.  ${MCLINKER_INSTALL}/bin/ld.mcld is the linker binary.
 
+-------
+Testing
+-------
+  8.  Type `make unittests` to run the unittests.
+
+  9.  Type `make check` to run the regression tests.
+
+  10. Type `make cpplint` to run the coding style tests.
+
 ===================
 Directory Structure
 ===================
