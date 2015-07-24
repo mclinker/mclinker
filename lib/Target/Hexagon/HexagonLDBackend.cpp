@@ -34,6 +34,7 @@
 #include <llvm/Support/Casting.h>
 
 #include <cstring>
+#include <vector>
 
 namespace mcld {
 
@@ -594,7 +595,7 @@ bool HexagonLDBackend::doRelax(Module& pModule,
   }
 
   // find the first fragment w/ invalid offset due to stub insertion
-  Fragment* invalid = NULL;
+  std::vector<Fragment*> invalid_frags;
   pFinished = true;
   for (BranchIslandFactory::iterator island = getBRIslandFactory()->begin(),
                                      island_end = getBRIslandFactory()->end();
@@ -605,29 +606,51 @@ bool HexagonLDBackend::doRelax(Module& pModule,
       return false;
     }
 
-    if ((*island).end() == file_format->getText().getSectionData()->end())
-      break;
+    if ((*island).numOfStubs() == 0) {
+      continue;
+    }
 
     Fragment* exit = (*island).end();
+    if (exit == (*island).begin()->getParent()->end()) {
+      continue;
+    }
+
     if (((*island).offset() + (*island).size()) > exit->getOffset()) {
-      invalid = exit;
-      pFinished = false;
-      break;
+      if (invalid_frags.empty() ||
+          (invalid_frags.back()->getParent() != (*island).getParent())) {
+        invalid_frags.push_back(exit);
+        pFinished = false;
+      }
+      continue;
     }
   }
 
   // reset the offset of invalid fragments
-  while (invalid != NULL) {
-    invalid->setOffset(invalid->getPrevNode()->getOffset() +
-                       invalid->getPrevNode()->size());
-    invalid = invalid->getNextNode();
+  for (auto it = invalid_frags.begin(), ie = invalid_frags.end(); it != ie;
+       ++it) {
+    Fragment* invalid = *it;
+    while (invalid != NULL) {
+      invalid->setOffset(invalid->getPrevNode()->getOffset() +
+                         invalid->getPrevNode()->size());
+      invalid = invalid->getNextNode();
+    }
   }
 
-  // reset the size of .text
+  // reset the size of section that has stubs inserted.
   if (isRelaxed) {
-    file_format->getText().setSize(
-        file_format->getText().getSectionData()->back().getOffset() +
-        file_format->getText().getSectionData()->back().size());
+    SectionData* prev = NULL;
+    for (BranchIslandFactory::iterator island = getBRIslandFactory()->begin(),
+                                       island_end = getBRIslandFactory()->end();
+         island != island_end;
+         ++island) {
+      SectionData* sd = (*island).begin()->getParent();
+      if ((*island).numOfStubs() != 0) {
+        if (sd != prev) {
+          sd->getSection().setSize(sd->back().getOffset() + sd->back().size());
+        }
+      }
+      prev = sd;
+    }
   }
   return isRelaxed;
 }

@@ -74,6 +74,8 @@ class BranchIsland {
   const_reloc_iterator reloc_end() const { return m_Relocations.end(); }
 
   /// observers
+  SectionData* getParent() const { return m_Entry.getParent(); }
+
   uint64_t offset() const;
 
   size_t size() const;

@@ -38,25 +38,27 @@ BranchIslandFactory::~BranchIslandFactory() {
 /// group - group fragments and create islands when needed
 /// @param pSectionData - the SectionData holds fragments need to be grouped
 void BranchIslandFactory::group(Module& pModule) {
-  /* FIXME: Currently only support relaxing .text section! */
-  LDSection* text = pModule.getSection(".text");
-  if (text != NULL && text->hasSectionData()) {
-    SectionData& sd = *text->getSectionData();
-    uint64_t group_end = m_MaxFwdBranchRange;
-    for (SectionData::iterator it = sd.begin(), ie = sd.end(); it != ie; ++it) {
-      if ((*it).getOffset() + (*it).size() > group_end) {
-        Fragment* frag = (*it).getPrevNode();
-        while (frag != NULL && frag->getKind() == Fragment::Alignment) {
-          frag = frag->getPrevNode();
-        }
-        if (frag != NULL) {
-          produce(*frag);
-          group_end = (*it).getOffset() + m_MaxFwdBranchRange;
+  for (Module::iterator sect = pModule.begin(), sectEnd = pModule.end();
+       sect != sectEnd; ++sect) {
+    if (((*sect)->kind() == LDFileFormat::TEXT) && (*sect)->hasSectionData()) {
+      SectionData& sd = *((*sect)->getSectionData());
+      uint64_t group_end = m_MaxFwdBranchRange;
+      for (SectionData::iterator it = sd.begin(), ie = sd.end(); it != ie;
+           ++it) {
+        if ((*it).getOffset() + (*it).size() > group_end) {
+          Fragment* frag = (*it).getPrevNode();
+          while (frag != NULL && frag->getKind() == Fragment::Alignment) {
+            frag = frag->getPrevNode();
+          }
+          if (frag != NULL) {
+            produce(*frag);
+            group_end = (*it).getOffset() + m_MaxFwdBranchRange;
+          }
         }
       }
+      if (getIslands(sd.back()).first == NULL)
+        produce(sd.back());
     }
-    if (getIslands(sd.back()).first == NULL)
-      produce(sd.back());
   }
 }
 
@@ -78,11 +80,15 @@ std::pair<BranchIsland*, BranchIsland*> BranchIslandFactory::getIslands(
   BranchIsland* bwd = NULL;
   for (iterator it = begin(), ie = end(), prev = ie; it != ie;
        prev = it, ++it) {
+    if (pFragment.getParent() != (*it).getParent()) {
+      continue;
+    }
+
     if ((pFragment.getOffset() < (*it).offset()) &&
         ((pFragment.getOffset() + m_MaxFwdBranchRange) >= (*it).offset())) {
       fwd = &*it;
 
-      if (prev != ie) {
+      if ((prev != ie) && (pFragment.getParent() == (*prev).getParent())) {
         int64_t bwd_off = (int64_t)pFragment.getOffset() + m_MaxBwdBranchRange;
         if ((pFragment.getOffset() > (*prev).offset()) &&
             (bwd_off <= (int64_t)(*prev).offset())) {

@@ -39,6 +39,8 @@
 #include <llvm/Support/Host.h>
 #include <llvm/Support/MipsABIFlags.h>
 
+#include <vector>
+
 namespace mcld {
 
 //===----------------------------------------------------------------------===//
@@ -818,10 +820,8 @@ bool MipsGNULDBackend::doRelax(Module& pModule,
     }
   }
 
-  SectionData* textData = getOutputFormat()->getText().getSectionData();
-
   // find the first fragment w/ invalid offset due to stub insertion
-  Fragment* invalid = NULL;
+  std::vector<Fragment*> invalid_frags;
   pFinished = true;
   for (BranchIslandFactory::iterator ii = getBRIslandFactory()->begin(),
                                      ie = getBRIslandFactory()->end();
@@ -833,28 +833,52 @@ bool MipsGNULDBackend::doRelax(Module& pModule,
       return false;
     }
 
-    if (island.end() == textData->end())
-      break;
+    if (island.numOfStubs() == 0) {
+      continue;
+    }
 
     Fragment* exit = island.end();
+    if (exit == island.begin()->getParent()->end()) {
+      continue;
+    }
+
     if ((island.offset() + island.size()) > exit->getOffset()) {
-      invalid = exit;
-      pFinished = false;
-      break;
+      if (invalid_frags.empty() ||
+          (invalid_frags.back()->getParent() != island.getParent())) {
+        invalid_frags.push_back(exit);
+        pFinished = false;
+      }
+      continue;
     }
   }
 
   // reset the offset of invalid fragments
-  while (invalid != NULL) {
-    invalid->setOffset(invalid->getPrevNode()->getOffset() +
-                       invalid->getPrevNode()->size());
-    invalid = invalid->getNextNode();
+  for (auto it = invalid_frags.begin(), ie = invalid_frags.end(); it != ie;
+       ++it) {
+    Fragment* invalid = *it;
+    while (invalid != NULL) {
+      invalid->setOffset(invalid->getPrevNode()->getOffset() +
+                         invalid->getPrevNode()->size());
+      invalid = invalid->getNextNode();
+    }
   }
 
-  // reset the size of .text
-  if (isRelaxed)
-    getOutputFormat()->getText().setSize(textData->back().getOffset() +
-                                         textData->back().size());
+  // reset the size of section that has stubs inserted.
+  if (isRelaxed) {
+    SectionData* prev = NULL;
+    for (BranchIslandFactory::iterator island = getBRIslandFactory()->begin(),
+                                       island_end = getBRIslandFactory()->end();
+         island != island_end;
+         ++island) {
+      SectionData* sd = (*island).begin()->getParent();
+      if ((*island).numOfStubs() != 0) {
+        if (sd != prev) {
+          sd->getSection().setSize(sd->back().getOffset() + sd->back().size());
+        }
+      }
+      prev = sd;
+    }
+  }
 
   return isRelaxed;
 }
