@@ -207,7 +207,6 @@ class Mips32Relocator : public MipsRelocator {
   void setupTLSDynEntry(Fragment& pFrag, ResolveInfo* pSym,
                         Relocation::Type pType);
   Size getSize(Relocation::Type pType) const;
-
 };
 
 /** \class Mips64Relocator
@@ -223,7 +222,6 @@ class Mips64Relocator : public MipsRelocator {
   void setupTLSDynEntry(Fragment& pFrag, ResolveInfo* pSym,
                         Relocation::Type pType);
   Size getSize(Relocation::Type pType) const;
-
 };
 
 }  // namespace mcld

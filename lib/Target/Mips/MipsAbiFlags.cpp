@@ -19,9 +19,6 @@
 
 namespace mcld {
 
-using namespace llvm::ELF;
-using namespace llvm::Mips;
-
 // SHT_MIPS_ABIFLAGS has the same format for both 32/64-bit targets.
 // We do not support linking of big-endian code now so 32-bit LE
 // combination is Okay.
@@ -86,24 +83,24 @@ bool MipsAbiFlags::fillBySection(const Input& pInput, const LDSection& pSection,
 }
 
 static unsigned getIsaLevel(uint64_t flags) {
-  switch (flags & EF_MIPS_ARCH) {
-    case EF_MIPS_ARCH_1:
+  switch (flags & llvm::ELF::EF_MIPS_ARCH) {
+    case llvm::ELF::EF_MIPS_ARCH_1:
       return 1;
-    case EF_MIPS_ARCH_2:
+    case llvm::ELF::EF_MIPS_ARCH_2:
       return 2;
-    case EF_MIPS_ARCH_3:
+    case llvm::ELF::EF_MIPS_ARCH_3:
       return 3;
-    case EF_MIPS_ARCH_4:
+    case llvm::ELF::EF_MIPS_ARCH_4:
       return 4;
-    case EF_MIPS_ARCH_5:
+    case llvm::ELF::EF_MIPS_ARCH_5:
       return 5;
-    case EF_MIPS_ARCH_32:
-    case EF_MIPS_ARCH_32R2:
-    case EF_MIPS_ARCH_32R6:
+    case llvm::ELF::EF_MIPS_ARCH_32:
+    case llvm::ELF::EF_MIPS_ARCH_32R2:
+    case llvm::ELF::EF_MIPS_ARCH_32R6:
       return 32;
-    case EF_MIPS_ARCH_64:
-    case EF_MIPS_ARCH_64R2:
-    case EF_MIPS_ARCH_64R6:
+    case llvm::ELF::EF_MIPS_ARCH_64:
+    case llvm::ELF::EF_MIPS_ARCH_64R2:
+    case llvm::ELF::EF_MIPS_ARCH_64R6:
       return 64;
     default:
       // We check ELF flags and show error in case
@@ -113,21 +110,21 @@ static unsigned getIsaLevel(uint64_t flags) {
 }
 
 static unsigned getIsaRev(uint64_t flags) {
-  switch (flags & EF_MIPS_ARCH) {
-    case EF_MIPS_ARCH_1:
-    case EF_MIPS_ARCH_2:
-    case EF_MIPS_ARCH_3:
-    case EF_MIPS_ARCH_4:
-    case EF_MIPS_ARCH_5:
+  switch (flags & llvm::ELF::EF_MIPS_ARCH) {
+    case llvm::ELF::EF_MIPS_ARCH_1:
+    case llvm::ELF::EF_MIPS_ARCH_2:
+    case llvm::ELF::EF_MIPS_ARCH_3:
+    case llvm::ELF::EF_MIPS_ARCH_4:
+    case llvm::ELF::EF_MIPS_ARCH_5:
       return 0;
-    case EF_MIPS_ARCH_32:
-    case EF_MIPS_ARCH_64:
+    case llvm::ELF::EF_MIPS_ARCH_32:
+    case llvm::ELF::EF_MIPS_ARCH_64:
       return 1;
-    case EF_MIPS_ARCH_32R2:
-    case EF_MIPS_ARCH_64R2:
+    case llvm::ELF::EF_MIPS_ARCH_32R2:
+    case llvm::ELF::EF_MIPS_ARCH_64R2:
       return 2;
-    case EF_MIPS_ARCH_32R6:
-    case EF_MIPS_ARCH_64R6:
+    case llvm::ELF::EF_MIPS_ARCH_32R6:
+    case llvm::ELF::EF_MIPS_ARCH_64R6:
       return 6;
     default:
       // We check ELF flags and show error in case
@@ -137,43 +134,26 @@ static unsigned getIsaRev(uint64_t flags) {
 }
 
 static unsigned getIsaExt(uint64_t flags) {
-  switch (flags & EF_MIPS_MACH) {
+  switch (flags & llvm::ELF::EF_MIPS_MACH) {
     case 0:
-      return AFL_EXT_NONE;
-    case EF_MIPS_MACH_3900:
-      return AFL_EXT_3900;
-    case EF_MIPS_MACH_4010:
-      return AFL_EXT_4010;
-    case EF_MIPS_MACH_4100:
-      return AFL_EXT_4010;
-    case EF_MIPS_MACH_4111:
-      return AFL_EXT_4111;
-    case EF_MIPS_MACH_4120:
-      return AFL_EXT_4120;
-    case EF_MIPS_MACH_4650:
-      return AFL_EXT_4650;
-    case EF_MIPS_MACH_5400:
-      return AFL_EXT_5400;
-    case EF_MIPS_MACH_5500:
-      return AFL_EXT_5500;
-    case EF_MIPS_MACH_5900:
-      return AFL_EXT_5900;
-    case EF_MIPS_MACH_SB1:
-      return AFL_EXT_SB1;
-    case EF_MIPS_MACH_LS2E:
-      return AFL_EXT_LOONGSON_2E;
-    case EF_MIPS_MACH_LS2F:
-      return AFL_EXT_LOONGSON_2F;
-    case EF_MIPS_MACH_LS3A:
-      return AFL_EXT_LOONGSON_3A;
-    case EF_MIPS_MACH_OCTEON3:
-      return AFL_EXT_OCTEON3;
-    case EF_MIPS_MACH_OCTEON2:
-      return AFL_EXT_OCTEON2;
-    case EF_MIPS_MACH_OCTEON:
-      return AFL_EXT_OCTEON;
-    case EF_MIPS_MACH_XLR:
-      return AFL_EXT_XLR;
+      return llvm::Mips::AFL_EXT_NONE;
+    case llvm::ELF::EF_MIPS_MACH_3900: return llvm::Mips::AFL_EXT_3900;
+    case llvm::ELF::EF_MIPS_MACH_4010: return llvm::Mips::AFL_EXT_4010;
+    case llvm::ELF::EF_MIPS_MACH_4100: return llvm::Mips::AFL_EXT_4010;
+    case llvm::ELF::EF_MIPS_MACH_4111: return llvm::Mips::AFL_EXT_4111;
+    case llvm::ELF::EF_MIPS_MACH_4120: return llvm::Mips::AFL_EXT_4120;
+    case llvm::ELF::EF_MIPS_MACH_4650: return llvm::Mips::AFL_EXT_4650;
+    case llvm::ELF::EF_MIPS_MACH_5400: return llvm::Mips::AFL_EXT_5400;
+    case llvm::ELF::EF_MIPS_MACH_5500: return llvm::Mips::AFL_EXT_5500;
+    case llvm::ELF::EF_MIPS_MACH_5900: return llvm::Mips::AFL_EXT_5900;
+    case llvm::ELF::EF_MIPS_MACH_SB1: return llvm::Mips::AFL_EXT_SB1;
+    case llvm::ELF::EF_MIPS_MACH_LS2E: return llvm::Mips::AFL_EXT_LOONGSON_2E;
+    case llvm::ELF::EF_MIPS_MACH_LS2F: return llvm::Mips::AFL_EXT_LOONGSON_2F;
+    case llvm::ELF::EF_MIPS_MACH_LS3A: return llvm::Mips::AFL_EXT_LOONGSON_3A;
+    case llvm::ELF::EF_MIPS_MACH_OCTEON3: return llvm::Mips::AFL_EXT_OCTEON3;
+    case llvm::ELF::EF_MIPS_MACH_OCTEON2: return llvm::Mips::AFL_EXT_OCTEON2;
+    case llvm::ELF::EF_MIPS_MACH_OCTEON: return llvm::Mips::AFL_EXT_OCTEON;
+    case llvm::ELF::EF_MIPS_MACH_XLR: return llvm::Mips::AFL_EXT_XLR;
     default:
       // We check ELF flags and show error in case
       // of unknown value in other place.
@@ -182,17 +162,19 @@ static unsigned getIsaExt(uint64_t flags) {
 }
 
 static bool is32BitElfFlags(uint64_t flags) {
-  if (flags & EF_MIPS_32BITMODE)
+  if (flags & llvm::ELF::EF_MIPS_32BITMODE)
     return true;
 
-  uint64_t arch = flags & EF_MIPS_ARCH;
-  if (arch == EF_MIPS_ARCH_1 || arch == EF_MIPS_ARCH_2 ||
-      arch == EF_MIPS_ARCH_32 || arch == EF_MIPS_ARCH_32R2 ||
-      arch == EF_MIPS_ARCH_32R6)
+  uint64_t arch = flags & llvm::ELF::EF_MIPS_ARCH;
+  if (arch == llvm::ELF::EF_MIPS_ARCH_1 ||
+      arch == llvm::ELF::EF_MIPS_ARCH_2 ||
+      arch == llvm::ELF::EF_MIPS_ARCH_32 ||
+      arch == llvm::ELF::EF_MIPS_ARCH_32R2 ||
+      arch == llvm::ELF::EF_MIPS_ARCH_32R6)
     return true;
 
-  uint64_t abi = flags & EF_MIPS_ABI;
-  if (abi == EF_MIPS_ABI_O32 || abi == EF_MIPS_ABI_EABI32)
+  uint64_t abi = flags & llvm::ELF::EF_MIPS_ABI;
+  if (abi == llvm::ELF::EF_MIPS_ABI_O32 || abi == llvm::ELF::EF_MIPS_ABI_EABI32)
     return true;
 
   return false;
@@ -204,19 +186,20 @@ bool MipsAbiFlags::fillByElfFlags(const Input& pInput, uint64_t elfFlags,
   mipsAbi.m_IsaRev = getIsaRev(elfFlags);
   mipsAbi.m_IsaExt = getIsaExt(elfFlags);
 
-  mipsAbi.m_GprSize = is32BitElfFlags(elfFlags) ? AFL_REG_32 : AFL_REG_64;
+  mipsAbi.m_GprSize = is32BitElfFlags(elfFlags) ?
+                      llvm::Mips::AFL_REG_32 : llvm::Mips::AFL_REG_64;
 
-  mipsAbi.m_Cpr1Size = AFL_REG_NONE;
-  mipsAbi.m_Cpr2Size = AFL_REG_NONE;
-  mipsAbi.m_FpAbi = Val_GNU_MIPS_ABI_FP_ANY;
+  mipsAbi.m_Cpr1Size = llvm::Mips::AFL_REG_NONE;
+  mipsAbi.m_Cpr2Size = llvm::Mips::AFL_REG_NONE;
+  mipsAbi.m_FpAbi = llvm::Mips::Val_GNU_MIPS_ABI_FP_ANY;
 
   mipsAbi.m_Ases = 0;
-  if (elfFlags & EF_MIPS_MICROMIPS)
-    mipsAbi.m_Ases |= AFL_ASE_MICROMIPS;
-  if (elfFlags & EF_MIPS_ARCH_ASE_M16)
-    mipsAbi.m_Ases |= AFL_ASE_MIPS16;
-  if (elfFlags & EF_MIPS_ARCH_ASE_MDMX)
-    mipsAbi.m_Ases |= AFL_ASE_MDMX;
+  if (elfFlags & llvm::ELF::EF_MIPS_MICROMIPS)
+    mipsAbi.m_Ases |= llvm::Mips::AFL_ASE_MICROMIPS;
+  if (elfFlags & llvm::ELF::EF_MIPS_ARCH_ASE_M16)
+    mipsAbi.m_Ases |= llvm::Mips::AFL_ASE_MIPS16;
+  if (elfFlags & llvm::ELF::EF_MIPS_ARCH_ASE_MDMX)
+    mipsAbi.m_Ases |= llvm::Mips::AFL_ASE_MDMX;
 
   mipsAbi.m_Flags1 = 0;
   return true;
@@ -243,33 +226,35 @@ bool MipsAbiFlags::isCompatible(const Input& pInput, const MipsAbiFlags& elf,
 }
 
 static bool isFpGreater(uint64_t fpA, uint64_t fpB) {
-  if (fpB == Val_GNU_MIPS_ABI_FP_ANY)
+  if (fpB == llvm::Mips::Val_GNU_MIPS_ABI_FP_ANY)
     return true;
-  if (fpB == Val_GNU_MIPS_ABI_FP_64A && fpA == Val_GNU_MIPS_ABI_FP_64)
+  if (fpB == llvm::Mips::Val_GNU_MIPS_ABI_FP_64A &&
+      fpA == llvm::Mips::Val_GNU_MIPS_ABI_FP_64)
     return true;
-  if (fpB != Val_GNU_MIPS_ABI_FP_XX)
-   return false;
-  return fpA == Val_GNU_MIPS_ABI_FP_DOUBLE || fpA == Val_GNU_MIPS_ABI_FP_64 ||
-         fpA == Val_GNU_MIPS_ABI_FP_64A;
+  if (fpB != llvm::Mips::Val_GNU_MIPS_ABI_FP_XX)
+    return false;
+  return fpA == llvm::Mips::Val_GNU_MIPS_ABI_FP_DOUBLE ||
+         fpA == llvm::Mips::Val_GNU_MIPS_ABI_FP_64 ||
+         fpA == llvm::Mips::Val_GNU_MIPS_ABI_FP_64A;
 }
 
 static llvm::StringRef getFpAbiName(uint64_t abi) {
   switch (abi) {
-    case Val_GNU_MIPS_ABI_FP_ANY:
+    case llvm::Mips::Val_GNU_MIPS_ABI_FP_ANY:
       return "<any>";
-    case Val_GNU_MIPS_ABI_FP_DOUBLE:
+    case llvm::Mips::Val_GNU_MIPS_ABI_FP_DOUBLE:
       return "-mdouble-float";
-    case Val_GNU_MIPS_ABI_FP_SINGLE:
+    case llvm::Mips::Val_GNU_MIPS_ABI_FP_SINGLE:
       return "-msingle-float";
-    case Val_GNU_MIPS_ABI_FP_SOFT:
+    case llvm::Mips::Val_GNU_MIPS_ABI_FP_SOFT:
       return "-msoft-float";
-    case Val_GNU_MIPS_ABI_FP_OLD_64:
+    case llvm::Mips::Val_GNU_MIPS_ABI_FP_OLD_64:
       return "-mips32r2 -mfp64 (old)";
-    case Val_GNU_MIPS_ABI_FP_XX:
+    case llvm::Mips::Val_GNU_MIPS_ABI_FP_XX:
       return "-mfpxx";
-    case Val_GNU_MIPS_ABI_FP_64:
+    case llvm::Mips::Val_GNU_MIPS_ABI_FP_64:
       return "-mgp32 -mfp64";
-    case Val_GNU_MIPS_ABI_FP_64A:
+    case llvm::Mips::Val_GNU_MIPS_ABI_FP_64A:
       return "-mgp32 -mfp64 -mno-odd-spreg";
     default:
       return "<unknown>";

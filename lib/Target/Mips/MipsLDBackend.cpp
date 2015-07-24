@@ -400,29 +400,28 @@ struct Elf64_RegInfo {
 namespace mcld {
 
 static const char* ArchName(uint64_t flagBits) {
-  using namespace llvm::ELF;
   switch (flagBits) {
-    case EF_MIPS_ARCH_1:
+    case llvm::ELF::EF_MIPS_ARCH_1:
       return "mips1";
-    case EF_MIPS_ARCH_2:
+    case llvm::ELF::EF_MIPS_ARCH_2:
       return "mips2";
-    case EF_MIPS_ARCH_3:
+    case llvm::ELF::EF_MIPS_ARCH_3:
       return "mips3";
-    case EF_MIPS_ARCH_4:
+    case llvm::ELF::EF_MIPS_ARCH_4:
       return "mips4";
-    case EF_MIPS_ARCH_5:
+    case llvm::ELF::EF_MIPS_ARCH_5:
       return "mips5";
-    case EF_MIPS_ARCH_32:
+    case llvm::ELF::EF_MIPS_ARCH_32:
       return "mips32";
-    case EF_MIPS_ARCH_64:
+    case llvm::ELF::EF_MIPS_ARCH_64:
       return "mips64";
-    case EF_MIPS_ARCH_32R2:
+    case llvm::ELF::EF_MIPS_ARCH_32R2:
       return "mips32r2";
-    case EF_MIPS_ARCH_64R2:
+    case llvm::ELF::EF_MIPS_ARCH_64R2:
       return "mips64r2";
-    case EF_MIPS_ARCH_32R6:
+    case llvm::ELF::EF_MIPS_ARCH_32R6:
       return "mips32r6";
-    case EF_MIPS_ARCH_64R6:
+    case llvm::ELF::EF_MIPS_ARCH_64R6:
       return "mips64r6";
     default:
       return "Unknown Arch";
@@ -430,9 +429,8 @@ static const char* ArchName(uint64_t flagBits) {
 }
 
 void MipsGNULDBackend::mergeFlags(Input& pInput, const char* ELF_hdr) {
-  using namespace llvm::ELF;
   bool isTarget64Bit = config().targets().triple().isArch64Bit();
-  bool isInput64Bit = ELF_hdr[EI_CLASS] == ELFCLASS64;
+  bool isInput64Bit = ELF_hdr[llvm::ELF::EI_CLASS] == llvm::ELF::ELFCLASS64;
 
   if (isTarget64Bit != isInput64Bit) {
     fatal(diag::error_Mips_incompatible_class)
@@ -442,8 +440,9 @@ void MipsGNULDBackend::mergeFlags(Input& pInput, const char* ELF_hdr) {
   }
 
   m_ElfFlagsMap[&pInput] =
-      isInput64Bit ? reinterpret_cast<const Elf64_Ehdr*>(ELF_hdr)->e_flags
-                   : reinterpret_cast<const Elf32_Ehdr*>(ELF_hdr)->e_flags;
+      isInput64Bit ?
+          reinterpret_cast<const llvm::ELF::Elf64_Ehdr*>(ELF_hdr)->e_flags :
+          reinterpret_cast<const llvm::ELF::Elf32_Ehdr*>(ELF_hdr)->e_flags;
 }
 
 bool MipsGNULDBackend::readSection(Input& pInput, SectionData& pSD) {
@@ -744,20 +743,22 @@ void MipsGNULDBackend::defineGOTPLTSymbol(IRBuilder& pBuilder) {
 /// doCreateProgramHdrs - backend can implement this function to create the
 /// target-dependent segments
 void MipsGNULDBackend::doCreateProgramHdrs(Module& pModule) {
-  using namespace llvm::ELF;
   if (!m_pAbiFlags || m_pAbiFlags->size() == 0)
     return;
 
   // create PT_MIPS_ABIFLAGS segment
-  ELFSegmentFactory::iterator sit = elfSegmentTable().find(PT_INTERP, 0x0, 0x0);
+  ELFSegmentFactory::iterator sit =
+      elfSegmentTable().find(llvm::ELF::PT_INTERP, 0x0, 0x0);
   if (sit == elfSegmentTable().end())
-    sit = elfSegmentTable().find(PT_PHDR, 0x0, 0x0);
+    sit = elfSegmentTable().find(llvm::ELF::PT_PHDR, 0x0, 0x0);
   if (sit == elfSegmentTable().end())
     sit = elfSegmentTable().begin();
   else
     ++sit;
 
-  ELFSegment* abiSeg = elfSegmentTable().insert(sit, PT_MIPS_ABIFLAGS, PF_R);
+  ELFSegment* abiSeg = elfSegmentTable().insert(sit,
+                                                llvm::ELF::PT_MIPS_ABIFLAGS,
+                                                llvm::ELF::PF_R);
   abiSeg->setAlign(8);
   abiSeg->append(m_pAbiFlags);
 }
@@ -1021,12 +1022,13 @@ static ISATreeEdge isaTree[] = {
 };
 
 static bool isIsaMatched(uint32_t base, uint32_t ext) {
-  using namespace llvm::ELF;
   if (base == ext)
     return true;
-  if (base == EF_MIPS_ARCH_32 && isIsaMatched(EF_MIPS_ARCH_64, ext))
+  if (base == llvm::ELF::EF_MIPS_ARCH_32 &&
+      isIsaMatched(llvm::ELF::EF_MIPS_ARCH_64, ext))
     return true;
-  if (base == EF_MIPS_ARCH_32R2 && isIsaMatched(EF_MIPS_ARCH_64R2, ext))
+  if (base == llvm::ELF::EF_MIPS_ARCH_32R2 &&
+      isIsaMatched(llvm::ELF::EF_MIPS_ARCH_64R2, ext))
     return true;
   for (const auto &edge : isaTree) {
     if (ext == edge.child) {
@@ -1065,13 +1067,12 @@ static const char* getNanName(uint64_t flags) {
 
 static bool mergeElfFlags(const Input& pInput, uint64_t& oldElfFlags,
                           uint64_t newElfFlags) {
-  using namespace llvm::ELF;
   // PIC code is inherently CPIC and may not set CPIC flag explicitly.
   // Ensure that this flag will exist in the linked file.
-  if (newElfFlags & EF_MIPS_PIC)
-    newElfFlags |= EF_MIPS_CPIC;
+  if (newElfFlags & llvm::ELF::EF_MIPS_PIC)
+    newElfFlags |= llvm::ELF::EF_MIPS_CPIC;
 
-  if (newElfFlags & EF_MIPS_ARCH_ASE_M16) {
+  if (newElfFlags & llvm::ELF::EF_MIPS_ARCH_ASE_M16) {
     error(diag::error_Mips_m16_unsupported) << pInput.name();
     return false;
   }
@@ -1081,41 +1082,44 @@ static bool mergeElfFlags(const Input& pInput, uint64_t& oldElfFlags,
     return true;
   }
 
-  uint64_t newPic = newElfFlags & (EF_MIPS_PIC | EF_MIPS_CPIC);
-  uint64_t oldPic = oldElfFlags & (EF_MIPS_PIC | EF_MIPS_CPIC);
+  uint64_t newPic =
+      newElfFlags & (llvm::ELF::EF_MIPS_PIC | llvm::ELF::EF_MIPS_CPIC);
+  uint64_t oldPic =
+      oldElfFlags & (llvm::ELF::EF_MIPS_PIC | llvm::ELF::EF_MIPS_CPIC);
 
   // Check PIC / CPIC flags compatibility.
   if ((newPic != 0) != (oldPic != 0))
     warning(diag::warn_Mips_abicalls_linking) << pInput.name();
 
-  if (!(newPic & EF_MIPS_PIC))
-    oldElfFlags &= ~EF_MIPS_PIC;
+  if (!(newPic & llvm::ELF::EF_MIPS_PIC))
+    oldElfFlags &= ~llvm::ELF::EF_MIPS_PIC;
   if (newPic)
-    oldElfFlags |= EF_MIPS_CPIC;
+    oldElfFlags |= llvm::ELF::EF_MIPS_CPIC;
 
   // Check ISA compatibility.
-  uint64_t newArch = newElfFlags & EF_MIPS_ARCH;
-  uint64_t oldArch = oldElfFlags & EF_MIPS_ARCH;
+  uint64_t newArch = newElfFlags & llvm::ELF::EF_MIPS_ARCH;
+  uint64_t oldArch = oldElfFlags & llvm::ELF::EF_MIPS_ARCH;
   if (!isIsaMatched(newArch, oldArch)) {
     if (!isIsaMatched(oldArch, newArch)) {
       error(diag::error_Mips_inconsistent_arch)
           << ArchName(oldArch) << ArchName(newArch) << pInput.name();
       return false;
     }
-    oldElfFlags &= ~EF_MIPS_ARCH;
+    oldElfFlags &= ~llvm::ELF::EF_MIPS_ARCH;
     oldElfFlags |= newArch;
   }
 
   // Check ABI compatibility.
-  uint32_t newAbi = newElfFlags & EF_MIPS_ABI;
-  uint32_t oldAbi = oldElfFlags & EF_MIPS_ABI;
+  uint32_t newAbi = newElfFlags & llvm::ELF::EF_MIPS_ABI;
+  uint32_t oldAbi = oldElfFlags & llvm::ELF::EF_MIPS_ABI;
   if (newAbi != oldAbi && newAbi && oldAbi) {
     error(diag::error_Mips_inconsistent_abi) << pInput.name();
     return false;
   }
 
   // Check -mnan flags compatibility.
-  if ((newElfFlags & EF_MIPS_NAN2008) != (oldElfFlags & EF_MIPS_NAN2008)) {
+  if ((newElfFlags & llvm::ELF::EF_MIPS_NAN2008) !=
+      (oldElfFlags & llvm::ELF::EF_MIPS_NAN2008)) {
     // Linking -mnan=2008 and -mnan=legacy modules
     error(diag::error_Mips_inconsistent_mnan)
         << getNanName(oldElfFlags) << getNanName(newElfFlags) << pInput.name();
@@ -1123,22 +1127,23 @@ static bool mergeElfFlags(const Input& pInput, uint64_t& oldElfFlags,
   }
 
   // Check ASE compatibility.
-  uint64_t newAse = newElfFlags & EF_MIPS_ARCH_ASE;
-  uint64_t oldAse = oldElfFlags & EF_MIPS_ARCH_ASE;
+  uint64_t newAse = newElfFlags & llvm::ELF::EF_MIPS_ARCH_ASE;
+  uint64_t oldAse = oldElfFlags & llvm::ELF::EF_MIPS_ARCH_ASE;
   if (newAse != oldAse)
     oldElfFlags |= newAse;
 
   // Check FP64 compatibility.
-  if ((newElfFlags & EF_MIPS_FP64) != (oldElfFlags & EF_MIPS_FP64)) {
+  if ((newElfFlags & llvm::ELF::EF_MIPS_FP64) !=
+      (oldElfFlags & llvm::ELF::EF_MIPS_FP64)) {
     // Linking -mnan=2008 and -mnan=legacy modules
     error(diag::error_Mips_inconsistent_fp64) << pInput.name();
     return false;
   }
 
-  oldElfFlags |= newElfFlags & EF_MIPS_NOREORDER;
-  oldElfFlags |= newElfFlags & EF_MIPS_MICROMIPS;
-  oldElfFlags |= newElfFlags & EF_MIPS_NAN2008;
-  oldElfFlags |= newElfFlags & EF_MIPS_32BITMODE;
+  oldElfFlags |= newElfFlags & llvm::ELF::EF_MIPS_NOREORDER;
+  oldElfFlags |= newElfFlags & llvm::ELF::EF_MIPS_MICROMIPS;
+  oldElfFlags |= newElfFlags & llvm::ELF::EF_MIPS_NAN2008;
+  oldElfFlags |= newElfFlags & llvm::ELF::EF_MIPS_32BITMODE;
 
   return true;
 }
