@@ -35,7 +35,6 @@ LLVM: 3.6svn (trunk@222644)<br>
 MCLinker: 2.9.0-Dana, release_29 branch
 
 ### Next Milestone
-* ARM64 relaxation support
 * ARM exception handling format enhancement
 * TLS
 * Plugin support (LTO)

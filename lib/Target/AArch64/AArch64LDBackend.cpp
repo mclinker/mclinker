@@ -10,6 +10,7 @@
 #include "AArch64ELFDynamic.h"
 #include "AArch64GNUInfo.h"
 #include "AArch64LDBackend.h"
+#include "AArch64LongBranchStub.h"
 #include "AArch64Relocator.h"
 
 #include "mcld/IRBuilder.h"
@@ -281,7 +282,6 @@ uint64_t AArch64GNULDBackend::emitSectionData(const LDSection& pSection,
     return result;
   }
 
-  // TODO
   return pRegion.size();
 }
 
@@ -307,33 +307,159 @@ unsigned int AArch64GNULDBackend::getTargetSectionOrder(
 bool AArch64GNULDBackend::doRelax(Module& pModule,
                                   IRBuilder& pBuilder,
                                   bool& pFinished) {
-  // TODO
-  return false;
+  assert(getStubFactory() != NULL && getBRIslandFactory() != NULL);
+
+  bool isRelaxed = false;
+  ELFFileFormat* file_format = getOutputFormat();
+  // check branch relocs and create the related stubs if needed
+  Module::obj_iterator input, inEnd = pModule.obj_end();
+  for (input = pModule.obj_begin(); input != inEnd; ++input) {
+    LDContext::sect_iterator rs, rsEnd = (*input)->context()->relocSectEnd();
+    for (rs = (*input)->context()->relocSectBegin(); rs != rsEnd; ++rs) {
+      if (LDFileFormat::Ignore == (*rs)->kind() || !(*rs)->hasRelocData())
+        continue;
+      RelocData::iterator reloc, rEnd = (*rs)->getRelocData()->end();
+      for (reloc = (*rs)->getRelocData()->begin(); reloc != rEnd; ++reloc) {
+        Relocation* relocation = llvm::cast<Relocation>(reloc);
+
+        switch (relocation->type()) {
+          case llvm::ELF::R_AARCH64_CALL26:
+          case llvm::ELF::R_AARCH64_JUMP26: {
+            // calculate the possible symbol value
+            uint64_t sym_value = 0x0;
+            LDSymbol* symbol = relocation->symInfo()->outSymbol();
+            if (symbol->hasFragRef()) {
+              uint64_t value = symbol->fragRef()->getOutputOffset();
+              uint64_t addr =
+                  symbol->fragRef()->frag()->getParent()->getSection().addr();
+              sym_value = addr + value;
+            }
+            if ((relocation->symInfo()->reserved() &
+                 AArch64Relocator::ReservePLT) != 0x0) {
+              // FIXME: we need to find out the address of the specific plt
+              // entry
+              assert(file_format->hasPLT());
+              sym_value = file_format->getPLT().addr();
+            }
+            Stub* stub = getStubFactory()->create(*relocation,  // relocation
+                                                  sym_value,    // symbol value
+                                                  pBuilder,
+                                                  *getBRIslandFactory());
+            if (stub != NULL) {
+              switch (config().options().getStripSymbolMode()) {
+                case GeneralOptions::StripSymbolMode::StripAllSymbols:
+                case GeneralOptions::StripSymbolMode::StripLocals:
+                  break;
+                default: {
+                  // a stub symbol should be local
+                  assert(stub->symInfo() != NULL && stub->symInfo()->isLocal());
+                  LDSection& symtab = file_format->getSymTab();
+                  LDSection& strtab = file_format->getStrTab();
+
+                  // increase the size of .symtab and .strtab if needed
+                  symtab.setSize(symtab.size() + sizeof(llvm::ELF::Elf64_Sym));
+                  symtab.setInfo(symtab.getInfo() + 1);
+                  strtab.setSize(strtab.size() + stub->symInfo()->nameSize() +
+                                 1);
+                }
+              }  // end of switch
+              isRelaxed = true;
+            }
+            break;
+          }
+          default: {
+            break;
+          }
+        }  // end of switch
+      }  // for all relocations
+    }  // for all relocation section
+  }  // for all inputs
+
+  // Find the first fragment w/ invalid offset due to stub insertion.
+  std::vector<Fragment*> invalid_frags;
+  pFinished = true;
+  for (BranchIslandFactory::iterator island = getBRIslandFactory()->begin(),
+                                     island_end = getBRIslandFactory()->end();
+       island != island_end;
+       ++island) {
+    if ((*island).size() > stubGroupSize()) {
+      error(diag::err_no_space_to_place_stubs) << stubGroupSize();
+      return false;
+    }
+
+    if ((*island).numOfStubs() == 0) {
+      continue;
+    }
+
+    Fragment* exit = (*island).end();
+    if (exit == (*island).begin()->getParent()->end()) {
+      continue;
+    }
+
+    if (((*island).offset() + (*island).size()) > exit->getOffset()) {
+      if (invalid_frags.empty() ||
+          (invalid_frags.back()->getParent() != (*island).getParent())) {
+        invalid_frags.push_back(exit);
+        pFinished = false;
+      }
+      continue;
+    }
+  }
+
+  // Reset the offset of invalid fragments.
+  for (auto it = invalid_frags.begin(), ie = invalid_frags.end(); it != ie;
+       ++it) {
+    Fragment* invalid = *it;
+    while (invalid != NULL) {
+      invalid->setOffset(invalid->getPrevNode()->getOffset() +
+                         invalid->getPrevNode()->size());
+      invalid = invalid->getNextNode();
+    }
+  }
+
+  // Reset the size of section that has stubs inserted.
+  if (isRelaxed) {
+    SectionData* prev = NULL;
+    for (BranchIslandFactory::iterator island = getBRIslandFactory()->begin(),
+                                       island_end = getBRIslandFactory()->end();
+         island != island_end;
+         ++island) {
+      SectionData* sd = (*island).begin()->getParent();
+      if ((*island).numOfStubs() != 0) {
+        if (sd != prev) {
+          sd->getSection().setSize(sd->back().getOffset() + sd->back().size());
+        }
+      }
+      prev = sd;
+    }
+  }
+
+  return isRelaxed;
 }
 
 bool AArch64GNULDBackend::initTargetStubs() {
-  // TODO
-  return true;
+  StubFactory* factory = getStubFactory();
+  if (factory != NULL) {
+    factory->addPrototype(new AArch64LongBranchStub(config().isCodeIndep()));
+    return true;
+  }
+  return false;
 }
 
 void AArch64GNULDBackend::doCreateProgramHdrs(Module& pModule) {
-  // TODO
 }
 
 bool AArch64GNULDBackend::finalizeTargetSymbols() {
-  // TODO
   return true;
 }
 
 bool AArch64GNULDBackend::mergeSection(Module& pModule,
                                        const Input& pInput,
                                        LDSection& pSection) {
-  // TODO
   return true;
 }
 
 bool AArch64GNULDBackend::readSection(Input& pInput, SectionData& pSD) {
-  // TODO
   return true;
 }
 

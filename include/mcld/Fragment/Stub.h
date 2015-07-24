@@ -113,6 +113,9 @@ class Stub : public Fragment {
   /// addFixup - add a fixup from a existing fixup of the prototype
   void addFixup(const Fixup& pFixup);
 
+  const FixupListType& getFixupList() const { return m_FixupList; }
+  FixupListType&       getFixupList()       { return m_FixupList; }
+
  private:
   /// doClone - when adding a backend stub, we should implement this function
   virtual Stub* doClone() = 0;

@@ -26,8 +26,11 @@ class GNUInfo;
 ///
 class AArch64GNULDBackend : public GNULDBackend {
  public:
-  static const int64_t AARCH64_MAX_FWD_BRANCH_OFFSET = (((1 << 25) - 1) << 2);
-  static const int64_t AARCH64_MAX_BWD_BRANCH_OFFSET = (-((1 << 25) << 2));
+  static constexpr int64_t MAX_FWD_BRANCH_OFFSET = (((1 << 25) - 1) << 2);
+  static constexpr int64_t MAX_BWD_BRANCH_OFFSET = (-((1 << 25) << 2));
+
+  static constexpr int64_t MAX_ADRP_IMM = (1 << 20) - 1;
+  static constexpr int64_t MIN_ADRP_IMM = -(1 << 20);
 
  public:
   AArch64GNULDBackend(const LinkerConfig& pConfig, GNUInfo* pInfo);
@@ -113,8 +116,8 @@ class AArch64GNULDBackend : public GNULDBackend {
  private:
   void defineGOTSymbol(IRBuilder& pBuilder);
 
-  int64_t maxFwdBranchOffset() { return AARCH64_MAX_FWD_BRANCH_OFFSET; }
-  int64_t maxBwdBranchOffset() { return AARCH64_MAX_BWD_BRANCH_OFFSET; }
+  int64_t maxFwdBranchOffset() { return MAX_FWD_BRANCH_OFFSET; }
+  int64_t maxBwdBranchOffset() { return MAX_BWD_BRANCH_OFFSET; }
 
   /// mayRelax - Backends should override this function if they need relaxation
   bool mayRelax() { return true; }

@@ -158,6 +158,7 @@ SOURCE = ADT/StringEntry.cpp \
 	Target/OutputRelocSection.cpp \
 	Target/PLT.cpp \
 	Target/TargetLDBackend.cpp \
+	Target/AArch64/AArch64.h \
 	Target/AArch64/AArch64Diagnostic.cpp \
 	Target/AArch64/AArch64ELFDynamic.cpp \
 	Target/AArch64/AArch64ELFDynamic.h \
@@ -165,9 +166,10 @@ SOURCE = ADT/StringEntry.cpp \
 	Target/AArch64/AArch64GNUInfo.h \
 	Target/AArch64/AArch64GOT.cpp \
 	Target/AArch64/AArch64GOT.h \
-	Target/AArch64/AArch64.h \
 	Target/AArch64/AArch64LDBackend.cpp \
 	Target/AArch64/AArch64LDBackend.h \
+	Target/AArch64/AArch64LongBranchStub.cpp \
+	Target/AArch64/AArch64LongBranchStub.h \
 	Target/AArch64/AArch64PLT.cpp \
 	Target/AArch64/AArch64PLT.h \
 	Target/AArch64/AArch64RelocationFunctions.h \
