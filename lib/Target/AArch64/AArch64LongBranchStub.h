@@ -17,6 +17,8 @@
 
 namespace mcld {
 
+class BranchIsland;
+class IRBuilder;
 class Relocation;
 
 class AArch64LongBranchStub : public Stub {
@@ -28,6 +30,10 @@ class AArch64LongBranchStub : public Stub {
   bool isMyDuty(const Relocation& pReloc,
                 uint64_t pSource,
                 uint64_t pTargetSymValue) const;
+
+  void applyFixup(Relocation& pSrcReloc,
+                  IRBuilder& pBuilder,
+                  BranchIsland& pIsland);
 
   const std::string& name() const;
 
@@ -50,6 +56,7 @@ class AArch64LongBranchStub : public Stub {
  private:
   static const uint32_t PIC_TEMPLATE[];
   static const uint32_t TEMPLATE[];
+  static const uint32_t ADRP_TEMPLATE[];
   const uint32_t* m_pData;
   std::string m_Name;
   size_t m_Size;

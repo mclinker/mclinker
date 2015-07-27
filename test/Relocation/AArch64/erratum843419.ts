@@ -5,5 +5,5 @@
 ; RUN: readelf -sW %t | FileCheck %s
 ; CHECK: __erratum_843419_veneer0@island-1
 ; CHECK: __erratum_835769_veneer0@island-2
-; CHECK: __e843419_ljmp_veneer@island-0
-; CHECK: __e835769_ljmp_veneer@island-1
+; CHECK: __e843419_adrp_veneer@island-0
+; CHECK: __e835769_adrp_veneer@island-1

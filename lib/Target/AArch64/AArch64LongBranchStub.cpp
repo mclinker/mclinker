@@ -9,8 +9,10 @@
 
 #include "AArch64LongBranchStub.h"
 #include "AArch64LDBackend.h"
+#include "AArch64RelocationHelpers.h"
 
 #include "mcld/Fragment/Relocation.h"
+#include "mcld/LD/BranchIsland.h"
 #include "mcld/LD/LDSymbol.h"
 #include "mcld/LD/ResolveInfo.h"
 
@@ -37,6 +39,12 @@ const uint32_t AArch64LongBranchStub::TEMPLATE[] = {
   0xd61f0200,  // br    ip0
   0x00000000,  // .xword <-- R_AARCH64_PREL64(X)
   0x00000000,
+};
+
+const uint32_t AArch64LongBranchStub::ADRP_TEMPLATE[] = {
+  0x90000010,  // adrp  ip0, X <-- R_AARCH64_ADR_PREL_PG_HI21(X)
+  0x91000210,  // add   ip0, ip0, :lo12:X <-- R_AARCH64_ADD_ABS_LO12_NC(X)
+  0xd61f0200,  // br    ip0
 };
 
 AArch64LongBranchStub::AArch64LongBranchStub(bool pIsOutputPIC)
@@ -82,6 +90,36 @@ bool AArch64LongBranchStub::isMyDuty(const Relocation& pReloc,
     return true;
   }
   return false;
+}
+
+static bool isValidForADRP(uint64_t pSource, uint64_t pDest) {
+  int64_t imm = static_cast<int64_t>((helper_get_page_address(pDest) -
+                                      helper_get_page_address(pSource))) >> 12;
+  return ((imm <= AArch64GNULDBackend::MAX_ADRP_IMM) &&
+          (imm >= AArch64GNULDBackend::MIN_ADRP_IMM));
+}
+
+void AArch64LongBranchStub::applyFixup(Relocation& pSrcReloc,
+                                       IRBuilder& pBuilder,
+                                       BranchIsland& pIsland) {
+  // Try to relax the stub itself.
+  LDSymbol* symbol = pSrcReloc.symInfo()->outSymbol();
+  uint64_t dest = symbol->fragRef()->frag()->getParent()->getSection().addr() +
+                  symbol->fragRef()->getOutputOffset();
+  uint64_t src = pIsland.getParent()->getSection().addr() +
+                 pIsland.offset() +
+                 pIsland.size();
+  if (isValidForADRP(src, dest)) {
+    m_pData = ADRP_TEMPLATE;
+    m_Name = "adrp_veneer";
+    m_Size = sizeof(ADRP_TEMPLATE);
+
+    getFixupList().clear();
+    addFixup(0x0, 0, llvm::ELF::R_AARCH64_ADR_PREL_PG_HI21);
+    addFixup(0x4, 0, llvm::ELF::R_AARCH64_ADD_ABS_LO12_NC);
+  }
+
+  Stub::applyFixup(pSrcReloc, pBuilder, pIsland);
 }
 
 const std::string& AArch64LongBranchStub::name() const {
