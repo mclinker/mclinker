@@ -359,7 +359,7 @@ void AArch64GNULDBackend::scanErratum843419(Module& pModule,
   for (Module::iterator sect = pModule.begin(), sectEnd = pModule.end();
        sect != sectEnd; ++sect) {
     if (((*sect)->kind() == LDFileFormat::TEXT) && (*sect)->hasSectionData()) {
-      SectionData* sd = getOutputFormat()->getText().getSectionData();
+      SectionData* sd = (*sect)->getSectionData();
       for (SectionData::iterator it = sd->begin(), ie = sd->end(); it != ie;
            ++it) {
         Fragment* frag = llvm::dyn_cast<RegionFragment>(it);
