@@ -329,9 +329,12 @@ void AArch64GNULDBackend::scanErratum835769(Module& pModule,
             if (stub != NULL) {
               // A stub symbol should be local
               assert(stub->symInfo() != NULL && stub->symInfo()->isLocal());
+              AArch64CA53ErratumStub * erratum_stub =
+                  llvm::dyn_cast<AArch64CA53ErratumStub>(stub);
+              assert(erratum_stub != NULL);
               // Rewrite the erratum instruction as a branch to the stub.
               uint64_t offset = frag_ref->offset() +
-                                AArch64CA53Erratum835769Stub::ErratumInsnOffset;
+                                erratum_stub->getErratumInsnOffset();
               Relocation* reloc =
                   Relocation::Create(llvm::ELF::R_AARCH64_JUMP26,
                                      *(FragmentRef::Create(*frag, offset)),
@@ -416,11 +419,14 @@ void AArch64GNULDBackend::scanErrata(Module& pModule,
                                      IRBuilder& pBuilder,
                                      size_t& num_new_stubs,
                                      size_t& stubs_strlen) {
-  if (config().targets().fixCA53Erratum835769()) {
-    scanErratum835769(pModule, pBuilder, num_new_stubs, stubs_strlen);
-  }
-  if (config().targets().fixCA53Erratum843419()) {
+  // TODO: Implement AArch64 ErrataStubFactory to create the specific erratum
+  //       stub and simplify the logics.
+  if (config().targets().fixCA53Erratum843419() &&
+      !config().targets().fixCA53Erratum835769()) {
     scanErratum843419(pModule, pBuilder, num_new_stubs, stubs_strlen);
+  } else if (config().targets().fixCA53Erratum835769() ||
+             config().targets().fixCA53Erratum843419()) {
+    scanErratum835769(pModule, pBuilder, num_new_stubs, stubs_strlen);
   }
 }
 
