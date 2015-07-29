@@ -9,16 +9,15 @@
 
 #include "AArch64CA53Erratum843419Stub.h"
 #include "AArch64InsnHelpers.h"
-#include "AArch64LDBackend.h"
-#include "AArch64RelocationHelpers.h"
-#include "AArch64Relocator.h"
 
 #include "mcld/Fragment/FragmentRef.h"
 #include "mcld/Fragment/Relocation.h"
 #include "mcld/IRBuilder.h"
 #include "mcld/LD/BranchIsland.h"
+#include "mcld/LD/LDSection.h"
 #include "mcld/LD/LDSymbol.h"
 #include "mcld/LD/ResolveInfo.h"
+#include "mcld/LD/SectionData.h"
 
 #include <llvm/ADT/StringExtras.h>
 #include <llvm/Support/ELF.h>
@@ -62,6 +61,14 @@ bool AArch64CA53Erratum843419Stub::isErratum843419Sequence(unsigned insn1,
 bool AArch64CA53Erratum843419Stub::isMyDuty(const FragmentRef& pFragRef) const {
   if ((pFragRef.offset() + AArch64InsnHelpers::InsnSize * 3) >
       pFragRef.frag()->size()) {
+    return false;
+  }
+
+  // The first instruction must be ending at 0xFF8 or 0xFFC.
+  const uint64_t vma = pFragRef.frag()->getParent()->getSection().addr() +
+                       pFragRef.getOutputOffset();
+  const unsigned page_offset = (vma & 0xFFF);
+  if ((page_offset != 0xFF8) && (page_offset != 0xFFC)) {
     return false;
   }
 

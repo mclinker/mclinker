@@ -9,9 +9,6 @@
 
 #include "AArch64CA53Erratum835769Stub.h"
 #include "AArch64InsnHelpers.h"
-#include "AArch64LDBackend.h"
-#include "AArch64RelocationHelpers.h"
-#include "AArch64Relocator.h"
 
 #include "mcld/Fragment/FragmentRef.h"
 #include "mcld/Fragment/Relocation.h"

@@ -308,10 +308,12 @@ unsigned int AArch64GNULDBackend::getTargetSectionOrder(
   return SHO_UNDEFINED;
 }
 
-void AArch64GNULDBackend::scanErratum835769(Module& pModule,
-                                            IRBuilder& pBuilder,
-                                            size_t& num_new_stubs,
-                                            size_t& stubs_strlen) {
+void AArch64GNULDBackend::scanErrata(Module& pModule,
+                                     IRBuilder& pBuilder,
+                                     size_t& num_new_stubs,
+                                     size_t& stubs_strlen) {
+  // TODO: Implement AArch64 ErrataStubFactory to create the specific erratum
+  //       stub and simplify the logics.
   for (Module::iterator sect = pModule.begin(), sectEnd = pModule.end();
        sect != sectEnd; ++sect) {
     if (((*sect)->kind() == LDFileFormat::TEXT) && (*sect)->hasSectionData()) {
@@ -329,8 +331,8 @@ void AArch64GNULDBackend::scanErratum835769(Module& pModule,
             if (stub != NULL) {
               // A stub symbol should be local
               assert(stub->symInfo() != NULL && stub->symInfo()->isLocal());
-              AArch64CA53ErratumStub * erratum_stub =
-                  llvm::dyn_cast<AArch64CA53ErratumStub>(stub);
+              const AArch64CA53ErratumStub* erratum_stub =
+                  reinterpret_cast<const AArch64CA53ErratumStub*>(stub);
               assert(erratum_stub != NULL);
               // Rewrite the erratum instruction as a branch to the stub.
               uint64_t offset = frag_ref->offset() +
@@ -355,81 +357,6 @@ void AArch64GNULDBackend::scanErratum835769(Module& pModule,
   }  // for each TEXT section
 }
 
-void AArch64GNULDBackend::scanErratum843419(Module& pModule,
-                                            IRBuilder& pBuilder,
-                                            size_t& num_new_stubs,
-                                            size_t& stubs_strlen) {
-  for (Module::iterator sect = pModule.begin(), sectEnd = pModule.end();
-       sect != sectEnd; ++sect) {
-    if (((*sect)->kind() == LDFileFormat::TEXT) && (*sect)->hasSectionData()) {
-      SectionData* sd = (*sect)->getSectionData();
-      for (SectionData::iterator it = sd->begin(), ie = sd->end(); it != ie;
-           ++it) {
-        Fragment* frag = llvm::dyn_cast<RegionFragment>(it);
-        if (frag != NULL) {
-          const uint64_t vma = frag->getParent()->getSection().addr();
-          unsigned page_offset = (vma & 0xFFF);
-          unsigned offset = 0;
-          // The first instruction must be ending at 0xFF8 or 0xFFC.
-          if (page_offset < 0xFF8) {
-            offset = 0xFF8 - page_offset;
-          }
-          FragmentRef* frag_ref = FragmentRef::Create(*frag, offset);
-          while ((offset + 3 * AArch64InsnHelpers::InsnSize) < frag->size()) {
-            Stub* stub = getStubFactory()->create(*frag_ref,
-                                                  pBuilder,
-                                                  *getBRIslandFactory());
-            if (stub != NULL) {
-              // A stub symbol should be local
-              assert(stub->symInfo() != NULL && stub->symInfo()->isLocal());
-              AArch64CA53ErratumStub * erratum_stub =
-                  llvm::dyn_cast<AArch64CA53ErratumStub>(stub);
-              assert(erratum_stub != NULL);
-              // Rewrite the erratum instruction as a branch to the stub.
-              uint64_t offset = frag_ref->offset() +
-                                erratum_stub->getErratumInsnOffset();
-              Relocation* reloc =
-                  Relocation::Create(llvm::ELF::R_AARCH64_JUMP26,
-                                     *(FragmentRef::Create(*frag, offset)),
-                                     /* pAddend */0);
-              reloc->setSymInfo(stub->symInfo());
-              reloc->target() = AArch64InsnHelpers::buildBranchInsn();
-              addExtraRelocation(reloc);
-
-              ++num_new_stubs;
-              stubs_strlen += stub->symInfo()->nameSize() + 1;
-            }
-
-            // Advance to next candidate instruction.
-            page_offset = ((vma + offset) & 0xFFF);
-            if (page_offset == 0xFF8) {
-              offset += 4;
-            } else {
-              offset += 0xFFC;
-            }
-            frag_ref->assign(*frag, offset);
-          }  // for each INSN
-        }
-      }  // for each FRAGMENT
-    }
-  }  // for each TEXT section
-}
-
-void AArch64GNULDBackend::scanErrata(Module& pModule,
-                                     IRBuilder& pBuilder,
-                                     size_t& num_new_stubs,
-                                     size_t& stubs_strlen) {
-  // TODO: Implement AArch64 ErrataStubFactory to create the specific erratum
-  //       stub and simplify the logics.
-  if (config().targets().fixCA53Erratum843419() &&
-      !config().targets().fixCA53Erratum835769()) {
-    scanErratum843419(pModule, pBuilder, num_new_stubs, stubs_strlen);
-  } else if (config().targets().fixCA53Erratum835769() ||
-             config().targets().fixCA53Erratum843419()) {
-    scanErratum835769(pModule, pBuilder, num_new_stubs, stubs_strlen);
-  }
-}
-
 bool AArch64GNULDBackend::doRelax(Module& pModule,
                                   IRBuilder& pBuilder,
                                   bool& pFinished) {
@@ -440,7 +367,10 @@ bool AArch64GNULDBackend::doRelax(Module& pModule,
   // String lengh to hold new stub symbols
   size_t stubs_strlen = 0;
 
-  scanErrata(pModule, pBuilder, num_new_stubs, stubs_strlen);
+  if (config().targets().fixCA53Erratum835769() ||
+      config().targets().fixCA53Erratum843419()) {
+    scanErrata(pModule, pBuilder, num_new_stubs, stubs_strlen);
+  }
 
   ELFFileFormat* file_format = getOutputFormat();
   // check branch relocs and create the related stubs if needed
