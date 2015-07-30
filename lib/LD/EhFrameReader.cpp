@@ -197,10 +197,14 @@ bool EhFrameReader::addCIE(EhFrame& pEhFrame,
     return false;
   }
   // skip the Return Address Register
-  if (cie_end - handler < 1) {
-    return false;
+  if (version == 1) {
+    if (cie_end - handler < 1)
+      return false;
+    ++handler;
+  } else {
+    if (!skip_LEB128(&handler, cie_end))
+      return false;
   }
-  ++handler;
 
   llvm::StringRef augment((const char*)aug_str_front);
 
