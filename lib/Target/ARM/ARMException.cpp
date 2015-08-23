@@ -133,7 +133,8 @@ void ARMGNULDBackend::scanInputExceptionSections(Module& pModule,
         exTab->setKind(LDFileFormat::Ignore);
       }
       // Remove this tuple from the input exception map.
-      exMap->erase(it++);
+      ARMInputExMap::iterator deadIt = it++;
+      exMap->erase(deadIt);
       continue;
     }
 
@@ -155,8 +156,9 @@ void ARMGNULDBackend::scanInputExceptionSections(Module& pModule,
 
     // If there is no region fragment in the .ARM.extab section, then we can
     // skip this tuple.
-    if (!exIdxFrag) {
-      exMap->erase(it++);
+    if (exIdxFrag == NULL) {
+      ARMInputExMap::iterator deadIt = it++;
+      exMap->erase(deadIt);
       continue;
     }
 
