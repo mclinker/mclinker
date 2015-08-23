@@ -10,6 +10,7 @@
 #include "ARMGNUInfo.h"
 #include "ARMELFAttributeData.h"
 #include "ARMELFDynamic.h"
+#include "ARMException.h"
 #include "ARMLDBackend.h"
 #include "ARMRelocator.h"
 #include "ARMToARMStub.h"
@@ -19,16 +20,17 @@
 
 #include "mcld/IRBuilder.h"
 #include "mcld/LinkerConfig.h"
+#include "mcld/ADT/ilist_sort.h"
 #include "mcld/Fragment/AlignFragment.h"
 #include "mcld/Fragment/FillFragment.h"
 #include "mcld/Fragment/NullFragment.h"
 #include "mcld/Fragment/RegionFragment.h"
 #include "mcld/Fragment/Stub.h"
 #include "mcld/LD/BranchIslandFactory.h"
-#include "mcld/LD/LDContext.h"
 #include "mcld/LD/ELFFileFormat.h"
-#include "mcld/LD/ELFSegmentFactory.h"
 #include "mcld/LD/ELFSegment.h"
+#include "mcld/LD/ELFSegmentFactory.h"
+#include "mcld/LD/LDContext.h"
 #include "mcld/LD/StubFactory.h"
 #include "mcld/Object/ObjectBuilder.h"
 #include "mcld/Support/MemoryArea.h"
@@ -48,6 +50,71 @@
 #include <vector>
 
 namespace mcld {
+
+/// Fragment data for EXIDX_CANTUNWIND.
+static const char g_CantUnwindEntry[8] = {
+  // Relocation to text section.
+  0, 0, 0, 0,
+  // EXIDX_CANTUNWIND (little endian.)
+  1, 0, 0, 0,
+};
+
+/// Helper function to create a local symbol at the end of the fragment.
+static mcld::ResolveInfo*
+CreateLocalSymbolToFragmentEnd(mcld::Module& pModule, mcld::Fragment& pFrag) {
+  // Create and add symbol to the name pool.
+  mcld::ResolveInfo* resolveInfo =
+      pModule.getNamePool().createSymbol(/* pName */"",
+                                         /* pIsDyn */false,
+                                         mcld::ResolveInfo::Section,
+                                         mcld::ResolveInfo::Define,
+                                         mcld::ResolveInfo::Local,
+                                         /* pSize */0,
+                                         mcld::ResolveInfo::Hidden);
+  if (resolveInfo == nullptr) {
+    return nullptr;
+  }
+
+  // Create input symbol.
+  mcld::LDSymbol* inputSym = mcld::LDSymbol::Create(*resolveInfo);
+  if (inputSym == nullptr) {
+    return nullptr;
+  }
+
+  inputSym->setFragmentRef(mcld::FragmentRef::Create(pFrag, pFrag.size()));
+  inputSym->setValue(/* pValue */0);
+
+  // The output symbol is simply an alias to the input symbol.
+  resolveInfo->setSymPtr(inputSym);
+
+  return resolveInfo;
+}
+
+/// Comparator to sort .ARM.exidx fragments according to the address of the
+/// corresponding .text fragment.
+class ExIdxFragmentComparator {
+ private:
+  const ARMExData& m_ExData;
+
+ public:
+  explicit ExIdxFragmentComparator(const ARMExData& pExData)
+      : m_ExData(pExData) {
+  }
+
+  bool operator()(const Fragment& a, const Fragment& b) {
+    ARMExSectionTuple* tupleA = m_ExData.getTupleByExIdx(&a);
+    ARMExSectionTuple* tupleB = m_ExData.getTupleByExIdx(&b);
+
+    Fragment* textFragA = tupleA->getTextFragment();
+    Fragment* textFragB = tupleB->getTextFragment();
+
+    uint64_t addrA = textFragA->getParent()->getSection().addr() +
+                     textFragA->getOffset();
+    uint64_t addrB = textFragB->getParent()->getSection().addr() +
+                     textFragB->getOffset();
+    return (addrA < addrB);
+  }
+};
 
 //===----------------------------------------------------------------------===//
 // ARMGNULDBackend
@@ -633,6 +700,103 @@ unsigned int ARMGNULDBackend::getTargetSectionOrder(
   }
 
   return SHO_UNDEFINED;
+}
+
+void ARMGNULDBackend::rewriteARMExIdxSection(Module& pModule) {
+  if (!m_pEXIDX->hasSectionData()) {
+    // Return if this is empty section.
+    return;
+  }
+
+  SectionData* sectData = m_pEXIDX->getSectionData();
+  SectionData::FragmentListType& list = sectData->getFragmentList();
+
+  // Move the first fragment (align fragment) and last fragment (null fragment)
+  // to temporary list because we would only like to sort the region fragment.
+  SectionData::FragmentListType tmp;
+  {
+    SectionData::iterator first = sectData->begin();
+    SectionData::iterator last = sectData->end();
+    --last;
+
+    assert(first->getKind() == Fragment::Alignment);
+    assert(last->getKind() == Fragment::Null);
+
+    tmp.splice(tmp.end(), list, first);
+    tmp.splice(tmp.end(), list, last);
+  }
+
+  // Sort the region fragments in the .ARM.exidx output section.
+  sort(list, ExIdxFragmentComparator(m_ExData));
+
+  // Fix the coverage of the .ARM.exidx table.
+  llvm::StringRef cantUnwindRegion(g_CantUnwindEntry,
+                                   sizeof(g_CantUnwindEntry));
+
+  SectionData::FragmentListType::iterator it = list.begin();
+  if (it != list.end()) {
+    Fragment* prevTextFrag = m_ExData.getTupleByExIdx(it)->getTextFragment();
+    uint64_t prevTextEnd = prevTextFrag->getParent()->getSection().addr() +
+                           prevTextFrag->getOffset() +
+                           prevTextFrag->size();
+    ++it;
+    while (it != list.end()) {
+      Fragment* currTextFrag = m_ExData.getTupleByExIdx(it)->getTextFragment();
+      uint64_t currTextBegin = currTextFrag->getParent()->getSection().addr() +
+                               currTextFrag->getOffset();
+
+      if (currTextBegin > prevTextEnd) {
+        // Found a gap. Insert a can't unwind entry.
+        RegionFragment* frag = new RegionFragment(cantUnwindRegion, nullptr);
+        frag->setParent(sectData);
+        list.insert(it, frag);
+
+        // Add PREL31 reference to the beginning of the uncovered region.
+        Relocation* reloc =
+            Relocation::Create(static_cast<uint32_t>(llvm::ELF::R_ARM_PREL31),
+                               *FragmentRef::Create(*frag, /* pOffset */0),
+                               /* pAddend */0);
+        reloc->setSymInfo(
+            CreateLocalSymbolToFragmentEnd(pModule, *prevTextFrag));
+        addExtraRelocation(reloc);
+      }
+
+      prevTextEnd = currTextBegin + currTextFrag->size();
+      prevTextFrag = currTextFrag;
+      ++it;
+    }
+
+    // Add a can't unwind entry to terminate .ARM.exidx section.
+    RegionFragment* frag = new RegionFragment(cantUnwindRegion, nullptr);
+    frag->setParent(sectData);
+    list.push_back(frag);
+
+    // Add PREL31 reference to the end of the .text section.
+    Relocation* reloc =
+        Relocation::Create(static_cast<uint32_t>(llvm::ELF::R_ARM_PREL31),
+                           *FragmentRef::Create(*frag, /* pOffset */0),
+                           /* pAddend */0);
+    reloc->setSymInfo(CreateLocalSymbolToFragmentEnd(pModule, *prevTextFrag));
+    addExtraRelocation(reloc);
+  }
+
+  // Add the first and the last fragment back.
+  list.splice(list.begin(), tmp, tmp.begin());
+  list.splice(list.end(), tmp, tmp.begin());
+
+  // Update the fragment offsets.
+  uint64_t offset = 0;
+  for (SectionData::iterator it = sectData->begin(), end = sectData->end();
+       it != end; ++it) {
+    it->setOffset(offset);
+    offset += it->size();
+  }
+
+  // Update the section size.
+  m_pEXIDX->setSize(offset);
+
+  // Rebuild the section header.
+  setOutputSectionAddress(pModule);
 }
 
 /// relax - the relaxation pass
