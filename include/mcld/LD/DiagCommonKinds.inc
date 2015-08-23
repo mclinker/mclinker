@@ -223,7 +223,3 @@ DIAG(eh_missing_text_section,
      DiagnosticEngine::Fatal,
      "missing text section for '%0' in file '%1'",
      "missing text section for '%0' in file '%1'")
-DIAG(eh_missing_exidx_section,
-     DiagnosticEngine::Fatal,
-     "missing .ARM.exidx section for '%0' in file '%1'",
-     "missing .ARM.exidx section for '%0' in file '%1'")

@@ -80,15 +80,9 @@ void ARMGNULDBackend::scanInputExceptionSections(Module& pModule,
       ARMExSectionTuple* exTuple = exMap->getOrCreateByExSection(name);
       exTuple->setExIdxSection(sect);
       exTuple->setTextSection(sect->getLink());
-    } else if (name.startswith(".ARM.extab")) {
-      ARMExSectionTuple* exTuple = exMap->getOrCreateByExSection(name);
-      exTuple->setExTabSection(sect);
-    } else if (name.startswith(".rel.ARM.exidx")) {
-      ARMExSectionTuple* exTuple = exMap->getOrCreateByRelExSection(name);
-      exTuple->setRelExIdxSection(sect);
-    } else if (name.startswith(".rel.ARM.extab")) {
-      ARMExSectionTuple* exTuple = exMap->getOrCreateByRelExSection(name);
-      exTuple->setRelExIdxSection(sect);
+      if (sect->getLink() == NULL) {
+        fatal(diag::eh_missing_text_section) << sect->name() << pInput.name();
+      }
     }
   }
 
@@ -100,38 +94,12 @@ void ARMGNULDBackend::scanInputExceptionSections(Module& pModule,
     ARMExSectionTuple* exTuple = it->second.get();
     LDSection* const text = exTuple->getTextSection();
     LDSection* const exIdx = exTuple->getExIdxSection();
-    LDSection* const exTab = exTuple->getExTabSection();
-    LDSection* const relExIdx = exTuple->getRelExIdxSection();
-    LDSection* const relExTab = exTuple->getRelExTabSection();
-
-    // Check the .ARM.exidx section.
-    if (!exIdx) {
-      if (exTab) {
-        fatal(diag::eh_missing_exidx_section) << exTab->name() << pInput.name();
-      } else if (relExIdx) {
-        fatal(diag::eh_missing_exidx_section) << relExIdx->name()
-                                              << pInput.name();
-      } else if (relExTab) {
-        fatal(diag::eh_missing_exidx_section) << relExTab->name()
-                                              << pInput.name();
-      } else {
-        llvm_unreachable("unexpected bad exception tuple");
-      }
-    }
-
-    // Check the text section.
-    if (!text) {
-      fatal(diag::eh_missing_text_section) << exIdx->name() << pInput.name();
-    }
 
     // Ignore the exception section if the text section is ignored.
     if ((text->kind() == LDFileFormat::Ignore) ||
         (text->kind() == LDFileFormat::Folded)) {
       // Set the related exception sections as LDFileFormat::Ignore.
       exIdx->setKind(LDFileFormat::Ignore);
-      if (exTab) {
-        exTab->setKind(LDFileFormat::Ignore);
-      }
       // Remove this tuple from the input exception map.
       ARMInputExMap::iterator deadIt = it++;
       exMap->erase(deadIt);
@@ -141,18 +109,9 @@ void ARMGNULDBackend::scanInputExceptionSections(Module& pModule,
     // Get RegionFragment from ".text", ".ARM.exidx", and ".ARM.extab" sections.
     RegionFragment* textFrag = findRegionFragment(*text);
     RegionFragment* exIdxFrag = findRegionFragment(*exIdx);
-    RegionFragment* exTabFrag = exTab ? findRegionFragment(*exTab) : NULL;
 
     exTuple->setTextFragment(textFrag);
     exTuple->setExIdxFragment(exIdxFrag);
-    exTuple->setExTabFragment(exTabFrag);
-
-    // Get the RelocData from ".rel.ARM.exidx" and ".rel.ARM.extab" sections.
-    RelocData* exIdxRD = relExIdx ? relExIdx->getRelocData() : NULL;
-    RelocData* exTabRD = relExTab ? relExTab->getRelocData() : NULL;
-
-    exTuple->setExIdxRelocData(exIdxRD);
-    exTuple->setExTabRelocData(exTabRD);
 
     // If there is no region fragment in the .ARM.extab section, then we can
     // skip this tuple.
@@ -161,8 +120,6 @@ void ARMGNULDBackend::scanInputExceptionSections(Module& pModule,
       exMap->erase(deadIt);
       continue;
     }
-
-    // TODO: Sort the RelocData w.r.t. the fixup offset.
 
     // Check next tuple
     ++it;

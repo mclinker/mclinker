@@ -29,10 +29,7 @@ class ARMExSectionTuple {
  public:
   ARMExSectionTuple()
       : m_pTextSection(NULL),
-        m_pExIdxSection(NULL),
-        m_pExTabSection(NULL),
-        m_pRelExIdxSection(NULL),
-        m_pRelExTabSection(NULL) {
+        m_pExIdxSection(NULL) {
   }
 
   LDSection* getTextSection() const {
@@ -43,36 +40,12 @@ class ARMExSectionTuple {
     return m_pExIdxSection;
   }
 
-  LDSection* getExTabSection() const {
-    return m_pExTabSection;
-  }
-
-  LDSection* getRelExIdxSection() const {
-    return m_pRelExIdxSection;
-  }
-
-  LDSection* getRelExTabSection() const {
-    return m_pRelExTabSection;
-  }
-
   void setTextSection(LDSection* pSection) {
     m_pTextSection = pSection;
   }
 
   void setExIdxSection(LDSection* pSection) {
     m_pExIdxSection = pSection;
-  }
-
-  void setExTabSection(LDSection* pSection) {
-    m_pExTabSection = pSection;
-  }
-
-  void setRelExIdxSection(LDSection* pSection) {
-    m_pRelExIdxSection = pSection;
-  }
-
-  void setRelExTabSection(LDSection* pSection) {
-    m_pRelExTabSection = pSection;
   }
 
   RegionFragment* getTextFragment() const {
@@ -83,36 +56,12 @@ class ARMExSectionTuple {
     return m_pExIdxFragment;
   }
 
-  RegionFragment* getExTabFragment() const {
-    return m_pExTabFragment;
-  }
-
-  RelocData* getExIdxRelocData() const {
-    return m_pExIdxRelocData;
-  }
-
-  RelocData* getExTabRelocData() const {
-    return m_pExTabRelocData;
-  }
-
   void setTextFragment(RegionFragment* pFragment) {
     m_pTextFragment = pFragment;
   }
 
   void setExIdxFragment(RegionFragment* pFragment) {
     m_pExIdxFragment = pFragment;
-  }
-
-  void setExTabFragment(RegionFragment* pFragment) {
-    m_pExTabFragment = pFragment;
-  }
-
-  void setExIdxRelocData(RelocData* pRelocData) {
-    m_pExIdxRelocData = pRelocData;
-  }
-
-  void setExTabRelocData(RelocData* pRelocData) {
-    m_pExTabRelocData = pRelocData;
   }
 
  private:
@@ -126,24 +75,6 @@ class ARMExSectionTuple {
   union {
     LDSection*      m_pExIdxSection;
     RegionFragment* m_pExIdxFragment;
-  };
-
-  // .ARM.extab section
-  union {
-    LDSection*      m_pExTabSection;
-    RegionFragment* m_pExTabFragment;
-  };
-
-  // .rel.ARM.exidx section
-  union {
-    LDSection*      m_pRelExIdxSection;
-    RelocData*      m_pExIdxRelocData;
-  };
-
-  // .rel.ARM.extab section
-  union {
-    LDSection*      m_pRelExTabSection;
-    RelocData*      m_pExTabRelocData;
   };
 };
 
@@ -175,13 +106,6 @@ class ARMInputExMap {
     return get(pName.data() + sizeof(".ARM.ex***") - 1);
   }
 
-  ARMExSectionTuple* getByRelExSection(llvm::StringRef pName) const {
-    assert((pName.startswith(".rel.ARM.exidx") ||
-            pName.startswith(".rel.ARM.extab")) &&
-           "Not a .rel.ARM.exidx section name");
-    return get(pName.data() + sizeof(".rel.ARM.ex***") - 1);
-  }
-
   /// getOrCreate - Get an existing or create a new ARMExSectionTuple which is
   /// associated with the text section name.  As an exception, use "" as the
   /// section name for .text section.
@@ -198,13 +122,6 @@ class ARMInputExMap {
             pName.startswith(".ARM.extab")) &&
            "Not a .ARM.exidx section name");
     return getOrCreate(pName.data() + sizeof(".ARM.ex***") - 1);
-  }
-
-  ARMExSectionTuple* getOrCreateByRelExSection(llvm::StringRef pName) {
-    assert((pName.startswith(".rel.ARM.exidx") ||
-            pName.startswith(".rel.ARM.extab")) &&
-           "Not a .rel.ARM.exidx section name");
-    return getOrCreate(pName.data() + sizeof(".rel.ARM.ex***") - 1);
   }
 
   /// begin - return the iterator to the begin of the map
