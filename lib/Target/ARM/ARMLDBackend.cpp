@@ -94,16 +94,16 @@ CreateLocalSymbolToFragmentEnd(mcld::Module& pModule, mcld::Fragment& pFrag) {
 /// corresponding .text fragment.
 class ExIdxFragmentComparator {
  private:
-  const ARMExData& m_ExData;
+  const ARMExData& m_pExData;
 
  public:
   explicit ExIdxFragmentComparator(const ARMExData& pExData)
-      : m_ExData(pExData) {
+      : m_pExData(pExData) {
   }
 
   bool operator()(const Fragment& a, const Fragment& b) {
-    ARMExSectionTuple* tupleA = m_ExData.getTupleByExIdx(&a);
-    ARMExSectionTuple* tupleB = m_ExData.getTupleByExIdx(&b);
+    ARMExSectionTuple* tupleA = m_pExData.getTupleByExIdx(&a);
+    ARMExSectionTuple* tupleB = m_pExData.getTupleByExIdx(&b);
 
     Fragment* textFragA = tupleA->getTextFragment();
     Fragment* textFragB = tupleB->getTextFragment();
@@ -466,7 +466,10 @@ bool ARMGNULDBackend::finalizeTargetSymbols() {
 
 /// preMergeSections - hooks to be executed before merging sections
 void ARMGNULDBackend::preMergeSections(Module& pModule) {
-  scanInputExceptionSections(pModule);
+  // Since the link relationship between .text and .ARM.exidx will be discarded
+  // after merging sections, we have to build the exception handling section
+  // mapping before section merge.
+  m_pExData = ARMExData::create(pModule);
 }
 
 /// postMergeSections - hooks to be executed after merging sections
@@ -727,7 +730,7 @@ void ARMGNULDBackend::rewriteARMExIdxSection(Module& pModule) {
   }
 
   // Sort the region fragments in the .ARM.exidx output section.
-  sort(list, ExIdxFragmentComparator(m_ExData));
+  sort(list, ExIdxFragmentComparator(*m_pExData));
 
   // Fix the coverage of the .ARM.exidx table.
   llvm::StringRef cantUnwindRegion(g_CantUnwindEntry,
@@ -735,13 +738,14 @@ void ARMGNULDBackend::rewriteARMExIdxSection(Module& pModule) {
 
   SectionData::FragmentListType::iterator it = list.begin();
   if (it != list.end()) {
-    Fragment* prevTextFrag = m_ExData.getTupleByExIdx(it)->getTextFragment();
+    Fragment* prevTextFrag = m_pExData->getTupleByExIdx(it)->getTextFragment();
     uint64_t prevTextEnd = prevTextFrag->getParent()->getSection().addr() +
                            prevTextFrag->getOffset() +
                            prevTextFrag->size();
     ++it;
     while (it != list.end()) {
-      Fragment* currTextFrag = m_ExData.getTupleByExIdx(it)->getTextFragment();
+      Fragment* currTextFrag =
+          m_pExData->getTupleByExIdx(it)->getTextFragment();
       uint64_t currTextBegin = currTextFrag->getParent()->getSection().addr() +
                                currTextFrag->getOffset();
 

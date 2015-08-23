@@ -21,6 +21,7 @@ namespace mcld {
 class Fragment;
 class Input;
 class LDSection;
+class Module;
 class RegionFragment;
 class RelocData;
 
@@ -78,7 +79,7 @@ class ARMExSectionTuple {
   };
 };
 
-/// ARMInputExMap - ARM exception handling data of an Input
+/// ARMInputExMap - ARM exception handling section mapping of a mcld::Input.
 class ARMInputExMap {
  public:
   typedef std::map<std::string, std::unique_ptr<ARMExSectionTuple> > NameMap;
@@ -86,7 +87,8 @@ class ARMInputExMap {
   typedef NameMap::const_iterator const_iterator;
 
  public:
-  ARMInputExMap() { }
+  // create - Build the exception handling section mapping of a mcld::Input.
+  static std::unique_ptr<ARMInputExMap> create(Input &input);
 
   /// get - Get the ARMExSectionTuple by the corresponding text section name.
   /// As an exception, to get the ARMExSectionTuple for .text section, use ""
@@ -136,10 +138,13 @@ class ARMInputExMap {
   void erase(iterator it) { m_NameToExData.erase(it); }
 
  private:
+  ARMInputExMap() = default;
+
+ private:
   NameMap m_NameToExData;
 };
 
-/// ARMExData - ARM exception handling data of a module
+/// ARMExData - ARM exception handling data of a mcld::Module.
 class ARMExData {
  private:
   typedef std::map<Input*, std::unique_ptr<ARMInputExMap> > InputMap;
@@ -147,7 +152,8 @@ class ARMExData {
   typedef std::map<const Fragment*, ARMExSectionTuple*> ExIdxMap;
 
  public:
-  ARMExData() { }
+  // create - Build the exception handling section mapping of a mcld::Module.
+  static std::unique_ptr<ARMExData> create(Module &module);
 
   // addInputMap - register the ARMInputExMap with associated pInput
   void addInputMap(Input* pInput,
@@ -170,6 +176,9 @@ class ARMExData {
     }
     return it->second;
   }
+
+ private:
+  ARMExData() = default;
 
  private:
   // Map from Input to ARMInputExMap

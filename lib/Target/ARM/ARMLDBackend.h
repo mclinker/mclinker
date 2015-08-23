@@ -17,6 +17,8 @@
 #include "mcld/Target/GNULDBackend.h"
 #include "mcld/Target/OutputRelocSection.h"
 
+#include <memory>
+
 namespace mcld {
 
 class ARMELFAttributeData;
@@ -171,14 +173,6 @@ class ARMGNULDBackend : public GNULDBackend {
   /// target-dependent segments
   virtual void doCreateProgramHdrs(Module& pModule);
 
-  /// scanInputExceptionSections - scan exception-related input sections in
-  /// the Module, build the ARMExData, and reclaim GC'ed sections
-  void scanInputExceptionSections(Module& pModule);
-
-  /// scanInputExceptionSections - scan exception-related input sections in
-  /// the Input, build the ARMInputExMap, and reclaim GC'ed sections
-  void scanInputExceptionSections(Module& pModule, Input& pInput);
-
   /// rewriteExceptionSection - rewrite the output .ARM.exidx section.
   void rewriteARMExIdxSection(Module& pModule);
 
@@ -208,9 +202,10 @@ class ARMGNULDBackend : public GNULDBackend {
   //  LDSection* m_pDebugOverlay;    // .ARM.debug_overlay
   //  LDSection* m_pOverlayTable;    // .ARM.overlay_table
 
-  // m_ExData - exception handling section data structures
-  ARMExData m_ExData;
+  // m_pExData - exception handling section data structures
+  std::unique_ptr<ARMExData> m_pExData;
 };
+
 }  // namespace mcld
 
 #endif  // TARGET_ARM_ARMLDBACKEND_H_

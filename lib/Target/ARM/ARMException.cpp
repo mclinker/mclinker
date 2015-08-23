@@ -49,16 +49,17 @@ void ARMExData::addInputMap(Input* pInput,
   }
 }
 
-void ARMGNULDBackend::scanInputExceptionSections(Module& pModule) {
+std::unique_ptr<ARMExData> ARMExData::create(Module& pModule) {
+  std::unique_ptr<ARMExData> exData(new ARMExData());
   for (Module::obj_iterator it = pModule.obj_begin(),
                             end = pModule.obj_end(); it != end; ++it) {
     Input* input = *it;
-    scanInputExceptionSections(pModule, *input);
+    exData->addInputMap(input, ARMInputExMap::create(*input));
   }
+  return exData;
 }
 
-void ARMGNULDBackend::scanInputExceptionSections(Module& pModule,
-                                                 Input& pInput) {
+std::unique_ptr<ARMInputExMap> ARMInputExMap::create(Input& pInput) {
   std::unique_ptr<ARMInputExMap> exMap(new ARMInputExMap());
 
   // Scan the input and collect all related sections.
@@ -117,8 +118,7 @@ void ARMGNULDBackend::scanInputExceptionSections(Module& pModule,
     ++it;
   }
 
-  // Add input map
-  m_ExData.addInputMap(&pInput, std::move(exMap));
+  return exMap;
 }
 
 }  // namespace mcld
