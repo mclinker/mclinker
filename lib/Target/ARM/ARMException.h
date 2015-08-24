@@ -9,8 +9,11 @@
 #ifndef TARGET_ARM_ARMEXCEPTION_H_
 #define TARGET_ARM_ARMEXCEPTION_H_
 
+#include "mcld/LD/LDSection.h"
+
 #include <llvm/ADT/PointerUnion.h>
 #include <llvm/ADT/StringRef.h>
+#include <llvm/Support/ELF.h>
 
 #include <map>
 #include <memory>
@@ -82,66 +85,52 @@ class ARMExSectionTuple {
 /// ARMInputExMap - ARM exception handling section mapping of a mcld::Input.
 class ARMInputExMap {
  public:
-  typedef std::map<std::string, std::unique_ptr<ARMExSectionTuple> > NameMap;
-  typedef NameMap::iterator iterator;
-  typedef NameMap::const_iterator const_iterator;
+  typedef std::map<LDSection*, std::unique_ptr<ARMExSectionTuple> > SectMap;
+  typedef SectMap::iterator iterator;
+  typedef SectMap::const_iterator const_iterator;
 
  public:
   // create - Build the exception handling section mapping of a mcld::Input.
   static std::unique_ptr<ARMInputExMap> create(Input &input);
 
-  /// get - Get the ARMExSectionTuple by the corresponding text section name.
-  /// As an exception, to get the ARMExSectionTuple for .text section, use ""
-  /// as the section name instead.
-  ARMExSectionTuple* get(const char* pName) const {
-    NameMap::const_iterator it = m_NameToExData.find(pName);
-    if (it == m_NameToExData.end()) {
+  /// getByExSection - Get the ARMExSectionTuple by the address of the
+  /// .ARM.exidx section.
+  ARMExSectionTuple* getByExSection(LDSection &pSect) const {
+    assert(pSect.type() == llvm::ELF::SHT_ARM_EXIDX);
+    SectMap::const_iterator it = m_SectToExData.find(&pSect);
+    if (it == m_SectToExData.end()) {
       return NULL;
     }
     return it->second.get();
   }
 
-  ARMExSectionTuple* getByExSection(llvm::StringRef pName) const {
-    assert((pName.startswith(".ARM.exidx") ||
-            pName.startswith(".ARM.extab")) &&
-           "Not a .ARM.exidx section name");
-    return get(pName.data() + sizeof(".ARM.ex***") - 1);
-  }
-
   /// getOrCreate - Get an existing or create a new ARMExSectionTuple which is
-  /// associated with the text section name.  As an exception, use "" as the
-  /// section name for .text section.
-  ARMExSectionTuple* getOrCreate(const char* pName) {
-    std::unique_ptr<ARMExSectionTuple>& result = m_NameToExData[pName];
+  /// associated with the address of the .ARM.exidx section.
+  ARMExSectionTuple* getOrCreateByExSection(LDSection &pSect) {
+    assert(pSect.type() == llvm::ELF::SHT_ARM_EXIDX);
+    std::unique_ptr<ARMExSectionTuple>& result = m_SectToExData[&pSect];
     if (!result) {
       result.reset(new ARMExSectionTuple());
     }
     return result.get();
   }
 
-  ARMExSectionTuple* getOrCreateByExSection(llvm::StringRef pName) {
-    assert((pName.startswith(".ARM.exidx") ||
-            pName.startswith(".ARM.extab")) &&
-           "Not a .ARM.exidx section name");
-    return getOrCreate(pName.data() + sizeof(".ARM.ex***") - 1);
-  }
-
   /// begin - return the iterator to the begin of the map
-  iterator       begin()       { return m_NameToExData.begin(); }
-  const_iterator begin() const { return m_NameToExData.begin(); }
+  iterator       begin()       { return m_SectToExData.begin(); }
+  const_iterator begin() const { return m_SectToExData.begin(); }
 
   /// end - return the iterator to the end of the map
-  iterator       end()       { return m_NameToExData.end(); }
-  const_iterator end() const { return m_NameToExData.end(); }
+  iterator       end()       { return m_SectToExData.end(); }
+  const_iterator end() const { return m_SectToExData.end(); }
 
   /// erase - remove an entry from the map
-  void erase(iterator it) { m_NameToExData.erase(it); }
+  void erase(iterator it) { m_SectToExData.erase(it); }
 
  private:
   ARMInputExMap() = default;
 
  private:
-  NameMap m_NameToExData;
+  SectMap m_SectToExData;
 };
 
 /// ARMExData - ARM exception handling data of a mcld::Module.

@@ -67,10 +67,8 @@ std::unique_ptr<ARMInputExMap> ARMInputExMap::create(Input& pInput) {
   for (LDContext::sect_iterator it = ctx->sectBegin(),
                                 end = ctx->sectEnd(); it != end; ++it) {
     LDSection* sect = *it;
-    llvm::StringRef name(sect->name());
-
-    if (name.startswith(".ARM.exidx")) {
-      ARMExSectionTuple* exTuple = exMap->getOrCreateByExSection(name);
+    if (sect->type() == llvm::ELF::SHT_ARM_EXIDX) {
+      ARMExSectionTuple* exTuple = exMap->getOrCreateByExSection(*sect);
       exTuple->setExIdxSection(sect);
       exTuple->setTextSection(sect->getLink());
       if (sect->getLink() == NULL) {
