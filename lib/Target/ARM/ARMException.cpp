@@ -29,7 +29,7 @@ static const char g_CantUnwindEntry[8] = {
 namespace mcld {
 
 void ARMExData::addInputMap(Input* pInput,
-                            std::unique_ptr<ARMInputExMap>&& pExMap) {
+                            std::unique_ptr<ARMInputExMap> pExMap) {
   assert(m_Inputs.find(pInput) == m_Inputs.end() &&
          "multiple maps for an input");
 

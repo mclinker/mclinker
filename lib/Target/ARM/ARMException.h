@@ -234,7 +234,7 @@ class ARMExData {
 
   // addInputMap - register the ARMInputExMap with associated pInput
   void addInputMap(Input* pInput,
-                   std::unique_ptr<ARMInputExMap>&& pExMap);
+                   std::unique_ptr<ARMInputExMap> pExMap);
 
   // getInputMap - get the ARMInputExMap corresponding to pInput
   ARMInputExMap* getInputMap(Input* pInput) const {
