@@ -116,8 +116,8 @@ class AArch64GNULDBackend : public GNULDBackend {
  private:
   void defineGOTSymbol(IRBuilder& pBuilder);
 
-  int64_t maxFwdBranchOffset() { return MAX_FWD_BRANCH_OFFSET; }
-  int64_t maxBwdBranchOffset() { return MAX_BWD_BRANCH_OFFSET; }
+  int64_t maxFwdBranchOffset() const { return MAX_FWD_BRANCH_OFFSET; }
+  int64_t maxBwdBranchOffset() const { return MAX_BWD_BRANCH_OFFSET; }
 
   void scanErrata(Module& pModule,
                   IRBuilder& pBuilder,
