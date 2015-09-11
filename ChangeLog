@@ -1,3 +1,50 @@
+2015-09-11 Pete Chou <petechou@gmail.com>
+	* Executive Summary:
+	1. Project moved to github: https://github.com/mclinker/mclinker/
+	2. Migrate to LLVM 3.8svn.
+	3. Rewrite the linker driver (ld.mcld) to adopt llvm::opt.
+	4. Support more relocations and .MIPS.abiflags section in MIPS backend.
+	5. Suuport relaxation, safe icf, and fixing errata 835769 and 843419 in
+	   AArch64 backend.
+
+	* Command Line Options and Building System:
+	1. Use llvm::opt for linker options instead.
+	2. Add --stub-group-size option.
+	3. Support --fix-cortex-a53-835769 and --fix-cortex-a53-843419 for AArch64.
+	4. Support arm64 target.
+
+	* Debug Info:
+	1. Fix debug string offset.
+
+	* EhFrame:
+	1. Fix EhFrameReader::addCIE().
+
+	* Relaxation:
+	1. Support relaxation on ALL TEXT sections.
+	2. Add --stub-group-size option.
+
+	* lib/Target/AArch64:
+	1. Support R_AARCH64_ADR_PREL_LO21 relocation.
+	2. Support safe icf.
+	3. Support relaxation - long branch stub and adrp stub.
+	4. Support 2 cortex-a53 errata fixes - 835769 and 843419.
+	5. Use 4k as default abi page size.
+
+	* lib/Target/ARM:
+	1. Fix .ARM.exidx coverage.
+
+	* lib/Target/Mips:
+	1. Support N64 ABI.
+	2. Check that input object files have consistent ELF flags.
+	3. Use standard relocations to fix up LA25 stubs.
+	4. Support more relocations: R_MIPS_PC21_S2, R_MIPS_PC18_S3, R_MIPS_PC19_S2,
+	   R_MIPS_PC26_S2, R_MIPS_PCHI16 / LO16, R_MIPS_TLS_TPREL_HI16 / LO16,
+	   R_MIPS_TLS_GD/R_MIPS_TLS_LDM, and R_MIPS_TLS_GOTTPREL.
+	5. Support .MIPS.abiflags section and PT_MIPS_ABIFLAGS segment.
+
+	* lib/Target/Hexagon:
+	1. Remove unused private member m_Config.
+
 2014-11-24 Diana Chen <mysekki@gmail.com>
 	* Executive Summary:
 	1. Migrate to LLVM 3.6svn.
