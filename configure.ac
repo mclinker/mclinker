@@ -110,7 +110,7 @@ AC_CHECK_HEADERS([zlib.h])
 
 ####################
 # Configure LLVM
-CHECK_LLVM([3.6])
+CHECK_LLVM([3.8])
 ENUM_MCLD_TARGETS
 CHECK_ALONE_TARGET
 
