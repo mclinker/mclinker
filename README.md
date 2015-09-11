@@ -26,13 +26,13 @@ Following systems can be linked successfully
 * Fast, small with low memory footprint
 
 ### Current Status
-Date: 2014/11/24 <br>
-LLVM: 3.6svn (trunk)<br>
-MCLinker: 2.10.0-dev, master branch<br>
+Date: 2015/09/11 <br>
+LLVM: 3.8svn (trunk)<br>
+MCLinker: 2.11.0-dev, master branch<br>
 <br>
-Date: 2014/12/09<br>
-LLVM: 3.6svn (trunk@222644)<br>
-MCLinker: 2.9.0-Dana, release_29 branch
+Date: 2015/09/11<br>
+LLVM: 3.8svn (trunk@246954)<br>
+MCLinker: 2.10.0-rc, release_210 branch
 
 ### Next Milestone
 * ARM exception handling format enhancement
