@@ -157,7 +157,7 @@ class HexagonLDBackend : public GNULDBackend {
   void doCreateProgramHdrs(Module& pModule);
 
   /// maxFwdBranchOffset
-  int64_t maxFwdBranchOffset() const { return ~(~0 << 6); }
+  int64_t maxFwdBranchOffset() const { return ~(~0U << 6); }
 
   virtual void setGOTSectionSize(IRBuilder& pBuilder);
 
