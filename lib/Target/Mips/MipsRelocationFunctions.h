@@ -21,6 +21,7 @@
   DECL_MIPS_APPLY_RELOC_FUNC(lo16)    \
   DECL_MIPS_APPLY_RELOC_FUNC(gprel16) \
   DECL_MIPS_APPLY_RELOC_FUNC(got16)   \
+  DECL_MIPS_APPLY_RELOC_FUNC(pc16)    \
   DECL_MIPS_APPLY_RELOC_FUNC(call16)  \
   DECL_MIPS_APPLY_RELOC_FUNC(gprel32) \
   DECL_MIPS_APPLY_RELOC_FUNC(abs64)   \
@@ -53,7 +54,7 @@
   { &gprel16,       7, "R_MIPS_GPREL16",              16}, \
   { &unsupported,   8, "R_MIPS_LITERAL",              16}, \
   { &got16,         9, "R_MIPS_GOT16",                16}, \
-  { &unsupported,  10, "R_MIPS_PC16",                 16}, \
+  { &pc16,         10, "R_MIPS_PC16",                 16}, \
   { &call16,       11, "R_MIPS_CALL16",               16}, \
   { &gprel32,      12, "R_MIPS_GPREL32",              32}, \
   { &none,         13, "R_MIPS_UNUSED1",               0}, \
