@@ -292,7 +292,7 @@
   { &unsupported, 245, "",                             0}, \
   { &unsupported, 246, "",                             0}, \
   { &unsupported, 247, "",                             0}, \
-  { &pc32,        248, "R_MIPS_PC32",                  0}, \
+  { &pc32,        248, "R_MIPS_PC32",                 32}, \
   { &unsupported, 249, "",                             0}, \
   { &unsupported, 250, "R_MIPS_GNU_REL16_S2",          0}, \
   { &unsupported, 251, "",                             0}, \

@@ -1099,6 +1099,10 @@ static MipsRelocator::Result pc16(MipsRelocationInfo& pReloc,
 // R_MIPS_PC32
 static MipsRelocator::Result pc32(MipsRelocationInfo& pReloc,
                                   MipsRelocator& pParent) {
+  int64_t A = pReloc.A();
+  int64_t S = pReloc.S();
+  int64_t P = pReloc.P();
+  pReloc.result() = A + S - P;
   return Relocator::OK;
 }
 
