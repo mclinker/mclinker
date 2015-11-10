@@ -232,22 +232,21 @@ void IdenticalCodeFolding::FoldingCandidate::initConstantContent(
 
   // Get the static content from relocs.
   if (reloc_sect != NULL && reloc_sect->hasRelocData()) {
-    RelocData::iterator rel, relEnd = reloc_sect->getRelocData()->end();
-    for (rel = reloc_sect->getRelocData()->begin(); rel != relEnd; ++rel) {
+    for (Relocation& rel : *reloc_sect->getRelocData()) {
       llvm::format_object<Relocation::Type,
                           Relocation::Address,
                           Relocation::Address,
                           Relocation::Address> rel_info("%x%llx%llx%llx",
-                                                        rel->type(),
-                                                        rel->symValue(),
-                                                        rel->addend(),
-                                                        rel->place());
+                                                        rel.type(),
+                                                        rel.symValue(),
+                                                        rel.addend(),
+                                                        rel.place());
       char rel_str[48];
       rel_info.print(rel_str, sizeof(rel_str));
       content.append(rel_str);
 
       // Handle the recursive call.
-      LDSymbol* sym = rel->symInfo()->outSymbol();
+      LDSymbol* sym = rel.symInfo()->outSymbol();
       if ((sym->type() == ResolveInfo::Function) && sym->hasFragRef()) {
         LDSection* def = &sym->fragRef()->frag()->getParent()->getSection();
         if (def == sect) {
@@ -255,12 +254,12 @@ void IdenticalCodeFolding::FoldingCandidate::initConstantContent(
         }
       }
 
-      if (!pBackend.isSymbolPreemptible(*rel->symInfo()) && sym->hasFragRef() &&
+      if (!pBackend.isSymbolPreemptible(*rel.symInfo()) && sym->hasFragRef() &&
           (pKeptSections.find(
                &sym->fragRef()->frag()->getParent()->getSection()) !=
            pKeptSections.end())) {
         // Mark this reloc as a variable.
-        variable_relocs.push_back(rel);
+        variable_relocs.push_back(&rel);
       } else {
         // TODO: Support inlining merge sections if possible (target-dependent).
         if ((sym->binding() == ResolveInfo::Local) ||

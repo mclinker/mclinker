@@ -841,7 +841,7 @@ bool MipsGNULDBackend::doRelax(Module& pModule,
       continue;
     }
 
-    Fragment* exit = island.end();
+    Fragment* exit = &*island.end();
     if (exit == island.begin()->getParent()->end()) {
       continue;
     }

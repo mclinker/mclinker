@@ -133,7 +133,7 @@ const llvm::opt::OptTable::Info Driver::OptTable::InfoTable[] = {
 };
 
 Driver::OptTable::OptTable()
-    : llvm::opt::OptTable(InfoTable, llvm::array_lengthof(InfoTable)) { }
+    : llvm::opt::OptTable(InfoTable) { }
 
 inline bool ShouldColorize() {
   const char* term = getenv("TERM");

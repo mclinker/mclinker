@@ -738,14 +738,14 @@ void ARMGNULDBackend::rewriteARMExIdxSection(Module& pModule) {
 
   SectionData::FragmentListType::iterator it = list.begin();
   if (it != list.end()) {
-    Fragment* prevTextFrag = m_pExData->getTupleByExIdx(it)->getTextFragment();
+    Fragment* prevTextFrag = m_pExData->getTupleByExIdx(&*it)->getTextFragment();
     uint64_t prevTextEnd = prevTextFrag->getParent()->getSection().addr() +
                            prevTextFrag->getOffset() +
                            prevTextFrag->size();
     ++it;
     while (it != list.end()) {
       Fragment* currTextFrag =
-          m_pExData->getTupleByExIdx(it)->getTextFragment();
+          m_pExData->getTupleByExIdx(&*it)->getTextFragment();
       uint64_t currTextBegin = currTextFrag->getParent()->getSection().addr() +
                                currTextFrag->getOffset();
 
@@ -912,7 +912,7 @@ bool ARMGNULDBackend::doRelax(Module& pModule,
       continue;
     }
 
-    Fragment* exit = (*island).end();
+    Fragment* exit = &*(*island).end();
     if (exit == (*island).begin()->getParent()->end()) {
       continue;
     }
