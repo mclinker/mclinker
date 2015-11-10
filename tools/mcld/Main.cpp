@@ -600,11 +600,8 @@ bool Driver::TranslateArguments(llvm::opt::InputArgList& args) {
 
   // -L searchdir
   for (llvm::opt::Arg* arg : args.filtered(kOpt_LibraryPath)) {
-    if (!script_.directories().insert(arg->getValue())) {
-      // FIXME: need a warning function
-      mcld::errs() << "WARNING: can not open search directory `-L"
-                   << arg->getValue() << "'.\n";
-    }
+    if (!script_.directories().insert(arg->getValue()))
+      mcld::warning(mcld::diag::warn_cannot_open_search_dir) << arg->getValue();
   }
 
   // -nostdlib
