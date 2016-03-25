@@ -24,7 +24,7 @@ class SectionData;
 /** \class Fragment
  *  \brief Fragment is the minimun linking unit of MCLinker.
  */
-class Fragment : public llvm::ilist_node<Fragment> {
+class Fragment : public llvm::ilist_node_with_parent<Fragment, SectionData> {
  public:
   enum Type { Alignment, Fillment, Region, Target, Stub, Null };
 

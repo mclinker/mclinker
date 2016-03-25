@@ -913,7 +913,7 @@ bool ARMGNULDBackend::doRelax(Module& pModule,
     }
 
     Fragment* exit = &*(*island).end();
-    if (exit == (*island).begin()->getParent()->end()) {
+    if (exit == &*(*island).begin()->getParent()->end()) {
       continue;
     }
 
