@@ -2180,7 +2180,9 @@ void GNULDBackend::setOutputSectionAddress(Module& pModule) {
             if (!config().options().hasRelro()) {
               alignAddress(vma, (*seg)->align());
             } else {
-              vma += abiPageSize();
+              if ((vma & (abiPageSize() - 1)) != 0) {
+                vma += abiPageSize();
+              }
             }
           }
         }
