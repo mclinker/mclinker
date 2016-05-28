@@ -738,7 +738,8 @@ void ARMGNULDBackend::rewriteARMExIdxSection(Module& pModule) {
 
   SectionData::FragmentListType::iterator it = list.begin();
   if (it != list.end()) {
-    Fragment* prevTextFrag = m_pExData->getTupleByExIdx(&*it)->getTextFragment();
+    Fragment* prevTextFrag =
+        m_pExData->getTupleByExIdx(&*it)->getTextFragment();
     uint64_t prevTextEnd = prevTextFrag->getParent()->getSection().addr() +
                            prevTextFrag->getOffset() +
                            prevTextFrag->size();

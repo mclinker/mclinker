@@ -58,7 +58,7 @@ class SectionData {
   FragmentListType& getFragmentList() { return m_Fragments; }
 
   /// Support for Fragment::getNextNode()
-  static FragmentListType SectionData::*getSublistAccess(Fragment *) {
+  static FragmentListType SectionData::*getSublistAccess(Fragment * frag) {
       return &SectionData::m_Fragments;
   }
 
