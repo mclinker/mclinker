@@ -89,8 +89,7 @@ class Operator : public ExprToken {
  protected:
   Operator(Arity pArity, Type pType);
 
-  const IntOperand* result() const { return m_pIntOperand; }
-  IntOperand* result() { return m_pIntOperand; }
+  IntOperand* result() const;
 
  public:
   virtual ~Operator();
@@ -116,7 +115,6 @@ class Operator : public ExprToken {
  private:
   Arity m_Arity;
   Type m_Type;
-  IntOperand* m_pIntOperand;
 };
 
 /* Nullary operator */

@@ -42,7 +42,6 @@ const char* Operator::OpNames[] = {
 
 Operator::Operator(Arity pArity, Type pType)
     : ExprToken(ExprToken::OPERATOR), m_Arity(pArity), m_Type(pType) {
-  m_pIntOperand = IntOperand::create(0);
 }
 
 Operator::~Operator() {
@@ -50,6 +49,10 @@ Operator::~Operator() {
 
 void Operator::dump() const {
   mcld::outs() << OpNames[type()];
+}
+
+IntOperand* Operator::result() const {
+  return IntOperand::create(0);
 }
 
 /* Nullary operator */
